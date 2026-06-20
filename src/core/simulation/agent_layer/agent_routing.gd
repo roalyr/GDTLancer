@@ -92,7 +92,7 @@ func _action_move_random(agent_id: String, agent: Dictionary) -> void:
 
 func _action_move_toward_role_target(agent_id: String, agent: Dictionary) -> void:
 	var role: String = agent.get("agent_role", "idle")
-	if role == "explorer":
+	if role == "surveyor":
 		_agent_layer._action_move_toward_exploration_target(agent_id, agent)
 		return
 	var current: String = agent.get("current_sector_id", "")
@@ -104,9 +104,9 @@ func _action_move_toward_role_target(agent_id: String, agent: Dictionary) -> voi
 		"trader": ["CURRENCY_POOR", "MANUFACTURED_POOR", "STATION"],
 		"hauler": ["RAW_RICH", "MANUFACTURED_RICH"],
 		"prospector": ["FRONTIER", "HAS_SALVAGE", "RAW_RICH"],
-		"explorer": ["FRONTIER", "HARSH", "EXTREME"],
+		"surveyor": ["FRONTIER", "HARSH", "EXTREME"],
 		"pirate": ["LAWLESS", "HOSTILE_INFESTED", "HAS_SALVAGE"],
-		"military": ["CONTESTED", "LAWLESS", "HOSTILE_INFESTED", "HOSTILE_THREATENED"],
+		"patrol": ["CONTESTED", "LAWLESS", "HOSTILE_INFESTED", "HOSTILE_THREATENED"],
 	}
 	var preferred_tags: Array = target_preferences.get(role, [])
 

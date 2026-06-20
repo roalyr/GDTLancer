@@ -7,7 +7,7 @@ script = ExtResource( 1 )
 template_id = "character_siv"
 character_name = "Siv"
 character_icon_id = "character_siv_icon"
-faction_id = "faction_military"
+faction_id = "faction_independents"
 active_ship_uid = -1
 skills = {
 "combat": 3,
@@ -25,7 +25,7 @@ personality_traits = {
 "loyalty": 0.9,
 "greed": 0.6
 }
-description = "Military supply officer, disciplined."
+description = "Provisioner who keeps patrol vessels stocked. Known for strict accounting."
 goals = [ ]
 wealth_tier = "COMFORTABLE"
 wealth_progress = 0

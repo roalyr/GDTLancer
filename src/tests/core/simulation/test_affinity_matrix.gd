@@ -36,8 +36,8 @@ func test_compute_affinity_positive_pair():
 	assert_gt(score, 0.0, "TRADER vs STATION should be positive affinity.")
 
 func test_compute_affinity_negative_pair():
-	var score: float = affinity.compute_affinity(["PIRATE"], ["MILITARY"])
-	assert_lt(score, 0.0, "PIRATE vs MILITARY should be negative affinity.")
+	var score: float = affinity.compute_affinity(["PIRATE"], ["PATROL"])
+	assert_lt(score, 0.0, "PIRATE vs PATROL should be negative affinity.")
 
 func test_compute_affinity_empty_inputs():
 	assert_eq(affinity.compute_affinity([], []), 0.0, "Empty tags → zero affinity.")

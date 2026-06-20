@@ -199,7 +199,7 @@ func _resolve_sector_interaction(agent_id: String, score: float, sector_tags: Ar
 	var at_station: bool = true
 
 	# Explorers prioritise exploration
-	if agent.get("agent_role") == "explorer":
+	if agent.get("agent_role") == "surveyor":
 		if _agent_layer._should_attempt_exploration(agent, sector_id, sector_tags):
 			_agent_layer._try_exploration(agent_id, agent, sector_id)
 			if _agent_layer._last_exploration_outcome == "discovered":
@@ -399,7 +399,7 @@ func _can_agents_escalate_to_disruption(actor: Dictionary, target: Dictionary, a
 	var actor_legality_tag: String = _agent_legality_tag(actor_tags)
 	var target_legality_tag: String = _agent_legality_tag(target_tags)
 
-	if "MILITARY" in actor_tags and target_legality_tag == "LEGAL_ILLICIT":
+	if "PATROL" in actor_tags and target_legality_tag == "LEGAL_ILLICIT":
 		return true
 	if "PIRATE" in actor_tags and target_legality_tag != "LEGAL_ILLICIT":
 		return true
@@ -459,7 +459,7 @@ func _can_agents_trade(actor: Dictionary, target: Dictionary, actor_tags: Array,
 	var target_role: String = str(target.get("agent_role", "idle"))
 	if not (_is_commerce_role(actor_role) or _is_commerce_role(target_role)):
 		return false
-	if actor_role == "military" or target_role == "military":
+	if actor_role == "patrol" or target_role == "patrol":
 		return false
 
 	var actor_legality_tag: String = _agent_legality_tag(actor_tags)
@@ -547,7 +547,7 @@ func _agent_legality_tag(tags: Array) -> String:
 		return explicit_tag
 	if "PIRATE" in tags:
 		return "LEGAL_ILLICIT"
-	if "TRADER" in tags or "HAULER" in tags or "MILITARY" in tags:
+	if "TRADER" in tags or "HAULER" in tags or "PATROL" in tags:
 		return "LEGAL_LAWFUL"
 	return "LEGAL_TOLERATED"
 

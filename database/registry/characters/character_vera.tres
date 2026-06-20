@@ -24,9 +24,9 @@ personality_traits = {
 "risk_tolerance": 0.2,
 "greed": 0.5
 }
-description = "Merchant captain, cautious."
+description = "Careful hauler, runs trusted cargo between the Elace anchorages."
 goals = [ ]
-wealth_tier = "WEALTHY"
+wealth_tier = "COMFORTABLE"
 wealth_progress = 0
 initial_condition_tag = "HEALTHY"
-initial_wealth_tag = "WEALTHY"
+initial_wealth_tag = "COMFORTABLE"

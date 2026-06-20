@@ -278,7 +278,7 @@ func test_pick_mortal_spawn_role_filters_explorer_when_frontier_pressure_is_full
 		"FRONTIER", "LAWLESS", "HARSH", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"]
 	GameState.agents = {
 		"persistent_nova": {
-			"agent_role": "explorer",
+			"agent_role": "surveyor",
 			"current_sector_id": "s1",
 			"is_persistent": true,
 			"is_disabled": false,
@@ -291,8 +291,8 @@ func test_pick_mortal_spawn_role_filters_explorer_when_frontier_pressure_is_full
 
 	var role: String = agent_layer._pick_mortal_spawn_role()
 
-	assert_ne(role, "explorer",
-		"Mortal spawning should reroll away from explorer when active explorer pressure already fills the frontier allowance.")
+	assert_ne(role, "surveyor",
+		"Mortal spawning should reroll away from surveyor when active surveyor pressure already fills the frontier allowance.")
 
 
 # =============================================================================
@@ -2000,7 +2000,7 @@ func test_resolve_payment_instrument_resolves_to_credits_always() -> void:
 	assert_eq(instrument, "credits", "Same faction should resolve to credits.")
 
 	var cross_payer_tags = ["FACTION_PIRATES", "PIRATE", "LEGAL_ILLICIT"]
-	var cross_payee_tags = ["FACTION_MILITARY", "MILITARY", "LEGAL_LAWFUL"]
+	var cross_payee_tags = ["FACTION_PATROL", "PATROL", "LEGAL_LAWFUL"]
 	var cross_instrument = agent_layer._resolve_payment_instrument(cross_payer_tags, cross_payee_tags)
 	assert_eq(cross_instrument, "credits", "Cross faction should resolve to credits under the pruned model.")
 

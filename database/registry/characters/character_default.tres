@@ -11,7 +11,7 @@ faction_id = "traders"
 active_ship_uid = -1
 skills = {
 "combat": 1,
-"piloting": 2,
+"piloting": 1,
 "trading": 3
 }
 age = 30

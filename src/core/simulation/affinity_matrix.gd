@@ -54,10 +54,10 @@ const UNALIGNED_FACTION_TAG: String = "FACTION_UNALIGNED"
 const ROLE_TAGS: Dictionary = {
 	"trader": "TRADER",
 	"prospector": "PROSPECTOR",
-	"military": "MILITARY",
+	"patrol": "PATROL",
 	"hauler": "HAULER",
 	"pirate": "PIRATE",
-	"explorer": "EXPLORER",
+	"surveyor": "SURVEYOR",
 	"idle": "IDLE",
 }
 
@@ -86,7 +86,7 @@ const AFFINITY_MATRIX: Dictionary = {
 	"PIRATE:LOADED": 1.2,
 	"PIRATE:COMFORTABLE": 0.4,
 	"PIRATE:DAMAGED": 0.9,
-	"PIRATE:MILITARY": -1.2,
+	"PIRATE:PATROL": -1.2,
 	"PIRATE:SECURE": -0.9,
 	"PIRATE:LAWLESS": 1.0,
 	"PIRATE:LEGAL_LAWFUL": -0.6,
@@ -133,20 +133,20 @@ const AFFINITY_MATRIX: Dictionary = {
 	"SCAVENGER:HAS_SALVAGE": 1.5,
 	"SCAVENGER:EXTREME": -0.7,
 
-	# Military behavior
-	"MILITARY:HOSTILE_INFESTED": 1.5,
-	"MILITARY:HOSTILE_THREATENED": 1.2,
-	"MILITARY:LAWLESS": 1.0,
-	"MILITARY:LEGAL_ILLICIT": 0.8,
-	"MILITARY:CARGO_ILLICIT": 0.9,
-	"MILITARY:CARGO_PROTECTED": 0.2,
-	"MILITARY:PIRATE": 1.4,
-	"MILITARY:SECURE": -0.3,
+	# Patrol behavior
+	"PATROL:HOSTILE_INFESTED": 1.5,
+	"PATROL:HOSTILE_THREATENED": 1.2,
+	"PATROL:LAWLESS": 1.0,
+	"PATROL:LEGAL_ILLICIT": 0.8,
+	"PATROL:CARGO_ILLICIT": 0.9,
+	"PATROL:CARGO_PROTECTED": 0.2,
+	"PATROL:PIRATE": 1.4,
+	"PATROL:SECURE": -0.3,
 
-	# Explorer behavior
-	"EXPLORER:FRONTIER": 1.5,
-	"EXPLORER:MILD": 0.4,
-	"EXPLORER:EXTREME": -0.6,
+	# Surveyor behavior
+	"SURVEYOR:FRONTIER": 1.5,
+	"SURVEYOR:MILD": 0.4,
+	"SURVEYOR:EXTREME": -0.6,
 
 	# Personality and condition interactions
 	"AGGRESSIVE:DAMAGED": 1.1,
@@ -160,7 +160,7 @@ const AFFINITY_MATRIX: Dictionary = {
 	"COWARD:HOSTILE_INFESTED": -1.5,
 	"COWARD:LAWLESS": -1.2,
 	"COWARD:HARSH": -0.4,
-	"LOYAL:MILITARY": 0.3,
+	"LOYAL:PATROL": 0.3,
 
 	# Recovery / survival
 	"DESPERATE:STATION": 1.5,
@@ -408,7 +408,7 @@ func _derive_agent_legality_tag(role: String, agent_state: Dictionary, sector_le
 		return explicit_legality_tag
 	if role == "pirate":
 		return "LEGAL_ILLICIT"
-	if role == "military":
+	if role == "patrol":
 		return "LEGAL_LAWFUL"
 	if bool(agent_state.get("has_active_contract_claim", false)):
 		return "LEGAL_LAWFUL"

@@ -6,7 +6,7 @@
 script = ExtResource( 1 )
 template_id = "faction_independents"
 faction_id = "faction_independents"
-display_name = "Independent Captains"
-description = "Unaffiliated pilots operating on their own terms."
+display_name = "Independent Operators"
+description = "Unaffiliated workers and crews operating on their own terms."
 faction_color = Color( 0.5, 0.5, 0.5, 1 )
 default_standing = 0

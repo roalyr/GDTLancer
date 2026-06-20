@@ -820,7 +820,7 @@ func _pick_mortal_spawn_role() -> String:
 	if _should_limit_mortal_explorer_spawn():
 		var filtered_roles: Array = []
 		for role_name in role_pool:
-			if str(role_name) != "explorer":
+			if str(role_name) != "surveyor":
 				filtered_roles.append(str(role_name))
 		if not filtered_roles.empty():
 			role_pool = filtered_roles
@@ -843,7 +843,7 @@ func _should_limit_mortal_explorer_spawn() -> bool:
 		var agent: Dictionary = Dictionary(GameState.agents.get(agent_id, {}))
 		if agent.get("is_disabled", false):
 			continue
-		if str(agent.get("agent_role", "")) == "explorer":
+		if str(agent.get("agent_role", "")) == "surveyor":
 			active_explorer_count += 1
 	return active_explorer_count >= explorer_cap
 
@@ -919,7 +919,7 @@ func _apply_upkeep() -> void:
 		if agent.get("wealth_tag") == "BROKE":
 			if true:
 				var recovery_chance: float = Constants.BROKE_RECOVERY_CHANCE
-				if str(agent.get("agent_role", "")) == "explorer":
+				if str(agent.get("agent_role", "")) == "surveyor":
 					recovery_chance = min(1.0, recovery_chance + Constants.EXPLORER_BROKE_RECOVERY_CHANCE_BONUS)
 				if _rng.randf() < recovery_chance:
 					agent["wealth_tag"] = "COMFORTABLE"

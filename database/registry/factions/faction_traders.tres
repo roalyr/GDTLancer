@@ -6,7 +6,7 @@
 script = ExtResource( 1 )
 template_id = "faction_traders"
 faction_id = "faction_traders"
-display_name = "Trade Alliance"
-description = "The dominant commercial entity in the sector."
+display_name = "Merchant Cooperative"
+description = "A loose coalition of merchant families and independent traders pooling resources and contacts."
 faction_color = Color( 0.0, 0.6, 0.8, 1 )
 default_standing = 0

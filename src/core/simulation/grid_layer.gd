@@ -274,7 +274,7 @@ func _step_hostile_presence(tags: Array, sector_id: String) -> Array:
 	var progress: int = GameState.hostile_infestation_progress.get(sector_id, 0)
 	var infested_now: bool = had_infested
 
-	if security == "LAWLESS" and role_counts.get("military", 0) == 0:
+	if security == "LAWLESS" and role_counts.get("patrol", 0) == 0:
 		if not had_infested:
 			var build_progress: int = max(0, progress) + 1
 			progress = build_progress

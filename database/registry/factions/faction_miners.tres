@@ -6,7 +6,7 @@
 script = ExtResource( 1 )
 template_id = "faction_miners"
 faction_id = "faction_miners"
-display_name = "Miners Guild"
-description = "A collective of independent miners and ore processors."
+display_name = "Mining Cooperative"
+description = "Families and work crews who pull ore from the rock and keep the anchorages fuelled."
 faction_color = Color( 0.8, 0.4, 0.0, 1 )
 default_standing = 0

@@ -41,7 +41,7 @@ func _step_security(tags: Array, neighbor_tags: Array, sector_id: String) -> Arr
 		delta += 1
 
 	# Agent presence
-	if role_counts.get("military", 0) > 0:
+	if role_counts.get("patrol", 0) > 0:
 		delta += 1
 	if role_counts.get("pirate", 0) > 0:
 		delta -= 1

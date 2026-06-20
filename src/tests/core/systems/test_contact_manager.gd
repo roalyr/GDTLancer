@@ -50,14 +50,14 @@ func before_each():
 	# Seed NPC agents
 	GameState.agents["npc_01"] = {
 		"current_sector_id": "sector_star_elace",
-		"agent_role": "military",
+		"agent_role": "patrol",
 		"character_id": "char_01",
 		"condition_tag": "HEALTHY",
 		"wealth_tag": "WEALTHY",
 		"cargo_tag": "LOADED",
 		"is_disabled": false,
 	}
-	GameState.agent_tags["npc_01"] = ["MILITARY"]
+	GameState.agent_tags["npc_01"] = ["PATROL"]
 
 	GameState.agents["npc_02"] = {
 		"current_sector_id": "sector_star_elace",
@@ -154,17 +154,17 @@ func test_get_agents_excludes_disabled():
 
 
 func test_get_agent_disposition_computes_affinity():
-	# PIRATE actor viewing MILITARY target → PIRATE:MILITARY = -1.2 (hostile)
+	# PIRATE actor viewing PATROL target → PIRATE:PATROL = -1.2 (hostile)
 	GameState.agent_tags["player"] = ["PIRATE"]
-	GameState.agent_tags["npc_01"] = ["MILITARY"]
+	GameState.agent_tags["npc_01"] = ["PATROL"]
 	_contact_manager._rebuild_caches()
 	var disposition = _contact_manager.get_agent_disposition("npc_01")
-	assert_lt(disposition, 0.0, "PIRATE viewing MILITARY should yield negative disposition")
+	assert_lt(disposition, 0.0, "PIRATE viewing PATROL should yield negative disposition")
 
 
 func test_get_disposition_category_friendly():
-	# MILITARY actor viewing PIRATE target → MILITARY:PIRATE = +1.4 (friendly / seeks)
-	GameState.agent_tags["player"] = ["MILITARY"]
+	# PATROL actor viewing PIRATE target → PATROL:PIRATE = +1.4 (friendly / seeks)
+	GameState.agent_tags["player"] = ["PATROL"]
 	GameState.agent_tags["npc_02"] = ["PIRATE"]
 	_contact_manager._rebuild_caches()
 	var category = _contact_manager.get_disposition_category("npc_02")
@@ -172,9 +172,9 @@ func test_get_disposition_category_friendly():
 
 
 func test_get_disposition_category_hostile():
-	# PIRATE actor viewing MILITARY target → PIRATE:MILITARY = -1.2 (hostile)
+	# PIRATE actor viewing PATROL target → PIRATE:PATROL = -1.2 (hostile)
 	GameState.agent_tags["player"] = ["PIRATE"]
-	GameState.agent_tags["npc_01"] = ["MILITARY"]
+	GameState.agent_tags["npc_01"] = ["PATROL"]
 	_contact_manager._rebuild_caches()
 	var category = _contact_manager.get_disposition_category("npc_01")
 	assert_eq(category, "hostile", "Score -1.2 should be below hostile threshold")
@@ -194,7 +194,7 @@ func test_get_agent_info_returns_display_dict():
 	assert_has(info, "sector_id")
 	assert_eq(info["agent_id"], "npc_01")
 	assert_eq(info["name"], "Commander Voss", "Should resolve character name from GameState")
-	assert_eq(info["role"], "military")
+	assert_eq(info["role"], "patrol")
 	assert_eq(info["condition_tag"], "HEALTHY")
 
 

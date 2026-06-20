@@ -557,7 +557,7 @@ func _seed_minimal_state() -> void:
 	GameState.grid_dominion = {"a": {"security_tag": "SECURE"}, "b": {"security_tag": "SECURE"}}
 	GameState.world_hazards = {"a": {"environment": "MILD"}, "b": {"environment": "MILD"}}
 	GameState.agents = {
-		"mil_1": {"current_sector_id": "a", "agent_role": "military", "is_disabled": false, "cargo_tag": "EMPTY"},
+		"mil_1": {"current_sector_id": "a", "agent_role": "patrol", "is_disabled": false, "cargo_tag": "EMPTY"},
 		"pir_1": {"current_sector_id": "b", "agent_role": "pirate", "is_disabled": false, "cargo_tag": "EMPTY"},
 	}
 

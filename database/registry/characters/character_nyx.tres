@@ -7,7 +7,7 @@ script = ExtResource( 1 )
 template_id = "character_nyx"
 character_name = "Nyx"
 character_icon_id = "character_nyx_icon"
-faction_id = "faction_military"
+faction_id = "faction_independents"
 active_ship_uid = -1
 skills = {
 "combat": 4,
@@ -25,7 +25,7 @@ personality_traits = {
 "loyalty": 0.8,
 "aggression": 0.4
 }
-description = "Patrol officer, keeps order."
+description = "Watchkeeper. Takes contracts to run security in contested sectors."
 goals = [ ]
 wealth_tier = "COMFORTABLE"
 wealth_progress = 0
