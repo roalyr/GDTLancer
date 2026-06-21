@@ -103,13 +103,12 @@ func process_agent_supplies_and_morale(agent_id: String, agent: Dictionary) -> v
 			# Clamp morale
 			sub_agent["morale"] = clamp(morale, Constants.MORALE_MIN, Constants.MORALE_MAX)
 
-	# 3. Check player defeat condition (Aggregate Morale reaches 0)
+	# 3. Check mutiny condition (Aggregate Morale reaches 0)
 	if agent_id == "player":
 		if sub_agents_dict is Dictionary and not sub_agents_dict.empty():
 			var avg_morale = get_average_crew_morale(agent_id)
 			if avg_morale == 0:
-				agent["is_disabled"] = true
-				agent["disabled_at_tick"] = GameState.sim_tick_count
+				agent["is_mutiny_active"] = true
 
 
 ## Computes the raw average morale of all sub-agents.

@@ -356,24 +356,21 @@ func _on_attack_button_pressed() -> void:
 
 func _on_interact_button_pressed() -> void:
 	var target = _selected_target
-	if not is_instance_valid(target):
-		if EventBus:
-			EventBus.emit_signal("interact_action_feedback", false, "No target selected")
-		return
 
-	if target is Node and (target.is_in_group("agent_body") or target.is_in_group("Agents")):
+	if target is Node and is_instance_valid(target) and (target.is_in_group("agent_body") or target.is_in_group("Agents")):
 		# Always emit signal to open InteractionWindow; it will gate trade internally.
 		var agent_id: String = _resolve_agent_id(target)
 		if EventBus:
 			EventBus.emit_signal("player_npc_interact_requested", agent_id, target)
-	elif target is Node and (target.is_in_group("planet") or target.is_in_group("moon") or target.is_in_group("stellar_body") or _is_celestial(target)):
+	elif target is Node and is_instance_valid(target) and (target.is_in_group("planet") or target.is_in_group("moon") or target.is_in_group("stellar_body") or _is_celestial(target)):
 		# Open InteractionWindow for celestials with a placeholder message.
 		var body_name: String = target.name
 		if EventBus:
 			EventBus.emit_signal("player_npc_interact_requested", "__celestial__" + body_name, target)
 	else:
+		# Fallback to Self/Status interaction
 		if EventBus:
-			EventBus.emit_signal("interact_action_feedback", false, "Cannot interact with target")
+			EventBus.emit_signal("player_npc_interact_requested", "player", null)
 
 
 func _is_celestial(node) -> bool:

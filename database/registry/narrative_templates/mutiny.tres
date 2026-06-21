@@ -1,0 +1,14 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/narrative_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "narrative_mutiny"
+title = "Vessel-Bound Standoff"
+body_text = "The crew has secured the heavy-water valves and cut the burn-lines. Mutiny. They refuse to drift any further under your command. Restore order immediately, or the vessel dies here."
+creole_dialect = "Pragmatic Creole"
+required_sector_type = ""
+required_economy_tag = ""
+required_security_tag = ""
+required_event_type = "mutiny"

@@ -31,6 +31,9 @@ func _ready() -> void:
 	
 	if is_instance_valid(_btn_trigger_action) and not _btn_trigger_action.is_connected("pressed", self, "_on_BtnTriggerAction_pressed"):
 		_btn_trigger_action.connect("pressed", self, "_on_BtnTriggerAction_pressed")
+		
+	if is_instance_valid(_action_tray) and not _action_tray.is_connected("action_resolved", self, "_on_action_resolved"):
+		_action_tray.connect("action_resolved", self, "_on_action_resolved")
 
 
 # --- Public API ---
@@ -95,6 +98,8 @@ func _populate_for_npc(agent_id: String) -> void:
 	if is_instance_valid(_label_context_info):
 		_label_context_info.text = body
 
+	_update_trigger_button()
+
 
 
 
@@ -116,6 +121,8 @@ func _populate_for_celestial(target_name: String) -> void:
 
 	if is_instance_valid(_label_context_info):
 		_label_context_info.text = body
+
+	_update_trigger_button()
 
 
 
@@ -146,17 +153,73 @@ func _resolve_npc_name(agent_id: String) -> String:
 func _on_BtnClose_pressed() -> void:
 	close()
 
+func _update_trigger_button() -> void:
+	if is_instance_valid(_btn_trigger_action):
+		if GameState.agents.has("player") and GameState.agents["player"].get("is_mutiny_active", false):
+			_btn_trigger_action.text = "Resolve Mutiny"
+		else:
+			_btn_trigger_action.text = "Take Action"
+
 func _on_BtnTriggerAction_pressed() -> void:
 	if is_instance_valid(_action_tray):
 		var wealth_mod = 0
 		var health_mod = 0
+		var morale_mod = 0
 		if GameState.agents.has("player"):
 			var p_state = GameState.agents["player"]
 			var w_tier = p_state.get("wealth_tier", 0)
-			# Fallback if Constants mapping isn't perfect, usually handled in agent_layer
 			if "WEALTH_MODIFIERS" in Constants and Constants.WEALTH_MODIFIERS.has(w_tier):
 				wealth_mod = Constants.WEALTH_MODIFIERS[w_tier]
 			var h_tag = p_state.get("condition_tag", "NOMINAL")
 			if "CONDITION_MODIFIERS" in Constants and Constants.CONDITION_MODIFIERS.has(h_tag):
 				health_mod = Constants.CONDITION_MODIFIERS[h_tag]
-		_action_tray.open_tray(wealth_mod, health_mod, 0)
+				
+		if is_instance_valid(GlobalRefs.simulation_engine) and GlobalRefs.simulation_engine.has_node("AgentLayer"):
+			morale_mod = GlobalRefs.simulation_engine.get_node("AgentLayer").get_crew_morale_modifier("player")
+			
+		_action_tray.open_tray(wealth_mod, health_mod, morale_mod)
+
+func _on_action_resolved(result: Dictionary) -> void:
+	# result is from CoreMechanicsAPI, e.g. {"success": true, "result_tier": "Success", ...}
+	var success = result.get("success", false)
+	var tier = result.get("result_tier", "Failure")
+	
+	if GameState.agents.has("player") and GameState.agents["player"].get("is_mutiny_active", false):
+		if tier in ["Success", "CritSuccess"]:
+			# Resolve Mutiny
+			GameState.agents["player"]["is_mutiny_active"] = false
+			# Restore morale to baseline
+			var state = GameState.agents["player"]
+			if state.has("sub_agents"):
+				for sub_id in state["sub_agents"]:
+					if state["sub_agents"][sub_id].has("morale"):
+						state["sub_agents"][sub_id]["morale"] = max(30.0, state["sub_agents"][sub_id]["morale"])
+			
+			if is_instance_valid(_label_target_name):
+				_label_target_name.text = "Mutiny Averted"
+			if is_instance_valid(_label_context_info):
+				_label_context_info.text = "The crew has backed down and returned to their posts. Morale stabilized."
+		else:
+			if is_instance_valid(_label_target_name):
+				_label_target_name.text = "Mutiny Escalates"
+			if is_instance_valid(_label_context_info):
+				_label_context_info.text = "The crew is unsatisfied. Mutiny continues..."
+	else:
+		# Standard action resolution
+		if tier in ["Success", "CritSuccess"]:
+			if is_instance_valid(_label_target_name):
+				_label_target_name.text = "Action Succeeded"
+			if is_instance_valid(_label_context_info):
+				_label_context_info.text = "You handled the situation gracefully. Gained valuable insights."
+		elif tier == "SuccessWithComplication":
+			if is_instance_valid(_label_target_name):
+				_label_target_name.text = "Complication Arose"
+			if is_instance_valid(_label_context_info):
+				_label_context_info.text = "You succeeded, but at a cost. The crew is stressed."
+		else:
+			if is_instance_valid(_label_target_name):
+				_label_target_name.text = "Action Failed"
+			if is_instance_valid(_label_context_info):
+				_label_context_info.text = "The situation worsened. You suffered setbacks."
+				
+	_update_trigger_button()

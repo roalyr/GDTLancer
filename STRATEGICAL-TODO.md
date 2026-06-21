@@ -21,11 +21,15 @@ LOG_REF: 2026-06-22 00:48:00
 - [x] **MILESTONE_17: Diverse Narrative Tasks & Interactions**
   - **Description**: Add narrative task stubs (mediating disputes, rescuing personnel, sabotage, anomalies) via static `.tres` templates instead of trading contracts. Ensure the environment applies pressure, not just mechanical math.
 
-- [ ] **MILESTONE_18: Sub-Agent Narrative Morale & Mutiny Events**
+- [x] **MILESTONE_18: Sub-Agent Narrative Morale & Mutiny Events**
   - **Description**: Wire sub-agent morale drops to specific narrative consequences. If aggregate Morale drops to 0, trigger a Mutiny story beat that must be resolved through dialogue or a high-stakes action roll rather than simple lockout.
 
-- [ ] **MILESTONE_19: Environmental Pressure & Narrative Context**
+- [ ] **MILESTONE_19: Total UX Integration & Mechanics Wiring [BLOCKER]**
+  - **Description**: We have built mechanics and narrative stubs, but they currently lack player-facing UX. This milestone demands that ALL mechanics (health, wealth, morale, supplies, and action results) are comprehensively wired into the player's direct interaction flow (the `InteractionWindow` and HUD). 
+  - **Note**: This milestone is a strict **BLOCKER**. It requires hard, manual runtime verification to pass. It is not limited to the tasks suggested initially; any additional tasks required to achieve a coherent, playable UX where the player can clearly read and react to the simulation state must be added and resolved under this milestone.
+
+- [ ] **MILESTONE_20: Environmental Pressure & Narrative Context**
   - **Description**: Bind `GridLayer` dynamic mutations (e.g., `CONTESTED` security, `HARSH` environment) to alter the narrative templates presented during Mode B. Allow background simulation shifts to be visible via non-intrusive Event Notification Toasts while in Mode A.
 
-- [ ] **MILESTONE_20: Emergent Outcomes Validation (The MVP Playtest)**
+- [ ] **MILESTONE_21: Emergent Outcomes Validation (The MVP Playtest)**
   - **Description**: Ensure the outcomes of 3d6 rolls organically ripple outward (e.g., failed negotiations blocking docking rights, forcing relocation). Validate that 1 hour of meaningful play is achievable using the emergent rules engine.

@@ -70,6 +70,10 @@ onready var button_flee: TextureButton = $ScreenControls/BottomCenterZone/Button
 onready var button_camera: TextureButton = $ScreenControls/CenterRightZone/ButtonCamera
 onready var button_dock: TextureButton = $ScreenControls/BottomCenterZone/ButtonDock
 onready var label_button_dock: Label = $ScreenControls/BottomCenterZone/ButtonDock/LabelButtonDock
+onready var button_interact: TextureButton = $ScreenControls/BottomCenterZone/ButtonInteract
+onready var label_button_interact: Label = $ScreenControls/BottomCenterZone/ButtonInteract/LabelButtonInteract
+onready var label_time: Label = $ScreenControls/TopLeftZone/LabelTime
+onready var label_stats: Label = $ScreenControls/TopRightZone/LabelStats
 
 # --- Game Over UI ---
 onready var game_over_overlay: Control = $"GameOverOverlay (to be made into a dedicated window like main menu)"
@@ -251,6 +255,7 @@ func _on_Player_Target_Selected(target_node):
 		_update_route_target_selection_state()
 		_update_world_target_selection_state()
 		_update_dock_button_label()
+		_update_interact_button_label()
 		
 		# Update camera look_at_target if in target tracking mode
 		var camera = GlobalRefs.main_camera
@@ -268,6 +273,7 @@ func _on_Player_Target_Deselected():
 	_refresh_process_state()
 	_refresh_player_hull()
 	_update_dock_button_label()
+	_update_interact_button_label()
 	
 	# If camera is in target tracking mode, switch back to orbit mode
 	var camera = GlobalRefs.main_camera
@@ -308,12 +314,40 @@ func _on_player_fp_changed(_new_fp_value = null):
 
 
 func _refresh_player_resources() -> void:
+	if is_instance_valid(label_stats):
+		var stats_text = "--- PLAYER STATUS ---"
+		if GameState.agents.has("player"):
+			var p_state = GameState.agents["player"]
+			var wealth_tier = p_state.get("wealth_tier", 0)
+			var health = p_state.get("condition_tag", "NOMINAL")
+			var morale = 30
+			var sub_agents = p_state.get("sub_agents", {})
+			var total_morale = 0.0
+			var count = 0
+			for sub_id in sub_agents:
+				if sub_agents[sub_id].has("morale"):
+					total_morale += sub_agents[sub_id]["morale"]
+					count += 1
+			if count > 0:
+				morale = int(total_morale / count)
+			var supplies = []
+			if p_state.has("cargo_tags"):
+				supplies = p_state.cargo_tags
+			stats_text += "\nHealth: " + str(health) + " | Wealth: " + str(wealth_tier) + "\nMorale: " + str(morale) + " | Supplies: " + str(supplies)
+		label_stats.text = stats_text
+
 	var debug_window = _get_debug_window()
 	if is_instance_valid(debug_window) and debug_window.has_method("refresh_debug_window_resources"):
 		debug_window.call("refresh_debug_window_resources")
 
 
 func _refresh_time_display() -> void:
+	if is_instance_valid(label_time):
+		var time_text = "Time: " + str(GameState.game_time_seconds)
+		time_text += "\nTick: " + str(GameState.sim_tick_count)
+		time_text += " | Sub-tick: " + str(GameState.sub_tick_accumulator)
+		label_time.text = time_text
+
 	var debug_window = _get_debug_window()
 	if is_instance_valid(debug_window) and debug_window.has_method("refresh_debug_window_time_display"):
 		debug_window.call("refresh_debug_window_time_display")
@@ -812,6 +846,28 @@ func _update_dock_button_label() -> void:
 		label_button_dock.text = "TRAVEL"
 	else:
 		label_button_dock.text = "DOCK"
+
+
+func _update_interact_button_label() -> void:
+	if not is_instance_valid(label_button_interact):
+		return
+	if _current_target != null and _current_target is Node and is_instance_valid(_current_target) and (_current_target.is_in_group("agent_body") or _current_target.is_in_group("Agents")):
+		label_button_interact.text = "HAIL"
+	elif _current_target != null and _current_target is Node and is_instance_valid(_current_target) and (_current_target.is_in_group("planet") or _current_target.is_in_group("moon") or _current_target.is_in_group("stellar_body") or _is_celestial(_current_target)):
+		label_button_interact.text = "SCAN"
+	else:
+		label_button_interact.text = "STATUS"
+
+
+func _is_celestial(node) -> bool:
+	if not is_instance_valid(node) or not node is Node:
+		return false
+	if node.is_in_group("planet") or node.is_in_group("moon") or node.is_in_group("stellar_body"):
+		return true
+	var name_lower = node.name.to_lower()
+	if name_lower.find("star") != -1 or name_lower.find("planet") != -1 or name_lower.find("moon") != -1:
+		return true
+	return false
 
 
 func _instance_projected_target_bracket():

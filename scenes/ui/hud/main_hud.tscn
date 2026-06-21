@@ -754,6 +754,14 @@ margin_right = 960.0
 margin_bottom = 1.0
 color = Color( 1, 1, 1, 0.12549 )
 
+[node name="LabelTime" type="Label" parent="ScreenControls/TopLeftZone"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 20.0
+margin_top = 20.0
+theme = ExtResource( 9 )
+text = "TIME / TICKS"
+
 [node name="TopRightZone" type="Control" parent="ScreenControls"]
 anchor_left = 1.0
 anchor_right = 1.0
@@ -796,6 +804,15 @@ margin_top = -1.0
 margin_right = 960.0
 margin_bottom = 1.0
 color = Color( 1, 1, 1, 0.12549 )
+
+[node name="LabelStats" type="Label" parent="ScreenControls/TopRightZone"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = 20.0
+margin_right = -20.0
+theme = ExtResource( 9 )
+text = "PLAYER STATS"
+align = 2
 
 [node name="GameOverOverlay (to be made into a dedicated window like main menu)" type="Control" parent="."]
 pause_mode = 2

@@ -2234,19 +2234,24 @@ func test_aggregate_morale_to_modifier_mapping() -> void:
 	GameState.agents["agent_test"]["sub_agents"]["sub_2"]["morale"] = 0
 	assert_eq(agent_layer.get_crew_morale_modifier("agent_test"), -4)
 
-	# Test player defeat trigger at 0 morale
+	# Test player mutiny trigger at 0 morale
 	GameState.agents["player"] = {
 		"supplies_tag": "SUPPLIES_NONE",
 		"supplies_ticks_remaining": 0,
 		"current_sector_id": "mild_sector",
-		"is_disabled": false,
-		"disabled_at_tick": -1,
+		"is_mutiny_active": false,
 		"sub_agents": {
 			"sub_1": {"morale": 0}
 		}
 	}
 	agent_layer._update_supplies_and_morale("player", GameState.agents["player"])
-	assert_true(GameState.agents["player"]["is_disabled"], "Player is disabled when crew morale hits 0.")
+	assert_true(GameState.agents["player"].get("is_mutiny_active", false), "Player triggers mutiny state when crew morale hits 0.")
+	
+	# Verify narrative pipeline intercepts the event
+	var mutiny_template = chronicle.resolve_narrative_template("mild_sector", "ambient")
+	assert_not_null(mutiny_template, "Chronicle should return the mutiny template.")
+	if mutiny_template != null:
+		assert_eq(mutiny_template.template_id, "narrative_mutiny", "Narrative resolution should be overridden by the mutiny event.")
 
 
 

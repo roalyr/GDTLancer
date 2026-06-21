@@ -1,11 +1,14 @@
-## CURRENT GOAL: Milestone 17 (Diverse Narrative Tasks & Interactions)
-- TARGET_SCOPE: Add diverse narrative task stubs (e.g., mediating disputes, rescuing stranded personnel, sabotage, or surveying anomalies) as static `.tres` templates (NarrativeTemplate). Ensure the environment applies pressure by writing templates that match specific security or economy tags rather than relying on mathematical logic.
+## CURRENT GOAL: Milestone 19 (Total UX Integration & Mechanics Wiring [BLOCKER])
+- TARGET_SCOPE: Comprehensively wire all mechanics (health, wealth, morale, supplies, and action results) into the player's direct interaction flow (the `InteractionWindow` and HUD). Ensure the player can clearly read and react to the simulation state. This is a blocker milestone requiring hard manual verification.
 - TARGET_FILES:
-  - `database/registry/narrative_templates/` — Create new narrative templates across different categories.
-  - `src/tests/core/simulation/test_narrative_pipeline.gd` — Update tests to verify the new template stubs correctly resolve based on `NarrativeSystem` fallback queries.
-- TRUTH_RELIANCE: `TRUTH_MVP_CORE.md` §3.A, 3.C; `TRUTH_CONTENT-CREATION-MANUAL.md` §2.3
-- TECHNICAL_CONSTRAINTS: Godot 3 `Resource` loading. Templates must be deterministic. The system must select the most specific template available based on the `NarrativeSystem` query logic (Sector Type -> Economy -> Security -> Event). No procedural text generation.
+  - `src/core/ui/interaction_window/interaction_window.gd` — Wire metrics display and handle `action_resolved` signals for gameplay consequences.
+  - `src/core/ui/main_hud/main_hud.gd` — Update visual indicators (e.g., target selection prompts like "HAIL" or "SCAN").
+  - `src/core/ui/main_hud/main_hud.tscn` — Any node references needed for UI text updates.
+- TRUTH_RELIANCE: `TRUTH_MVP_CORE.md`
+- TECHNICAL_CONSTRAINTS: Godot 3 UI. Avoid over-engineered event queues; use direct signal connections for UI updates.
 - ATOMIC_TASKS:
-  - [x] TASK_1: **Narrative Task Stubs.** Create at least 4 new `NarrativeTemplate` resources representing distinct narrative challenges: a rescue mission, a sabotage event, mediating a dispute, and surveying an anomaly. Organize them in the `database/registry/narrative_templates/` folder structure.
-  - [x] TASK_2: **Template Gating Validation.** Configure `required_sector_type`, `required_economy_tag`, `required_security_tag`, and `required_event_type` for the new templates to ensure they only appear when the GridLayer tags match.
-  - [x] VERIFICATION: Extend `test_narrative_pipeline.gd` to assert that requesting narrative contexts with specific combinations of tags successfully returns the newly created templates. All tests must pass (GUT run bypassed per user).
+  - [x] TASK_1: **Contextual Target Prompts.** Modify the main HUD so selecting an NPC or planet changes the "Interact" button label to "HAIL" or "SCAN", providing a clear entry point for narrative gameplay.
+  - [x] TASK_2: **Ship Metrics Integration.** Append player ship metrics (health, wealth, morale, supplies) directly into the narrative context text of the `InteractionWindow`.
+  - [x] TASK_3: **Consequence Handlers.** Wire the `InteractionWindow` to listen to the `action_resolved` signal from the Action Tray. Implement logic to clear the mutiny state on success, or apply standard success/failure text.
+  - [ ] TASK_4: **In-Flight Feedback Toasts.** Evaluate if the player needs real-time toasts for morale decay or sector mutations during free flight, and implement a lightweight HUD notification system if required to pass playability checks.
+  - [ ] VERIFICATION: Hard manual runtime verification required. The player must be able to discover an interactable target, open the narrative window, read their metrics, execute an action, and see the state update dynamically without crashing or locking the loop.

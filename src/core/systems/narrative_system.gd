@@ -49,6 +49,13 @@ func query_template(sector_type: String, economy_tag: String, security_tag: Stri
 	if res != null:
 		return res
 		
+	# Try 1.5: Global event fallback (only when looking for a specific event)
+	if event_type != "default":
+		var path_event = "%s/%s.tres" % [BASE_PATH, event_type]
+		res = _safe_load_narrative(path_event)
+		if res != null:
+			return res
+		
 	# Try 2: Replace event_type with "default"
 	var path2 = "%s/%s/%s/%s/default.tres" % [BASE_PATH, sector_type, economy_tag, security_tag]
 	res = _safe_load_narrative(path2)

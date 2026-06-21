@@ -223,7 +223,10 @@ func _humanize_action(action: String) -> String:
 
 ## Resolves a narrative template based on sector and event type.
 func resolve_narrative_template(sector_id: String, event_type: String) -> Resource:
+	if GameState.agents.has("player"):
+		if GameState.agents["player"].get("is_mutiny_active", false):
+			event_type = "mutiny"
+			
 	if _narrative_system != null:
 		return _narrative_system.resolve_narrative_template(sector_id, event_type)
 	return null
-
