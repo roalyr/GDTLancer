@@ -60,11 +60,11 @@ func test_indexing_loads_known_templates_correctly():
 func test_indexing_loads_known_contracts_after_locations():
 	indexer_instance.index_all_templates()
 
-	var contract_id = "delivery_01"
-	assert_has(TemplateDatabase.contracts, contract_id, "Database should contain 'delivery_01'.")
+	var contract_id = "delivery_test_fixture"
+	assert_has(TemplateDatabase.contracts, contract_id, "Database should contain 'delivery_test_fixture'.")
 	var contract_template = TemplateDatabase.contracts[contract_id]
-	assert_true(is_instance_valid(contract_template), "'delivery_01' should be a valid instance.")
-	assert_true(contract_template is ContractTemplate, "'delivery_01' should be of type ContractTemplate.")
+	assert_true(is_instance_valid(contract_template), "'delivery_test_fixture' should be a valid instance.")
+	assert_true(contract_template is ContractTemplate, "'delivery_test_fixture' should be of type ContractTemplate.")
 	assert_eq(contract_template.origin_location_id, "sector_star_elace")
 	assert_eq(contract_template.destination_location_id, "sector_star_cob")
 
@@ -77,7 +77,7 @@ func test_invalid_contract_locations_are_not_registered():
 	indexer_instance._register_template(origin_location)
 	indexer_instance._register_template(destination_location)
 
-	var contract_template = load("res://database/registry/contracts/delivery_01.tres")
+	var contract_template = load("res://database/registry/contracts/delivery_test_fixture.tres")
 	assert_true(contract_template is ContractTemplate, "Delivery fixture should load as a ContractTemplate.")
 	var invalid_contract = contract_template.duplicate(true)
 	invalid_contract.template_id = "delivery_invalid_missing_destination"
@@ -90,3 +90,4 @@ func test_invalid_contract_locations_are_not_registered():
 		TemplateDatabase.contracts.has("delivery_invalid_missing_destination"),
 		"Contracts with stale location ids should be rejected during registration."
 	)
+

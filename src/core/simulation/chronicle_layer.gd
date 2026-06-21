@@ -22,6 +22,12 @@ var _max_events: int = 200
 var _max_rumors: int = 50
 var _max_agent_memory: int = 20
 
+var _narrative_system = null
+
+func _init() -> void:
+	_narrative_system = load("res://src/core/systems/narrative_system.gd").new()
+
+
 
 # =============================================================================
 # === PUBLIC API ==============================================================
@@ -217,69 +223,7 @@ func _humanize_action(action: String) -> String:
 
 ## Resolves a narrative template based on sector and event type.
 func resolve_narrative_template(sector_id: String, event_type: String) -> Resource:
-	var sector_type = "star"
-	if GameState.world_topology.has(sector_id):
-		var topo = GameState.world_topology[sector_id]
-		if topo.has("sector_type"):
-			sector_type = topo["sector_type"]
-			
-	var economy_tag = "RAW_ADEQUATE"
-	if GameState.sector_tags.has(sector_id):
-		for tag in GameState.sector_tags[sector_id]:
-			if tag.begins_with("RAW_") or tag.begins_with("MANUFACTURED_") or tag.begins_with("CURRENCY_"):
-				economy_tag = tag
-				break
-				
-	var security_tag = "LAWLESS"
-	if GameState.sector_tags.has(sector_id):
-		for tag in ["SECURE", "CONTESTED", "LAWLESS"]:
-			if tag in GameState.sector_tags[sector_id]:
-				security_tag = tag
-				break
-				
-	var base_path = "res://database/registry/narratives"
-	
-	# Try 1: Full path
-	var path1 = "%s/%s/%s/%s/%s.tres" % [base_path, sector_type, economy_tag, security_tag, event_type]
-	var res = _safe_load_narrative(path1)
-	if res != null:
-		return res
-		
-	# Try 2: Replace event_type with "default"
-	var path2 = "%s/%s/%s/%s/default.tres" % [base_path, sector_type, economy_tag, security_tag]
-	res = _safe_load_narrative(path2)
-	if res != null:
-		return res
-		
-	# Try 3: Replace security_tag with "default"
-	var path3 = "%s/%s/%s/default/default.tres" % [base_path, sector_type, economy_tag]
-	res = _safe_load_narrative(path3)
-	if res != null:
-		return res
-		
-	# Try 4: Coarser sector default
-	var path4 = "%s/%s/default.tres" % [base_path, sector_type]
-	res = _safe_load_narrative(path4)
-	if res != null:
-		return res
-		
-	# Try 5: Global default
-	var path5 = "%s/default.tres" % base_path
-	res = _safe_load_narrative(path5)
-	if res != null:
-		return res
-		
-	# Fallback code-driven resource
-	var fallback_res = load("res://database/definitions/narrative_template.gd").new()
-	fallback_res.title = "Local Transmission"
-	fallback_res.body_text = "Static interference on the local frequency. The sector is quiet."
-	fallback_res.creole_dialect = "Standard"
-	return fallback_res
-
-
-func _safe_load_narrative(path: String) -> Resource:
-	if ResourceLoader.exists(path):
-		var res = load(path)
-		if res is Resource:
-			return res
+	if _narrative_system != null:
+		return _narrative_system.resolve_narrative_template(sector_id, event_type)
 	return null
+

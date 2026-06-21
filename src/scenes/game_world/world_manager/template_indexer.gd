@@ -93,8 +93,11 @@ func _register_template(template: Template):
 		TemplateDatabase.utility_tools[template.template_id] = template
 	elif template is FactionTemplate:
 		TemplateDatabase.factions[template.template_id] = template
+	elif template is NarrativeTemplate:
+		TemplateDatabase.narratives[template.template_id] = template
 	else:
 		print("TemplateIndexer Warning: Unknown template type for resource: ", template.resource_path)
+
 
 
 func _register_pending_contract_templates() -> void:

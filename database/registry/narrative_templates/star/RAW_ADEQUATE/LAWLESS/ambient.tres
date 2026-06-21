@@ -1,0 +1,14 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/narrative_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "narrative_star_raw_adequate_lawless_ambient"
+title = "Drift-Hours Logbook Entry"
+body_text = "Our boat has logged forty drift-hours. The crew is scraping salvage from the scuttled iron-scows. Local syndicate scouts are watching from a distance."
+creole_dialect = "Pragmatic Creole"
+required_sector_type = "star"
+required_economy_tag = "RAW_ADEQUATE"
+required_security_tag = "LAWLESS"
+required_event_type = "ambient"

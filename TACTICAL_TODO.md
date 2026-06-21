@@ -1,20 +1,20 @@
-## CURRENT GOAL: Lore Conformance Gate
-- TARGET_SCOPE: Perform the initial Lore Conformance Gate audit and implementation. Promote the Three Pillars of the Frontier into a permanent truth file `TRUTH_LORE-CONSTRAINTS.md`, register it in `MODEL-CASCADE-PROTOCOL.md`, update `TRUTH_CONTENT-CREATION-MANUAL.md` with jargon guidelines and a Lore Lexicon (Glossary of Banned vs Approved Terms), audit and modify faction templates and descriptions to discard corporate/imperial language, and ensure character/agent templates align with the scarce pilot class doctrine.
+## CURRENT GOAL: Milestone 11 (Hardened Narrative Content Pipeline)
+- TARGET_SCOPE: Implement the narrative content delivery system (REV_010). Narrative prose is not procedurally generated; instead, the local sector's tags are used to query a static, hand-authored directory of `.tres` resource templates. Establish the sub-folder directory structure for template lookup (`templates/{sector_type}/{economy_tag}/{security_tag}/{event_type}.tres`).
 - TARGET_FILES:
-  - `TRUTH_LORE-CONSTRAINTS.md` — New truth file documenting the Three Pillars of the Frontier and their binding rules.
-  - `MODEL-CASCADE-PROTOCOL.md` — Add `TRUTH_LORE-CONSTRAINTS.md` to the LINKED READ PATH.
-  - `TRUTH_CONTENT-CREATION-MANUAL.md` — Incorporate the jargon guidelines and the canonical Lore Lexicon.
-  - `database/registry/factions/faction_traders.tres` — Tone down description and display name to fit non-monolithic cooperative styling.
-  - `database/registry/factions/faction_independents.tres` — Update display name and description to avoid the assumption that every freelancer is a captain.
-  - `database/registry/characters/character_default.tres` — Ensure description/skills conform to the community-embedded non-captain baseline.
+  - `src/core/systems/narrative_system.gd` (or similar new system script) — to handle the querying and delivery of narrative templates based on sector tags.
+  - `database/registry/narrative_templates/` — define the sub-folder structure and create initial `.tres` stubs for testing the pipeline.
+  - `src/core/ui/chronicle_view.gd` (or similar UI script) — integrate the narrative system to display the text in the Chronicle View.
 - TRUTH_RELIANCE:
-  - `lore-constraints-and-adjusted-strategy.md` (Approved design constraints artifact).
+  - `STRATEGICAL-TODO.md` § REV_010 & Design Question Log 3
+  - `TRUTH_CONTENT-CREATION-MANUAL.md` (for the narrative jargon guidelines)
 - TECHNICAL_CONSTRAINTS:
   - Godot 3.6 stable compatibility.
   - Forbidden GDScript syntax: `@export`, `@onready`, and `await`.
+  - Content lookup must be deterministic and grid-driven.
 - ATOMIC_TASKS:
-  - [x] TASK_1: **Promote Lore Constraints.** Create `TRUTH_LORE-CONSTRAINTS.md` containing the full text of the approved Three Pillars and their binding rules (LORE-1.1 to LORE-3.3) under an Architect owner. Add it to `MODEL-CASCADE-PROTOCOL.md` LINKED READ PATH as item 1 under "Read only when the active task requires it".
-  - [x] TASK_2: **Incorporate Lore Lexicon and Creole Guidelines.** Add the Lore Lexicon table (approved alternatives for Banned Terms) and creole authoring guidelines to `TRUTH_CONTENT-CREATION-MANUAL.md` in a new Section 8 or 9.
-  - [x] TASK_3: **Audit and Remediate Faction Resources.** Edit `faction_traders.tres` (change display_name to "Merchant Cooperative", description to "A loose coalition of merchant families and independent traders") and `faction_independents.tres` (change display_name to "Independent Operators", description to "Unaffiliated workers and crews operating on their own terms") to eliminate monolithic and captain-centric assumptions.
-  - [x] TASK_4: **Character/Agent Template Review.** Audit `character_default.tres` and verify character/agent templates do not assume universal pilot/captain status. Set the default character description to "Resourceful utility hand" or similar low-status role, and ensure skills represent a non-pilot baseline (e.g. piloting = 1 by default, not automatically high).
-  - [x] VERIFICATION: Run the full headless GUT test suite (`godot --no-window -s addons/gut/gut_cmdln.gd`) to confirm that all 417 tests pass cleanly.
+  - [x] TASK_1: **Architecture & Data Schema.** Define the `NarrativeTemplate` resource script (`.gd`) with fields for title, body text, and any required gating parameters. Establish the exact directory structure pattern.
+  - [x] TASK_2: **Implement Narrative Query Engine.** Build the system that takes current sector tags (sector_type, economy_tag, security_tag) and the specific event_type to resolve the correct `.tres` file path. Handle fallbacks gracefully.
+  - [x] TASK_3: **Authored Stubs.** Create at least 3 distinct narrative template `.tres` files in the new directory structure using the Lore Lexicon to verify the lookup engine.
+  - [x] TASK_4: **Chronicle View Integration.** Wire the query engine into the UI so that interaction events or sector entries request and display the correct narrative prose.
+  - [x] VERIFICATION: Write headless GUT tests verifying the path resolution logic and fallback behavior of the narrative query engine. Ensure all tests pass.
+

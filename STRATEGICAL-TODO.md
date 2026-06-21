@@ -210,7 +210,7 @@ The project completely avoids modeling 3D avatars, station interiors, or space-l
 The following entries are staged for promotion into a new active `GDD-REVISION-LEDGER.md` once this directive is approved. They follow the schema established in [GDD-REVISION-LEDGER-1.md § Entry Schema](file:///home/roalyr/Software_archive/Games/GDTLancer/archive/GDD-REVISION-LEDGER-1.md#L13).
 
 - **REV_009: Two-Speed Macro UX Contract** (Promoted to ledger [x]; Implemented in code [ ] via Milestone 10)
-- **REV_010: Hardened Narrative Content Delivery** (Promoted to ledger [x]; Implemented in code [ ] via Milestone 11)
+- **REV_010: Hardened Narrative Content Delivery** (Promoted to ledger [x]; Implemented in code [x] via Milestone 11)
 - **REV_011: Sub-Agent Data Layer** (Promoted to ledger [x]; Implemented in code [x] via Milestone 8)
 - **REV_012: Morale Stat & Crew Morale System** (Promoted to ledger [x]; Implemented in code [ ] via Milestone 9)
 - **REV_013: Manual Space Graph & In-Sector POI Doctrine** (Promoted to ledger [x]; Implemented in code [ ] via Milestone 12)
@@ -351,7 +351,7 @@ This extends the milestone order from [GDD-REVISION-LEDGER-1.md § Follow-on Mil
 | 8 | [x] | Sub-Agent Data Layer Scaffold | Milestone 7 | REV_011 |
 | 9 | [x] | Morale & Supplies Stat Integration | Milestone 8 | REV_012 |
 | 10 | [x] | Chronicle View Architecture | Milestone 7 | REV_009 |
-| L1 | [ ] | Lore Conformance Gate | Milestones 8, 9, 10, 12 | NEW |
+| L1 | [x] | Lore Conformance Gate | Milestones 8, 9, 10, 12 | NEW |
 | 11 | [ ] | Hardened Narrative Content Pipeline | Milestone L1, Milestone 10 | REV_010 |
 | 12 | [x] | Manual Space Graph & In-Sector POI System | Milestone 7 | REV_013 |
 | 13 | [ ] | Hierarchical Universe Topology Formalization | Milestone L1, Milestone 12 | REV_005 |

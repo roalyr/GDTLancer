@@ -1,0 +1,13 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/contract_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "delivery_test_fixture"
+origin_location_id = "sector_star_elace"
+destination_location_id = "sector_star_cob"
+required_cargo_tag = "RAW_COMMODITY"
+base_payout_credits = 100
+base_duration_ticks = 10
+description = "A standard cargo shipment test fixture."

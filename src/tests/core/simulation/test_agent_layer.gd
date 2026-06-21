@@ -1201,7 +1201,7 @@ func test_resolve_sector_interaction_holds_cooling_explorer_on_viable_frontier_a
 	GameState.world_topology["s1"]["development_level"] = "frontier"
 	GameState.sector_tags["s1"] = ["FRONTIER", "LAWLESS", "HARSH", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"]
 	GameState.agents["explorer"] = {
-		"agent_role": "explorer",
+		"agent_role": "surveyor",
 		"current_sector_id": "s1",
 		"wealth_tag": "COMFORTABLE",
 		"last_discovery_tick": 0,
@@ -1227,7 +1227,7 @@ func test_resolve_sector_interaction_repositions_cooling_explorer_toward_frontie
 	GameState.sector_tags["s1"] = ["STATION", "SECURE", "MILD", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"]
 	GameState.sector_tags["s2"] = ["FRONTIER", "LAWLESS", "HARSH", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"]
 	GameState.agents["explorer"] = {
-		"agent_role": "explorer",
+		"agent_role": "surveyor",
 		"current_sector_id": "s1",
 		"wealth_tag": "COMFORTABLE",
 		"last_discovery_tick": 0,
@@ -1248,7 +1248,7 @@ func test_resolve_sector_interaction_holds_broke_explorer_on_frontier_anchor():
 	GameState.world_topology["s1"]["development_level"] = "frontier"
 	GameState.sector_tags["s1"] = ["FRONTIER", "LAWLESS", "HARSH", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"]
 	GameState.agents["explorer"] = {
-		"agent_role": "explorer",
+		"agent_role": "surveyor",
 		"current_sector_id": "s1",
 		"wealth_tag": "BROKE",
 		"last_discovery_tick": -999,

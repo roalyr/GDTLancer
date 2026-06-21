@@ -1,0 +1,14 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/narrative_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "narrative_global_default"
+title = "Broad-band Static"
+body_text = "The watchkeep reports no active signals. Only the hum of hull-sweat and low-tech radio static on the regional channel."
+creole_dialect = "Regional"
+required_sector_type = ""
+required_economy_tag = ""
+required_security_tag = ""
+required_event_type = ""

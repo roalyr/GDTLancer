@@ -5,15 +5,15 @@
 # ACCESS: read-write
 # USER INSTRUCTION: NONE
 # TRUTH_LINK: GDD-MASTER-DESIGN-DIRECTIVE.md §2.2, §7.4; TRUTH_GAME-LOOP-VISION.md §5.2
-# LOG_REF: 2026-06-20 19:57:00
+# LOG_REF: 2026-06-21 16:15:00
 
 extends "res://addons/gut/test.gd"
 
 var NarrativeTemplateClass = load("res://database/definitions/narrative_template.gd")
 var InteractionWindowScene = load("res://scenes/ui/menus/interaction_window/InteractionWindow.tscn")
 
-class MockChronicleLayer:
-	extends "res://src/core/simulation/chronicle_layer.gd"
+class MockNarrativeSystem:
+	extends "res://src/core/systems/narrative_system.gd"
 	
 	var mock_files: Dictionary = {}
 	
@@ -21,6 +21,15 @@ class MockChronicleLayer:
 		if mock_files.has(path):
 			return mock_files[path]
 		return null
+
+class MockChronicleLayer:
+	extends "res://src/core/simulation/chronicle_layer.gd"
+	
+	var mock_system: MockNarrativeSystem = null
+	
+	func _init() -> void:
+		mock_system = MockNarrativeSystem.new()
+		_narrative_system = mock_system
 
 class MockSimulationEngine:
 	extends Node
@@ -63,8 +72,8 @@ func test_exact_path_resolution() -> void:
 	t.title = "Exact Title"
 	t.body_text = "Exact Body"
 	
-	var expected_path = "res://database/registry/narratives/star/RAW_ADEQUATE/LAWLESS/ambient.tres"
-	_chronicle.mock_files[expected_path] = t
+	var expected_path = "res://database/registry/narrative_templates/star/RAW_ADEQUATE/LAWLESS/ambient.tres"
+	_chronicle.mock_system.mock_files[expected_path] = t
 	
 	var resolved = _chronicle.resolve_narrative_template("s1", "ambient")
 	assert_not_null(resolved)
@@ -75,8 +84,8 @@ func test_fallback_to_default_event() -> void:
 	var t = NarrativeTemplateClass.new()
 	t.title = "Default Event Title"
 	
-	var expected_path = "res://database/registry/narratives/star/RAW_ADEQUATE/LAWLESS/default.tres"
-	_chronicle.mock_files[expected_path] = t
+	var expected_path = "res://database/registry/narrative_templates/star/RAW_ADEQUATE/LAWLESS/default.tres"
+	_chronicle.mock_system.mock_files[expected_path] = t
 	
 	var resolved = _chronicle.resolve_narrative_template("s1", "ambient")
 	assert_not_null(resolved)
@@ -86,8 +95,8 @@ func test_fallback_to_default_security() -> void:
 	var t = NarrativeTemplateClass.new()
 	t.title = "Default Security Title"
 	
-	var expected_path = "res://database/registry/narratives/star/RAW_ADEQUATE/default/default.tres"
-	_chronicle.mock_files[expected_path] = t
+	var expected_path = "res://database/registry/narrative_templates/star/RAW_ADEQUATE/default/default.tres"
+	_chronicle.mock_system.mock_files[expected_path] = t
 	
 	var resolved = _chronicle.resolve_narrative_template("s1", "ambient")
 	assert_not_null(resolved)
@@ -97,8 +106,8 @@ func test_fallback_to_default_sector() -> void:
 	var t = NarrativeTemplateClass.new()
 	t.title = "Default Sector Title"
 	
-	var expected_path = "res://database/registry/narratives/star/default.tres"
-	_chronicle.mock_files[expected_path] = t
+	var expected_path = "res://database/registry/narrative_templates/star/default.tres"
+	_chronicle.mock_system.mock_files[expected_path] = t
 	
 	var resolved = _chronicle.resolve_narrative_template("s1", "ambient")
 	assert_not_null(resolved)
@@ -108,8 +117,8 @@ func test_fallback_to_global_default() -> void:
 	var t = NarrativeTemplateClass.new()
 	t.title = "Global Default Title"
 	
-	var expected_path = "res://database/registry/narratives/default.tres"
-	_chronicle.mock_files[expected_path] = t
+	var expected_path = "res://database/registry/narrative_templates/default.tres"
+	_chronicle.mock_system.mock_files[expected_path] = t
 	
 	var resolved = _chronicle.resolve_narrative_template("s1", "ambient")
 	assert_not_null(resolved)
@@ -126,7 +135,7 @@ func test_ui_interaction_window_displays_resolved_narrative() -> void:
 	t.title = "Story Title"
 	t.body_text = "Story Body text creole jargon."
 	
-	_chronicle.mock_files["res://database/registry/narratives/default.tres"] = t
+	_chronicle.mock_system.mock_files["res://database/registry/narrative_templates/default.tres"] = t
 	
 	var window = InteractionWindowScene.instance()
 	add_child_autofree(window)

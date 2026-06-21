@@ -13,3 +13,10 @@ class_name NarrativeTemplate
 export var title: String = ""
 export var body_text: String = ""
 export var creole_dialect: String = ""
+
+# Gating Parameters (for verification/validation of static resolution)
+export var required_sector_type: String = ""
+export var required_economy_tag: String = ""
+export var required_security_tag: String = ""
+export var required_event_type: String = ""
+
