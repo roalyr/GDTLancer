@@ -6,7 +6,7 @@ OWNER: architect
 ACCESS: read-only-owner
 USER INSTRUCTION: NONE
 TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_PROJECT.md § Workflow And Scope Boundary; TRUTH_PROJECT.md § Session Logging Boundary
-LOG_REF: 2026-06-21 00:43:00
+LOG_REF: 2026-06-21 13:06:00
 -->
 
 WORKSPACE CONFIGURATION
@@ -37,11 +37,12 @@ Read only when the active task requires it:
 1. [TRUTH_LORE-CONSTRAINTS.md](TRUTH_LORE-CONSTRAINTS.md) — the binding lore rules and frontier constraints.
 2. [TRUTH_SIMULATION-GRAPH.md](TRUTH_SIMULATION-GRAPH.md) — simulation/runtime authority. Prefer Section 0 plus Section 6 for live implementation work.
 3. [TRUTH_CONTENT-CREATION-MANUAL.md](TRUTH_CONTENT-CREATION-MANUAL.md) — content authoring/data workflows.
-4. [STABILIZATION_SEAM_INVENTORY.md](STABILIZATION_SEAM_INVENTORY.md) — retained or carry-forward seam guidance when reopening a compatibility area.
-5. [TRUTH_CONSTRAINTS.md](TRUTH_CONSTRAINTS.md) — compatibility reference for older contracts and historical log links; no longer required as a default first-read surface.
-6. [AI-ACKNOWLEDGEMENT.md](AI-ACKNOWLEDGEMENT.md) — human review and AI-usage boundary.
-7. [GDD-REVISION-LEDGER.md](GDD-REVISION-LEDGER.md) — approved live-vs-frozen doctrine changes; load for architect/design pivots, truth rewrites, and setting-alignment work.
-8. [STRATEGICAL-TODO.md](STRATEGICAL-TODO.md) — consolidated master design directive and strategical roadmap checklist; load for architect milestone generation and tracking design status.
+4. [TRUTH_PROHIBITED-SEAMS.md](TRUTH_PROHIBITED-SEAMS.md) — registry of banned features and mechanics to prevent scope creep.
+5. [STABILIZATION_SEAM_INVENTORY.md](STABILIZATION_SEAM_INVENTORY.md) — retained or carry-forward seam guidance when reopening a compatibility area.
+6. [TRUTH_CONSTRAINTS.md](TRUTH_CONSTRAINTS.md) — compatibility reference for older contracts and historical log links; no longer required as a default first-read surface.
+7. [AI-ACKNOWLEDGEMENT.md](AI-ACKNOWLEDGEMENT.md) — human review and AI-usage boundary.
+8. [GDD-REVISION-LEDGER.md](GDD-REVISION-LEDGER.md) — approved live-vs-frozen doctrine changes; load for architect/design pivots, truth rewrites, and setting-alignment work.
+9. [STRATEGICAL-TODO.md](STRATEGICAL-TODO.md) — consolidated master design directive and strategical roadmap checklist; load for architect milestone generation and tracking design status.
 
 Do not load by default:
 

@@ -1,20 +1,11 @@
-## CURRENT GOAL: Milestone 11 (Hardened Narrative Content Pipeline)
-- TARGET_SCOPE: Implement the narrative content delivery system (REV_010). Narrative prose is not procedurally generated; instead, the local sector's tags are used to query a static, hand-authored directory of `.tres` resource templates. Establish the sub-folder directory structure for template lookup (`templates/{sector_type}/{economy_tag}/{security_tag}/{event_type}.tres`).
+## CURRENT GOAL: Milestone 14 (Prohibited Seams Registry Formalization)
+- TARGET_SCOPE: Establish a permanent, truth-level prohibited seams list. Add initial entries and set architect policy for future additions.
 - TARGET_FILES:
-  - `src/core/systems/narrative_system.gd` (or similar new system script) — to handle the querying and delivery of narrative templates based on sector tags.
-  - `database/registry/narrative_templates/` — define the sub-folder structure and create initial `.tres` stubs for testing the pipeline.
-  - `src/core/ui/chronicle_view.gd` (or similar UI script) — integrate the narrative system to display the text in the Chronicle View.
-- TRUTH_RELIANCE:
-  - `STRATEGICAL-TODO.md` § REV_010 & Design Question Log 3
-  - `TRUTH_CONTENT-CREATION-MANUAL.md` (for the narrative jargon guidelines)
-- TECHNICAL_CONSTRAINTS:
-  - Godot 3.6 stable compatibility.
-  - Forbidden GDScript syntax: `@export`, `@onready`, and `await`.
-  - Content lookup must be deterministic and grid-driven.
+  - `TRUTH_PROHIBITED-SEAMS.md` — New file to hold the registry.
+  - `MODEL-CASCADE-PROTOCOL.md` — To register the new truth file in the read path.
+- TRUTH_RELIANCE: `STRATEGICAL-TODO.md` § REV_014
+- TECHNICAL_CONSTRAINTS: Truth file formatting standards.
 - ATOMIC_TASKS:
-  - [x] TASK_1: **Architecture & Data Schema.** Define the `NarrativeTemplate` resource script (`.gd`) with fields for title, body text, and any required gating parameters. Establish the exact directory structure pattern.
-  - [x] TASK_2: **Implement Narrative Query Engine.** Build the system that takes current sector tags (sector_type, economy_tag, security_tag) and the specific event_type to resolve the correct `.tres` file path. Handle fallbacks gracefully.
-  - [x] TASK_3: **Authored Stubs.** Create at least 3 distinct narrative template `.tres` files in the new directory structure using the Lore Lexicon to verify the lookup engine.
-  - [x] TASK_4: **Chronicle View Integration.** Wire the query engine into the UI so that interaction events or sector entries request and display the correct narrative prose.
-  - [x] VERIFICATION: Write headless GUT tests verifying the path resolution logic and fallback behavior of the narrative query engine. Ensure all tests pass.
-
+  - [x] TASK_1: **Create Registry.** Create `TRUTH_PROHIBITED-SEAMS.md` with the standard header. Add entries: (1) No speculative market displays (Wealth Track increments instead of raw credits), (2) No 3D on-foot navigation (2D Chronicle View menus only). Include architect policy for adding new seams.
+  - [x] TASK_2: **Register File.** Update `MODEL-CASCADE-PROTOCOL.md` to add `[TRUTH_PROHIBITED-SEAMS.md](TRUTH_PROHIBITED-SEAMS.md)` to the "Read only when the active task requires it" list.
+  - [x] VERIFICATION: Verify headers and formatting. Code verification complete since this is purely documentation.

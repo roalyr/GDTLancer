@@ -352,10 +352,10 @@ This extends the milestone order from [GDD-REVISION-LEDGER-1.md § Follow-on Mil
 | 9 | [x] | Morale & Supplies Stat Integration | Milestone 8 | REV_012 |
 | 10 | [x] | Chronicle View Architecture | Milestone 7 | REV_009 |
 | L1 | [x] | Lore Conformance Gate | Milestones 8, 9, 10, 12 | NEW |
-| 11 | [ ] | Hardened Narrative Content Pipeline | Milestone L1, Milestone 10 | REV_010 |
+| 11 | [x] | Hardened Narrative Content Pipeline | Milestone L1, Milestone 10 | REV_010 |
 | 12 | [x] | Manual Space Graph & In-Sector POI System | Milestone 7 | REV_013 |
-| 13 | [ ] | Hierarchical Universe Topology Formalization | Milestone L1, Milestone 12 | REV_005 |
-| 14 | [ ] | Prohibited Seams Registry Formalization | Milestone L1, Milestone 7 | REV_014 |
+| 13 | [x] | Hierarchical Universe Topology Formalization | Milestone L1, Milestone 12 | REV_005 |
+| 14 | [x] | Prohibited Seams Registry Formalization | Milestone L1, Milestone 7 | REV_014 |
 
 > [!TIP]
 > Milestones 8–9 (agent data) and 10–11 (UI) can proceed in parallel once the truth alignment pass (Milestone 7) is complete. Milestone 12 (space graph) is independent and can also run in parallel.
