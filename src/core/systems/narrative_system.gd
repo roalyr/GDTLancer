@@ -5,7 +5,7 @@
 # ACCESS: read-write
 # USER INSTRUCTION: NONE
 # TRUTH_LINK: GDD-MASTER-DESIGN-DIRECTIVE.md §2.2, §7.4; TRUTH_GAME-LOOP-VISION.md §5.2
-# LOG_REF: 2026-06-21 16:00:00
+# LOG_REF: 2026-06-22 01:10:00
 
 extends Reference
 class_name NarrativeSystem
@@ -24,14 +24,14 @@ func resolve_narrative_template(sector_id: String, event_type: String) -> Resour
 		if topo.has("sector_type"):
 			sector_type = topo["sector_type"]
 			
-	var economy_tag = "RAW_ADEQUATE"
+	var economy_tag = "default"
 	if GameState.sector_tags.has(sector_id):
 		for tag in GameState.sector_tags[sector_id]:
 			if tag.begins_with("RAW_") or tag.begins_with("MANUFACTURED_") or tag.begins_with("CURRENCY_"):
 				economy_tag = tag
 				break
 				
-	var security_tag = "LAWLESS"
+	var security_tag = "default"
 	if GameState.sector_tags.has(sector_id):
 		for tag in ["SECURE", "CONTESTED", "LAWLESS"]:
 			if tag in GameState.sector_tags[sector_id]:

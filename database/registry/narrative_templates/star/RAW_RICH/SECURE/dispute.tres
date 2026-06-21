@@ -1,0 +1,14 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/narrative_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "narrative_dispute_rich"
+title = "Locked Loading Bay"
+body_text = "Two prominent haulage clans have locked down loading bay four, halting the transfer of high-grade raw ore over a debt dispute. The local watchkeep refuses to take sides, and the station cooperative is seeking a neutral party to arbitrate before the settlement's trade dries up."
+creole_dialect = "Pragmatic Creole"
+required_sector_type = "star"
+required_economy_tag = "RAW_RICH"
+required_security_tag = "SECURE"
+required_event_type = "dispute"

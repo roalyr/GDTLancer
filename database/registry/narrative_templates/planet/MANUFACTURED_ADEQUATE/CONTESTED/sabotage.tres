@@ -1,0 +1,14 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/narrative_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "narrative_sabotage_contested"
+title = "Crippled Processing Line"
+body_text = "Tensions between local assembly families on the manufacturing deck have boiled over. The main breaker-rig power line has been cut, halting assembly. The deck foreman is looking for independent hands to mediate or secure the repair site before the watchkeep shuts the whole sector down."
+creole_dialect = "Pragmatic Creole"
+required_sector_type = "planet"
+required_economy_tag = "MANUFACTURED_ADEQUATE"
+required_security_tag = "CONTESTED"
+required_event_type = "sabotage"

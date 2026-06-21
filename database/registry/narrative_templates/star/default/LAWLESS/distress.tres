@@ -1,0 +1,14 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/narrative_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "narrative_rescue_lawless"
+title = "Degraded Hailer Signal"
+body_text = "A weak comms-scratch cuts through the static. A stranded iron-scow's crew is sweating vacuum out in the lawless drift, their hull buckling under thermal strain. They are offering their remaining heavy-water cache in exchange for a tow back to the enclaves."
+creole_dialect = "Pragmatic Creole"
+required_sector_type = "star"
+required_economy_tag = ""
+required_security_tag = "LAWLESS"
+required_event_type = "distress"

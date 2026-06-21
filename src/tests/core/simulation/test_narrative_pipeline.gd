@@ -155,3 +155,50 @@ func test_ui_interaction_window_displays_resolved_narrative() -> void:
 	assert_not_null(body)
 	assert_true(header.text.find("Story Title") != -1, "Header should contain story title.")
 	assert_eq(body.text, "Story Body text creole jargon.", "Body should display resolved narrative body.")
+
+func test_diverse_narrative_templates_resolution() -> void:
+	var t_rescue = NarrativeTemplateClass.new()
+	t_rescue.title = "Rescue"
+	var t_sabotage = NarrativeTemplateClass.new()
+	t_sabotage.title = "Sabotage"
+	var t_dispute = NarrativeTemplateClass.new()
+	t_dispute.title = "Dispute"
+	var t_anomaly = NarrativeTemplateClass.new()
+	t_anomaly.title = "Anomaly"
+	
+	_chronicle.mock_system.mock_files["res://database/registry/narrative_templates/star/default/LAWLESS/distress.tres"] = t_rescue
+	_chronicle.mock_system.mock_files["res://database/registry/narrative_templates/planet/MANUFACTURED_ADEQUATE/CONTESTED/sabotage.tres"] = t_sabotage
+	_chronicle.mock_system.mock_files["res://database/registry/narrative_templates/star/RAW_RICH/SECURE/dispute.tres"] = t_dispute
+	_chronicle.mock_system.mock_files["res://database/registry/narrative_templates/deep_space/default/default/anomaly.tres"] = t_anomaly
+	
+	# Test Rescue
+	GameState.world_topology["s1"]["sector_type"] = "star"
+	GameState.sector_tags["s1"] = ["LAWLESS"]
+	var resolved_rescue = _chronicle.resolve_narrative_template("s1", "distress")
+	assert_not_null(resolved_rescue)
+	if resolved_rescue != null:
+		assert_eq(resolved_rescue.title, "Rescue")
+	
+	# Test Sabotage
+	GameState.world_topology["s1"]["sector_type"] = "planet"
+	GameState.sector_tags["s1"] = ["MANUFACTURED_ADEQUATE", "CONTESTED"]
+	var resolved_sabotage = _chronicle.resolve_narrative_template("s1", "sabotage")
+	assert_not_null(resolved_sabotage)
+	if resolved_sabotage != null:
+		assert_eq(resolved_sabotage.title, "Sabotage")
+	
+	# Test Dispute
+	GameState.world_topology["s1"]["sector_type"] = "star"
+	GameState.sector_tags["s1"] = ["RAW_RICH", "SECURE"]
+	var resolved_dispute = _chronicle.resolve_narrative_template("s1", "dispute")
+	assert_not_null(resolved_dispute)
+	if resolved_dispute != null:
+		assert_eq(resolved_dispute.title, "Dispute")
+	
+	# Test Anomaly
+	GameState.world_topology["s1"]["sector_type"] = "deep_space"
+	GameState.sector_tags["s1"] = []
+	var resolved_anomaly = _chronicle.resolve_narrative_template("s1", "anomaly")
+	assert_not_null(resolved_anomaly)
+	if resolved_anomaly != null:
+		assert_eq(resolved_anomaly.title, "Anomaly")

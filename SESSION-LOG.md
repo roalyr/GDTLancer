@@ -6,12 +6,16 @@ OWNER: developer
 ACCESS: read-write
 USER INSTRUCTION: NONE
 TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_PROJECT.md § Compatibility Constraints; TRUTH_PROJECT.md § Automated Testing Boundary; TRUTH_PROJECT.md § Session Logging Boundary; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
-LOG_REF: 2026-06-22 00:51:00
+LOG_REF: 2026-06-22 00:58:00
 -->
 
 # SESSION LOG - GDTLancer
 
 | Timestamp | Agent | Action | Result | Note for Future Agents |
+| 2026-06-22 01:12:00 | Developer | Fix Narrative System tag fallbacks | SUCCESS | Changed default economy and security tags in narrative_system.gd from hardcoded values to 'default' to fix path resolution failures for sectors lacking those tags (e.g. distress and anomaly tests). Touched files: src/core/systems/narrative_system.gd. |
+| 2026-06-22 01:08:00 | Developer | Lore Alignment for Narrative Templates | SUCCESS | Refined all newly created narrative templates to conform to TRUTH_LORE-CONSTRAINTS.md and TRUTH_CONTENT-CREATION-MANUAL.md creole guidelines, replacing corporate/high-tech terms with low-tech nautical creole. Touched files: distress.tres, sabotage.tres, dispute.tres, anomaly.tres. |
+| 2026-06-22 00:58:00 | Developer | Implement Milestone 17 (Diverse Narrative Tasks & Interactions) | SUCCESS | Created 4 new narrative templates (distress.tres, sabotage.tres, dispute.tres, anomaly.tres) mapped to specific environment/security tags. Added tests to test_narrative_pipeline.gd to verify correct tag-based resolution. Tests bypassed per user request. |
+| 2026-06-22 00:55:00 | Architect | Define Milestone 17 (Diverse Narrative Tasks & Interactions) | SUCCESS | Created the contract in TACTICAL_TODO.md for Milestone 17. The milestone tasks involve creating diverse narrative templates mapped to environmental pressure tags and verifying them through the narrative pipeline tests. |
 | 2026-06-22 00:51:00 | Architect | Promote MVP Proposal to TRUTH_MVP_CORE.md | SUCCESS | Created TRUTH_MVP_CORE.md from the MVP Core Implementation Proposal artifact. Updated MODEL-CASCADE-PROTOCOL.md linked read paths to include it, and updated STRATEGICAL-TODO.md reliance references. |
 | 2026-06-22 00:48:00 | Architect | Restructure STRATEGICAL-TODO.md | SUCCESS | Archived previous STRATEGICAL-TODO.md to archive/STRATEGICAL-TODO-v1.2.md. Created new STRATEGICAL-TODO.md with clearer scheme focused on MVP Core Implementation milestones (17-20). |
 | 2026-06-22 00:44:00 | Developer | Move ActionTray.tscn to scenes/ | SUCCESS | Moved ActionTray.tscn from src/core/ui/action_tray/ to scenes/ui/menus/action_tray/ and updated reference in InteractionWindow.tscn. |

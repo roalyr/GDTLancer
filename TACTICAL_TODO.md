@@ -1,13 +1,11 @@
-## CURRENT GOAL: Milestone 16 (3d6 Action Tray UI & Mechanics)
-- TARGET_SCOPE: Implement the interactive 3d6 Action Tray UI for resolving narrative and systemic actions in Mode B (Chronicle View), surface Cautious/Risky toggles, and connect it to CoreMechanicsAPI.
+## CURRENT GOAL: Milestone 17 (Diverse Narrative Tasks & Interactions)
+- TARGET_SCOPE: Add diverse narrative task stubs (e.g., mediating disputes, rescuing stranded personnel, sabotage, or surveying anomalies) as static `.tres` templates (NarrativeTemplate). Ensure the environment applies pressure by writing templates that match specific security or economy tags rather than relying on mathematical logic.
 - TARGET_FILES:
-  - `src/core/ui/action_tray/action_tray.gd` (and `.tscn`) — New dedicated UI component for the dice tray.
-  - `src/core/ui/interaction_window/interaction_window.gd` (and `.tscn`) — To mount and trigger the action tray.
-  - `src/autoload/CoreMechanicsAPI.gd` — To ensure dice rolls correctly process the Cautious/Risky approaches.
-- TRUTH_RELIANCE: `STRATEGICAL-TODO.md` § REV_015; MVP_CORE_IMPLEMENTATION_PROPOSAL.md § 3.A, 4
-- TECHNICAL_CONSTRAINTS: Godot 3 Control nodes, no `@onready`, no `@export`.
+  - `database/registry/narrative_templates/` — Create new narrative templates across different categories.
+  - `src/tests/core/simulation/test_narrative_pipeline.gd` — Update tests to verify the new template stubs correctly resolve based on `NarrativeSystem` fallback queries.
+- TRUTH_RELIANCE: `TRUTH_MVP_CORE.md` §3.A, 3.C; `TRUTH_CONTENT-CREATION-MANUAL.md` §2.3
+- TECHNICAL_CONSTRAINTS: Godot 3 `Resource` loading. Templates must be deterministic. The system must select the most specific template available based on the `NarrativeSystem` query logic (Sector Type -> Economy -> Security -> Event). No procedural text generation.
 - ATOMIC_TASKS:
-  - [x] TASK_1: **Action Tray Scaffold.** Create `ActionTray.tscn` and `action_tray.gd`. Include visual elements for 3d6 roll results, modifier inputs (Wealth, Morale), and a toggle for Cautious vs Risky approach.
-  - [x] TASK_2: **Mechanics Integration.** Wire `action_tray.gd` to `CoreMechanicsAPI.perform_action_check`. Ensure the Cautious vs Risky approach correctly alters the roll logic or modifiers.
-  - [x] TASK_3: **Interaction Window Mounting.** Mount the `ActionTray` inside the `InteractionWindow` (Mode B). Trigger it via a placeholder narrative action button in the Chronicle Log.
-  - [x] VERIFICATION: Verify the UI correctly pops up, performs the roll via the mechanics API, displays the result, and dismisses correctly. All tests must pass.
+  - [x] TASK_1: **Narrative Task Stubs.** Create at least 4 new `NarrativeTemplate` resources representing distinct narrative challenges: a rescue mission, a sabotage event, mediating a dispute, and surveying an anomaly. Organize them in the `database/registry/narrative_templates/` folder structure.
+  - [x] TASK_2: **Template Gating Validation.** Configure `required_sector_type`, `required_economy_tag`, `required_security_tag`, and `required_event_type` for the new templates to ensure they only appear when the GridLayer tags match.
+  - [x] VERIFICATION: Extend `test_narrative_pipeline.gd` to assert that requesting narrative contexts with specific combinations of tags successfully returns the newly created templates. All tests must pass (GUT run bypassed per user).

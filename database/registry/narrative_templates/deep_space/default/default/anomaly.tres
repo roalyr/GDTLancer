@@ -1,0 +1,14 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/narrative_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "narrative_anomaly_deep_space"
+title = "Drift Distortion"
+body_text = "The scanning board is screaming with a severe gravitational warp in the deep space void. Telemetry patterns from this anomaly would fetch substantial scrap credit from local scavengers, if we can navigate the vessel close enough to log the drift data."
+creole_dialect = "Pragmatic Creole"
+required_sector_type = "deep_space"
+required_economy_tag = ""
+required_security_tag = ""
+required_event_type = "anomaly"

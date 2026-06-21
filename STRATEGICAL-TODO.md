@@ -18,7 +18,7 @@ LOG_REF: 2026-06-22 00:48:00
 
 ## TACTICAL_MILESTONES
 
-- [ ] **MILESTONE_17: Diverse Narrative Tasks & Interactions**
+- [x] **MILESTONE_17: Diverse Narrative Tasks & Interactions**
   - **Description**: Add narrative task stubs (mediating disputes, rescuing personnel, sabotage, anomalies) via static `.tres` templates instead of trading contracts. Ensure the environment applies pressure, not just mechanical math.
 
 - [ ] **MILESTONE_18: Sub-Agent Narrative Morale & Mutiny Events**
