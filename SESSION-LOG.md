@@ -6,12 +6,14 @@ OWNER: developer
 ACCESS: read-write
 USER INSTRUCTION: NONE
 TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_PROJECT.md § Compatibility Constraints; TRUTH_PROJECT.md § Automated Testing Boundary; TRUTH_PROJECT.md § Session Logging Boundary; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
-LOG_REF: 2026-06-22 00:44:00
+LOG_REF: 2026-06-22 00:51:00
 -->
 
 # SESSION LOG - GDTLancer
 
 | Timestamp | Agent | Action | Result | Note for Future Agents |
+| 2026-06-22 00:51:00 | Architect | Promote MVP Proposal to TRUTH_MVP_CORE.md | SUCCESS | Created TRUTH_MVP_CORE.md from the MVP Core Implementation Proposal artifact. Updated MODEL-CASCADE-PROTOCOL.md linked read paths to include it, and updated STRATEGICAL-TODO.md reliance references. |
+| 2026-06-22 00:48:00 | Architect | Restructure STRATEGICAL-TODO.md | SUCCESS | Archived previous STRATEGICAL-TODO.md to archive/STRATEGICAL-TODO-v1.2.md. Created new STRATEGICAL-TODO.md with clearer scheme focused on MVP Core Implementation milestones (17-20). |
 | 2026-06-22 00:44:00 | Developer | Move ActionTray.tscn to scenes/ | SUCCESS | Moved ActionTray.tscn from src/core/ui/action_tray/ to scenes/ui/menus/action_tray/ and updated reference in InteractionWindow.tscn. |
 | 2026-06-22 00:37:00 | Developer | Implement Milestone 16 (3d6 Action Tray UI & Mechanics) | SUCCESS | Created ActionTray.tscn and action_tray.gd to handle 3d6 rolls with Cautious/Risky approaches. Integrated into CoreMechanicsAPI. Wired the BtnTriggerAction in InteractionWindow to show the ActionTray. Tests bypassed per user request. |
 | 2026-06-22 00:28:00 | Developer | Fix Narrative Pipeline Unit Test Path | SUCCESS | Updated the LabelContextInfo node path in test_narrative_pipeline.gd to Panel/VBoxContainer/TabContainer/Chronicle Log/LabelContextInfo matching the TabContainer Chronicle Log refactor. |

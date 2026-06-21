@@ -43,6 +43,7 @@ Read only when the active task requires it:
 7. [AI-ACKNOWLEDGEMENT.md](AI-ACKNOWLEDGEMENT.md) — human review and AI-usage boundary.
 8. [GDD-REVISION-LEDGER.md](GDD-REVISION-LEDGER.md) — approved live-vs-frozen doctrine changes; load for architect/design pivots, truth rewrites, and setting-alignment work.
 9. [STRATEGICAL-TODO.md](STRATEGICAL-TODO.md) — consolidated master design directive and strategical roadmap checklist; load for architect milestone generation and tracking design status.
+10. [TRUTH_MVP_CORE.md](TRUTH_MVP_CORE.md) — the playable MVP core implementation proposal and emergent narrative game loop doctrine.
 
 Do not load by default:
 
