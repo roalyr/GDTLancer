@@ -1,15 +1,13 @@
-## CURRENT GOAL: Milestone 15 (Chronicle View UI Scaffold & TTRPG Pivot)
-- TARGET_SCOPE: Formalize the Solo TTRPG pivot in the active ledger, archive completed revisions, and scaffold the new Mode B (Chronicle View) UI layout without the legacy Contract Board or raw trade panels.
+## CURRENT GOAL: Milestone 16 (3d6 Action Tray UI & Mechanics)
+- TARGET_SCOPE: Implement the interactive 3d6 Action Tray UI for resolving narrative and systemic actions in Mode B (Chronicle View), surface Cautious/Risky toggles, and connect it to CoreMechanicsAPI.
 - TARGET_FILES:
-  - `GDD-REVISION-LEDGER.md` — Active ledger promotion.
-  - `archive/GDD-REVISION-LEDGER-1.md` — Ledger archival.
-  - `src/core/ui/interaction_window/interaction_window.gd` (and `.tscn`) — Main Mode B UI root.
-  - `src/core/ui/npc_trade_panel/npc_trade_panel.gd` (and `.tscn`) — To be disabled/removed.
-  - `src/core/ui/main_hud/main_hud.gd` — To rewire any missing paths.
-- TRUTH_RELIANCE: `STRATEGICAL-TODO.md` § REV_015
+  - `src/core/ui/action_tray/action_tray.gd` (and `.tscn`) — New dedicated UI component for the dice tray.
+  - `src/core/ui/interaction_window/interaction_window.gd` (and `.tscn`) — To mount and trigger the action tray.
+  - `src/autoload/CoreMechanicsAPI.gd` — To ensure dice rolls correctly process the Cautious/Risky approaches.
+- TRUTH_RELIANCE: `STRATEGICAL-TODO.md` § REV_015; MVP_CORE_IMPLEMENTATION_PROPOSAL.md § 3.A, 4
 - TECHNICAL_CONSTRAINTS: Godot 3 Control nodes, no `@onready`, no `@export`.
 - ATOMIC_TASKS:
-  - [x] TASK_1: **Ledger Maintenance.** Archive `REV_010`, `REV_011`, and `REV_014` from `GDD-REVISION-LEDGER.md` to `archive/GDD-REVISION-LEDGER-1.md`. Promote `REV_015` from `STRATEGICAL-TODO.md` into `GDD-REVISION-LEDGER.md`.
-  - [x] TASK_2: **Chronicle View Tab Scaffold.** Refactor `InteractionWindow` to use a `TabContainer` as its primary layout. Add three generic tabs: `Chronicle Log`, `Ship & Crew`, `Cargo & Wealth`.
-  - [x] TASK_3: **Purge Legacy Trade Board.** Disconnect, remove, or fully disable `npc_trade_panel` usage within `InteractionWindow` as it violates the TTRPG pivot (no raw contract boards/menus). Wire a simple placeholder `RichTextLabel` into the `Chronicle Log` tab for future narrative interactions.
-  - [x] VERIFICATION: Ensure the game boots without script errors and the InteractionWindow still opens/closes correctly via HUD. All 400+ unit and UI integration tests must pass cleanly (bypassed).
+  - [x] TASK_1: **Action Tray Scaffold.** Create `ActionTray.tscn` and `action_tray.gd`. Include visual elements for 3d6 roll results, modifier inputs (Wealth, Morale), and a toggle for Cautious vs Risky approach.
+  - [x] TASK_2: **Mechanics Integration.** Wire `action_tray.gd` to `CoreMechanicsAPI.perform_action_check`. Ensure the Cautious vs Risky approach correctly alters the roll logic or modifiers.
+  - [x] TASK_3: **Interaction Window Mounting.** Mount the `ActionTray` inside the `InteractionWindow` (Mode B). Trigger it via a placeholder narrative action button in the Chronicle Log.
+  - [x] VERIFICATION: Verify the UI correctly pops up, performs the roll via the mechanics API, displays the result, and dismisses correctly. All tests must pass.

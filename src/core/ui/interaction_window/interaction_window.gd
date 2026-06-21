@@ -18,13 +18,19 @@ var _current_target = null
 # --- Node References (resolved in _ready) ---
 var _label_target_name: Label = null
 var _label_context_info: Label = null
-
+var _btn_trigger_action: Button = null
+var _action_tray: Control = null
 
 func _ready() -> void:
 	pause_mode = PAUSE_MODE_PROCESS
 	visible = false
 	_label_target_name = get_node_or_null("Panel/VBoxContainer/HeaderRow/LabelTargetName")
 	_label_context_info = get_node_or_null("Panel/VBoxContainer/TabContainer/Chronicle Log/LabelContextInfo")
+	_btn_trigger_action = get_node_or_null("Panel/VBoxContainer/TabContainer/Chronicle Log/BtnTriggerAction")
+	_action_tray = get_node_or_null("ActionTray")
+	
+	if is_instance_valid(_btn_trigger_action) and not _btn_trigger_action.is_connected("pressed", self, "_on_BtnTriggerAction_pressed"):
+		_btn_trigger_action.connect("pressed", self, "_on_BtnTriggerAction_pressed")
 
 
 # --- Public API ---
@@ -140,4 +146,17 @@ func _resolve_npc_name(agent_id: String) -> String:
 func _on_BtnClose_pressed() -> void:
 	close()
 
-
+func _on_BtnTriggerAction_pressed() -> void:
+	if is_instance_valid(_action_tray):
+		var wealth_mod = 0
+		var health_mod = 0
+		if GameState.agents.has("player"):
+			var p_state = GameState.agents["player"]
+			var w_tier = p_state.get("wealth_tier", 0)
+			# Fallback if Constants mapping isn't perfect, usually handled in agent_layer
+			if "WEALTH_MODIFIERS" in Constants and Constants.WEALTH_MODIFIERS.has(w_tier):
+				wealth_mod = Constants.WEALTH_MODIFIERS[w_tier]
+			var h_tag = p_state.get("condition_tag", "NOMINAL")
+			if "CONDITION_MODIFIERS" in Constants and Constants.CONDITION_MODIFIERS.has(h_tag):
+				health_mod = Constants.CONDITION_MODIFIERS[h_tag]
+		_action_tray.open_tray(wealth_mod, health_mod, 0)

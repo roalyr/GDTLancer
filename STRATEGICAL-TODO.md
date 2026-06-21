@@ -372,7 +372,7 @@ This extends the milestone order from [GDD-REVISION-LEDGER-1.md § Follow-on Mil
 | 13 | [x] | Hierarchical Universe Topology Formalization | Milestone L1, Milestone 12 | REV_005 |
 | 14 | [x] | Prohibited Seams Registry Formalization | Milestone L1, Milestone 7 | REV_014 |
 | 15 | [x] | Chronicle View UI Scaffold & TTRPG Pivot | Milestone 14 | REV_015 |
-| 16 | [ ] | 3d6 Action Tray UI & Mechanics | Milestone 15 | REV_015 |
+| 16 | [x] | 3d6 Action Tray UI & Mechanics | Milestone 15 | REV_015 |
 
 > [!TIP]
 > Milestones 8–9 (agent data) and 10–11 (UI) can proceed in parallel once the truth alignment pass (Milestone 7) is complete. Milestone 12 (space graph) is independent and can also run in parallel.

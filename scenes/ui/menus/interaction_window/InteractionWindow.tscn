@@ -2,6 +2,7 @@
 
 [ext_resource path="res://src/core/ui/interaction_window/interaction_window.gd" type="Script" id=1]
 [ext_resource path="res://assets/themes/main_theme.tres" type="Theme" id=2]
+[ext_resource path="res://scenes/ui/menus/action_tray/ActionTray.tscn" type="PackedScene" id=3]
 
 [node name="InteractionWindow" type="Control"]
 anchor_right = 1.0
@@ -74,6 +75,12 @@ margin_bottom = 364.0
 size_flags_vertical = 3
 text = "[Placeholder for narrative dialogue and emergent events]"
 
+[node name="BtnTriggerAction" type="Button" parent="Panel/VBoxContainer/TabContainer/Chronicle Log"]
+margin_top = 368.0
+margin_right = 852.0
+margin_bottom = 388.0
+text = "Take Action (3d6)"
+
 [node name="Ship & Crew" type="Control" parent="Panel/VBoxContainer/TabContainer"]
 visible = false
 anchor_right = 1.0
@@ -91,5 +98,8 @@ margin_left = 4.0
 margin_top = 32.0
 margin_right = -4.0
 margin_bottom = -4.0
+
+[node name="ActionTray" parent="." instance=ExtResource( 3 )]
+visible = false
 
 [connection signal="pressed" from="Panel/VBoxContainer/HeaderRow/BtnClose" to="." method="_on_BtnClose_pressed"]

@@ -6,12 +6,14 @@ OWNER: developer
 ACCESS: read-write
 USER INSTRUCTION: NONE
 TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_PROJECT.md § Compatibility Constraints; TRUTH_PROJECT.md § Automated Testing Boundary; TRUTH_PROJECT.md § Session Logging Boundary; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
-LOG_REF: 2026-06-21 00:52:00
+LOG_REF: 2026-06-22 00:44:00
 -->
 
 # SESSION LOG - GDTLancer
 
 | Timestamp | Agent | Action | Result | Note for Future Agents |
+| 2026-06-22 00:44:00 | Developer | Move ActionTray.tscn to scenes/ | SUCCESS | Moved ActionTray.tscn from src/core/ui/action_tray/ to scenes/ui/menus/action_tray/ and updated reference in InteractionWindow.tscn. |
+| 2026-06-22 00:37:00 | Developer | Implement Milestone 16 (3d6 Action Tray UI & Mechanics) | SUCCESS | Created ActionTray.tscn and action_tray.gd to handle 3d6 rolls with Cautious/Risky approaches. Integrated into CoreMechanicsAPI. Wired the BtnTriggerAction in InteractionWindow to show the ActionTray. Tests bypassed per user request. |
 | 2026-06-22 00:28:00 | Developer | Fix Narrative Pipeline Unit Test Path | SUCCESS | Updated the LabelContextInfo node path in test_narrative_pipeline.gd to Panel/VBoxContainer/TabContainer/Chronicle Log/LabelContextInfo matching the TabContainer Chronicle Log refactor. |
 | 2026-06-22 00:05:00 | Verificator | Verify Milestone 15 (Chronicle View UI Scaffold & TTRPG Pivot) | SUCCESS | Confirmed all tasks completed. UI refactored into a TabContainer, contract board hooks removed from InteractionWindow. Automated testing bypassed per user explicit instruction. Checked off Milestone 15 in STRATEGICAL-TODO.md. |
 | 2026-06-21 23:55:00 | Developer | Implement Milestone 15 (Chronicle View UI Scaffold & TTRPG Pivot) | SUCCESS | Archived REV_010, REV_011, REV_014. Promoted REV_015. Overwrote InteractionWindow.tscn to use TabContainer with Narrative tabs. Removed action buttons and BtnTrade to comply with TTRPG pivot. Tests bypassed per user request. |
