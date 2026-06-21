@@ -37,25 +37,15 @@ For each revision entry, use the same fields:
 > **Active Ledger Only:** This file contains only revisions that are not yet implemented in code (starting from `REV_010`). Previously implemented revisions (`REV_001` through `REV_009` and `REV_011`-`REV_013`) have been moved to the archived ledger: [archive/GDD-REVISION-LEDGER-1.md](archive/GDD-REVISION-LEDGER-1.md).
 
 
-### REV_010: Hardened Narrative Content Delivery
+### REV_015: Solo TTRPG & Emergent Narrative Pivot
 
-- Domain: Content Pipeline and Chronicle
-- Live Reality: There is no narrative content delivery system. NPC interaction surfaces a trade panel with raw data. No hand-authored narrative templates exist.
-- Frozen / Legacy Tension: The frozen GDD describes a Chronicle layer (Layer 4) for event capture and narrative, but the implementation model is unspecified.
-- Approved Direction: Narrative prose is not procedurally generated. The local sector's Grid layer tags are combined into a deterministic key string that queries a static, hand-authored directory of `.tres` resource templates. Content is authored in the sector's practical jargon creole. This enforces authored quality and prevents LLM or procedural text generation from entering the player-facing narrative layer.
-- Status: Approved direction
-- Blocked By: REV_009
-- Evidence: STRATEGICAL-TODO.md §2.2
-
-### REV_014: Prohibited Seams Registry
-
-- Domain: Scope Control
-- Live Reality: There is no formal registry of explicitly banned feature categories. Scope control relies on `TACTICAL_TODO.md` contract boundaries and architect judgment.
-- Frozen / Legacy Tension: The frozen GDD includes various feature descriptions (ship modules, detailed market UIs, equipment crafting) that are now out of scope but not formally prohibited.
-- Approved Direction: Establish a permanent, truth-level prohibited seams list. Initial entries: (1) No speculative market displays — player-facing trade uses Wealth Track increments and Contract Value Classes, never raw credit integers; (2) No 3D on-foot navigation — all station-side interaction is 2D grid-aligned Chronicle View menus. Future prohibited seams are added to this registry by architect directive only.
+- Domain: Core Gameplay Loop & UI
+- Live Reality: Previous designs assumed "contracts" as mechanical tasks picked from a board, and morale as a numerical modifier/lockout.
+- Frozen / Legacy Tension: The project risks feeling like a mechanical spreadsheet rather than a living world if tasks are just picked from a menu.
+- Approved Direction: Shift fully to a Solo TTRPG experience. The environment applies pressure (via GridLayer tags), and the player defines their goals. Remove the "Contract Board" concept entirely; tasks and opportunities emerge organically from interacting with actors or reacting to environmental events. Morale drops trigger narrative consequences and story beats (e.g., mutiny standoffs) rather than flat mathematical grinding. No linear hand-crafted missions.
 - Status: Approved direction
 - Blocked By: None
-- Evidence: STRATEGICAL-TODO.md §5
+- Evidence: MVP_CORE_IMPLEMENTATION_PROPOSAL.md
 
 
 ## Usage Notes

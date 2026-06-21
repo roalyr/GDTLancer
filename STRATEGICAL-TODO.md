@@ -11,12 +11,13 @@ LOG_REF: 2026-06-21 00:43:00
 
 # GDTLancer — Consolidated Master Design Directive
 
-**Version:** 1.1  
-**Date:** 2026-06-20  
+**Version:** 1.2  
+**Date:** 2026-06-22  
 **Status:** Draft — Revised  
 **Purpose:** Unified design synthesis that (a) supersedes the frozen combined GDD text, (b) stages new GDD Revision Ledger entries, and (c) identifies specific truth file sections that must be updated or replaced to align with the live directive.
 
 ## Changelog
+- **v1.2** (2026-06-22): Integrated Solo TTRPG and Emergent Narrative pivot (REV_015); removed Contract Boards; framed Morale as narrative consequence.
 - **v1.1** (2026-06-20): Initial synthesis pass; added REV_009–REV_014; adopted as STRATEGICAL-TODO.md.
 - **v1.0** (2026-06-20): First draft.
 
@@ -29,7 +30,7 @@ LOG_REF: 2026-06-21 00:43:00
 
 ## 0. Scope & Authority
 
-This blueprint synthesizes the core systems, universe topology, and interface framework into a unified, high-leverage development contract. It treats the digital substrate not as an open-ended world simulation, but as an **explicit, highly responsive digital board game and automated rulebook partner**.
+This blueprint synthesizes the core systems, universe topology, and interface framework into a unified, high-leverage development contract. It treats the digital substrate not as an open-ended world simulation, but as an **explicit, highly responsive digital board game and automated rulebook partner** that delivers a **Solo TTRPG Experience** focused on emergent narrative.
 
 ### 0.1 Relationship to Existing Truth Files
 
@@ -107,8 +108,8 @@ The moment the player interacts with an NPC, docks at infrastructure, opens the 
 
 | Aspect | Specification |
 |---|---|
-| **Focus** | Time is **completely paused**, transforming the interface into a meditative digital board game environment. |
-| **UX Surfaces** | Character sheets, 0–10 Wealth Track boxes, active contract meters, and a dedicated dice tray area (visual design deferred). |
+| **Focus** | Time is **completely paused**, transforming the interface into a meditative digital board game environment focused on narrative interactions. |
+| **UX Surfaces** | Chronicle Log, interaction panes, character sheets, 0–10 Wealth Track boxes, and a dedicated dice tray area (visual design deferred). **There is no Contract Board**; tasks emerge organically from dialogue and environmental events. |
 | **Hardened Content Delivery** | Narrative prose is **not generated procedurally**. Context is fetched **on demand** to avoid overwhelming the player: the default context is the local sector's Grid layer tags; the player can additionally pull character context, average sub-agent crew context, or a specific individual sub-agent context when they choose to interact with that sub-agent. Each context maps to a deterministic key string that queries a static, hand-authored directory of `.tres` resource templates written in the sector's practical jargon creole. |
 
 * **Partial live anchor:** [interaction_window.gd](file:///home/roalyr/Software_archive/Games/GDTLancer/src/core/ui/interaction_window.gd) is the designated root holder for Mode B. It currently scaffolds station-side NPC interaction; it will be expanded into the full Chronicle View system, with all sub-panels (trade, character sheet, map, dice tray, sub-agent view) mounted within it. [npc_trade_panel.gd](file:///home/roalyr/Software_archive/Games/GDTLancer/src/core/ui/npc_trade_panel/npc_trade_panel.gd) becomes one such sub-panel.
@@ -179,7 +180,7 @@ The status of a ship-commander entity is tracked via four distinct, high-level m
 
 ### 4.3 The Morale Mechanical Loop
 
-Morale tracks the human software. It cannot be directly bought with Wealth or patched with Supplies. Each sub-agent carries an individual Morale value; the ship or station aggregates these into an average Morale score that acts as the macro Action Check modifier for crew-dependent narrative rolls. If a captain ignores sub-agent needs or traps them in high-entropy sectors across too many World Event Ticks, individual Morale values decay and the aggregate score falls. **If the aggregate Morale drops to 0, it triggers a total operational strike or mutiny**.
+Morale tracks the human software. It cannot be directly bought with Wealth or patched with Supplies. Each sub-agent carries an individual Morale value; the ship or station aggregates these into an average Morale score that acts as the macro Action Check modifier for crew-dependent narrative rolls. If a captain ignores sub-agent needs or traps them in high-entropy sectors across too many World Event Ticks, individual Morale values decay and the aggregate score falls. **Morale must not be a perpetual mechanical grind. Drops in morale trigger specific narrative consequences (e.g., crew ultimatums). If the aggregate Morale drops to 0, it triggers a narrative mutiny story beat** that must be resolved, rather than a simple mechanical lock-out.
 
 > [!IMPORTANT]
 > Morale is the primary mechanical expression of [TRUTH_GAME-LOOP-VISION.md § 3.2 Defeat Conditions](file:///home/roalyr/Software_archive/Games/GDTLancer/TRUTH_GAME-LOOP-VISION.md#L73) — specifically "Social Ostracization" and "Community Disintegration".
@@ -215,6 +216,7 @@ The following entries are staged for promotion into a new active `GDD-REVISION-L
 - **REV_012: Morale Stat & Crew Morale System** (Promoted to ledger [x]; Implemented in code [ ] via Milestone 9)
 - **REV_013: Manual Space Graph & In-Sector POI Doctrine** (Promoted to ledger [x]; Implemented in code [ ] via Milestone 12)
 - **REV_014: Prohibited Seams Registry** (Promoted to ledger [x]; Implemented in code [ ] via Milestone 14)
+- **REV_015: Solo TTRPG & Emergent Narrative Pivot** (Promoted to ledger [ ]; Implemented in code [ ] via future milestone)
 
 ---
 
@@ -296,6 +298,19 @@ The following entries are staged for promotion into a new active `GDD-REVISION-L
 
 ---
 
+### REV_015: Solo TTRPG & Emergent Narrative Pivot
+
+- **Domain:** Core Gameplay Loop & UI
+- **Live Reality:** Previous designs assumed "contracts" as mechanical tasks picked from a board, and morale as a numerical modifier/lockout.
+- **Frozen / Legacy Tension:** The project risks feeling like a mechanical spreadsheet rather than a living world if tasks are just picked from a menu.
+- **Approved Direction:** Shift fully to a Solo TTRPG experience. The environment applies pressure (via GridLayer tags), and the player defines their goals. Remove the "Contract Board" concept entirely; tasks and opportunities emerge organically from interacting with actors or reacting to environmental events. Morale drops trigger narrative consequences and story beats (e.g., mutiny standoffs) rather than flat mathematical grinding. No linear hand-crafted missions.
+- **Status:** Staged — pending approval
+- **Blocked By:** None
+- **Follow-on Owners:** UI milestone sequence (Chronicle View); NarrativeSystem
+- **Evidence:** MVP_CORE_IMPLEMENTATION_PROPOSAL.md
+
+---
+
 ## 7. Truth File Update Plan
 
 When this directive is approved, the following truth file updates should be executed as a single architect-owned milestone:
@@ -356,6 +371,8 @@ This extends the milestone order from [GDD-REVISION-LEDGER-1.md § Follow-on Mil
 | 12 | [x] | Manual Space Graph & In-Sector POI System | Milestone 7 | REV_013 |
 | 13 | [x] | Hierarchical Universe Topology Formalization | Milestone L1, Milestone 12 | REV_005 |
 | 14 | [x] | Prohibited Seams Registry Formalization | Milestone L1, Milestone 7 | REV_014 |
+| 15 | [x] | Chronicle View UI Scaffold & TTRPG Pivot | Milestone 14 | REV_015 |
+| 16 | [ ] | 3d6 Action Tray UI & Mechanics | Milestone 15 | REV_015 |
 
 > [!TIP]
 > Milestones 8–9 (agent data) and 10–11 (UI) can proceed in parallel once the truth alignment pass (Milestone 7) is complete. Milestone 12 (space graph) is independent and can also run in parallel.

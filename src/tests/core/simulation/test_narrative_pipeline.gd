@@ -149,7 +149,7 @@ func test_ui_interaction_window_displays_resolved_narrative() -> void:
 	yield(get_tree(), "idle_frame")
 	
 	var header = window.get_node("Panel/VBoxContainer/HeaderRow/LabelTargetName")
-	var body = window.get_node("Panel/VBoxContainer/LabelContextInfo")
+	var body = window.get_node("Panel/VBoxContainer/TabContainer/Chronicle Log/LabelContextInfo")
 	
 	assert_not_null(header)
 	assert_not_null(body)

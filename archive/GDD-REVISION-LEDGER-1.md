@@ -151,3 +151,23 @@ For each revision entry, use the same fields:
 - Status: Implemented in Milestone 12.
 - Blocked By: None
 - Evidence: STRATEGICAL-TODO.md §3; `src/core/simulation/world_layer.gd`; `database/definitions/location_template.gd`
+
+### REV_010: Hardened Narrative Content Delivery
+
+- Domain: Content Pipeline and Chronicle
+- Live Reality: There is no narrative content delivery system. NPC interaction surfaces a trade panel with raw data. No hand-authored narrative templates exist.
+- Frozen / Legacy Tension: The frozen GDD describes a Chronicle layer (Layer 4) for event capture and narrative, but the implementation model is unspecified.
+- Approved Direction: Narrative prose is not procedurally generated. The local sector's Grid layer tags are combined into a deterministic key string that queries a static, hand-authored directory of `.tres` resource templates. Content is authored in the sector's practical jargon creole. This enforces authored quality and prevents LLM or procedural text generation from entering the player-facing narrative layer.
+- Status: Implemented in Milestone 11.
+- Blocked By: REV_009
+- Evidence: STRATEGICAL-TODO.md §2.2
+
+### REV_014: Prohibited Seams Registry
+
+- Domain: Scope Control
+- Live Reality: There is no formal registry of explicitly banned feature categories. Scope control relies on `TACTICAL_TODO.md` contract boundaries and architect judgment.
+- Frozen / Legacy Tension: The frozen GDD includes various feature descriptions (ship modules, detailed market UIs, equipment crafting) that are now out of scope but not formally prohibited.
+- Approved Direction: Establish a permanent, truth-level prohibited seams list. Initial entries: (1) No speculative market displays — player-facing trade uses Wealth Track increments and Contract Value Classes, never raw credit integers; (2) No 3D on-foot navigation — all station-side interaction is 2D grid-aligned Chronicle View menus. Future prohibited seams are added to this registry by architect directive only.
+- Status: Implemented in Milestone 14.
+- Blocked By: None
+- Evidence: STRATEGICAL-TODO.md §5

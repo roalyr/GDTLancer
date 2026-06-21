@@ -18,15 +18,13 @@ var _current_target = null
 # --- Node References (resolved in _ready) ---
 var _label_target_name: Label = null
 var _label_context_info: Label = null
-var _action_buttons: Control = null
 
 
 func _ready() -> void:
 	pause_mode = PAUSE_MODE_PROCESS
 	visible = false
 	_label_target_name = get_node_or_null("Panel/VBoxContainer/HeaderRow/LabelTargetName")
-	_label_context_info = get_node_or_null("Panel/VBoxContainer/LabelContextInfo")
-	_action_buttons = get_node_or_null("Panel/VBoxContainer/ActionButtons")
+	_label_context_info = get_node_or_null("Panel/VBoxContainer/TabContainer/Chronicle Log/LabelContextInfo")
 
 
 # --- Public API ---
@@ -91,8 +89,7 @@ func _populate_for_npc(agent_id: String) -> void:
 	if is_instance_valid(_label_context_info):
 		_label_context_info.text = body
 
-	if is_instance_valid(_action_buttons):
-		_action_buttons.visible = false
+
 
 
 func _populate_for_celestial(target_name: String) -> void:
@@ -114,8 +111,7 @@ func _populate_for_celestial(target_name: String) -> void:
 	if is_instance_valid(_label_context_info):
 		_label_context_info.text = body
 
-	if is_instance_valid(_action_buttons):
-		_action_buttons.visible = false
+
 
 
 # --- Helpers ---
