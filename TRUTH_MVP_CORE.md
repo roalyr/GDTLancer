@@ -14,8 +14,13 @@ LOG_REF: 2026-06-22 00:51:00
 ## 1. Objective and Design Philosophy
 To deliver a 1-hour playable MVP that validates the **"Human-Scale Frontier"** philosophy by providing a true **Solo TTRPG Experience**. The focus is strictly on emergent narrative gameplay driven by the 4-layer simulation. We will hand-craft the environment, characters, and narrative templates, but the missions, outcomes, and stories must emerge naturally from player choices and environmental pressures. 
 
+Under the **Rulebook-First Principle**, the MVP's mechanical and narrative systems are designed, documented, and validated first in the analogue solo ruleset, [TRUTH_RULEBOOK.md](file:///home/roalyr/Software_archive/Games/GDTLancer/TRUTH_RULEBOOK.md).
+
 > [!NOTE]
-> **The Goal:** Prove that GDTLancer can act as an automated rulebook partner. The mechanics (Wealth, Morale, Supplies) are strictly supplemental to the spotlight: the emergent narrative incentives and environmental pressures the player faces.
+> **The Goal:** Prove that GDTLancer can act as an automated rulebook partner.
+> 1. **Tier 0 Validation:** Run full tabletop sessions of the MVP using [TRUTH_RULEBOOK.md](file:///home/roalyr/Software_archive/Games/GDTLancer/TRUTH_RULEBOOK.md) where an LLM agent companion acts as the GM / world simulator to validate the design with text/chat logging, saving digital implementation burden.
+> 2. **Digital Validation:** Implement the mechanics (Wealth, Morale, Supplies) as a digital automation layer of the playtested rulebook, ensuring a coherent, zero-bloat player experience.
+
 
 ## 2. The Emergent TTRPG Game Loop
 The gameplay loop must not feel like a reactive mechanical spreadsheet. It must feel like an evolving tabletop story where the player defines their own goals in the face of environmental pushback.

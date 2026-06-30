@@ -19,6 +19,8 @@ LOG_REF: 2026-06-20 19:13:27
 
 ## 1. Core Philosophy: The Human-Scale Frontier
 
+The game design operates under the **Rulebook-First Principle** (see [TRUTH_PROJECT.md](file:///home/roalyr/Software_archive/Games/GDTLancer/TRUTH_PROJECT.md)): the core simulation rules, mechanics, and progression paths are canonically defined in the solo tabletop rulebook, [TRUTH_RULEBOOK.md](file:///home/roalyr/Software_archive/Games/GDTLancer/TRUTH_RULEBOOK.md). The digital loop is designed to automate and manifest these rules.
+
 To build a meaningful TTRPG-style simulation, we must align the game rules with the setting's social and physical reality. Rather than a vast, generic space game, GDTLancer focuses on a low-population, sector-autonomous colonial frontier.
 
 ```mermaid

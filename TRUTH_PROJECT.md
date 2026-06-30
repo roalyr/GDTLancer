@@ -29,6 +29,14 @@ LOG_REF: 2026-06-20 19:13:27
 - The only intended difference is decision control: NPC action selection is algorithm-driven, while player action selection is user-driven.
 - Completion consequences at shared simulation seams (for example, contract completion effects) should remain parity-consistent between player and NPC unless a truth-level rule explicitly defines an exception.
 
+### Rulebook-First Principle
+
+- The canonical game definition is the solo TTRPG rulebook [TRUTH_RULEBOOK.md](file:///home/roalyr/Software_archive/Games/GDTLancer/TRUTH_RULEBOOK.md).
+- The digital Godot game serves as a presentation and automation layer for these pen-and-paper rules.
+- Gameplay mechanics, tracks (Health, Wealth, Morale, Supplies), action check modifier math, and the world clock must faithfully implement the specifications in [TRUTH_RULEBOOK.md](file:///home/roalyr/Software_archive/Games/GDTLancer/TRUTH_RULEBOOK.md).
+- Any proposed digital gameplay mechanics should first be designed and playtested as tabletop rules within the rulebook to avoid implementation bloat.
+
+
 ## Automated Testing Boundary
 
 ### Must Stay In GUT
