@@ -477,16 +477,52 @@ On completion: Maeve relocates to the new sector. Bond context shifts. Player de
 
 ---
 
-**§12 Step 2a — What does Silas do?**
+**Player chooses: talk to Maeve (free action — §4.3)**
 
-Elace Station · Maeve available · Harun at berths
+---
 
-| Option | |
+### NPC Interaction — Maeve (free action, §4.3)
+
+**Rulebook updates applied:** §4.3 added (free actions, NPC interaction model, NPC-initiated interaction). §2.2 revised (NPC narrative goals). TRUTH-ORACLES.md expanded (NPC Disposition + Conversation Seed tables).
+
+**STRATEGIC NOTE:** Simulation layer rework required. Current CA is Freelancer-shaped (individual agents, arbitrary trade). Must become group-focused, contract-based, socially-driven, community-centric. Separate milestone. For now, simulation hooks assumed to be tag-driven and community-oriented.
+
+---
+
+**System provides (board state):**
+
+**NPC Card:**
+
+| Field | Value |
 |---|---|
-| Talk to Maeve | Kin · goal-relevant · interpersonal |
-| Talk to Harun | Community · local situation |
-| Respond to Kaelen | Tight-beam ×2 · Orin's Reach CONTESTED |
-| Undock | Pre-departure §4.1 required |
+| Maeve | Kin · STABLE · Elace Station |
+| Tags | `exploration` · `prosperity` |
+| Goals | ☐ Establish outpost · ☐ Start family-clan |
+
+**Signal feed:**
+- Bond: STABLE. No strain. No progress.
+- Exploration tag active. No viable sector identified.
+- Elace economy MODERATE. No immediate pressure to leave.
+
+**Oracle rolls (free action):**
+
+| Table | Roll | Result |
+|---|---|---|
+| Disposition | 1d6 = 2 | **Hopeful** |
+| Conversation Seed | 3,4 | **A proposal** |
+| Action | 5,3 | **Request** |
+| Theme | 3,2 | **Renewal** |
+| Focus | 5,1 | **Vessel** |
+
+**Oracle cue:** Hopeful · A proposal · Request · Renewal · Vessel
+
+**Player log:** *(empty — player writes first entry based on cues)*
+
+> `[GM NOTE — MAEVE INTERACTION]` This is the first test of the NPC interaction model (§4.3). System provided board state and oracle cues. Player now authors the narrative. No system-generated dialogue. No prose. The oracle suggests Maeve is hopeful and wants to propose something about renewing or preparing a vessel. Player interprets.
+
+---
+
+**Player: write your log entry for this interaction. Use the cues or ignore them. Modify Maeve's tags if the narrative demands it.**
 
 ---
 
@@ -531,3 +567,10 @@ Elace Station · Maeve available · Harun at berths
 | 33 | Player · Goal declaration | §2.2 (new) | NPC goal completion can trigger relocation (Maeve moves to new sector). This changes bond home sector and community composition. A single checkbox can have cascading world-state consequences. | Define the consequence chain for NPC relocation: bond home sector update, community roster change, sector population shift. |
 | 34 | Player · Goal declaration | §5 (future) | Player-defined sector creation (exploration mechanic). When a goal involves establishing a new outpost, the player should define the new sector: name, type, tags. This is narratively powerful but mechanically deferred for digital implementation. | Design the sector creation flow for tabletop (player names it, sets initial tags) vs. digital (UI form). |
 | 35 | Player · Goal declaration | TRUTH-ORACLES.md | Oracle cue (Support · Kinship · Community) mapped naturally to player's intent. Oracle seeded without prescribing. First successful oracle use. | Track whether oracle-assisted goals produce more or less engagement than pure free-form over multiple declarations. |
+| 36 | Player · Maeve interaction | §4.3 (new) | Free/non-free action classification defined. NPC conversation is free (no clock advance). Actions that cost: commit to hook, travel, resolve check, consequential intent. | Validate that free NPC interaction doesn't feel like a loophole or make the clock irrelevant. |
+| 37 | Player · Maeve interaction | §4.3 (new) | NPC interaction model: system provides board state (card, tags, signals), player provides narrative (log entries, tag edits). Three-area UI: NPC card, signal feed, player log. | First test of this model. Does it feel natural to author narrative from board state + oracle cues? |
+| 38 | Player · Maeve interaction | §4.3 (new) | Player can edit NPC tags inline to reflect narrative developments. Changes propagate to simulation immediately. No forms or menus — tags as editable chips. | Validate inline tag editing UX. Is it simple enough? Does it feel like authorship or bookkeeping? |
+| 39 | Player · Maeve interaction | §4.3 (new) | NPC-initiated interactions: World Clock evaluates bonded NPCs with active goals or state changes. Generates "seek signals" in signal feed. Not forced. Player may respond or ignore. | Design the seek signal evaluation criteria. What threshold of state change triggers a seek? |
+| 40 | Player · Maeve interaction | Simulation | STRATEGIC: Current simulation is Freelancer-shaped (individual agents, arbitrary trade). Must be reworked to group-focused, contract-based, social, community-centric. Separate milestone. | Create STRATEGICAL-TODO entry for simulation rework. |
+| 41 | Player · Maeve interaction | TRUTH-ORACLES.md | Two new tables added: NPC Disposition (1d6, 6 entries) and Conversation Seed (d6×d6, 36 entries). Both produced useful cues for Maeve interaction (Hopeful + A proposal). | Track whether these tables sustain over repeated NPC interactions or need more entries. |
+| 42 | Player · Maeve interaction | §2.2 | Player authorship of narrative elements (log entries, NPC tags, backstory) is always available and not gated by bond level. This reinforces the game-as-playing-board model where simulation moves the world and player authors the story. | Confirm this principle holds in digital implementation. No "unlock narrative authorship" gates. |

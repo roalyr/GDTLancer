@@ -84,15 +84,43 @@ LOG_REF: 2026-07-07
 
 ---
 
+## 5. NPC Disposition Oracle (What is their mood)
+
+Simple 1d6 roll. Use when interacting with an NPC and you need to establish their current state.
+
+| Roll | Disposition |
+|---|---|
+| 1 | Worried |
+| 2 | Hopeful |
+| 3 | Frustrated |
+| 4 | Calm |
+| 5 | Eager |
+| 6 | Distant |
+
+---
+
+## 6. Conversation Seed Oracle (What do they want to discuss)
+
+Use when you need a prompt for what an NPC conversation is about. Roll d6×d6.
+
+|   | 1 | 2 | 3 | 4 | 5 | 6 |
+|---|---|---|---|---|---|---|
+| **1** | A plan | A worry | A favor | A memory | A rumor | A warning |
+| **2** | A debt | A promise | A question | A regret | A hope | A grudge |
+| **3** | A change | A loss | A secret | A proposal | A complaint | An offer |
+| **4** | A child | A route | A shortage | A stranger | A departure | A return |
+| **5** | A vessel | A skill | A mistake | A tradition | A conflict | A celebration |
+| **6** | The future | The past | A place | A name | A price | A silence |
+
+---
+
 ## Appendix: Expansion Notes
 
 This file is designed to grow. Future tables may include:
 
-- **NPC Disposition** — mood/attitude on first meeting
 - **Sector Feature** — what makes a location distinct
 - **Complication** — what goes wrong
 - **Opportunity** — what opens up
-- **Bond Event** — what a bonded NPC wants
 
 Tables must stay within lore constraints (TRUTH_LORE-CONSTRAINTS.md). No institutions, no military ranks, no power-fantasy vocabulary.
 

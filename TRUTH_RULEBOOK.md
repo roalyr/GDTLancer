@@ -234,6 +234,38 @@ After resolution: update tracks with named community impact (§2.1), bonds, and 
 >
 > `[IMPL NOTE]` Maps to: Mode B InteractionWindow, narrative template resolution, GridLayer tag → template mapping, community-state display panel.
 
+### 4.3 Free Actions and NPC Interaction
+
+Not everything costs an action. The distinction:
+
+| Free (no clock advance) | Costs an action |
+|---|---|
+| Inspect NPC state (tags, goals, signals) | Commit to a hook |
+| Write narrative log entries | Travel to another sector |
+| Modify NPC tags to reflect narrative | Resolve an Action Check (§3) |
+| Ask oracle (TRUTH-ORACLES.md) | Any intent with uncertain/consequential outcome |
+| Read system signals | |
+| Talk to NPCs (narrative authorship) | |
+
+**NPC interaction model:** The system provides board state (NPC card, tags, signals). The player provides narrative (what was discussed, what changed). The interaction screen has three areas:
+1. **NPC card** — portrait, name, role, bond, tags (editable inline).
+2. **Signal feed** — system-generated one-line cues from simulation state. Read-only.
+3. **Player log** — append-only text field for player-authored narrative notes. Persists across sessions.
+
+When narrative demands a mechanical change, the player edits NPC tags directly. Changes propagate to simulation immediately.
+
+**NPC-initiated interaction:** NPCs may proactively seek the player. This is triggered by the World Clock:
+- At each tick, the system evaluates bonded NPCs with active goals or significant state changes.
+- If an NPC's situation has shifted (goal-relevant event, tag change, new pressure), the system generates a **seek signal** — a notification that the NPC wants to interact.
+- Seek signals appear in the signal feed. They are not forced — the player may respond or ignore.
+- Non-bonded NPCs may also generate seek signals if community state warrants it (dock elder raising an issue, stranger arriving).
+
+> `[DESIGN INTENT]` The game is an automated playing board and GM assistant. Simulation puts the world in motion. The player is the narrator. Free actions preserve player agency for narrative authorship without clock pressure. NPC-initiated interactions make the world feel alive without forcing player engagement.
+>
+> `[FEEDBACK]` Did the free/action split feel natural? Did NPC interaction feel meaningful without mechanical cost? Did NPC-initiated seek signals feel like the world reaching out or like spam?
+>
+> `[IMPL NOTE]` Maps to: Mode B NPC card UI, tag editor chips, player log text field, signal feed component, World Clock NPC-seek evaluation.
+
 ---
 
 ## 5. Sector Tags & The World
