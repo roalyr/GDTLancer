@@ -94,7 +94,7 @@ Start with **3 bonds** — at least one kin, one professional ally, one from a d
 
 Format:
 - **Goal statement** — one sentence: what the NPC wants.
-- **Mechanical tags** (optional) — keywords that modify the NPC's role in the simulation (e.g., `exploration`, `prosperity`, `security`). Tags influence how the World Clock processes that NPC's off-screen actions and what hooks emerge from them.
+- **Mechanical tags** (optional) — tuples of system tag + narrative phrase (e.g., `exploration` / "Conducting exploration"). Tags modify the NPC's role in the simulation. The system tag is used for matching; the narrative phrase is displayed to the player.
 - **Status** — ☐ open / ☑ completed. Checked when the player judges it resolved, typically surfaced during the next interaction with the NPC.
 
 NPC goals are not mandatory. The player writes them when it feels right — when a deep interaction demands nuance, or when the NPC's motivations become narratively important. This is player authorship, not bookkeeping.
@@ -142,6 +142,37 @@ Each goal has:
 > `[FEEDBACK]` Did the prompted reflection feel natural or intrusive? Was the cooldown too long or too short? Did anchor-matching surface useful reminders or false positives? Did goals provide enough direction at session start?
 >
 > `[IMPL NOTE]` Maps to: Chronicle goal display, progress track UI, World Clock tick goal-check subroutine, anchor-matching system.
+
+### 2.4 Vessel Status
+
+Vessels are community assets, not personal property (LORE-2.1). The player's relationship to their vessel is defined by a **status tag**:
+
+| Status | Meaning |
+|---|---|
+| `community-owned` / "Community vessel" | Belongs to a named community. Captain is assigned for specific tasks. Vessel returns to dock between assignments. |
+| `claimed` / "Claimed vessel" | Taken by a small group (salvage, abandonment). Community may contest. |
+| `shared` / "Shared vessel" | Multiple parties have stake. Use requires negotiation. |
+| `personal` / "Personal vessel" | Rare. Earned through extraordinary service, deep bonds, or salvage. |
+
+**Starting status:** `community-owned`. The player is an assigned captain — high-status role (LORE-2.2), but the vessel is not theirs. Using it for personal ventures requires community approval.
+
+**Vessel acquisition paths:** Acquiring a vessel is a major narrative arc, not a purchase. Paths that fit the setting:
+
+| Path | Mechanism | Requires |
+|---|---|---|
+| Salvage | Find a derelict. Repair it. | Exploration, parts, crew, time. High risk. |
+| Community grant | Convince a community to allocate a vessel for a venture. | Trust, standing, a convincing case. Social checks. |
+| Barter chain | Trade services across communities to accumulate material/favor for a refit. | Multi-sector effort. Many actions. |
+| Inheritance | A pilot retires or is lost. Their vessel becomes available. | World Clock event. Cannot be planned. |
+| Refit commission | A fabrication-capable community (e.g., Veyra Hub) refits a hull in exchange for long-term service. | Contractual obligation. Player is bound. |
+
+No path is quick. All involve community relationships. Vessel acquisition is naturally EPIC-tier.
+
+> `[DESIGN INTENT]` Ship ownership reflects LORE-2.1. The player starts as a trusted community member who can pilot, not an owner. Upgrading from assigned captain to vessel owner is a major narrative milestone. The acquisition paths ensure this is community-driven, not market-driven.
+>
+> `[FEEDBACK]` Did the assigned-captain framing feel constraining or motivating? Did vessel acquisition paths feel achievable or impossibly distant? Did the status tags make ship ownership feel like a meaningful progression axis?
+>
+> `[IMPL NOTE]` Maps to: Ship status tag, community affinity checks for vessel use authorization, salvage/refit narrative arcs.
 
 ---
 
@@ -265,6 +296,47 @@ When narrative demands a mechanical change, the player edits NPC tags directly. 
 > `[FEEDBACK]` Did the free/action split feel natural? Did NPC interaction feel meaningful without mechanical cost? Did NPC-initiated seek signals feel like the world reaching out or like spam?
 >
 > `[IMPL NOTE]` Maps to: Mode B NPC card UI, tag editor chips, player log text field, signal feed component, World Clock NPC-seek evaluation.
+
+### 4.4 Tight-Beam Communication
+
+Inter-sector communication uses tight-beams. These are not instant (Appendix A.5: no FTL communication).
+
+**Sending (free action):**
+- Player authors message content in the NPC's player log.
+- System creates a message queue entry: recipient, tick sent, estimated arrival tick, subject.
+- No clock advance. Sending is narrative, not consequential.
+
+**Transit:**
+- Messages travel at **1 tick per sector distance** along the adjacency path.
+- Messages in transit are passive. The player cannot interact with them.
+
+**Arrival (system event):**
+- At the arrival tick, the system prompts: "Reply from [NPC]."
+- Oracle rolls determine the reply's disposition and content seed (NPC Disposition + Conversation Seed tables).
+- The player then makes an **Action Check (§3)** to determine the reply's outcome:
+  - The relevant track depends on context (Morale for personal requests, Wealth for trade proposals, etc.).
+  - Cautious/Risky approach applies — this is the player's first real decision about the reply.
+  - Result determines whether the response is favorable, partial, or negative.
+
+**Message Queue format:**
+
+| ID | To | Tick sent | Arrival tick | Subject | Status |
+|---|---|---|---|---|---|
+| M1 | Kaelen | T2 | T4 | Need help with venture | PENDING |
+
+- Status: PENDING → ARRIVED → RESOLVED
+- Multiple messages may be in transit simultaneously. Each is independent.
+- Conversation context lives in the NPC's player log (§4.3), not in the queue.
+
+**Incoming messages (unsolicited):**
+- NPCs may send tight-beams to the player without prompting. These are generated by the World Clock when an NPC's state changes significantly.
+- Incoming messages arrive as system events at the appropriate tick. The player reads and interprets — no action check for receiving, only for acting on the content.
+
+> `[DESIGN INTENT]` Communication has weight. Sending is easy; getting a useful response takes time and is uncertain. The transit delay creates natural pacing — the player must do other things while waiting. The action check on resolution ensures that reaching out to people has stakes, not just guaranteed results.
+>
+> `[FEEDBACK]` Did the message delay feel like pacing or dead time? Did the action check on reply resolution feel appropriate? Was the message queue easy to track?
+>
+> `[IMPL NOTE]` Maps to: Message queue data structure, World Clock tick message-arrival check, oracle-driven reply generation, Action Check UI for reply resolution.
 
 ---
 
