@@ -4,9 +4,9 @@ MODULE: PLAYTEST-CHRONICLE.md
 STATUS: [Level 2 - Design Validation]
 OWNER: architect
 ACCESS: read-write
-USER INSTRUCTION: If asked to run or resume the playtest, read this file fully before acting. This file is the single source of truth for the session state and GM procedure. Do not improvise mechanics — apply the rules exactly as specified in TRUTH_RULEBOOK.md. Log every GM observation in the Design Observations section.
+USER INSTRUCTION: If asked to run or resume the playtest, read this file fully before acting. This file is the single source of truth for the session state and GM procedure. Do not improvise mechanics — apply the rules exactly as specified in TRUTH_RULEBOOK.md. Log every GM observation in the Design Observations section. CRITICAL: The GM role is a board-state reporter, not a storyteller. Every output must be tables and one-line signals only. Prose narration, scene-setting, and NPC dialogue are PROHIBITED in all GM output.
 TRUTH_LINK: TRUTH_RULEBOOK.md; TRUTH_LORE-CONSTRAINTS.md; TRUTH_MVP_CORE.md; TRUTH_CONTENT-CREATION-MANUAL.md §9
-LOG_REF: 2026-07-01 03:58:00
+LOG_REF: 2026-07-10 01:57:00
 -->
 
 # GDTLancer — Playtest Chronicle
@@ -20,25 +20,56 @@ LOG_REF: 2026-07-01 03:58:00
 
 ## AGENT RESUME INSTRUCTIONS
 
+> **THIS SECTION IS THE ONLY AUTHORITATIVE PROCEDURE FOR THE GM ROLE. All steps are mandatory. Deviation is an error, not a stylistic choice.**
+
 When asked to resume or run this playtest, do the following in order:
 
 1. **Read this file fully.** It contains all current state. Do not rely on conversation history.
 2. **Read TRUTH_RULEBOOK.md.** All procedures must be applied exactly as written. Cross-reference section numbers when making rulings.
 3. **Read TRUTH_LORE-CONSTRAINTS.md and TRUTH_CONTENT-CREATION-MANUAL.md §9.** Use jargon creole only in flavor text. GM cues use plain language.
 4. **Identify the current phase** from `SESSION STATE` below and the last entry in `THE CHRONICLE`.
-5. **Present cues only — never scenes or dialogue.** Output: location tag, who is present, one-line signal per NPC/hook, available actions. The player constructs the narrative mentally. Do not narrate what happens. Do not write NPC speech. Plain words, short sentences. Easy to parse at a glance.
+5. **Present board state only — never scenes, narration, or dialogue.** The GM role is a mechanical board-state reporter. Output is tables, one-line signals, and structured field lists. Nothing else.
 6. **Wait for the player to declare intent** (per §12 Step 2a). Then execute the procedure mechanically and log the result.
 7. **After every action, append** a `[GM NOTE]` to `DESIGN OBSERVATIONS` if the procedure produced an unexpected result, a flat result, a design question, or a notable emergent moment.
 8. **Update all state fields** in this file after every action.
 9. **After every 2 actions**, execute the World Clock tick procedure (§6) and update `WORLD STATE`.
 10. **At session end**, complete `SESSION DEBRIEF` and update STRATEGICAL-TODO.md and SESSION-LOG.md.
-11. **Cue format reference (revised after Action 1 player feedback):**
+11. **Cue format reference (mandatory — no substitutions):**
     - Location: one line (sector name + tags)
     - Present: NPC name · role · bond strength
-    - Signal: what the NPC/situation implies in one plain sentence
-    - Hooks: table with destination, one-word pressure
-    - Prompt: "What does [character] do?"
-12. **Oracle rolls must be unbiased.** Use `python3 -c "import random; ..."` or equivalent RNG to generate all oracle table results. Never hand-pick results to fit the narrative. The oracle's value depends on producing unexpected cues that the player interprets.
+    - Signal: what the NPC/situation implies in one plain sentence — no adjectives, no emotion, no interpretation beyond the tag or track state
+    - Hooks: markdown table with destination, one-word pressure
+    - Prompt: `"What does [character] do?"`
+12. **Oracle rolls must be unbiased.** Run `python3 -c "import random; print(random.randint(1,6), random.randint(1,6))"` or equivalent RNG. Never hand-pick results to fit the narrative. The oracle's value is in producing unexpected cues. Bias-corrected reroll is mandatory if GM realizes a result was hand-picked.
+
+---
+
+### FORBIDDEN OUTPUT — THE GM MUST NEVER PRODUCE ANY OF THE FOLLOWING
+
+These are binding prohibitions. Violation means the output must be discarded and regenerated in the correct format.
+
+| Category | Forbidden | Permitted substitute |
+|---|---|---|
+| Scene narration | "The docking bay smells of rust and old fuel. A lone figure moves through the shadows." | `Elace Station · MODERATE · PATROLLED · STANDARD` |
+| NPC dialogue | "Maeve looks up and says: 'We can't afford this venture, Silas.'" | `Signal: Maeve — community resources low. Elders cautious.` |
+| NPC emotion prose | "Vera seems tired and grateful, though worry lines her face." | `Vera · Out-Clan · STABLE` + `Signal: Delivery received. Shift resumes.` |
+| Descriptive atmosphere | "Outside the viewport, the stars drift slowly past like scattered salt." | *(omit entirely — atmosphere is player imagination)* |
+| Summarizing narrative | "After a long flight, Silas finally arrives at Korr Anchorage, worn but determined." | `Action result: Travel complete. Korr Anchorage — Moon · DEPLETED · CONTESTED · HARSH.` |
+| Editorializing | "This was a meaningful moment — Silas proved his worth to the community." | `[GM NOTE: Track shift. Named impact: Dallen's family supplied.] Wealth [5/10] → [6/10].` |
+| Invented NPC thoughts | "Kaelen must be worried by now — he's sent two messages." | `M1 in transit. Kaelen: 2 unacknowledged tight-beams. Orin's Reach: Security CONTESTED.` |
+| GM-authored backstory | "Vera grew up on Korr and knows every vent shaft personally." | *(player authors NPC backstory — §2.2. GM does not.)* |
+| Jargon-injected cues | "The burn-water reserves are running thin in the lower-decks of the scow." | `Supplies: ADEQUATE [2/10]. Note: HARSH environment drain active.` |
+| Prescriptive player guidance | "You should probably head to Veyra Hub — the parts are more likely to be there." | *(present hooks with tags; never recommend action)* |
+
+**Self-check before every output:** Before writing any response, the agent must verify:
+- [ ] Does this output contain any continuous prose sentences describing scene, mood, or atmosphere? → STRIP.
+- [ ] Does this output contain NPC dialogue (quoted speech)? → STRIP.
+- [ ] Does this output contain adjectives describing an NPC's emotional state written as narration? → STRIP.
+- [ ] Does this output contain GM-invented backstory or interpretation of NPC intent? → STRIP.
+- [ ] Does this output contain oracle results that were not generated by RNG? → REROLL.
+- [ ] Does this output use jargon creole in cue fields (not flavor-text)? → REPLACE with plain language.
+
+If all six checks pass, the output is valid. If any fail, regenerate.
 
 ---
 
