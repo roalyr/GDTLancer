@@ -77,11 +77,11 @@ If all six checks pass, the output is valid. If any fail, regenerate.
 
 ```
 PHASE:            Encounter Phase (§4.2)
-CURRENT_PHASE:    Elace Station — Maeve interaction concluded; contacting Kaelen
+CURRENT_PHASE:    Elace Station — Exploring on foot
 LOCATION:         Elace Station
 WORLD_CLOCK:      5 actions / 2 ticks (action 1 of 2 in cycle)
 ACTIONS_TO_TICK:  1
-NEXT_STEP:        Contact Kaelen — resolve communication constraint (no FTL, Appendix A.5)
+NEXT_STEP:        Player interprets exploration cues and declares next action
 ```
 
 ---
@@ -93,15 +93,15 @@ NAME:   Silas
 VESSEL: The Oar (worn utility scow)
         Status: community-owned / "Community vessel" — assigned to Elace Station
         Role:   Silas is assigned captain, not owner
-        Availability: DOCKED / OFF-DUTY — not assigned to a task
-        Note: Vessel and crew are not in player context when off-duty
+        Availability: ASSIGNED / ON-DUTY — cleared for venture to Orin's Reach
+        Note: Vessel and crew are now in player context
 TOOL:   Reinforced Hull (aboard The Oar — not accessible when off-duty)
         - Effect: Ignore first HARSH environment penalty per sector
         - Trade-off: -1 to maneuver checks
 
 TRACKS:
   Health:   FIT       [5/10]  Modifier: 0
-  Wealth:   POOR      [6/10]  Modifier: 0  (+1 delivery success)
+  Wealth:   POOR      [5/10]  Modifier: 0  (-1 elder complication)
   Morale:   STEADY    [5/10]  Modifier: 0
   Supplies: ADEQUATE  [2/10]  Modifier: 0  (-1 transit Korr→Elace)
 
@@ -688,6 +688,87 @@ Elace Station · Maeve (distant) · Harun at berths · The Oar off-duty · M1 in
 
 ---
 
+### Free Action — Check Messages
+
+**World Clock:** 5 actions / 2 ticks (no advance — free action).
+
+**Player reads Kaelen's pending tight-beams:**
+
+| Message | Sender | Received | System Tags | Oracle Cue | Player Interpretation |
+|---|---|---|---|---|---|
+| 1 | Kaelen | Tick 0 | `salvage`, `vessel` | Hopeful · An offer · Observe · Resilience · Tool · Valuable data | Kaelen is hopeful they can succeed in the salvage task, but it will take time with their tools. |
+| 2 | Kaelen | Tick 1 | `threat`, `contested` | Worried · A shortage · Request · Trust · Tunnel · Unexpected cost | It took longer than expected to burrow into the wreck, and they are running out of time (shortage) as the sector situation gets tenser. |
+
+**State change:** The Kaelen hooks are now fully parsed. The pressure at Orin's Reach is immediate. Silas's outbound message M1 (asking for Kaelen's help with an outpost venture) is still in transit, arriving Tick 4. Kaelen will receive it while dealing with this CONTESTED situation.
+
+---
+
+### Action 6 — Request Assignment from Elders
+
+**World Clock:** 6 actions / 2 ticks (Tick pending).
+
+**Intent:** Petition elders to use The Oar for a high-risk salvage run to Orin's Reach to assist an out-of-clan ally.
+**Track:** Morale (representing community standing/sway) — STEADY [Modifier: +0].
+**Approach:** Risky (High stakes, wide outcome band).
+**Roll:** 3d6 (4, 3, 2) = 9 + 0 = **9**.
+**Result:** 7–10 (Risky) → **Complication.** Get what you wanted, but something else breaks. Progress −1 on a *different* track.
+
+**Resolution:**
+- The Oar is **ASSIGNED** to Silas. The vessel and crew (Jonas, Rhea, Marek) enter player context.
+- **Complication (Oracle: Unpaid fee):** Demanding the community vessel for a personal task requires a contribution. Silas must pay out of his own pocket, effectively returning what he earned from the previous delivery.
+- **Track shift:** Wealth [6/10] → [5/10] (Remains POOR).
+
+---
+
+### World Clock — Tick 3
+
+**World Clock:** 6 actions / 3 ticks.
+
+| Step | Sector | Tag | Change |
+|---|---|---|---|
+| Tag shift | Orin's Reach | Security | — (Remains CONTESTED for now) |
+| NPC off-screen | Kaelen | — | No new messages. |
+| Passive drain | — | — | None (Elace Station · STANDARD) |
+
+---
+
+### Pre-departure Bargains
+
+**World Clock:** 6 actions / 3 ticks.
+- **Community Cost (`Youth left untutored`):** Player chooses to undock immediately, letting the community bear the cost. No mechanical penalty enforced.
+- **Navigator Check (`Dispute over loading`):** Player chooses to spend **1 World Clock Tick** to resolve the dispute peacefully before undocking. This advances the clock.
+- **Mechanic Check (`Fast approach identified`):** Transit to Orin's Reach will cost 0 Supplies.
+
+---
+
+### World Clock — Tick 4 (Triggered by Pre-departure delay)
+
+**World Clock:** 6 actions / 4 ticks.
+
+| Step | Sector | Tag | Change |
+|---|---|---|---|
+| Tag shift | Orin's Reach | Security | — (Remains CONTESTED) |
+| NPC off-screen | Kaelen | — | **Message M1 arrives.** Kaelen receives Silas's request for help with an outpost venture, while under CONTESTED pressure. |
+| Passive drain | — | — | None (Elace Station · STANDARD) |
+
+---
+
+### Action 7 — Travel Phase (Orin's Reach)
+
+**World Clock:** 7 actions / 4 ticks.
+
+Silas undocks *The Oar* and begins transit.
+
+- **Destination:** Orin's Reach (Deep Space · POOR · CONTESTED · STANDARD)
+- **Supply Drain:** 0 Supplies (mitigated entirely by `Fast approach identified` positive cue).
+- **Transit Encounter Roll:** 1d6 = 2 (Encounter occurs).
+- **Encounter Type:** Opportunity (1d2 = 2).
+- **Encounter Oracle:** 1, 5 → `Unclaimed salvage` (Table 9A).
+
+**State Change:** The Oar is in transit. An encounter (`Unclaimed salvage`) occurs along the drift-route before arrival.
+
+---
+
 ## DESIGN OBSERVATIONS
 
 *Accumulated GM notes for post-session design review. Each note maps to a rulebook section and a potential STRATEGICAL-TODO entry.*
@@ -756,3 +837,12 @@ Elace Station · Maeve (distant) · Harun at berths · The Oar off-duty · M1 in
 | 60 | Player · Kaelen tight-beam | §4.4 (new) | Reply resolution uses Action Check with cautious/risky split. This will be the first actual Action Check in the playtest when M1 arrives at Tick 4. The track used depends on context (likely Morale for a personal request to an ally). | Validate: is Morale the right track for ally requests? Should bond strength affect the check? |
 | 61 | Player · Kaelen tight-beam | §4.4 (new) | Multiple messages can be in transit. Each independent. Player may send messages to different NPCs simultaneously. Queue grows. This could become hard to track in tabletop — digital implementation handles it naturally. | Design question: should there be a cap on simultaneous messages? Or let complexity emerge? |
 | 62 | Player · Kaelen tight-beam | §4.4 (new) | Unsolicited incoming messages (NPC-initiated tight-beams) are generated by World Clock when NPC state changes. These arrive as events. No action check to receive — only to act on content. Kaelen's existing 2 tight-beams are this type. | Clarify: should unread incoming messages affect the World Clock or just accumulate until read? |
+| 63 | Player · Wait Phase | §13.1 | Signals attributed to NPCs (e.g., "Harun notes the berth was open") imply an off-screen interaction or dialogue. This violates the "mechanical fact only" rule by implying an NPC action without the player engaging them. | Signals describing ambient community state should be attributed to the environment (e.g., "Berth status: Empty") unless it is a formal NPC-initiated seek signal. |
+| 64 | Player · Oracle Check | Simulation | The playtest has surfaced multiple new tags and edge cases for the simulation layer (e.g. `salvage`, `vessel`, `threat`, `contested`). Future analysis of this chronicle must explicitly gather all proposed simulation tags into a consolidated schema. | Create a STRATEGICAL-TODO task to harvest all tags and states from this playtest and formally define their properties in the Simulation Graph documentation. |
+| 65 | Player · Oracle Check | Simulation | The `threat` tag when combined with `contested` implies human vs human conflict, risking generic sci-fi combat tropes. | Refine the `threat` tag taxonomy to explicitly align with LORE constraints (e.g., `hostile-scavengers`, `sabotage`, `nav-hazard`) to avoid ambiguous implications of military or institutional conflict. |
+| 66 | Player · Action Check | §3.1 | The rulebook lacked a formalized list of "Actions" to map player intent to track modifiers. The GM was deciding via fiat, making it unclear to the player how the system knows what modifier to use. | Updated §3.1 to include a formal Action Table (e.g., Petition/Convince -> Morale) and a rule requiring the GM to explicitly state the Action name before rolling. |
+| 67 | Player · Action Check | §3.3 (new) | The player noted that determining *which* track takes a complication and *what* narrative justifies it was purely GM fiat. The system needs to systematize consequences. | Added §3.3 to formalize consequences: GM randomly selects the penalized track (if not logically obvious) and uses the Complication Oracle (Table 8) to generate the narrative wrapper. |
+| 68 | Player · Action Check | §3.3 | Player clarified that the system *cannot* reliably guess which track to penalize for context-dependent actions like Petition. Hardcoding default tracks for Complications is flawed. | Revised §3.3: The GM MUST roll the Complication Oracle for *any* consequence. The player then interprets the cue, which determines which track suffers the penalty. GM fiat is entirely removed. |
+| 69 | Player · Pre-departure | §4.1 | Player noted that 'Community cost' and 'Crew consent' cues felt like GM-authored prose instead of mechanical prompts. Player also identified 'nav-lane' as a lore violation. | Rewrote §4.1 to proceduralize Pre-departure. Created Community Cost Oracle (Table 10) and Pre-Flight Crew Oracle (Table 11). Added 'nav-lane' to forbidden lexicon in TRUTH_CONTENT-CREATION-MANUAL.md. |
+| 70 | Player · Pre-departure | §4.1 | Player selected the "Bargain" resolution for Pre-departure cues but stipulated that effects must be *immediate* (costing ticks or track points) rather than lingering modifiers, to minimize tracking overhead. | Updated §4.1. Pre-flight cues force an immediate "Bargain": spend 1 tick (delay launch) or 1 Track point to resolve negative cues. Positive cues grant immediate one-time benefits (e.g., lower supply cost). |
+| 71 | Player · Pre-departure | §4.1 | Player noted that leaving Community Cost cues without mechanical penalties might make them ignorable, but enforcing them could be too punishing (open design question). Player also clarified that positive transit cues (like 'Fast approach') should make the *entire* next travel action free of supply cost to eliminate transit math entirely. | Updated §4.1 to specify that positive transit cues make the entire next travel action cost 0 Supplies. Left Community Cost penalty optional for now, to be reviewed after wider playtesting. |

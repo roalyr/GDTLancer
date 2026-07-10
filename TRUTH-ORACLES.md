@@ -114,13 +114,81 @@ Use when you need a prompt for what an NPC conversation is about. Roll d6×d6.
 
 ---
 
+## 7. Sector Feature Oracle (What makes a location distinct)
+
+|   | 1 | 2 | 3 | 4 | 5 | 6 |
+|---|---|---|---|---|---|---|
+| **1** | Overcrowded | Decaying | Resource-rich | Fortified | Abandoned | Sacred |
+| **2** | Culturally isolated | Jury-rigged | Starving | Flooded/Leaking | Heavily indebted | Welcoming |
+| **3** | Uncharted | Temporary | Ruined | Vented | Deep-core | Suspicious |
+| **4** | Barter hub | Scavenged | Makeshift | Clan-controlled | Divided | Unpatrolled |
+| **5** | Tightly knit | Dogmatic | Insular | Quiet | Sustained | Fractured |
+| **6** | Hidden | Nomadic | Contaminated | Hollowed-out | Broken | Generational |
+
+---
+
+## 8. Complication Oracle (What goes wrong)
+
+|   | 1 | 2 | 3 | 4 | 5 | 6 |
+|---|---|---|---|---|---|---|
+| **1** | Equipment failure | Betrayal | Micro-debris storm | Desperate scavengers | Debt called in | Misunderstanding |
+| **2** | Illness/Injury | Resource loss | Rival interference | Navigation error | Hull parasites | Clan dispute |
+| **3** | Power outage | False information | Unexpected cost | Missing person | Broken promise | Inside sabotage |
+| **4** | Supply shortage | Time limit | Dangerous leak | Detained crew | Conflicting clan ties | Trap |
+| **5** | Docking dispute | Cargo contested | Mutiny | Theft | Radiation spike | Communication failure |
+| **6** | Structural collapse | Unpaid fee | Reputation hit | Family feud | Lost cargo | Urgent distress call |
+
+---
+
+## 9A. Opportunity Oracle (In-Space)
+
+|   | 1 | 2 | 3 | 4 | 5 | 6 |
+|---|---|---|---|---|---|---|
+| **1** | Abandoned cargo | Drifting derelict | Uncharted shortcut | Favorable drift | Unclaimed salvage | Pristine machinery |
+| **2** | Rare resource deposit | Legitimate distress beacon | Smuggler's cache | Blind spot in patrols | Weakened security | Mutual enemy engaged |
+| **3** | Safe haven / cove | Valuable data | Specialized tool found | Escaped prisoner's pod | Pristine parts | Free tow/transport |
+| **4** | Hidden cache | Unguarded route | Temporary truce | Missing kin found | Abandoned facility | Secret passage |
+| **5** | Vulnerable rival | Medical supplies in wreck | Stolen goods | Critical weakness exposed | New outpost | Quiet transit |
+| **6** | Nav-buoy intact | Scrap-rich field | Overlooked container | Intact life support | Fuel reserves | Unspoken allowance |
+
+---
+
+## 9B. Opportunity Oracle (On-Station)
+
+|   | 1 | 2 | 3 | 4 | 5 | 6 |
+|---|---|---|---|---|---|---|
+| **1** | Willing hand | Forgiveness of debt | Generous elder | Inside information | Smuggler contact | Critical community need |
+| **2** | Reputation boost | Clan favor | Unlocked door | Distracted watchkeep | Maintenance tunnel | Forgotten rule |
+| **3** | Black market access | Temporary truce | Valuable data | Medical supplies | Free transport | Unspoken allowance |
+| **4** | Vulnerable rival | Weakened security | Missing kin found | Pristine parts in barter | Specialized tool | Safe haven |
+| **5** | Generous benefactor | Abandoned cargo in hold | Rare resource traded | Mutual enemy | Hidden cache | Forgiven mistake |
+| **6** | Lucrative barter | Unclaimed berth | Restored trust | Unexpected ally | Expedited repair | Forgotten stash |
+
+## 10. Community Cost Oracle
+
+*(Rolled during Pre-departure sequence to determine what the home sector loses when the vessel leaves)*
+
+|   | 1 | 2 | 3 | 4 | 5 | 6 |
+|---|---|---|---|---|---|---|
+| **1-3** | Watchkeep short-handed | Scavenge run delayed | Medical duty missed | Harvest left to rot | Machinery repair halted | Vulnerable flank exposed |
+| **4-6** | Youth left untutored | Debts called in early | Tool goes uncalibrated | Critical supply rationing | Inter-clan tension rises | Unspoken resentment |
+
+---
+
+## 11. Pre-Flight Crew Oracle
+
+*(Rolled by the player for each active crew station (e.g. Navigator, Mechanic) to determine vessel readiness prior to undocking)*
+
+|   | 1 | 2 | 3 | 4 | 5 | 6 |
+|---|---|---|---|---|---|---|
+| **1-3** | Minor leak patched | Chart data corrupted | System requires recalibration | Extra rations consumed | Dispute over loading | Routine maintenance skipped |
+| **4-6** | Route looks clear | Essential spare found | Crew morale high | Unexpected efficiency | Fast approach identified | Vessel fully primed |
+
+---
+
 ## Appendix: Expansion Notes
 
-This file is designed to grow. Future tables may include:
-
-- **Sector Feature** — what makes a location distinct
-- **Complication** — what goes wrong
-- **Opportunity** — what opens up
+This file is designed to grow. Future tables may include specialized encounters, salvage tables, and planetary types.
 
 Tables must stay within lore constraints (TRUTH_LORE-CONSTRAINTS.md). No institutions, no military ranks, no power-fantasy vocabulary.
 

@@ -178,12 +178,24 @@ No path is quick. All involve community relationships. Vessel acquisition is nat
 
 ## 3. Action Resolution
 
-When the outcome of an action is uncertain and consequential, the player makes an **Action Check**.
+When the outcome of an action is uncertain and consequential, the player makes an **Action Check**. 
 
 ### 3.1 The Roll
 
 1. **Declare intent.** Player states what they're trying to do.
-2. **LLM-GM sets the relevant track.** Which track's modifier applies (Health for physical, Wealth for trade, Morale for social/crew, Supplies for logistical).
+2. **Identify the Action and Track.** The LLM-GM selects the most appropriate formalized Action from the table below and sets its corresponding track. **The GM must explicitly state the Action name before rolling.**
+
+| Formal Action | Description | Default Track Modifier |
+|---|---|---|
+| **Command / Navigate** | Piloting, escaping, navigating hazards | Health or Supplies (GM choice based on context) |
+| **Endure / Overcome** | Surviving physical trauma, heavy lifting | Health |
+| **Scavenge / Repair** | Fixing gear, finding salvage, jury-rigging | Supplies |
+| **Barter / Acquire** | Trading, purchasing, securing physical assets | Wealth |
+| **Petition / Convince** | Persuading elders, calling in favors, negotiating | Morale |
+| **Investigate / Scan** | Analyzing anomalies, reading sensors, searching | Morale or Supplies |
+
+*(If an intent doesn't fit neatly, the GM assigns the closest Track and names a custom action.)*
+
 3. **Choose Approach:**
    - **Cautious:** Safer. Narrow outcome band. Success is modest; failure is a setback, not a disaster.
    - **Risky:** Dangerous. Wide outcome band. Success is substantial; failure is severe.
@@ -206,7 +218,15 @@ Beyond the primary track modifier, the LLM-GM may apply:
 
 **Cap:** Total modifier cannot exceed +4 or fall below −4.
 
-> `[DESIGN INTENT]` The 3d6 bell curve concentrates results around 10–11. The Cautious/Risky split is the central player decision — it should never be obvious which to pick. Modifiers should feel legible, not opaque.
+### 3.3 Resolving Consequences
+
+When an Action Check results in a **Setback**, **Complication**, or **Crisis**, the procedure relies on the Oracle and Player interpretation, removing GM fiat entirely:
+
+1. **Generate the Narrative Cue:** The GM rolls on the Complication Oracle (TRUTH-ORACLES.md Table 8) to generate a raw narrative cue (e.g. "Inside sabotage", "Unexpected cost").
+2. **Player Interpretation:** The player reads the cue and declares what went wrong in the fiction.
+3. **Determine the Mechanical Hit:** Based on the player's interpretation of the Complication Oracle, the player and GM agree on which track takes the mechanical penalty. (For a *Setback* or *Crisis*, it defaults to the primary track used unless the player's interpretation clearly points elsewhere. For a *Complication*, it MUST be a *different* track).
+
+> `[DESIGN INTENT]` The system cannot reliably guess which track to penalize for a complication because actions like 'Petition' are context-dependent. Forcing the Oracle roll and Player interpretation ensures the complication is emergent and prevents arbitrary GM punishment.
 >
 > `[FEEDBACK]` Did the Cautious/Risky choice feel like a real dilemma or was one always better? Were outcome bands producing varied narrative results? Did the modifier stack feel transparent? Was the math quick enough to not break immersion?
 >
@@ -223,9 +243,12 @@ Play alternates between two phases.
 Travel is an expedition, not a commute. The player declares a destination. Before departure, the system enforces weight.
 
 **Pre-departure (mandatory before undocking):**
-1. **Community cost cue.** LLM-GM states what the current sector loses when the player leaves. Name a specific person or task left undone. Even one line: "Maeve's seal-checks go unfinished while you're gone."
-2. **Crew consent cue.** Each crew member's reaction is surfaced — not as a roll, but as a cue. "Jonas notes the route crosses contested space. Rhea asks whether there are spare parts at the destination." The player sees the crew as people weighing the decision.
-3. **Supply allocation.** Player confirms supply commitment for the journey. This is not automatic — the player chooses how much to allocate, knowing the cost.
+
+1. **Community cost cue:** The GM rolls on the **Community Cost Oracle (TRUTH-ORACLES.md Table 10)**. This generates the narrative cost of the vessel leaving. The player may depart immediately (letting the community bear the cost), or voluntarily spend 1 World Clock tick or 1 Track point (Wealth/Morale) to mitigate it before leaving.
+2. **Pre-Flight Crew Checks:** The player rolls on the **Pre-Flight Crew Oracle (TRUTH-ORACLES.md Table 11)** for each active crew station. These cues must be resolved immediately via a **Bargain**:
+   - *Negative Cues:* The player must either spend 1 World Clock tick (delaying launch to fix the issue) or take a −1 hit to an appropriate track (e.g., Morale for a dispute, Supplies for a leak) to leave immediately.
+   - *Positive Cues:* The player gains an immediate, one-time mechanical benefit (e.g., "Fast approach" means the *entire* next travel action costs 0 Supplies).
+3. **Supply allocation:** Player confirms supply commitment for the journey, factoring in any bonuses from crew checks.
 
 **During travel:**
 - **Supplies tick down.** −1 progress per sector traversed.

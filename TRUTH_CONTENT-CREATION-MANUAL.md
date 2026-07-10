@@ -753,6 +753,7 @@ To maintain the grounded, low-tech, and community-centric atmosphere of *GDTLanc
 | Navy / Military / Standing Army / Fleet | Patrol, Watchkeep, Guard detail, Security detail | LORE-1.1: There are no standing military forces or central sector-governing institutions. |
 | Empire / Federation / Republic / Senate | Settlement, Coalition, Community, Alliance, Enclave | LORE-1.1: There is no centralized system government. |
 | Galactic / Interstellar / Cosmic | Local, Sector-level, Regional, Frontier | LORE-1.1: The setting is a raw, isolated, early-stage frontier. |
+| Nav-lane / Space highway / Hyperlane | Drift-route, Nav-path, Burn-trajectory, Approach | LORE-2.3: Space is not paved or formally managed. Routes are raw paths through the void. |
 | Hop in your ship / Take a quick flight / Fly over to | Prep the vessel, Run pre-launch, Crew muster, Logistical run | LORE-2.1/2.3: Space travel requires coordination, planning, and group labor. It is not casual commuting. |
 | Your ship / My ship / Personal starship | The vessel, The machine, Our boat, The rig | LORE-2.1: Starships are complex community assets, not personal cars. |
 | Loot / Drops / Gear score / Legendary | Salvage, Cache, Standing, Reputation, Scrap | LORE-3.1: Strip progression of linear MMO/RPG gear grinding. |
