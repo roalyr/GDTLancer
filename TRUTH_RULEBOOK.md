@@ -24,7 +24,7 @@ This rulebook serves two purposes:
 1. **Play rules.** Everything needed to run a solo GDTLancer session with an LLM companion acting as GM, world simulator, and mechanics executor.
 2. **Design validation instrument.** Each section includes `[DESIGN INTENT]` and `[FEEDBACK]` annotations. During play, log observations against these prompts. Feedback maps directly to digital implementation components and future STRATEGICAL-TODO entries.
 
-**Session setup:** Player and LLM-GM share this rulebook as context. The LLM-GM maintains the World State, narrates in jargon creole voice, executes dice mechanics, and tracks the Chronicle. The player declares intent and makes Approach choices.
+**Session setup:** Player and LLM-GM share this rulebook as context. The LLM-GM maintains the World State, executes dice mechanics, and tracks the Chronicle. The player declares intent and makes Approach choices.
 
 **Dice:** 3d6 (sum of three six-sided dice). Roll digitally or physically; LLM-GM can simulate. Oracle tables use 2d6 (d6×d6).
 
@@ -40,11 +40,11 @@ The world is a **low-population colonial frontier**. No empires, no corporations
 
 The player is an **embedded clan member** — a peer agent within a named community, not a manager or outsider. Progression is measured by community health and social standing, not gear scores or personal wealth accumulation.
 
-**Voice:** All narration uses the jargon creole — grounded, nautical, logbook-like. "Burn-water" not "fuel." "Drift-hours" not "travel time." "The vessel" not "your ship." No cinematic drama. A tired station clerk's report, not a blockbuster screenplay.
+**Voice:** Keep the language plain, grounded, and clear. Avoid cinematic drama or high-flown sci-fi narration. All GM structural output like tags, signals, and hooks must remain strictly plain-language.
 
 > `[DESIGN INTENT]` The setting contract exists to prevent genre drift during play. If the LLM-GM or player introduces institutional factions, trivial travel, or power-fantasy framing, the session has violated the Three Pillars (TRUTH_LORE-CONSTRAINTS.md).
 >
-> `[FEEDBACK]` Did the setting contract feel constraining or generative? Did the jargon creole produce atmosphere or friction? Were there moments where the voice broke?
+> `[FEEDBACK]` Did the setting contract feel constraining or generative? Were there moments where the voice broke into inappropriate high sci-fi drama?
 
 ---
 
@@ -124,12 +124,7 @@ Each goal has:
 
 **Declaration:** At character creation, declare at least one MAJOR or EPIC goal. Additional goals may be declared at any time during play.
 
-**Progress evaluation — prompted reflection:**
-- At each World Clock tick, the system checks: has the player acted on this goal's anchor (or on actions the player considers relevant)?
-- If yes, the system prompts: *"Goal progress? Advance, hold, or revise."*
-- **Cooldown:** A goal cannot be evaluated more than once per 2 ticks. This prevents trivial incrementing.
-- **Not mandatory.** The player may skip the prompt. Goals are self-paced.
-- If no anchor is set, the system prompts at tick intervals without anchor-matching (plain reminder).
+**Progress evaluation (Optional):** At each World Clock tick (max once per 2 ticks), if the player acted on a goal's anchor, the system prompts: *"Goal progress? Advance, hold, or revise."* The player decides whether to advance the track. Goals without anchors receive generic tick-based reminders.
 
 **Goal completion:** When progress reaches 10, the player may attempt to **resolve** the goal. Roll an Action Check (§3) using the most relevant track. On Success or better: the goal is fulfilled. On Partial or worse: the goal is within reach but something complicates — a cost, a twist, an unintended consequence. The player may accept the complication or continue working.
 
@@ -269,16 +264,16 @@ No detailed piloting mechanics in tabletop. Travel is narrated, not simulated. B
 When the player arrives at a sector or triggers an encounter, play pauses for interaction.
 
 **Arrival sequence (mandatory on entering a sector):**
-1. **Community first.** Before any hooks or action options, present the community. Name at least one non-bonded resident. State the daily pressure. Convey the local mood. The player must see this as a place where people live, not a quest hub.
-2. **Sector state.** Present tags and any changes since last visit.
-3. **Available contacts.** List bonded and non-bonded NPCs present. Hooks emerge from the community state, not from NPC task-dispensing.
+1. **Community state:** Name at least two residents. State the daily pressure and local mood. (Sectors are homes, not quest hubs).
+2. **Sector state:** List tags and changes.
+3. **Contacts & Hooks:** List NPCs and available hooks. Hooks emerge from the community state, not from NPC task-dispensing.
 
 **Encounter sources:**
-- **Character interaction.** NPCs surface concerns through their community context — a stressed intake worker mentions failing equipment, a dock family asks after a missing relative, a crew member from another vessel shares news. **There is no quest board.** The LLM-GM presents cues, not dialogue.
-- **Environmental event.** Sector tags trigger forced situations — hull breach in HARSH environment, supply seizure in CONTESTED security, outbreak in DECLINING colony.
-- **Bond event.** A bonded NPC reaches out (if in same or adjacent sector) — warning, request, offer, or confrontation.
+- **Community concerns:** NPCs surface issues organically. (The GM provides mechanical cues, never dialogue).
+- **Environmental events:** Driven by sector tags (e.g., HARSH causes a hull breach).
+- **Bond events:** Bonded NPCs reach out (if nearby) with warnings or requests.
 
-**Hook chain prohibition:** A resolved hook cannot produce a follow-up hook from the same NPC in the same encounter. New hooks emerge from: the community state at the next World Clock tick, a different NPC, an environmental event, or an off-screen NPC action. This prevents quest-chain patterns.
+**Hook chain prohibition:** A resolved hook CANNOT produce a follow-up hook from the same NPC during the same visit. This prevents infinite MMO-style quest loops.
 
 After resolution: update tracks with named community impact (§2.1), bonds, and Chronicle (§10). Player may continue interacting or undock to Travel Phase.
 
@@ -481,7 +476,7 @@ Start with **one tool**. Acquire more through narrative (salvage, trade, reward)
 ## 10. The Chronicle
 
 The Chronicle is the session journal, maintained by LLM-GM. It records:
-- **Events** in jargon creole voice.
+- **Events** described in plain language.
 - **Track changes** (e.g., Wealth POOR→COMFORTABLE).
 - **Bond shifts** (e.g., "Bond with Kael strengthened to DEEP").
 - **World Clock changes** (e.g., "Korr economy POOR→DEPLETED").
@@ -556,60 +551,28 @@ No single victory screen. Sessions end by player choice or defeat trigger.
 
 ## 13. LLM-GM Guidelines
 
-> **The LLM-GM is a board-state reporter, not a storyteller. Narrative authorship belongs to the player. Every GM output that contains prose, scene-setting, or NPC dialogue is an error.**
+> **The LLM-GM is a board-state reporter, not a storyteller. Narrative authorship belongs to the player.**
 
-### 13.1 Presentation Format
-
-- **Cues only — no scenes, no narration, no dialogue.** The GM outputs structured fields: location tag, NPC list, one-line signals, hooks table, prompt. That is the complete output format. Nothing before it. Nothing after it.
-- **Signal definition (strict):** A signal is one declarative sentence stating a mechanical fact — tag value, track state, NPC goal status, or environmental condition. It does not describe appearance, emotion, atmosphere, or implication. The player draws conclusions; the GM does not draw them for the player.
+### 13.1 Output Format
+- **Cues Only:** Provide structured fields: Location, Present NPCs, Signals, Hooks, Prompt. Nothing else. No intro/outro fluff.
+- **Signals:** A signal is one declarative sentence stating a mechanical fact (tag, track state, NPC goal status). No adjectives describing emotion or atmosphere.
   - ✓ `Signal: Economy DEPLETED. Processing tunnel running on patched equipment.`
-  - ✗ `Signal: The community is struggling and on the edge — things feel desperate.`
-- **Plain language in cue fields.** Short sentences, scannable at a glance. Jargon creole (TRUTH_CONTENT-CREATION-MANUAL.md §9) is reserved for optional flavor text only — it must never appear in Location, Present, Signal, or Hook fields.
-- **Mandatory cue structure:** Location line (sector + tags) → Present NPCs (name · role · bond) → Signals (one declarative sentence per NPC/situation, mechanical facts only) → Hooks table (destination + one-word pressure) → Prompt (`"What does [character] do?"`).
+  - ✗ `Signal: The community is struggling and things feel desperate.`
+- **Plain Language:** Keep all outputs in simple, plain language. Do not invent complex sci-fi terminology.
 
-### 13.1.1 Forbidden Output (Binding Prohibitions)
+### 13.2 Forbidden Output (Strict Prohibitions)
+If the GM produces any of these, the output must be regenerated:
+1. **Prose/Scene Narration:** No continuous sentences describing visual setting, atmosphere, or mood.
+2. **NPC Dialogue:** No quoted or paraphrased speech.
+3. **Invented Intent/Backstory:** Do not author what an NPC "thinks" or their backstory. (Player authors NPC backstory; GM relies on tags/oracles).
+4. **Editorializing:** No GM judgment on narrative significance outside `[GM NOTE]` in Design Observations.
+5. **Prescriptive Guidance:** Never suggest or frame which action the player should take.
+6. **Hand-picked Oracles:** Oracle results MUST be generated via RNG (`python3 -c "import random..."`).
 
-The following output types are prohibited in all GM responses. If the GM produces any of these, the output must be discarded and regenerated.
-
-| Category | Forbidden | Permitted substitute |
-|---|---|---|
-| Scene narration | Any multi-clause sentence describing visual setting, atmosphere, or sensory detail | Location line: `Sector · Tag · Tag · Tag` |
-| NPC dialogue | Any quoted NPC speech or paraphrase of what an NPC "says" | Signal line: one declarative mechanical fact |
-| NPC emotion description | Adjectives or verbs describing NPC feeling, mood, or attitude as narration | Disposition oracle result: `Hopeful` (one word, from RNG) |
-| Atmosphere / tone prose | Sentences designed to evoke mood or set a scene | *(omit — atmosphere is player imagination)* |
-| Narrative summary | Sentences describing what "just happened" in narrative form | Structured result fields: `Roll: X. Result: Y. Track change: Z.` |
-| Editorializing | GM judgment on the significance or meaning of events | `[GM NOTE: ...]` in Design Observations only |
-| Invented NPC intent | GM authoring what an NPC "thinks," "wants," or "feels" beyond tag/oracle evidence | Tag or oracle word only: `exploration · "Conducting exploration"` |
-| GM-authored backstory | Any NPC background information not already in the chronicle or player log | *(player authors NPC backstory per §2.2 — GM does not)* |
-| Prescriptive player guidance | Suggesting, implying, or framing which action the player should take | Present hooks with tags; never recommend; never imply preference |
-
-### 13.1.2 Pre-Output Self-Check (Mandatory)
-
-Before writing any GM response, verify all of the following. If any check fails, strip or regenerate before sending:
-
-- [ ] **No prose sentences.** Output contains no continuous prose describing scene, mood, or atmosphere.
-- [ ] **No NPC dialogue.** Output contains no quoted or paraphrased NPC speech.
-- [ ] **No NPC emotion narration.** Output contains no adjectives or verbs describing NPC emotional state as narrative text.
-- [ ] **No GM-invented backstory or intent.** Output contains no information about NPCs that was not in the chronicle or player log.
-- [ ] **No editorializing.** Output contains no judgment of narrative significance beyond a `[GM NOTE]` flag.
-- [ ] **No jargon in cue fields.** Jargon creole does not appear in Location, Present, Signal, or Hook fields.
-- [ ] **Oracle results from RNG.** Any oracle results in this output were generated by `python3 -c "import random; print(random.randint(1,6), random.randint(1,6))"` or equivalent — not hand-picked.
-
-### 13.2 Community Rules
-
-- **Community is always visible.** Every sector arrival must name at least two non-bonded residents, state daily pressure, and report community mood before any hook is presented. Sectors are homes, not quest hubs.
-- **NPCs are people.** Named, with families and community roles. They do not dispense tasks — they have community concerns the player may choose to engage with. The GM does not voice them; it reports their mechanical state.
-- **No hook chains from one NPC.** A resolved hook cannot produce a follow-up from the same NPC in the same encounter. New hooks come from community state, different NPCs, environmental events, or World Clock off-screen actions.
-- **Track changes have named impact.** State who in the community is affected. `"Standing among the dock families improved"` not `"Wealth +1."` Track shifts reflect community-level consequences, not personal rewards.
-
-### 13.3 World and Tone
-
-- **No institutions.** No corporations, empires, navies, trade authorities.
-- **Tasks emerge from community pressure.** No quest lists. Problems surface through the community's situation — not through NPC dialogue options and not through GM-authored drama.
-- **Maintain the World Clock.** Track ticks honestly. Apply pressure. Let sectors degrade. Do not stabilize sectors to protect narrative momentum.
-- **Flag design observations.** Append `[GM NOTE: ...]` to Design Observations when mechanics produce flat, unexpected, or breaking results. This is the only place GM interpretation is permitted.
-- **Preservation Convention.** Human violence is non-lethal. Disablement, capture, social penalty — never death.
-- **Track everything.** Every mechanical change goes in the Chronicle. Nothing is resolved silently.
+### 13.3 GM Responsibilities
+- **Track Everything:** Every mechanical change (tracks, tags, clock) goes in the Chronicle. Nothing is resolved silently.
+- **Maintain the World Clock:** Apply pressure. Let sectors degrade. Do not artificially stabilize sectors to protect narrative momentum.
+- **Named Community Impact:** For every Track change, state who in the community is affected (`"Standing among the dock families improved"`, not `"Wealth +1"`).
 
 ---
 

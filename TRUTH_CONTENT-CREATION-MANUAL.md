@@ -733,9 +733,9 @@ When the player docks, enters a sector, or interacts with a sub-agent, the game 
    - Second fallback: swap `{economy_tag}` with `adequate` (the mid-tier baseline)
    - Final fallback: resolve to `templates/default.tres`
 
-### 8.3 Jargon Creole Authoring Guidelines
+### 8.3 Plain Language Authoring Guidelines
 The colonial frontier is populated by close-knit, pragmatic communities. Authors must write narrative text following these stylistic principles:
-- **Atmospheric Creole:** Use the sector's practical jargon creole — a setting-specific vocabulary blending low-tech mechanical terms, TTRPG nautical-slang, and localized slang. (e.g. *drift-hours*, *breaker-rigs*, *burn-water* instead of *fuel*).
+- **Simple, Plain Language:** Keep all writing simple and grounded. Avoid inventing complex sci-fi jargon or "creole".
 - **Material Focus:** Focus on the concrete physical and logistical realities of the frontier: hull degradation, supply depletion, heat tolerances, and interpersonal debt, avoiding high space-opera terms.
 - **Dynamic References:** Always use bracketed template placeholders (e.g. `{player_name}`, `{sub_agent_name}`, `{origin_sector}`) to keep text aligned with the live simulation state and preserve agent parity.
 
@@ -758,16 +758,6 @@ To maintain the grounded, low-tech, and community-centric atmosphere of *GDTLanc
 | Your ship / My ship / Personal starship | The vessel, The machine, Our boat, The rig | LORE-2.1: Starships are complex community assets, not personal cars. |
 | Loot / Drops / Gear score / Legendary | Salvage, Cache, Standing, Reputation, Scrap | LORE-3.1: Strip progression of linear MMO/RPG gear grinding. |
 | The galaxy trembles / Epic destiny / Chosen one | The sector stirs / Regional gossip / Local shift | LORE-3.2: High space opera drama is banned in favor of grounded RP text. |
-
-### 9.2 Practical Jargon Creole Examples
-
-When authoring dialogue or narrative templates, weave in low-tech mechanical and nautical terms:
-- **Burn-water / Heavy-water:** Propellant or life-support water.
-- **Drift-hours:** Time spent cruising or coasting in the void.
-- **Breaker-rigs / Iron-scows:** Mining and salvaging vessels.
-- **Hull-sweat:** Condensation or atmosphere leakage inside ship hulls.
-- **Vessel-bound:** Being trapped aboard a ship due to maintenance or vacuum.
-- **Station-tied:** Bound to station life, typically unable to afford or logistically support vessel voyages.
 
 ---
 

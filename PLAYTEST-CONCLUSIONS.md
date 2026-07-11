@@ -11,8 +11,8 @@ LOG_REF: 2026-07-09
 
 # GDTLancer — Playtest Conclusions (Session 1)
 
-**Source:** 62 design observations from PLAYTEST-CHRONICLE.md
-**Date:** 2026-07-09
+**Source:** 71 design observations from PLAYTEST-CHRONICLE.md
+**Date:** 2026-07-11
 **Status:** Active — conclusions apply to resumed playtest and inform future milestones
 
 ---
@@ -59,6 +59,7 @@ This identity has three consequences for all design:
 - Defining NPC goals, backstory, and motivations (§2.2)
 - Editing NPC tags to reflect narrative developments (§2.2)
 - Declaring goals freely or with oracle seeds (§2.3)
+- Interpreting Complication Oracle cues to determine which Track takes a mechanical hit (§3.3)
 
 **UX implication:** The game must resist the temptation to generate text. Every piece of generated prose displaces player imagination. The system's job is to present the board state clearly and get out of the way.
 
@@ -145,7 +146,7 @@ Actions are divided into two categories:
 
 *Observations: #28, #29, #30, #35, #41, #44, #51*
 
-**What works:** Five tables (Action, Theme, Focus, NPC Disposition, Conversation Seed) using d6×d6 or 1d6. Free action. Lore-constrained vocabulary. Oracle seeded goal creation and NPC interaction effectively.
+**What works:** Seven tables (Action, Theme, Focus, NPC Disposition, Conversation Seed, Community Cost, Pre-Flight Crew) using d6×d6 or 1d6. Free action. Lore-constrained vocabulary. Oracle seeded goal creation and NPC interaction effectively.
 
 **Critical rule (from #51):** All oracle rolls must use RNG. Hand-picked results defeat the purpose. Unbiased rolls produced dramatically better emergent narrative.
 
@@ -205,9 +206,30 @@ These are all solvable with a session setup checklist that includes adjacency ta
 
 Reinforced Hull's cost (-1 maneuver) never surfaced because no maneuver check occurred. Invisible costs undercut the lateral tool design.
 
-**Decision needed:** Surface tool trade-offs passively (visible modifier in HUD) or only when triggered?
+---
+
+### 2.12 HIGH — Action & Consequence Formalization (§3)
+
+*Observations: #66, #67, #68*
+
+**Problem:** Mapping player intent to a Track Modifier was purely GM fiat. Furthermore, deciding *which* track took a penalty on a Complication roll, and *why*, was also fiat, risking arbitrary player punishment.
+
+**Resolution:**
+- Added a formalized **Action Table** mapping core intents (Command, Scavenge, Petition, etc.) to default tracks. The GM must name the Action before rolling.
+- **Oracle-driven Complications:** When a Complication or Crisis occurs, the GM *must* roll on the Complication Oracle. The player interprets the cue to justify the failure, and that interpretation dictates which track takes the hit. GM fiat is entirely removed.
 
 ---
+
+### 2.13 HIGH — Pre-departure Proceduralization (§4.1)
+
+*Observations: #69, #70, #71*
+
+**Problem:** "Community cost" and "Crew consent" cues were functioning as GM creative writing.
+
+**Resolution:**
+- Replaced GM prose with two new Oracles (Community Cost, Pre-Flight Crew).
+- Established the **Immediate Bargain:** Pre-flight crew cues force an immediate choice (spend 1 Tick to delay/fix, take a -1 Track hit to leave now, or gain a one-time free transit). Avoids tracking lingering modifiers.
+- Lexicon update: Identified "nav-lane" as a lore violation (space highway trope). Banned it in favor of "drift-route".
 
 ## 3. UI/UX Assessment
 
@@ -343,6 +365,10 @@ These decisions emerged from play and should not be revisited without new contra
 | Tags as tuples | #43 | System tag + display phrase |
 | Vessels are community assets | #45 | LORE-2.1, not personal property |
 | Player authorship ungated | #42 | Always available, not bond-level locked |
+| Formal Action Table | #66 | Removes GM fiat from track mapping |
+| Oracle-driven Complications | #67, #68 | Player interprets complication cue, determining track hit |
+| Pre-departure Oracles (Bargain) | #69, #70 | Removes GM prose, focuses on immediate resource/time trade-offs |
+| No lingering modifiers | #70 | Modifiers must be immediate (Tick/Track hit) to avoid tracking debt |
 
 ---
 
