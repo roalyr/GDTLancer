@@ -3,57 +3,63 @@ PROJECT: GDTLancer
 MODULE: TRUTH_PROHIBITED-SEAMS.md
 STATUS: [Level 2 - Design]
 OWNER: architect
-ACCESS: read-only-owner
+ACCESS: read-write
 USER INSTRUCTION: NONE
-TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context
-LOG_REF: 2026-06-21 13:06:00
+TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_RULEBOOK.md; TRUTH_GAME-LOOP-VISION.md
+LOG_REF: 2026-07-13
 -->
 
-# GDTLancer - Prohibited Seams Registry
+# GDTLancer - Banned Features List
 
-This registry tracks systems, features, and mechanics that are explicitly banned from implementation. Its purpose is to enforce scope discipline and prevent feature creep into generic space-sim tropes.
+This list tracks features and rules that are explicitly banned from the game. This keeps the project focused and prevents it from turning into a generic space simulator.
 
-## 1. No Speculative Market Trading (Contracts Only)
-- **Rule:** The player must not have access to a direct buy/sell trade interface or speculative market at stations. 
-- **Implementation Constraint:** All player-initiated cargo hauling and resource transfers are governed exclusively by Contracts. To enforce this and prevent numeric optimization, the UI must never surface raw credit integers; contract payouts instead increment or decrement the qualitative 0–10 Wealth Track based on Contract Value Classes.
-- **Rationale:** Strongly enforces scope limits and prevents the game from devolving into a spreadsheet-driven "buy low, sell high" trading simulator. The player is a contractor executing missions for communities, not an independent trade merchant.
+## 1. No Trading Simulators
+- **Rule:** The player cannot buy and sell goods for profit on a market screen.
+- **How it's built:** The game does not show money as a number. The economy only uses 0-10 resource tracks (like Wealth and Supplies) that change through game events.
+- **Why:** To prevent the game from becoming a spreadsheet about trading cargo.
 
-## 2. No 3D On-Foot Navigation
-- **Rule:** The project must not model 3D player avatars, station interiors, or space-legs systems.
-- **Implementation Constraint:** All station-side community interactions and sub-agent management are executed exclusively through the high-fidelity, grid-aligned 2D menus of the Chronicle View.
-- **Rationale:** Preserves the two-speed macro UX contract (Kinetic Board vs. Chronicle View) and prevents endless scope expansion into character controllers and level design.
+## 2. No Walking Around
+- **Rule:** The game will not have 3D characters walking around stations or planets.
+- **How it's built:** All station activities (talking to people, managing goals) happen entirely through 2D menus.
+- **Why:** Keeps the project simple and avoids the massive amount of work needed for 3D level design and character animation.
 
-## 3. No Procedural Narrative Generation
-- **Rule:** The game must never utilize runtime procedural prose generators, LLMs (Large Language Models), or generative AI to synthesize dialogue, descriptions, or chronicle events.
-- **Implementation Constraint:** Narrative text is drawn from static, hand-authored `.tres` template resources and resolved deterministically using tag-based keys.
-- **Rationale:** Ensures that the player-facing prose strictly adheres to the low-tech, nautical "jargon creole" and community-centric atmosphere, preventing the dilution of tone that comes with procedural or generative text.
+## 3. No System-Written Stories
+- **Rule:** The game engine must never write paragraphs of story text, dialogue, or descriptions.
+- **How it's built:** The engine only gives data (numbers, tags, and menus). The player writes the actual story using the Narrative Template Logbook.
+- **Why:** Making the engine write story text leads to boring, repetitive reading. The game provides the rules; the player writes the story.
 
-## 4. No Colony Construction or Base Building
-- **Rule:** The player must not be given mechanics to construct, modify, or layout station modules, anchorage components, or planetary bases.
-- **Implementation Constraint:** Sector topology and station assets are either designer-authored statically or mutated solely through systemic event ticks of the background cellular automaton (CA) simulation.
-- **Rationale:** Preserves the core design pillar of the player as an individual peer agent operating within a community, rather than an omniscient, god-mode manager.
+## 4. No Background Economy Simulations
+- **Rule:** The game does not simulate an invisible economy where NPCs trade and change the world while the player is away.
+- **How it's built:** The world only changes because of the player. Communities lose resources only if the player fails a mission or if the player spends time traveling.
+- **Why:** Invisible background changes confuse players. Changes to the world should feel like direct results of the player's actions.
 
-## 5. No Linear Equipment or Tiered Loot Progression
-- **Rule:** Ship and character equipment/tools must not follow numeric power progression models (item rarity levels, stat scaling, tier levels, or gear scores).
-- **Implementation Constraint:** Ship tools, upgrades, and modules are lateral utility components (e.g., adding a mining laser enables mining but sacrifices cargo capacity or power). Assets function as keys to specific gameplay features, roll modifiers, and/or narrative elements rather than linear stat-upgrades.
-- **Rationale:** Keeps progression focused on community relationships, qualitative wealth tracks, and utility-based gameplay access rather than numerical equipment optimization loops.
+## 5. No Base Building
+- **Rule:** The player cannot build, design, or place station modules or planetary bases.
+- **How it's built:** The map and stations are pre-built. 
+- **Why:** The player is just a pilot trying to survive in a community, not a god-like manager.
 
-## 6. No Real-Time Cross-Sector Communication
-- **Rule:** The game must not feature instantaneous cross-sector communications (FTL comms, global chat boards, instant mail).
-- **Implementation Constraint:** Communications, trade gossip, and sector news must propagate at physical transport speeds (relayed via ship jumps or simulated arrival/departure ticks).
-- **Rationale:** Reinforces the logistical weight of space travel and the acute sense of isolation, making the arrival of news or messages a meaningful event.
+## 6. No Loot Grinding or Number Scaling
+- **Rule:** Ship parts and character gear do not have levels, rarities, or increasing stats (like "Level 5 Laser" or "Epic Shields").
+- **How it's built:** Upgrades give you new abilities but always have a trade-off (e.g., adding a mining laser takes up cargo space).
+- **Why:** Keeps the focus on surviving and helping communities, rather than endlessly grinding for bigger numbers.
 
-## 7. No Lethal Peer-to-Peer Human Ship Combat
-- **Rule:** Human ship-to-ship combat must prioritize disablement and capture over vaporization or character death (the "Preservation Convention").
-- **Implementation Constraint:** Combat systems must enforce ship disablement states. Human NPCs will yield or retreat rather than fight to the death, and player defeat leads to salvage, rescue, or social penalties rather than a game-over death screen. Destructive lethal combat is restricted to non-human targets (drones, anomalies).
-- **Rationale:** Aligns with the Lore constraint that human pilots and vessels are rare, culturally revered assets too valuable to casually destroy. Any human ship-to-ship combat that does occur must be highly rare and narratively reasoned.
+## 7. No Instant Communication
+- **Rule:** Characters cannot talk instantly across different star systems.
+- **How it's built:** Messages take time to travel. It takes 1 tick of the World Clock per sector for a message to arrive.
+- **Why:** Makes space feel huge and lonely.
 
-## 8. No Dynamic Sector Graph Generation
-- **Rule:** The star systems and sector connections (the world map graph) must remain static and manual.
-- **Implementation Constraint:** Star-planet-moon jumps are defined in designer-authored layout resources and cannot sprout or decay dynamically at runtime. Exploration is restricted to spawning temporary, in-sector POIs (derelicts, anomalies).
-- **Rationale:** Prevents infinite scope creep in procedural map generation, route-finding code, and UI map display bugs.
+## 8. No Battles to the Death Against Humans
+- **Rule:** Human ships do not fight to the death and do not blow each other up.
+- **How it's built:** Human NPCs will run away or surrender when losing. If the player loses, they are salvaged or face social consequences, rather than getting a "Game Over" screen.
+- **Why:** In this setting, ships and pilots are rare and valuable. Blowing them up makes no sense for survival.
 
+## 9. No Random Map Generation
+- **Rule:** The map of star systems and jump routes must be completely fixed.
+- **How it's built:** Sector connections are static. The game can spawn temporary points of interest inside a sector, but the map itself does not change.
+- **Why:** Prevents the code from becoming too complicated with endless random map generation.
 
-## Architect Policy for Future Seams
-- Future prohibited seams may only be added to this registry via explicit Architect directive (e.g., an approved `REV_XXX` entry in the GDD Revision Ledger).
-- Developers and Verificators may not add entries to this list.
+---
+
+## Rules for Adding to This List
+- Only the Architect can add new banned features to this list.
+- Developers and Testers cannot add to this list.

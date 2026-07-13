@@ -23,11 +23,7 @@ LOG_REF: 2026-06-20 19:13:27
 - Fresh agent sessions should start from [MODEL-CASCADE-PROTOCOL.md](MODEL-CASCADE-PROTOCOL.md), then read this file, [TACTICAL_TODO.md](TACTICAL_TODO.md), and [SESSION-LOG.md](SESSION-LOG.md) before loading targeted truth sections.
 - Do not treat frozen GDD snapshots, `PROJECT_DUMP_TEXT_*`, focused simulation logs, or other generated artifacts as default session context.
 
-### Agent Parity Principle
 
-- The player is a first-class simulation agent under the same fundamental world contracts as NPC agents.
-- The only intended difference is decision control: NPC action selection is algorithm-driven, while player action selection is user-driven.
-- Completion consequences at shared simulation seams (for example, contract completion effects) should remain parity-consistent between player and NPC unless a truth-level rule explicitly defines an exception.
 
 ### Rulebook-First Principle
 

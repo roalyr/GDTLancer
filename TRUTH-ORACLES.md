@@ -52,7 +52,7 @@ LOG_REF: 2026-07-07
 |---|---|---|---|---|---|---|
 | **1** | Scarcity | Trust | Obligation | Survival | Isolation | Kinship |
 | **2** | Debt | Legacy | Pride | Loss | Hope | Betrayal |
-| **3** | Exhaustion | Renewal | Rivalry | Community | Sacrifice | Authority |
+| **3** | Exhaustion | Renewal | Rivalry | Community | Sacrifice | Leadership |
 | **4** | Fear | Gratitude | Ambition | Loyalty | Decay | Discovery |
 | **5** | Burden | Freedom | Tradition | Change | Belonging | Exile |
 | **6** | Desperation | Resilience | Secrecy | Honor | Grief | Opportunity |
@@ -65,7 +65,7 @@ LOG_REF: 2026-07-07
 |---|---|---|---|---|---|---|
 | **1** | Vessel | Community | Bond | Resource | Route | Equipment |
 | **2** | Crew | Cargo | Station | Sector | Stranger | Elder |
-| **3** | Family | Signal | Wreck | Claim | Water | Fuel |
+| **3** | Family | Transmission | Wreck | Claim | Water | Fuel |
 | **4** | Parts | Shelter | Path | Reputation | Secret | Promise |
 | **5** | Disease | Storm | Child | Pilot | Debt | Tool |
 | **6** | Dock | Tunnel | Relay | Seal | Hull | Anchor |
@@ -129,6 +129,8 @@ Use when you need a prompt for what an NPC conversation is about. Roll d6×d6.
 
 ## 8. Complication Oracle (What goes wrong)
 
+*Scope Generator:* Keywords from this table dictate the valid mechanical targets for Penalty Points (e.g., "-1 to Wealth", "Lose tool access", "Sector tag shifts to HOSTILE").
+
 |   | 1 | 2 | 3 | 4 | 5 | 6 |
 |---|---|---|---|---|---|---|
 | **1** | Equipment failure | Betrayal | Micro-debris storm | Desperate scavengers | Debt called in | Misunderstanding |
@@ -142,6 +144,8 @@ Use when you need a prompt for what an NPC conversation is about. Roll d6×d6.
 
 ## 9A. Opportunity Oracle (In-Space)
 
+*Scope Generator:* Keywords from this table dictate the valid mechanical options for Advantage Points (e.g., "+1 to next Command check", "Gain temporary tag: Security Bypass").
+
 |   | 1 | 2 | 3 | 4 | 5 | 6 |
 |---|---|---|---|---|---|---|
 | **1** | Abandoned cargo | Drifting derelict | Uncharted shortcut | Favorable drift | Unclaimed salvage | Pristine machinery |
@@ -154,6 +158,8 @@ Use when you need a prompt for what an NPC conversation is about. Roll d6×d6.
 ---
 
 ## 9B. Opportunity Oracle (On-Station)
+
+*Scope Generator:* Keywords from this table dictate the valid mechanical options for Advantage Points (e.g., "+1 to Wealth track", "Gain temporary tag: Elder's Favor").
 
 |   | 1 | 2 | 3 | 4 | 5 | 6 |
 |---|---|---|---|---|---|---|

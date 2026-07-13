@@ -51,7 +51,7 @@ This manual is for **Designers** and **Artists** who want to add or modify game 
 
 For world authoring, treat every file in `/database/registry/locations/` as a **sector-level registry resource** keyed by ids such as `sector_star_elace`. Dockable stations and other interactables live inside the referenced sector scene.
 
-For contracts, the default runtime path is now **simulation-driven**. `GridLayer` surfaces `CONTRACT_DEMAND_*` tags, `contract_generation_system.gd` turns them into runtime occurrences, and `AgentLayer` claims and services those occurrences. Authored `ContractTemplate` resources and `available_contract_ids` lists are now **optional curated overrides** for tutorial, story, or hand-authored exception content rather than the normal contract pipeline.
+Hooks and missions are generated automatically by the game engine using Sector Tags, NPC Goals, and Relationships. You only need to create `ContractTemplate` files if you want to make specific story missions or tutorials.
 
 ---
 
@@ -235,7 +235,7 @@ Every tradeable commodity must be mapped to an economic category in the **Commod
    }
    ```
 
-*This mapping is the authoritative bridge. Unclassified commodities will fail the registration invariant and will not be procedurally seeded at stations or traded by NPCs.*
+*This mapping is the authoritative bridge. Unclassified commodities will fail the registration invariant and will not be procedurally seeded at stations.*
 
 #### Step 3: ART - (Optional) Add Icon
 
@@ -288,7 +288,7 @@ The live `UtilityToolTemplate` uses `range_effective` / `range_max` and `energy_
   - `moon_elace_a1/moon_elace_a1.tscn`
 - Secondary or companion stars (e.g., Lywin B, C, D) are treated as separate `LocationTemplate` resources but with `sector_type: "star_companion"`. Their main sector scenes (e.g., `sector_star_lywin_B.tscn`) also reside in the primary system's folder, alongside their celestial object subfolders (`star_lywin_B/star_lywin_B.tscn`).
 
-**Contract boundary:** the live simulation does **not** require authored per-sector contract lists. Runtime demand contracts are generated from qualitative sector tags and nearby source sectors. `available_contract_ids` remains optional for curated overrides only.
+**Contracts:** The game does **not** require you to create a list of contracts for every sector. The engine handles generating missions automatically. You only use `available_contract_ids` if you want to force specific story missions.
 
 **Example: Creating `sector_star_nexus` - a new colony hub sector**
 
@@ -354,7 +354,7 @@ If the sector should use the procedural fallback instead of a handcrafted scene:
 
 ### 3.5 Adding a Curated Contract Override
 
-**Default behavior:** do **not** author one `.tres` contract per demand case. The live runtime creates qualitative delivery occurrences from `CONTRACT_DEMAND_*` tags and nearby qualifying sectors.
+**Default behavior:** Do **not** create a `.tres` contract file for every community need. The game engine generates missions automatically.
 
 **Use this section only when you need a curated override** such as a tutorial mission, a story contract, a handcrafted fallback, or a deliberately authored exception that should not depend on the procedural demand generator.
 
@@ -388,7 +388,7 @@ Use `title`, `issuer_id`, `origin_location_id`, and `required_commodity_id` exac
 
 If you want the override to appear at a specific sector, add its `template_id` to that sector's `available_contract_ids`. If you leave `available_contract_ids` empty, the sector still participates in the live simulation-driven contract pipeline.
 
-Do **not** create authored `ContractTemplate` resources just to mirror qualitative `CONTRACT_DEMAND_*` tags. Those occurrences are generated at runtime and should remain data-free by default.
+Do **not** create authored `ContractTemplate` resources just for standard hooks or deliveries. Those occurrences are generated organically at runtime and should remain data-free by default.
 
 ---
 
@@ -518,20 +518,8 @@ When tuning, inspect the owning script first and treat the manual as orientation
 
 ### 4.3 Economy Balance
 
-Commodity prices and quantities for authored stations are defined in their `.tres` files under `/database/registry/locations/`. However, procedurally generated stations seed their markets dynamically as a projection of their sector's economy tags (`RAW_*`, `MANUFACTURED_*`, `CURRENCY_*` at `POOR`, `ADEQUATE`, or `RICH` levels).
-
-The bridge between these tags and specific commodities is governed by the **Commodity Classification Registry** in `Constants.gd`:
-- `Constants.COMMODITY_CLASSIFICATION` maps each tradeable commodity ID to its simulation category (`RAW`, `MANUFACTURED`, `CURRENCY`).
-- Seeding maps sector economy levels (`POOR`, `ADEQUATE`, `RICH`) to quantity ranges and price multipliers defined in `Constants.ECONOMY_LEVEL_PARAMS`:
-  - **RICH**: High stock (15–40), low prices (0.7x multiplier).
-  - **ADEQUATE**: Medium stock (5–20), base price (1.0x multiplier).
-  - **POOR**: Low stock (0–5), high prices (1.5x multiplier).
-- Seeding calculates base buy prices using `base_value` from the commodity template resource, and derives base sell prices using `Constants.COMMODITY_SELL_PRICE_FRACTION` (default: `0.8`).
-- Restocking is tick-driven and slowly pulls depleted quantities back toward the baseline quantity (derived via `Constants.get_tag_aware_baseline_quantity()`, which is the median/average of the `min_quantity` and `max_quantity` range for that economy level) at a rate of `Constants.MARKET_RESTOCK_RATE_PER_TICK` (default: `1`) per tick. The flat cap `MARKET_RESTOCK_MAX_QUANTITY` is no longer used for restock limits.
-- Dynamic pricing is applied on top of the base prices for both player and NPC transactions. Price scales dynamically based on the ratio of current stock to the baseline stock using `Constants.get_dynamic_price()`. The price modifier is calculated as:
-  `modifier = 1.0 + DYNAMIC_PRICE_ELASTICITY * (1.0 - (current_quantity / baseline_quantity))` (where `DYNAMIC_PRICE_ELASTICITY = 0.5`), clamped between `0.2` and `2.0`.
-
-The live simulation economy itself remains qualitative. Sector progression and runtime contract generation come from tags, bounded counters, and the demand-occurrence pipeline. Procedural market inventories act as a local quantitative projection of these qualitative tags.
+The game economy is strictly driven by the player's actions. Sectors have 0-10 numbers for their health (Wealth, Security, Supplies, Morale) and simple tags (like POOR or HARSH).
+There are no complex formulas or hidden numbers changing in the background. Players simply spend the points they earn from dice rolls to interact with the economy.
 
 ### 4.4 Combat Balance
 
@@ -675,7 +663,7 @@ godot --no-window -s addons/gut/gut_cmdln.gd -gdir= -gtest=res://src/tests/scene
 
 ### ❌ Treating `available_contract_ids` As The Default Runtime Contract Pipeline
 **Problem:** Authored a `.tres` contract for every local demand case or assumed sectors must list `available_contract_ids` to generate contracts  
-**Solution:** Leave runtime demand to the qualitative simulation. Only use `ContractTemplate` resources and `available_contract_ids` for curated override content such as tutorials, story contracts, or explicit handcrafted exceptions.
+**Solution:** Leave hook generation to the GM engine. Only use `ContractTemplate` resources and `available_contract_ids` for curated override content such as tutorials, story contracts, or explicit handcrafted exceptions.
 
 ### ❌ Case Sensitivity
 **Problem:** Resource ID "Ship_Corsair" doesn't match lookup "ship_corsair"  
@@ -708,36 +696,13 @@ godot --no-window -s addons/gut/gut_cmdln.gd -gdir= -gtest=res://src/tests/scene
 
 ---
 
-## 8. Narrative Template Creation (Chronicle View)
+## 8. Narrative Annotation (The Narrative Template Logbook)
 
-Narrative text in GDTLancer is hand-authored rather than procedurally generated. Text is stored as `.tres` resource templates in a structured directory hierarchy and looked up dynamically at runtime based on sector tags.
+The game engine **never writes story text**. Instead, the player is entirely responsible for writing the story.
 
-### 8.1 Directory Structure
-To prevent combinatorial filename bloat and make templates easy to manage for content authors, narrative templates must be organized in sub-folders mirroring the sector's attributes:
-```
-/database/registry/narrative/templates/{sector_type}/{economy_tag}/{security_tag}/{event_type}.tres
-```
-Where:
-- `{sector_type}`: e.g., `star`, `planet`, `moon`, `field`, `deep_space`
-- `{economy_tag}`: e.g., `poor`, `adequate`, `rich`
-- `{security_tag}`: e.g., `lawful`, `low-sec`, `unlawful`
-- `{event_type}`: e.g., `rumor`, `dock_greeting`, `encounter`, `interaction`
+The system provides the current state, numbers, and menus. The player chooses an action, spends their points, and then uses the **Narrative Template Logbook**—selecting keywords and typing optional text—to record what happened. This log is saved permanently.
 
-### 8.2 Key-String Generation and Lookup Rules
-When the player docks, enters a sector, or interacts with a sub-agent, the game constructs a key path from the local sector's active state tags:
-1. **Derive Context:** Query the current sector's `sector_type`, `economy_level`, and `security_level`.
-2. **Build Path:** Map the derived tags to the directory structure. For example, a rumor in a poor, low-sec planetary sector resolves to:
-   `templates/planet/poor/low-sec/rumor.tres`
-3. **Resolve Fallback:** If the exact path does not exist, the lookup engine falls back step-by-step to generalized defaults:
-   - First fallback: swap `{security_tag}` with `default`
-   - Second fallback: swap `{economy_tag}` with `adequate` (the mid-tier baseline)
-   - Final fallback: resolve to `templates/default.tres`
-
-### 8.3 Plain Language Authoring Guidelines
-The colonial frontier is populated by close-knit, pragmatic communities. Authors must write narrative text following these stylistic principles:
-- **Simple, Plain Language:** Keep all writing simple and grounded. Avoid inventing complex sci-fi jargon or "creole".
-- **Material Focus:** Focus on the concrete physical and logistical realities of the frontier: hull degradation, supply depletion, heat tolerances, and interpersonal debt, avoiding high space-opera terms.
-- **Dynamic References:** Always use bracketed template placeholders (e.g. `{player_name}`, `{sub_agent_name}`, `{origin_sector}`) to keep text aligned with the live simulation state and preserve agent parity.
+**Do not try to write .tres string templates for story events.** The game will not use them.
 
 ---
 

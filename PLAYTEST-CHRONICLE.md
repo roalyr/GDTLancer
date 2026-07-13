@@ -77,11 +77,11 @@ If all six checks pass, the output is valid. If any fail, regenerate.
 
 ```
 PHASE:            Encounter Phase (§4.2)
-CURRENT_PHASE:    Elace Station — Exploring on foot
-LOCATION:         Elace Station
-WORLD_CLOCK:      5 actions / 2 ticks (action 1 of 2 in cycle)
-ACTIONS_TO_TICK:  1
-NEXT_STEP:        Player interprets exploration cues and declares next action
+CURRENT_PHASE:    Arrival/Encounter Phase (Perimeter)
+LOCATION:         Orin's Reach Perimeter
+WORLD_CLOCK:      Tick 3
+ACTIONS_TO_TICK:  2 (New cycle starts)
+NEXT_STEP:        Player interprets Scavenge cue, allocates Advantage Points, and declares next intent
 ```
 
 ---
@@ -91,10 +91,10 @@ NEXT_STEP:        Player interprets exploration cues and declares next action
 ```
 NAME:   Silas
 VESSEL: The Oar (worn utility scow)
-        Status: community-owned / "Community vessel" — assigned to Elace Station
+        Status: community-owned / "Community vessel"
         Role:   Silas is assigned captain, not owner
-        Availability: ASSIGNED / ON-DUTY — cleared for venture to Orin's Reach
-        Note: Vessel and crew are now in player context
+        Availability: ASSIGNED / ON-DUTY — arrived at Orin's Reach Perimeter
+        Note: Vessel and crew are currently active
 TOOL:   Reinforced Hull (aboard The Oar — not accessible when off-duty)
         - Effect: Ignore first HARSH environment penalty per sector
         - Trade-off: -1 to maneuver checks
@@ -103,7 +103,7 @@ TRACKS:
   Health:   FIT       [5/10]  Modifier: 0
   Wealth:   POOR      [5/10]  Modifier: 0  (-1 elder complication)
   Morale:   STEADY    [5/10]  Modifier: 0
-  Supplies: ADEQUATE  [2/10]  Modifier: 0  (-1 transit Korr→Elace)
+  Supplies: ADEQUATE  [2/10]  Modifier: 0  (-1 transit Korr→Elace, Transit to Orin's Reach was free)
 
 BONDS:
   1. Maeve   | Kin                | STABLE (+0) | Home: Elace Station
@@ -846,3 +846,54 @@ Silas undocks *The Oar* and begins transit.
 | 69 | Player · Pre-departure | §4.1 | Player noted that 'Community cost' and 'Crew consent' cues felt like GM-authored prose instead of mechanical prompts. Player also identified 'nav-lane' as a lore violation. | Rewrote §4.1 to proceduralize Pre-departure. Created Community Cost Oracle (Table 10) and Pre-Flight Crew Oracle (Table 11). Added 'nav-lane' to forbidden lexicon in TRUTH_CONTENT-CREATION-MANUAL.md. |
 | 70 | Player · Pre-departure | §4.1 | Player selected the "Bargain" resolution for Pre-departure cues but stipulated that effects must be *immediate* (costing ticks or track points) rather than lingering modifiers, to minimize tracking overhead. | Updated §4.1. Pre-flight cues force an immediate "Bargain": spend 1 tick (delay launch) or 1 Track point to resolve negative cues. Positive cues grant immediate one-time benefits (e.g., lower supply cost). |
 | 71 | Player · Pre-departure | §4.1 | Player noted that leaving Community Cost cues without mechanical penalties might make them ignorable, but enforcing them could be too punishing (open design question). Player also clarified that positive transit cues (like 'Fast approach') should make the *entire* next travel action free of supply cost to eliminate transit math entirely. | Updated §4.1 to specify that positive transit cues make the entire next travel action cost 0 Supplies. Left Community Cost penalty optional for now, to be reviewed after wider playtesting. |
+| 72 | Player · UX Review | §6 | Player observed that a background Cellular Automata World Clock running globally off-screen creates arbitrary changes that feel disconnected from player action. | Rewrote §6: Replaced CA with a "Minimum Necessary Causality Engine." Time ticks enforce delays, but world degradation is now strictly event-driven (triggered by Action Check Setbacks/Crises). |
+| 73 | Player · UX Review | §4.3 | Player identified that typing open-ended narrative logs for NPC interactions causes text fatigue and risks tone breaks. | Introduced "Interactive Mad-Lib Logbook UI" concept. Player selects nodes (Oracle keywords/Track impacts) to compile structural sentences, converting narrative to simulation data instantly. |
+| 75 | Player · Tone/UX | §1 | Player requested removing "Jargon Creole" from GM structural output entirely to stick to simple language. Also flagged "Signals" as implying radio/scanning. | Scrubbed Jargon Creole from rulebook and content manual. Replaced all instances of "Signals" with "Indicators" to decouple from radio connotations. |
+| 76 | Player · Outcomes | §3.3 | Player noted that encounters resulting in generic track +1/-1 felt disconnected from the narrative. Requested that oracles drive the narrative *first*, which then provides a scoped mechanical tweak. | Renamed §3.3 to "Resolving Outcomes". Success/Failure now yields an Oracle Cue and scoped Advantage/Penalty points (+1 to +3). Player consumes points immediately within the GM-defined scope (e.g., "Weakened security" cannot be spent to boost Health). |
+| 77 | Player · UX Review | §4 | Player identified the need for a rigorous flowchart to guarantee the isolation of mechanics from narrative. The GM should act solely as the engine, presenting state and menus. | Added "The Information Flowchart" to §4. Defined the strict sequence: 1. System outputs Indicators -> 2. Player Acts -> 3. System outputs Cue + Menu -> 4. Player selects from menu -> 5. Player annotates narrative via Mad-Lib logbook. |
+| 78 | Player · Mechanical Tags & Hooks | §2.5, §4.2 | Player requested formalization of Temporary Tags and Hook Types generated by Oracle cues. | Added §2.5 "Temporary Tags" and explicit "Formal Hook Types" to §4.2. Marked Tables 8, 9A, 9B as "Scope Generators" in the Oracle document. |
+
+### Action 8 — Scavenge (Mid-Transit)
+- **Intent:** Investigate and secure the unclaimed salvage drifting near the route.
+- **Action:** Scavenge / Repair
+- **Track:** Supplies
+- **Outcome:** Success. **+2 Advantage Points**.
+- **Oracle Cue (Table 9A In-Space):** "Weakened security"
+- **Valid Scope for Points:**
+  - `[+1 modifier to next Command/Navigate Check]`
+  - `[Gain temporary tag: Security Bypass]`
+  - `[Trigger Action: Investigate the perimeter scow with +1 modifier]`
+
+### World Clock Tick (Tick 3)
+- **Causality Engine:** No delayed events trigger this tick. M1 remains in transit (arrives Tick 4). No degradation since player did not roll a Setback or Crisis.
+
+### Action 9 — Investigate (Perimeter Scow)
+- **Intent:** Investigate cold-drifting scow.
+- **Action:** Investigate / Scan
+- **Point Allocation:** Bypassed roll via previous Advantage Point purchase (Cost: 1 pt). 1 unspent point lost.
+- **Roll:** Auto-Success
+- **Outcome:** Success. **+1 Advantage Point**.
+- **Oracle Cue (Table 9A In-Space):** "Unguarded route"
+- **Valid Scope for Points:**
+  - `[Gain temporary tag: Undetected (Bypass unknown vessel)]` (Cost: 1 pt) - **PURCHASED**
+  - `[Trigger Action: Dock at Orin's Reach without restriction checks]`
+
+### Action 10 — Boarding Action (Scow)
+- **Intent:** Engage in boarding action on the cold-drifting scow, using the `Undetected` tag to ignore the loitering unknown vessel.
+- **Action:** Command / Navigate (or Endure / Overcome, depending on approach)
+- **Narrative Log:** "While it makes little sense for space to allow for stealth, lets assume that we just make a good timing to avoid the unidentified vessel and engage in boarding action."
+- **Status:** Pending Approach (Cautious/Risky) and Roll.
+
+---
+
+### PLAYTEST PAUSED (SESSION END)
+**Date:** 2026-07-13
+**Status:** Playtest halted per user instruction. All mechanical refinements (Ephemeral/Advantage Points, Temporary Tags, Formal Hook Types, Information Flowchart) have been successfully merged into `TRUTH_RULEBOOK.md` and `TRUTH-ORACLES.md`. The game engine state is preserved at the beginning of Action 10.
+
+### Arrival — Orin's Reach (Perimeter)
+*Note: Transit is now complete, but the vessel has not yet docked. We are in the sector perimeter.*
+- **Sector State:** Deep Space · POOR · CONTESTED · STANDARD
+- **Perimeter Indicators:**
+  - Security CONTESTED.
+  - Unknown vessel detected loitering near the cold-drifting scow.
+

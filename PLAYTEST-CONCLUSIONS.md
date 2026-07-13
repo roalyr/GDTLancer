@@ -11,8 +11,8 @@ LOG_REF: 2026-07-09
 
 # GDTLancer — Playtest Conclusions (Session 1)
 
-**Source:** 71 design observations from PLAYTEST-CHRONICLE.md
-**Date:** 2026-07-11
+**Source:** 78 design observations from PLAYTEST-CHRONICLE.md
+**Date:** 2026-07-13
 **Status:** Active — conclusions apply to resumed playtest and inform future milestones
 
 ---
@@ -231,6 +231,52 @@ Reinforced Hull's cost (-1 maneuver) never surfaced because no maneuver check oc
 - Established the **Immediate Bargain:** Pre-flight crew cues force an immediate choice (spend 1 Tick to delay/fix, take a -1 Track hit to leave now, or gain a one-time free transit). Avoids tracking lingering modifiers.
 - Lexicon update: Identified "nav-lane" as a lore violation (space highway trope). Banned it in favor of "drift-route".
 
+### 2.14 HIGH — The Approach Split Trap (Resolved)
+
+*Observations: #74*
+
+**Problem:** High modifiers made the Risky approach mathematically safer than Cautious, reducing the choice to pure math rather than narrative stakes.
+
+**Resolution:**
+- Redesigned Action tables (§3.1). Cautious caps upside at Success (cannot get Breakthrough). Risky exposes absolute stakes (natural 3-5 is always Crisis, 16-18 always Breakthrough, overriding any modifiers). The choice now dictates the nature of the outcome.
+
+### 2.15 CRITICAL — The Information Flowchart & Mad-Lib UI (Resolved)
+
+*Observations: #73, #77*
+
+**Problem:** Mixing narrative generation with mechanical simulation causes text fatigue and blurs authorship boundaries. Open-ended logbook writing was exhausting for the player.
+
+**Resolution:**
+- Established a strict 5-step Information Flowchart (§4). The GM acts solely as a mechanical board (presenting Indicators and Valid Scope Menus).
+- Introduced the **Interactive Mad-Lib Logbook UI** (§4.3): The player selects structural nodes (Oracles/Tracks) to compile sentences, providing optional free-text annotation. This completely isolates mechanics from the player's narrative wrapper.
+
+### 2.16 CRITICAL — Scoped Advantage Points (Resolved)
+
+*Observations: #76, #78*
+
+**Problem:** Encounters yielding generic track +1/-1 felt disconnected from the narrative. Unbounded narrative rewards felt arbitrary.
+
+**Resolution:**
+- Success/Failure now yields an Oracle Cue. The GM translates this cue into a strict **Mechanical Menu** (Valid Scope). 
+- The player receives Advantage/Penalty points (+1 to +3) and must consume them immediately from the menu (e.g., buying a Track boost, a +1 to next roll, or a Temporary Tag). This eliminates tracking "lingering modifiers" and directly weaves the oracle narrative into mechanical board state.
+- Formalized **Temporary Tags** (§2.5) and **Formal Hook Types** (§4.2).
+
+### 2.17 HIGH — Minimum Necessary Causality (Resolved)
+
+*Observations: #72*
+
+**Problem:** A background Cellular Automata World Clock created arbitrary off-screen changes that felt disconnected from player action.
+
+**Resolution:**
+- Replaced CA with an event-driven causality engine. Time ticks enforce travel delays, but world degradation is triggered directly by player failure (Action Check Setbacks/Crises) rather than background entropy.
+
+### 2.18 HIGH — Tone & Terminology (Resolved)
+
+*Observations: #75*
+
+**Problem:** "Jargon Creole" and terms like "Signals" created ambiguous flavor.
+**Resolution:** Scrubbed jargon entirely. "Signals" replaced with "Indicators" to decouple from radio connotations.
+
 ## 3. UI/UX Assessment
 
 ### 3.1 Principle: Elegant Simplicity
@@ -243,11 +289,12 @@ The playtest identified these distinct UI contexts:
 
 | Screen | Purpose | Complexity |
 |---|---|---|
-| **Sector View** | Community state, signals, available contacts, hooks | LOW — read-only, table format |
-| **NPC Card** | Portrait, tags (editable chips), signal feed, player log | MEDIUM — inline editing, append log |
-| **Oracle** | Category grid, click-to-roll | LOW — one interaction pattern |
-| **Action Tray** | Available options (A/B/C/D + general talk) | LOW — list with labels |
-| **Character Sheet** | Tracks, bonds, goals, message queue, vessel status | MEDIUM — mostly read-only, goals editable |
+| **Sector View** | Community state, indicators, contacts, formal hooks | LOW — read-only, table format |
+| **NPC Card** | Portrait, tags (editable chips), indicator feed, player log | MEDIUM — inline editing, append log |
+| **Oracle** | Category grid, click-to-roll (Scope Generators) | LOW — one interaction pattern |
+| **Action Tray** | Modifiers, Approach Toggle, Valid Scope Point Allocation | MEDIUM — point consumption menu |
+| **Mad-Lib Logbook** | Node-based sentence builder with optional free-text | LOW — tactile structural logging |
+| **Character Sheet** | Tracks, bonds, goals, message queue, temporary tags | MEDIUM — mostly read-only, goals editable |
 | **Pre-departure** | Community cost, crew consent, supply allocation | LOW — confirmation sequence |
 | **Travel** | Encounter roll, supply tick, World Clock | LOW — automated in digital |
 | **Message Queue** | Pending/arrived/resolved messages | LOW — small table |
@@ -303,7 +350,7 @@ Everything flows through the tick. This is elegant — one clock drives all dyna
 
 ### 4.1 Core Mechanics
 
-1. **Cautious/Risky split untested.** The central mechanical decision has not been exercised. First test at Tick 4 (Kaelen reply). Does the choice feel like a real dilemma?
+1. **Cautious/Risky split untested.** The central mechanical decision was redesigned in #74, but the roll itself is currently pending at Action 10. Does the choice feel like a real dilemma in practice?
 2. **Goal progress pacing.** Is +1 per relevant success right for MAJOR? Is +1 on Strong Success/Breakthrough only right for EPIC? No data yet.
 3. **Goal cooldown interval.** 2 ticks between evaluations — too long? Too short? Needs play data.
 4. **Track used for ally requests.** Is Morale the right track for personal requests to allies? Should bond strength be a modifier? Or should it be a separate "social" check?
@@ -324,9 +371,8 @@ Everything flows through the tick. This is elegant — one clock drives all dyna
 
 ### 4.4 Simulation Layer
 
-13. **Simulation rework scope.** Current CA is Freelancer-shaped (individual agents, arbitrary trade). Must become group-focused, contract-based, social, community-centric. What is the minimum viable rework?
-14. **NPC goal tags → simulation effects.** How do tags like `exploration` actually modify World Clock processing? What off-screen actions do they generate?
-15. **Sector creation mechanic.** When a goal involves founding an outpost, the player defines the new sector. Tabletop: player names it and sets tags. Digital: needs a UI form. When does this happen?
+13. **NPC goal tags → simulation effects.** How do tags like `exploration` actually modify World Clock processing? What off-screen actions do they generate?
+14. **Sector creation mechanic.** When a goal involves founding an outpost, the player defines the new sector. Tabletop: player names it and sets tags. Digital: needs a UI form. When does this happen?
 
 ### 4.5 Digital Implementation (Deferred)
 
@@ -369,6 +415,11 @@ These decisions emerged from play and should not be revisited without new contra
 | Oracle-driven Complications | #67, #68 | Player interprets complication cue, determining track hit |
 | Pre-departure Oracles (Bargain) | #69, #70 | Removes GM prose, focuses on immediate resource/time trade-offs |
 | No lingering modifiers | #70 | Modifiers must be immediate (Tick/Track hit) to avoid tracking debt |
+| Absolute Stakes Approach | #74 | Risky overrides modifiers on extremes; choice dictates stakes |
+| Minimum Necessary Causality | #72 | World degrades on player failure, not background CA |
+| Mad-Lib Logbook UI | #73 | Eliminates text fatigue, isolates narrative wrapper from mechanics |
+| Information Flowchart | #77 | Strict separation of mechanical presentation and narrative authorship |
+| Scoped Advantage Points | #76, #78 | Points consumed immediately on GM-defined menu based on Oracle |
 
 ---
 
