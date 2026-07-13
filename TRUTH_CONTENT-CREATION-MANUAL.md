@@ -312,7 +312,7 @@ The live `UtilityToolTemplate` uses `range_effective` / `range_max` and `energy_
 │   ├── commodity_food: {buy_price: 24, sell_price: 19, quantity: 80}
 │   └── commodity_tech: {buy_price: 72, sell_price: 58, quantity: 30}
 ├── available_services: ["trade", "contracts", "repair"]
-├── controlling_faction_id: "faction_traders"
+├── controlling_group_id: "group_traders"
 ├── danger_level: 1
 ├── initial_sector_tags: PoolStringArray("STATION", "SECURE", "MILD")
 └── available_contract_ids: []  # Optional curated overrides only
@@ -373,7 +373,7 @@ If the sector should use the procedural fallback instead of a handcrafted scene:
 ├── title: "Sealant Run for the Cob Anchorage"
 ├── description: "The Cob anchorage is running short on hull sealant compound. Dockmaster Vennar put out the word. Anyone who can make the run before the next maintenance cycle gets paid in kind."
 ├── issuer_id: "dockmaster_vennar_cob"
-├── faction_id: "faction_traders"
+├── group_id: "group_traders"
 ├── origin_location_id: "sector_star_elace"
 ├── destination_location_id: "sector_star_cob"
 ├── required_commodity_id: "commodity_hull_sealant"
@@ -518,8 +518,8 @@ When tuning, inspect the owning script first and treat the manual as orientation
 
 ### 4.3 Economy Balance
 
-The game economy is strictly driven by the player's actions. Sectors have 0-10 numbers for their health (Wealth, Security, Supplies, Morale) and simple tags (like POOR or HARSH).
-There are no complex formulas or hidden numbers changing in the background. Players simply spend the points they earn from dice rolls to interact with the economy.
+The game economy is strictly driven by the player's actions. Sectors have 0-10 numbers for their health (Wealth, Security, Supplies, Morale). Tags are only used for temporary effects applied by player actions or events.
+There are no complex formulas or hidden numbers changing in the background. When the player resolves an action, the outcome determines whether they receive Advantage options (benefits to select) or Disadvantage options (costs to select).
 
 ### 4.4 Combat Balance
 
@@ -663,7 +663,7 @@ godot --no-window -s addons/gut/gut_cmdln.gd -gdir= -gtest=res://src/tests/scene
 
 ### ❌ Treating `available_contract_ids` As The Default Runtime Contract Pipeline
 **Problem:** Authored a `.tres` contract for every local demand case or assumed sectors must list `available_contract_ids` to generate contracts  
-**Solution:** Leave hook generation to the GM engine. Only use `ContractTemplate` resources and `available_contract_ids` for curated override content such as tutorials, story contracts, or explicit handcrafted exceptions.
+**Solution:** Leave hook generation to the game. Only use `ContractTemplate` resources and `available_contract_ids` for curated override content such as tutorials, story contracts, or explicit handcrafted exceptions.
 
 ### ❌ Case Sensitivity
 **Problem:** Resource ID "Ship_Corsair" doesn't match lookup "ship_corsair"  
@@ -696,11 +696,11 @@ godot --no-window -s addons/gut/gut_cmdln.gd -gdir= -gtest=res://src/tests/scene
 
 ---
 
-## 8. Narrative Annotation (The Narrative Template Logbook)
+## 8. Narrative Annotation (The Narrative Logbook)
 
 The game engine **never writes story text**. Instead, the player is entirely responsible for writing the story.
 
-The system provides the current state, numbers, and menus. The player chooses an action, spends their points, and then uses the **Narrative Template Logbook**—selecting keywords and typing optional text—to record what happened. This log is saved permanently.
+The system provides the current state data, numbers, and menus. The player chooses an action, selects from the provided Advantage or Disadvantage options, and then uses the **Narrative Logbook**—selecting keywords and typing optional text—to record what happened. This log is saved permanently.
 
 **Do not try to write .tres string templates for story events.** The game will not use them.
 
@@ -714,11 +714,11 @@ To maintain the grounded, low-tech, and community-centric atmosphere of *GDTLanc
 
 | ❌ Banned Term | ✅ Approved Alternative | Rationale |
 |---|---|---|
-| Corporation / Corp / Company | Cooperative, Clan, Family, Guild, Syndicate, Coalition | LORE-1.1: Factions are small, fragile, localized groups, not monolithic corporate empires. |
+| Corporation / Corp / Company | Cooperative, Clan, Family, Guild, Syndicate, Coalition | LORE-1.1: Groups are small, fragile, localized communities, not monolithic corporate empires. |
 | Navy / Military / Standing Army / Fleet | Patrol, Watchkeep, Guard detail, Security detail | LORE-1.1: There are no standing military forces or central sector-governing institutions. |
 | Empire / Federation / Republic / Senate | Settlement, Coalition, Community, Alliance, Enclave | LORE-1.1: There is no centralized system government. |
 | Galactic / Interstellar / Cosmic | Local, Sector-level, Regional, Frontier | LORE-1.1: The setting is a raw, isolated, early-stage frontier. |
-| Nav-lane / Space highway / Hyperlane | Drift-route, Nav-path, Burn-trajectory, Approach | LORE-2.3: Space is not paved or formally managed. Routes are raw paths through the void. |
+| Nav-lane / Space highway / Hyperlane | Trajectory, Nav-path, Burn-trajectory, Approach | LORE-2.3: Space is not paved or formally managed. Routes are raw paths through the void. |
 | Hop in your ship / Take a quick flight / Fly over to | Prep the vessel, Run pre-launch, Crew muster, Logistical run | LORE-2.1/2.3: Space travel requires coordination, planning, and group labor. It is not casual commuting. |
 | Your ship / My ship / Personal starship | The vessel, The machine, Our boat, The rig | LORE-2.1: Starships are complex community assets, not personal cars. |
 | Loot / Drops / Gear score / Legendary | Salvage, Cache, Standing, Reputation, Scrap | LORE-3.1: Strip progression of linear MMO/RPG gear grinding. |

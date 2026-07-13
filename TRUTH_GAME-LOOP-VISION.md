@@ -34,23 +34,25 @@ To protect player control and prevent too much reading:
 
 To separate rules and story, all interactions follow a strict 5-step loop:
 
-1. **System Shows Data:** The game engine shows the current state (Sector tags, NPCs present, available Hooks, and short mechanical facts).
-2. **Player Acts:** The player reads the data and chooses an action (e.g., clicking 'Boarding Action').
-3. **System Shows Menus:** Based on the dice roll, the engine picks keywords from a table and generates a **Menu** of 2-3 mechanical choices.
-4. **Player Spends Points:** The player spends **Advantage or Penalty Points** on the menu (e.g., buying a Temporary Tag or losing a resource point).
-5. **Player Writes Story:** Using the **Narrative Template Logbook**, the player selects keywords to fill a template and writes optional text to explain what just happened. This is saved to the game's Chronicle.
+1. **System Shows Current State:** The game shows the current state (sector tracks, NPCs present, available Hooks, and short mechanical facts).
+2. **Player Acts:** The player reads the current state and chooses an action (e.g., clicking 'Boarding Action').
+3. **System Rolls Oracle:** Based on the dice roll, the system determines the outcome and shows option lists. Good outcomes show Advantage options. Bad outcomes show Disadvantage options. Mixed outcomes show both.
+4. **Player Selects Options:** The player selects from the provided option lists (e.g., gaining a Temporary Tag from Advantage options, or losing a resource from Disadvantage options).
+5. **Player Writes Story (Optional):** Using the **Narrative Logbook**, the player selects keywords to fill a template and writes optional text to explain what just happened. This is saved to the game's Chronicle.
 
 ---
 
-## 3. Scoped Points and Temporary Tags
+## 3. Outcome Options and Temporary Tags
 
 Encounters do not give generic rewards. 
 
-Instead of gaining a generic "+1 Health", the game uses random tables to generate a specific menu for each situation. The player spends **Advantage Points** (+1 to +3) or **Penalty Points** (-1 to -3) to buy items from this menu.
+Instead of gaining a generic "+1 Health", the game uses random tables to generate a specific option list for each situation. The outcome of the dice roll determines which lists the player sees:
 
-* **Temporary Tags:** Players buy tags (e.g., `Undetected`, `Elder's Favor`) which change their situation. Tags let players bypass rules or unlock new actions until the tag expires.
+* **Advantage options:** Good outcomes. The player picks a benefit (e.g., gaining a Temporary Tag, improving a resource track).
+* **Disadvantage options:** Bad outcomes. The player picks a cost (e.g., losing a resource, gaining a negative tag).
+* **Temporary Tags:** Players gain tags (e.g., `Undetected`, `Elder's Favor`) which change their situation. Tags let players bypass rules or unlock new actions until the tag expires.
 
-This gives players immediate, useful rewards without making the game engine track long-lasting stat changes.
+This gives players immediate, specific results without making the game engine track long-lasting stat changes.
 
 ---
 
@@ -60,7 +62,7 @@ The game does not use complex background economic simulations.
 
 Instead, the game relies on **Event-Driven Rules**:
 - **World Clock:** Time moves forward when the player takes major actions or travels. The clock triggers NPC requests and checks player goals.
-- **Player-Driven Changes:** Communities and ships break down directly because of the player. When a player fails a roll and gets Penalty Points, they must choose to damage the ship or lower a community's resources. The world changes because of the player's actions or inaction, not background math.
+- **Player-Driven Changes:** Communities and ships break down directly because of the player. When a player fails a roll, the system presents Disadvantage options the player must select from (e.g., damage the ship or lower a community's resources). The world changes because of the player's choices, not background math.
 
 ---
 
@@ -94,4 +96,4 @@ The game splits flying and menus into two modes.
 Winning and losing depend on community survival.
 
 * **Winning:** Keeping communities alive, making safe travel routes, finishing major player goals, and getting your own ship.
-* **Losing:** Being kicked out of communities, your home station being destroyed, or the crew rebelling because Morale dropped to 0.
+* **Losing:** Being kicked out of communities, your home station being destroyed, or the crew rebelling because a track tier has hit bottom.
