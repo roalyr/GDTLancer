@@ -101,7 +101,10 @@ class Bond:
         return f"{self.name} ({self.role}) - {self.strength}"
 
 class Goal:
+    _id_counter = 1
     def __init__(self, statement, anchor=None, rank="MAJOR"):
+        self.id = Goal._id_counter
+        Goal._id_counter += 1
         self.statement = statement
         self.anchor = anchor
         self.progress = 0
@@ -113,7 +116,7 @@ class Goal:
 
     def __str__(self):
         anchor_str = f" [Anchor: {self.anchor}]" if self.anchor else ""
-        return f"[{self.rank}] {self.statement}{anchor_str} - Progress: {self.progress}/10"
+        return f"[G{self.id}] [{self.rank}] {self.statement}{anchor_str} - Progress: {self.progress}/10"
 
 class CrewMember:
     def __init__(self, name, role, morale="STEADY"):
@@ -168,15 +171,17 @@ class NPC:
         return f"{self.name} ({self.role}) - Mood: {self.disposition}"
 
 class Hook:
-    def __init__(self, name, hook_type, provider, tags=None):
+    def __init__(self, name, hook_type, provider, success_opt="[Supplies +1]", fail_opt="[Health -1]", tags=None):
         self.name = name
         self.hook_type = hook_type 
         self.provider = provider
+        self.success_opt = success_opt
+        self.fail_opt = fail_opt
         self.tags = tags or []
         self.resolved = False
 
     def __str__(self):
-        return f"[{self.hook_type}] {self.name} (Source: {self.provider})"
+        return f"[{self.hook_type}] {self.name} (Source: {self.provider}) | Success: {self.success_opt} | Failure: {self.fail_opt}"
 
 class Sector:
     def __init__(self, name, sector_type, wealth, security, morale, supplies):
@@ -223,7 +228,23 @@ class Player:
         self.home_sector = "Elace Station"
         
     def get_track_modifier(self, track_name):
-        return self.tracks[track_name].modifier
+        mod = self.tracks[track_name].modifier
+        tag_names = [t.name for t in self.tags]
+        used = []
+        if track_name == "Supplies" and "Clear Path" in tag_names:
+            mod += 1
+            used.append("Clear Path")
+        if track_name == "Supplies" and "Extra Cargo" in tag_names:
+            mod += 1
+            used.append("Extra Cargo")
+        if track_name == "Health" and "Sick Crew" in tag_names:
+            mod -= 1
+        if track_name == "Morale" and "Divided Crew" in tag_names:
+            mod -= 1
+        if track_name == "Wealth" and "Useful Intel" in tag_names:
+            mod += 1
+            used.append("Useful Intel")
+        return mod, used
 
     def apply_option(self, option_text, is_crisis=False, impact_callback=None):
         results = []
@@ -252,8 +273,11 @@ class Player:
             
         tag_matches = re.findall(r'\[Gain tag: (.*?)\]', option_text)
         for tag in tag_matches:
-            self.tags.append(TempTag(tag, expiration_condition="narrative condition met/broken"))
-            results.append(f"Gained tag: {tag}")
+            if not any(t.name == tag for t in self.tags):
+                self.tags.append(TempTag(tag, expiration_condition="narrative condition met/broken"))
+                results.append(f"Gained tag: {tag}")
+            else:
+                results.append(f"Already have tag: {tag}")
 
         strengthen_matches = re.findall(r'\[Strengthen one bond by 1 step\]', option_text)
         for _ in strengthen_matches:
@@ -277,6 +301,7 @@ class GameState:
         self.clock = 0
         self.player = Player()
         self.sectors = {}
+        self.routes = {}
         self.current_sector = None
         self.phase = "Encounter"
         self.chronicle = []
@@ -286,12 +311,16 @@ class GameState:
         self.last_goal_prompt_tick = -2
         self.game_over = False
         self.log_file = log_file
+        self.journal_file = log_file.replace("chronicle", "journal")
         
         import os
         from datetime import datetime
         if not os.path.exists(self.log_file):
             with open(self.log_file, "w") as f:
-                f.write(f"# GDTLancer Session Chronicle\n\n")
+                f.write(f"# GDTLancer Mechanical Log\n\n")
+        if not os.path.exists(self.journal_file):
+            with open(self.journal_file, "w") as f:
+                f.write(f"# GDTLancer Narrative Journal\n\n")
                 
     def write_session_header(self):
         import datetime
@@ -313,13 +342,15 @@ class GameState:
         
         with open(self.log_file, "a") as f:
             f.write(header)
+        with open(self.journal_file, "a") as f:
+            f.write(header)
 
 
     def advance_clock(self, ticks=1):
         if self.game_over: return
         for _ in range(ticks):
             self.clock += 1
-            self.log_system(f"World Clock advanced to **T{self.clock}**.")
+            # Suppress world clock entries unless interesting, handled externally or skipped
             self.check_clock_events()
 
     def log(self, message):
@@ -331,7 +362,7 @@ class GameState:
     def log_narrative(self, narrative_text):
         entry = f"**[T{self.clock}]** [NARRATIVE]"
         self.chronicle.append(f"{entry} {narrative_text}")
-        with open(self.log_file, "a") as f:
+        with open(self.journal_file, "a") as f:
             f.write(f"\n> **NARRATIVE [T{self.clock}]:** {narrative_text}\n\n")
 
     def log_system(self, message):
@@ -372,6 +403,10 @@ class GameState:
                 self.game_over = True
 
         # 3. Check Incoming Notifications (NPC Interaction)
+        warning_nots = [n for n in self.notifications if not n.resolved and n.expiry_tick - 1 == self.clock]
+        for n in warning_nots:
+            print(f"\n[WARNING] Notification from {n.source} expires NEXT TICK! (Consequence: Bond weakens)")
+
         expired_nots = [n for n in self.notifications if not n.resolved and n.expiry_tick <= self.clock]
         for n in expired_nots:
             n.resolved = True

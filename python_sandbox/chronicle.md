@@ -260,3 +260,918 @@
 - **[T41]** *World Clock advanced to **T41**.*
 
 > **NARRATIVE [T41]:** The shipyard is thriving, and the sectors are united. The family-clan stands strong.
+
+
+## --- NEW SESSION: 2026-07-14 11:21:09 ---
+
+### STARTING CONTEXT
+- **Starting Sector:** Elace Station (Planet)
+- **Player Tracks:**
+  - Health: FIT (5/10) [+0]
+  - Wealth: POOR (5/10) [+0]
+  - Morale: STEADY (5/10) [+0]
+  - Supplies: ADEQUATE (5/10) [+0]
+- **Bonds:**
+  - Kaelen (Kin) - STABLE
+  - Voss (Mentor) - DEEP
+  - Sera (Debtor) - FRAGILE
+- **Goals:**
+  - [MAJOR] Secure a dedicated medical bay for Korr Anchorage [Anchor: Korr Anchorage] - Progress: 0/10
+--------------------------------------------------
+
+- **[T0]** Added EPIC goal: Construct an autonomous shipyard at Orin's Reach
+- **[T0]** Bond with Kaelen is now DEEP
+- **[T1]** Incoming notification generated for Kaelen.
+- **[T1]** Added MINOR goal: Secure raw materials from The Scatter
+- **[T1]** Named Impact [Player]: Boost to Wealth invigorates.
+- **[T1]** Wealth is now POOR (6/10)
+- **[T1]** Named Impact [Player]: Strain on Morale is felt.
+- **[T1]** Morale is now STEADY (4/10)
+- **[T2]** Initiated travel to Korr Anchorage
+- **[T2]** Named Impact [Player]: Strain on Supplies is felt.
+- **[T2]** Supplies is now ADEQUATE (4/10)
+- **[T2]** Gained tag: Unreliable Charts
+- **[T2]** Consumed 1 Supplies during travel.
+- **[T2]** Named Impact [Player]: Strain on Morale is felt.
+- **[T2]** Morale is now STEADY (3/10)
+- **[T3]** Arrived at Korr Anchorage
+- **[T3]** Named Impact [Player]: Strain on Morale is felt.
+- **[T3]** Morale is now STEADY (2/10)
+- **[T4]** Incoming notification generated for Kaelen.
+- **[T4]** Added MINOR goal: Retrieve old blueprints from Voss's vault
+- **[T4]** Gained tag: Docking Rights
+- **[T4]** Named Impact [Player]: Strain on Morale is felt.
+- **[T4]** Morale is now STEADY (1/10)
+- **[T5]** Initiated travel to Veyra Hub
+- **[T5]** Named Impact [Player]: Strain on Supplies is felt.
+- **[T5]** Supplies is now ADEQUATE (2/10)
+- **[T5]** Consumed 1 Supplies during travel.
+- **[T5]** Named Impact [Player]: Boost to Supplies invigorates.
+- **[T5]** Supplies is now ADEQUATE (2/10)
+- **[T6]** Notification from Kaelen expired resulting in negative consequence.
+- **[T6]** Arrived at Veyra Hub
+- **[T6]** Named Impact [Player]: Strain on Supplies is felt.
+- **[T6]** Supplies is now ADEQUATE (1/10)
+- **[T7]** Added MINOR goal: Establish a black market contact
+- **[T7]** Bond with Kaelen is now DEEP
+
+
+## --- NEW SESSION: 2026-07-14 11:22:37 ---
+
+### STARTING CONTEXT
+- **Starting Sector:** Elace Station (Planet)
+- **Player Tracks:**
+  - Health: FIT (5/10) [+0]
+  - Wealth: POOR (5/10) [+0]
+  - Morale: STEADY (5/10) [+0]
+  - Supplies: ADEQUATE (5/10) [+0]
+- **Bonds:**
+  - Kaelen (Kin) - STABLE
+  - Voss (Mentor) - DEEP
+  - Sera (Debtor) - FRAGILE
+- **Goals:**
+  - [MAJOR] Secure a dedicated medical bay for Korr Anchorage [Anchor: Korr Anchorage] - Progress: 0/10
+--------------------------------------------------
+
+- **[T0]** Added EPIC goal: Construct an autonomous shipyard at Orin's Reach
+- **[T0]** Bond with Kaelen is now DEEP
+- **[T1]** Added MINOR goal: Secure raw materials from The Scatter
+- **[T1]** Named Impact [Player]: Strain on Supplies is felt.
+- **[T1]** Supplies is now ADEQUATE (4/10)
+- **[T2]** Initiated travel to Korr Anchorage
+- **[T2]** Named Impact [Player]: Strain on Health is felt.
+- **[T2]** Health is now FIT (4/10)
+- **[T2]** Named Impact [Player]: Boost to Supplies invigorates.
+- **[T2]** Supplies is now ADEQUATE (5/10)
+- **[T2]** Consumed 1 Supplies during travel.
+- **[T3]** Arrived at Korr Anchorage
+- **[T3]** Named Impact [Player]: Strain on Morale is felt.
+- **[T3]** Morale is now STEADY (4/10)
+- **[T4]** Added MINOR goal: Retrieve old blueprints from Voss's vault
+- **[T4]** Named Impact [Player]: Boost to Wealth invigorates.
+- **[T4]** Wealth is now POOR (6/10)
+- **[T4]** Named Impact [Player]: Strain on Health is felt.
+- **[T4]** Health is now FIT (3/10)
+- **[T5]** Goal 'Retrieve old blueprints from Voss's vault' progress now 2/10
+- **[T5]** Goal 'Retrieve old blueprints from Voss's vault' progress now 4/10
+- **[T5]** Goal 'Retrieve old blueprints from Voss's vault' progress now 6/10
+- **[T5]** Goal 'Retrieve old blueprints from Voss's vault' progress now 8/10
+- **[T5]** Goal 'Retrieve old blueprints from Voss's vault' progress now 10/10
+- **[T5]** Named Impact [Player]: Strain on Wealth is felt.
+- **[T5]** Wealth is now POOR (5/10)
+- **[T5]** Goal resolution failed: Retrieve old blueprints from Voss's vault
+- **[T6]** Initiated travel to Veyra Hub
+- **[T6]** Named Impact [Player]: Strain on Morale is felt.
+- **[T6]** Morale is now STEADY (3/10)
+- **[T6]** Named Impact [Player]: Boost to Morale invigorates.
+- **[T6]** Morale is now STEADY (4/10)
+- **[T6]** Consumed 1 Supplies during travel.
+- **[T7]** Arrived at Veyra Hub
+- **[T7]** Named Impact [Player]: Boost to Supplies invigorates.
+- **[T7]** Supplies is now ADEQUATE (4/10)
+- **[T7]** Named Impact [Player]: Strain on Wealth is felt.
+- **[T7]** Wealth is now POOR (4/10)
+- **[T8]** Incoming notification generated for Kaelen.
+- **[T8]** Added MINOR goal: Establish a black market contact
+- **[T8]** Gained tag: Useful Intel
+- **[T9]** Goal 'Retrieve old blueprints from Voss's vault' progress now 10/10
+- **[T9]** Goal 'Retrieve old blueprints from Voss's vault' progress now 10/10
+- **[T9]** Goal 'Retrieve old blueprints from Voss's vault' progress now 10/10
+- **[T9]** Goal 'Retrieve old blueprints from Voss's vault' progress now 10/10
+- **[T9]** Goal 'Retrieve old blueprints from Voss's vault' progress now 10/10
+- **[T9]** Gained tag: Undetected
+- **[T9]** Goal fulfilled: Retrieve old blueprints from Voss's vault
+- **[T10]** Initiated travel to The Scatter
+- **[T10]** Named Impact [Player]: Strain on Supplies is felt.
+- **[T10]** Supplies is now ADEQUATE (3/10)
+- **[T10]** Gained tag: Unreliable Charts
+- **[T10]** Consumed 1 Supplies during travel.
+- **[T10]** Named Impact [Player]: Strain on Health is felt.
+- **[T10]** Health is now FIT (2/10)
+- **[T11]** Arrived at The Scatter
+- **[T11]** Named Impact [Player]: Strain on Morale is felt.
+- **[T11]** Morale is now STEADY (2/10)
+- **[T12]** Goal 'Secure raw materials from The Scatter' progress now 2/10
+- **[T12]** Goal 'Secure raw materials from The Scatter' progress now 4/10
+- **[T12]** Goal 'Secure raw materials from The Scatter' progress now 6/10
+- **[T12]** Named Impact [Player]: Boost to Morale invigorates.
+- **[T12]** Morale is now STEADY (3/10)
+- **[T12]** Named Impact [Player]: Strain on Supplies is felt.
+- **[T12]** Supplies is now ADEQUATE (1/10)
+- **[T13]** Notification from Kaelen expired resulting in negative consequence.
+- **[T13]** Incoming notification generated for Kaelen.
+- **[T13]** Gained tag: Black Market Access
+- **[T14]** Goal 'Secure raw materials from The Scatter' progress now 8/10
+- **[T14]** Goal 'Secure raw materials from The Scatter' progress now 10/10
+- **[T14]** Already have tag: Undetected
+- **[T14]** Goal fulfilled: Secure raw materials from The Scatter
+- **[T15]** Incoming notification generated for Sera.
+- **[T15]** Initiated travel to Orin's Reach
+- **[T15]** Named Impact [Player]: Strain on Supplies is felt.
+- **[T15]** Supplies is now SCARCE (5/10) (Shifted from ADEQUATE)
+- **[T15]** Consumed 1 Supplies during travel.
+- **[T16]** Arrived at Orin's Reach
+- **[T16]** Added MAJOR goal: Clear the sector defenses at Orin's Reach
+- **[T16]** Named Impact [Player]: Strain on Morale is felt.
+- **[T16]** Morale is now STEADY (2/10)
+- **[T17]** Named Impact [Player]: Strain on Morale is felt.
+- **[T17]** Morale is now LOW (5/10) (Shifted from STEADY)
+- **[T18]** Notification from Kaelen expired resulting in negative consequence.
+- **[T18]** Goal 'Establish a black market contact' progress now 1/10
+- **[T18]** Goal 'Establish a black market contact' progress now 2/10
+- **[T18]** Goal 'Establish a black market contact' progress now 3/10
+- **[T18]** Goal 'Establish a black market contact' progress now 4/10
+- **[T18]** Goal 'Establish a black market contact' progress now 5/10
+- **[T18]** Named Impact [Player]: Boost to Morale invigorates.
+- **[T18]** Morale is now LOW (6/10)
+- **[T19]** Goal 'Establish a black market contact' progress now 6/10
+- **[T19]** Goal 'Establish a black market contact' progress now 7/10
+- **[T19]** Goal 'Establish a black market contact' progress now 8/10
+- **[T19]** Goal 'Establish a black market contact' progress now 9/10
+- **[T19]** Goal 'Establish a black market contact' progress now 10/10
+- **[T19]** Gained tag: Unofficial Permission
+- **[T19]** Goal fulfilled: Establish a black market contact
+- **[T20]** Notification from Sera expired resulting in negative consequence.
+- **[T20]** Named Impact [Player]: Boost to Wealth invigorates.
+- **[T20]** Wealth is now POOR (5/10)
+- **[T20]** Named Impact [Player]: Strain on Morale is felt.
+- **[T20]** Morale is now LOW (5/10)
+- **[T21]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 1/10
+- **[T21]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 2/10
+- **[T21]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 3/10
+- **[T21]** Named Impact [Player]: Boost to Supplies invigorates.
+- **[T21]** Supplies is now SCARCE (5/10)
+- **[T21]** Named Impact [Player]: Strain on Morale is felt.
+- **[T21]** Morale is now LOW (4/10)
+- **[T22]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 4/10
+- **[T22]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 5/10
+- **[T22]** Named Impact [Player]: Boost to Morale invigorates.
+- **[T22]** Morale is now LOW (5/10)
+- **[T23]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 6/10
+- **[T23]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 7/10
+- **[T23]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 8/10
+- **[T23]** Named Impact [Player]: Boost to Morale invigorates.
+- **[T23]** Morale is now LOW (6/10)
+- **[T23]** Named Impact [Player]: Strain on Morale is felt.
+- **[T23]** Morale is now LOW (5/10)
+- **[T24]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 9/10
+- **[T24]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 10/10
+- **[T24]** Named Impact [Player]: Boost to Supplies invigorates.
+- **[T24]** Supplies is now SCARCE (6/10)
+- **[T24]** Named Impact [Player]: Strain on Health is felt.
+- **[T24]** Health is now FIT (1/10)
+- **[T24]** Goal resolution failed: Construct an autonomous shipyard at Orin's Reach
+- **[T25]** Initiated travel to Korr Anchorage
+- **[T25]** Named Impact [Player]: Strain on Supplies is felt.
+- **[T25]** Supplies is now SCARCE (5/10)
+- **[T25]** Named Impact [Player]: Strain on Supplies is felt.
+- **[T25]** Supplies is now SCARCE (4/10)
+- **[T25]** Consumed 1 Supplies during travel.
+- **[T26]** Arrived at Korr Anchorage
+- **[T26]** Named Impact [Player]: Boost to Wealth invigorates.
+- **[T26]** Wealth is now POOR (6/10)
+- **[T27]** Initiated travel to Elace Station
+- **[T27]** Named Impact [Player]: Strain on Morale is felt.
+- **[T27]** Morale is now LOW (4/10)
+- **[T27]** Already have tag: Unreliable Charts
+- **[T27]** Consumed 1 Supplies during travel.
+- **[T27]** Gained tag: Salvage Opportunity
+- **[T28]** Arrived at Elace Station
+- **[T28]** Named Impact [Player]: Boost to Supplies invigorates.
+- **[T28]** Supplies is now SCARCE (3/10)
+- **[T29]** Initiated travel to New Eden
+- **[T29]** Named Impact [Player]: Strain on Health is felt.
+- **[T29]** Health is now INJURED (5/10) (Shifted from FIT)
+- **[T29]** Gained tag: Clear Path
+- **[T29]** Consumed 1 Supplies during travel.
+- **[T30]** Arrived at New Eden
+- **[T30]** Named Impact [Player]: Strain on Morale is felt.
+- **[T30]** Morale is now LOW (3/10)
+- **[T33]** Incoming notification generated for Kaelen.
+- **[T38]** Notification from Kaelen expired resulting in negative consequence.
+- **[T40]** Incoming notification generated for Voss.
+
+
+## --- NEW SESSION: 2026-07-14 11:29:53 ---
+
+### STARTING CONTEXT
+- **Starting Sector:** Elace Station (Planet)
+- **Player Tracks:**
+  - Health: FIT (5/10) [+0]
+  - Wealth: POOR (5/10) [+0]
+  - Morale: STEADY (5/10) [+0]
+  - Supplies: ADEQUATE (5/10) [+0]
+- **Bonds:**
+  - Kaelen (Kin) - STABLE
+  - Voss (Mentor) - DEEP
+  - Sera (Debtor) - FRAGILE
+- **Goals:**
+  - [G1] [MAJOR] Secure a dedicated medical bay for Korr Anchorage [Anchor: Korr Anchorage] - Progress: 0/10
+--------------------------------------------------
+
+- **[T0]** Added EPIC goal: Construct an autonomous shipyard at Orin's Reach
+- **[T0]** Named Impact [Player]: Boost to Wealth invigorates.
+- **[T0]** Wealth is now POOR (6/10)
+- **[T1]** Added MINOR goal: Secure raw materials from The Scatter
+- **[T1]** Named Impact [Player]: Boost to Wealth invigorates.
+- **[T1]** Wealth is now POOR (7/10)
+- **[T2]** Initiated travel to Korr Anchorage
+- **[T2]** Named Impact [Player]: Strain on Supplies is felt.
+- **[T2]** Supplies is now ADEQUATE (4/10)
+- **[T2]** Named Impact [Player]: Boost to Morale invigorates.
+- **[T2]** Morale is now STEADY (6/10)
+- **[T2]** Consumed 1 Supplies during travel.
+- **[T2]** Named Impact [Player]: Boost to Health invigorates.
+- **[T2]** Health is now FIT (6/10)
+- **[T3]** Arrived at Korr Anchorage
+- **[T3]** Named Impact [Player]: Boost to Health invigorates.
+- **[T3]** Health is now FIT (7/10)
+- **[T3]** Named Impact [Player]: Strain on Morale is felt.
+- **[T3]** Morale is now STEADY (5/10)
+- **[T4]** Added MINOR goal: Retrieve old blueprints from Voss's vault
+- **[T4]** Bond with Kaelen is now DEEP
+- **[T5]** Goal 'Retrieve old blueprints from Voss's vault' progress now 2/10
+- **[T5]** Goal 'Retrieve old blueprints from Voss's vault' progress now 4/10
+- **[T5]** Goal 'Retrieve old blueprints from Voss's vault' progress now 6/10
+- **[T5]** Goal 'Retrieve old blueprints from Voss's vault' progress now 8/10
+- **[T5]** Goal 'Retrieve old blueprints from Voss's vault' progress now 10/10
+- **[T5]** Named Impact [Player]: Strain on Wealth is felt.
+- **[T5]** Wealth is now POOR (6/10)
+- **[T5]** Goal resolution failed: Retrieve old blueprints from Voss's vault
+- **[T6]** Initiated travel to Veyra Hub
+- **[T6]** Named Impact [Player]: Strain on Supplies is felt.
+- **[T6]** Supplies is now ADEQUATE (2/10)
+- **[T6]** Named Impact [Player]: Strain on Supplies is felt.
+- **[T6]** Supplies is now ADEQUATE (1/10)
+- **[T6]** Consumed 1 Supplies during travel.
+- **[T7]** Arrived at Veyra Hub
+- **[T7]** Named Impact [Player]: Boost to Wealth invigorates.
+- **[T7]** Wealth is now POOR (7/10)
+- **[T7]** Named Impact [Player]: Strain on Wealth is felt.
+- **[T7]** Wealth is now POOR (6/10)
+- **[T8]** Added MINOR goal: Establish a black market contact
+- **[T8]** Named Impact [Player]: Boost to Supplies invigorates.
+- **[T8]** Supplies is now SCARCE (6/10)
+- **[T9]** Goal 'Establish a black market contact' progress now 2/10
+- **[T9]** Goal 'Establish a black market contact' progress now 4/10
+- **[T9]** Goal 'Establish a black market contact' progress now 6/10
+- **[T9]** Goal 'Establish a black market contact' progress now 8/10
+- **[T9]** Goal 'Establish a black market contact' progress now 10/10
+- **[T9]** Named Impact [Player]: Boost to Wealth invigorates.
+- **[T9]** Wealth is now POOR (7/10)
+- **[T9]** Goal fulfilled: Establish a black market contact
+- **[T10]** Initiated travel to The Scatter
+- **[T10]** Named Impact [Player]: Strain on Supplies is felt.
+- **[T10]** Supplies is now SCARCE (5/10)
+- **[T10]** Named Impact [Player]: Strain on Supplies is felt.
+- **[T10]** Supplies is now SCARCE (4/10)
+- **[T10]** Consumed 1 Supplies during travel.
+- **[T11]** Arrived at The Scatter
+- **[T11]** Named Impact [Player]: Strain on Supplies is felt.
+- **[T11]** Supplies is now SCARCE (2/10)
+- **[T12]** Goal 'Secure raw materials from The Scatter' progress now 2/10
+- **[T12]** Goal 'Secure raw materials from The Scatter' progress now 4/10
+- **[T12]** Goal 'Secure raw materials from The Scatter' progress now 6/10
+- **[T12]** Named Impact [Player]: Strain on Morale is felt.
+- **[T12]** Morale is now STEADY (4/10)
+- **[T13]** Named Impact [Player]: Strain on Health is felt.
+- **[T13]** Health is now FIT (6/10)
+- **[T14]** Goal 'Secure raw materials from The Scatter' progress now 8/10
+- **[T14]** Goal 'Secure raw materials from The Scatter' progress now 10/10
+- **[T14]** Gained tag: Unofficial Permission
+- **[T14]** Goal fulfilled: Secure raw materials from The Scatter
+- **[T15]** Initiated travel to Orin's Reach
+- **[T15]** Named Impact [Player]: Strain on Supplies is felt.
+- **[T15]** Supplies is now SCARCE (1/10)
+- **[T15]** Gained tag: Clear Path
+- **[T15]** Consumed 1 Supplies during travel.
+- **[T15]** Named Impact [Player]: Boost to Wealth invigorates.
+- **[T15]** Wealth is now POOR (8/10)
+- **[T16]** Arrived at Orin's Reach
+- **[T16]** Added MAJOR goal: Clear the sector defenses at Orin's Reach
+- **[T16]** Gained tag: Common Cause
+- **[T16]** Named Impact [Player]: Strain on Supplies is felt.
+- **[T16]** Supplies is now EMPTY (4/10)
+- **[T17]** Named Impact [Player]: Strain on Supplies is felt.
+- **[T17]** Supplies is now EMPTY (2/10)
+- **[T18]** Goal 'Clear the sector defenses at Orin's Reach' progress now 1/10
+- **[T18]** Goal 'Clear the sector defenses at Orin's Reach' progress now 2/10
+- **[T18]** Goal 'Clear the sector defenses at Orin's Reach' progress now 3/10
+- **[T18]** Goal 'Clear the sector defenses at Orin's Reach' progress now 4/10
+- **[T18]** Goal 'Clear the sector defenses at Orin's Reach' progress now 5/10
+- **[T18]** Named Impact [Player]: Boost to Supplies invigorates.
+- **[T18]** Supplies is now EMPTY (3/10)
+- **[T19]** Goal 'Clear the sector defenses at Orin's Reach' progress now 6/10
+- **[T19]** Goal 'Clear the sector defenses at Orin's Reach' progress now 7/10
+- **[T19]** Goal 'Clear the sector defenses at Orin's Reach' progress now 8/10
+- **[T19]** Goal 'Clear the sector defenses at Orin's Reach' progress now 9/10
+- **[T19]** Goal 'Clear the sector defenses at Orin's Reach' progress now 10/10
+- **[T19]** Named Impact [Player]: Boost to Wealth invigorates.
+- **[T19]** Wealth is now POOR (9/10)
+- **[T19]** Goal fulfilled: Clear the sector defenses at Orin's Reach
+- **[T20]** Incoming notification generated for Sera.
+- **[T20]** Named Impact [Player]: Boost to Supplies invigorates.
+- **[T20]** Supplies is now EMPTY (4/10)
+- **[T20]** Named Impact [Player]: Strain on Health is felt.
+- **[T20]** Health is now FIT (5/10)
+- **[T21]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 1/10
+- **[T21]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 2/10
+- **[T21]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 3/10
+- **[T21]** Gained tag: Hidden Route
+- **[T21]** Named Impact [Player]: Strain on Health is felt.
+- **[T21]** Health is now FIT (4/10)
+- **[T22]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 4/10
+- **[T22]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 5/10
+- **[T22]** Named Impact [Player]: Boost to Supplies invigorates.
+- **[T22]** Supplies is now EMPTY (5/10)
+- **[T22]** Named Impact [Player]: Strain on Morale is felt.
+- **[T22]** Morale is now STEADY (3/10)
+- **[T23]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 6/10
+- **[T23]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 7/10
+- **[T23]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 8/10
+- **[T23]** Named Impact [Player]: Boost to Supplies invigorates.
+- **[T23]** Supplies is now EMPTY (6/10)
+- **[T23]** Named Impact [Player]: Strain on Morale is felt.
+- **[T23]** Morale is now STEADY (2/10)
+- **[T24]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 9/10
+- **[T24]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 10/10
+- **[T24]** Named Impact [Player]: Boost to Wealth invigorates.
+- **[T24]** Wealth is now COMFORTABLE (5/10) (Shifted from POOR)
+- **[T24]** Goal fulfilled: Construct an autonomous shipyard at Orin's Reach
+- **[T25]** Notification from Sera expired resulting in negative consequence.
+- **[T25]** Initiated travel to Korr Anchorage
+- **[T25]** Named Impact [Player]: Strain on Morale is felt.
+- **[T25]** Morale is now STEADY (1/10)
+- **[T25]** Consumed 1 Supplies during travel.
+- **[T26]** DEFEAT: Stranded. Supplies EMPTY in Deep Space.
+- **[T26]** Arrived at Korr Anchorage
+
+
+## --- NEW SESSION: 2026-07-14 11:32:13 ---
+
+### STARTING CONTEXT
+- **Starting Sector:** Elace Station (Planet)
+- **Player Tracks:**
+  - Health: FIT (5/10) [+0]
+  - Wealth: POOR (5/10) [+0]
+  - Morale: STEADY (5/10) [+0]
+  - Supplies: ADEQUATE (5/10) [+0]
+- **Bonds:**
+  - Kaelen (Kin) - STABLE
+  - Voss (Mentor) - DEEP
+  - Sera (Debtor) - FRAGILE
+- **Goals:**
+  - [G1] [MAJOR] Secure a dedicated medical bay for Korr Anchorage [Anchor: Korr Anchorage] - Progress: 0/10
+--------------------------------------------------
+
+- **[T0]** Added EPIC goal: Construct an autonomous shipyard at Orin's Reach
+- **[T0]** Named Impact [Player]: Boost to Supplies invigorates.
+- **[T0]** Supplies is now ADEQUATE (6/10)
+- **[T0]** Named Impact [Player]: Strain on Morale is felt.
+- **[T0]** Morale is now STEADY (4/10)
+- **[T1]** Added MINOR goal: Secure raw materials from The Scatter
+- **[T1]** Named Impact [Player]: Boost to Morale invigorates.
+- **[T1]** Morale is now STEADY (5/10)
+- **[T2]** Initiated travel to Korr Anchorage (Distance: 1)
+- **[T2]** Named Impact [Player]: Strain on Supplies is felt.
+- **[T2]** Supplies is now ADEQUATE (5/10)
+- **[T2]** Named Impact [Player]: Strain on Supplies is felt.
+- **[T2]** Supplies is now ADEQUATE (4/10)
+- **[T2]** Consumed 1 Supplies during travel.
+- **[T3]** Arrived at Korr Anchorage
+- **[T3]** Named Impact [Player]: Strain on Health is felt.
+- **[T3]** Health is now FIT (4/10)
+- **[T4]** Added MINOR goal: Retrieve old blueprints from Voss's vault
+- **[T4]** Named Impact [Player]: Boost to Morale invigorates.
+- **[T4]** Morale is now STEADY (6/10)
+- **[T4]** Named Impact [Player]: Strain on Morale is felt.
+- **[T4]** Morale is now STEADY (5/10)
+- **[T5]** Goal 'Retrieve old blueprints from Voss's vault' progress now 2/10
+- **[T5]** Goal 'Retrieve old blueprints from Voss's vault' progress now 4/10
+- **[T5]** Goal 'Retrieve old blueprints from Voss's vault' progress now 6/10
+- **[T5]** Goal 'Retrieve old blueprints from Voss's vault' progress now 8/10
+- **[T5]** Goal 'Retrieve old blueprints from Voss's vault' progress now 10/10
+- **[T5]** Named Impact [Player]: Boost to Wealth invigorates.
+- **[T5]** Wealth is now POOR (6/10)
+- **[T5]** Goal fulfilled: Retrieve old blueprints from Voss's vault
+- **[T6]** Initiated travel to Veyra Hub (Distance: 3)
+- **[T6]** Named Impact [Player]: Strain on Morale is felt.
+- **[T6]** Morale is now STEADY (4/10)
+- **[T6]** Named Impact [Player]: Boost to Supplies invigorates.
+- **[T6]** Supplies is now ADEQUATE (4/10)
+- **[T6]** Consumed 1 Supplies during travel.
+- **[T7]** Consumed 1 Supplies during travel.
+- **[T7]** Named Impact [Player]: Strain on Supplies is felt.
+- **[T7]** Supplies is now ADEQUATE (1/10)
+- **[T8]** Consumed 1 Supplies during travel.
+- **[T9]** Arrived at Veyra Hub
+- **[T9]** Named Impact [Player]: Boost to Supplies invigorates.
+- **[T9]** Supplies is now SCARCE (6/10)
+- **[T9]** Named Impact [Player]: Strain on Health is felt.
+- **[T9]** Health is now FIT (3/10)
+- **[T10]** Added MINOR goal: Establish a black market contact
+- **[T10]** Named Impact [Player]: Boost to Supplies invigorates.
+- **[T10]** Supplies is now SCARCE (7/10)
+- **[T11]** Goal 'Establish a black market contact' progress now 2/10
+- **[T11]** Goal 'Establish a black market contact' progress now 4/10
+- **[T11]** Goal 'Establish a black market contact' progress now 6/10
+- **[T11]** Goal 'Establish a black market contact' progress now 8/10
+- **[T11]** Goal 'Establish a black market contact' progress now 10/10
+- **[T11]** Named Impact [Player]: Boost to Supplies invigorates.
+- **[T11]** Supplies is now SCARCE (8/10)
+- **[T11]** Named Impact [Player]: Strain on Morale is felt.
+- **[T11]** Morale is now STEADY (3/10)
+- **[T11]** Goal resolution failed: Establish a black market contact
+- **[T12]** Initiated travel to The Scatter (Distance: 2)
+- **[T12]** Named Impact [Player]: Strain on Morale is felt.
+- **[T12]** Morale is now STEADY (2/10)
+- **[T12]** Named Impact [Player]: Strain on Supplies is felt.
+- **[T12]** Supplies is now SCARCE (7/10)
+- **[T12]** Consumed 1 Supplies during travel.
+- **[T12]** Named Impact [Player]: Strain on Morale is felt.
+- **[T12]** Morale is now STEADY (1/10)
+- **[T13]** Consumed 1 Supplies during travel.
+- **[T13]** Named Impact [Player]: Strain on Morale is felt.
+- **[T13]** Morale is now LOW (5/10) (Shifted from STEADY)
+- **[T14]** Arrived at The Scatter
+- **[T14]** Gained tag: Undetected
+- **[T15]** Goal 'Secure raw materials from The Scatter' progress now 2/10
+- **[T15]** Goal 'Secure raw materials from The Scatter' progress now 4/10
+- **[T15]** Goal 'Secure raw materials from The Scatter' progress now 6/10
+- **[T15]** Named Impact [Player]: Boost to Supplies invigorates.
+- **[T15]** Supplies is now SCARCE (6/10)
+- **[T16]** Named Impact [Player]: Boost to Morale invigorates.
+- **[T16]** Morale is now LOW (6/10)
+- **[T16]** Named Impact [Player]: Strain on Morale is felt.
+- **[T16]** Morale is now LOW (5/10)
+- **[T17]** Goal 'Secure raw materials from The Scatter' progress now 8/10
+- **[T17]** Goal 'Secure raw materials from The Scatter' progress now 10/10
+- **[T17]** Named Impact [Player]: Boost to Supplies invigorates.
+- **[T17]** Supplies is now SCARCE (7/10)
+- **[T17]** Named Impact [Player]: Strain on Morale is felt.
+- **[T17]** Morale is now LOW (4/10)
+- **[T17]** Goal resolution failed: Secure raw materials from The Scatter
+- **[T18]** Initiated travel to Orin's Reach (Distance: 1)
+- **[T18]** Named Impact [Player]: Strain on Supplies is felt.
+- **[T18]** Supplies is now SCARCE (6/10)
+- **[T18]** Named Impact [Player]: Strain on Supplies is felt.
+- **[T18]** Supplies is now SCARCE (5/10)
+- **[T18]** Consumed 1 Supplies during travel.
+- **[T18]** Named Impact [Player]: Strain on Supplies is felt.
+- **[T18]** Supplies is now SCARCE (3/10)
+- **[T19]** Arrived at Orin's Reach
+- **[T19]** Added MAJOR goal: Clear the sector defenses at Orin's Reach
+- **[T19]** Named Impact [Player]: Boost to Supplies invigorates.
+- **[T19]** Supplies is now SCARCE (4/10)
+- **[T20]** Named Impact [Player]: Boost to Supplies invigorates.
+- **[T20]** Supplies is now SCARCE (5/10)
+- **[T20]** Named Impact [Player]: Strain on Wealth is felt.
+- **[T20]** Wealth is now POOR (5/10)
+- **[T21]** Goal 'Clear the sector defenses at Orin's Reach' progress now 1/10
+- **[T21]** Goal 'Clear the sector defenses at Orin's Reach' progress now 2/10
+- **[T21]** Goal 'Clear the sector defenses at Orin's Reach' progress now 3/10
+- **[T21]** Goal 'Clear the sector defenses at Orin's Reach' progress now 4/10
+- **[T21]** Goal 'Clear the sector defenses at Orin's Reach' progress now 5/10
+- **[T21]** Gained tag: Hidden Route
+- **[T21]** Named Impact [Player]: Strain on Morale is felt.
+- **[T21]** Morale is now LOW (3/10)
+- **[T22]** Goal 'Clear the sector defenses at Orin's Reach' progress now 6/10
+- **[T22]** Goal 'Clear the sector defenses at Orin's Reach' progress now 7/10
+- **[T22]** Goal 'Clear the sector defenses at Orin's Reach' progress now 8/10
+- **[T22]** Goal 'Clear the sector defenses at Orin's Reach' progress now 9/10
+- **[T22]** Goal 'Clear the sector defenses at Orin's Reach' progress now 10/10
+- **[T22]** Named Impact [Player]: Boost to Supplies invigorates.
+- **[T22]** Supplies is now SCARCE (6/10)
+- **[T22]** Named Impact [Player]: Strain on Morale is felt.
+- **[T22]** Morale is now LOW (2/10)
+- **[T22]** Goal resolution failed: Clear the sector defenses at Orin's Reach
+- **[T23]** Named Impact [Player]: Boost to Wealth invigorates.
+- **[T23]** Wealth is now POOR (6/10)
+- **[T24]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 1/10
+- **[T24]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 2/10
+- **[T24]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 3/10
+- **[T24]** Already have tag: Undetected
+- **[T24]** Named Impact [Player]: Strain on Morale is felt.
+- **[T24]** Morale is now LOW (1/10)
+- **[T25]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 4/10
+- **[T25]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 5/10
+- **[T25]** Already have tag: Hidden Route
+- **[T26]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 6/10
+- **[T26]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 7/10
+- **[T26]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 8/10
+- **[T26]** Gained tag: Black Market Access
+- **[T27]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 9/10
+- **[T27]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 10/10
+- **[T27]** Named Impact [Player]: Boost to Morale invigorates.
+- **[T27]** Morale is now LOW (2/10)
+- **[T27]** Goal fulfilled: Construct an autonomous shipyard at Orin's Reach
+- **[T28]** Initiated travel to Korr Anchorage (Distance: 2)
+- **[T28]** Named Impact [Player]: Strain on Morale is felt.
+- **[T28]** Morale is now LOW (1/10)
+- **[T28]** Consumed 1 Supplies during travel.
+- **[T29]** Consumed 1 Supplies during travel.
+- **[T30]** Arrived at Korr Anchorage
+- **[T30]** Named Impact [Player]: Boost to Morale invigorates.
+- **[T30]** Morale is now LOW (2/10)
+- **[T30]** Named Impact [Player]: Strain on Health is felt.
+- **[T30]** Health is now FIT (2/10)
+- **[T31]** Initiated travel to Elace Station (Distance: 1)
+- **[T31]** Named Impact [Player]: Strain on Morale is felt.
+- **[T31]** Morale is now LOW (1/10)
+- **[T31]** Consumed 1 Supplies during travel.
+- **[T32]** Arrived at Elace Station
+- **[T32]** Named Impact [Player]: Boost to Supplies invigorates.
+- **[T32]** Supplies is now SCARCE (4/10)
+- **[T32]** Named Impact [Player]: Strain on Wealth is felt.
+- **[T32]** Wealth is now POOR (5/10)
+- **[T33]** Initiated travel to New Eden (Distance: 5)
+- **[T33]** Named Impact [Player]: Strain on Morale is felt.
+- **[T33]** Morale is now MUTINOUS (5/10) (Shifted from LOW)
+- **[T33]** Named Impact [Player]: Boost to Morale invigorates.
+- **[T33]** Morale is now MUTINOUS (6/10)
+- **[T33]** Consumed 1 Supplies during travel.
+- **[T34]** Mutiny occurred due to MUTINOUS morale.
+- **[T34]** Consumed 1 Supplies during travel.
+- **[T35]** Mutiny occurred due to MUTINOUS morale.
+- **[T35]** Consumed 1 Supplies during travel.
+- **[T36]** Mutiny occurred due to MUTINOUS morale.
+- **[T36]** Consumed 1 Supplies during travel.
+- **[T37]** Mutiny occurred due to MUTINOUS morale.
+- **[T37]** Consumed 1 Supplies during travel.
+- **[T38]** Mutiny occurred due to MUTINOUS morale.
+- **[T38]** Arrived at New Eden
+- **[T38]** Named Impact [Player]: Strain on Morale is felt.
+- **[T38]** Morale is now MUTINOUS (5/10)
+- **[T39]** Mutiny occurred due to MUTINOUS morale.
+- **[T40]** Mutiny occurred due to MUTINOUS morale.
+- **[T41]** Mutiny occurred due to MUTINOUS morale.
+- **[T41]** Incoming notification generated for Sera.
+- **[T42]** Mutiny occurred due to MUTINOUS morale.
+- **[T43]** Mutiny occurred due to MUTINOUS morale.
+- **[T43]** Incoming notification generated for Sera.
+- **[T44]** Mutiny occurred due to MUTINOUS morale.
+- **[T45]** Mutiny occurred due to MUTINOUS morale.
+- **[T46]** Mutiny occurred due to MUTINOUS morale.
+- **[T46]** Notification from Sera expired resulting in negative consequence.
+- **[T47]** Mutiny occurred due to MUTINOUS morale.
+- **[T47]** Incoming notification generated for Kaelen.
+- **[T48]** Mutiny occurred due to MUTINOUS morale.
+- **[T48]** Notification from Sera expired resulting in negative consequence.
+- **[T49]** Mutiny occurred due to MUTINOUS morale.
+
+
+## --- NEW SESSION: 2026-07-14 11:34:09 ---
+
+### STARTING CONTEXT
+- **Starting Sector:** Elace Station (Planet)
+- **Player Tracks:**
+  - Health: FIT (5/10) [+0]
+  - Wealth: POOR (5/10) [+0]
+  - Morale: STEADY (5/10) [+0]
+  - Supplies: ADEQUATE (5/10) [+0]
+- **Bonds:**
+  - Kaelen (Kin) - STABLE
+  - Voss (Mentor) - DEEP
+  - Sera (Debtor) - FRAGILE
+- **Goals:**
+  - [G1] [MAJOR] Secure a dedicated medical bay for Korr Anchorage [Anchor: Korr Anchorage] - Progress: 0/10
+--------------------------------------------------
+
+- **[T0]** Added EPIC goal: Construct an autonomous shipyard at Orin's Reach
+- **[T0]** Named Impact [Player]: Boost to Wealth invigorates.
+- **[T0]** Wealth is now POOR (6/10)
+- **[T1]** Added MINOR goal: Secure raw materials from The Scatter
+- **[T1]** Named Impact [Player]: Boost to Health invigorates.
+- **[T1]** Health is now FIT (6/10)
+- **[T1]** Named Impact [Player]: Strain on Morale is felt.
+- **[T1]** Morale is now STEADY (4/10)
+- **[T2]** Initiated travel to Korr Anchorage (Distance: 1)
+- **[T2]** Named Impact [Player]: Strain on Supplies is felt.
+- **[T2]** Supplies is now ADEQUATE (4/10)
+- **[T2]** Named Impact [Player]: Strain on Supplies is felt.
+- **[T2]** Supplies is now ADEQUATE (3/10)
+- **[T2]** Consumed 1 Supplies during travel.
+- **[T3]** Arrived at Korr Anchorage
+- **[T3]** Named Impact [Player]: Boost to Health invigorates.
+- **[T3]** Health is now FIT (7/10)
+- **[T3]** Named Impact [Player]: Strain on Health is felt.
+- **[T3]** Health is now FIT (6/10)
+- **[T4]** Incoming notification generated for Voss.
+- **[T4]** Added MINOR goal: Retrieve old blueprints from Voss's vault
+- **[T4]** Named Impact [Player]: Strain on Morale is felt.
+- **[T4]** Morale is now STEADY (3/10)
+- **[T5]** Incoming notification generated for Sera.
+- **[T5]** Goal 'Retrieve old blueprints from Voss's vault' progress now 2/10
+- **[T5]** Goal 'Retrieve old blueprints from Voss's vault' progress now 4/10
+- **[T5]** Goal 'Retrieve old blueprints from Voss's vault' progress now 6/10
+- **[T5]** Goal 'Retrieve old blueprints from Voss's vault' progress now 8/10
+- **[T5]** Goal 'Retrieve old blueprints from Voss's vault' progress now 10/10
+- **[T5]** Named Impact [Player]: Boost to Health invigorates.
+- **[T5]** Health is now FIT (7/10)
+- **[T5]** Named Impact [Player]: Strain on Health is felt.
+- **[T5]** Health is now FIT (6/10)
+- **[T5]** Goal resolution failed: Retrieve old blueprints from Voss's vault
+- **[T6]** Initiated travel to Veyra Hub (Distance: 3)
+- **[T6]** Named Impact [Player]: Strain on Supplies is felt.
+- **[T6]** Supplies is now ADEQUATE (1/10)
+- **[T6]** Named Impact [Player]: Boost to Morale invigorates.
+- **[T6]** Morale is now STEADY (4/10)
+- **[T6]** Consumed 1 Supplies during travel.
+- **[T7]** Consumed 1 Supplies during travel.
+- **[T8]** Consumed 1 Supplies during travel.
+- **[T9]** Notification from Voss expired resulting in negative consequence.
+- **[T9]** Arrived at Veyra Hub
+- **[T9]** Named Impact [Player]: Boost to Wealth invigorates.
+- **[T9]** Wealth is now POOR (7/10)
+- **[T10]** Notification from Sera expired resulting in negative consequence.
+- **[T10]** Added MINOR goal: Establish a black market contact
+- **[T10]** Gained tag: Docking Rights
+- **[T10]** Named Impact [Player]: Strain on Wealth is felt.
+- **[T10]** Wealth is now POOR (6/10)
+- **[T11]** Goal 'Establish a black market contact' progress now 2/10
+- **[T11]** Goal 'Establish a black market contact' progress now 4/10
+- **[T11]** Goal 'Establish a black market contact' progress now 6/10
+- **[T11]** Goal 'Establish a black market contact' progress now 8/10
+- **[T11]** Goal 'Establish a black market contact' progress now 10/10
+- **[T11]** Named Impact [Player]: Boost to Morale invigorates.
+- **[T11]** Morale is now STEADY (5/10)
+- **[T11]** Named Impact [Player]: Strain on Health is felt.
+- **[T11]** Health is now FIT (5/10)
+- **[T11]** Goal resolution failed: Establish a black market contact
+- **[T12]** Initiated travel to The Scatter (Distance: 2)
+- **[T12]** Named Impact [Player]: Strain on Supplies is felt.
+- **[T12]** Supplies is now SCARCE (2/10)
+- **[T12]** Consumed 1 Supplies during travel.
+- **[T12]** Named Impact [Player]: Boost to Supplies invigorates.
+- **[T12]** Supplies is now SCARCE (2/10)
+- **[T13]** Consumed 1 Supplies during travel.
+- **[T14]** Arrived at The Scatter
+- **[T14]** Named Impact [Player]: Boost to Morale invigorates.
+- **[T14]** Morale is now STEADY (6/10)
+- **[T14]** Named Impact [Player]: Strain on Supplies is felt.
+- **[T14]** Supplies is now EMPTY (5/10) (Shifted from SCARCE)
+- **[T15]** Goal 'Secure raw materials from The Scatter' progress now 2/10
+- **[T15]** Goal 'Secure raw materials from The Scatter' progress now 4/10
+- **[T15]** Goal 'Secure raw materials from The Scatter' progress now 6/10
+- **[T15]** Named Impact [Player]: Strain on Morale is felt.
+- **[T15]** Morale is now STEADY (5/10)
+- **[T16]** Named Impact [Player]: Boost to Health invigorates.
+- **[T16]** Health is now FIT (6/10)
+- **[T16]** Named Impact [Player]: Strain on Morale is felt.
+- **[T16]** Morale is now STEADY (4/10)
+- **[T17]** Goal 'Secure raw materials from The Scatter' progress now 8/10
+- **[T17]** Goal 'Secure raw materials from The Scatter' progress now 10/10
+- **[T17]** Bond with Kaelen is now DEEP
+- **[T17]** Goal fulfilled: Secure raw materials from The Scatter
+- **[T18]** Initiated travel to Orin's Reach (Distance: 1)
+- **[T18]** Named Impact [Player]: Strain on Health is felt.
+- **[T18]** Health is now FIT (5/10)
+- **[T18]** Gained tag: Clear Path
+- **[T18]** Consumed 1 Supplies during travel.
+- **[T19]** Arrived at Orin's Reach
+- **[T19]** Added MAJOR goal: Clear the sector defenses at Orin's Reach
+- **[T19]** Bond with Kaelen is now DEEP
+- **[T20]** Named Impact [Player]: Boost to Wealth invigorates.
+- **[T20]** Wealth is now POOR (7/10)
+- **[T21]** Goal 'Clear the sector defenses at Orin's Reach' progress now 1/10
+- **[T21]** Goal 'Clear the sector defenses at Orin's Reach' progress now 2/10
+- **[T21]** Goal 'Clear the sector defenses at Orin's Reach' progress now 3/10
+- **[T21]** Goal 'Clear the sector defenses at Orin's Reach' progress now 4/10
+- **[T21]** Goal 'Clear the sector defenses at Orin's Reach' progress now 5/10
+- **[T21]** Named Impact [Player]: Boost to Wealth invigorates.
+- **[T21]** Wealth is now POOR (8/10)
+- **[T22]** Goal 'Clear the sector defenses at Orin's Reach' progress now 6/10
+- **[T22]** Goal 'Clear the sector defenses at Orin's Reach' progress now 7/10
+- **[T22]** Goal 'Clear the sector defenses at Orin's Reach' progress now 8/10
+- **[T22]** Goal 'Clear the sector defenses at Orin's Reach' progress now 9/10
+- **[T22]** Goal 'Clear the sector defenses at Orin's Reach' progress now 10/10
+- **[T22]** Gained tag: Common Cause
+- **[T22]** Goal fulfilled: Clear the sector defenses at Orin's Reach
+- **[T23]** Named Impact [Player]: Boost to Morale invigorates.
+- **[T23]** Morale is now STEADY (5/10)
+- **[T23]** Named Impact [Player]: Strain on Supplies is felt.
+- **[T23]** Supplies is now EMPTY (3/10)
+- **[T24]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 1/10
+- **[T24]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 2/10
+- **[T24]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 3/10
+- **[T24]** Gained tag: Black Market Access
+- **[T24]** Named Impact [Player]: Strain on Morale is felt.
+- **[T24]** Morale is now STEADY (4/10)
+- **[T25]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 4/10
+- **[T25]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 5/10
+- **[T25]** Named Impact [Player]: Boost to Morale invigorates.
+- **[T25]** Morale is now STEADY (5/10)
+- **[T26]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 6/10
+- **[T26]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 7/10
+- **[T26]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 8/10
+- **[T26]** Already have tag: Black Market Access
+- **[T27]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 9/10
+- **[T27]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 10/10
+- **[T27]** Named Impact [Player]: Boost to Supplies invigorates.
+- **[T27]** Supplies is now EMPTY (4/10)
+- **[T27]** Named Impact [Player]: Strain on Supplies is felt.
+- **[T27]** Supplies is now EMPTY (3/10)
+- **[T27]** Goal resolution failed: Construct an autonomous shipyard at Orin's Reach
+- **[T28]** Initiated travel to Korr Anchorage (Distance: 2)
+- **[T28]** Named Impact [Player]: Strain on Health is felt.
+- **[T28]** Health is now FIT (4/10)
+- **[T28]** Named Impact [Player]: Boost to Supplies invigorates.
+- **[T28]** Supplies is now EMPTY (4/10)
+- **[T28]** Consumed 1 Supplies during travel.
+- **[T29]** DEFEAT: Stranded. Supplies EMPTY in Deep Space.
+- **[T29]** Consumed 1 Supplies during travel.
+- **[T29]** Arrived at Korr Anchorage
+
+
+## --- NEW SESSION: 2026-07-14 11:41:19 ---
+
+### STARTING CONTEXT
+- **Starting Sector:** Elace Station (Planet)
+- **Player Tracks:**
+  - Health: FIT (5/10) [+0]
+  - Wealth: POOR (5/10) [+0]
+  - Morale: STEADY (5/10) [+0]
+  - Supplies: ADEQUATE (5/10) [+0]
+- **Bonds:**
+  - Kaelen (Kin) - STABLE
+  - Voss (Mentor) - DEEP
+  - Sera (Debtor) - FRAGILE
+- **Goals:**
+  - [G1] [MAJOR] Secure a dedicated medical bay for Korr Anchorage [Anchor: Korr Anchorage] - Progress: 0/10
+--------------------------------------------------
+
+- **[T0]** Added EPIC goal: Construct an autonomous shipyard at Orin's Reach
+- **[T0]** Gained tag: Useful Intel
+- **[T1]** Added MINOR goal: Secure raw materials from The Scatter
+- **[T1]** Named Impact [Player]: Boost to Wealth invigorates.
+- **[T1]** Wealth is now POOR (6/10)
+- **[T1]** Named Impact [Player]: Strain on Wealth is felt.
+- **[T1]** Wealth is now POOR (5/10)
+- **[T2]** Initiated travel to Korr Anchorage (Distance: 1)
+- **[T2]** Named Impact [Player]: Strain on Morale is felt.
+- **[T2]** Morale is now STEADY (4/10)
+- **[T2]** Named Impact [Player]: Boost to Morale invigorates.
+- **[T2]** Morale is now STEADY (5/10)
+- **[T2]** Consumed 1 Supplies during travel.
+- **[T3]** Arrived at Korr Anchorage
+- **[T3]** Named Impact [Player]: Boost to Health invigorates.
+- **[T3]** Health is now FIT (6/10)
+- **[T4]** Added MINOR goal: Retrieve old blueprints from Voss's vault
+- **[T4]** Gained tag: Unofficial Permission
+- **[T5]** Goal 'Retrieve old blueprints from Voss's vault' progress now 2/10
+- **[T5]** Goal 'Retrieve old blueprints from Voss's vault' progress now 4/10
+- **[T5]** Goal 'Retrieve old blueprints from Voss's vault' progress now 6/10
+- **[T5]** Goal 'Retrieve old blueprints from Voss's vault' progress now 8/10
+- **[T5]** Goal 'Retrieve old blueprints from Voss's vault' progress now 10/10
+- **[T5]** Already have tag: Unofficial Permission
+- **[T5]** Named Impact [Player]: Strain on Morale is felt.
+- **[T5]** Morale is now STEADY (4/10)
+- **[T5]** Goal resolution failed: Retrieve old blueprints from Voss's vault
+- **[T6]** Initiated travel to Veyra Hub (Distance: 3)
+- **[T6]** Named Impact [Player]: Strain on Morale is felt.
+- **[T6]** Morale is now STEADY (3/10)
+- **[T6]** Consumed 1 Supplies during travel.
+- **[T7]** Consumed 1 Supplies during travel.
+- **[T8]** Consumed 1 Supplies during travel.
+- **[T8]** Named Impact [Player]: Boost to Morale invigorates.
+- **[T8]** Morale is now STEADY (4/10)
+- **[T9]** Arrived at Veyra Hub
+- **[T9]** Gained tag: Hidden Route
+- **[T10]** Added MINOR goal: Establish a black market contact
+- **[T10]** Named Impact [Player]: Boost to Health invigorates.
+- **[T10]** Health is now FIT (7/10)
+- **[T10]** Named Impact [Player]: Strain on Health is felt.
+- **[T10]** Health is now FIT (6/10)
+- **[T11]** Goal 'Establish a black market contact' progress now 2/10
+- **[T11]** Goal 'Establish a black market contact' progress now 4/10
+- **[T11]** Goal 'Establish a black market contact' progress now 6/10
+- **[T11]** Goal 'Establish a black market contact' progress now 8/10
+- **[T11]** Goal 'Establish a black market contact' progress now 10/10
+- **[T11]** Named Impact [Player]: Boost to Morale invigorates.
+- **[T11]** Morale is now STEADY (5/10)
+- **[T11]** Goal fulfilled: Establish a black market contact
+- **[T12]** Initiated travel to The Scatter (Distance: 2)
+- **[T12]** Named Impact [Player]: Strain on Supplies is felt.
+- **[T12]** Supplies is now SCARCE (5/10) (Shifted from ADEQUATE)
+- **[T12]** Gained tag: Unreliable Charts
+- **[T12]** Consumed 1 Supplies during travel.
+- **[T13]** Consumed 1 Supplies during travel.
+- **[T13]** Named Impact [Player]: Strain on Wealth is felt.
+- **[T13]** Wealth is now POOR (4/10)
+- **[T14]** Arrived at The Scatter
+- **[T14]** Named Impact [Player]: Boost to Supplies invigorates.
+- **[T14]** Supplies is now SCARCE (4/10)
+- **[T14]** Named Impact [Player]: Strain on Morale is felt.
+- **[T14]** Morale is now STEADY (4/10)
+- **[T15]** Goal 'Secure raw materials from The Scatter' progress now 2/10
+- **[T15]** Goal 'Secure raw materials from The Scatter' progress now 4/10
+- **[T15]** Goal 'Secure raw materials from The Scatter' progress now 6/10
+- **[T15]** Gained tag: Access Granted
+- **[T15]** Named Impact [Player]: Strain on Supplies is felt.
+- **[T15]** Supplies is now SCARCE (3/10)
+- **[T16]** Gained tag: Black Market Access
+- **[T17]** Incoming notification generated for Kaelen.
+- **[T17]** Goal 'Secure raw materials from The Scatter' progress now 8/10
+- **[T17]** Goal 'Secure raw materials from The Scatter' progress now 10/10
+- **[T17]** Already have tag: Access Granted
+- **[T17]** Goal fulfilled: Secure raw materials from The Scatter
+- **[T18]** Initiated travel to Orin's Reach (Distance: 1)
+- **[T18]** Named Impact [Player]: Strain on Supplies is felt.
+- **[T18]** Supplies is now SCARCE (2/10)
+- **[T18]** Named Impact [Player]: Boost to Morale invigorates.
+- **[T18]** Morale is now STEADY (5/10)
+- **[T18]** Consumed 1 Supplies during travel.
+- **[T19]** Arrived at Orin's Reach
+- **[T19]** Added MAJOR goal: Clear the sector defenses at Orin's Reach
+- **[T19]** Named Impact [Player]: Strain on Wealth is felt.
+- **[T19]** Wealth is now POOR (3/10)
+- **[T20]** Named Impact [Player]: Boost to Wealth invigorates.
+- **[T20]** Wealth is now POOR (4/10)
+- **[T20]** Named Impact [Player]: Strain on Wealth is felt.
+- **[T20]** Wealth is now POOR (3/10)
+- **[T21]** Goal 'Clear the sector defenses at Orin's Reach' progress now 1/10
+- **[T21]** Goal 'Clear the sector defenses at Orin's Reach' progress now 2/10
+- **[T21]** Goal 'Clear the sector defenses at Orin's Reach' progress now 3/10
+- **[T21]** Goal 'Clear the sector defenses at Orin's Reach' progress now 4/10
+- **[T21]** Goal 'Clear the sector defenses at Orin's Reach' progress now 5/10
+- **[T21]** Gained tag: Useful Intel
+- **[T22]** Notification from Kaelen expired resulting in negative consequence.
+- **[T22]** Goal 'Clear the sector defenses at Orin's Reach' progress now 6/10
+- **[T22]** Goal 'Clear the sector defenses at Orin's Reach' progress now 7/10
+- **[T22]** Goal 'Clear the sector defenses at Orin's Reach' progress now 8/10
+- **[T22]** Goal 'Clear the sector defenses at Orin's Reach' progress now 9/10
+- **[T22]** Goal 'Clear the sector defenses at Orin's Reach' progress now 10/10
+- **[T22]** Named Impact [Player]: Strain on Wealth is felt.
+- **[T22]** Wealth is now POOR (2/10)
+- **[T22]** Goal resolution failed: Clear the sector defenses at Orin's Reach
+- **[T23]** Named Impact [Player]: Strain on Wealth is felt.
+- **[T23]** Wealth is now POOR (1/10)
+- **[T24]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 1/10
+- **[T24]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 2/10
+- **[T24]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 3/10
+- **[T24]** Already have tag: Black Market Access
+- **[T24]** Named Impact [Player]: Strain on Morale is felt.
+- **[T24]** Morale is now STEADY (4/10)
+- **[T25]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 4/10
+- **[T25]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 5/10
+- **[T25]** Gained tag: Common Cause
+- **[T26]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 6/10
+- **[T26]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 7/10
+- **[T26]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 8/10
+- **[T26]** Named Impact [Player]: Strain on Supplies is felt.
+- **[T26]** Supplies is now EMPTY (5/10) (Shifted from SCARCE)
+- **[T27]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 9/10
+- **[T27]** Goal 'Construct an autonomous shipyard at Orin's Reach' progress now 10/10
+- **[T27]** Already have tag: Black Market Access
+- **[T27]** Named Impact [Player]: Strain on Health is felt.
+- **[T27]** Health is now FIT (5/10)
+- **[T27]** Goal resolution failed: Construct an autonomous shipyard at Orin's Reach
+- **[T28]** Initiated travel to Korr Anchorage (Distance: 2)
+- **[T28]** Named Impact [Player]: Strain on Morale is felt.
+- **[T28]** Morale is now STEADY (3/10)
+- **[T28]** Named Impact [Player]: Boost to Morale invigorates.
+- **[T28]** Morale is now STEADY (4/10)
+- **[T28]** Consumed 1 Supplies during travel.
+- **[T29]** DEFEAT: Stranded. Supplies EMPTY in Deep Space.
+- **[T29]** Consumed 1 Supplies during travel.
+- **[T29]** Arrived at Korr Anchorage

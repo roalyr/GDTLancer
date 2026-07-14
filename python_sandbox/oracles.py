@@ -22,7 +22,7 @@ ACTIONS_MAPPING = {
 }
 
 COMPLICATION_TABLE = {
-    1: {1: ("Equipment failure", ["[Supplies -1]", "[Gain tag: Damaged Hull]", "[Health -1]"]), 2: ("Betrayal", ["[Morale -1]", "[Weaken one bond by 1 step]", "[Wealth -1]"]), 3: ("Micro-debris storm", ["[Health -1]", "[Supplies -1]", "[Gain tag: Hull Breach]"]), 4: ("Desperate scavengers", ["[Supplies -1]", "[Wealth -1]", "[Gain tag: Pursued]"]), 5: ("Debt called in", ["[Wealth -1]", "[Weaken one bond by 1 step]", "[Morale -1]"]), 6: ("Misunderstanding", ["[Morale -1]", "[Weaken one bond by 1 step]", "[Gain tag: Distrusted]"])},
+    1: {1: ("Equipment failure", ["[Supplies -1]", "[Gain tag: Damaged Hull]", "[Health -2] and [Gain tag: Quick Fix]"]), 2: ("Betrayal", ["[Morale -1]", "[Weaken one bond by 1 step]", "[Wealth -2] and [Gain tag: Useful Intel]"]), 3: ("Micro-debris storm", ["[Health -1]", "[Supplies -1]", "[Gain tag: Hull Breach]"]), 4: ("Desperate scavengers", ["[Supplies -1]", "[Wealth -1]", "[Gain tag: Pursued]"]), 5: ("Debt called in", ["[Wealth -1]", "[Weaken one bond by 1 step]", "[Morale -1]"]), 6: ("Misunderstanding", ["[Morale -1]", "[Weaken one bond by 1 step]", "[Gain tag: Distrusted]"])},
     2: {1: ("Illness/Injury", ["[Health -1]", "[Morale -1]", "[Gain tag: Sick Crew]"]), 2: ("Resource loss", ["[Supplies -1]", "[Wealth -1]", "[Gain tag: Rationing]"]), 3: ("Rival interference", ["[Morale -1]", "[Wealth -1]", "[Gain tag: Watched]"]), 4: ("Navigation error", ["[Supplies -1]", "[Gain tag: Lost Position]", "[Morale -1]"]), 5: ("Hull parasites", ["[Health -1]", "[Supplies -1]", "[Gain tag: Infested]"]), 6: ("Clan dispute", ["[Morale -1]", "[Weaken one bond by 1 step]", "[Gain tag: Divided Crew]"])},
     3: {1: ("Power outage", ["[Supplies -1]", "[Gain tag: Dark Ship]", "[Morale -1]"]), 2: ("False information", ["[Morale -1]", "[Gain tag: Misled]", "[Supplies -1]"]), 3: ("Unexpected cost", ["[Wealth -1]", "[Supplies -1]", "[Gain tag: Indebted]"]), 4: ("Missing person", ["[Morale -1]", "[Weaken one bond by 1 step]", "[Gain tag: Shorthanded]"]), 5: ("Broken promise", ["[Morale -1]", "[Weaken one bond by 1 step]", "[Wealth -1]"]), 6: ("Inside sabotage", ["[Supplies -1]", "[Morale -1]", "[Gain tag: Compromised]"])},
     4: {1: ("Supply shortage", ["[Supplies -1]", "[Gain tag: Rationing]", "[Morale -1]"]), 2: ("Time limit", ["[Morale -1]", "[Gain tag: Deadline]", "[Supplies -1]"]), 3: ("Dangerous leak", ["[Health -1]", "[Supplies -1]", "[Gain tag: Hull Breach]"]), 4: ("Detained crew", ["[Morale -1]", "[Gain tag: Shorthanded]", "[Weaken one bond by 1 step]"]), 5: ("Conflicting clan ties", ["[Morale -1]", "[Weaken one bond by 1 step]", "[Gain tag: Divided Crew]"]), 6: ("Trap", ["[Health -1]", "[Supplies -1]", "[Gain tag: Cornered]"])},
@@ -111,7 +111,34 @@ def generate_dynamic_hook(sector, npc):
     themes = ["Scarcity", "Trust", "Obligation", "Survival", "Isolation", "Kinship"]
     focus = ["Vessel", "Community", "Bond", "Resource", "Route", "Equipment"]
     
+    # Context-aware adjustments
+    if sector.tracks["Supplies"].value <= 3:
+        themes[0] = "Critical Shortage"
+        focus[3] = "Rations"
+        htype = "Community Petition"
+    
+    if npc.disposition in ["Frustrated", "Worried"]:
+        themes[1] = "Desperation"
+    
     t = themes[random.randint(0, 5)]
     f = focus[random.randint(0, 5)]
     
-    return f"Issue concerning {t} and {f}", htype
+    consequences_success = [
+        "[Supplies +1]",
+        "[Morale +1]",
+        "[Gain tag: Useful Intel]",
+        "[Strengthen one bond by 1 step]",
+        "[Wealth +1]"
+    ]
+    consequences_fail = [
+        "[Supplies -1]",
+        "[Health -1]",
+        "[Weaken one bond by 1 step]",
+        "[Morale -1]",
+        "[Wealth -1]"
+    ]
+    succ = random.choice(consequences_success)
+    fail = random.choice(consequences_fail)
+    
+    # We no longer need the preview string since Hook will print Success: [opt] | Failure: [opt]
+    return f"Issue concerning {t} and {f}.", htype, succ, fail

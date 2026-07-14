@@ -9,10 +9,10 @@ def run():
     actions = [
         # --- Sector 1: Elace Station ---
         "log The sectors are drifting apart, faction conflicts are heating up. We need to construct a massive autonomous shipyard at Orin's Reach to unite them.",
-        "goal_add EPIC Construct an autonomous shipyard at Orin's Reach", # Goal Index: 2
+        "goal_add EPIC Construct an autonomous shipyard at Orin's Reach", # G2
         "converse Kaelen",
         "act acquire cautious",
-        "goal_add MINOR Secure raw materials from The Scatter", # Goal Index: 3
+        "goal_add MINOR Secure raw materials from The Scatter", # G3
         "converse Overseer Relt",
         "act petition cautious",
         
@@ -20,55 +20,55 @@ def run():
         "travel Korr Anchorage", 
         "converse Voss",
         "act investigate cautious",
-        "goal_add MINOR Retrieve old blueprints from Voss's vault", # Goal Index: 4
+        "goal_add MINOR Retrieve old blueprints from Voss's vault", # G4
         "converse Dockmaster Tyra",
         "act barter cautious",
-        "goal_advance 4 10",
-        "goal_resolve 4 cautious", # Fulfilled! Goal 4 is removed. Active list goes back to 3 goals.
+        "goal_advance G4 2", "goal_advance G4 2", "goal_advance G4 2", "goal_advance G4 2", "goal_advance G4 2",
+        "goal_resolve G4 cautious", # Fulfilled!
         
         # --- Travel to Veyra Hub ---
         "travel Veyra Hub",
         "converse Sera",
         "act convince cautious",
-        "goal_add MINOR Establish a black market contact", # Goal Index: 4 (since vault blueprint was resolved and removed)
+        "goal_add MINOR Establish a black market contact", # G5
         "converse Sera",
         "act command risky",
-        "goal_advance 4 10",
-        "goal_resolve 4 cautious", # Fulfilled! Goal 4 is removed. Active list goes back to 3 goals.
+        "goal_advance G5 2", "goal_advance G5 2", "goal_advance G5 2", "goal_advance G5 2", "goal_advance G5 2",
+        "goal_resolve G5 cautious", # Fulfilled!
         
         # --- Travel to The Scatter ---
         "travel The Scatter",
         "converse Kaelen",
         "act scavenge risky",
-        "goal_advance 3 5",
+        "goal_advance G3 2", "goal_advance G3 2", "goal_advance G3 2",
         "act repair cautious",
         "act scavenge risky",
-        "goal_advance 3 5",
-        "goal_resolve 3 cautious", # Fulfilled! Goal 3 (raw materials) is removed. Active list goes back to 2 goals.
+        "goal_advance G3 2", "goal_advance G3 2",
+        "goal_resolve G3 cautious", # Fulfilled!
         
         # --- Travel to Orin's Reach ---
         "travel Orin's Reach",
         "log We arrived at Orin's Reach. The sector is guarded by rogue automated drones.",
-        "goal_add MAJOR Clear the sector defenses at Orin's Reach", # Goal Index: 3 (since Goal 3 and 4 were resolved and removed)
+        "goal_add MAJOR Clear the sector defenses at Orin's Reach", # G6
         "converse Kaelen",
         "act scan cautious",
         "act overcome risky",
-        "goal_advance 3 5",
+        "goal_advance G6 1", "goal_advance G6 1", "goal_advance G6 1", "goal_advance G6 1", "goal_advance G6 1",
         "act overcome cautious",
-        "goal_advance 3 5",
-        "goal_resolve 3 cautious", # Fulfilled! Goal 3 is removed. Active list goes back to 2 goals.
+        "goal_advance G6 1", "goal_advance G6 1", "goal_advance G6 1", "goal_advance G6 1", "goal_advance G6 1",
+        "goal_resolve G6 cautious", # Fulfilled!
         
         # --- Shipyard Construction at Orin's Reach ---
         "log Sector cleared of defenses. Beginning shipyard assembly.",
         "act repair cautious",
-        "goal_advance 2 5",
+        "goal_advance G2 1", "goal_advance G2 1", "goal_advance G2 1",
         "act navigate cautious",
-        "goal_advance 2 5",
+        "goal_advance G2 1", "goal_advance G2 1",
         "act acquire cautious",
-        "goal_advance 2 5",
+        "goal_advance G2 1", "goal_advance G2 1", "goal_advance G2 1",
         "act petition cautious",
-        "goal_advance 2 5",
-        "goal_resolve 2 cautious", # Fulfilled! Shipyard (2) is removed. Active list goes back to 1 goal (medical bay).
+        "goal_advance G2 1", "goal_advance G2 1",
+        "goal_resolve G2 cautious", # Fulfilled!
         
         # --- Travel to Korr Anchorage to celebrate ---
         "travel Korr Anchorage",
@@ -146,15 +146,15 @@ def run():
                 r'Enter choice for.*?Advantage.*?: ',              # 1
                 r'Enter choice for.*?Disadvantage.*?: ',           # 2
                 r'Enter choice for Community Cost Option.*?: ',   # 3
-                r'Apply to \(P\)layer or \(S\)ector\?.*?: ',       # 4
-                r'Who in the community is affected.*?\r?\n> ',     # 5
-                r'Topic Node.*?: ',                                # 6
-                r'Outcome Node.*?: ',                              # 7
-                r'Optional Free Text.*?: ',                        # 8
-                r'Strengthen which bond.*?: ',                     # 9
-                r'Weaken which bond.*?: ',                         # 10
-                r'Advantage for.*?: ',                             # 11
-                r'Disadvantage for.*?: '                           # 12
+                r'Topic Node.*?: ',                                # 4
+                r'Outcome Node.*?: ',                              # 5
+                r'Optional Free Text.*?: ',                        # 6
+                r'Strengthen which bond.*?: ',                     # 7
+                r'Weaken which bond.*?: ',                         # 8
+                r'Advantage for.*?: ',                             # 9
+                r'Disadvantage for.*?: ',                          # 10
+                r'Option: .*? \(y/n\)\r?\n> ',                     # 11: Converse optional mechanics
+                r'Did your last action advance this goal\? \(y/n\): ' # 12: Goal confirm
             ])
             
             if idx == 0:
@@ -164,26 +164,26 @@ def run():
                     action_idx += 1
                 else:
                     child.sendline('quit')
-            elif idx in [1, 2, 3, 11, 12]:
+            elif idx in [1, 2, 3, 9, 10]:
                 child.sendline('1')
             elif idx == 4:
-                child.sendline('P')
-            elif idx == 5:
-                child.sendline('The engineering crew is exhausted but working hard.')
-            elif idx == 6:
                 topic_count += 1
                 val = topics[min(topic_count - 1, len(topics) - 1)]
                 child.sendline(val)
-            elif idx == 7:
+            elif idx == 5:
                 outcome_count += 1
                 val = outcomes[min(outcome_count - 1, len(outcomes) - 1)]
                 child.sendline(val)
-            elif idx == 8:
+            elif idx == 6:
                 free_text_count += 1
                 val = free_texts[min(free_text_count - 1, len(free_texts) - 1)]
                 child.sendline(val)
-            elif idx in [9, 10]:
+            elif idx in [7, 8]:
                 child.sendline('1')
+            elif idx == 11:
+                child.sendline('n')
+            elif idx == 12:
+                child.sendline('y')
                 
         except pexpect.EOF:
             print("\nSession ended naturally via EOF.")
