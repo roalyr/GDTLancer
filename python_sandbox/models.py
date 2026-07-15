@@ -307,20 +307,14 @@ class GameState:
         self.chronicle = []
         self.message_queue = []
         self.notifications = []
+        self.pending_alerts = []
         self.msg_counter = 1
         self.last_goal_prompt_tick = -2
         self.game_over = False
         self.log_file = log_file
-        self.journal_file = log_file.replace("chronicle", "journal")
         
-        import os
-        from datetime import datetime
-        if not os.path.exists(self.log_file):
-            with open(self.log_file, "w") as f:
-                f.write(f"# GDTLancer Mechanical Log\n\n")
-        if not os.path.exists(self.journal_file):
-            with open(self.journal_file, "w") as f:
-                f.write(f"# GDTLancer Narrative Journal\n\n")
+        with open(self.log_file, "w") as f:
+            f.write(f"# GDTLancer Chronicle & Journal\n\n")
                 
     def write_session_header(self):
         import datetime
@@ -342,8 +336,6 @@ class GameState:
         
         with open(self.log_file, "a") as f:
             f.write(header)
-        with open(self.journal_file, "a") as f:
-            f.write(header)
 
 
     def advance_clock(self, ticks=1):
@@ -362,7 +354,7 @@ class GameState:
     def log_narrative(self, narrative_text):
         entry = f"**[T{self.clock}]** [NARRATIVE]"
         self.chronicle.append(f"{entry} {narrative_text}")
-        with open(self.journal_file, "a") as f:
+        with open(self.log_file, "a") as f:
             f.write(f"\n> **NARRATIVE [T{self.clock}]:** {narrative_text}\n\n")
 
     def log_system(self, message):
@@ -384,13 +376,13 @@ class GameState:
         all_severed = len(self.player.bonds) > 0 and all(b.strength == "SEVERED" for b in self.player.bonds)
         if all_severed:
             self.log("DEFEAT: Exiled. All bonds severed. No group offers docking.")
-            print("\n*** GAME OVER: EXILED ***")
+            self.pending_alerts.append("[GAME OVER: EXILED]\nAll bonds have been severed. No group offers you docking or support anymore. You are cast out into the void.")
             self.game_over = True
         
         # Stranded Check
         if self.phase == "Travel" and self.current_sector.type == "Deep Space" and self.player.tracks["Supplies"].tier_name == "EMPTY":
             self.log("DEFEAT: Stranded. Supplies EMPTY in Deep Space.")
-            print("\n*** GAME OVER: STRANDED ***")
+            self.pending_alerts.append("[GAME OVER: STRANDED]\nYour supplies have run completely empty while navigating Deep Space. Your crew starves in the dark.")
             self.game_over = True
             
         # Home Collapsed Check
@@ -399,7 +391,7 @@ class GameState:
             all_bottom = all(t.value <= 2 for t in home.tracks.values()) # A loose representation of "bottom tier" for 0-10
             if all_bottom:
                 self.log("DEFEAT: Home Collapsed. Home sector tracks all critically low.")
-                print("\n*** GAME OVER: HOME COLLAPSED ***")
+                self.pending_alerts.append("[GAME OVER: HOME COLLAPSED]\nYour home sector has completely collapsed due to lack of support and security. There is nothing left to fight for.")
                 self.game_over = True
 
         # 3. Check Incoming Notifications (NPC Interaction)
@@ -410,11 +402,10 @@ class GameState:
         expired_nots = [n for n in self.notifications if not n.resolved and n.expiry_tick <= self.clock]
         for n in expired_nots:
             n.resolved = True
-            print(f"\n[CONSEQUENCE] Unanswered request from {n.source} expired. Relationship worsened.")
-            # Deterministic consequence
             for b in self.player.bonds:
                 if b.name == n.source:
-                    print("  -> " + b.modify(-1))
+                    b.modify(-1)
+                    self.pending_alerts.append(f"Notification from {n.source} EXPIRED!\\nYou failed to respond in time.\\nBond with {n.source} weakened.")
             self.log(f"Notification from {n.source} expired resulting in negative consequence.")
 
         # 4. Check Messages
@@ -440,3 +431,4 @@ class GameState:
                 self.notifications.append(n)
                 print(f"\n[INCOMING] {n}")
                 self.log(f"Incoming notification generated for {source}.")
+                self.pending_alerts.append(f"INCOMING REQUEST\\n{source} is requesting urgent assistance regarding a community issue.\\n\\nRespond via the Main Menu before the expiry tick (T{n.expiry_tick})!")
