@@ -1,18 +1,19 @@
 import sys
 import random
 from models import GameState, Sector, Goal, Message, NPC, Hook, TempTag
-from oracles import get_complication, get_opportunity, get_community_cost, get_pre_flight_crew, roll_3d6, roll_disposition, roll_conversation_seed, get_action_tracks, generate_dynamic_hook
+from oracles import get_complication, get_opportunity, get_community_cost, get_pre_flight_crew, roll_3d6, roll_disposition, roll_conversation_seed, get_action_tracks, generate_dynamic_hook, get_theme_focus
 
 def setup_game():
     game = GameState()
     
-    # Initialize Sectors
-    game.sectors["Elace Station"] = Sector("Elace Station", "Planet", wealth=5, security=5, morale=5, supplies=5)
-    game.sectors["Korr Anchorage"] = Sector("Korr Anchorage", "Moon", wealth=3, security=3, morale=4, supplies=3)
-    game.sectors["Veyra Hub"] = Sector("Veyra Hub", "Star", wealth=7, security=7, morale=6, supplies=6)
-    game.sectors["The Scatter"] = Sector("The Scatter", "Field", wealth=2, security=1, morale=3, supplies=2)
-    game.sectors["Orin's Reach"] = Sector("Orin's Reach", "Deep Space", wealth=3, security=4, morale=5, supplies=4)
-    game.sectors["New Eden"] = Sector("New Eden", "Deep Space", wealth=0, security=0, morale=0, supplies=0)
+    # Initialize Sectors with randomized tracks
+    def rt(): return random.randint(2, 8)
+    game.sectors["Elace Station"] = Sector("Elace Station", "Planet", wealth=rt(), security=rt(), morale=rt(), supplies=rt())
+    game.sectors["Korr Anchorage"] = Sector("Korr Anchorage", "Moon", wealth=rt(), security=rt(), morale=rt(), supplies=rt())
+    game.sectors["Veyra Hub"] = Sector("Veyra Hub", "Star", wealth=rt(), security=rt(), morale=rt(), supplies=rt())
+    game.sectors["The Scatter"] = Sector("The Scatter", "Field", wealth=rt(), security=rt(), morale=rt(), supplies=rt())
+    game.sectors["Orin's Reach"] = Sector("Orin's Reach", "Deep Space", wealth=rt(), security=rt(), morale=rt(), supplies=rt())
+    game.sectors["New Eden"] = Sector("New Eden", "Deep Space", wealth=0, security=0, morale=0, supplies=0) # Keeps dead sector theme
     
     game.routes = {
         "Elace Station": {"Korr Anchorage": 1, "Veyra Hub": 2},
@@ -47,6 +48,17 @@ def setup_game():
         "ves_dustwren": Vessel("ves_dustwren", "Dust Wren", "Light hauler", "Lia", ["npc_lia"], "Orin's Reach", "Orin's Reach", "supply_run")
     }
     
+    # Randomize Player Initial State
+    for track_name, track in game.player.tracks.items():
+        track.value = random.randint(3, 8)
+        # We don't bother updating the tier_idx here since the tier checks dynamically when rolling, but for consistency:
+        # Actually it's best to let change(0) run to fix tier names if value is modified.
+        track.change(0)
+        
+    bond_strengths = ["FRAGILE", "STABLE", "DEEP"]
+    for b in game.player.bonds:
+        b.strength = random.choice(bond_strengths)
+        
     game.current_sector = game.sectors["Elace Station"]
     game.phase = "Encounter"
     return game
@@ -119,7 +131,16 @@ def print_state(game):
     if game.phase == "Encounter":
         current_npcs = game.get_npcs_at_sector(game.current_sector.name)
         if current_npcs:
-            print(f"  Residents: " + ", ".join(str(npc) for npc in current_npcs))
+            on_station = [n for n in current_npcs if n.vessel_id is None]
+            on_vessels = [n for n in current_npcs if n.vessel_id is not None]
+            if on_station:
+                print(f"  On Station: " + ", ".join(str(npc) for npc in on_station))
+            if on_vessels:
+                orbit_strs = []
+                for n in on_vessels:
+                    v_name = game.vessels[n.vessel_id].name if n.vessel_id in game.vessels else n.vessel_id
+                    orbit_strs.append(f"{n} (aboard {v_name})")
+                print(f"  In Orbit/Vessels: " + ", ".join(orbit_strs))
         if game.current_sector.hooks:
             print(f"  Available Hooks:")
             for i, h in enumerate(game.current_sector.hooks):
@@ -598,6 +619,12 @@ def do_converse(game, args, override_sector=None):
         with open(game.log_file, "a") as f:
             f.write(f"\n> **[REFLECT — T{game.clock}]** {free_text}\n\n")
     print("Conversation logged.")
+    
+    # Resolve any pending notifications from this NPC
+    for n in game.notifications:
+        if not n.resolved and n.source.lower() == npc.name.lower():
+            n.resolved = True
+            print(f"[SYSTEM] Pending notification from {n.source} resolved.")
 
 def resolve_msg(game, args):
     if not args:
@@ -730,7 +757,7 @@ def main():
                 print("Usage: log <text>")
                 
         elif cmd == "act":
-            resolve_action(game, args)
+            resolve_action(game)
             
         elif cmd == "travel":
             if not args:
@@ -755,7 +782,11 @@ def main():
                     continue
                 print("Available NPCs:")
                 for i, n in enumerate(current_npcs):
-                    print(f"  {i+1}: {n.name}")
+                    loc_str = ""
+                    if n.vessel_id:
+                        v_name = game.vessels[n.vessel_id].name if n.vessel_id in game.vessels else n.vessel_id
+                        loc_str = f" (aboard {v_name})"
+                    print(f"  {i+1}: {n.name}{loc_str}")
                 try:
                     choice = int(input("Select NPC (number): ").strip())
                     if 1 <= choice <= len(current_npcs):
@@ -782,6 +813,12 @@ def main():
                     game.msg_counter += 1
                     game.log(f"Sent tight-beam to {to_npc}. Subject: {subject}")
                     print(f"Message sent. Will arrive at T{arr_tick}.")
+                    
+                    # Resolve any pending notifications from this NPC
+                    for n in game.notifications:
+                        if not n.resolved and n.source.lower() == to_npc.lower():
+                            n.resolved = True
+                            print(f"[SYSTEM] Pending notification from {n.source} resolved by sending message.")
                 else:
                     print(f"Could not identify a valid NPC from: {full_args}")
             else:
@@ -859,11 +896,24 @@ def main():
                 
         elif cmd == "oracle":
             if not args:
-                print("Usage: oracle <disposition|convo>")
+                print("Usage: oracle <disposition|convo|theme|complication|opportunity>")
             elif args[0].lower() == "disposition":
                 print(f"[ORACLE] NPC Disposition: {roll_disposition()}")
             elif args[0].lower() in ["convo", "conversation"]:
                 print(f"[ORACLE] Conversation Seed: {roll_conversation_seed()}")
+            elif args[0].lower() == "theme":
+                theme, focus = get_theme_focus()
+                print(f"[ORACLE] Theme & Focus: {theme} / {focus}")
+            elif args[0].lower() in ["comp", "complication"]:
+                name, opts = get_complication()
+                print(f"[ORACLE] Complication: {name}")
+                print(f"  Options: {', '.join(opts)}")
+            elif args[0].lower() in ["opp", "opportunity"]:
+                # In space or station? 
+                in_space = game.current_sector.name in ["The Scatter", "Orin's Reach", "New Eden"] or game.phase == "Transit"
+                name, opts = get_opportunity(in_space=in_space)
+                print(f"[ORACLE] Opportunity ({'Space' if in_space else 'Station'}): {name}")
+                print(f"  Options: {', '.join(opts)}")
                 
         else:
             print("Unknown command.")

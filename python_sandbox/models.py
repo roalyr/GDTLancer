@@ -360,8 +360,13 @@ class Player:
                 return True
         return False
 
+import os
+
 class GameState:
-    def __init__(self, log_file="chronicle.md"):
+    def __init__(self, log_file=None):
+        if log_file is None:
+            # Place chronicle.md in the exact same directory as this file
+            log_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "chronicle.md")
         self.clock = 0
         self.player = Player()
         self.sectors = {}

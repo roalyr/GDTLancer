@@ -102,6 +102,11 @@ def roll_conversation_seed():
     r1, r2 = roll_2d6()
     return seeds[r1-1][r2-1]
 
+def get_theme_focus():
+    themes = ["Scarcity", "Trust", "Obligation", "Survival", "Isolation", "Kinship"]
+    focus = ["Vessel", "Community", "Bond", "Resource", "Route", "Equipment"]
+    return themes[random.randint(0, 5)], focus[random.randint(0, 5)]
+
 def generate_dynamic_hook(sector, npc):
     hook_types = ["Docking Approach", "Perimeter Investigation", "Direct Interception", "Boarding Action", "Community Petition"]
     htype = random.choice(hook_types)
