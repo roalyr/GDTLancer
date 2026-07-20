@@ -2,6 +2,16 @@ import sys
 import random
 from models import GameState, Sector, Goal, Message, NPC, Hook, TempTag
 from oracles import get_complication, get_opportunity, get_community_cost, get_pre_flight_crew, roll_3d6, roll_disposition, roll_conversation_seed, get_action_tracks, generate_dynamic_hook, get_theme_focus
+class Colors:
+    HEADER = '\033[95m'
+    BLUE = '\033[94m'
+    CYAN = '\033[96m'
+    GREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    DIM = '\033[2m'
 
 def setup_game():
     game = GameState()
@@ -81,19 +91,22 @@ def print_header(game):
     if game.game_over:
         return
     generate_sector_hooks(game)
-    print("\n" + "="*70)
-    print(f"[{game.current_sector.name} | Phase: {game.phase} | World Clock: T{game.clock}]")
+    print("\n\n" + Colors.CYAN + "="*70)
+    print(f"{Colors.BOLD}[{game.current_sector.name} | Phase: {game.phase} | World Clock: T{game.clock}]{Colors.ENDC}{Colors.CYAN}")
     t = game.player.tracks
     print(f"Tracks: H:{t['Health'].value} W:{t['Wealth'].value} M:{t['Morale'].value} S:{t['Supplies'].value}")
     if game.notifications:
-        print("\nNOTIFICATIONS:")
+        has_active = False
         for n in game.notifications:
             if not n.resolved:
-                warning = " [!] EXPIRES NEXT TICK" if n.expiry_tick == game.clock + 1 else ""
+                if not has_active:
+                    print(f"\n{Colors.WARNING}NOTIFICATIONS:{Colors.CYAN}")
+                    has_active = True
+                warning = f" {Colors.FAIL}[!] EXPIRES NEXT TICK{Colors.CYAN}" if n.expiry_tick == game.clock + 1 else ""
                 print(f"  {n}{warning}")
-    print("=" * 70)
-    print("Type 'help' for commands, 'state' for full status.")
-    print("=" * 70)
+    print("=" * 70 + Colors.ENDC)
+    print(f"{Colors.DIM}Type 'help' for commands, 'state' for full status.{Colors.ENDC}")
+    print(Colors.CYAN + "=" * 70 + Colors.ENDC + "\n")
 
 def print_state(game):
     if game.game_over:
@@ -101,33 +114,43 @@ def print_state(game):
         
     generate_sector_hooks(game)
     
-    print("\n" + "="*70)
-    print(f"[{game.current_sector.name} | Phase: {game.phase} | World Clock: T{game.clock}]")
-    print("-" * 70)
-    print("PLAYER STATUS (Community Vessel):")
+    print("\n\n" + Colors.CYAN + "="*70)
+    print(f"{Colors.BOLD}[{game.current_sector.name} | Phase: {game.phase} | World Clock: T{game.clock}]{Colors.ENDC}{Colors.CYAN}")
+    print("-" * 70 + Colors.ENDC)
+    print(f"{Colors.HEADER}PLAYER STATUS (Community Vessel):{Colors.ENDC}")
     for track in game.player.tracks.values():
-        print(f"  {track}")
+        color = Colors.FAIL if track.value <= 2 else (Colors.WARNING if track.value <= 4 else Colors.GREEN)
+        print(f"  {track.name}: {color}{track.tier_name} ({track.value}/10){Colors.ENDC} [{track.modifier:+d}]")
     if game.player.tags:
         print(f"  Temporary Tags: {', '.join(str(t) for t in game.player.tags)}")
     print("  Tools: " + (", ".join(game.player.tools) if game.player.tools else "None"))
     
-    print("\nBONDS:")
+    print(f"\n{Colors.HEADER}BONDS:{Colors.ENDC}")
     for i, b in enumerate(game.player.bonds):
-        print(f"  {i+1}: {b}")
+        color = Colors.FAIL if b.strength == "SEVERED" else (Colors.WARNING if b.strength == "FRAGILE" else Colors.GREEN)
+        print(f"  {i+1}: {b.name} ({b.role}) - {color}{b.strength}{Colors.ENDC}")
         for g in b.npc_goals:
             print(f"     - {g}")
         
-    print("\nGOALS:")
+    print(f"\n{Colors.HEADER}GOALS:{Colors.ENDC}")
     for g in game.player.goals:
         print(f"  {g}")
 
-    print("\nCREW:")
+    print(f"\n{Colors.HEADER}CREW:{Colors.ENDC}")
     for c in game.player.crew:
-        print(f"  {c}")
+        color = Colors.FAIL if c.morale == "LOW" else (Colors.GREEN if c.morale == "HIGH" else Colors.ENDC)
+        print(f"  {c.name} ({c.role}) - Morale: {color}{c.morale}{Colors.ENDC}")
 
-    print("-" * 70)
-    print("COMMUNITY / SECTOR STATUS:")
-    print(f"  {game.current_sector}")
+    print(Colors.CYAN + "-" * 70 + Colors.ENDC)
+    print(f"{Colors.HEADER}COMMUNITY / SECTOR STATUS:{Colors.ENDC}")
+    print(f"  {game.current_sector.name} ({game.current_sector.type}) | Tracks: ", end="")
+    s_t = game.current_sector.tracks
+    s_strs = []
+    for st_name, st in s_t.items():
+        color = Colors.FAIL if st.value <= 2 else (Colors.WARNING if st.value <= 4 else Colors.GREEN)
+        s_strs.append(f"{st_name}: {color}{st.value}/10{Colors.ENDC}")
+    print(", ".join(s_strs))
+    
     if game.phase == "Encounter":
         current_npcs = game.get_npcs_at_sector(game.current_sector.name)
         if current_npcs:
@@ -142,17 +165,20 @@ def print_state(game):
                     orbit_strs.append(f"{n} (aboard {v_name})")
                 print(f"  In Orbit/Vessels: " + ", ".join(orbit_strs))
         if game.current_sector.hooks:
-            print(f"  Available Hooks:")
+            print(f"  {Colors.BOLD}Available Hooks:{Colors.ENDC}")
             for i, h in enumerate(game.current_sector.hooks):
                 print(f"    {i+1}: {h}")
                 
     if game.notifications:
-        print("\nNOTIFICATIONS:")
+        has_active = False
         for n in game.notifications:
             if not n.resolved:
-                warning = " [!] EXPIRES NEXT TICK" if n.expiry_tick == game.clock + 1 else ""
+                if not has_active:
+                    print(f"\n{Colors.WARNING}NOTIFICATIONS:{Colors.ENDC}")
+                    has_active = True
+                warning = f" {Colors.FAIL}[!] EXPIRES NEXT TICK{Colors.ENDC}" if n.expiry_tick == game.clock + 1 else ""
                 print(f"  {n}{warning}")
-    print("=" * 70)
+    print(Colors.CYAN + "=" * 70 + Colors.ENDC + "\n")
 
 
 def handle_bond_selection(game, prompt="Select bond"):
@@ -588,6 +614,27 @@ def do_converse(game, args, override_sector=None):
         print("Usage: converse <npc_name>")
         return
     npc_name = " ".join(args)
+    
+    # Check crew first
+    crew_member = next((c for c in game.player.crew if c.name.lower() == npc_name.lower()), None)
+    if crew_member:
+        print(f"\n--- CONVERSATION WITH {crew_member.name} (Crew) ---")
+        seed = roll_conversation_seed()
+        print(f"{crew_member.name} ({crew_member.role}) — Morale: {crew_member.morale} — Topic: {seed}")
+        
+        print("\n[Reflect?] (Type your free-text narrative, or press Enter to skip)")
+        free_text = input("> ").strip()
+                
+        log_entry = f"Spoke with crew {crew_member.name}. Morale: {crew_member.morale}. Topic: {seed}."
+        game.log(log_entry)
+        
+        if free_text:
+            with open(game.log_file, "a") as f:
+                f.write(f"\n> **[REFLECT — T{game.clock}]** {free_text}\n\n")
+        print("Conversation logged.")
+        return
+
+    # Fallback to local NPCs
     npc = next((n for n in game.get_all_npcs() if n.name.lower() == npc_name.lower()), None)
     
     if not npc:
@@ -689,7 +736,7 @@ def main():
             break
 
         print_header(game)
-        cmd_input = input("> ").strip().split(" ")
+        cmd_input = input(Colors.GREEN + "> " + Colors.ENDC).strip().split(" ")
         if not cmd_input or not cmd_input[0]:
             continue
             
@@ -709,17 +756,17 @@ def main():
             print("=" * 70)
             print("Commands:")
             print("  state - Print full game state (Tracks, Goals, Bonds, Crew)")
-            print("  act <action_name> <cautious/risky> [bond_idx] [tool_idx] - Action Check")
-            print("  travel <destination> - Initiate Travel Phase")
-            print("  message <npc> <subject> - Send tight-beam message")
-            print("  resolve_message <msg_id> - Action check for arrived message")
-            print("  converse <npc> - Engage in Free Action conversation")
+            print("  act - Launch the interactive Action/Hook resolution menu")
+            print("  travel [destination] - Initiate Travel Phase (or show menu if empty)")
+            print("  converse [npc] - Engage in a conversation (or show menu if empty). Also resolves pending notifications.")
+            print("  message <npc> <subject> - Send a tight-beam message. Also resolves pending notifications.")
+            print("  resolve_message <msg_id> - Action check for an arrived message")
             print("  goal_add <rank> <statement> - Add new goal")
-            print("  goal_advance <goal_id> <amount> - Advance a goal track (e.g. goal_advance G1 1)")
+            print("  goal_advance <goal_id> <amount> - Advance a goal track (e.g. goal_advance goal_abc123 1)")
             print("  goal_resolve <goal_id> <cautious/risky> - Resolve a 10/10 goal")
             print("  npc_goal <bond_idx> <action> <target> <motivation> - Add NPC goal")
             print("  remove_tag <tag_name> - Expire a temporary tag")
-            print("  oracle <disposition|convo> - Roll an oracle")
+            print("  oracle <disposition|convo|theme|comp|opp> - Roll an oracle for inspiration")
             print("  wait <ticks> - Advance clock")
             print("  log <text> - Custom Chronicle log")
             print("  undo - Revert the game state to before the last action")
@@ -777,20 +824,32 @@ def main():
         elif cmd == "converse":
             if not args:
                 current_npcs = game.get_npcs_at_sector(game.current_sector.name)
-                if not current_npcs:
-                    print("No NPCs in this sector.")
+                crew = game.player.crew
+                if not current_npcs and not crew:
+                    print("No NPCs in this sector and no crew.")
                     continue
-                print("Available NPCs:")
-                for i, n in enumerate(current_npcs):
+                
+                print("Available to talk:")
+                idx = 1
+                for n in current_npcs:
                     loc_str = ""
                     if n.vessel_id:
                         v_name = game.vessels[n.vessel_id].name if n.vessel_id in game.vessels else n.vessel_id
                         loc_str = f" (aboard {v_name})"
-                    print(f"  {i+1}: {n.name}{loc_str}")
+                    print(f"  {idx}: {n.name}{loc_str}")
+                    idx += 1
+                
+                for c in crew:
+                    print(f"  {idx}: {c.name} (Crew aboard your vessel)")
+                    idx += 1
+                    
                 try:
                     choice = int(input("Select NPC (number): ").strip())
-                    if 1 <= choice <= len(current_npcs):
-                        do_converse(game, [current_npcs[choice-1].name])
+                    if 1 <= choice < idx:
+                        if choice <= len(current_npcs):
+                            do_converse(game, [current_npcs[choice-1].name])
+                        else:
+                            do_converse(game, [crew[choice - 1 - len(current_npcs)].name])
                 except ValueError:
                     print("Invalid choice.")
             else:
