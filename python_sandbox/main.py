@@ -8,19 +8,11 @@ def setup_game():
     
     # Initialize Sectors
     game.sectors["Elace Station"] = Sector("Elace Station", "Planet", wealth=5, security=5, morale=5, supplies=5)
-    game.sectors["Elace Station"].npcs = [NPC("Kaelen", "Kin", "Calm"), NPC("Overseer Relt", "Administrator", "Worried")]
-    
     game.sectors["Korr Anchorage"] = Sector("Korr Anchorage", "Moon", wealth=3, security=3, morale=4, supplies=3)
-    game.sectors["Korr Anchorage"].npcs = [NPC("Voss", "Mentor", "Hopeful"), NPC("Dockmaster Tyra", "Logistics", "Frustrated")]
-    
     game.sectors["Veyra Hub"] = Sector("Veyra Hub", "Star", wealth=7, security=7, morale=6, supplies=6)
-    game.sectors["Veyra Hub"].npcs = [NPC("Sera", "Debtor", "Distant")]
-    
     game.sectors["The Scatter"] = Sector("The Scatter", "Field", wealth=2, security=1, morale=3, supplies=2)
     game.sectors["Orin's Reach"] = Sector("Orin's Reach", "Deep Space", wealth=3, security=4, morale=5, supplies=4)
-    
     game.sectors["New Eden"] = Sector("New Eden", "Deep Space", wealth=0, security=0, morale=0, supplies=0)
-    game.sectors["New Eden"].npcs = []
     
     game.routes = {
         "Elace Station": {"Korr Anchorage": 1, "Veyra Hub": 2},
@@ -29,6 +21,30 @@ def setup_game():
         "The Scatter": {"Korr Anchorage": 1, "Veyra Hub": 2, "Orin's Reach": 1},
         "Orin's Reach": {"Korr Anchorage": 3, "The Scatter": 1, "New Eden": 2},
         "New Eden": {"Veyra Hub": 4, "Orin's Reach": 2}
+    }
+    
+    # Initialize NPCs
+    game.npcs = {
+        "npc_kaelen": NPC("npc_kaelen", "Kaelen", "Kin", "Calm", home_sector="Elace Station"),
+        "npc_relt": NPC("npc_relt", "Overseer Relt", "Administrator", "Worried", home_sector="Elace Station"),
+        "npc_tyra": NPC("npc_tyra", "Dockmaster Tyra", "Logistics", "Frustrated", home_sector="Korr Anchorage"),
+        "npc_voss": NPC("npc_voss", "Voss", "Mentor", "Hopeful", vessel_id="ves_lantern"),
+        "npc_sera": NPC("npc_sera", "Sera", "Debtor", "Distant", vessel_id="ves_ember"),
+        "npc_daro": NPC("npc_daro", "Daro", "Captain", "Calm", vessel_id="ves_ironweed"),
+        "npc_maren": NPC("npc_maren", "Maren", "Captain", "Eager", vessel_id="ves_kestrel"),
+        "npc_fen": NPC("npc_fen", "Fen", "Captain", "Worried", vessel_id="ves_hull07"),
+        "npc_lia": NPC("npc_lia", "Lia", "Captain", "Hopeful", vessel_id="ves_dustwren")
+    }
+    
+    # Initialize Vessels
+    from models import Vessel
+    game.vessels = {
+        "ves_lantern": Vessel("ves_lantern", "Stray Lantern", "Light hauler", "Voss", ["npc_voss"], "Korr Anchorage", "Korr Anchorage", "supply_run"),
+        "ves_ember": Vessel("ves_ember", "Quiet Ember", "Survey platform", "Sera", ["npc_sera"], "Veyra Hub", "Veyra Hub", "survey"),
+        "ves_ironweed": Vessel("ves_ironweed", "Ironweed", "Tanker", "Daro", ["npc_daro"], "Elace Station", "Elace Station", "supply_run"),
+        "ves_kestrel": Vessel("ves_kestrel", "Kestrel", "Patrol craft", "Maren", ["npc_maren"], "Veyra Hub", "Veyra Hub", "patrol"),
+        "ves_hull07": Vessel("ves_hull07", "Hull 07", "Repair tender", "Fen", ["npc_fen"], "Korr Anchorage", "Korr Anchorage", "repair_tender"),
+        "ves_dustwren": Vessel("ves_dustwren", "Dust Wren", "Light hauler", "Lia", ["npc_lia"], "Orin's Reach", "Orin's Reach", "supply_run")
     }
     
     game.current_sector = game.sectors["Elace Station"]
@@ -43,10 +59,11 @@ def generate_sector_hooks(game):
                 game.current_sector.hooks.remove(h)
                 
         # Fill hooks up to 2
-        while len(game.current_sector.hooks) < 2 and game.current_sector.npcs:
-            provider = random.choice(game.current_sector.npcs)
-            name, htype, succ, fail = generate_dynamic_hook(game.current_sector, provider)
-            game.current_sector.hooks.append(Hook(name, htype, provider.name, success_opt=succ, fail_opt=fail))
+        current_npcs = game.get_npcs_at_sector(game.current_sector.name)
+        while len(game.current_sector.hooks) < 2 and current_npcs:
+            provider = random.choice(current_npcs)
+            name, htype, paths, succ, fail = generate_dynamic_hook(game.current_sector, provider)
+            game.current_sector.hooks.append(Hook(name, htype, provider.name, paths, success_opt=succ, fail_opt=fail))
 
 def print_header(game):
     if game.game_over:
@@ -60,7 +77,8 @@ def print_header(game):
         print("\nNOTIFICATIONS:")
         for n in game.notifications:
             if not n.resolved:
-                print(f"  {n}")
+                warning = " [!] EXPIRES NEXT TICK" if n.expiry_tick == game.clock + 1 else ""
+                print(f"  {n}{warning}")
     print("=" * 70)
     print("Type 'help' for commands, 'state' for full status.")
     print("=" * 70)
@@ -99,8 +117,9 @@ def print_state(game):
     print("COMMUNITY / SECTOR STATUS:")
     print(f"  {game.current_sector}")
     if game.phase == "Encounter":
-        if game.current_sector.npcs:
-            print(f"  Residents: " + ", ".join(str(npc) for npc in game.current_sector.npcs))
+        current_npcs = game.get_npcs_at_sector(game.current_sector.name)
+        if current_npcs:
+            print(f"  Residents: " + ", ".join(str(npc) for npc in current_npcs))
         if game.current_sector.hooks:
             print(f"  Available Hooks:")
             for i, h in enumerate(game.current_sector.hooks):
@@ -110,15 +129,10 @@ def print_state(game):
         print("\nNOTIFICATIONS:")
         for n in game.notifications:
             if not n.resolved:
-                print(f"  {n}")
+                warning = " [!] EXPIRES NEXT TICK" if n.expiry_tick == game.clock + 1 else ""
+                print(f"  {n}{warning}")
     print("=" * 70)
 
-def ask_impact_callback(track_name, amount):
-    if amount < 0:
-        impact_desc = f"Strain on {track_name} is felt."
-    else:
-        impact_desc = f"Boost to {track_name} invigorates."
-    return "Player", impact_desc
 
 def handle_bond_selection(game, prompt="Select bond"):
     print("\nSelect a bond to modify:")
@@ -141,7 +155,7 @@ def handle_options_loop(game, options_to_pick, is_crisis=False):
                 c_idx = int(choice) - 1
                 if 0 <= c_idx < len(opt_list):
                     selected = opt_list[c_idx]
-                    results = game.player.apply_option(selected, is_crisis=is_crisis, impact_callback=ask_impact_callback)
+                    results = game.player.apply_option(selected, is_crisis=is_crisis, current_sector_name=game.current_sector.name)
                     print(f"Applied: {selected}")
                     for res in results:
                         if "choose a bond to STRENGTHEN" in res:
@@ -149,24 +163,18 @@ def handle_options_loop(game, options_to_pick, is_crisis=False):
                             res_bond = b.modify(1)
                             print(f" -> {res_bond}")
                             game.log(res_bond)
+                            game.reflection_pending = True
                         elif "choose a bond to WEAKEN" in res:
                             b = handle_bond_selection(game, "Weaken which bond?")
                             res_bond = b.modify(-1)
                             print(f" -> {res_bond}")
                             game.log(res_bond)
-                        elif "pending" in res:
-                            # Parse sector track change
-                            import re
-                            match = re.search(r'Sector (Health|Wealth|Morale|Supplies) change ([+-]\d+) pending', res)
-                            if match:
-                                tr, amt = match.groups()
-                                if tr in game.current_sector.tracks:
-                                    s_res = game.current_sector.tracks[tr].change(int(amt))
-                                    print(f" -> {s_res}")
-                                    game.log(f"Sector {game.current_sector.name} {s_res}")
+                            game.reflection_pending = True
                         else:
                             print(f" -> {res}")
                             game.log(res)
+                            if "Shifted from" in res:
+                                game.reflection_pending = True
                     break
                 else:
                     print("Invalid choice.")
@@ -251,71 +259,192 @@ def roll_action_engine(game, track_name, approach, mod, hook=None):
     handle_options_loop(game, options_to_pick, is_crisis=is_crisis)
     return outcome
 
-def resolve_action(game, args, hook=None):
-    if len(args) < 2:
-        print("Usage: act <action_name> <cautious/risky> [bond_idx] [tool_idx]")
-        print("Valid actions: command, navigate, endure, overcome, scavenge, repair, barter, acquire, petition, convince, investigate, scan")
-        return
-        
-    action_name = args[0].lower()
-    approach = args[1].lower()
-    
-    valid_tracks = get_action_tracks(action_name)
-    if not valid_tracks:
-        print("Invalid action name. Use a standard action like 'command', 'repair', 'barter', etc.")
-        return
-        
-    if approach not in ["cautious", "risky"]:
-        print("Approach must be 'cautious' or 'risky'.")
-        return
-        
-    track_name = valid_tracks[0]
-    if len(valid_tracks) > 1:
-        mod1, _ = game.player.get_track_modifier(valid_tracks[0])
-        mod2, _ = game.player.get_track_modifier(valid_tracks[1])
-        if mod2 > mod1:
-            track_name = valid_tracks[1]
-            
-    print(f"System mapped action '{action_name}' to track '{track_name}'.")
+def prompt_reflection(game):
+    print("\n[Reflect?] (Type your reflection, or press Enter to skip)")
+    text = input("> ").strip()
+    if text:
+        with open(game.log_file, "a") as f:
+            f.write(f"\n> **[REFLECT — T{game.clock}]** {text}\n\n")
 
-    # Mod calculation
-    mod, used_tags = game.player.get_track_modifier(track_name)
+def resolve_action(game, hook=None):
+    if hook is None and game.current_sector.hooks:
+        print("\nAvailable hooks in this sector:")
+        for i, h in enumerate(game.current_sector.hooks):
+            print(f"  [{i+1}] {h.name}")
+        print("Are you acting to resolve a hook? (Enter hook number, or 0 for standard action)")
+        while True:
+            try:
+                h_choice = int(input("> ").strip())
+                if h_choice == 0:
+                    break
+                elif 1 <= h_choice <= len(game.current_sector.hooks):
+                    hook = game.current_sector.hooks[h_choice - 1]
+                    break
+            except:
+                pass
+
+    actions_list = ["command", "navigate", "endure", "overcome", "scavenge", "repair", "barter", "acquire", "petition", "convince", "investigate", "scan"]
+
     
-    # Sector mod based on conditions
+    if hook:
+        print(f"\n--- RESOLVING HOOK: {hook.name} ---")
+        for i, p in enumerate(hook.paths):
+            print(f"  [{i+1}] {p[0]} (Valid actions: {', '.join(p[1])})")
+        
+        while True:
+            try:
+                p_idx = int(input("Select path (number): ")) - 1
+                if 0 <= p_idx < len(hook.paths):
+                    valid_acts = hook.paths[p_idx][1]
+                    break
+            except:
+                pass
+        
+        print(f"\nChoose an action from the path:")
+        for i, act in enumerate(valid_acts):
+            print(f"  [{i+1}] {act.capitalize()}")
+        while True:
+            try:
+                a_idx = int(input("Select action (number): ")) - 1
+                if 0 <= a_idx < len(valid_acts):
+                    action_name = valid_acts[a_idx]
+                    break
+            except:
+                pass
+    else:
+        print("\n--- ACTION SELECTION ---")
+        for i, act in enumerate(actions_list):
+            print(f"  [{i+1}] {act.capitalize()}")
+        while True:
+            try:
+                a_idx = int(input("Select action (number): ")) - 1
+                if 0 <= a_idx < len(actions_list):
+                    action_name = actions_list[a_idx]
+                    break
+            except:
+                pass
+
+    valid_tracks = get_action_tracks(action_name)
+    print(f"\nChoose track for {action_name.capitalize()}:")
+    for i, tr in enumerate(valid_tracks):
+        mod = game.player.tracks[tr].modifier
+        print(f"  [{i+1}] {tr} (Base: {mod:+d})")
+    
+    while True:
+        try:
+            t_idx = int(input("Select track (number): ")) - 1
+            if 0 <= t_idx < len(valid_tracks):
+                track_name = valid_tracks[t_idx]
+                break
+        except:
+            pass
+
+    print("\nChoose approach:")
+    print("  [1] Cautious")
+    print("  [2] Risky")
+    while True:
+        app = input("Select approach (1/2): ").strip()
+        if app == "1":
+            approach = "cautious"
+            break
+        elif app == "2":
+            approach = "risky"
+            break
+
+    mod = game.player.tracks[track_name].modifier
+    used_tags = []
+    
+    # Interactive modifiers
+    print("\n--- MODIFIERS ---")
+    available_tags = [t for t in game.player.tags if t.category in ["ALL", track_name.upper()] or t.category in ["SECURITY", "SOCIAL", "LOGISTICS", "ECONOMIC", "PHYSICAL"]]
+    
+    # We'll just show all active tags and bonds, let player toggle
+    added_mods = []
+    if available_tags:
+        print("Available Tags:")
+        for i, t in enumerate(available_tags):
+            print(f"  [T{i+1}] {t}")
+    if game.player.bonds:
+        print("Available Bonds:")
+        for i, b in enumerate(game.player.bonds):
+            print(f"  [B{i+1}] {b}")
+    if game.player.tools:
+        print("Available Tools:")
+        for i, tool in enumerate(game.player.tools):
+            print(f"  [O{i+1}] {tool}")
+            
+    print("Enter codes to apply modifiers (e.g. 'T1 B2'), or press Enter to skip.")
+    mods_input = input("> ").strip().upper().split()
+    for code in mods_input:
+        if code.startswith('T') and len(code) > 1:
+            try:
+                idx = int(code[1:]) - 1
+                if 0 <= idx < len(available_tags):
+                    t = available_tags[idx]
+                    mod += t.modifier_value
+                    used_tags.append(t.name)
+                    added_mods.append(f"{t.name} ({t.modifier_value:+d})")
+            except: pass
+        elif code.startswith('B') and len(code) > 1:
+            try:
+                idx = int(code[1:]) - 1
+                if 0 <= idx < len(game.player.bonds):
+                    b = game.player.bonds[idx]
+                    b_mod = 1 if b.strength == "DEEP" else (-1 if b.strength == "SEVERED" else 0)
+                    mod += b_mod
+                    added_mods.append(f"{b.name} bond ({b_mod:+d})")
+            except: pass
+        elif code.startswith('O') and len(code) > 1:
+            try:
+                idx = int(code[1:]) - 1
+                if 0 <= idx < len(game.player.tools):
+                    tool = game.player.tools[idx]
+                    mod += 1
+                    added_mods.append(f"{tool} (+1)")
+            except: pass
+
+    # Sector context
     sector_tracks = list(game.current_sector.tracks.values())
     avg_sector = sum(t.value for t in sector_tracks) / 4.0
     if avg_sector > 6:
-        print(f"Sector '{game.current_sector.name}' conditions strongly FAVOR the action (+1 mod)")
         mod += 1
+        added_mods.append("Sector Conditions (+1)")
     elif avg_sector < 4:
-        print(f"Sector '{game.current_sector.name}' conditions OPPOSE the action (-1 mod)")
         mod -= 1
-    
-    if len(args) > 2:
-        try:
-            b_idx = int(args[2]) - 1
-            b = game.player.bonds[b_idx]
-            if b.strength == "DEEP": mod += 1
-            elif b.strength == "SEVERED": mod -= 1
-        except Exception as e:
-            print(f"Invalid bond index: {e}")
-            
-    if len(args) > 3:
-        try:
-            t_idx = int(args[3]) - 1
-            if 0 <= t_idx < len(game.player.tools): mod += 1
-            else: print("Invalid tool index.")
-        except Exception as e:
-            print(f"Invalid tool index: {e}")
-            
+        added_mods.append("Sector Conditions (-1)")
+        
     mod = max(-4, min(4, mod))
     
-    # Expire used tags
+    print(f"\n--- CONFIRMATION ---")
+    print(f"Action: {action_name.upper()}")
+    print(f"Track: {track_name}")
+    print(f"Approach: {approach.capitalize()}")
+    if added_mods:
+        print(f"Modifiers applied: {', '.join(added_mods)}")
+    print(f"Total Roll Modifier: {mod:+d}")
+    
+    input("Press Enter to roll...")
+    
+    kinetic_actions = ["command", "navigate", "scavenge", "repair"]
+    if action_name in kinetic_actions:
+        marker = f"[KINETIC STUB: PILOTING/EVA — {action_name.upper()}]"
+        print(f"\n{marker}")
+        game.log(marker)
+        
     for t in used_tags:
         game.player.remove_tag(t)
         print(f"Used and expired tag: {t}")
         
-    roll_action_engine(game, track_name, approach, mod, hook=hook)
+    outcome = roll_action_engine(game, track_name, approach, mod, hook=hook)
+    
+    if hook and outcome != "Crisis" and outcome != "Setback":
+        hook.resolved = True
+        
+    next_action_tags = [t for t in game.player.tags if t.expiry_type == "next_action"]
+    for t in next_action_tags:
+        game.player.tags.remove(t)
+        print(f"Tag expired (next_action): {t.name}")
+        
     game.advance_clock(1)
 
 def do_travel(game, destination_str):
@@ -352,33 +481,39 @@ def do_travel(game, destination_str):
     game.log(f"Initiated travel to {dest_name} (Distance: {distance})")
     print(f"\n--- PRE-DEPARTURE SEQUENCE (Distance {distance}) ---")
     
-    # 1. Community Cost
+    # 1. Community Cost & Crew Checks (Batched)
     cost_name, cost_opts = get_community_cost()
     print(f"\n[COMMUNITY COST] {cost_name}")
-    for i, opt in enumerate(cost_opts):
-        print(f"  {i+1}: {opt}")
-    handle_options_loop(game, [("Community Cost Option", cost_opts)])
     
-    # 2. Crew Checks
-    print("\n[PRE-FLIGHT CREW CHECKS]")
     import random
-    issues = []
-    for crew in game.player.crew:
-        if random.random() < 0.5:
-            name, opts, ctype = get_pre_flight_crew()
-            issues.append((crew, name, opts, ctype))
-            
-    if not issues:
-        print("All crew report ready.")
+    crew_opts = []
+    if random.random() < 0.5:
+        crew_name, crew_opts, ctype = get_pre_flight_crew()
+        print(f"[PRE-FLIGHT CREW CHECK] {ctype}: {crew_name}")
     else:
-        crew, name, opts, ctype = random.choice(issues)
-        print(f"Crew readiness: Most are good. Issue with {crew.name} ({crew.role}): {name}")
-        for i, opt in enumerate(opts):
-            print(f"  {i+1}: {opt}")
-        handle_options_loop(game, [(f"{ctype} for {crew.name}", opts)])
+        print("[PRE-FLIGHT CREW CHECK] All crew report ready.")
+        
+    options_to_pick = [("Community Cost Option", cost_opts)]
+    for i, opt in enumerate(cost_opts):
+        print(f"  Cost Opt {i+1}: {opt}")
+        
+    if crew_opts:
+        options_to_pick.append(("Crew Check Option", crew_opts))
+        for i, opt in enumerate(crew_opts):
+            print(f"  Crew Opt {i+1}: {opt}")
+            
+    handle_options_loop(game, options_to_pick)
+    
+    # 2. Kinetic Stub & Travel Transit
+    print(f"\n[KINETIC STUB: FLIGHT MODE — {game.current_sector.name} → {dest_name}]")
+    game.log(f"[KINETIC STUB: FLIGHT MODE — {game.current_sector.name} → {dest_name}]")
         
     # 3. Travel Transit
     print(f"\n--- TRAVELING TO {dest_name} ---")
+    
+    current_path_sector = game.current_sector.name
+    # Since we don't store the exact path in this simple Dijkstra, we'll just simulate passing through distance number of sectors.
+    
     for step in range(distance):
         game.player.tracks["Supplies"].change(-1)
         game.log("Consumed 1 Supplies during travel.")
@@ -402,57 +537,66 @@ def do_travel(game, destination_str):
         else:
             print("Transit sector passed peacefully.")
             
+        # Vessel encounter stub check
+        vessels_here = game.get_vessels_at_sector(current_path_sector)
+        if vessels_here:
+            for v in vessels_here:
+                print(f"\n[KINETIC STUB: Encountered {v.name} (Captain: {v.captain}) in {current_path_sector}. Hail? [Y/N]]")
+                if input("> ").lower().startswith('y'):
+                    if v.captain:
+                        do_converse(game, [v.captain], override_sector=current_path_sector)
+                    else:
+                        print(f"Vessel {v.name} is derelict or has no captain.")
+                
         game.advance_clock(1)
         
     game.current_sector = game.sectors[dest_name]
     game.phase = "Encounter"
     print(f"\nARRIVED at {dest_name}. Phase: {game.phase}")
     game.log(f"Arrived at {dest_name}")
+    
+    next_travel_tags = [t for t in game.player.tags if t.expiry_type == "next_travel"]
+    for t in next_travel_tags:
+        game.player.tags.remove(t)
+        print(f"Tag expired (next_travel): {t.name}")
+        
+    game.reflection_pending = True
 
-def do_converse(game, args):
+def do_converse(game, args, override_sector=None):
     if len(args) < 1:
         print("Usage: converse <npc_name>")
         return
     npc_name = " ".join(args)
-    npc = None
-    for n in game.current_sector.npcs:
-        if n.name.lower() == npc_name.lower():
-            npc = n
-            break
+    npc = next((n for n in game.get_all_npcs() if n.name.lower() == npc_name.lower()), None)
+    
     if not npc:
-        print(f"{npc_name} is not present at {game.current_sector.name}.")
+        print(f"Unknown NPC: {npc_name}")
+        return
+        
+    npc_loc = npc.get_location(game)
+    check_loc = override_sector if override_sector else game.current_sector.name
+    
+    if npc_loc != check_loc:
+        vessel_str = f" aboard {npc.vessel_id}" if npc.vessel_id else ""
+        print(f"{npc.name} is not here. They are{vessel_str} at {npc_loc}.")
         return
 
     print(f"\n--- CONVERSATION WITH {npc.name} ---")
     seed = roll_conversation_seed()
-    print(f"[ORACLE] Topic suggestion: '{seed}' (press Enter to use)")
     disposition = roll_disposition()
     npc.disposition = disposition
-    print(f"[ORACLE] NPC Disposition: {disposition}")
-
-    topic = input("Topic Node (e.g. 'a shortage', 'a rival'): ")
-    if not topic.strip():
-        topic = seed
-        
-    outcome = input("Outcome Node (e.g. 'tension increased', 'agreement reached'): ")
-    free_text = input("Optional Free Text (dialogue/notes): ")
     
-    if disposition in ["Frustrated", "Worried", "Distant"]:
-        print("Option: Spend 1 Morale to ease their disposition? (y/n)")
-        if input("> ").lower().startswith('y'):
-            game.player.tracks["Morale"].change(-1)
-            npc.disposition = "Calm"
-            print(f"{npc.name} is now Calm.")
-    elif disposition in ["Hopeful", "Eager"]:
-        print("Option: They offer useful intel (gain tag: Useful Intel). Accept? (y/n)")
-        if input("> ").lower().startswith('y'):
-            game.player.tags.append(TempTag("Useful Intel", "Used in action"))
-            print("Gained tag: Useful Intel")
+    print(f"{npc.name} ({npc.role}) — Mood: {disposition} — Topic: {seed}")
+    
+    print("\n[Reflect?] (Type your free-text narrative, or press Enter to skip)")
+    free_text = input("> ").strip()
             
-    log_entry = f"Spoke with {npc.name} about {topic} resulting in {outcome}."
+    log_entry = f"Spoke with {npc.name}. Mood: {disposition}. Topic: {seed}."
+    game.log(log_entry)
+    
     if free_text:
-        log_entry += f" Note: {free_text}"
-    game.log_narrative(log_entry)
+        with open(game.log_file, "a") as f:
+            f.write(f"\n> **[REFLECT — T{game.clock}]** {free_text}\n\n")
     print("Conversation logged.")
 
 def resolve_msg(game, args):
@@ -476,13 +620,12 @@ def resolve_msg(game, args):
 
 def resolve_goal(game, args):
     if len(args) < 2:
-        print("Usage: goal_resolve <G1> <cautious/risky>")
+        print("Usage: goal_resolve <goal_id> <cautious/risky>")
         return
     try:
-        goal_id_str = args[0].upper().replace('G', '')
-        idx = int(goal_id_str)
+        goal_id = args[0]
         app = args[1].lower()
-        g = next((g for g in game.player.goals if g.id == idx), None)
+        g = next((g for g in game.player.goals if g.id == goal_id), None)
         if g:
             if g.progress < 10:
                 print("Goal must reach 10 progress to resolve.")
@@ -494,6 +637,7 @@ def resolve_goal(game, args):
                 print("Goal FULFILLED!")
                 game.player.goals.remove(g)
                 game.log(f"Goal fulfilled: {g.statement}")
+                game.reflection_pending = True
             else:
                 print("Goal resolution hit a snag. Retain it or abandon it.")
                 game.log(f"Goal resolution failed: {g.statement}")
@@ -547,7 +691,6 @@ def main():
             print("  goal_advance <goal_id> <amount> - Advance a goal track (e.g. goal_advance G1 1)")
             print("  goal_resolve <goal_id> <cautious/risky> - Resolve a 10/10 goal")
             print("  npc_goal <bond_idx> <action> <target> <motivation> - Add NPC goal")
-            print("  hook_resolve <hook_idx> - Mark a hook as resolved")
             print("  remove_tag <tag_name> - Expire a temporary tag")
             print("  oracle <disposition|convo> - Roll an oracle")
             print("  wait <ticks> - Advance clock")
@@ -571,7 +714,12 @@ def main():
             
         elif cmd == "wait":
             ticks = int(args[0]) if args else 1
-            game.advance_clock(ticks)
+            for _ in range(ticks):
+                will_expire = any(not n.resolved and n.expiry_tick == game.clock + 1 for n in game.notifications)
+                game.advance_clock(1)
+                if will_expire:
+                    print("\n[!] Wait interrupted! A notification has expired.")
+                    break
             
         elif cmd == "log":
             text = " ".join(args)
@@ -601,16 +749,17 @@ def main():
                 
         elif cmd == "converse":
             if not args:
-                if not game.current_sector.npcs:
+                current_npcs = game.get_npcs_at_sector(game.current_sector.name)
+                if not current_npcs:
                     print("No NPCs in this sector.")
                     continue
                 print("Available NPCs:")
-                for i, n in enumerate(game.current_sector.npcs):
+                for i, n in enumerate(current_npcs):
                     print(f"  {i+1}: {n.name}")
                 try:
                     choice = int(input("Select NPC (number): ").strip())
-                    if 1 <= choice <= len(game.current_sector.npcs):
-                        do_converse(game, [game.current_sector.npcs[choice-1].name])
+                    if 1 <= choice <= len(current_npcs):
+                        do_converse(game, [current_npcs[choice-1].name])
                 except ValueError:
                     print("Invalid choice.")
             else:
@@ -619,9 +768,9 @@ def main():
         elif cmd == "message":
             if len(args) >= 2:
                 full_args = " ".join(args)
-                all_npcs = [n.name for s in game.sectors.values() for n in s.npcs] + [b.name for b in game.player.bonds]
+                all_npc_names = [n.name for n in game.get_all_npcs()] + [b.name for b in game.player.bonds]
                 to_npc = None
-                for n in set(all_npcs):
+                for n in sorted(set(all_npc_names), key=len, reverse=True):
                     if full_args.lower().startswith(n.lower()):
                         to_npc = n
                         subject = full_args[len(n):].strip()
@@ -654,12 +803,11 @@ def main():
         elif cmd == "goal_advance":
             if len(args) >= 1:
                 try:
-                    goal_id_str = args[0].upper().replace('G', '')
-                    idx = int(goal_id_str)
+                    goal_id = args[0]
                     amt = 1
                     if len(args) == 2:
                         amt = int(args[1])
-                    g = next((g for g in game.player.goals if g.id == idx), None)
+                    g = next((g for g in game.player.goals if g.id == goal_id), None)
                     if g:
                         max_amt = {"MINOR": 2, "MAJOR": 1, "EPIC": 1}.get(g.rank, 1)
                         if amt > max_amt:
@@ -673,9 +821,9 @@ def main():
                     else:
                         print("Invalid goal ID.")
                 except:
-                    print("Usage: goal_advance <G1> [amount]")
+                    print("Usage: goal_advance <goal_id> [amount]")
             else:
-                print("Usage: goal_advance <G1> [amount]")
+                print("Usage: goal_advance <goal_id> [amount]")
                 
         elif cmd == "goal_resolve":
             resolve_goal(game, args)
@@ -697,47 +845,7 @@ def main():
             else:
                 print("Usage: npc_goal <bond_idx> <action> <target> <motivation>")
                 
-        elif cmd == "hook_resolve":
-            if not args:
-                unresolved = [h for h in game.current_sector.hooks if not h.resolved]
-                if not unresolved:
-                    print("No unresolved hooks here.")
-                    continue
-                print("Available hooks:")
-                for i, h in enumerate(unresolved):
-                    print(f"  {i+1}: {h.name}")
-                try:
-                    choice = int(input("Select hook (number): ").strip())
-                    if 1 <= choice <= len(unresolved):
-                        h = unresolved[choice-1]
-                        h.resolved = True
-                        print(f"Hook resolved: {h.name}")
-                        game.log(f"Resolved hook: {h.name}")
-                        print("Would you like to trigger an Action Check for this resolution? (y/n)")
-                        if input("> ").lower().startswith('y'):
-                            print("Format: <action_name> <cautious/risky> [bond_idx] [tool_idx]")
-                            act_args = input("Enter action args: ").strip().split(" ")
-                            if len(act_args) >= 2:
-                                resolve_action(game, act_args, hook=h)
-                except ValueError:
-                    print("Invalid choice.")
-            else:
-                try:
-                    idx = int(args[0]) - 1
-                    if 0 <= idx < len(game.current_sector.hooks):
-                        h = game.current_sector.hooks[idx]
-                        h.resolved = True
-                        print(f"Hook resolved: {h.name}")
-                        game.log(f"Resolved hook: {h.name}")
-                        print("Would you like to trigger an Action Check for this resolution? (y/n)")
-                        if input("> ").lower().startswith('y'):
-                            print("Format: <action_name> <cautious/risky> [bond_idx] [tool_idx]")
-                            act_args = input("Enter action args: ").strip().split(" ")
-                            if len(act_args) >= 2:
-                                resolve_action(game, act_args, hook=h)
-                except Exception as e:
-                    print(f"Failed to resolve hook: {e}")
-                
+
         elif cmd == "remove_tag":
             if args:
                 t = " ".join(args)
@@ -759,6 +867,10 @@ def main():
                 
         else:
             print("Unknown command.")
+            
+        if getattr(game, 'reflection_pending', False):
+            prompt_reflection(game)
+            game.reflection_pending = False
 
 if __name__ == "__main__":
     main()

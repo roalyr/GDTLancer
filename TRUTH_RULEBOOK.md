@@ -137,7 +137,7 @@ Vessels are community assets, not personal property (LORE-2.1). The player's rel
 | `shared` | Multiple parties have stake. Use requires negotiation. |
 | `personal` | Rare. Earned through extraordinary service, deep bonds, or salvage. |
 
-**Starting status:** `community-owned`. The player is an assigned captain — high-status role (LORE-2.2), but the vessel is not theirs. Using it for personal ventures requires community approval.
+**Starting status:** `community-owned`. The player is an assigned captain — high-status role (LORE-2.2), but the vessel is not theirs. Using it for personal ventures requires community approval. All vessels are tracked in the **Vessel Registry** (see Simulation Graph). Note that while you have a crew, crew NPCs are mechanically identical; their specific roles (e.g., navigator, mechanic) are purely narrative flavor.
 
 **Vessel acquisition paths:** Acquiring a vessel is a major narrative arc, not a purchase. Paths that fit the setting:
 
@@ -172,7 +172,7 @@ When the outcome of an action is uncertain and consequential, the player makes a
 ### 3.1 The Roll
 
 1. **Declare intent.** Player states what they're trying to do.
-2. **Identify the Action and Track.** The system selects the most appropriate action from the table below and sets its corresponding track. **The system must show the Action name before rolling.**
+2. **Identify the Action and Track.** The player selects the action, the track, the approach, and any applicable modifiers before the dice are rolled.
 
 | Action | Description | Default Track Modifier |
 |---|---|---|
@@ -183,7 +183,7 @@ When the outcome of an action is uncertain and consequential, the player makes a
 | **Petition / Convince** | Persuading elders, calling in favors, negotiating | Morale |
 | **Investigate / Scan** | Analyzing anomalies, reading sensors, searching | Morale or Supplies |
 
-*(If an intent doesn't fit neatly, the system assigns the closest Track and names a custom action.)*
+*(If an intent doesn't fit neatly, the player assigns the closest Track and names a custom action.)*
 
 3. **Choose Approach:** The choice dictates the stakes, not just the math.
    - **Cautious:** Focuses on damage control. You can never get a high Success (only standard Success), but you can never suffer a Crisis.
@@ -246,8 +246,8 @@ The game strictly separates mechanical state from narrative interpretation. All 
 
 ### The Information Flow
 
-1. **System Shows Current State:** The system presents the current state — track values, sector data, NPCs present, available hooks, and short mechanical facts.
-2. **Player Acts:** The player reads the current state, declares an intent, and triggers an action (rolling an Action Check if required).
+1. **System Shows Current State:** The system presents the current state — track values, sector data, NPCs present (availability is derived from their vessel or station-bound location), available hooks, and short mechanical facts. It also includes transition stubs (markers indicating where the game would transition to physical/kinetic flight mode in the full game).
+2. **Player Acts:** The player reads the current state, declares an intent, and triggers an action (rolling an Action Check if required). The player manually selects all parameters (action, track, approach, modifiers).
 3. **System Shows Option Lists:** Based on the roll outcome, the system rolls on the oracle and presents Advantage and/or Disadvantage option lists from the matching table entry.
 4. **Player Selects:** The player picks options from the lists. Track changes are applied immediately.
 5. **Player Writes (Optional):** The player writes a short entry in the Narrative Logbook to record what happened. This is saved to the Chronicle.
@@ -274,7 +274,7 @@ Travel is an expedition, not a commute. The player declares a destination. Befor
 **Pre-departure sequence (mandatory before undocking):**
 
 1. **Community cost:** The system rolls on the **Community Cost Oracle (TRUTH-ORACLES.md Table 10)**. The player sees the cost and picks from the options (accept the cost or spend a resource to mitigate it).
-2. **Crew checks:** The player rolls on the **Pre-Flight Crew Oracle (TRUTH-ORACLES.md Table 11)** for each active crew station. Each result has pre-authored options:
+2. **Crew checks:** The player makes a **single batched crew readiness check** rolling on the **Pre-Flight Crew Oracle (TRUTH-ORACLES.md Table 11)** representing the overall crew condition, rather than per-crew station. The result has pre-authored options:
    - *Disadvantage results:* The player picks: spend 1 World Clock tick (delay launch) OR take a track hit.
    - *Advantage results:* The player picks a one-time benefit (e.g., next travel costs 0 Supplies).
 3. **Supply allocation:** Player confirms supply commitment for the journey.
@@ -282,7 +282,7 @@ Travel is an expedition, not a commute. The player declares a destination. Befor
 **Travel sequence (per sector traversed):**
 1. Supplies −1 progress.
 2. Morale −1 progress if traversing a sector with Security below 3 or Environment below 3.
-3. Roll 1d6 for encounter: On 1, roll Complication Oracle (hazard). On 2, roll Opportunity Oracle In-Space (find). On 3-6, no encounter.
+3. Roll 1d6 for encounter: On 1, roll Complication Oracle (hazard). On 2, roll Opportunity Oracle In-Space (find). On 3, perform a Vessel Encounter check. On 4-6, no encounter.
 4. World Clock advances +1.
 
 **Arrival:** The player arrives at the destination sector's **perimeter** (in space, not docked). Docking is a separate action.
@@ -337,9 +337,9 @@ Not everything costs an action. The distinction:
 | Send tight-beam messages | |
 | Select options from provided lists | |
 
-**NPC interaction model & Narrative Logbook:** The system provides the current state (NPC card, tags, track values). The player provides narrative via the **Narrative Logbook**, combining structural nodes with optional free-text.
+**NPC interaction model & Narrative Logbook:** The system provides the current state (NPC card, tags, track values) and automatically rolls the NPC's Disposition and Conversation Seed to set the context. The player provides narrative via the **Narrative Logbook**, combining structural nodes with optional free-text.
 
-1. The system generates a sentence template: `[Player] spoke with [NPC] about [Topic Node] resulting in [Outcome Node].`
+1. The system generates a sentence template based on the auto-rolled seed: `[Player] spoke with [NPC] about [Topic Node] resulting in [Outcome Node].`
 2. The player clicks blanks to select contextual oracle keywords or track impacts.
 3. **Free Text (Optional):** The player may write a custom note to capture specific dialogue, tone, or personal lore.
 4. The entry is logged to the Chronicle, translating structural choices into machine-readable tags while preserving player-authored narrative.
@@ -516,13 +516,9 @@ Start with **one tool**. Acquire more through narrative (salvage, trade, reward)
 
 ## 10. The Chronicle
 
-The Chronicle is the session journal, maintained by the system. It records:
-- **Events** described in plain language.
-- **Track changes** (e.g., Wealth 5→6).
-- **Bond shifts** (e.g., "Bond with Kael strengthened to DEEP").
-- **World Clock changes** (e.g., "Korr Wealth 3→2").
-- **Player goals** (self-declared objectives).
-- **Player narrative entries** (from the Narrative Logbook — optional, player-authored).
+The Chronicle is the session journal, maintained by the system. It uses a **two-layer format**:
+1. **Data Trail:** A strict, machine-generated log of events, track changes (e.g., Wealth 5→6), bond shifts, and World Clock advances.
+2. **Reflections (Optional):** Player-authored narrative entries from the Narrative Logbook, injected at any point.
 
 The Chronicle is generated by a fixed schema. The player may inject their own narrative text at any point, but this is never enforced.
 
@@ -551,7 +547,7 @@ No single victory screen. Sessions end by player choice or defeat trigger.
 - **Stranded:** Supplies track reaches bottom tier in deep space, no reachable sector.
 - **Exiled:** All bonds severed, no group offers docking.
 - **Crew lost:** Full desertion from failed mutiny.
-- **Home collapsed:** Home sector tracks all at bottom tier.
+- **Home collapsed:** Home sector tracks (Wealth, Security, Morale, Supplies) all fall to 0.
 
 > `[FEEDBACK]` Did victory conditions feel worth pursuing? Did defeat feel dramatic or frustrating?
 
@@ -600,12 +596,13 @@ No single victory screen. Sessions end by player choice or defeat trigger.
 
 ### 13.1 Output Format
 
-The system outputs structured data only:
+The system outputs structured data only. **Under no circumstances should the system generate prose.**
 1. **Header:** Location, Phase, World Clock tick.
 2. **Current State:** Short, factual sentences about track values, tags, and NPC presence. No adjectives or emotion.
 3. **Option Lists (after Action Check):** Pre-authored Advantage and/or Disadvantage options from the oracle entry. Each option is a clickable mechanical choice.
 4. **Hooks:** Table of available actions with types.
 5. **Prompt:** Asks the player to: select an option, declare an action, or write a Narrative Logbook entry.
+6. **Kinetic Stubs:** Include stub markers for physically kinetic actions (indicating where a transition to flight/movement would occur).
 
 ### 13.2 Forbidden Output
 
@@ -620,7 +617,6 @@ If the system produces any of these, the output must be corrected:
 ### 13.3 System Responsibilities
 - **Track Everything:** Every mechanical change (tracks, tags, clock) goes in the Chronicle. Nothing is resolved silently.
 - **Maintain the World Clock:** Apply pressure. Let sector tracks change. Do not artificially stabilize sectors.
-- **Named Community Impact:** For every track change, state who in the community is affected.
 
 ---
 

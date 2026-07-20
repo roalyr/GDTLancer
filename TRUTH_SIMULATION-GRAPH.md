@@ -30,6 +30,8 @@ The clock is the core of the game engine. Time does not pass in real-time; it mo
   - Have NPCs made progress on their goals?
   - Do NPCs need to send a message to the player?
   - Did any delayed messages arrive?
+  - **Advance Vessels:** All vessels in the Vessel Layer are advanced along their routines.
+  - **Kinetic Stubs:** Log any kinetic stubs for actions that would involve physical movement in the live game.
 
 ### 1.2 Player-Driven Changes
 The world falls apart or improves because of the player.
@@ -49,8 +51,15 @@ The game rules are divided into three simple layers.
 
 ### Layer 2: The Board State
 - The health of a sector, shown as 0-10 numbers (Wealth, Security, Morale, Supplies). Tags are only used for temporary effects applied by player actions or events.
+- **Vessels:** Tracked entities operating within and moving between sectors, synchronized with the Vessel Layer.
 - **Rule:** These numbers are changed directly by the player. The game never randomly lowers a community's Wealth unless a specific player action or delayed consequence causes it.
 - Sector tracks are managed by the deterministic algorithm. The player does not directly modify sector tracks.
+
+### Layer 2.5: The Vessel Layer (New)
+- **Vessel Registry:** A master list tracking all active vessels in the game.
+- **Vessel-NPC Synchronization:** NPCs are assigned to vessels. Their availability in a sector is determined by the location of their vessel, rather than being station-bound, unless they are explicitly assigned a station role.
+- **Routine Types:** Vessels follow specific routines (e.g., patrols, trade routes, salvage operations).
+- **Movement per Clock Tick:** Every World Clock tick, vessels advance their state based on their assigned routine, moving between sectors and updating their locations.
 
 ### Layer 3: The Social Web
 - The network of named NPCs, their relationships, and their goals.

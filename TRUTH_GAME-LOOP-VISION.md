@@ -34,11 +34,13 @@ To protect player control and prevent too much reading:
 
 To separate rules and story, all interactions follow a strict 5-step loop:
 
-1. **System Shows Current State:** The game shows the current state (sector tracks, NPCs present, available Hooks, and short mechanical facts).
-2. **Player Acts:** The player reads the current state and chooses an action (e.g., clicking 'Boarding Action').
-3. **System Rolls Oracle:** Based on the dice roll, the system determines the outcome and shows option lists. Good outcomes show Advantage options. Bad outcomes show Disadvantage options. Mixed outcomes show both.
-4. **Player Selects Options:** The player selects from the provided option lists (e.g., gaining a Temporary Tag from Advantage options, or losing a resource from Disadvantage options).
-5. **Player Writes Story (Optional):** Using the **Narrative Logbook**, the player selects keywords to fill a template and writes optional text to explain what just happened. This is saved to the game's Chronicle.
+1. **System Shows Current State:** The game shows the current state (sector tracks, **vessel positions**, **NPC availability based on locations**, available Hooks, and short mechanical facts).
+2. **Player Acts:** The player reads the current state and chooses an action. **(The player selects the action, approach, track, and modifiers — all manually)**.
+3. **System Rolls Oracle:** Based on the dice roll, the system determines the outcome and shows **situational tension and option lists**. Good outcomes show Advantage options. Bad outcomes show Disadvantage options. Mixed outcomes show both.
+4. **Player Selects Options:** The player selects from the provided option lists (e.g., gaining a Temporary Tag from Advantage options, or losing a resource from Disadvantage options) → **tracks update immediately**.
+5. **Player Writes Reflection (Optional):** Using the **Narrative Logbook**, the player may write optional text on a blank page to reflect on what just happened. This is completely skippable and is saved to the game's Chronicle.
+
+**Mode Transition Markers:** The game loop will present kinetic stubs/markers to acknowledge that certain actions or steps (like physical encounters or specific travel steps) would transition to a real-time kinetic mode in the full game.
 
 ---
 

@@ -29,6 +29,9 @@ LOG_REF: 2026-06-21 00:44:00
     - [Adding a Curated Contract Override](#35-adding-a-curated-contract-override)
    - [Adding a New Character](#36-adding-a-new-character)
    - [Adding a New Agent Type](#37-adding-a-new-agent-type)
+   - [Adding a New Vessel Record](#38-adding-a-new-vessel-record)
+   - [Defining NPC-Vessel Assignments](#39-defining-npc-vessel-assignments)
+   - [Defining Vessel Routines](#310-defining-vessel-routines)
 4. [Tuning & Balance](#4-tuning--balance)
 5. [Art Pipeline](#5-art-pipeline)
 6. [Testing Your Content](#6-testing-your-content)
@@ -459,6 +462,66 @@ When defining a character template, the `faction_id` field determines the charac
 ```
 
 The live `AgentTemplate` is intentionally narrow: it links an agent to a character template, a home sector, persistence rules, and qualitative tags. It does **not** currently assign a ship template, loot table, spawn weight, or behavior string directly.
+
+---
+
+### 3.8 Adding a New Vessel Record
+
+**Example: Creating a community trade vessel**
+
+1. Navigate to `/database/registry/vessels/` (create this directory if needed)
+2. Create `vessel_merchant_run.tres`
+3. Edit:
+
+```
+[Resource - VesselTemplate]
+├── template_id: "vessel_merchant_run"
+├── vessel_name: "The Steady Hand"
+├── hull_type_id: "ship_merchant"
+├── captain_id: "character_merchant_kane"
+├── crew_ids: PoolStringArray("character_deckhand_1", "character_deckhand_2")
+├── home_sector_id: "sector_star_elace"
+└── routine_id: "routine_elace_trade_loop"
+```
+
+Vessels are distinct from "ships". The *ship* defines the mechanical hull and stats. The *vessel* represents the active, community-operated entity in the simulation layer.
+
+---
+
+### 3.9 Defining NPC-Vessel Assignments
+
+NPCs are not bound to a station by default if they are assigned to a vessel. 
+
+**Rules for assignment:**
+- **Vessel Crew:** If an NPC's ID is listed in a Vessel's `crew_ids` or `captain_id`, they travel with the vessel. Their availability in any given sector is directly determined by the vessel's current location on the World Clock.
+- **Station-Bound:** If an NPC is not assigned to any vessel, they are considered station-bound to their `home_location_id`.
+- **Dynamic Re-assignment:** In advanced scenarios, an NPC's assignment can be shifted via contract completion or narrative events, changing them from station-bound to crew (or vice versa).
+
+---
+
+### 3.10 Defining Vessel Routines
+
+Vessels move according to routines updated every World Clock tick.
+
+**Example: Defining a trade loop**
+
+1. Navigate to `/database/registry/routines/`
+2. Create `routine_elace_trade_loop.tres`
+3. Edit:
+
+```
+[Resource - RoutineTemplate]
+├── template_id: "routine_elace_trade_loop"
+├── routine_name: "Elace Trade Loop"
+├── waypoints: PoolStringArray("sector_star_elace", "sector_star_cob")
+├── dwell_times: PoolIntArray(3, 2)  # Ticks to spend docked at each waypoint
+└── triggers:
+    └── on_wealth_low: "routine_emergency_scavenge"
+```
+
+- **waypoints:** The sequence of sectors the vessel travels between.
+- **dwell_times:** How many World Clock ticks the vessel remains at the corresponding waypoint before departing.
+- **triggers:** Conditions (e.g., home sector wealth drops, vessel is attacked) that cause the vessel to switch to a different routine.
 
 ---
 

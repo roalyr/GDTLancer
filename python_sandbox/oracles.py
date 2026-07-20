@@ -140,5 +140,9 @@ def generate_dynamic_hook(sector, npc):
     succ = random.choice(consequences_success)
     fail = random.choice(consequences_fail)
     
-    # We no longer need the preview string since Hook will print Success: [opt] | Failure: [opt]
-    return f"Issue concerning {t} and {f}.", htype, succ, fail
+    paths = [
+        ("Negotiate or Persuade", ["petition", "convince"]),
+        ("Take action manually", ["scavenge", "repair", "command"])
+    ]
+    
+    return f"Issue concerning {t} and {f}.", htype, paths, succ, fail

@@ -19,7 +19,10 @@ LOG_REF: 2026-07-07
 
 ## 0. How Oracles Work
 
-**Oracles are a free action.** They do not consume a game action, do not advance the World Clock, and do not cost resources. They are a creative aid — available whenever the player or the game needs direction.
+**Oracles are a free action.** They do not consume a game action, do not advance the World Clock, and do not cost resources. They are a creative aid — available whenever the player or the game needs direction. 
+
+**Re-framing the Oracle Role:**
+Oracles exist to provide **situational tension (pressure)** that the player must respond to. They do not dictate pre-authored consequence menus that decide the story for you. The oracle fires to complicate or enrich the situation, not to statically determine the result.
 
 **When to use:**
 - Declaring a goal (§2.3) — roll Action + Theme for a goal seed.
@@ -29,17 +32,17 @@ LOG_REF: 2026-07-07
 
 **How to roll:** Roll 2d6. First die = row, second die = column. Read the result from the table. Roll on multiple tables and combine keywords to build a cue.
 
-**Interpretation is always the player's job.** The oracle gives raw words. The player decides what they mean in context.
+**Interpretation is always the player's job.** The oracle gives raw words. The player decides what they mean in context, responding to the tension they introduce.
 
-**Advantage and Disadvantage Options:**
+**Advantage and Disadvantage Options (Mechanical Implications):**
 
-Some oracle tables (Complication, Opportunity, Community Cost, Pre-Flight Crew) provide pre-authored **option lists** tied to each entry. These lists give the player concrete mechanical choices.
+Some oracle tables (Complication, Opportunity, Community Cost, Pre-Flight Crew) provide **option lists** tied to each entry. These lists are not rigid "player menus" that substitute for choices, but rather the **mechanical implications** of the oracle keyword. The player's choice is how they respond in the fiction to the situation; the corresponding track change then follows from that fictional choice.
 
-- **On Success:** The player picks **one** option from the **Advantage options** list.
-- **On Partial Success:** The player picks **one** option from **either** the Advantage or Disadvantage options list.
-- **On Failure:** The player picks **one** option from the **Disadvantage options** list.
+- **On Success:** The player responds to the situation, taking an action aligned with one option from the **Advantage options** list.
+- **On Partial Success:** The player responds, taking the implications from **either** the Advantage or Disadvantage options list.
+- **On Failure:** The player responds to the crisis, taking a hit aligned with an option from the **Disadvantage options** list.
 
-The player always chooses which specific option applies. The oracle does not dictate — it offers a bounded set of outcomes.
+The player always narrates their response to the situation; the oracle option provides the mechanical bounds for that response.
 
 ---
 
@@ -124,9 +127,9 @@ Use when you need a prompt for what an NPC conversation is about. Roll d6×d6.
 
 ---
 
-## 7. Complication Oracle (What goes wrong) — Disadvantage Options
+## 7. Complication Oracle (What goes wrong) — Mechanical Implications
 
-Roll d6×d6. On Failure, the player picks one option from the Disadvantage list for the rolled entry. On Partial Success, these options are also available.
+Roll d6×d6. On Failure, the tension creates a crisis. The player describes their response, and the result aligns with one option from the Disadvantage list for the rolled entry. On Partial Success, these implications are also available as compromises.
 
 |   | 1 | 2 | 3 | 4 | 5 | 6 |
 |---|---|---|---|---|---|---|
@@ -207,9 +210,9 @@ Roll d6×d6. On Failure, the player picks one option from the Disadvantage list 
 
 ---
 
-## 8A. Opportunity Oracle (In-Space) — Advantage Options
+## 8A. Opportunity Oracle (In-Space) — Mechanical Implications
 
-Roll d6×d6. On Success, the player picks one option from the Advantage list for the rolled entry. On Partial Success, these options are also available.
+Roll d6×d6. On Success, the player seizes an opportunity. They describe their response to the situation, which aligns with one option from the Advantage list for the rolled entry. On Partial Success, these implications are also available.
 
 |   | 1 | 2 | 3 | 4 | 5 | 6 |
 |---|---|---|---|---|---|---|
@@ -290,9 +293,9 @@ Roll d6×d6. On Success, the player picks one option from the Advantage list for
 
 ---
 
-## 8B. Opportunity Oracle (On-Station) — Advantage Options
+## 8B. Opportunity Oracle (On-Station) — Mechanical Implications
 
-Roll d6×d6. On Success, the player picks one option from the Advantage list for the rolled entry. On Partial Success, these options are also available.
+Roll d6×d6. On Success, the player seizes an opportunity. They describe their response to the situation, which aligns with one option from the Advantage list for the rolled entry. On Partial Success, these implications are also available.
 
 |   | 1 | 2 | 3 | 4 | 5 | 6 |
 |---|---|---|---|---|---|---|

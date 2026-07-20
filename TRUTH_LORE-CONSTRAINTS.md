@@ -45,9 +45,12 @@ The setting represents a raw, early-stage frontier colonization effort defined b
 
 Spacecraft are completely decoupled from the concept of personal transport. They are re-contextualized as massive, complex, and culturally revered industrial installations deeply woven into the communities that harbor them.
 
-* **Not Everyday "Cars" (LORE-2.1):** The assumption that the general population automatically owns a spacecraft is erased. Starships require coordinated group labor, specialized handling, and substantial material logistics to combat passive environmental degradation.
+* **Not Everyday "Cars" (LORE-2.1):** The assumption that the general population automatically owns a spacecraft is erased. Starships require coordinated group labor, specialized handling, and substantial material logistics to combat passive environmental degradation. **Vessels are community assets.** Most vessels are entirely community-owned, with captains appointed by community consensus for specific duties.
 * **The Scarce Pilot Class (LORE-2.2):** Not every citizen or AI agent is a captain or pilot. Command and piloting are scarce, high-status, and deeply consequential roles within the community.
 * **The Weight of Travel (LORE-2.3):** Space flight is treated as a non-trivial expedition. Launching a vessel demands real logistical sacrifice, group alignment, and physical peril. Space travel provides an unyielding layer of mechanical and physical friction against human ambition.
+* **Crew are Generalists (LORE-2.4):** Small frontier communities require everyone to cross-train. There is no rigid specialization among crew members.
+* **Vessel Rarity (LORE-2.5):** The number of vessels is exceedingly small. There is roughly one vessel per settled sector. They are rare, heavily monitored, and tremendously valuable.
+* **Vessel Destruction is a Major Event (LORE-2.6):** The loss of a vessel shakes the community to its core. Crew survival is highly uncertain; those who do survive will only re-emerge after several World Clock ticks, often traumatized or forever changed.
 
 #### What This Prohibits
 
