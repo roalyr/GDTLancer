@@ -1,7 +1,10 @@
 import sys
 import random
-from models import GameState, Sector, Goal, Message, NPC, Hook, TempTag
-from oracles import get_complication, get_opportunity, get_community_cost, get_pre_flight_crew, roll_3d6, roll_disposition, roll_conversation_seed, get_action_tracks, generate_dynamic_hook, get_theme_focus
+from models import GameState, Sector, Goal, Message, NPC, Hook, TempTag, Tool
+from oracles import (get_complication, get_opportunity, get_community_cost, get_pre_flight_crew,
+                     roll_3d6, roll_disposition, roll_conversation_seed, get_action_tracks,
+                     generate_dynamic_hook, get_theme_focus, scene_context,
+                     TOOLS_LIBRARY, STARTING_GOALS)
 class Colors:
     HEADER = '\033[95m'
     BLUE = '\033[94m'
@@ -80,11 +83,12 @@ def generate_sector_hooks(game):
             if h.resolved:
                 game.current_sector.hooks.remove(h)
                 
-        # Fill hooks up to 2
+        # Fill hooks up to 2, tracking used sentences to avoid duplicates
         current_npcs = game.get_npcs_at_sector(game.current_sector.name)
+        used_sentences = {h.name for h in game.current_sector.hooks}
         while len(game.current_sector.hooks) < 2 and current_npcs:
             provider = random.choice(current_npcs)
-            name, htype, paths, succ, fail = generate_dynamic_hook(game.current_sector, provider)
+            name, htype, paths, succ, fail = generate_dynamic_hook(game.current_sector, provider, used_sentences)
             game.current_sector.hooks.append(Hook(name, htype, provider.name, paths, success_opt=succ, fail_opt=fail))
 
 def print_header(game):
@@ -122,8 +126,14 @@ def print_state(game):
         color = Colors.FAIL if track.value <= 2 else (Colors.WARNING if track.value <= 4 else Colors.GREEN)
         print(f"  {track.name}: {color}{track.tier_name} ({track.value}/10){Colors.ENDC} [{track.modifier:+d}]")
     if game.player.tags:
-        print(f"  Temporary Tags: {', '.join(str(t) for t in game.player.tags)}")
-    print("  Tools: " + (", ".join(game.player.tools) if game.player.tools else "None"))
+        print(f"  Tags: {', '.join(str(t) for t in game.player.tags)}")
+    if game.player.tools:
+        print(f"\n{Colors.HEADER}TOOLS:{Colors.ENDC}")
+        for tool in game.player.tools:
+            cond_color = Colors.FAIL if tool.condition == "Damaged" else (Colors.WARNING if tool.condition == "Worn" else Colors.GREEN)
+            print(f"  {tool.name} {cond_color}[{tool.condition}]{Colors.ENDC} — {tool.description}")
+    else:
+        print(f"  Tools: None")
     
     print(f"\n{Colors.HEADER}BONDS:{Colors.ENDC}")
     for i, b in enumerate(game.player.bonds):
@@ -153,6 +163,8 @@ def print_state(game):
     
     if game.phase == "Encounter":
         current_npcs = game.get_npcs_at_sector(game.current_sector.name)
+        # Scene context block
+        print(f"\n{Colors.DIM}{scene_context(game.current_sector, game.player, current_npcs)}{Colors.ENDC}")
         if current_npcs:
             on_station = [n for n in current_npcs if n.vessel_id is None]
             on_vessels = [n for n in current_npcs if n.vessel_id is not None]
@@ -228,7 +240,7 @@ def handle_options_loop(game, options_to_pick, is_crisis=False):
             except ValueError:
                 print("Enter a number.")
 
-def roll_action_engine(game, track_name, approach, mod, hook=None):
+def roll_action_engine(game, track_name, approach, mod, hook=None, used_bond=None, used_tool=None):
     roll = roll_3d6()
     total = roll + mod
     
@@ -304,6 +316,84 @@ def roll_action_engine(game, track_name, approach, mod, hook=None):
             options_to_pick.append(("Disadvantage", dis_options))
 
     handle_options_loop(game, options_to_pick, is_crisis=is_crisis)
+    
+    # Bond consequences — applied after oracle options
+    if used_bond:
+        if "Success" in outcome:
+            # On success: offer bond strengthen as an option
+            print(f"\n{Colors.GREEN}[BOND] You acted with {used_bond.name} in mind.{Colors.ENDC}")
+            print(f"  Strengthen bond with {used_bond.name}? [Y/N]")
+            if input("> ").strip().lower() == 'y':
+                res = used_bond.modify(1)
+                print(f" -> {res}")
+                game.log(res)
+                game.reflection_pending = True
+        elif outcome == "Partial":
+            # On partial: offer strengthen but also show the risk of -1
+            print(f"\n{Colors.WARNING}[BOND] You called on {used_bond.name}'s trust to get through this.{Colors.ENDC}")
+            print(f"  Strengthen bond with {used_bond.name}? [Y/N]")
+            if input("> ").strip().lower() == 'y':
+                res = used_bond.modify(1)
+                print(f" -> {res}")
+                game.log(res)
+                game.reflection_pending = True
+            else:
+                print(f"  (Bond unchanged.)")
+        elif outcome in ["Setback", "Crisis"]:
+            # On failure: weaken is optional (cautious) or enforced (risky)
+            if approach == "risky":
+                print(f"\n{Colors.FAIL}[BOND] You put {used_bond.name}'s trust on the line — and it cost them.{Colors.ENDC}")
+                res = used_bond.modify(-1)
+                print(f" -> {res} (Risky — enforced)")
+                game.log(res)
+                game.reflection_pending = True
+            else:
+                print(f"\n{Colors.WARNING}[BOND] {used_bond.name} was involved. Did this damage the relationship?{Colors.ENDC}")
+                print(f"  Weaken bond with {used_bond.name}? [Y/N]")
+                if input("> ").strip().lower() == 'y':
+                    res = used_bond.modify(-1)
+                    print(f" -> {res}")
+                    game.log(res)
+                    game.reflection_pending = True
+                else:
+                    print(f"  (Bond unchanged — noted for narrative.)")
+    
+    # Tool consequences — applied after bond consequences
+    if used_tool:
+        if "Success" in outcome:
+            # Success: tool is fine, note its contribution
+            print(f"\n{Colors.GREEN}[TOOL] {used_tool.name} performed well.{Colors.ENDC} Condition: {used_tool.condition}.")
+        elif outcome == "Partial":
+            # Partial: optional wear on cautious, enforced wear on risky
+            if approach == "risky":
+                print(f"\n{Colors.WARNING}[TOOL] The {used_tool.name} took strain from that approach.{Colors.ENDC}")
+                res = used_tool.wear()
+                print(f" -> {res} (Risky — enforced)")
+                game.log(res)
+            else:
+                print(f"\n{Colors.WARNING}[TOOL] Did the {used_tool.name} take wear from this?{Colors.ENDC}")
+                print(f"  Mark {used_tool.name} as Worn? [Y/N]")
+                if input("> ").strip().lower() == 'y':
+                    res = used_tool.wear()
+                    print(f" -> {res}")
+                    game.log(res)
+        elif outcome in ["Setback", "Crisis"]:
+            # Failure: wear on cautious, damaged on risky
+            if approach == "risky":
+                print(f"\n{Colors.FAIL}[TOOL] The {used_tool.name} was pushed too hard — it is now Damaged.{Colors.ENDC}")
+                res = used_tool.damage()
+                print(f" -> {res} (Risky — enforced)")
+                game.log(res)
+            else:
+                print(f"\n{Colors.WARNING}[TOOL] Did the {used_tool.name} get damaged in this?{Colors.ENDC}")
+                print(f"  Mark {used_tool.name} as Worn? [Y/N]")
+                if input("> ").strip().lower() == 'y':
+                    res = used_tool.wear()
+                    print(f" -> {res}")
+                    game.log(res)
+                else:
+                    print(f"  (Tool unchanged — noted for narrative.)")
+    
     return outcome
 
 def prompt_reflection(game):
@@ -400,6 +490,8 @@ def resolve_action(game, hook=None):
 
     mod = game.player.tracks[track_name].modifier
     used_tags = []
+    used_bond = None  # Track if a bond was used as modifier
+    used_tool = None  # Track if a tool was used as modifier
     
     # Interactive modifiers
     print("\n--- MODIFIERS ---")
@@ -418,7 +510,11 @@ def resolve_action(game, hook=None):
     if game.player.tools:
         print("Available Tools:")
         for i, tool in enumerate(game.player.tools):
-            print(f"  [O{i+1}] {tool}")
+            usable = tool.is_usable()
+            bonus = tool.bonus()
+            cond_str = f" [{tool.condition}]" if tool.condition != "Ready" else ""
+            avail_str = f" (+{bonus})" if usable else " (DAMAGED — no bonus)"
+            print(f"  [O{i+1}] {tool.name}{cond_str}{avail_str}")
             
     print("Enter codes to apply modifiers (e.g. 'T1 B2'), or press Enter to skip.")
     mods_input = input("> ").strip().upper().split()
@@ -439,6 +535,7 @@ def resolve_action(game, hook=None):
                     b = game.player.bonds[idx]
                     b_mod = 1 if b.strength == "DEEP" else (-1 if b.strength == "SEVERED" else 0)
                     mod += b_mod
+                    used_bond = b  # Remember which bond was used
                     added_mods.append(f"{b.name} bond ({b_mod:+d})")
             except: pass
         elif code.startswith('O') and len(code) > 1:
@@ -446,8 +543,13 @@ def resolve_action(game, hook=None):
                 idx = int(code[1:]) - 1
                 if 0 <= idx < len(game.player.tools):
                     tool = game.player.tools[idx]
-                    mod += 1
-                    added_mods.append(f"{tool} (+1)")
+                    bonus = tool.bonus()
+                    if bonus > 0:
+                        mod += bonus
+                        used_tool = tool
+                        added_mods.append(f"{tool.name} (+{bonus})")
+                    else:
+                        print(f"  {tool.name} is Damaged — no bonus applied.")
             except: pass
 
     # Sector context
@@ -482,7 +584,7 @@ def resolve_action(game, hook=None):
         game.player.remove_tag(t)
         print(f"Used and expired tag: {t}")
         
-    outcome = roll_action_engine(game, track_name, approach, mod, hook=hook)
+    outcome = roll_action_engine(game, track_name, approach, mod, hook=hook, used_bond=used_bond, used_tool=used_tool)
     
     if hook and outcome != "Crisis" and outcome != "Setback":
         hook.resolved = True
@@ -721,10 +823,194 @@ def resolve_goal(game, args):
     except Exception as e:
         print(f"Error: {e}")
 
+def session_zero(game):
+    """Interactive session zero onboarding flow."""
+    C = Colors
+    W = 70
+
+    def hr(char="="): print(C.CYAN + char * W + C.ENDC)
+    def section(title): 
+        print()
+        hr()
+        print(f"{C.BOLD}{C.HEADER}  {title}{C.ENDC}")
+        hr("-")
+        print()
+    def pause(): input(f"{C.DIM}  [ Press Enter to continue... ]{C.ENDC}")
+    def pick(prompt, options, show_desc=False):
+        """Display numbered options, return chosen index."""
+        for i, opt in enumerate(options):
+            if show_desc and len(opt) > 2:
+                print(f"  {C.GREEN}[{i+1}]{C.ENDC} {opt[0]}")
+                print(f"       {C.DIM}{opt[-1]}{C.ENDC}")
+            else:
+                label = opt[0] if isinstance(opt, (list, tuple)) else opt
+                print(f"  {C.GREEN}[{i+1}]{C.ENDC} {label}")
+        while True:
+            try:
+                c = int(input(f"{C.GREEN}> {C.ENDC}").strip()) - 1
+                if 0 <= c < len(options):
+                    return c
+            except: pass
+            print("  Invalid choice.")
+
+    # ── INTRO ────────────────────────────────────────────────────────────────
+    hr()
+    print(f"""
+{C.BOLD}{C.HEADER}  G D T L A N C E R{C.ENDC}
+{C.DIM}  A solo survival narrative game.{C.ENDC}
+""")
+    hr()
+    print(f"""
+{C.CYAN}You are a pilot and steward of a community vessel — one of the few ships
+still flying in a remote and struggling star system.
+
+Your vessel is not yours. It belongs to the people who depend on it: the
+anchorages, the outposts, the families scattered across dead rock and cold
+space. You fly the routes no one else will. You carry what needs carrying.
+You make the calls no one else is in a position to make.
+
+This is not a story about heroes. It is a story about responsibility,
+relationships, and the weight of keeping something alive.
+{C.ENDC}""")
+    pause()
+
+    # ── STARTING SECTOR ──────────────────────────────────────────────────────
+    section("WHERE DO YOU BEGIN?")
+    print("  Your vessel is currently docked. Choose your starting station:\n")
+    sectors = [
+        ("Elace Station",  "Planet orbit. Mid-sized habitat. Familiar faces, old debts."),
+        ("Korr Anchorage", "Moon anchorage. Small. Struggling. Everyone knows your name."),
+        ("Veyra Hub",      "Star-adjacent hub. Traffic, trade, and eyes you don't recognize."),
+    ]
+    for i, (name, desc) in enumerate(sectors):
+        print(f"  {C.GREEN}[{i+1}]{C.ENDC} {name}")
+        print(f"       {C.DIM}{desc}{C.ENDC}")
+    sector_idx = pick("", sectors)
+    chosen_sector = sectors[sector_idx][0]
+    game.current_sector = game.sectors[chosen_sector]
+    print(f"\n  Starting at: {C.BOLD}{chosen_sector}{C.ENDC}")
+    pause()
+
+    # ── TOOL SELECTION ───────────────────────────────────────────────────────
+    section("YOUR PERSONAL TOOL")
+    print("  Every pilot carries one personal tool — something you've kept through"
+          "\n  every berth change, every wreck, every close call.\n")
+    print(f"  {C.DIM}Your tool gives +1 when used as a modifier during action checks.\n"
+          f"  It can wear and be damaged, and must be repaired before it works again.{C.ENDC}\n")
+    for i, (name, desc, affinity) in enumerate(TOOLS_LIBRARY):
+        print(f"  {C.GREEN}[{i+1:2}]{C.ENDC} {C.BOLD}{name}{C.ENDC} {C.DIM}({affinity}){C.ENDC}")
+        print(f"        {C.DIM}{desc}{C.ENDC}")
+    tool_idx = pick("", TOOLS_LIBRARY)
+    t_name, t_desc, t_affinity = TOOLS_LIBRARY[tool_idx]
+    chosen_tool = Tool(t_name, t_desc, t_affinity)
+    game.player.tools.append(chosen_tool)
+    print(f"\n  You carry: {C.BOLD}{t_name}{C.ENDC}")
+    pause()
+
+    # ── BONDS ────────────────────────────────────────────────────────────────
+    section("YOUR BONDS")
+    print("  You have three bonds — people whose lives intersect with yours.\n"
+          "  Bonds can be used as modifiers during action checks.\n"
+          "  They grow or erode based on what you do in their name.\n")
+
+    BOND_ROLES = ["Kin", "Mentor", "Debtor", "Rival", "Crew", "Elder", "Contact", "Ward"]
+    BOND_STRENGTHS = ["FRAGILE", "STABLE", "DEEP"]
+    BOND_STRENGTH_DESC = [
+        "FRAGILE — the relationship is damaged or under strain.",
+        "STABLE  — the relationship is functional and reliable.",
+        "DEEP    — the relationship carries weight and trust.",
+    ]
+
+    # Clear defaults and rebuild through prompts
+    game.player.bonds.clear()
+    for bond_num in range(1, 4):
+        print(f"  {C.HEADER}Bond {bond_num} of 3{C.ENDC}\n")
+        name = input(f"  Name: {C.GREEN}").strip() or f"Contact_{bond_num}"
+        print(C.ENDC, end="")
+        print(f"  Role:\n")
+        for i, role in enumerate(BOND_ROLES):
+            print(f"    {C.GREEN}[{i+1}]{C.ENDC} {role}")
+        role_idx = pick("", BOND_ROLES)
+        role = BOND_ROLES[role_idx]
+        print(f"\n  Relationship strength:\n")
+        for i, s in enumerate(BOND_STRENGTH_DESC):
+            print(f"    {C.GREEN}[{i+1}]{C.ENDC} {s}")
+        str_idx = pick("", BOND_STRENGTHS)
+        strength = BOND_STRENGTHS[str_idx]
+        from models import Bond
+        game.player.bonds.append(Bond(name, role, strength, chosen_sector))
+        print(f"\n  Bonded with: {C.BOLD}{name}{C.ENDC} ({role}) — {strength}\n")
+    pause()
+
+    # ── STARTING GOAL ────────────────────────────────────────────────────────
+    section("YOUR OPENING DRIVE")
+    print("  Every run begins with something at stake. Choose a starting goal\n"
+          "  or write your own.\n")
+    for i, (stmt, anchor, rank, desc) in enumerate(STARTING_GOALS):
+        print(f"  {C.GREEN}[{i+1}]{C.ENDC} {C.BOLD}[{rank}]{C.ENDC} {stmt}")
+        print(f"        {C.DIM}{desc}{C.ENDC}")
+    print(f"  {C.GREEN}[{len(STARTING_GOALS)+1}]{C.ENDC} Write my own goal")
+
+    goal_options = list(STARTING_GOALS) + [(None, None, None, None)]
+    g_idx = pick("", goal_options)
+    game.player.goals.clear()
+    if g_idx < len(STARTING_GOALS):
+        stmt, anchor, rank, _ = STARTING_GOALS[g_idx]
+        print(f"\n  Anchor this goal to a specific sector? (Enter name or press Enter to skip)")
+        anchor_input = input(f"  {C.GREEN}> {C.ENDC}").strip()
+        if anchor_input:
+            anchor = anchor_input
+    else:
+        print(f"\n  Write your goal statement:")
+        stmt = input(f"  {C.GREEN}> {C.ENDC}").strip() or "Survive the next run."
+        rank = "MAJOR"
+        anchor = None
+        print(f"  Anchor this goal to a sector? (Enter name or press Enter to skip)")
+        anchor_input = input(f"  {C.GREEN}> {C.ENDC}").strip()
+        if anchor_input:
+            anchor = anchor_input
+    game.player.goals.append(Goal(stmt, anchor=anchor, rank=rank))
+    print(f"\n  Goal set: {C.BOLD}{stmt}{C.ENDC}")
+    pause()
+
+    # ── ORACLE SCENE SEED ────────────────────────────────────────────────────
+    section("THE OPENING SCENE")
+    print("  Before the first action, the oracle gives you a scene seed.\n"
+          "  Use it to frame what your character is doing right now.\n")
+    theme, focus = get_theme_focus()
+    seed = roll_conversation_seed()
+    disp = roll_disposition()
+    print(f"  {C.BOLD}Theme / Focus:{C.ENDC}  {C.CYAN}{theme} / {focus}{C.ENDC}")
+    print(f"  {C.BOLD}On your mind:{C.ENDC}   {C.CYAN}{seed}{C.ENDC}")
+    print(f"  {C.BOLD}Your mood:{C.ENDC}      {C.CYAN}{disp}{C.ENDC}")
+    print()
+    print(f"  {C.DIM}Use these fragments to write the first sentence of your narrative logbook,{C.ENDC}")
+    print(f"  {C.DIM}or simply keep them in mind as you begin.{C.ENDC}\n")
+    print(f"  [Reflect?] Write your opening logbook entry, or press Enter to skip.")
+    text = input(f"  {C.GREEN}> {C.ENDC}").strip()
+    if text:
+        with open(game.log_file, "a") as f:
+            f.write(f"\n> **[SESSION ZERO — OPENING]** {text}\n\n")
+
+    # ── SUMMARY ──────────────────────────────────────────────────────────────
+    section("YOUR VESSEL IS READY")
+    print(f"  Sector:  {C.BOLD}{game.current_sector.name}{C.ENDC}")
+    print(f"  Tool:    {C.BOLD}{chosen_tool.name}{C.ENDC} — {chosen_tool.description}")
+    print(f"  Goal:    {C.BOLD}{game.player.goals[0].statement}{C.ENDC}")
+    print(f"  Bonds:")
+    for b in game.player.bonds:
+        print(f"           {b.name} ({b.role}) — {b.strength}")
+    print()
+    print(f"  {C.DIM}Type 'state' to see your full starting conditions.{C.ENDC}")
+    print(f"  {C.DIM}Type 'help' for all available commands.{C.ENDC}")
+    hr()
+    print()
+
+
 def main():
     game = setup_game()
     game.write_session_header()
-    print("Welcome to GDTLancer Playtest CLI")
+    session_zero(game)
     
     while True:
         if game.game_over:

@@ -6,6 +6,52 @@ def roll_3d6():
 def roll_2d6():
     return random.randint(1, 6), random.randint(1, 6)
 
+# ── Tool Library ────────────────────────────────────────────────────────────
+# Each entry: (name, description, track_affinity)
+TOOLS_LIBRARY = [
+    ("Medkit",           "Field trauma kit. Splints, sealant, stimulants.",                "Health"),
+    ("Survey array",     "Short-range scanner. Maps terrain, reads atmosphere and mass.",  "Supplies"),
+    ("Cutting torch",    "Plasma cutter. Opens hatches, severs cable, breaks locks.",      "Supplies"),
+    ("Signal beacon",    "Tight-beam emitter. Reaches vessels at medium range.",           "Morale"),
+    ("Patch kit",        "Hull sealant, pressure tape, and a wrench set.",                 "Health"),
+    ("Climbing rig",     "Magnetic clamps and tether line. Works in zero-g.",              "Health"),
+    ("Encrypted comms",  "Hardened comm unit. Scrambles transmissions. Hard to intercept.","Morale"),
+    ("Portable scanner", "Bio and chemical sniffer. Finds life signs and toxic zones.",    "Supplies"),
+    ("Jury-rig kit",     "Salvaged parts and schematics. Fixes what others call dead.",    "Supplies"),
+    ("Barter ledger",    "Encrypted trade records, debt tallies, and market contacts.",    "Wealth"),
+    ("Forager's pack",   "Water reclaimer, nutrition tablets, and a folding trap set.",    "Supplies"),
+    ("Anchor spike",     "Drives into hull or rock. Secures tether lines and rope nets.",  "Health"),
+]
+
+# ── Starting Goals ───────────────────────────────────────────────────────────
+# Each entry: (statement, anchor, rank, description)
+STARTING_GOALS = [
+    ("Establish a reliable supply route between two stations",
+     None, "MAJOR",
+     "The system's food and medicine depend on regularity. Someone has to run the route."),
+    ("Track down what happened to a lost vessel",
+     None, "MAJOR",
+     "A ship disappeared. The community deserves an answer. You knew someone aboard."),
+    ("Secure a medical station for an underserved anchorage",
+     None, "MAJOR",
+     "The nearest clinic is three sectors away. People are dying from things that shouldn't kill."),
+    ("Recover a debt owed to your community",
+     None, "MINOR",
+     "Someone took resources and didn't come back. The ledger needs to be settled."),
+    ("Build trust between two communities that barely speak",
+     None, "MAJOR",
+     "Old tensions. Maybe a misunderstanding, maybe not. Either way it costs everyone."),
+    ("Find out who has been intercepting community transmissions",
+     None, "MAJOR",
+     "Someone is listening. Messages have been altered. You don't know by whom or why yet."),
+    ("Get your vessel repaired before the next long-haul run",
+     None, "MINOR",
+     "The hull is patched. The drive is unreliable. It will fail at the worst moment if you don't act."),
+    ("Protect someone who can't protect themselves",
+     None, "MAJOR",
+     "They know something, or they are owed something. Either way, they are vulnerable."),
+]
+
 ACTIONS_MAPPING = {
     "command": ["Health", "Supplies"],
     "navigate": ["Health", "Supplies"],
@@ -107,27 +153,84 @@ def get_theme_focus():
     focus = ["Vessel", "Community", "Bond", "Resource", "Route", "Equipment"]
     return themes[random.randint(0, 5)], focus[random.randint(0, 5)]
 
-def generate_dynamic_hook(sector, npc):
-    hook_types = ["Docking Approach", "Perimeter Investigation", "Direct Interception", "Boarding Action", "Community Petition"]
-    htype = random.choice(hook_types)
-    r1, r2 = roll_2d6()
+def generate_dynamic_hook(sector, npc, used_sentences=None):
+    if used_sentences is None:
+        used_sentences = set()
+    hook_types = ["Docking Approach", "Perimeter Investigation", "Direct Interception", "Community Petition", "Overheard Exchange"]
     
-    # Simple table for hook concepts based on Focus/Theme oracles
-    themes = ["Scarcity", "Trust", "Obligation", "Survival", "Isolation", "Kinship"]
-    focus = ["Vessel", "Community", "Bond", "Resource", "Route", "Equipment"]
-    
-    # Context-aware adjustments
+    # Context-aware hook type
     if sector.tracks["Supplies"].value <= 3:
-        themes[0] = "Critical Shortage"
-        focus[3] = "Rations"
         htype = "Community Petition"
-    
-    if npc.disposition in ["Frustrated", "Worried"]:
-        themes[1] = "Desperation"
-    
-    t = themes[random.randint(0, 5)]
-    f = focus[random.randint(0, 5)]
-    
+    elif sector.tracks["Security"].value <= 3:
+        htype = random.choice(["Perimeter Investigation", "Docking Approach"])
+    elif sector.tracks["Morale"].value <= 3:
+        htype = random.choice(["Community Petition", "Overheard Exchange"])
+    else:
+        htype = random.choice(hook_types)
+
+    # Build a vivid sentence from NPC + disposition + theme + focus
+    low_supply = sector.tracks["Supplies"].value <= 4
+    low_security = sector.tracks["Security"].value <= 4
+    low_morale = sector.tracks["Morale"].value <= 4
+    npc_tense = npc.disposition in ["Frustrated", "Worried", "Distant"]
+
+    # Pre-authored sentence fragments keyed to context
+    PETITION_SENTENCES = [
+        f"{npc.name} pulls you aside — someone has been skimming the ration logs.",
+        f"{npc.name} needs a word. A run is overdue and no one else has clearance.",
+        f"{npc.name} is quietly asking for a favor no one else knows about.",
+        f"A note left at your bunk: {npc.name} wants to meet before the next watch.",
+        f"{npc.name} corners you near the airlock. There's a name they won't say aloud.",
+    ]
+    DOCKING_SENTENCES = [
+        f"A vessel on approach isn't responding to hails. {npc.name} looks worried.",
+        f"{npc.name} flags you: an unregistered ship is cycling the outer lock.",
+        f"The docking arm is jammed. {npc.name} says it happened 'on purpose'.",
+        f"Someone docked without logging their manifest. {npc.name} wants it handled quietly.",
+        f"{npc.name} points to a vessel sitting dark on the far berth — been there three days.",
+    ]
+    PERIMETER_SENTENCES = [
+        f"The perimeter sensors flagged movement in an area that should be empty. {npc.name} wants eyes on it.",
+        f"{npc.name} found a repeater buoy stripped for parts — not by us.",
+        f"A section of the outer hull shows tool marks from outside. {npc.name} is waiting on your call.",
+        f"{npc.name} picked up a repeating signal with no origin tag. Someone is out there.",
+        f"The watch rotation has a gap. {npc.name} thinks someone arranged it that way.",
+    ]
+    EXCHANGE_SENTENCES = [
+        f"You overhear two of {npc.name}'s people arguing about a debt that isn't in any ledger.",
+        f"In the common area, {npc.name} goes quiet the moment you walk in.",
+        f"A conversation stops when you round the corner. {npc.name} is in the middle of it.",
+        f"Someone says {npc.name}'s name in a tone you don't like. The room moves on too fast.",
+        f"You catch the tail of it: {npc.name}, a number, and the word 'before we leave'.",
+    ]
+    PRESSURE_SENTENCES = [  # used when supplies/security/morale are critical
+        f"The rationing board has been altered. {npc.name} is the only one with access.",
+        f"People are skipping meals. {npc.name} says there's enough — but the numbers don't match.",
+        f"A crew member collapsed in the corridor. {npc.name} wants to keep it quiet.",
+        f"The common room is tense. {npc.name} hasn't spoken to anyone in two days.",
+        f"There's been a fight in the cargo bay. {npc.name} knows what started it.",
+    ]
+
+    if htype == "Community Petition" and (low_supply or low_morale):
+        pool = PRESSURE_SENTENCES
+    elif htype == "Community Petition":
+        pool = PETITION_SENTENCES
+    elif htype == "Docking Approach":
+        pool = DOCKING_SENTENCES
+    elif htype == "Perimeter Investigation":
+        pool = PERIMETER_SENTENCES
+    elif htype == "Overheard Exchange":
+        pool = EXCHANGE_SENTENCES
+    else:
+        pool = PETITION_SENTENCES
+
+    # Avoid repeating a sentence already used in this session
+    available = [s for s in pool if s not in used_sentences]
+    if not available:
+        available = pool
+    sentence = random.choice(available)
+    used_sentences.add(sentence)
+
     consequences_success = [
         "[Supplies +1]",
         "[Morale +1]",
@@ -150,4 +253,37 @@ def generate_dynamic_hook(sector, npc):
         ("Take action manually", ["scavenge", "repair", "command"])
     ]
     
-    return f"Issue concerning {t} and {f}.", htype, paths, succ, fail
+    return sentence, htype, paths, succ, fail
+
+
+def scene_context(sector, player, npcs_here):
+    """Generate a short atmospheric impression based on sector tracks and NPCs present."""
+    s = sector.tracks["Supplies"].value
+    m = sector.tracks["Morale"].value
+    sec = sector.tracks["Security"].value
+    w = sector.tracks["Wealth"].value
+    stype = sector.type
+
+    # Atmosphere line
+    TYPE_FLAVORS = {
+        "Planet": ["The station clings to the orbital platform like a barnacle.", "Gravity is light here — boots click on mag-strips.", "The ring habitat hums with recycled air."],
+        "Moon": ["The moon's shadow cuts across the dock every few hours.", "Everything here smells faintly of regolith and machine oil.", "The anchorage is small — everyone knows everyone's name."],
+        "Star": ["The hub runs hot. Thermal shielding makes the walls tick at odd hours.", "Reflective panels cast hard lines across the common areas.", "Traffic is constant here. You feel watched."],
+        "Field": ["The scatter drifts around you — slow tumbling rock and dead signal.", "Nothing is fixed here. The station moves with the debris.", "Light arrives late and leaves early. The field is old."],
+        "Deep Space": ["The silence out here has weight to it.", "No horizon. No reference point. Just the vessel and the dark.", "The only light is your own."],
+    }
+    atm = random.choice(TYPE_FLAVORS.get(stype, ["The station hums quietly."]))
+
+    # Pressure line based on worst track
+    worst = min(s, m, sec, w)
+    if worst <= 2:
+        pressure = "Something is close to breaking — you can feel it in the way people move."
+    elif worst <= 4:
+        pressure = "There's tension in the small things: the rationing, the silences, the avoidance."
+    elif worst >= 8:
+        pressure = "The place feels stable — almost prosperous, by the standards of this region."
+    else:
+        pressure = "Things are holding together, for now."
+
+    return f"  {atm}\n  {pressure}"
+

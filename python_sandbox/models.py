@@ -261,6 +261,45 @@ class Sector:
         tracks_str = ", ".join(str(t) for t in self.tracks.values())
         return f"Sector: {self.name} ({self.type}) | Tracks: {tracks_str}"
 
+class Tool:
+    CONDITIONS = ["Damaged", "Worn", "Ready"]
+
+    def __init__(self, name, description, track_affinity, condition="Ready"):
+        self.name = name
+        self.description = description
+        self.track_affinity = track_affinity  # track name this tool best applies to
+        self.condition = condition
+
+    def is_usable(self):
+        return self.condition != "Damaged"
+
+    def wear(self):
+        """Degrade one step: Ready -> Worn"""
+        idx = self.CONDITIONS.index(self.condition)
+        if idx > 0:
+            self.condition = self.CONDITIONS[idx - 1]
+        return f"{self.name} is now {self.condition}."
+
+    def damage(self):
+        """Force to Damaged regardless of current state."""
+        self.condition = "Damaged"
+        return f"{self.name} is Damaged — must be repaired before use."
+
+    def repair(self):
+        self.condition = "Ready"
+        return f"{self.name} repaired and ready."
+
+    def bonus(self):
+        """Return the modifier this tool provides."""
+        if self.condition == "Damaged":
+            return 0
+        return 1
+
+    def __str__(self):
+        cond_str = f" [{self.condition}]" if self.condition != "Ready" else ""
+        return f"{self.name}{cond_str} — {self.description} (Affinity: {self.track_affinity})"
+
+
 class Player:
     def __init__(self):
         self.tracks = {
@@ -279,7 +318,7 @@ class Player:
         ]
         self.tags = []
         self.vessel_status = "community-owned"
-        self.tools = ["Survey array"]
+        self.tools = []   # Populated during Session Zero
         self.crew = [
             CrewMember("Jace", "Navigator"),
             CrewMember("Rin", "Mechanic"),
