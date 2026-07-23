@@ -158,3 +158,22 @@
 > **NARRATIVE [T0]:** Note: state should be reflected in game with visuals and sounds to increase the immersion
 
 - **[T0]** Spoke with Kaelen. Mood: Eager. Topic: A vessel.
+
+
+## --- NEW SESSION: 2026-07-21 01:18:18 ---
+
+### STARTING CONTEXT
+- **Starting Sector:** Elace Station (Planet)
+- **Player Tracks:**
+  - Health: FIT (7/10) [+0]
+  - Wealth: POOR (8/10) [+0]
+  - Morale: STEADY (5/10) [+0]
+  - Supplies: ADEQUATE (7/10) [+0]
+- **Bonds:**
+  - Kaelen (Kin) - STABLE
+  - Voss (Mentor) - FRAGILE
+  - Sera (Debtor) - STABLE
+- **Goals:**
+  - [goal_9fd9c69f] [MAJOR] Secure a dedicated medical bay for Korr Anchorage [Anchor: Korr Anchorage] - Progress: 0/10
+--------------------------------------------------
+

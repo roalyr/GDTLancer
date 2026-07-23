@@ -5,61 +5,46 @@ STATUS: [Level 2 - Design]
 OWNER: architect
 ACCESS: read-write
 USER INSTRUCTION: NONE
-TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_RULEBOOK.md; TRUTH_GAME-LOOP-VISION.md
-LOG_REF: 2026-07-13
+TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_GAME-LOOP-VISION.md
+LOG_REF: 2026-07-24
 -->
 
 # GDTLancer - Banned Features List
 
-This list tracks features and rules that are explicitly banned from the game. This keeps the project focused and prevents it from turning into a generic space simulator.
+This list tracks features and rules explicitly banned from the board game design to maintain focus.
 
-## 1. No Trading Simulators *(Game-Design Constraint)*
-- **Rule:** The player cannot buy and sell goods for profit on a market screen.
-- **How it's built:** The game does not show money as a number. The economy only uses 0-10 resource tracks (like Wealth and Supplies) that change through game events.
-- **Why:** To prevent the game from becoming a spreadsheet about trading cargo.
+## 1. No Trading Simulators
+- **Rule:** No buying/selling goods for profit on market spreadsheets.
+- **How it's built:** The economy uses 0-10 resource tracks (Wealth, Supplies) altered by Action Checks and Impact Cards.
 
-## 2. No Walking Around *(Code-Level Constraint)*
-- **Rule:** The game will not have 3D characters walking around stations or planets.
-- **How it's built:** All station activities (talking to people, managing goals) happen entirely through 2D menus.
-- **Why:** Keeps the project simple and avoids the massive amount of work needed for 3D level design and character animation.
+## 2. No 3D On-Foot Navigation
+- **Rule:** The game will not feature 3D characters walking around.
+- **How it's built:** Mode B uses a 2D board with illustrated scenes (Layered Depth Mat) and sprite-based NPCs. All social and strategic gameplay occurs here.
 
-## 3. No System-Written Stories *(Code-Level Constraint)*
-- **Rule:** The game engine must never write paragraphs of story text, dialogue, or descriptions.
-- **How it's built:** The engine only gives current state data (numbers, tags, and menus). The player writes the actual story using the Narrative Logbook.
-- **Why:** Making the engine write story text leads to boring, repetitive reading. The game provides the rules; the player writes the story.
+## 3. No System-Written Stories
+- **Rule:** The engine never writes prose or dialogue.
+- **How it's built:** The system only outputs board state, tags, and Impact Cards. The player provides the narrative imagination.
 
-## 4. No Background Economy Simulations *(Game-Design Constraint)*
-- **Rule:** The game does not simulate an invisible economy where NPCs trade and change the world while the player is away.
-- **How it's built:** The world only changes because of the player. Communities lose resources only if the player fails a mission or if the player spends time traveling.
-- **Why:** Invisible background changes confuse players. Changes to the world should feel like direct results of the player's actions.
+## 4. No Unbound Background Economy
+- **Rule:** The game does not simulate an invisible, dynamic economy. 
+- **How it's built:** World changes are primarily player-driven via the Board Action Loop. However, the **World Clock** can apply systemic sector pressure (e.g., gradually draining a track over time), forcing the player to react.
 
-## 5. No Base Building *(Game-Design Constraint)*
-- **Rule:** The player cannot build, design, or place station modules or planetary bases.
-- **How it's built:** The map and stations are pre-built. 
-- **Why:** The player is just a pilot trying to survive in a community, not a god-like manager.
+## 5. No Base Building
+- **Rule:** The player cannot design or place station modules.
+- **How it's built:** The 2D board layouts are fixed representations of the community.
 
-## 6. No Loot Grinding or Number Scaling *(Game-Design Constraint)*
-- **Rule:** Ship parts and character gear do not have levels, rarities, or increasing stats (like "Level 5 Laser" or "Epic Shields").
-- **How it's built:** Upgrades give you new abilities but always have a trade-off (e.g., adding a mining laser takes up cargo space).
-- **Why:** Keeps the focus on surviving and helping communities, rather than endlessly grinding for bigger numbers.
+## 6. No Loot Grinding or Number Scaling
+- **Rule:** No leveled gear or rarity tiers.
+- **How it's built:** Upgrades function as Cards with specific tags and mechanical trade-offs, not scaling modifiers.
 
-## 7. No Instant Communication *(Game-Design Constraint)*
-- **Rule:** Characters cannot talk instantly across different star systems.
-- **How it's built:** Messages take time to travel. It takes 1 tick of the World Clock per sector for a message to arrive.
-- **Why:** Makes space feel huge and lonely.
+## 7. No Instant Communication
+- **Rule:** Information takes time to travel.
+- **How it's built:** Delayed interactions are processed via World Clock ticks.
 
-## 8. No Battles to the Death Against Humans *(Game-Design Constraint)*
-- **Rule:** Human ships do not fight to the death and do not blow each other up.
-- **How it's built:** Human NPCs will run away or surrender when losing. If the player loses, they are salvaged or face social consequences, rather than getting a "Game Over" screen.
-- **Why:** In this setting, ships and pilots are rare and valuable. Blowing them up makes no sense for survival.
+## 8. No Lethal Human Combat
+- **Rule:** Human ships do not fight to the death. Pilots are rare and valuable — blowing them up makes no survival sense.
+- **How it's built:** Human NPCs yield or retreat when losing. Player defeat leads to social consequences, not "Game Over."
 
-## 9. No Random Map Generation *(Code-Level Constraint)*
-- **Rule:** The map of star systems and jump routes must be completely fixed.
-- **How it's built:** Sector connections are static. The game can spawn temporary points of interest inside a sector, but the map itself does not change.
-- **Why:** Prevents the code from becoming too complicated with endless random map generation.
-
----
-
-## Rules for Adding to This List
-- Only the Architect can add new banned features to this list.
-- Developers and Testers cannot add to this list.
+## 9. No Random Map Generation
+- **Rule:** The overarching map of star systems is fixed.
+- **How it's built:** Sector connections are static, even if internal nodes or tags change dynamically.

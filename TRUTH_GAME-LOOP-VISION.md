@@ -5,97 +5,59 @@ STATUS: [Level 2 - Design]
 OWNER: architect
 ACCESS: read-write
 USER INSTRUCTION: NONE
-TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_RULEBOOK.md; TRUTH_LORE-CONSTRAINTS.md
-LOG_REF: 2026-07-13
+TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context
+LOG_REF: 2026-07-24
 -->
 
 # GDTLancer - Game Loop Vision
 
-**Version:** 2.0
-**Date:** 2026-07-13
-**Status:** Approved Architectural Vision (Post-Playtest Refactor)
+**Version:** 3.0
+**Date:** 2026-07-24
+**Status:** Approved Architectural Vision (Digital Board Game Refactor)
 
 ---
 
 ## 1. Core Philosophy: The Automated Playing Board
 
-The core feature of GDTLancer's design is strictly separating the **Game Rules** from the **Story Writing**. 
+GDTLancer is a **2D digital board game**, not a story generator or TTRPG. There are two distinct roles in the game:
+- **The Machine:** Handles the state, dice math, tracks, the world clock, tags, and board layout.
+- **The Player:** Provides 100% of the narrative imagination. The system provides visual cues and mechanical impact; the player imagines the fiction.
 
-The digital game acts as an **automated tabletop playing board**. The engine runs the world, tracks resources, and provides menus for the player. The player, and *only* the player, imagines the scenes, writes the dialogue, and judges the story progress.
-
-To protect player control and prevent too much reading:
-1. **System output must be data, not story.** The engine outputs tags, numbers, and menus. It never writes story text, dialogue, or scene descriptions.
-2. **Player control is about the story, not the rules.** The player writes the story using the game state as a guide.
-3. **Complexity lives in the engine, not the menus.** The player clicks simple buttons, while the system handles the complex math underneath.
-
----
-
-## 2. The Information Flowchart
-
-To separate rules and story, all interactions follow a strict 5-step loop:
-
-1. **System Shows Current State:** The game shows the current state (sector tracks, **vessel positions**, **NPC availability based on locations**, available Hooks, and short mechanical facts).
-2. **Player Acts:** The player reads the current state and chooses an action. **(The player selects the action, approach, track, and modifiers — all manually)**.
-3. **System Rolls Oracle:** Based on the dice roll, the system determines the outcome and shows **situational tension and option lists**. Good outcomes show Advantage options. Bad outcomes show Disadvantage options. Mixed outcomes show both.
-4. **Player Selects Options:** The player selects from the provided option lists (e.g., gaining a Temporary Tag from Advantage options, or losing a resource from Disadvantage options) → **tracks update immediately**.
-5. **Player Writes Reflection (Optional):** Using the **Narrative Logbook**, the player may write optional text on a blank page to reflect on what just happened. This is completely skippable and is saved to the game's Chronicle.
-
-**Mode Transition Markers:** The game loop will present kinetic stubs/markers to acknowledge that certain actions or steps (like physical encounters or specific travel steps) would transition to a real-time kinetic mode in the full game.
+**Crucial constraints:**
+- **No system-generated prose.** The engine outputs tags, numbers, and state changes. It never writes story text.
+- **Visual impact over text.** Changes to the world are reflected visually on the board.
+- **Implicit Goals.** Goals are mechanically implicit. The player works toward them on the board without formal declaration or rating.
 
 ---
 
-## 3. Outcome Options and Temporary Tags
+## 2. The Board Action Loop
 
-Encounters do not give generic rewards. 
+All interactions on the 2D board follow a strict loop:
 
-Instead of gaining a generic "+1 Health", the game uses random tables to generate a specific option list for each situation. The outcome of the dice roll determines which lists the player sees:
+1. **Target Node:** The player selects an interactive node on the board (e.g., an NPC sprite, a vessel, a terminal).
+2. **Action Assembly:** The player builds their action by combining a Verb, an Approach, and any applicable Cards (tags, items, or statuses).
+3. **Action Check (3d6):** The system resolves the action using a 3d6 roll against the current state and applied cards.
+4. **Board Mutation:** The outcome generates **Impact Cards** (Advantage/Disadvantage). The player selects their outcomes, instantly mutating the board state (e.g., changing tracks, altering tags, or removing sprites).
 
-* **Advantage options:** Good outcomes. The player picks a benefit (e.g., gaining a Temporary Tag, improving a resource track).
-* **Disadvantage options:** Bad outcomes. The player picks a cost (e.g., losing a resource, gaining a negative tag).
-* **Temporary Tags:** Players gain tags (e.g., `Undetected`, `Elder's Favor`) which change their situation. Tags let players bypass rules or unlock new actions until the tag expires.
-
-This gives players immediate, specific results without making the game engine track long-lasting stat changes.
-
----
-
-## 4. Event-Driven Universe
-
-The game does not use complex background economic simulations. 
-
-Instead, the game relies on **Event-Driven Rules**:
-- **World Clock:** Time moves forward when the player takes major actions or travels. The clock triggers NPC requests and checks player goals.
-- **Player-Driven Changes:** Communities and ships break down directly because of the player. When a player fails a roll, the system presents Disadvantage options the player must select from (e.g., damage the ship or lower a community's resources). The world changes because of the player's choices, not background math.
+*Note: The **Oracle** is not a standalone free-text action. It is an integrated context generator that provides situational tags and parameters within actions and outcomes.*
 
 ---
 
-## 5. Communities and Hooks
+## 3. Two Modes of Play
 
-Sectors are the homes of communities, families, and local groups.
+### Mode A: 3D Flight
+- Focuses on real-time 3D flight and spatial navigation between nodes.
+- Uses the **Command Glass** for system overlays and minimal HUD.
 
-* **Arrival:** When docking, the system first shows the Community State (who lives there, how they feel, what they need) *before* showing missions (Hooks).
-* **No Quest Boards:** NPCs do not just hand out tasks. Hooks are generated by the engine based on Sector Tags, NPC Goals, and relationships. To prevent endless grinding, completing a hook does not immediately spawn another one from the same NPC.
-* **Named Impact:** If a resource number changes (e.g., Wealth +1), the game must explain who it affects in the log (e.g., "The dock workers are richer").
-
----
-
-## 6. Two Modes
-
-The game splits flying and menus into two modes.
-
-### 6.1 Flight Mode
-- **Focus:** Real-time 3D flying and dodging physical hazards.
-- **Atmosphere:** Very little UI. No story text, no logs, no trading menus. The focus is purely on flying the ship.
-
-### 6.2 Chronicle Mode
-- **Focus:** Paused, menu-driven screens for talking to communities, tracking goals, and writing logs.
-- **The Engine:** Runs entirely on the 5-step Information Flowchart. The player clicks buttons, builds sentences, and reads tags.
-- **No System Story Text:** The game engine is never allowed to write story text here. All text is either static data, short mechanical facts, or text written by the player.
+### Mode B: 2D Board
+- The primary strategic and social interface.
+- Utilizes the **Layered Depth Mat** to render 2D illustrated scenes.
+- **Zones A/C:** HUD-style status bars and action trays on black backgrounds.
+- **Zone B:** The central illustrated scene populated by the **Sprite System** (composing up to 1,500 NPC variations from 25-55 grayscale sprites). Capped at 3-5 NPCs per compartment.
 
 ---
 
-## 7. Winning and Losing
+## 4. Hooks and Communities
 
-Winning and losing depend on community survival.
-
-* **Winning:** Keeping communities alive, making safe travel routes, finishing major player goals, and getting your own ship.
-* **Losing:** Being kicked out of communities, your home station being destroyed, or the crew rebelling because a track tier has hit bottom.
+- **Hooks from Board State:** Missions and opportunities arise naturally from the board's tags and tracks, not from exclusive quest boards.
+- **Integration:** Communities are integral to the setting, but the loop fully supports **loner roleplay** as a viable path.

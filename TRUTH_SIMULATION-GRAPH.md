@@ -5,82 +5,44 @@ STATUS: [Level 2 - Design]
 OWNER: architect
 ACCESS: read-write
 USER INSTRUCTION: NONE
-TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_RULEBOOK.md; TRUTH_GAME-LOOP-VISION.md
-LOG_REF: 2026-07-13
+TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_GAME-LOOP-VISION.md
+LOG_REF: 2026-07-24
 -->
 
 # GDTLancer - Simulation Rules
 
-**Version:** 2.0 (Preliminary Draft)
-**Date:** 2026-07-13
-**Status:** Under active reconstruction post-playtest.
-
-> **ARCHITECT NOTE:** The old, complex background economy system has been removed. Playtesting proved that invisible background changes take away player control and make the story confusing. The game world is now strictly driven by the player's actions.
+**Version:** 3.0
+**Date:** 2026-07-24
+**Status:** Approved (Digital Board Game Refactor)
 
 ---
 
-## 1. Fundamentals: Event-Driven Rules
+## 1. The World Clock (Core Engine)
 
-The game's math exists only to provide challenges and consequences for the player. The world does not trade or change on its own in the background. It changes only when the player interacts with it or when time passes.
-
-### 1.1 The World Clock
-The clock is the core of the game engine. Time does not pass in real-time; it moves forward in "Ticks".
-- **Moving Time Forward:** The clock advances when the player performs actions that are marked as tick-triggering in the game schema. Talking to people or writing logs does not advance the clock.
-- **Clock Events:** When a tick happens, the engine checks:
-  - Have NPCs made progress on their goals?
-  - Do NPCs need to send a message to the player?
-  - Did any delayed messages arrive?
-  - **Advance Vessels:** All vessels in the Vessel Layer are advanced along their routines.
-  - **Kinetic Stubs:** Log any kinetic stubs for actions that would involve physical movement in the live game.
-
-### 1.2 Player-Driven Changes
-The world falls apart or improves because of the player.
-- When a player rolls poorly (a Setback or Crisis), the system presents Disadvantage options that force a direct hit to a community resource or ship condition.
-- If the player ignores an NPC's request, the World Clock processes the consequence (e.g., the relationship worsens or the station loses resources).
+The simulation is strictly event-driven. Time moves forward in discrete "Ticks."
+- **Tick Triggers:** Major actions (travel, significant Board Action Loops) advance the clock.
+- **Tick Resolution:** When the clock advances, the system processes delayed events, vessel movements, and applies **sector pressure** (e.g., slowly decaying a community track to force player intervention).
+- **Player-Driven Primary:** Beyond clock pressure, the board state mutates directly in response to the player's Action Checks and chosen Impact Cards.
 
 ---
 
 ## 2. The Simulation Layers
 
-The game rules are divided into three simple layers.
+The game rules are divided into three clear layers that define the board state.
 
 ### Layer 1: The Map
-- The physical layout of star systems, planets, and stations.
-- **Rule:** This map is completely static. New planets or stations do not randomly appear or disappear.
-- Determines how long it takes to travel (distance = Ticks to travel).
+- The physical layout of star systems and jump routes.
+- **Rule:** Static and fixed. Dictates the time cost (Ticks) required to travel between nodes.
 
 ### Layer 2: The Board State
-- The health of a sector, shown as 0-10 numbers (Wealth, Security, Morale, Supplies). Tags are only used for temporary effects applied by player actions or events.
-- **Vessels:** Tracked entities operating within and moving between sectors, synchronized with the Vessel Layer.
-- **Rule:** These numbers are changed directly by the player. The game never randomly lowers a community's Wealth unless a specific player action or delayed consequence causes it.
-- Sector tracks are managed by the deterministic algorithm. The player does not directly modify sector tracks.
+- Tracks the health of a sector using 0-10 tracks (Wealth, Security, Morale, Supplies) and active Tags.
+- **Rule:** Sector tracks change primarily from player actions (Impact Cards) but **can also change from World Clock pressure**.
+- Tags provide mechanical hooks for Action Assembly and dictate available opportunities.
 
-### Layer 2.5: The Vessel Layer (New)
-- **Vessel Registry:** A master list tracking all active vessels in the game.
-- **Vessel-NPC Synchronization:** NPCs are assigned to vessels. Their availability in a sector is determined by the location of their vessel, rather than being station-bound, unless they are explicitly assigned a station role.
-- **Routine Types:** Vessels follow specific routines (e.g., patrols, trade routes, salvage operations).
-- **Movement per Clock Tick:** Every World Clock tick, vessels advance their state based on their assigned routine, moving between sectors and updating their locations.
+### Layer 2.5: The Vessel Layer
+- A streamlined registry tracking active vessels.
+- **Rule:** Vessels move between map nodes on World Clock ticks. NPC availability on the 2D board is intrinsically linked to their vessel's current location, unless they are permanent station residents.
 
 ### Layer 3: The Social Web
-- The network of named NPCs, their relationships, and their goals.
-- **Rule:** NPCs do not fly ships or trade cargo in the background. Their "actions" are just messages sent to the player, letting the player know their situation has changed.
-
----
-
-## 3. Open Design Questions
-
-These questions need to be answered in future playtests and code updates.
-
-1. **Trading and Buying:**
-   - How does a 0-10 Wealth number allow the player to buy physical items like fuel or tools?
-   - What is the exact first step a player must take to buy their own ship?
-
-2. **World Clock Timing:**
-   - How many ticks does it take before an NPC sends a message to the player?
-   - Is waiting 2 ticks before checking NPC goals the right pace, or does it cause too many pop-ups?
-
-3. **Flight Mode Dangers:**
-   - How do sector track values affect the difficulty of Flight Mode navigation?
-
-4. **Showing Information:**
-   - How will the game screen display the menus generated by the rules? Does the engine send a simple list that the interface turns into clickable buttons?
+- The network of named NPCs (represented by up to 1,500 sprite variations) and their relationships.
+- **Rule:** NPCs do not simulate complex background lives. Their states, tags, and availability are updated via the World Clock and direct player interactions on the board.

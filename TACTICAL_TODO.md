@@ -1,14 +1,17 @@
-## CURRENT GOAL: Milestone 19 (Total UX Integration & Mechanics Wiring [BLOCKER])
-- TARGET_SCOPE: Comprehensively wire all mechanics (health, wealth, morale, supplies, and action results) into the player's direct interaction flow (the `InteractionWindow` and HUD). Ensure the player can clearly read and react to the simulation state. This is a blocker milestone requiring hard manual verification.
-- TARGET_FILES:
-  - `src/core/ui/interaction_window/interaction_window.gd` — Wire metrics display and handle `action_resolved` signals for gameplay consequences.
-  - `src/core/ui/main_hud/main_hud.gd` — Update visual indicators (e.g., target selection prompts like "HAIL" or "SCAN").
-  - `src/core/ui/main_hud/main_hud.tscn` — Any node references needed for UI text updates.
-- TRUTH_RELIANCE: `TRUTH_MVP_CORE.md`
-- TECHNICAL_CONSTRAINTS: Godot 3 UI. Avoid over-engineered event queues; use direct signal connections for UI updates.
-- ATOMIC_TASKS:
-  - [x] TASK_1: **Contextual Target Prompts.** Modify the main HUD so selecting an NPC or planet changes the "Interact" button label to "HAIL" or "SCAN", providing a clear entry point for narrative gameplay.
-  - [x] TASK_2: **Ship Metrics Integration.** Append player ship metrics (health, wealth, morale, supplies) directly into the narrative context text of the `InteractionWindow`.
-  - [x] TASK_3: **Consequence Handlers.** Wire the `InteractionWindow` to listen to the `action_resolved` signal from the Action Tray. Implement logic to clear the mutiny state on success, or apply standard success/failure text.
-  - [ ] TASK_4: **In-Flight Feedback Toasts.** Evaluate if the player needs real-time toasts for morale decay or sector mutations during free flight, and implement a lightweight HUD notification system if required to pass playability checks.
-  - [ ] VERIFICATION: Hard manual runtime verification required. The player must be able to discover an interactable target, open the narrative window, read their metrics, execute an action, and see the state update dynamically without crashing or locking the loop.
+<!--
+PROJECT: GDTLancer
+MODULE: TACTICAL_TODO.md
+STATUS: [Level 2 - Implementation]
+OWNER: architect
+ACCESS: read-write-all
+-->
+
+## Active Milestone: M20 Simulation Rework (Event-Driven)
+
+**TARGET_SCOPE**: Replace the old cellular automata with an event-driven World Clock system. Set up the vessel layer.
+**TARGET_FILES**: TBD
+**TRUTH_RELIANCE**: STRATEGICAL-TODO.md
+
+*Note: Atomic tasks will be defined when M20 begins.*
+
+- [ ] Define atomic tasks for M20.
