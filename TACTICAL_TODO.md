@@ -6,46 +6,48 @@ OWNER: architect
 ACCESS: read-write-all
 USER INSTRUCTION: NONE
 TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_GAME-LOOP-VISION.md § 2; TRUTH_EXPLORATION-PILLARS.md § 3
-LOG_REF: 2026-07-26 00:57:15
+LOG_REF: 2026-07-26 02:00:00
 -->
 
-## CURRENT GOAL: M21 Board Mechanics Core (The Kernel)
+## CURRENT GOAL: M22 Mode B UI — Board Interface
 
-- TARGET_SCOPE: Implement the 4-step board action loop (Target Node -> Asset Cards -> 3d6 Check -> Board Mutation via Impact Cards), 4 progress tracks (0-10 with tier shifts), and World Clock tick triggering.
+- TARGET_SCOPE: Implement the 2D board interface using simple board game conventions. The interface needs to handle tokens, grids, track displays, card areas, and dice roll feedback. We also need a Mode A ↔ Mode B transition system. No illustrated depth-mat scenes or paper-doll sprite systems.
 - TARGET_FILES:
-  - `src/core/cards/asset_card.gd` — Asset Card resource schema (lateral capability expanders)
-  - `src/core/cards/impact_card.gd` — Impact Card resource schema (Advantage/Disadvantage outcomes)
-  - `src/core/systems/action_check_engine.gd` — 3d6 roll engine and modifier calculator
-  - `src/core/systems/board_action_loop.gd` — Orchestrator for Target -> Assemble -> Check -> Mutate flow
-  - `src/autoload/GameState.gd` — Player tracks storage and state integration
-  - `src/tests/core/systems/test_board_action_loop.gd` — GUT unit tests for board kernel
-- TRUTH_RELIANCE: TRUTH_GAME-LOOP-VISION.md § 2 (The Board Action Loop), TRUTH_EXPLORATION-PILLARS.md § 3 (Lateral Progression)
+  - `scenes/ui/board/board_ui.tscn` — Main Mode B Board UI scene
+  - `src/core/ui/board/board_ui.gd` — Board UI controller script
+  - `scenes/ui/board/components/track_display.tscn` / `src/core/ui/board/components/track_display.gd` — UI for progress tracks
+  - `scenes/ui/board/components/card_area.tscn` / `src/core/ui/board/components/card_area.gd` — UI for card hand displays
+  - `scenes/ui/board/components/dice_roll_feedback.tscn` / `src/core/ui/board/components/dice_roll_feedback.gd` — Visual representation of 3d6 check results
+  - `src/core/systems/mode_transition_manager.gd` — System handling switching between Mode A (3D Flight) and Mode B (2D Board)
+  - `src/tests/core/systems/test_mode_transition_manager.gd` — GUT unit tests for ModeTransitionManager
+  - `src/tests/core/ui/test_board_ui.gd` — GUT integration tests for BoardUI
+- TRUTH_RELIANCE: TRUTH_GAME-LOOP-VISION.md § 2 (The Board Action Loop)
 - TECHNICAL_CONSTRAINTS:
   - Primary runtime: Godot 3.6 stable, GLES2.
   - Forbidden GDScript syntax: `@export`, `@onready`, `await`.
   - Typed GDScript patterns compatible with Godot 3.6.
 - OUT_OF_SCOPE:
-  - UI visual layout polish, Mode B depth mats / paper dolls, trading spreadsheets, 3D on-foot navigation.
+  - Complex 3D environments, Mode A content (handled in later milestones), fully finished board layouts (Zone layout is TBD).
 - PREAPPROVED_ADJACENT_OWNERS:
-  - `src/autoload/EventBus.gd` — for action resolution and board mutation signals.
+  - `src/autoload/GameState.gd`
+  - `src/autoload/EventBus.gd`
 - VALIDATION_PLAN:
-  - Run GUT unit test `src/tests/core/systems/test_board_action_loop.gd`.
+  - Mode transition functions properly (no memory leaks or scene tree errors).
+  - UI accurately reflects data from `GameState` and `BoardActionLoop`.
+  - Input passes through Mode B to trigger actions.
 - MANUAL_VALIDATION:
-  - None required for M21 core contracts.
+  - Run the game scene and trigger Mode B transition.
 
 - ATOMIC_TASKS:
-  - [x] TASK_1: Player Progress Tracks Tier & Threshold System
-    - Implement 4 player progress tracks (Health, Wealth, Morale, Supplies) on 0-10 scale in `GameState.gd` with tier mapping functions (e.g. CRITICAL 0-2, LOW 3-4, STABLE 5-7, PROSPEROUS 8-10).
-  - [x] TASK_2: Asset Card & Impact Card Resource Schemas
-    - Create `src/core/cards/asset_card.gd` (inherits `Resource`) defining `card_id`, `display_name`, `tags`, `unlocked_verbs`, `trade_offs`.
-    - Create `src/core/cards/impact_card.gd` (inherits `Resource`) defining `card_id`, `type` ("ADVANTAGE"/"DISADVANTAGE"), `track_deltas`, `applied_tags`.
-  - [x] TASK_3: 3d6 Action Check Engine
-    - Create `src/core/systems/action_check_engine.gd`.
-    - Implement `resolve_check(target_difficulty: int, applied_asset_cards: Array, player_track_states: Dictionary) -> Dictionary` returning `{dice_rolls: Array, total: int, success: bool, margin: int}`.
-  - [x] TASK_4: Board Action Loop Orchestrator & World Clock Integration
-    - Create `src/core/systems/board_action_loop.gd`.
-    - Implement the 4-step sequence: `select_target(node)`, `assemble_action(asset_cards)`, `execute_check()`, `apply_mutation(impact_card)`.
-    - Advance `WorldClock` by 1 tick upon completing `apply_mutation`.
-  - [x] TASK_5: Automated Testing (GUT)
-    - Create `src/tests/core/systems/test_board_action_loop.gd` and verify 3d6 resolution, Asset Card verb expansion, Impact Card track mutations, and World Clock tick advancement.
-  - [x] VERIFICATION: All GUT tests in `test_board_action_loop.gd` pass cleanly.
+  - [x] TASK_1: Mode Transition Manager
+    - Created `src/core/systems/mode_transition_manager.gd` handling Mode A ↔ Mode B scene state transitions.
+  - [x] TASK_2: Track Display UI Component
+    - Created `scenes/ui/board/components/track_display.tscn` and `src/core/ui/board/components/track_display.gd` to render 0-10 tracks and tier thresholds.
+  - [x] TASK_3: Card Area UI Component
+    - Created `scenes/ui/board/components/card_area.tscn` and `src/core/ui/board/components/card_area.gd` to display Asset and Impact card hands.
+  - [x] TASK_4: Dice Roll Feedback UI Component
+    - Created `scenes/ui/board/components/dice_roll_feedback.tscn` and `src/core/ui/board/components/dice_roll_feedback.gd` to visualize 3d6 check results.
+  - [x] TASK_5: Main Board UI Assembly & File Location Audit
+    - Assembled `scenes/ui/board/board_ui.tscn` and `src/core/ui/board/board_ui.gd` bringing together tracks, cards, dice feedback, and token grid.
+    - Verified strict directory placement (GDScript logic in `src/`, Scenes in `scenes/`).
+  - [x] VERIFICATION: Tested ModeTransitionManager (12/12 assertions) and BoardUI (5/5 assertions) via GUT unit/integration tests.

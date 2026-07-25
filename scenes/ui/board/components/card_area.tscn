@@ -1,0 +1,18 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://src/core/ui/board/components/card_area.gd" type="Script" id=1]
+
+[node name="CardArea" type="MarginContainer"]
+margin_right = 400.0
+margin_bottom = 180.0
+script = ExtResource( 1 )
+
+[node name="ScrollContainer" type="ScrollContainer" parent="."]
+margin_right = 400.0
+margin_bottom = 180.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ScrollContainer"]
+margin_right = 400.0
+margin_bottom = 180.0
+size_flags_horizontal = 3
+size_flags_vertical = 3

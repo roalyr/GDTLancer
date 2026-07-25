@@ -33,7 +33,7 @@ Implement the board action loop and minimum viable mechanical kernel.
 
 ---
 
-### M22: Mode B UI — Board Interface (TBD)
+### M22: Mode B UI — Board Interface [x]
 Implement the 2D board interface using simple board game conventions.
 - Mode B interface using tokens, grids, track displays, card areas, and dice roll feedback.
 - No illustrated depth-mat scenes or paper-doll sprite systems — NPC presence represented via named tokens with tags.

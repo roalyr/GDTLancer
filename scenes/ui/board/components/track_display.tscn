@@ -1,0 +1,42 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://src/core/ui/board/components/track_display.gd" type="Script" id=1]
+
+[node name="TrackDisplay" type="MarginContainer"]
+margin_right = 140.0
+margin_bottom = 60.0
+script = ExtResource( 1 )
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+margin_right = 140.0
+margin_bottom = 60.0
+
+[node name="TitleLabel" type="Label" parent="VBoxContainer"]
+margin_right = 140.0
+margin_bottom = 14.0
+text = "Track Title"
+
+[node name="ProgressBar" type="ProgressBar" parent="VBoxContainer"]
+margin_top = 18.0
+margin_right = 140.0
+margin_bottom = 32.0
+max_value = 10.0
+value = 5.0
+percent_visible = false
+
+[node name="HBox" type="HBoxContainer" parent="VBoxContainer"]
+margin_top = 36.0
+margin_right = 140.0
+margin_bottom = 50.0
+
+[node name="ValueLabel" type="Label" parent="VBoxContainer"]
+margin_top = 54.0
+margin_right = 140.0
+margin_bottom = 68.0
+text = "5 / 10"
+
+[node name="TierLabel" type="Label" parent="VBoxContainer"]
+margin_top = 72.0
+margin_right = 140.0
+margin_bottom = 86.0
+text = "[STABLE]"
