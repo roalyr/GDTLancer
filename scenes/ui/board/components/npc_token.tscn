@@ -1,0 +1,37 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://src/core/ui/board/components/npc_token.gd" type="Script" id=1]
+
+[node name="NPCToken" type="PanelContainer"]
+margin_right = 160.0
+margin_bottom = 80.0
+script = ExtResource( 1 )
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 153.0
+margin_bottom = 73.0
+
+[node name="NameLabel" type="Label" parent="VBoxContainer"]
+margin_right = 146.0
+margin_bottom = 14.0
+text = "NPC Name"
+
+[node name="BondLabel" type="Label" parent="VBoxContainer"]
+margin_top = 18.0
+margin_right = 146.0
+margin_bottom = 32.0
+text = "[BOND: FRAGILE (+1)]"
+
+[node name="TagsLabel" type="Label" parent="VBoxContainer"]
+margin_top = 36.0
+margin_right = 146.0
+margin_bottom = 50.0
+text = "Tags: [merchant]"
+
+[node name="SelectButton" type="Button" parent="VBoxContainer"]
+margin_top = 54.0
+margin_right = 146.0
+margin_bottom = 74.0
+text = "Interact"

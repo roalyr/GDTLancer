@@ -147,6 +147,9 @@ var agents: Dictionary = {}
 ## Derived agent tags (refreshed by BridgeSystems). Key: agent_id, Value: Array of tags.
 var agent_tags: Dictionary = {}
 
+## NPC & Bond Data. Key: npc_id (String), Value: Dictionary {display_name, bond_strength, tags, status_flags, sector_id, location_id}
+var npc_data: Dictionary = {}
+
 ## Player character identifier.
 var player_character_uid: String = ""
 
@@ -396,6 +399,7 @@ func reset_state() -> void:
 	characters.clear()
 	agents.clear()
 	agent_tags.clear()
+	npc_data.clear()
 	player_character_uid = ""
 	colony_levels.clear()
 	colony_upgrade_progress.clear()

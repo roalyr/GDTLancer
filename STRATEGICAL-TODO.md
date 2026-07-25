@@ -55,7 +55,7 @@ Implement data-driven outcome tables for board mutation.
 
 ---
 
-### M24: NPC & Bond System
+### M24: NPC & Bond System [x]
 Add NPC tags, bond strengths, and their presence as board tokens.
 - NPC tokens with tag sets, bond strength (FRAGILE/STABLE/DEEP), and status flags.
 - Bond-based modifiers to 3d6 action checks.

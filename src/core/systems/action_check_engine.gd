@@ -15,7 +15,7 @@ var AssetCardClass = load("res://src/core/cards/asset_card.gd")
 ## Resolves a 3d6 action check against target difficulty.
 ## applied_asset_cards: Array of AssetCard instances
 ## player_track_states: Dictionary of player track values or tiers
-func resolve_check(target_difficulty: int, applied_asset_cards: Array = [], player_track_states: Dictionary = {}, seeded_dice: Array = []) -> Dictionary:
+func resolve_check(target_difficulty: int, applied_asset_cards: Array = [], player_track_states: Dictionary = {}, seeded_dice: Array = [], bond_modifier: int = 0) -> Dictionary:
 	var dice_rolls: Array = []
 	if seeded_dice.size() >= 3:
 		dice_rolls = [int(seeded_dice[0]), int(seeded_dice[1]), int(seeded_dice[2])]
@@ -24,7 +24,7 @@ func resolve_check(target_difficulty: int, applied_asset_cards: Array = [], play
 		dice_rolls = [randi() % 6 + 1, randi() % 6 + 1, randi() % 6 + 1]
 
 	var base_total: int = dice_rolls[0] + dice_rolls[1] + dice_rolls[2]
-	var modifier: int = 0
+	var modifier: int = bond_modifier
 
 	# Calculate Asset Card bonuses
 	for card in applied_asset_cards:

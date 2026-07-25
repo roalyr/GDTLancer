@@ -27,9 +27,9 @@ func select_target(node) -> void:
 func assemble_action(asset_cards: Array) -> void:
 	selected_asset_cards = asset_cards.duplicate()
 
-func execute_check(target_difficulty: int = 10, seeded_dice: Array = []) -> Dictionary:
+func execute_check(target_difficulty: int = 10, seeded_dice: Array = [], bond_modifier: int = 0) -> Dictionary:
 	var player_tracks = GameState.player_tracks
-	last_check_result = check_engine.resolve_check(target_difficulty, selected_asset_cards, player_tracks, seeded_dice)
+	last_check_result = check_engine.resolve_check(target_difficulty, selected_asset_cards, player_tracks, seeded_dice, bond_modifier)
 	return last_check_result
 
 func apply_mutation(impact_card, sector_id: String = "") -> bool:
