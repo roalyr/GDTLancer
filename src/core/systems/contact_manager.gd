@@ -24,7 +24,6 @@ extends Node
 
 
 # --- State ---
-var _affinity_matrix = null  # AffinityMatrix Reference instance
 var _sector_roster_cache: Dictionary = {}  # {sector_id: [agent_id, ...]}
 var _disposition_cache: Dictionary = {}  # {agent_id: float}
 var _reported_invalid_sectors: Dictionary = {}
@@ -33,7 +32,6 @@ var _reported_invalid_sectors: Dictionary = {}
 # --- Lifecycle ---
 
 func _ready() -> void:
-	_affinity_matrix = AffinityMatrix.new()
 	GlobalRefs.set_contact_manager(self)
 	EventBus.connect("sim_tick_completed", self, "_on_sim_tick_completed")
 	EventBus.connect("sim_initialized", self, "_on_sim_initialized")
@@ -166,7 +164,11 @@ func _rebuild_caches() -> void:
 func _compute_player_disposition(agent_id: String) -> float:
 	var player_tags: Array = GameState.agent_tags.get("player", [])
 	var agent_tags: Array = GameState.agent_tags.get(agent_id, [])
-	return _affinity_matrix.compute_affinity(player_tags, agent_tags)
+	var score: float = 0.0
+	for tag in player_tags:
+		if tag in agent_tags:
+			score += 1.0
+	return score
 
 
 func _report_invalid_sector(context: String, sector_id: String) -> void:

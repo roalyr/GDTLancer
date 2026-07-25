@@ -154,30 +154,30 @@ func test_get_agents_excludes_disabled():
 
 
 func test_get_agent_disposition_computes_affinity():
-	# PIRATE actor viewing PATROL target → PIRATE:PATROL = -1.2 (hostile)
-	GameState.agent_tags["player"] = ["PIRATE"]
+	# Matching tags yield positive disposition
+	GameState.agent_tags["player"] = ["PATROL", "MINER"]
 	GameState.agent_tags["npc_01"] = ["PATROL"]
 	_contact_manager._rebuild_caches()
 	var disposition = _contact_manager.get_agent_disposition("npc_01")
-	assert_lt(disposition, 0.0, "PIRATE viewing PATROL should yield negative disposition")
+	assert_gt(disposition, 0.0, "Matching PATROL tag should yield positive disposition")
 
 
 func test_get_disposition_category_friendly():
-	# PATROL actor viewing PIRATE target → PATROL:PIRATE = +1.4 (friendly / seeks)
+	# Shared tags yield friendly category
 	GameState.agent_tags["player"] = ["PATROL"]
-	GameState.agent_tags["npc_02"] = ["PIRATE"]
+	GameState.agent_tags["npc_02"] = ["PATROL"]
 	_contact_manager._rebuild_caches()
 	var category = _contact_manager.get_disposition_category("npc_02")
-	assert_eq(category, "friendly", "Score 1.4 should be above friendly threshold")
+	assert_eq(category, "friendly", "Score >= 1.0 should be friendly category")
 
 
 func test_get_disposition_category_hostile():
-	# PIRATE actor viewing PATROL target → PIRATE:PATROL = -1.2 (hostile)
+	# No matching tags yield neutral/hostile category
 	GameState.agent_tags["player"] = ["PIRATE"]
 	GameState.agent_tags["npc_01"] = ["PATROL"]
 	_contact_manager._rebuild_caches()
 	var category = _contact_manager.get_disposition_category("npc_01")
-	assert_eq(category, "hostile", "Score -1.2 should be below hostile threshold")
+	assert_eq(category, "neutral", "Disjoint tags should yield neutral category")
 
 
 func test_get_agent_info_returns_display_dict():

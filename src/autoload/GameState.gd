@@ -55,6 +55,65 @@ var grid_dominion: Dictionary = {}
 ## Qualitative tags per sector. Key: sector_id (String). Value: Array of String tags.
 var sector_tags: Dictionary = {}
 
+## Sector 0-10 progress tracks (health, wealth, morale, supplies).
+## Key: sector_id (String), Value: Dictionary {"health": int, "wealth": int, "morale": int, "supplies": int}
+var sector_tracks: Dictionary = {}
+
+func get_sector_tracks(sector_id: String) -> Dictionary:
+	if not sector_tracks.has(sector_id):
+		sector_tracks[sector_id] = {
+			"health": 5,
+			"wealth": 5,
+			"morale": 5,
+			"supplies": 5
+		}
+	return sector_tracks[sector_id]
+
+func get_sector_track(sector_id: String, track_type: String) -> int:
+	var tracks = get_sector_tracks(sector_id)
+	return tracks.get(track_type.to_lower(), 5)
+
+func apply_sector_track_delta(sector_id: String, track_type: String, delta: int) -> int:
+	var tracks = get_sector_tracks(sector_id)
+	var key = track_type.to_lower()
+	var current_val = tracks.get(key, 5)
+	var new_val = int(clamp(current_val + delta, 0, 10))
+	tracks[key] = new_val
+	return new_val
+
+# =========================================================================
+# === PLAYER TRACKS (0-10 Progress Scale) ===============================
+# =========================================================================
+
+## Player 0-10 progress tracks (health, wealth, morale, supplies).
+var player_tracks: Dictionary = {
+	"health": 5,
+	"wealth": 5,
+	"morale": 5,
+	"supplies": 5
+}
+
+func get_player_track(track_type: String) -> int:
+	return player_tracks.get(track_type.to_lower(), 5)
+
+func get_player_track_tier(track_type: String) -> String:
+	var val = get_player_track(track_type)
+	if val <= 2:
+		return "CRITICAL"
+	elif val <= 4:
+		return "LOW"
+	elif val <= 7:
+		return "STABLE"
+	else:
+		return "PROSPEROUS"
+
+func apply_player_track_delta(track_type: String, delta: int) -> int:
+	var key = track_type.to_lower()
+	var current_val = player_tracks.get(key, 5)
+	var new_val = int(clamp(current_val + delta, 0, 10))
+	player_tracks[key] = new_val
+	return new_val
+
 
 # =========================================================================
 # === LAYER 3: AGENTS (cognitive entities) ===============================
@@ -314,6 +373,7 @@ func reset_state() -> void:
 	world_seed = ""
 	grid_dominion.clear()
 	sector_tags.clear()
+	sector_tracks.clear()
 	characters.clear()
 	agents.clear()
 	agent_tags.clear()

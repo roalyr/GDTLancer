@@ -101,6 +101,8 @@ signal contact_met(agent_id) # Emitted when player first meets a Persistent Agen
 signal sim_tick_completed(tick_count)   # Emitted after full tick sequence completes
 signal sim_initialized(seed_string)    # Emitted after simulation is seeded and all layers initialized
 signal world_age_changed(new_age)      # Emitted when world-age transitions (PROSPERITY/DISRUPTION/RECOVERY)
+signal tick_advanced(current_tick, delta_ticks)
+signal vessel_arrived(vessel_id, arrival_node)
 
 # --- Contact System Signals (HUD Bridge) ---
 signal sector_contacts_changed(sector_id)  # Emitted by ContactManager after roster rebuild

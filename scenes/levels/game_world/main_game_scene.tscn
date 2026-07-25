@@ -13,7 +13,7 @@
 [ext_resource path="res://scenes/ui/menus/main_menu.tscn" type="PackedScene" id=17]
 [ext_resource path="res://scenes/ui/menus/debug_window.tscn" type="PackedScene" id=18]
 [ext_resource path="res://scenes/ui/hud/sim_debug_panel.tscn" type="PackedScene" id=25]
-[ext_resource path="res://src/core/simulation/simulation_engine.gd" type="Script" id=26]
+[ext_resource path="res://src/core/simulation/world_clock.gd" type="Script" id=26]
 [ext_resource path="res://src/core/systems/contact_manager.gd" type="Script" id=27]
 [ext_resource path="res://src/core/ui/debug_map_panel/debug_map_panel.tscn" type="PackedScene" id=28]
 [ext_resource path="res://scenes/prefabs/navigation/jump_transition_rig.tscn" type="PackedScene" id=29]
@@ -42,7 +42,7 @@ script = ExtResource( 15 )
 [node name="TimeSystem" type="Node" parent="WorldManager"]
 script = ExtResource( 5 )
 
-[node name="SimulationEngine" type="Node" parent="WorldManager"]
+[node name="WorldClock" type="Node" parent="WorldManager"]
 script = ExtResource( 26 )
 
 [node name="ContactManager" type="Node" parent="WorldManager"]

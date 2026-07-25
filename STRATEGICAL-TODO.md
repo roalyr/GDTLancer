@@ -8,7 +8,7 @@ GDTLancer is a **2D digital board game** built in Godot 3.6 with two modes of pl
 
 ## Milestones
 
-### M20: Simulation Rework (Event-Driven)
+### M20: Simulation Rework (Event-Driven) [x]
 Replace the old cellular automata with an event-driven World Clock system.
 - Replace the old Freelancer-shaped cellular automata with an event-driven World Clock system.
 - Sector tracks change from player actions and World Clock consequences, not invisible background math.
@@ -19,7 +19,7 @@ Replace the old cellular automata with an event-driven World Clock system.
 
 ---
 
-### M21: Board Mechanics Core (The Kernel)
+### M21: Board Mechanics Core (The Kernel) [x]
 Implement the board action loop and minimum viable mechanical kernel.
 - Implement the board action loop: Target Node → Asset Cards → 3d6 Check → Board Mutation.
 - 4 player progress tracks (Health, Wealth, Morale, Supplies) with tier system (0-10, tier shifts at thresholds).
