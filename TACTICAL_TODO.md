@@ -6,48 +6,42 @@ OWNER: architect
 ACCESS: read-write-all
 USER INSTRUCTION: NONE
 TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_GAME-LOOP-VISION.md § 2; TRUTH_EXPLORATION-PILLARS.md § 3
-LOG_REF: 2026-07-26 02:00:00
+LOG_REF: 2026-07-26 02:30:00
 -->
 
-## CURRENT GOAL: M22 Mode B UI — Board Interface
+## CURRENT GOAL: M23 Impact Card Tables (Data-Driven Outcomes)
 
-- TARGET_SCOPE: Implement the 2D board interface using simple board game conventions. The interface needs to handle tokens, grids, track displays, card areas, and dice roll feedback. We also need a Mode A ↔ Mode B transition system. No illustrated depth-mat scenes or paper-doll sprite systems.
+- TARGET_SCOPE: Implement data-driven outcome tables for board mutation. Impact Card outcome pools will be defined as data-driven `.tres` resources. These pools will contain Advantage, Disadvantage, Complication, and Opportunity entries keyed by context tags (such as sector tags, NPC relationship tags, or track states). Entries will strictly map to concrete board mutations (track deltas, tag changes, node state changes) with no oracle free-text generation.
 - TARGET_FILES:
-  - `scenes/ui/board/board_ui.tscn` — Main Mode B Board UI scene
-  - `src/core/ui/board/board_ui.gd` — Board UI controller script
-  - `scenes/ui/board/components/track_display.tscn` / `src/core/ui/board/components/track_display.gd` — UI for progress tracks
-  - `scenes/ui/board/components/card_area.tscn` / `src/core/ui/board/components/card_area.gd` — UI for card hand displays
-  - `scenes/ui/board/components/dice_roll_feedback.tscn` / `src/core/ui/board/components/dice_roll_feedback.gd` — Visual representation of 3d6 check results
-  - `src/core/systems/mode_transition_manager.gd` — System handling switching between Mode A (3D Flight) and Mode B (2D Board)
-  - `src/tests/core/systems/test_mode_transition_manager.gd` — GUT unit tests for ModeTransitionManager
-  - `src/tests/core/ui/test_board_ui.gd` — GUT integration tests for BoardUI
+  - `src/core/resources/impact_card_entry.gd` — Custom Resource defining a single impact outcome (required tags, track deltas, tag changes).
+  - `src/core/resources/impact_card_pool.gd` — Custom Resource containing an array of `ImpactCardEntry` resources.
+  - `src/core/systems/impact_table_manager.gd` — System responsible for evaluating current context tags and querying pools to return valid impact cards/mutations.
+  - `src/tests/core/resources/test_impact_resources.gd` — GUT unit tests for verifying resource structure and data mapping.
+  - `src/tests/core/systems/test_impact_table_manager.gd` — GUT unit tests for the tag evaluation and impact retrieval logic.
 - TRUTH_RELIANCE: TRUTH_GAME-LOOP-VISION.md § 2 (The Board Action Loop)
 - TECHNICAL_CONSTRAINTS:
-  - Primary runtime: Godot 3.6 stable, GLES2.
-  - Forbidden GDScript syntax: `@export`, `@onready`, `await`.
-  - Typed GDScript patterns compatible with Godot 3.6.
+  - Godot 3.6 custom resources require explicit `class_name` or `load()` paths to be used effectively. Will use `tool` and `class_name` if they don't break dependencies, or stick to explicit loads.
+  - Tables must only produce mechanical tags and state deltas, no unstructured text generation.
 - OUT_OF_SCOPE:
-  - Complex 3D environments, Mode A content (handled in later milestones), fully finished board layouts (Zone layout is TBD).
+  - Visual presentation of these cards (UI is already handled, specific rendering of impact card data will rely on existing components).
 - PREAPPROVED_ADJACENT_OWNERS:
   - `src/autoload/GameState.gd`
-  - `src/autoload/EventBus.gd`
+  - `src/core/systems/board_action_loop.gd`
 - VALIDATION_PLAN:
-  - Mode transition functions properly (no memory leaks or scene tree errors).
-  - UI accurately reflects data from `GameState` and `BoardActionLoop`.
-  - Input passes through Mode B to trigger actions.
+  - Create dummy `.tres` pools with various required/prohibited tags.
+  - Evaluate pools through `ImpactTableManager` given mock context tags and ensure only the correct entries are returned.
+  - Apply an impact entry and ensure track deltas and tag changes are correctly dispatched to `GameState`.
 - MANUAL_VALIDATION:
-  - Run the game scene and trigger Mode B transition.
+  - Run tests. Verify `.tres` files can be easily edited in Godot 3.6 Inspector.
 
 - ATOMIC_TASKS:
-  - [x] TASK_1: Mode Transition Manager
-    - Created `src/core/systems/mode_transition_manager.gd` handling Mode A ↔ Mode B scene state transitions.
-  - [x] TASK_2: Track Display UI Component
-    - Created `scenes/ui/board/components/track_display.tscn` and `src/core/ui/board/components/track_display.gd` to render 0-10 tracks and tier thresholds.
-  - [x] TASK_3: Card Area UI Component
-    - Created `scenes/ui/board/components/card_area.tscn` and `src/core/ui/board/components/card_area.gd` to display Asset and Impact card hands.
-  - [x] TASK_4: Dice Roll Feedback UI Component
-    - Created `scenes/ui/board/components/dice_roll_feedback.tscn` and `src/core/ui/board/components/dice_roll_feedback.gd` to visualize 3d6 check results.
-  - [x] TASK_5: Main Board UI Assembly & File Location Audit
-    - Assembled `scenes/ui/board/board_ui.tscn` and `src/core/ui/board/board_ui.gd` bringing together tracks, cards, dice feedback, and token grid.
-    - Verified strict directory placement (GDScript logic in `src/`, Scenes in `scenes/`).
-  - [x] VERIFICATION: Tested ModeTransitionManager (12/12 assertions) and BoardUI (5/5 assertions) via GUT unit/integration tests.
+  - [x] TASK_1: Create Custom Resources
+    - Implemented `ImpactCardEntry` (`src/core/resources/impact_card_entry.gd`) for context tag matching and mutation definitions.
+    - Implemented `ImpactCardPool` (`src/core/resources/impact_card_pool.gd`) for grouping entries.
+  - [x] TASK_2: Impact Table Manager Core
+    - Implemented `ImpactTableManager` (`src/core/systems/impact_table_manager.gd`) for evaluating context tags across pools.
+  - [x] TASK_3: Context and State Mutation
+    - Integrated `ImpactTableManager` state mutation logic with `GameState` (player tracks, sector tracks, and sector/world tags).
+  - [x] TASK_4: Unit and Integration Tests
+    - Created unit tests `src/tests/core/resources/test_impact_resources.gd` and `src/tests/core/systems/test_impact_table_manager.gd`.
+  - [x] VERIFICATION: Tested resource structure, tag filtering, and GameState mutations via GUT (1013/1013 assertions passed, 0 failures). Verified clean scene instantiation for `main_game_scene.tscn` and `board_ui.tscn`.

@@ -44,7 +44,7 @@ Implement the 2D board interface using simple board game conventions.
 
 ---
 
-### M23: Impact Card Tables (Data-Driven Outcomes)
+### M23: Impact Card Tables (Data-Driven Outcomes) [x]
 Implement data-driven outcome tables for board mutation.
 - Impact Card outcome pools as data-driven .tres resources.
 - Advantage/Disadvantage card pools keyed by context tags (sector, NPC relationship, track state).

@@ -81,6 +81,25 @@ func apply_sector_track_delta(sector_id: String, track_type: String, delta: int)
 	tracks[key] = new_val
 	return new_val
 
+func get_sector_tags(sector_id: String) -> Array:
+	if not sector_tags.has(sector_id):
+		sector_tags[sector_id] = []
+	return sector_tags[sector_id]
+
+func add_sector_tag(sector_id: String, tag: String) -> void:
+	var tags = get_sector_tags(sector_id)
+	if not tag in tags:
+		tags.append(tag)
+
+func remove_sector_tag(sector_id: String, tag: String) -> void:
+	var tags = get_sector_tags(sector_id)
+	if tag in tags:
+		tags.erase(tag)
+
+func has_sector_tag(sector_id: String, tag: String) -> bool:
+	var tags = get_sector_tags(sector_id)
+	return tag in tags
+
 # =========================================================================
 # === PLAYER TRACKS (0-10 Progress Scale) ===============================
 # =========================================================================
