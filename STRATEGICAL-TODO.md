@@ -79,7 +79,7 @@ Integrate community presence and sector-level interactions.
 
 ---
 
-### M26: Art Pipeline — Mode A Environment (Hand-Crafted Space)
+### M26: Art Pipeline — Mode A Environment (Hand-Crafted Space) [x]
 Produce Mode A 3D environment assets — the visual archaeological canvas.
 - All Mode A structures (derelicts, abandoned solar arrays, decaying orbits) placed by hand; no procedural asset scattering.
 - Assets convey history, tragic events, and spatial function through geometry, wear, and shadow — no floating text labels or in-world pop-ups.
