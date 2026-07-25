@@ -55,6 +55,9 @@ const StationMenuScene = preload("res://scenes/ui/menus/station_menu/StationMenu
 var _station_menu_instance = null
 const InteractionWindowScene = preload("res://scenes/ui/menus/interaction_window/InteractionWindow.tscn")
 var _interaction_window_instance = null
+const BoardUIScene = preload("res://scenes/ui/board/board_ui.tscn")
+var _board_ui_instance = null
+
 
 # --- Nodes ---
 onready var projected_target_overlay: Control = $ProjectedTargetOverlay
@@ -227,9 +230,17 @@ func _ready():
 	add_child(_interaction_window_instance)
 	if is_instance_valid(_interaction_window_instance):
 		_interaction_window_instance.connect("closed", self, "_on_interaction_window_closed")
+
+	# --- Instance Board UI sub-screen ---
+	_board_ui_instance = BoardUIScene.instance()
+	_board_ui_instance.visible = false
+	add_child(_board_ui_instance)
+	if is_instance_valid(_board_ui_instance) and _board_ui_instance.has_signal("board_closed"):
+		_board_ui_instance.connect("board_closed", self, "_on_board_ui_closed")
 	
 	_refresh_process_state()
 	_update_dock_button_label()
+
 	call_deferred("_rebuild_projected_target_overlays")
 
 
@@ -493,6 +504,21 @@ func _on_ButtonDock_pressed():
 func _on_ButtonInteract_pressed():
 	if EventBus:
 		EventBus.emit_signal("player_interact_pressed")
+
+
+func open_board_ui() -> void:
+	if is_instance_valid(_board_ui_instance):
+		_board_ui_instance.visible = true
+		if _board_ui_instance.has_method("_populate_board"):
+			_board_ui_instance.call("_populate_board")
+
+func close_board_ui() -> void:
+	if is_instance_valid(_board_ui_instance):
+		_board_ui_instance.visible = false
+
+func _on_board_ui_closed() -> void:
+	close_board_ui()
+
 
 
 func _on_player_npc_interact_requested(agent_id: String, target_node: Spatial) -> void:

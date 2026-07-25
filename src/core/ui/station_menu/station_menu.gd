@@ -26,6 +26,7 @@ onready var _label_info: Label = $Panel/VBoxContainer/LabelInfo
 onready var _btn_close: BaseButton = $Panel/VBoxContainer/HeaderRow/BtnClose
 onready var _btn_trade: Button = $Panel/VBoxContainer/BtnTrade
 onready var _btn_contracts: Button = $Panel/VBoxContainer/BtnContracts
+onready var _btn_board_interface: Button = $Panel/VBoxContainer/BtnBoardInterface
 onready var _btn_undock: Button = $Panel/VBoxContainer/BtnUndock
 
 onready var _market_section: VBoxContainer = $Panel/VBoxContainer/MarketSection
@@ -57,9 +58,12 @@ func _ready() -> void:
 	_btn_undock.connect("pressed", self, "_on_undock_pressed")
 	_btn_trade.connect("pressed", self, "_on_trade_pressed")
 	_btn_contracts.connect("pressed", self, "_on_contracts_pressed")
+	if is_instance_valid(_btn_board_interface):
+		_btn_board_interface.connect("pressed", self, "_on_board_interface_pressed")
 
 	# NOTE: GDD REVISION - Hiding/disabling the deprecated trade button.
 	_btn_trade.visible = false
+
 
 
 # =============================================================================
@@ -125,6 +129,17 @@ func _on_trade_pressed() -> void:
 
 func _on_contracts_pressed() -> void:
 	_open_contract_board()
+
+
+func _on_board_interface_pressed() -> void:
+	var hud = GlobalRefs.main_hud
+	if is_instance_valid(hud) and hud.has_method("open_board_ui"):
+		hud.call("open_board_ui")
+		visible = false
+	else:
+		_service_status_message = "Board Interface (Mode B) opened."
+		_update_info_label()
+
 
 
 # =============================================================================

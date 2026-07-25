@@ -77,6 +77,14 @@ margin_bottom = 283.0
 rect_min_size = Vector2( 0, 50 )
 text = "Open Contract Board"
 
+[node name="BtnBoardInterface" type="Button" parent="Panel/VBoxContainer"]
+margin_top = 295.0
+margin_right = 1446.0
+margin_bottom = 345.0
+rect_min_size = Vector2( 0, 50 )
+text = "Enter Board Interface (Mode B)"
+
+
 [node name="MarketSection" type="VBoxContainer" parent="Panel/VBoxContainer"]
 visible = false
 margin_top = 412.0

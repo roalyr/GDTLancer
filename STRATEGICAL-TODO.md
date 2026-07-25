@@ -113,7 +113,7 @@ Define and implement the base set of Asset Cards as lateral expanders.
 
 ---
 
-### M29: Playable Board Game MVP
+### M29: Playable Board Game MVP [x]
 Integrate all milestones into a 1-hour playable session.
 - Integration milestone: wire M20–M28 into a playable 1-hour session.
 - Player can dock, interact with NPCs on the board via Asset Cards, take 3d6 action checks, see board mutations.
@@ -123,3 +123,4 @@ Integrate all milestones into a 1-hour playable session.
 - Validation: manual playtest.
 - Dependencies: M20, M21, M22, M23, M24, M25, M26, M27, M28
 - Done criteria: Manual playtest of 1-hour session confirms lateral progression loop, community hooks, and Mode A visual archaeology all function as intended.
+
