@@ -1,0 +1,15 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://src/core/cards/asset_card.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+card_id = "neural_overclock"
+display_name = "Neural Overclock"
+description = "Direct synaptic implant allowing hyper-calculation during action checks."
+tags = [ "modification", "transhuman" ]
+unlocked_verbs = [ "instant_action_check" ]
+trade_offs = {
+"gained": "+2 modifier to all complex spatial checks",
+"surrendered": "Morale track degrades by 1 point per activation due to neural strain"
+}

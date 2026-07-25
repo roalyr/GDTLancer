@@ -1,0 +1,13 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://src/core/cards/asset_card.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+card_id = "radiation_baffle"
+display_name = "Radiation Baffle"
+description = "Lead-lined reflective curtain array protecting crew from solar emission flares."
+tags = [ "survival", "shielding" ]
+unlocked_verbs = [ "traverse_radiation" ]
+trade_offs = {
+}

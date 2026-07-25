@@ -1,0 +1,13 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://src/core/cards/asset_card.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+card_id = "salvage_scanner"
+display_name = "Salvage Scanner"
+description = "Spectrometric sensor suite tuned to identify structural stress and hull composition."
+tags = [ "interaction", "scanner" ]
+unlocked_verbs = [ "identify_derelict_history" ]
+trade_offs = {
+}

@@ -92,7 +92,7 @@ Produce Mode A 3D environment assets — the visual archaeological canvas.
 
 ---
 
-### M27: Art Pipeline — Mode B Visual Style
+### M27: Art Pipeline — Mode B Visual Style [x]
 Define and produce the base Mode B board visual language.
 - Establish art direction for the simple 2D board (tokens, track displays, card UI).
 - Style TBD pending board layout finalisation (M22).
@@ -102,7 +102,7 @@ Define and produce the base Mode B board visual language.
 
 ---
 
-### M28: Asset Card Library (Lateral Progression Corpus)
+### M28: Asset Card Library (Lateral Progression Corpus) [x]
 Define and implement the base set of Asset Cards as lateral expanders.
 - Asset Cards expand mechanical verbs: traversal, anchoring, survival, interaction — not stat numbers.
 - **Modification cards** (Transhumanism, Pillar 9): must carry explicit trade-off tags (what is gained, what is surrendered). No pure-bonus modification cards.

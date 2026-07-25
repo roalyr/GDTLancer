@@ -1,0 +1,13 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://src/core/cards/asset_card.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+card_id = "cryo_stasis_pod"
+display_name = "Cryo-Stasis Pod"
+description = "Emergency metabolic suspension pod allowing crew to survive long famine cycles."
+tags = [ "survival", "stasis" ]
+unlocked_verbs = [ "endure_famine" ]
+trade_offs = {
+}

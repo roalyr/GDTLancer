@@ -1,0 +1,13 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://src/core/cards/asset_card.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+card_id = "thruster_overdrive"
+display_name = "Thruster Overdrive"
+description = "High-burn injector manifold allowing burst velocity to evade spatial hazards."
+tags = [ "traversal", "speed_boost" ]
+unlocked_verbs = [ "evade_containment" ]
+trade_offs = {
+}

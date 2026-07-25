@@ -1,0 +1,15 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://src/core/cards/asset_card.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+card_id = "synthetic_metabolism"
+display_name = "Synthetic Metabolism"
+description = "Synthetic organ weave allowing survival on raw industrial compounds."
+tags = [ "modification", "transhuman" ]
+unlocked_verbs = [ "bypass_supplies_cost" ]
+trade_offs = {
+"gained": "Zero supply consumption on long-distance sector jumps",
+"surrendered": "Health track maximum is permanently capped at 8 points"
+}

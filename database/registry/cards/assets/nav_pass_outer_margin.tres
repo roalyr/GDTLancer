@@ -1,0 +1,13 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://src/core/cards/asset_card.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+card_id = "nav_pass_outer_margin"
+display_name = "Outer Margin Nav-Pass"
+description = "Authorized transit clearance token required to pass outer boundary security gates."
+tags = [ "traversal", "outer_margin_pass" ]
+unlocked_verbs = [ "enter_outer_margin" ]
+trade_offs = {
+}

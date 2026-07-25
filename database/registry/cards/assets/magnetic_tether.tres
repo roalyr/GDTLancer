@@ -1,0 +1,13 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://src/core/cards/asset_card.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+card_id = "magnetic_tether"
+display_name = "Magnetic Tether"
+description = "Heavy industrial clamp line for securing vessel to derelict structures in zero-g."
+tags = [ "anchoring", "tether" ]
+unlocked_verbs = [ "dock_derelict" ]
+trade_offs = {
+}

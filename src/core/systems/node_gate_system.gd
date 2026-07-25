@@ -7,13 +7,13 @@
 # TRUTH_LINK: TRUTH_EXPLORATION-PILLARS.md §4
 # LOG_REF: 2026-07-26 02:15:00
 
-extends Node
+extends Reference
 class_name NodeGateSystem
 
 # Key: node_id (String), Value: Dictionary {required_asset_tag, required_sector_tag, description}
 var gates: Dictionary = {}
 
-func _ready() -> void:
+func _init() -> void:
 	# Default outer-margin node gate registration (Dangling Carrot)
 	register_gate("node_outer_margin_alpha", "outer_margin_pass", "", "Requires Outer Margin Nav-Pass Asset Card")
 	register_gate("node_outer_margin_beta", "quantum_anchor", "", "Requires Quantum Anchor Asset Card")

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://src/core/cards/asset_card.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+card_id = "gravic_clamp"
+display_name = "Gravic Clamp"
+description = "Micro-gravity anchor field generator to lock orbit against decaying momentum."
+tags = [ "anchoring", "clamp" ]
+unlocked_verbs = [ "stabilize_orbit" ]
+trade_offs = {
+}

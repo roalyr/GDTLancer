@@ -1,0 +1,15 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://src/core/cards/asset_card.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+card_id = "cybernetic_sensory_pod"
+display_name = "Cybernetic Sensory Pod"
+description = "Ocular and auditory replacement sensing non-visual electromagnetic frequencies."
+tags = [ "modification", "transhuman" ]
+unlocked_verbs = [ "detect_anomalous_nodes" ]
+trade_offs = {
+"gained": "Detect hidden outer-margin anomalies visually in Mode A",
+"surrendered": "Permanent vulnerability tag to electro-magnetic storm events"
+}

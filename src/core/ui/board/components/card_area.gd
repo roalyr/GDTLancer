@@ -45,16 +45,10 @@ func render_cards() -> void:
 	for card in cards:
 		if card == null:
 			continue
-		var card_ui: Button = Button.new()
-		card_ui.rect_min_size = Vector2(120, 160)
-		
-		var title: String = card.display_name if "display_name" in card else "Card"
-		var tags_str: String = ""
-		if "tags" in card and card.tags is Array:
-			tags_str = "\nTags: " + str(card.tags)
-			
-		card_ui.text = title + tags_str
-		card_ui.connect("pressed", self, "_on_card_pressed", [card])
+		var card_ui = load("res://scenes/ui/board/components/card_ui.tscn").instance()
+		card_ui.set_card(card)
+		card_ui.set_selected(selected_cards.has(card))
+		card_ui.connect("card_pressed", self, "_on_card_pressed")
 		container.add_child(card_ui)
 
 func _on_card_pressed(card: Resource) -> void:
@@ -62,4 +56,5 @@ func _on_card_pressed(card: Resource) -> void:
 		selected_cards.erase(card)
 	else:
 		selected_cards.append(card)
+	render_cards()
 	emit_signal("card_selected", card)
