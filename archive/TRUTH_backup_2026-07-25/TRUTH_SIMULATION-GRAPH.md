@@ -44,5 +44,5 @@ The game rules are divided into three clear layers that define the board state.
 - **Rule:** Vessels move between map nodes on World Clock ticks. NPC availability on the 2D board is intrinsically linked to their vessel's current location, unless they are permanent station residents.
 
 ### Layer 3: The Social Web
-- The network of named NPCs and their relationships.
-- **Rule:** NPCs do not simulate complex background lives. Their states, tags, and availability are updated via the World Clock and direct player interactions on the board. Visual representation method is TBD.
+- The network of named NPCs (represented by up to 1,500 sprite variations) and their relationships.
+- **Rule:** NPCs do not simulate complex background lives. Their states, tags, and availability are updated via the World Clock and direct player interactions on the board.

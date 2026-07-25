@@ -34,10 +34,12 @@ GDTLancer is a **2D digital board game**, not a story generator or TTRPG. There 
 
 All interactions on the 2D board follow a strict loop:
 
-1. **Target Node:** The player selects an interactive node on the board (e.g., an NPC token, a vessel, a terminal).
-2. **Action Assembly:** The player builds their action by selecting applicable **Asset Cards** (tools, situational gear, tags, or statuses). Asset Cards act as lateral verb expanders rather than stat buffs.
+1. **Target Node:** The player selects an interactive node on the board (e.g., an NPC sprite, a vessel, a terminal).
+2. **Action Assembly:** The player builds their action by combining a Verb, an Approach, and any applicable Cards (tags, items, or statuses).
 3. **Action Check (3d6):** The system resolves the action using a 3d6 roll against the current state and applied cards.
-4. **Board Mutation:** The outcome generates **Impact Cards** (Advantage/Disadvantage). The player selects their outcomes, instantly mutating the board state (e.g., changing tracks, altering tags, or removing targets).
+4. **Board Mutation:** The outcome generates **Impact Cards** (Advantage/Disadvantage). The player selects their outcomes, instantly mutating the board state (e.g., changing tracks, altering tags, or removing sprites).
+
+*Note: The **Oracle** is not a standalone free-text action. It is an integrated context generator that provides situational tags and parameters within actions and outcomes.*
 
 ---
 
@@ -45,15 +47,13 @@ All interactions on the 2D board follow a strict loop:
 
 ### Mode A: 3D Flight
 - Focuses on real-time 3D flight and spatial navigation between nodes.
-- Acts as a **Visual Archaeological Canvas** where storytelling relies on environmental geometry, wear, and derelicts. (No detached text logs or encyclopedia pop-ups).
-- Defines the player's **Graduated Spatial Radius**, where early-game traversal constraints give way to late-game spatial mastery, reflecting the physical reality of spaceflight.
 - Uses the **Command Glass** for system overlays and minimal HUD.
 
 ### Mode B: 2D Board
 - The primary strategic and social interface.
-- Utilizes simple 2D board game conventions (tokens, grids, tracks, cards, dice rolls).
-- The board layout and visual interface design will focus on clean abstraction of locations and minigames (details TBD).
-- NPCs are tracked by name, tags, and board state, represented via board tokens rather than complex paper-doll sprite systems.
+- Utilizes the **Layered Depth Mat** to render 2D illustrated scenes.
+- **Zones A/C:** HUD-style status bars and action trays on black backgrounds.
+- **Zone B:** The central illustrated scene populated by the **Sprite System** (composing up to 1,500 NPC variations from 25-55 grayscale sprites). Capped at 3-5 NPCs per compartment.
 
 ---
 

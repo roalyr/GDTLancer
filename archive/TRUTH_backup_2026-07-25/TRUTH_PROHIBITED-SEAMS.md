@@ -19,7 +19,7 @@ This list tracks features and rules explicitly banned from the board game design
 
 ## 2. No 3D On-Foot Navigation
 - **Rule:** The game will not feature 3D characters walking around.
-- **How it's built:** Mode B uses a 2D board with simple 2D abstractions (tokens, grids, cards). All social and strategic gameplay occurs here.
+- **How it's built:** Mode B uses a 2D board with illustrated scenes (Layered Depth Mat) and sprite-based NPCs. All social and strategic gameplay occurs here.
 
 ## 3. No System-Written Stories
 - **Rule:** The engine never writes prose or dialogue.
