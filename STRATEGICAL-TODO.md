@@ -67,7 +67,7 @@ Add NPC tags, bond strengths, and their presence as board tokens.
 
 ---
 
-### M25: Community & Sector Interaction
+### M25: Community & Sector Interaction [x]
 Integrate community presence and sector-level interactions.
 - Community presence in sectors: named residents, mood tags, daily pressure visible on board.
 - Sector arrival/departure sequences with logistical weight (resource cost, World Clock Ticks).
