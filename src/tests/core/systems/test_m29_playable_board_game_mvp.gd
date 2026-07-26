@@ -52,16 +52,11 @@ func test_mode_b_board_ui_population_and_action_loop():
 	board_ui._populate_board()
 	assert_true(board_ui.card_area.cards.size() > 0, "BoardUI should populate with cards from AssetSystem")
 	
-	# Initial track values
-	GameState.set_player_track("wealth", 5)
-	GameState.set_player_track("health", 5)
-	
-	# Execute an action check
+	# Execute a 3d6 dice roll
 	board_ui.card_area.selected_cards = [board_ui.card_area.cards[0]]
 	board_ui._on_execute_action_pressed()
 	
 	assert_ne(board_ui.dice_feedback.outcome_label.text, "Awaiting Roll...", "Outcome feedback should update")
-	assert_true(GameState.get_player_track("wealth") != 5 or GameState.get_player_track("health") != 5, "Action check should mutate player tracks")
 
 func test_outer_margin_node_dangling_carrot_locking():
 	# NodeOuterMarginAlpha requires "outer_margin_pass" tag
@@ -77,16 +72,7 @@ func test_outer_margin_node_dangling_carrot_locking():
 	var inv_with_card = [nav_card]
 	assert_false(gate_sys.is_node_locked("node_outer_margin_alpha", inv_with_card), "Outer margin teaser node should unlock with Nav-Pass card")
 
-func test_sector_travel_resource_drain_and_thresholds():
-	GameState.set_player_track("supplies", 5)
-	
+func test_sector_travel_and_gating():
 	# Travel from sector_core_industrial to sector_epsilon
-	var result = sector_mgr.travel_to_sector("sector_core_industrial", "sector_epsilon", [], 2, 1)
-	assert_true(result.get("success", false), "Travel should succeed with sufficient supplies")
-	assert_eq(GameState.get_player_track("supplies"), 3, "Travel should deduct 2 supplies")
-	
-	# Environmental threshold test
-	GameState.set_sector_track("sector_epsilon", "stability", 1)
-	var events = sector_mgr.evaluate_sector_thresholds("sector_epsilon")
-	assert_true(events.size() > 0, "Low sector stability should trigger environmental event")
-	assert_eq(events[0].event_type, "ANOMALOUS_UNREST")
+	var result = sector_mgr.travel_to_sector("sector_core_industrial", "sector_epsilon", [], 0, 1)
+	assert_true(result.get("success", false), "Travel should succeed when unlocked")

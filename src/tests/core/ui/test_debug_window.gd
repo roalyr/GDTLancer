@@ -187,8 +187,8 @@ func test_main_hud_dock_button_reopens_station_menu_while_docked() -> void:
 	hud._on_ButtonDock_pressed()
 	yield(get_tree(), "idle_frame")
 
-	assert_true(hud._station_menu_instance.visible, "MainHUD dock button should reopen the station menu while already docked.")
-	assert_signal_not_emitted(EventBus, "player_dock_pressed", "Reopening the station menu while docked should not emit a fresh docking request.")
+	assert_true(is_instance_valid(hud._board_ui_station_instance) and hud._board_ui_station_instance.visible, "MainHUD dock button should open the station board interface.")
+	assert_signal_not_emitted(EventBus, "player_dock_pressed", "Opening the station board should not emit a 3d flight travel request.")
 
 
 func test_main_hud_inventory_button_shows_explicit_placeholder_popup() -> void:

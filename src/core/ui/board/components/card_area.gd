@@ -53,8 +53,9 @@ func render_cards() -> void:
 
 func _on_card_pressed(card: Resource) -> void:
 	if selected_cards.has(card):
-		selected_cards.erase(card)
+		selected_cards.clear()
 	else:
+		selected_cards.clear()
 		selected_cards.append(card)
 	render_cards()
 	emit_signal("card_selected", card)

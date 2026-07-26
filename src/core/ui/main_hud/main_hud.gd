@@ -357,6 +357,16 @@ func _refresh_time_display() -> void:
 		time_text += " | Sub-tick: " + str(GameState.sub_tick_accumulator)
 		label_time.text = time_text
 
+	if is_instance_valid(label_stats):
+		var ticks: int = 0
+		var world_clock = get_node_or_null("/root/MainGameScene/WorldManager/WorldClock")
+		if is_instance_valid(world_clock) and "current_tick" in world_clock:
+			ticks = world_clock.current_tick
+		elif GameState != null:
+			ticks = GameState.sim_tick_count
+		var cycle: int = (ticks / 10) + 1
+		label_stats.text = "SECTOR TRAVEL CLOCK\nTICK %d  |  CYCLE %d" % [ticks, cycle]
+
 	var debug_window = _get_debug_window()
 	if is_instance_valid(debug_window) and debug_window.has_method("refresh_debug_window_time_display"):
 		debug_window.call("refresh_debug_window_time_display")
@@ -519,6 +529,7 @@ func _on_ButtonInteract_pressed():
 
 func open_board_ui(context_type: String = "vessel") -> void:
 	close_board_ui()
+	set_ui_mode("MODE_B")
 	var target_instance = null
 	if context_type == "station":
 		if not is_instance_valid(_board_ui_station_instance):
@@ -555,6 +566,7 @@ func close_board_ui() -> void:
 		_board_ui_vessel_instance.visible = false
 	if is_instance_valid(_board_ui_survey_instance):
 		_board_ui_survey_instance.visible = false
+	set_ui_mode("MODE_A")
 
 func _on_board_ui_closed() -> void:
 	close_board_ui()

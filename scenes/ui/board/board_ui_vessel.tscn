@@ -32,82 +32,44 @@ rect_min_size = Vector2( 210, 0 )
 margin_right = 210.0
 margin_bottom = 580.0
 size_flags_vertical = 3
-custom_constants/separation = 4
-
-[node name="PlayerTracksHeader" type="Label" parent="Layout/LeftPanel/TrackContainer"]
-margin_right = 210.0
-margin_bottom = 14.0
-custom_colors/font_color = Color( 0.35, 0.8, 1.0, 1 )
-text = "[ PLAYER TRACKS ]"
-align = 1
-
-[node name="HealthTrack" parent="Layout/LeftPanel/TrackContainer" instance=ExtResource( 4 )]
-margin_top = 18.0
-margin_right = 210.0
-margin_bottom = 74.0
-
-[node name="WealthTrack" parent="Layout/LeftPanel/TrackContainer" instance=ExtResource( 4 )]
-margin_top = 78.0
-margin_right = 210.0
-margin_bottom = 134.0
-
-[node name="MoraleTrack" parent="Layout/LeftPanel/TrackContainer" instance=ExtResource( 4 )]
-margin_top = 138.0
-margin_right = 210.0
-margin_bottom = 194.0
-
-[node name="SuppliesTrack" parent="Layout/LeftPanel/TrackContainer" instance=ExtResource( 4 )]
-margin_top = 198.0
-margin_right = 210.0
-margin_bottom = 254.0
-
-[node name="HSeparator" type="HSeparator" parent="Layout/LeftPanel/TrackContainer"]
-margin_top = 258.0
-margin_right = 210.0
-margin_bottom = 264.0
-
-[node name="SectorTracksHeader" type="Label" parent="Layout/LeftPanel/TrackContainer"]
-margin_top = 268.0
-margin_right = 210.0
-margin_bottom = 282.0
-custom_colors/font_color = Color( 0.95, 0.75, 0.25, 1 )
-text = "[ SECTOR TRACKS ]"
-align = 1
-
-[node name="StabilityTrack" parent="Layout/LeftPanel/TrackContainer" instance=ExtResource( 4 )]
-margin_top = 286.0
-margin_right = 210.0
-margin_bottom = 342.0
-
-[node name="ResourcesTrack" parent="Layout/LeftPanel/TrackContainer" instance=ExtResource( 4 )]
-margin_top = 346.0
-margin_right = 210.0
-margin_bottom = 402.0
-
-[node name="SecurityTrack" parent="Layout/LeftPanel/TrackContainer" instance=ExtResource( 4 )]
-margin_top = 406.0
-margin_right = 210.0
-margin_bottom = 462.0
-
-[node name="HSeparator2" type="HSeparator" parent="Layout/LeftPanel/TrackContainer"]
-margin_top = 466.0
-margin_right = 210.0
-margin_bottom = 472.0
+custom_constants/separation = 12
 
 [node name="SectorTagsHeader" type="Label" parent="Layout/LeftPanel/TrackContainer"]
-margin_top = 476.0
 margin_right = 210.0
-margin_bottom = 490.0
+margin_bottom = 14.0
 custom_colors/font_color = Color( 0.95, 0.5, 0.25, 1 )
 text = "[ ACTIVE SECTOR TAGS ]"
 align = 1
 
 [node name="SectorTagsLabel" type="Label" parent="Layout/LeftPanel/TrackContainer"]
-margin_top = 494.0
+margin_top = 18.0
 margin_right = 210.0
-margin_bottom = 530.0
+margin_bottom = 60.0
 custom_colors/font_color = Color( 1.0, 0.7, 0.4, 1 )
 text = "[NOMINAL / CLEAR]"
+align = 1
+valign = 1
+autowrap = true
+
+[node name="HSeparator" type="HSeparator" parent="Layout/LeftPanel/TrackContainer"]
+margin_top = 64.0
+margin_right = 210.0
+margin_bottom = 68.0
+
+[node name="VesselTagsHeader" type="Label" parent="Layout/LeftPanel/TrackContainer"]
+margin_top = 72.0
+margin_right = 210.0
+margin_bottom = 86.0
+custom_colors/font_color = Color( 0.35, 0.8, 1.0, 1 )
+text = "[ VESSEL STATUS TAGS ]"
+align = 1
+
+[node name="VesselTagsLabel" type="Label" parent="Layout/LeftPanel/TrackContainer"]
+margin_top = 90.0
+margin_right = 210.0
+margin_bottom = 150.0
+custom_colors/font_color = Color( 0.4, 0.9, 1.0, 1 )
+text = "[SEALED HULL]\n[WARP CAPABLE]\n[SENSORS ACTIVE]"
 align = 1
 valign = 1
 autowrap = true
@@ -166,7 +128,7 @@ margin_top = 122.0
 margin_right = 204.0
 margin_bottom = 162.0
 rect_min_size = Vector2( 0, 40 )
-text = "EXECUTE 3D6 CHECK"
+text = "ROLL 3D6 DICE"
 
 [node name="CloseBoardButton" type="Button" parent="Layout/RightPanel"]
 margin_top = 170.0

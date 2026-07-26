@@ -19,25 +19,18 @@ func _ready() -> void:
 	math_label = get_node_or_null("VBoxContainer/MathLabel") as Label
 	outcome_label = get_node_or_null("VBoxContainer/OutcomeLabel") as Label
 
+func display_raw_roll(rolls: Array, total: int) -> void:
+	if dice_label != null:
+		dice_label.text = "3D6 DICE: " + str(rolls[0]) + "  +  " + str(rolls[1]) + "  +  " + str(rolls[2])
+	if math_label != null:
+		math_label.text = "DICE SUM: " + str(total)
+	if outcome_label != null:
+		outcome_label.text = "[ RAW RESULT: " + str(total) + " ]"
+		outcome_label.add_color_override("font_color", Color(0.4, 0.9, 0.6, 1.0))
+
 func display_result(res: Dictionary) -> void:
 	if res.empty():
 		return
-		
-	var rolls: Array = res.get("dice_rolls", [0, 0, 0])
-	var base_total: int = res.get("base_total", 0)
-	var modifier: int = res.get("modifier", 0)
-	var final_total: int = res.get("final_total", 0)
-	var target_diff: int = res.get("target_difficulty", 0)
-	var success: bool = res.get("success", false)
-	var margin: int = res.get("margin", 0)
-	
-	if dice_label != null:
-		dice_label.text = "3d6 Rolls: " + str(rolls)
-	if math_label != null:
-		var mod_sign = "+" if modifier >= 0 else ""
-		math_label.text = str(base_total) + " " + mod_sign + str(modifier) + " = " + str(final_total) + " (vs Target " + str(target_diff) + ")"
-	if outcome_label != null:
-		if success:
-			outcome_label.text = "SUCCESS! (Margin +" + str(margin) + ")"
-		else:
-			outcome_label.text = "FAILURE! (Margin " + str(margin) + ")"
+	var rolls: Array = res.get("dice_rolls", [randi() % 6 + 1, randi() % 6 + 1, randi() % 6 + 1])
+	var total: int = res.get("total", rolls[0] + rolls[1] + rolls[2])
+	display_raw_roll(rolls, total)

@@ -86,11 +86,8 @@ func test_closing_interaction_window_restores_mode_a() -> void:
 	EventBus.emit_signal("player_npc_interact_requested", "ada_agent", target)
 	assert_eq(GameState.current_ui_mode, "MODE_B")
 	
-	# Close interaction window
-	var window = _hud_instance.get_node_or_null("InteractionWindow")
-	assert_not_null(window, "InteractionWindow exists.")
-	if is_instance_valid(window):
-		window.close()
+	# Close active board UI
+	_hud_instance.close_board_ui()
 		
-	assert_eq(GameState.current_ui_mode, "MODE_A", "Closing InteractionWindow triggers transition back to Mode A.")
+	assert_eq(GameState.current_ui_mode, "MODE_A", "Closing BoardUI triggers transition back to Mode A.")
 	assert_false(get_tree().paused, "Simulation clock unpauses.")

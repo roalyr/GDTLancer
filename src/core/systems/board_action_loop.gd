@@ -32,25 +32,13 @@ func execute_check(target_difficulty: int = 10, seeded_dice: Array = [], bond_mo
 	last_check_result = check_engine.resolve_check(target_difficulty, selected_asset_cards, player_tracks, seeded_dice, bond_modifier)
 	return last_check_result
 
-func apply_mutation(impact_card, sector_id: String = "") -> bool:
+func apply_mutation(impact_card, _sector_id: String = "") -> bool:
 	if not impact_card:
 		return false
 
-	# Apply Player track deltas
-	for track in impact_card.player_track_deltas:
-		var delta = int(impact_card.player_track_deltas[track])
-		GameState.apply_player_track_delta(track, delta)
-
-	# Apply Sector track deltas
-	if not sector_id.empty():
-		for track in impact_card.sector_track_deltas:
-			var delta = int(impact_card.sector_track_deltas[track])
-			GameState.apply_sector_track_delta(sector_id, track, delta)
-
-	# Advance WorldClock by 1 tick on board action loop completion
 	var world_clock = get_node_or_null("/root/WorldClock")
 	if world_clock and world_clock.has_method("advance"):
 		world_clock.advance(1)
 
-	EventBus.emit_signal("interact_action_feedback", true, "Board mutated by " + impact_card.display_name)
+	EventBus.emit_signal("interact_action_feedback", true, "Action executed: " + impact_card.display_name)
 	return true

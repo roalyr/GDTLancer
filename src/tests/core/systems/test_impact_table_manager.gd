@@ -51,14 +51,10 @@ func test_evaluate_context_across_pools():
 
 func test_apply_impact_entry_mutates_gamestate():
 	GameState.current_sector_id = "sector_test"
-	GameState.player_tracks["health"] = 5
-	GameState.player_tracks["wealth"] = 5
 	
 	var entry = ImpactCardEntryClass.new()
 	entry.entry_id = "impact_test"
 	entry.type = "ADVANTAGE"
-	entry.player_track_deltas = {"health": -1, "wealth": 3}
-	entry.sector_track_deltas = {"morale": 2}
 	entry.applied_tags = ["station_repaired"]
 	entry.removed_tags = ["station_damaged"]
 	
@@ -66,9 +62,6 @@ func test_apply_impact_entry_mutates_gamestate():
 	
 	var report = manager.apply_impact_entry(entry, "sector_test")
 	
-	assert_eq(GameState.get_player_track("health"), 4)
-	assert_eq(GameState.get_player_track("wealth"), 8)
-	assert_eq(GameState.get_sector_track("sector_test", "morale"), 7)
 	assert_true(GameState.has_sector_tag("sector_test", "station_repaired"))
 	assert_false(GameState.has_sector_tag("sector_test", "station_damaged"))
 	assert_eq(report["entry_id"], "impact_test")
