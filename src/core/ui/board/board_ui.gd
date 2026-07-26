@@ -34,8 +34,13 @@ var is_target_locked: bool = false
 var action_title_label: Label = null
 var world_clock_label: Label = null
 var sector_tags_label: Label = null
+var board_title_label: Label = null
 
 func _ready() -> void:
+	var main_theme = load("res://assets/themes/main_theme.tres")
+	if main_theme != null:
+		theme = main_theme
+
 	action_loop = BoardActionLoopScript.new()
 	add_child(action_loop)
 	
@@ -48,13 +53,15 @@ func _ready() -> void:
 	action_title_label = get_node_or_null("Layout/RightPanel/ActionTitle") as Label
 	world_clock_label = get_node_or_null("Layout/CenterPanel/WorldClockLabel") as Label
 	sector_tags_label = get_node_or_null("Layout/LeftPanel/TrackContainer/SectorTagsLabel") as Label
+	board_title_label = get_node_or_null("Layout/CenterPanel/BoardTitle") as Label
 	
-	if action_btn != null:
+	if action_btn != null and not action_btn.is_connected("pressed", self, "_on_execute_action_pressed"):
 		action_btn.connect("pressed", self, "_on_execute_action_pressed")
-	if close_btn != null:
+	if close_btn != null and not close_btn.is_connected("pressed", self, "_on_close_board_pressed"):
 		close_btn.connect("pressed", self, "_on_close_board_pressed")
 	if EventBus != null and EventBus.has_signal("tick_advanced"):
-		EventBus.connect("tick_advanced", self, "_on_tick_advanced")
+		if not EventBus.is_connected("tick_advanced", self, "_on_tick_advanced"):
+			EventBus.connect("tick_advanced", self, "_on_tick_advanced")
 		
 	# Ensure SectorManager is active to listen for World Clock ticks
 	var sector_mgr = get_node_or_null("SectorManager")
@@ -66,9 +73,11 @@ func _ready() -> void:
 			add_child(sector_mgr)
 			
 	if EventBus != null and EventBus.has_signal("environmental_event_triggered"):
-		EventBus.connect("environmental_event_triggered", self, "_on_environmental_event_triggered")
+		if not EventBus.is_connected("environmental_event_triggered", self, "_on_environmental_event_triggered"):
+			EventBus.connect("environmental_event_triggered", self, "_on_environmental_event_triggered")
 	if EventBus != null and EventBus.has_signal("sector_tags_changed"):
-		EventBus.connect("sector_tags_changed", self, "_on_sector_tags_changed")
+		if not EventBus.is_connected("sector_tags_changed", self, "_on_sector_tags_changed"):
+			EventBus.connect("sector_tags_changed", self, "_on_sector_tags_changed")
 
 	setup_tracks()
 	_populate_board()

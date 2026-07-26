@@ -20,6 +20,9 @@ var tier_label: Label = null
 var progress_bar: ProgressBar = null
 
 func _ready() -> void:
+	var main_theme = load("res://assets/themes/main_theme.tres")
+	if main_theme != null:
+		theme = main_theme
 	title_label = get_node_or_null("VBoxContainer/TitleLabel") as Label
 	value_label = get_node_or_null("VBoxContainer/ValueLabel") as Label
 	tier_label = get_node_or_null("VBoxContainer/TierLabel") as Label

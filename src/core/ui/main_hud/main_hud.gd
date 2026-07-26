@@ -55,8 +55,13 @@ const StationMenuScene = preload("res://scenes/ui/menus/station_menu/StationMenu
 var _station_menu_instance = null
 const InteractionWindowScene = preload("res://scenes/ui/menus/interaction_window/InteractionWindow.tscn")
 var _interaction_window_instance = null
-const BoardUIScene = preload("res://scenes/ui/board/board_ui.tscn")
-var _board_ui_instance = null
+const BoardUIStationScene = preload("res://scenes/ui/board/board_ui_station.tscn")
+const BoardUIVesselScene = preload("res://scenes/ui/board/board_ui_vessel.tscn")
+const BoardUISurveyScene = preload("res://scenes/ui/board/board_ui_survey.tscn")
+var _board_ui_station_instance = null
+var _board_ui_vessel_instance = null
+var _board_ui_survey_instance = null
+var _active_board_instance = null
 
 
 # --- Nodes ---
@@ -231,13 +236,6 @@ func _ready():
 	if is_instance_valid(_interaction_window_instance):
 		_interaction_window_instance.connect("closed", self, "_on_interaction_window_closed")
 
-	# --- Instance Board UI sub-screen ---
-	_board_ui_instance = BoardUIScene.instance()
-	_board_ui_instance.visible = false
-	add_child(_board_ui_instance)
-	if is_instance_valid(_board_ui_instance) and _board_ui_instance.has_signal("board_closed"):
-		_board_ui_instance.connect("board_closed", self, "_on_board_ui_closed")
-	
 	_refresh_process_state()
 	_update_dock_button_label()
 
@@ -493,38 +491,76 @@ func _on_ButtonOverlayJump_pressed() -> void:
 
 
 func _on_ButtonDock_pressed():
-	if GameState.player_docked_at != "":
-		if is_instance_valid(_station_menu_instance) and _station_menu_instance.has_method("open_for_current_dock"):
-			_station_menu_instance.call("open_for_current_dock")
+	if is_instance_valid(label_button_dock) and label_button_dock.text == "TRAVEL":
+		if _jump_target_id != "":
+			EventBus.emit_signal("player_jump_requested", _jump_target_id)
+		else:
+			EventBus.emit_signal("player_dock_pressed")
 		return
-	if EventBus:
-		EventBus.emit_signal("player_dock_pressed")
 
+	if _current_target != null and is_instance_valid(_current_target) and (_is_route_target(_current_target) or _current_target.is_in_group("jump_point")):
+		if _jump_target_id != "":
+			EventBus.emit_signal("player_jump_requested", _jump_target_id)
+		else:
+			EventBus.emit_signal("player_dock_pressed")
+		return
+
+	open_board_ui("station")
 
 func _on_ButtonInteract_pressed():
-	if EventBus:
-		EventBus.emit_signal("player_interact_pressed")
+	if _current_target != null and is_instance_valid(_current_target):
+		if _is_celestial(_current_target) or "survey" in _current_target.name.to_lower() or "anomaly" in _current_target.name.to_lower():
+			open_board_ui("survey")
+		else:
+			open_board_ui("station")
+	else:
+		# Status / Interact without target -> Vessel board
+		open_board_ui("vessel")
 
+func open_board_ui(context_type: String = "vessel") -> void:
+	close_board_ui()
+	var target_instance = null
+	if context_type == "station":
+		if not is_instance_valid(_board_ui_station_instance):
+			_board_ui_station_instance = BoardUIStationScene.instance()
+			add_child(_board_ui_station_instance)
+			if _board_ui_station_instance.has_signal("board_closed"):
+				_board_ui_station_instance.connect("board_closed", self, "_on_board_ui_closed")
+		target_instance = _board_ui_station_instance
+	elif context_type == "survey":
+		if not is_instance_valid(_board_ui_survey_instance):
+			_board_ui_survey_instance = BoardUISurveyScene.instance()
+			add_child(_board_ui_survey_instance)
+			if _board_ui_survey_instance.has_signal("board_closed"):
+				_board_ui_survey_instance.connect("board_closed", self, "_on_board_ui_closed")
+		target_instance = _board_ui_survey_instance
+	else:
+		if not is_instance_valid(_board_ui_vessel_instance):
+			_board_ui_vessel_instance = BoardUIVesselScene.instance()
+			add_child(_board_ui_vessel_instance)
+			if _board_ui_vessel_instance.has_signal("board_closed"):
+				_board_ui_vessel_instance.connect("board_closed", self, "_on_board_ui_closed")
+		target_instance = _board_ui_vessel_instance
 
-func open_board_ui() -> void:
-	if is_instance_valid(_board_ui_instance):
-		_board_ui_instance.visible = true
-		if _board_ui_instance.has_method("_populate_board"):
-			_board_ui_instance.call("_populate_board")
+	_active_board_instance = target_instance
+	if is_instance_valid(_active_board_instance):
+		_active_board_instance.visible = true
+		if _active_board_instance.has_method("_populate_board"):
+			_active_board_instance.call("_populate_board")
 
 func close_board_ui() -> void:
-	if is_instance_valid(_board_ui_instance):
-		_board_ui_instance.visible = false
+	if is_instance_valid(_board_ui_station_instance):
+		_board_ui_station_instance.visible = false
+	if is_instance_valid(_board_ui_vessel_instance):
+		_board_ui_vessel_instance.visible = false
+	if is_instance_valid(_board_ui_survey_instance):
+		_board_ui_survey_instance.visible = false
 
 func _on_board_ui_closed() -> void:
 	close_board_ui()
 
-
-
-func _on_player_npc_interact_requested(agent_id: String, target_node: Spatial) -> void:
-	set_ui_mode("MODE_B")
-	if is_instance_valid(_interaction_window_instance):
-		_interaction_window_instance.open_for_target(agent_id, target_node)
+func _on_player_npc_interact_requested(_agent_id: String, _target_node: Spatial) -> void:
+	open_board_ui("station")
 
 
 func _on_SliderControlLeft_value_changed(value):
@@ -724,12 +760,21 @@ func _on_zone_unloading(_zone_node) -> void:
 	_clear_world_target_overlay()
 
 
+func _reset_travel_state_and_target() -> void:
+	_jump_target_id = ""
+	_on_Player_Target_Deselected()
+	_update_dock_button_label()
+
 func _on_zone_loaded(_zone_node, _zone_path, _agent_container_node) -> void:
 	_rebuild_projected_target_overlays()
-
+	_reset_travel_state_and_target()
 
 func _on_sector_changed(_new_sector_id, _old_sector_id) -> void:
 	_rebuild_projected_target_overlays()
+	_reset_travel_state_and_target()
+
+func _on_sector_travel_completed(_dest_sector_id, _supplies_cost, _tick_cost) -> void:
+	_reset_travel_state_and_target()
 
 
 func _refresh_process_state() -> void:

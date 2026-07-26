@@ -14,6 +14,9 @@ var card_resource: Resource = null
 var is_selected: bool = false
 
 func _ready() -> void:
+	var main_theme = load("res://assets/themes/main_theme.tres")
+	if main_theme != null:
+		theme = main_theme
 	var btn = get_node_or_null("ClickButton") as Button
 	if btn != null and not btn.is_connected("pressed", self, "_on_button_pressed"):
 		btn.connect("pressed", self, "_on_button_pressed")
