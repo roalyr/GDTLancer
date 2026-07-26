@@ -15,19 +15,19 @@ This list tracks features and rules explicitly banned from the board game design
 
 ## 1. No Trading Simulators
 - **Rule:** No buying/selling goods for profit on market spreadsheets.
-- **How it's built:** The economy uses 0-10 resource tracks (Wealth, Supplies) altered by Action Checks and Impact Cards.
+- **How it's built:** Economy and assets are represented via Visual Tags and Tokens. Numeric 0-10 progress tracks and TTRPG action check math are purged.
 
 ## 2. No 3D On-Foot Navigation
 - **Rule:** The game will not feature 3D characters walking around.
-- **How it's built:** Mode B uses a 2D board with simple 2D abstractions (tokens, grids, cards). All social and strategic gameplay occurs here.
+- **How it's built:** Mode B uses a 2D board with simple 2D abstractions (tokens, cards, visual tag readouts). All social and strategic gameplay occurs here.
 
 ## 3. No System-Written Stories
 - **Rule:** The engine never writes prose or dialogue.
-- **How it's built:** The system only outputs board state, tags, and Impact Cards. The player provides the narrative imagination.
+- **How it's built:** The system only outputs board state, visual tags, tokens, and raw 3D6 dice totals. The player provides the narrative imagination.
 
 ## 4. No Unbound Background Economy
 - **Rule:** The game does not simulate an invisible, dynamic economy. 
-- **How it's built:** World changes are primarily player-driven via the Board Action Loop. However, the **World Clock** can apply systemic sector pressure (e.g., gradually draining a track over time), forcing the player to react.
+- **How it's built:** World changes are primarily player-driven via the Board Action Loop. Sector degradation tags and track drain are purged. Mode A World Clock ticks only on 3D sector travel, while Mode B uses per-board-session clocking.
 
 ## 5. No Base Building
 - **Rule:** The player cannot design or place station modules.

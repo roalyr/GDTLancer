@@ -19,29 +19,29 @@ LOG_REF: 2026-07-24
 
 ## 1. The World Clock (Core Engine)
 
-The simulation is strictly event-driven. Time moves forward in discrete "Ticks."
-- **Tick Triggers:** Major actions (travel, significant Board Action Loops) advance the clock.
-- **Tick Resolution:** When the clock advances, the system processes delayed events, vessel movements, and applies **sector pressure** (e.g., slowly decaying a community track to force player intervention).
-- **Player-Driven Primary:** Beyond clock pressure, the board state mutates directly in response to the player's Action Checks and chosen Impact Cards.
+The simulation is strictly event-driven. Time moves forward in discrete "Ticks" via two distinct clock contexts:
+- **Mode A (3D Sector Travel Clock):** Ticks **only when completing 3D sector travel** between nodes.
+- **Mode B (Per-Board-Session Clock):** Resets to Tick 0 whenever a contextual board is opened and increments by +1 per action execution/dice roll.
+- **Player-Driven Primary:** Sector degradation tags, track decay, and random environmental event triggers are purged. The world state mutates cleanly in direct response to player actions and physical location.
 
 ---
 
 ## 2. The Simulation Layers
 
-The game rules are divided into three clear layers that define the board state.
+The game rules are divided into clear layers that define the board state.
 
 ### Layer 1: The Map
 - The physical layout of star systems and jump routes.
-- **Rule:** Static and fixed. Dictates the time cost (Ticks) required to travel between nodes.
+- **Rule:** Static and fixed. Dictates the sector travel clock ticks required to travel between nodes.
 
 ### Layer 2: The Board State
-- Tracks the health of a sector using 0-10 tracks (Wealth, Security, Morale, Supplies) and active Tags.
-- **Rule:** Sector tracks change primarily from player actions (Impact Cards) but **can also change from World Clock pressure**.
-- Tags provide mechanical hooks for Action Assembly and dictate available opportunities.
+- Tracks sector conditions and asset states via **Visual Tags and Tokens**. (Numeric 0-10 progress tracks are purged).
+- **Rule:** Board tags and tokens mutate directly from player actions and contextual interaction boards.
+- Tags and tokens provide visual information representation and dictate available opportunities.
 
 ### Layer 2.5: The Vessel Layer
 - A streamlined registry tracking active vessels.
-- **Rule:** Vessels move between map nodes on World Clock ticks. NPC availability on the 2D board is intrinsically linked to their vessel's current location, unless they are permanent station residents.
+- **Rule:** Vessels move between map nodes on sector travel clock ticks. NPC availability on the 2D board is intrinsically linked to their vessel's current location, unless they are permanent station residents.
 
 ### Layer 3: The Social Web
 - The network of named NPCs and their relationships.

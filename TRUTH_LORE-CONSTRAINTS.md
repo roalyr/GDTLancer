@@ -57,8 +57,8 @@ Progression strips away linear gear-score grinding, focusing instead on communit
 - ❌ Victory states tied solely to personal wealth accumulation or abstract glory.
 
 #### What This Requires
-- ✅ Board states visually reflect the health and stability of the sector.
-- ✅ Progression is tied to manipulating board tracks, acquiring impactful Asset Cards, and surviving the World Clock.
+- ✅ Board states visually reflect the health and stability of the sector via visual tags and tokens.
+- ✅ Progression is tied to manipulating board tags and tokens, acquiring impactful Asset Cards, and navigating the World Clock.
 
 ---
 
