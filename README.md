@@ -11,13 +11,13 @@ Set in a raw, early-stage frontier, there are no sprawling empires, galactic cor
 ## Core Gameplay
 
 The game alternates between two primary modes:
-- **Flight Mode:** Real-time 3D piloting and spatial navigation through sectors.
-- **Board Mode:** A strategic 2D interaction layer for social encounters, resource management, and location decisions.
+- **Mode A (3D Flight):** Real-time 3D piloting and spatial navigation between sectors.
+- **Mode B (2D Board):** Contextual 2D tabletop board interfaces for social encounters, station interactions, vessel management, and stellar survey.
 
 ## Design Philosophy
 
-- **Automated Playing Board:** The system acts strictly as an automated game board — managing world state, systemic pressure, and mechanics.
-- **Player-Led Narrative:** The engine never generates story text or dialogue. It presents state cues, tags, and board mutations, leaving the fiction entirely to the player's imagination.
+- **Automated Playing Board:** The engine manages world state, tags, tokens, and board layout.
+- **Player-Led Narrative:** The system presents visual cues and state mutations, leaving narrative fiction to the player's imagination.
 
 ## Technology Stack
 
