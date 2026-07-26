@@ -115,6 +115,7 @@ signal jump_available(target_sector_id, target_sector_name)
 signal jump_unavailable
 signal player_jump_requested(target_sector_id)
 signal sector_changed(new_sector_id, old_sector_id)
+signal sector_travel_completed(dest_sector_id, supplies_cost, tick_cost)
 
 
 func _ready():

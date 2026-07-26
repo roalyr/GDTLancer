@@ -426,6 +426,8 @@ func _get_jump_transition_rig() -> Node:
 func _request_sector_travel_tick() -> void:
 	if is_instance_valid(GlobalRefs.simulation_engine):
 		GlobalRefs.simulation_engine.request_tick()
+	if WorldClock != null and WorldClock.has_method("advance"):
+		WorldClock.advance(1)
 
 
 func _resolve_known_sector_id(requested_sector_id: String, context: String) -> String:

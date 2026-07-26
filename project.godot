@@ -276,6 +276,7 @@ TemplateDatabase="*res://src/autoload/TemplateDatabase.gd"
 GameState="*res://src/autoload/GameState.gd"
 CoreMechanicsAPI="*res://src/autoload/CoreMechanicsAPI.gd"
 GameStateManager="*res://src/autoload/GameStateManager.gd"
+WorldClock="*res://src/core/simulation/world_clock.gd"
 
 [display]
 

@@ -31,11 +31,8 @@ func travel_to_sector(source_sector_id: String, dest_sector_id: String, player_i
 	emit_signal("sector_travel_started", source_sector_id, dest_sector_id)
 
 	# Advance World Clock on Sector Travel (Mode A)
-	var world_clock = get_node_or_null("/root/WorldClock")
-	if not is_instance_valid(world_clock):
-		world_clock = get_node_or_null("/root/MainGameScene/WorldManager/WorldClock")
-	if is_instance_valid(world_clock) and world_clock.has_method("advance"):
-		world_clock.advance(tick_cost)
+	if WorldClock != null and WorldClock.has_method("advance"):
+		WorldClock.advance(tick_cost)
 
 	emit_signal("sector_travel_completed", dest_sector_id, supplies_cost, tick_cost)
 	if EventBus != null and EventBus.has_signal("sector_travel_completed"):

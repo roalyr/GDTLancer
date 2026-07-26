@@ -192,6 +192,10 @@ func _ready():
 			EventBus.connect("zone_loaded", self, "_on_zone_loaded")
 		if not EventBus.is_connected("sector_changed", self, "_on_sector_changed"):
 			EventBus.connect("sector_changed", self, "_on_sector_changed")
+		if not EventBus.is_connected("tick_advanced", self, "_on_tick_advanced"):
+			EventBus.connect("tick_advanced", self, "_on_tick_advanced")
+		if not EventBus.is_connected("sector_travel_completed", self, "_on_sector_travel_completed"):
+			EventBus.connect("sector_travel_completed", self, "_on_sector_travel_completed")
 
 	else:
 		printerr("MainHUD Error: EventBus not available!")
@@ -359,9 +363,8 @@ func _refresh_time_display() -> void:
 
 	if is_instance_valid(label_stats):
 		var ticks: int = 0
-		var world_clock = get_node_or_null("/root/MainGameScene/WorldManager/WorldClock")
-		if is_instance_valid(world_clock) and "current_tick" in world_clock:
-			ticks = world_clock.current_tick
+		if WorldClock != null and "current_tick" in WorldClock:
+			ticks = WorldClock.current_tick
 		elif GameState != null:
 			ticks = GameState.sim_tick_count
 		var cycle: int = (ticks / 10) + 1
@@ -376,6 +379,9 @@ func _on_sim_tick_completed(_tick_count: int = 0) -> void:
 	_refresh_time_display()
 	_refresh_player_resources()
 	_sync_route_target_overlay_with_topology()
+
+func _on_tick_advanced(_current_tick: int = 0, _delta_ticks: int = 0) -> void:
+	_refresh_time_display()
 
 
 func _on_game_time_advanced(_seconds_added: int = 0) -> void:
@@ -784,9 +790,11 @@ func _on_zone_loaded(_zone_node, _zone_path, _agent_container_node) -> void:
 func _on_sector_changed(_new_sector_id, _old_sector_id) -> void:
 	_rebuild_projected_target_overlays()
 	_reset_travel_state_and_target()
+	_refresh_time_display()
 
 func _on_sector_travel_completed(_dest_sector_id, _supplies_cost, _tick_cost) -> void:
 	_reset_travel_state_and_target()
+	_refresh_time_display()
 
 
 func _refresh_process_state() -> void:
