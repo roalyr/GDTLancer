@@ -13,28 +13,14 @@ signal card_pressed(card)
 var card_resource: Resource = null
 var is_selected: bool = false
 
-onready var title_label: Label = $VBoxContainer/TitleLabel
-onready var tags_label: Label = $VBoxContainer/TagsLabel
-onready var panel: Panel = $BackgroundPanel
-onready var button: Button = $ClickButton
-
 func _ready() -> void:
-	button.connect("pressed", self, "_on_button_pressed")
+	var btn = get_node_or_null("ClickButton") as Button
+	if btn != null and not btn.is_connected("pressed", self, "_on_button_pressed"):
+		btn.connect("pressed", self, "_on_button_pressed")
 	update_visuals()
 
 func set_card(card: Resource) -> void:
 	card_resource = card
-	
-	if title_label:
-		title_label.text = card.display_name if "display_name" in card else "Data-Slate"
-	if tags_label:
-		if "tags" in card and card.tags is Array:
-			var tag_str = ""
-			for t in card.tags:
-				tag_str += "[" + t.to_upper() + "]\n"
-			tags_label.text = tag_str
-		else:
-			tags_label.text = "[RAW DATA]"
 	update_visuals()
 
 func set_selected(selected: bool) -> void:
@@ -42,13 +28,34 @@ func set_selected(selected: bool) -> void:
 	update_visuals()
 
 func update_visuals() -> void:
-	if not panel: return
-	if is_selected:
-		# Highlighted industrial chit
-		panel.self_modulate = Color(0.8, 0.5, 0.1, 1.0)
-	else:
-		# Standard industrial chit
-		panel.self_modulate = Color(0.3, 0.35, 0.4, 1.0)
+	var title_label = get_node_or_null("VBoxContainer/TitleLabel") as Label
+	var tags_label = get_node_or_null("VBoxContainer/TagsLabel") as Label
+	var panel = get_node_or_null("BackgroundPanel") as Panel
+	
+	if card_resource != null:
+		if title_label != null:
+			var c_name = card_resource.get("display_name")
+			if c_name == null or str(c_name).empty():
+				c_name = card_resource.get("card_id")
+			if c_name == null or str(c_name).empty():
+				c_name = "Asset Card"
+			title_label.text = str(c_name).replace("_", " ").to_upper()
+			
+		if tags_label != null:
+			var tag_list = card_resource.get("tags")
+			if tag_list is Array and tag_list.size() > 0:
+				var tag_str = ""
+				for t in tag_list:
+					tag_str += "[" + str(t).to_upper() + "] "
+				tags_label.text = tag_str
+			else:
+				tags_label.text = "[ASSET]"
+
+	if panel != null:
+		if is_selected:
+			panel.self_modulate = Color(0.9, 0.6, 0.2, 1.0)
+		else:
+			panel.self_modulate = Color(0.3, 0.35, 0.4, 1.0)
 
 func _on_button_pressed() -> void:
 	emit_signal("card_pressed", card_resource)

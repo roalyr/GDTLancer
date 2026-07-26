@@ -73,6 +73,17 @@ func get_sector_track(sector_id: String, track_type: String) -> int:
 	var tracks = get_sector_tracks(sector_id)
 	return tracks.get(track_type.to_lower(), 5)
 
+func get_sector_track_tier(sector_id: String, track_type: String) -> String:
+	var val = get_sector_track(sector_id, track_type)
+	if val <= 2:
+		return "CRITICAL"
+	elif val <= 4:
+		return "LOW"
+	elif val <= 7:
+		return "STABLE"
+	else:
+		return "PROSPEROUS"
+
 func apply_sector_track_delta(sector_id: String, track_type: String, delta: int) -> int:
 	var tracks = get_sector_tracks(sector_id)
 	var key = track_type.to_lower()

@@ -19,6 +19,14 @@ var gate_system = null
 
 func _ready() -> void:
 	gate_system = NodeGateSystemClass.new()
+	if EventBus != null and EventBus.has_signal("tick_advanced"):
+		EventBus.connect("tick_advanced", self, "_on_tick_advanced")
+
+func _on_tick_advanced(current_tick: int, _delta_ticks: int) -> void:
+	# Trigger random environmental events as World Clock progresses (every 2 ticks)
+	if current_tick > 0 and current_tick % 2 == 0:
+		var sec_id = GameState.current_sector_id if GameState.current_sector_id != "" else Constants.INITIAL_SECTOR_ID
+		trigger_random_environmental_event(sec_id)
 
 func travel_to_sector(source_sector_id: String, dest_sector_id: String, player_inventory: Array = [], supplies_cost: int = 1, tick_cost: int = 2) -> Dictionary:
 	# Check gating rules first
@@ -46,7 +54,7 @@ func travel_to_sector(source_sector_id: String, dest_sector_id: String, player_i
 	if world_clock and world_clock.has_method("advance"):
 		world_clock.advance(tick_cost)
 
-	# Evaluate environmental events on arrival sector
+	# Evaluate random environmental event on arrival sector
 	var events = evaluate_sector_thresholds(dest_sector_id)
 
 	emit_signal("sector_travel_completed", dest_sector_id, supplies_cost, tick_cost)
@@ -60,41 +68,49 @@ func travel_to_sector(source_sector_id: String, dest_sector_id: String, player_i
 	}
 
 func evaluate_sector_thresholds(sector_id: String) -> Array:
-	var triggered_events: Array = []
-	var tracks = GameState.get_sector_tracks(sector_id)
+	var event = trigger_random_environmental_event(sector_id)
+	return [event] if not event.empty() else []
 
-	var stability = tracks.get("stability", 5)
-	var resources = tracks.get("resources", 5)
-	var security = tracks.get("security", 5)
-
-	if stability <= 2:
-		var event = {
+func trigger_random_environmental_event(sector_id: String) -> Dictionary:
+	var possible_events = [
+		{
 			"event_type": "ANOMALOUS_UNREST",
 			"severity": "CRITICAL",
-			"description": "Outer margin instability causing severe structural distortion."
-		}
-		triggered_events.append(event)
-		GameState.add_sector_tag(sector_id, "anomalous_unrest")
-		emit_signal("environmental_event_triggered", sector_id, "ANOMALOUS_UNREST", event)
-
-	if resources <= 2:
-		var event = {
+			"description": "Outer margin instability causing severe structural distortion.",
+			"tag": "anomalous_unrest"
+		},
+		{
 			"event_type": "RESOURCE_COLLAPSE",
 			"severity": "HIGH",
-			"description": "Critical depletion of life support and mining materials."
-		}
-		triggered_events.append(event)
-		GameState.add_sector_tag(sector_id, "resource_collapse")
-		emit_signal("environmental_event_triggered", sector_id, "RESOURCE_COLLAPSE", event)
-
-	if security <= 2:
-		var event = {
+			"description": "Critical depletion of life support and mining materials.",
+			"tag": "resource_collapse"
+		},
+		{
 			"event_type": "PIRACY_OUTBREAK",
 			"severity": "MEDIUM",
-			"description": "Lack of security emboldening local raiders."
+			"description": "Lack of security emboldening local raiders.",
+			"tag": "piracy_outbreak"
+		},
+		{
+			"event_type": "SOLAR_FLARE",
+			"severity": "HIGH",
+			"description": "Stellar radiation discharge disrupting long-range sensors.",
+			"tag": "solar_flare"
 		}
-		triggered_events.append(event)
-		GameState.add_sector_tag(sector_id, "piracy_outbreak")
-		emit_signal("environmental_event_triggered", sector_id, "PIRACY_OUTBREAK", event)
+	]
 
-	return triggered_events
+	# Pick a random event from the pool
+	var idx = randi() % possible_events.size()
+	var selected = possible_events[idx]
+	var event_dict = {
+		"event_type": selected["event_type"],
+		"severity": selected["severity"],
+		"description": selected["description"]
+	}
+
+	GameState.add_sector_tag(sector_id, selected["tag"])
+	emit_signal("environmental_event_triggered", sector_id, selected["event_type"], event_dict)
+	if EventBus != null:
+		EventBus.emit_signal("environmental_event_triggered", sector_id, selected["event_type"], event_dict)
+		EventBus.emit_signal("sector_tags_changed", sector_id, GameState.get_sector_tags(sector_id))
+	return event_dict

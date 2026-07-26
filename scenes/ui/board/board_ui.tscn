@@ -24,40 +24,93 @@ margin_right = -10.0
 margin_bottom = -10.0
 
 [node name="LeftPanel" type="VBoxContainer" parent="Layout"]
-margin_right = 200.0
+margin_right = 210.0
 margin_bottom = 580.0
-rect_min_size = Vector2( 200, 0 )
-
-[node name="TracksTitle" type="Label" parent="Layout/LeftPanel"]
-margin_right = 200.0
-margin_bottom = 14.0
-text = "PLAYER TRACKS"
-align = 1
+rect_min_size = Vector2( 210, 0 )
 
 [node name="TrackContainer" type="VBoxContainer" parent="Layout/LeftPanel"]
-margin_top = 18.0
-margin_right = 200.0
+margin_right = 210.0
 margin_bottom = 580.0
 size_flags_vertical = 3
+custom_constants/separation = 4
+
+[node name="PlayerTracksHeader" type="Label" parent="Layout/LeftPanel/TrackContainer"]
+margin_right = 210.0
+margin_bottom = 14.0
+custom_colors/font_color = Color( 0.35, 0.8, 1.0, 1 )
+text = "[ PLAYER TRACKS ]"
+align = 1
 
 [node name="HealthTrack" parent="Layout/LeftPanel/TrackContainer" instance=ExtResource( 4 )]
-margin_right = 200.0
-margin_bottom = 86.0
+margin_top = 18.0
+margin_right = 210.0
+margin_bottom = 74.0
 
 [node name="WealthTrack" parent="Layout/LeftPanel/TrackContainer" instance=ExtResource( 4 )]
-margin_top = 90.0
-margin_right = 200.0
-margin_bottom = 176.0
+margin_top = 78.0
+margin_right = 210.0
+margin_bottom = 134.0
 
 [node name="MoraleTrack" parent="Layout/LeftPanel/TrackContainer" instance=ExtResource( 4 )]
-margin_top = 180.0
-margin_right = 200.0
-margin_bottom = 266.0
+margin_top = 138.0
+margin_right = 210.0
+margin_bottom = 194.0
 
 [node name="SuppliesTrack" parent="Layout/LeftPanel/TrackContainer" instance=ExtResource( 4 )]
-margin_top = 270.0
-margin_right = 200.0
-margin_bottom = 356.0
+margin_top = 198.0
+margin_right = 210.0
+margin_bottom = 254.0
+
+[node name="HSeparator" type="HSeparator" parent="Layout/LeftPanel/TrackContainer"]
+margin_top = 258.0
+margin_right = 210.0
+margin_bottom = 264.0
+
+[node name="SectorTracksHeader" type="Label" parent="Layout/LeftPanel/TrackContainer"]
+margin_top = 268.0
+margin_right = 210.0
+margin_bottom = 282.0
+custom_colors/font_color = Color( 0.95, 0.75, 0.25, 1 )
+text = "[ SECTOR TRACKS ]"
+align = 1
+
+[node name="StabilityTrack" parent="Layout/LeftPanel/TrackContainer" instance=ExtResource( 4 )]
+margin_top = 286.0
+margin_right = 210.0
+margin_bottom = 342.0
+
+[node name="ResourcesTrack" parent="Layout/LeftPanel/TrackContainer" instance=ExtResource( 4 )]
+margin_top = 346.0
+margin_right = 210.0
+margin_bottom = 402.0
+
+[node name="SecurityTrack" parent="Layout/LeftPanel/TrackContainer" instance=ExtResource( 4 )]
+margin_top = 406.0
+margin_right = 210.0
+margin_bottom = 462.0
+
+[node name="HSeparator2" type="HSeparator" parent="Layout/LeftPanel/TrackContainer"]
+margin_top = 466.0
+margin_right = 210.0
+margin_bottom = 472.0
+
+[node name="SectorTagsHeader" type="Label" parent="Layout/LeftPanel/TrackContainer"]
+margin_top = 476.0
+margin_right = 210.0
+margin_bottom = 490.0
+custom_colors/font_color = Color( 0.95, 0.5, 0.25, 1 )
+text = "[ ACTIVE SECTOR TAGS ]"
+align = 1
+
+[node name="SectorTagsLabel" type="Label" parent="Layout/LeftPanel/TrackContainer"]
+margin_top = 494.0
+margin_right = 210.0
+margin_bottom = 530.0
+custom_colors/font_color = Color( 1.0, 0.7, 0.4, 1 )
+text = "[NOMINAL / CLEAR]"
+align = 1
+valign = 1
+autowrap = true
 
 [node name="CenterPanel" type="VBoxContainer" parent="Layout"]
 margin_left = 204.0
@@ -68,11 +121,19 @@ size_flags_horizontal = 3
 [node name="BoardTitle" type="Label" parent="Layout/CenterPanel"]
 margin_right = 592.0
 margin_bottom = 14.0
-text = "MODE B: BOARD INTERFACE"
+text = "LOCAL STATION TABLETOP"
+align = 1
+
+[node name="WorldClockLabel" type="Label" parent="Layout/CenterPanel"]
+margin_top = 18.0
+margin_right = 592.0
+margin_bottom = 32.0
+custom_colors/font_color = Color( 0.95, 0.75, 0.25, 1 )
+text = "WORLD CLOCK: TICK 0 | CYCLE 1"
 align = 1
 
 [node name="TokenGrid" type="GridContainer" parent="Layout/CenterPanel"]
-margin_top = 18.0
+margin_top = 36.0
 margin_right = 592.0
 margin_bottom = 396.0
 size_flags_vertical = 3

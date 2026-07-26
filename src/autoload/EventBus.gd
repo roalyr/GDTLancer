@@ -37,6 +37,9 @@ signal agent_spawned(agent_body, init_data)
 signal agent_despawning(agent_body)
 # Emitted by AI Controller via EventBus when destination reached
 signal agent_reached_destination(agent_body)
+# --- Simulation & Environmental Signals ---
+signal environmental_event_triggered(sector_id, event_type, details)
+signal sector_tags_changed(sector_id, tags)
 # Emitted by WorldManager after player specifically spawned
 signal player_spawned(player_agent_body)
 

@@ -61,6 +61,13 @@ func _ready():
 	add_child(_template_indexer)
 	_template_indexer.index_all_templates()
 
+	# Step 1.5: Instantiate SectorManager system.
+	var SectorManagerScript = load("res://src/core/systems/sector_manager.gd")
+	if SectorManagerScript != null:
+		var sector_mgr = SectorManagerScript.new()
+		sector_mgr.name = "SectorManager"
+		add_child(sector_mgr)
+
 	# Step 2: Boot to Main Menu. World generation/zone load happens only after
 	# the player chooses New Game / Load Game.
 	_show_boot_main_menu()
@@ -121,6 +128,8 @@ func _on_new_game_requested() -> void:
 	else:
 		push_warning("WorldManager: SimulationEngine not available, skipping sim init.")
 
+	if not GameState.agents.has("player") or not (GameState.agents["player"] is Dictionary):
+		GameState.agents["player"] = {}
 	GameState.agents["player"]["current_sector_id"] = Constants.INITIAL_SECTOR_ID
 	load_sector(Constants.INITIAL_SECTOR_ID)
 	
@@ -163,13 +172,8 @@ func _on_game_state_loaded() -> void:
 func _emit_loaded_resource_signals() -> void:
 	if not EventBus:
 		return
-	if not is_instance_valid(GlobalRefs.character_system):
-		return
-	var player_char = GlobalRefs.character_system.get_player_character()
-	if not is_instance_valid(player_char):
-		return
-	EventBus.emit_signal("player_credits_changed", player_char.credits)
-	EventBus.emit_signal("player_fp_changed", player_char.focus_points)
+	var wealth_val = GameState.get_player_track("wealth")
+	EventBus.emit_signal("player_track_changed", "wealth", wealth_val)
 
 
 func _emit_loaded_dock_signal() -> void:

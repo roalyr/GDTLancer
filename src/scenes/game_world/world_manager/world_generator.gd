@@ -135,6 +135,18 @@ func _load_locations():
 		# Duplicate to allow runtime modifications (e.g., market price fluctuation).
 		GameState.locations[template_id] = template.duplicate()
 
+		var connections: Array = []
+		if "connections" in template and template.connections != null:
+			for conn in template.connections:
+				connections.append(str(conn))
+
+		GameState.world_topology[template_id] = {
+			"connections": connections,
+			"station_ids": [template_id],
+			"sector_type": template.get("sector_type") if "sector_type" in template else "star",
+			"global_position": template.global_position if "global_position" in template else Vector3.ZERO
+		}
+
 
 func _load_factions():
 	for template_id in TemplateDatabase.factions:

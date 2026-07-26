@@ -196,10 +196,9 @@ func _update_info_label() -> void:
 		lines.append("Current Sector: %s" % _sector_display_name(dock_sector_id))
 	lines.append("Contracts are handled from the global Contract Board.")
 
-	var player_uid: int = int(GameState.player_character_uid)
-	if player_uid >= 0 and GameState.characters.has(player_uid):
-		var pc = GameState.characters[player_uid]
-		lines.append("Credits: %d    FP: %d" % [pc.credits, pc.focus_points])
+	var wealth_val: int = GameState.get_player_track("wealth")
+	var wealth_tier: String = GameState.get_player_track_tier("wealth")
+	lines.append("Wealth: %d/10 [%s]" % [wealth_val, wealth_tier])
 	var active_occurrence_id: String = str(GameState.player_claimed_occurrence_id)
 	if active_occurrence_id != "":
 		lines.append("Active Contract: %s" % active_occurrence_id)

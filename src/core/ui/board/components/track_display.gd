@@ -43,12 +43,22 @@ func update_display() -> void:
 	if track_type == "player":
 		val = GameState.get_player_track(track_name)
 		tier = GameState.get_player_track_tier(track_name)
+		if title_label != null:
+			title_label.text = track_name.capitalize()
+			title_label.add_color_override("font_color", Color(0.4, 0.8, 1.0, 1.0))
 	else:
 		val = GameState.get_sector_track(sector_id, track_name)
-		tier = GameState.get_sector_track_tier(sector_id, track_name)
+		if GameState.has_method("get_sector_track_tier"):
+			tier = GameState.get_sector_track_tier(sector_id, track_name)
+		else:
+			if val <= 2: tier = "CRITICAL"
+			elif val <= 4: tier = "LOW"
+			elif val <= 7: tier = "STABLE"
+			else: tier = "PROSPEROUS"
+		if title_label != null:
+			title_label.text = "Sector " + track_name.capitalize()
+			title_label.add_color_override("font_color", Color(0.95, 0.75, 0.25, 1.0))
 		
-	if title_label != null:
-		title_label.text = track_name.capitalize()
 	if value_label != null:
 		value_label.text = str(val) + " / 10"
 	if tier_label != null:

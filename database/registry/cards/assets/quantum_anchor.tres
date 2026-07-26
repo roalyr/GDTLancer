@@ -4,10 +4,10 @@
 
 [resource]
 script = ExtResource( 1 )
-card_id = "quantum_anchor"
-display_name = "Quantum Anchor"
-description = "Phase-locking device capable of holding position against non-Euclidean spatial drift."
-tags = [ "traversal", "quantum_anchor" ]
+card_id = "resonance_anchor"
+display_name = "Resonance Anchor"
+description = "Industrial anchor chit tuned to stabilize spatial drift in dissonant outer-margin zones."
+tags = [ "traversal", "resonance_anchor" ]
 unlocked_verbs = [ "anchor_anomaly" ]
 trade_offs = {
 }
