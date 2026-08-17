@@ -22,8 +22,8 @@ This list tracks features and rules explicitly banned from the board game design
 - **How it's built:** Mode B uses a 2D board with simple 2D abstractions (tokens, cards, visual tag readouts). All social and strategic gameplay occurs here.
 
 ## 3. No System-Written Stories
-- **Rule:** The engine never writes prose or dialogue.
-- **How it's built:** The system only outputs board state, visual tags, tokens, and raw 3D6 dice totals. The player provides the narrative imagination.
+- **Rule:** The engine never generates procedural prose or dialogue.
+- **How it's built:** The system outputs board state, visual tags, tokens, and card-based resolution. NPC dialogue uses a two-layer architecture: a universal modular phrase library (Layer 1) for routine interactions, and authored vignettes (Layer 2) for key moments. People have voices; the void does not.
 
 ## 4. No Unbound Background Economy
 - **Rule:** The game does not simulate an invisible, dynamic economy. 
@@ -35,7 +35,7 @@ This list tracks features and rules explicitly banned from the board game design
 
 ## 6. No Loot Grinding or Number Scaling
 - **Rule:** No leveled gear or rarity tiers.
-- **How it's built:** Upgrades function as Cards with specific tags and mechanical trade-offs, not scaling modifiers.
+- **How it's built:** Upgrades function as Cards with specific tags and mechanical trade-offs, not scaling modifiers. Small, easily comprehensible quantitative modifiers (+1, +2) are permitted where balancing requires them.
 
 ## 7. No Instant Communication
 - **Rule:** Information takes time to travel.
@@ -48,3 +48,11 @@ This list tracks features and rules explicitly banned from the board game design
 ## 9. No Random Map Generation
 - **Rule:** The overarching map of star systems is fixed.
 - **How it's built:** Sector connections are static, even if internal nodes or tags change dynamically.
+
+## 10. No Zero-HUD Purism
+- **Rule:** Banning pure WYSIWYG flight that hides critical vectors and momentum data from the player.
+- **How it's built:** The game must provide functional, diegetic flight instruments to make piloting mechanically engaging.
+
+## 11. No Ticking Clock of Doom
+- **Rule:** Banning rogue-lite biological aging mechanics that constantly pressure the player toward an inevitable reset.
+- **How it's built:** While mortality exists, game over states must result from logistical/material failure (fuel, hull, morale) rather than an arbitrary lifespan timer.

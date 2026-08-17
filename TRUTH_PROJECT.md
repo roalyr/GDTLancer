@@ -23,6 +23,10 @@ LOG_REF: 2026-06-20 19:13:27
 - Fresh agent sessions should start from [MODEL-CASCADE-PROTOCOL.md](MODEL-CASCADE-PROTOCOL.md), then read this file, [TACTICAL_TODO.md](TACTICAL_TODO.md), and [SESSION-LOG.md](SESSION-LOG.md) before loading targeted truth sections.
 - Do not treat frozen GDD snapshots, `PROJECT_DUMP_TEXT_*`, focused simulation logs, or other generated artifacts as default session context.
 
+### Lore Obfuscation Constraint
+
+- **No Spoilers in TRUTH Docs:** Explicit lore details, specific narrative secrets, and concrete worldbuilding background (e.g., the true origin of anomalies, the fate of the wider universe) must **not** be documented in the TRUTH documents or README files. The TRUTH docs dictate mechanics, constraints, and tones, but must remain free of explicit lore statements to allow players (and developers reading the open source) a natural sense of exploration and mystery.
+
 
 
 ## Automated Testing Boundary

@@ -19,14 +19,15 @@ LOG_REF: 2026-07-25
 
 ## Pillar 1: The Human Nucleus & No Institutions
 
-The setting represents a raw, isolated frontier. There are no sprawling galactic corporations or sweeping empires. Society is localized to individual infrastructure nodes and tight-knit communities. Space is a hostile backdrop framing fragile human collectives.
+The setting represents a raw, isolated frontier within a vast network of ancient ruins. There are no sprawling galactic corporations or sweeping human empires. Society is localized to individual infrastructure nodes, derelict megastructures, and tight-knit communities. The human nucleus is a fragile collective surviving within the titanic graveyard of extinct civilizations.
 
 #### What This Prohibits
 - ❌ UI/Tags using terms like "corporation", "empire", or "military fleet".
-- ❌ Treating stations as generic hubs. Each is a specific community board.
+- ❌ Treating stations as generic hubs. Each is a specific community board, often built into precursor ruins.
 
 #### What This Requires
 - ✅ Factions are small clans, families, or local alliances.
+- ✅ The setting must logically support a trickle of new vessels/NPCs entering the world (to provide new blood), while strictly preventing anyone from leaving or calling for external rescue.
 - ✅ Board interactions focus on personal grudges, favors, and survival.
 
 ---
@@ -36,6 +37,8 @@ The setting represents a raw, isolated frontier. There are no sprawling galactic
 Spaceflight is a non-trivial, perilous expedition demanding logistical sacrifice. Ships are not everyday cars. The persistent reality of physical vulnerability (radiation, structural fatigue, zero-g physiological decay, finite life support) anchors the lore.
 - **Ownership:** Vessels are primarily community-owned (the default), though vessel-colonies and privately-owned ships exist as rare exceptions.
 - **Scarce Command:** Pilots and captains are rare and highly consequential roles.
+- **Casual Inertia:** While 3D flight mechanics are firmly implemented to feel grounded and deliberate, the UX must present simple metrics that reinforce this weight. The feeling of mass and velocity must be communicated organically via the **Cinematic Space Camera** rather than demanding hardcore simulation tracking from the player.
+- **Derelicts & Salvage:** Because pilots rarely fight to the death, derelicts are mostly historic puzzles or victims of mechanical/environmental failure. This ensures the scavenging tone remains focused on "Archaeological Wonder."
 
 #### What This Prohibits
 - ❌ Mechanics allowing trivial, consequence-free fast travel.
