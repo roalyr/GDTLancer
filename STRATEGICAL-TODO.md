@@ -57,6 +57,7 @@ Replace the 3d6 action loop with a card-based resolution system throughout Mode 
 - Implement **Junk cards** as universal crafting fuel and trade fodder.
 - Implement **tag-pairing crafting**: visual UI hints when compatible cards are in collection; failed combinations produce junk/scrap.
 - Permit small quantitative modifiers (+1, +2) on cards where balancing requires them.
+- **Asset Creation Reminder:** Create 1 ship model, 1 structure model, 1 character portrait/asset, 1 soundtrack, and a few stars/planets to reduce the asset backlog.
 - Dependencies: M21, M28
 - Done criteria: No 3d6 rolls occur anywhere in Mode B. All resolution is card-driven. Collection panel functional.
 
@@ -69,6 +70,7 @@ Implement the slotted ship capability system.
 - Ship with no minimum operational modules = treated as derelict hull (no Mode A capabilities).
 - New slots unlock as unique progression rewards per vessel type.
 - Legacy marker accumulation on slots over time. Marker mechanical effects **[TBD — pending degradation mechanic]**.
+- **Asset Creation Reminder:** Create 1 ship model, 1 structure model, 1 character portrait/asset, 1 soundtrack, and a few stars/planets to reduce the asset backlog.
 - Dependencies: M30
 - Done criteria: Ship tableau renders, Module Cards slot/unslot correctly, capability states propagate.
 
@@ -81,6 +83,7 @@ Define and implement the card degradation and repair lifecycle.
 - Repair actions restore cards using Junk or specific Possession cards.
 - Module Cards in tableau can degrade, removing ship capabilities until repaired.
 - Legacy markers on Ship Tableau slots reflect accumulated repair history.
+- **Asset Creation Reminder:** Create 1 ship model, 1 structure model, 1 character portrait/asset, 1 soundtrack, and a few stars/planets to reduce the asset backlog.
 - Dependencies: M31, M30
 - Done criteria: Card degradation lifecycle (fresh → degraded → broken → junk → repaired) fully functional.
 
@@ -95,6 +98,7 @@ Implement the Exploration Board as a branching card-path mini-game.
 - Board chaining permitted (exploration triggers social encounter) with anti-loop rules.
 - Entry via "Interact" HUD button in Mode A (proximity/line-of-sight to trigger object).
 - Per-Board-Session Clock resets to Tick 0 on entry, +1 per action.
+- **Asset Creation Reminder:** Create 1 ship model, 1 structure model, 1 character portrait/asset, 1 soundtrack, and a few stars/planets to reduce the asset backlog.
 - Dependencies: M30, M31
 - Done criteria: Exploration board spawns from Mode A interaction, resolves via card path, returns to Ship Interior.
 
@@ -108,6 +112,7 @@ Implement the Social Board and NPC barter system.
   - **Layer 2 (Vignettes):** Hand-written scenes triggered by conditions (bond thresholds, shared experiences, specific events, card gifts). Every NPC has at minimum: introduction vignette + 1 mid-bond + 1 cap moment.
   - **Shared Experience Vignettes:** Authored once, applicable to any NPC present during the triggering event.
 - Dialogue enriched by contextual card prompts: player can play cards (gifts, actions) at appropriate moments to shift NPC mood tags or unlock options.
+- **Asset Creation Reminder:** Create 1 ship model, 1 structure model, 1 character portrait/asset, 1 soundtrack, and a few stars/planets to reduce the asset backlog.
 - Dependencies: M30, M24
 - Done criteria: NPC inventory visible for barter. Dialogue resolves via modular library with vignettes firing at correct triggers.
 
@@ -120,6 +125,7 @@ Implement the always-accessible Ship Interior as the persistent Mode B home scre
 - External Contextual Boards overlay the Ship Interior temporarily; on resolution, player returns here (not directly to Mode A).
 - Mode B → Mode A exit via dismissal prompt from Ship Interior.
 - Companion downtime initiated from here: player selects a companion and spends Time (clock ticks) or cards to trigger available dialogue.
+- **Asset Creation Reminder:** Create 1 ship model, 1 structure model, 1 character portrait/asset, 1 soundtrack, and a few stars/planets to reduce the asset backlog.
 - Dependencies: M22, M31, M34
 - Done criteria: Ship Interior accessible at all times. All sub-systems (tableau, collection, companions, chronicle) viewable. Downtime dialogue initiable.
 
@@ -134,6 +140,7 @@ Implement the full companion bond and arc system.
 - **Fluid composition:** Companions can transfer between ships/stations. Bond tracks are persistent and tied to the NPC, not the ship.
 - **Branching arcs:** 2-3 major branch points per companion, gated by contextual conditions.
 - **Companion death:** Produces a Memorial Card. No immediate mechanical use — represents loss. Late-game lore may offer transformation. **[TBD]** Death ripple effects on other companions and ship state.
+- **Asset Creation Reminder:** Create 1 ship model, 1 structure model, 1 character portrait/asset, 1 soundtrack, and a few stars/planets to reduce the asset backlog.
 - Dependencies: M34, M35
 - Done criteria: Bond tracks advance correctly. Vignettes fire at threshold conditions. Memorial Cards generated on death. Companion transfer between ships functional.
 
@@ -146,6 +153,7 @@ Implement the curated authored event pool driving Mode B content delivery.
 - Events consumed on use (not recycled). Pool replenishes on entering a new sector.
 - Starting scope: ~30 authored events for the first sector.
 - Modular friction parameters (degradation speed, event intensity) adjustable without penalty.
+- **Asset Creation Reminder:** Create 1 ship model, 1 structure model, 1 character portrait/asset, 1 soundtrack, and a few stars/planets to reduce the asset backlog.
 - Dependencies: M35, M36
 - Done criteria: Event pool draws correctly based on context. Events consumed and replenished per sector. Friction parameters adjustable.
 
@@ -156,6 +164,7 @@ Implement the failure cascade between Mode B and Mode A.
 - Mode B failures (broken Module Cards, low morale, companion loss) degrade corresponding Mode A capabilities.
 - Game-over only triggers in Mode A when the ship cannot physically function (no minimum operational modules, or specific resource depletion).
 - No Mode B hard game-over. Failed boards always return player to Ship Interior in a degraded state.
+- **Asset Creation Reminder:** Create 1 ship model, 1 structure model, 1 character portrait/asset, 1 soundtrack, and a few stars/planets to reduce the asset backlog.
 - Dependencies: M31, M32, M36
 - Done criteria: Module Card breakage correctly removes Mode A capability. Mode A game-over triggers under correct conditions. No Mode B hard fail.
 
@@ -167,6 +176,7 @@ Implement the Cinematic Space Camera for Mode A.
 - Drift-to-turn lag: camera leads into turns with appropriate delay.
 - Thruster vibration: subtle positional noise scaled to thrust output.
 - Goal: communicate mass, velocity, and scale without a ground reference. Avoids rigid/robotic feel.
+- **Asset Creation Reminder:** Create 1 ship model, 1 structure model, 1 character portrait/asset, 1 soundtrack, and a few stars/planets to reduce the asset backlog.
 - Dependencies: M22
 - Done criteria: Camera feels weighty and responsive. Mass and velocity are perceptible without HUD numbers.
 
@@ -179,6 +189,7 @@ Implement the world map with progressive spatial scaling and dual travel layers.
 - **Progressive Spatial Scaling:** difficulty, environmental risk, and anomaly strangeness scale geometrically with distance from the origin sector.
 - Map is static and fixed. Internal node tags change dynamically.
 - Origin sector is safe and accessible. Outer-margin nodes are mechanically locked and visually striking from a distance.
+- **Asset Creation Reminder:** Create 1 ship model, 1 structure model, 1 character portrait/asset, 1 soundtrack, and a few stars/planets to reduce the asset backlog.
 - Dependencies: M20, M26
 - Done criteria: Both travel layers functional. Spatial scaling demonstrable between origin and outer-margin zones.
 
@@ -193,5 +204,6 @@ Integrate all active milestones into a playable vertical slice demonstrating the
 - Failure cascade demonstrable (breaking a module removes a Mode A capability).
 - Outer-margin zone visible and locked from origin sector.
 - Validation: manual playtest.
+- **Asset Creation Reminder:** Create 1 ship model, 1 structure model, 1 character portrait/asset, 1 soundtrack, and a few stars/planets to reduce the asset backlog.
 - Dependencies: M30–M40
 - Done criteria: Manual playtest confirms end-to-end loop functional and tonally coherent with vision.

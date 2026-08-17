@@ -72,7 +72,9 @@ Validation boundary:
 2. Keep validation manual for long-run balance, world reasonableness, topology aesthetics, naming taste, UI copy/presentation polish, and broad smoke loops.
 3. Do not reintroduce automated 300-3000 tick full-environment simulation harnesses as the default validation surface.
 4. Human/manual validation is distinct from code verification and must be logged separately when a milestone requires it.
-5. Every SESSION_LOG.md entry should state what changed, what was validated, and whether manual validation remains pending.
+5. Only target specific GUT tests if you need them. The full GUT suite will be run manually by the user. Do not run the full suite automatically.
+6. When running terminal commands, ensure that ghost processes of Godot are not hanging around (e.g., kill orphaned instances after testing).
+7. Every SESSION_LOG.md entry should state what changed, what was validated, and whether manual validation remains pending.
 
 Routing guidance:
 

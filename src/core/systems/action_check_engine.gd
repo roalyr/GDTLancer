@@ -5,33 +5,44 @@
 # ACCESS: read-write
 # USER INSTRUCTION: NONE
 # TRUTH_LINK: TRUTH_GAME-LOOP-VISION.md §2
-# LOG_REF: 2026-07-26 00:57:00
+# LOG_REF: 2026-08-17 04:00:00
 
 extends Reference
 class_name ActionCheckEngine
 
 var AssetCardClass = load("res://src/core/cards/asset_card.gd")
 
-## Resolves a 3d6 action check against target difficulty.
+## Resolves a card-based action check against target difficulty and required tags.
 ## applied_asset_cards: Array of AssetCard instances
-## player_track_states: Dictionary of player track values or tiers
-func resolve_check(target_difficulty: int = 10, applied_asset_cards: Array = [], player_track_states: Dictionary = {}, seeded_dice: Array = [], bond_modifier: int = 0) -> Dictionary:
-	var dice_rolls: Array = []
-	if seeded_dice.size() >= 3:
-		dice_rolls = [int(seeded_dice[0]), int(seeded_dice[1]), int(seeded_dice[2])]
-	else:
-		randomize()
-		dice_rolls = [randi() % 6 + 1, randi() % 6 + 1, randi() % 6 + 1]
+func resolve_check(target_difficulty: int = 1, applied_asset_cards: Array = [], required_tags: Array = []) -> Dictionary:
+	var total_power: int = 0
+	var matched_tags: int = 0
 
-	var total: int = dice_rolls[0] + dice_rolls[1] + dice_rolls[2]
+	for card in applied_asset_cards:
+		total_power += 1 # Base value of playing a card
+		
+		# Add quantitative modifiers if they exist
+		var mods = card.get("quantitative_modifiers")
+		if mods != null and typeof(mods) == TYPE_DICTIONARY:
+			for mod_val in mods.values():
+				total_power += int(mod_val)
+				
+		# Count matched tags
+		for r_tag in required_tags:
+			if card.has_method("has_tag") and card.has_tag(r_tag):
+				matched_tags += 1
+				
+	# Success if power meets difficulty OR if all required tags are met
+	var is_success = false
+	if required_tags.size() > 0:
+		is_success = matched_tags >= required_tags.size()
+	else:
+		is_success = total_power >= target_difficulty
 
 	return {
-		"dice_rolls": dice_rolls,
-		"base_total": total,
-		"modifier": 0,
-		"final_total": total,
-		"total": total,
+		"applied_cards_count": applied_asset_cards.size(),
+		"total_power": total_power,
+		"matched_tags": matched_tags,
 		"target_difficulty": target_difficulty,
-		"success": true,
-		"margin": 0
+		"success": is_success
 	}

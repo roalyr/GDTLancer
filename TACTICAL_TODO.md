@@ -5,40 +5,29 @@ STATUS: [Level 2 - Implementation]
 OWNER: architect
 ACCESS: read-write-all
 USER INSTRUCTION: NONE
-TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_EXPLORATION-PILLARS.md § 4, § 5
-LOG_REF: 2026-07-26 03:35:00
+TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_GAME-LOOP-VISION.md § 2
+LOG_REF: 2026-08-17 03:59:00
 -->
 
-## CURRENT GOAL: M29 Playable Board Game MVP
+## CURRENT GOAL: M30 Card System Refactor (Collection Model)
 
-- TARGET_SCOPE: Integrate all milestones (M20-M28) into a playable MVP session. The player must be able to fly in Mode A, dock to transition to Mode B, interact with NPCs via Asset Cards, perform 3d6 action checks, and witness board mutations. The World Clock should apply sector pressure, and an outer-margin node should be visible in Mode A but mechanically locked in Mode B to act as a long-term objective.
+- TARGET_SCOPE: Replace the legacy 3d6 action loop with a card-based resolution system throughout Mode B. Implement the Collection model (scrollable inventory panel), enforce card types (Module, Field, Possession, Consumable), implement Junk cards as universal crafting fuel, and tag-pairing crafting. Add asset creation to the milestone.
 - TARGET_FILES:
-  - `src/core/systems/game_state.gd` — State transitions between Mode A and Mode B.
-  - `src/main.tscn` (or equivalent root scene) — The fully wired MVP scene.
-  - `src/core/ui/board/mode_b_board.tscn` — Integration of board UI components.
-  - `src/core/systems/sector_manager.gd` / `src/core/systems/world_clock.gd` — Tying sector pressure and clock ticks together.
-- TRUTH_RELIANCE: TRUTH_EXPLORATION-PILLARS.md (§4: Dangling Carrot, §5: Graduated Spatial Radius)
+  - `src/core/systems/board_action_loop.gd` — Refactor to remove 3d6, use card-based resolution.
+  - `src/core/systems/action_check_engine.gd` — Refactor for card resolution without dice.
+  - `src/core/cards/asset_card.gd` — Add card type definitions (Module, Field, Possession, Consumable) and junk state.
+  - `src/core/systems/crafting_system.gd` — New system for tag-pairing crafting and junk generation.
+  - `src/core/ui/board/components/card_collection_panel.gd` / `.tscn` — New UI panel for the scrollable inventory.
+  - `src/core/ui/board/components/dice_roll_feedback.gd` — Deprecate or repurpose for card resolution feedback.
+- TRUTH_RELIANCE: TRUTH_GAME-LOOP-VISION.md (§2 The Card System)
 - TECHNICAL_CONSTRAINTS:
-  - Must use only the default Godot theme primitives and inline `StyleBoxFlat` (no custom Theme files).
-  - Mode A ↔ Mode B transition must work end-to-end.
-  - Must pass 100% GUT tests and show zero runtime errors upon launch.
-- OUT_OF_SCOPE:
-  - Adding new mechanics beyond what M20-M28 provides.
-  - Extensive content beyond the initial 1-hour core sector.
+  - No 3d6 rolls occur anywhere in Mode B.
+  - Only target specific GUT tests if you need them. The full GUT suite will be run manually by the user. Do not run the full suite automatically.
+  - When running terminal commands, ensure that ghost processes of Godot are not hanging around (e.g., kill orphaned instances after testing).
 - ATOMIC_TASKS:
-  - [x] TASK_1: System Integration & Wiring
-    - Hook up `GlobalRefs` and `GameState` to correctly manage transitions between Mode A (flight) and Mode B (board).
-    - Ensure `AssetSystem`, `SectorManager`, `WorldClock`, and NPC tokens are initialized correctly together in the root scene.
-  - [x] TASK_2: Playable Scene Assembly (`main.tscn`)
-    - Combine Mode A and Mode B components into a single launchable game scene (or scene transition setup).
-    - Ensure the player can "dock" from Mode A to trigger Mode B.
-  - [x] TASK_3: World Clock & Sector Pressure Setup
-    - Connect the `WorldClock` ticks to resource drain or track degradation.
-    - Connect board action loop (Target Node -> Asset Card -> 3d6 -> Impact Card) fully from UI to state.
-  - [x] TASK_4: Outer-Margin Node Implementation
-    - Place a visually striking "Dangling Carrot" outer-margin node in the Mode A 3D environment.
-    - Mechanically lock this node in Mode B, requiring specific conditions/cards to unlock.
-  - [x] TASK_5: Stability, GUT Tests, and Manual Playtest
-    - Confirmed 100% GUT test pass rate (275/275 tests, 1061/1061 assertions).
-    - Validated launch and manual session integration.
-
+  - [x] TASK_1: Update Card Data Model. Modify `asset_card.gd` to include explicit Card Types (Module, Field, Possession, Consumable) and a Junk state/flag. Ensure modifiers are allowed.
+  - [x] TASK_2: Refactor Action Resolution. Rip out 3d6 logic from `action_check_engine.gd` and `board_action_loop.gd`. Implement card-driven resolution. Update feedback UI to remove dice.
+  - [x] TASK_3: Create Collection UI. Build `card_collection_panel.tscn` to display the player's card collection organized by type.
+  - [x] TASK_4: Implement Crafting System. Create `crafting_system.gd` to handle tag-pairing crafting (failed attempts yield Junk; Junk acts as a universal fuel/cost).
+  - [ ] TASK_5: Asset Creation. Create 1 ship model, 1 structure model, 1 character portrait/asset, 1 soundtrack, and a few stars/planets to reduce the asset backlog (stubs or actual files in assets directory).
+  - [ ] VERIFICATION: Write or update specific GUT tests for the new action engine and crafting system, ensuring they pass with no ghost processes.

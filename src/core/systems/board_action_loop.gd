@@ -5,7 +5,7 @@
 # ACCESS: read-write
 # USER INSTRUCTION: NONE
 # TRUTH_LINK: TRUTH_GAME-LOOP-VISION.md §2
-# LOG_REF: 2026-07-26 00:57:00
+# LOG_REF: 2026-08-17 04:00:00
 
 extends Node
 
@@ -27,9 +27,8 @@ func select_target(node) -> void:
 func assemble_action(asset_cards: Array) -> void:
 	selected_asset_cards = asset_cards.duplicate()
 
-func execute_check(target_difficulty: int = 10, seeded_dice: Array = [], bond_modifier: int = 0) -> Dictionary:
-	var player_tracks = GameState.player_tracks
-	last_check_result = check_engine.resolve_check(target_difficulty, selected_asset_cards, player_tracks, seeded_dice, bond_modifier)
+func execute_check(target_difficulty: int = 1, required_tags: Array = []) -> Dictionary:
+	last_check_result = check_engine.resolve_check(target_difficulty, selected_asset_cards, required_tags)
 	return last_check_result
 
 func apply_mutation(impact_card, _sector_id: String = "") -> bool:
