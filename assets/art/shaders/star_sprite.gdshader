@@ -22,6 +22,29 @@ uniform float fade_power = 5;
 uniform float intensity : hint_range(0.0, 1.0) = 1.0;
 uniform float exponent : hint_range(0.0, 50.0, 0.1) = 3.0;
 
+// Dither and posterization constants
+uniform float dither_threshold : hint_range(0.0, 1.0) = 0.5;
+const float light_dither_strength = 0.5;
+const float posterization_levels = 24.0;
+const float dither_pixel_size = 2.0;
+
+// --- Helper Functions ---
+
+// 2x2 Bayer matrix lookup via arithmetic
+float bayer2x2(vec2 p) {
+    return p.x * 2.0 + p.y * (3.0 - 4.0 * p.x);
+}
+
+// Fast GLES2-compatible 8x8 Bayer matrix calculation without stack array allocations
+float bayer8x8(vec2 screen_pos) {
+    vec2 p = mod(floor(screen_pos), 8.0);
+    vec2 p0 = mod(p, 2.0);
+    vec2 p1 = mod(floor(p / 2.0), 2.0);
+    vec2 p2 = floor(p / 4.0);
+    float val = 16.0 * bayer2x2(p0) + 4.0 * bayer2x2(p1) + bayer2x2(p2);
+    return val / 64.0;
+}
+
 void vertex() {
     float center_distance = max(-NODE_POSITION_VIEW.z, 0.0001);
     float fade_distance = peak_distance * fade_ratio;
@@ -65,11 +88,26 @@ void vertex() {
 }
 
 void fragment() {
-    ALBEDO = albedo.rgb * pow(COLOR.r, exponent) * intensity;
+    // Virtual pixel coordinates for DPI-independent dither grid
+    vec2 dither_pos = FRAGCOORD.xy / max(1.0, dither_pixel_size);
+    float threshold = bayer8x8(dither_pos);
+
 	// Fade near and far.
 	float dist = length(VERTEX);
 	float fade_out = clamp(smoothstep(fade_distance_far, 0.0, dist), 1e-6, 1.0); // fades out
 	float fade_in = clamp(smoothstep(0.0, fade_distance_near, dist), 1e-6, 1.0); // fades in
 	float fade = pow(fade_in*fade_out, fade_power);
-	ALBEDO *= fade;
+
+	// sprite_val is already in [0,1] (COLOR.r^exponent * intensity).
+	// Bake fade in before posterizing so bands stay crisp through the fade zone.
+	float sprite_val = clamp(pow(COLOR.r, exponent) * intensity * fade, 0.0, 1.0);
+
+	// Bi-directional Bayer dithering and posterization on the fully composed value
+	float levels = max(1.0, posterization_levels);
+	float step_size = 1.0 / levels;
+	float dither_offset = (threshold - 0.5) * step_size * light_dither_strength;
+	float dithered_val = clamp(sprite_val + dither_offset, 0.0, 1.0);
+	float quantized_val = floor(dithered_val * levels) / levels;
+
+    ALBEDO = albedo.rgb * quantized_val;
 }

@@ -29,6 +29,11 @@ uniform float fade_distance_near = 1e5;
 uniform float fade_distance_far = 1e6;
 uniform float fade_power = .2;
 
+// Dither and posterization constants
+uniform float light_dither_strength = 0.3;
+uniform float posterization_levels = 100.0;
+const float dither_pixel_size = 2.0;
+
 uniform float uv1_blend_sharpness = 10.0;
 
 uniform float normal_detail_uv1_scale = 1.0;
@@ -44,10 +49,25 @@ uniform sampler2D normal_noise;
 
 const float pi = 3.1415926535;
 
-varying vec3 uv1_triplanar_pos;
 varying vec3 normal_detail_uv1_triplanar_pos;
 varying vec3 uv1_power_normal;
 
+// --- Helper Functions ---
+
+// 2x2 Bayer matrix lookup via arithmetic
+float bayer2x2(vec2 p) {
+    return p.x * 2.0 + p.y * (3.0 - 4.0 * p.x);
+}
+
+// Fast GLES2-compatible 8x8 Bayer matrix calculation without stack array allocations
+float bayer8x8(vec2 screen_pos) {
+    vec2 p = mod(floor(screen_pos), 8.0);
+    vec2 p0 = mod(p, 2.0);
+    vec2 p1 = mod(floor(p / 2.0), 2.0);
+    vec2 p2 = floor(p / 4.0);
+    float val = 16.0 * bayer2x2(p0) + 4.0 * bayer2x2(p1) + bayer2x2(p2);
+    return val / 64.0;
+}
 
 void vertex() {
 	vec3 normal = NORMAL;
@@ -60,10 +80,8 @@ void vertex() {
 	BINORMAL+= vec3(0.0,1.0,0.0) * abs(normal.z);
 	BINORMAL = normalize(BINORMAL);
 	uv1_power_normal=pow(abs(NORMAL),vec3(uv1_blend_sharpness));
-	uv1_triplanar_pos = VERTEX * pow(2.0, normal_detail_uv1_scale) + normal_detail_uv1_offset;
 	normal_detail_uv1_triplanar_pos = VERTEX * pow(2.0, normal_detail_uv1_scale) + normal_detail_uv1_offset;
 	uv1_power_normal/=dot(uv1_power_normal,vec3(1.0));
-	uv1_triplanar_pos *= vec3(1.0,-1.0, 1.0);
 	normal_detail_uv1_triplanar_pos *= vec3(1.0,-1.0, 1.0);
 	
 	// Non-linear perspective
@@ -71,7 +89,6 @@ void vertex() {
 	float scale_factor = pow(clamp((scale_end_mul*scale_start - distance_vert) / (scale_end_mul*scale_start - scale_start), scale_min, 1.0), scale_power);
 	VERTEX *= scale_factor;
 }
-
 
 vec4 triplanar_texture(sampler2D p_sampler,vec3 p_weights,vec3 p_triplanar_pos) {
 	vec4 samp=vec4(0.0);
@@ -83,6 +100,10 @@ vec4 triplanar_texture(sampler2D p_sampler,vec3 p_weights,vec3 p_triplanar_pos) 
 
 void fragment()
 {
+	// Virtual pixel coordinates for DPI-independent dither grid
+	vec2 dither_pos = FRAGCOORD.xy / max(1.0, dither_pixel_size);
+	float threshold = bayer8x8(dither_pos);
+
 	// Get tangent, binormal and normal of the vertex.
 	vec3 N = normalize(NORMAL);
 	vec3 T = normalize(TANGENT);
@@ -107,7 +128,7 @@ void fragment()
 	float rim_ambient = clamp(pow(dt,rim_ambient_exponent), 1e-6, 1.0);
 	
 	ALBEDO = albedo.rgb;
-	
+
 	// Emulate normal map
 	float normal_mask = clamp(1.0 - pow((1.0-rim_normal_detail) * normal_detail_power, normal_detail_factor), 1e-6, normal_detail_clamp);
 	ALBEDO *= normal_strength * normal_mask;
@@ -121,9 +142,22 @@ void fragment()
 	float fade_out = clamp(smoothstep(fade_distance_far, 0.0, dist), 1e-6, 1.0); // fades out
 	float fade_in = clamp(smoothstep(0.0, fade_distance_near, dist), 1e-6, 1.0); // fades in
 	float fade = pow(fade_in*fade_out, fade_power);
-		
-	// Overlay dark parts
-	ALBEDO += fade * rim_ambient * albedo_ambient.rgb * (1.0 - rim_mask) * (1.0 - normal_mask);
-	
+
+	// Apply fade to base + rim first, then add ambient — so all terms scale by fade¹ equally.
+	// Previously ambient was added before ALBEDO*=fade, giving it an unintended fade² weight.
 	ALBEDO *= fade;
+	ALBEDO += rim_ambient * albedo_ambient.rgb * (1.0 - rim_mask) * (1.0 - normal_mask) * fade;
+
+	// Distance fade discard
+	if (fade < threshold * 0.05) {
+		discard;
+	}
+
+	// Clamp before dithering so saturated channels have full headroom for the dither offset.
+	// Bi-directional Bayer dithering and posterization on the fully composed color.
+	float levels = max(1.0, posterization_levels);
+	float step_size = 1.0 / levels;
+	float dither_offset = (threshold - 0.5) * step_size * light_dither_strength;
+	vec3 dithered_albedo = clamp(ALBEDO + vec3(dither_offset), 0.0, 1.0);
+	ALBEDO = floor(dithered_albedo * levels) / levels;
 }

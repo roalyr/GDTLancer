@@ -5,10 +5,10 @@
 
 [sub_resource type="ShaderMaterial" id=1]
 shader = ExtResource( 2 )
-shader_param/albedo = Color( 0.733333, 0.388235, 0.215686, 1 )
+shader_param/albedo = Color( 0.211765, 0.129412, 0.0470588, 1 )
 shader_param/scale_near = 2.0
 shader_param/scale_peak = 2.0
-shader_param/scale_far = 0.15
+shader_param/scale_far = 0.25
 shader_param/peak_distance = 50000.0
 shader_param/fade_ratio = 10.0
 shader_param/distance_power = 0.4
@@ -17,10 +17,11 @@ shader_param/fade_distance_far = 2e+06
 shader_param/fade_power = 5.0
 shader_param/intensity = 1.0
 shader_param/exponent = 3.0
+shader_param/dither_threshold = 0.5
 
 [sub_resource type="ShaderMaterial" id=2]
 shader = ExtResource( 2 )
-shader_param/albedo = Color( 1, 1, 1, 1 )
+shader_param/albedo = Color( 1, 0.980392, 0.713726, 1 )
 shader_param/scale_near = 0.5
 shader_param/scale_peak = 0.8
 shader_param/scale_far = 0.07
@@ -31,7 +32,8 @@ shader_param/fade_distance_near = 0.0
 shader_param/fade_distance_far = 2e+06
 shader_param/fade_power = 5.0
 shader_param/intensity = 1.0
-shader_param/exponent = 3.0
+shader_param/exponent = 5.4
+shader_param/dither_threshold = 0.5
 
 [node name="Star Elace Sprite" type="Spatial"]
 

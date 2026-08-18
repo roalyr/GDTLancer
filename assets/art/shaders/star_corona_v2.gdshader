@@ -19,8 +19,8 @@ uniform float fade_distance_far = 15000;
 uniform float fade_power = 6.0;
 
 // Dither and posterization constants
-uniform float light_dither_strength = 0.5;
-uniform float posterization_levels = 30.0;
+const float light_dither_strength = 0.5;
+const float posterization_levels = 20.0;
 const float dither_pixel_size = 2.0;
 
 uniform sampler2D displacement_texture;
@@ -55,24 +55,22 @@ float bayer8x8(vec2 screen_pos) {
 }
 
 void vertex() {
-	vec2 tex_position_x = VERTEX.yz - TIME*displacement_velocity*0.1;
-	vec2 tex_position_y = VERTEX.xz + TIME*displacement_velocity*0.1;
-	vec2 tex_position_z = VERTEX.xy - TIME*displacement_velocity*0.1;
-	vec2 tex_position_uv = UV - TIME*displacement_velocity*0.1;
+	vec2 tex_position_x = VERTEX.yz - TIME * displacement_velocity * 0.1;
+	vec2 tex_position_y = VERTEX.xz + TIME * displacement_velocity * 0.1;
+	vec2 tex_position_z = VERTEX.xy - TIME * displacement_velocity * 0.1;
 
-	float displacement_x = 2.0*texture(displacement_texture, tex_position_x).r;
-	float displacement_y = 2.0*texture(displacement_texture, tex_position_y).r;
-	float displacement_z = 2.0*texture(displacement_texture, tex_position_z).r;
-	float displacement_uv = 2.0*texture(displacement_texture, tex_position_uv).r;
+	float displacement_x = 2.0 * texture(displacement_texture, tex_position_x).r;
+	float displacement_y = 2.0 * texture(displacement_texture, tex_position_y).r;
+	float displacement_z = 2.0 * texture(displacement_texture, tex_position_z).r;
 
-	noise_val = pow( displacement_z * displacement_x * displacement_y, displacement_power);
+	noise_val = pow(displacement_z * displacement_x * displacement_y, displacement_power);
 	VERTEX *= noise_val;
 	VERTEX.xz *= displacement_scale_xz;
 	VERTEX.y *= displacement_scale_y;
-	
+
 	// Non-linear perspective
 	float distance_vert = -(MODELVIEW_MATRIX * vec4(VERTEX, 1.0)).z;
-    float scale_factor = pow(clamp((scale_end_mul*scale_start - distance_vert) / (scale_end_mul*scale_start - scale_start), scale_min, 1.0), scale_power);
+	float scale_factor = pow(clamp((scale_end_mul * scale_start - distance_vert) / (scale_end_mul * scale_start - scale_start), scale_min, 1.0), scale_power);
 	VERTEX *= scale_factor;
 }
 
@@ -82,21 +80,28 @@ void fragment()
 	vec2 dither_pos = FRAGCOORD.xy / max(1.0, dither_pixel_size);
 	float threshold = bayer8x8(dither_pos);
 
-	float dt = clamp(abs(dot(NORMAL,VIEW)), 1e-9, 0.99999);
-	float corona = pow(dt, exp(exponent_corona))*pow(1.1,strength_corona);
-	float corona_val = pow(corona, exponent_corona_rim) * clamp((corona_floor - pow(noise_val, corona_floor_power)), 0.0, 1.0);
+	float dt = clamp(abs(dot(NORMAL, VIEW)), 1e-9, 0.99999);
+	float corona = pow(dt, exp(exponent_corona)) * pow(1.1, strength_corona);
 
-	// Fade near and far.
+	// Noise mask: corona_floor controls how much of the noise suppresses the rim
+	float noise_mask = clamp(corona_floor - pow(noise_val, corona_floor_power), 0.0, 1.0);
+	float corona_val = pow(corona, exponent_corona_rim) * noise_mask;
+
+	// Fade by vertex distance (smoothstep in → bright when close, fades out far away)
 	float dist = length(VERTEX);
-	float fade_out = clamp(smoothstep(0.0, fade_distance_far, dist), 1e-6, 1.0); 
-	float fade = pow(fade_out, fade_power);
+	float fade = pow(clamp(smoothstep(0.0, fade_distance_far, dist), 1e-6, 1.0), fade_power);
 
-	// Bi-directional Bayer dithering across quantization steps
+	// Clamp corona to [0,1] BEFORE fade and dithering so the dither offset
+	// has full headroom across the whole range (avoids clipping bright regions to 1.0
+	// with no dither benefit there, and preserves gradient detail in mid-tones).
+	float final_val = clamp(corona_val, 0.0, 1.0) * fade;
+
+	// Bi-directional Bayer dithering and posterization on the fully composed value
 	float levels = max(1.0, posterization_levels);
 	float step_size = 1.0 / levels;
 	float dither_offset = (threshold - 0.5) * step_size * light_dither_strength;
-	float dithered_val = clamp(corona_val + dither_offset, 0.0, 1.0);
+	float dithered_val = clamp(final_val + dither_offset, 0.0, 1.0);
 	float quantized_val = floor(dithered_val * levels) / levels;
 
-	ALBEDO = corona_color.rgb * quantized_val * fade;
+	ALBEDO = corona_color.rgb * quantized_val;
 }

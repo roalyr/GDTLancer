@@ -41,11 +41,16 @@ uniform float rim_exponent = 1.0;
 uniform float fade_distance = 1e5;
 uniform float fade_power = 2.0;
 
+// Dither and posterization constants
+uniform float dither_threshold : hint_range(0.0, 1.0) = 0.5;
+const float light_dither_strength = 0.5;
+const float posterization_levels = 5.0;
+const float dither_pixel_size = 2.0;
+
 uniform float uv1_blend_sharpness = 10.0;
 
 uniform float normal_detail_uv1_scale = 1.0;
 uniform vec3 normal_detail_uv1_offset = vec3(0.0);
-
 
 // Non-linear perspective
 uniform float scale_start = 100000;
@@ -62,7 +67,22 @@ varying vec3 uv1_triplanar_pos;
 varying vec3 normal_detail_uv1_triplanar_pos;
 varying vec3 uv1_power_normal;
 
+// --- Helper Functions ---
 
+// 2x2 Bayer matrix lookup via arithmetic
+float bayer2x2(vec2 p) {
+    return p.x * 2.0 + p.y * (3.0 - 4.0 * p.x);
+}
+
+// Fast GLES2-compatible 8x8 Bayer matrix calculation without stack array allocations
+float bayer8x8(vec2 screen_pos) {
+    vec2 p = mod(floor(screen_pos), 8.0);
+    vec2 p0 = mod(p, 2.0);
+    vec2 p1 = mod(floor(p / 2.0), 2.0);
+    vec2 p2 = floor(p / 4.0);
+    float val = 16.0 * bayer2x2(p0) + 4.0 * bayer2x2(p1) + bayer2x2(p2);
+    return val / 64.0;
+}
 
 void vertex() {
 	vec3 normal = NORMAL;
@@ -98,6 +118,10 @@ vec4 triplanar_texture(sampler2D p_sampler,vec3 p_weights,vec3 p_triplanar_pos) 
 
 void fragment()
 {
+	// Virtual pixel coordinates for DPI-independent dither grid
+	vec2 dither_pos = FRAGCOORD.xy / max(1.0, dither_pixel_size);
+	float threshold = bayer8x8(dither_pos);
+
 	// Get tangent, binormal and normal of the vertex.
 	vec3 N = normalize(NORMAL);
 	vec3 T = normalize(TANGENT);
@@ -123,24 +147,33 @@ void fragment()
 	float luminosity = dot(COLOR.rgb, vec3(lum_weight_r, lum_weight_g, lum_weight_b));
 	luminosity = max(luminosity, 0.0);
 
-	// Now use this calculated luminosity value in your original formula
+	// Calculated luminosity value
 	float vertex_mask = vertex_mask_overlay + pow(luminosity, vertex_mask_power);
 	if (vertex_mask < 0.01) {
 		discard;
 	}
-	
+
+	// Bi-directional Bayer dithering across quantization steps
+	float levels = max(1.0, posterization_levels);
+	float step_size = 1.0 / levels;
+	float dither_offset = (threshold - 0.5) * step_size * light_dither_strength;
+
+	float q_rim = floor(clamp(rim + dither_offset, 0.0, 1.0) * levels) / levels;
+	float q_nm = floor(clamp(rim_normal_detail + dither_offset, 0.0, 1.0) * levels) / levels;
+	float q_mask = floor(clamp(vertex_mask + dither_offset, 0.0, 1.0) * levels) / levels;
+
 	ALBEDO = albedo_strength * albedo.rgb * COLOR.rgb;
 	
 	// Emulate normal map
-	float normal_mask = (1.0 - pow((1.0-rim_normal_detail) * normal_detail_power, rim_normal_detail_factor));
+	float normal_mask = (1.0 - pow((1.0-q_nm) * normal_detail_power, rim_normal_detail_factor));
 	ALBEDO += normal_mask * normal_detail_strength;
 
 	// Apply rim
-	float rim_mask = pow((1.0 - rim)*rim, rim_factor);
+	float rim_mask = pow((1.0 - q_rim)*q_rim, rim_factor);
 	ALBEDO += rim_strength * rim_mask * albedo_rim.rgb;
 	
 	// Apply vertex mask
-	ALBEDO *= vertex_mask;
+	ALBEDO *= q_mask;
 	
 	// color tweak.
 	ALBEDO = vec3(
@@ -150,14 +183,14 @@ void fragment()
 	);
 
 	// Overlay dark parts
-	ALBEDO += (1.0 - clamp(vertex_mask, 0.0, 1.0)) * albedo_ambient.rgb;
+	ALBEDO += (1.0 - clamp(q_mask, 0.0, 1.0)) * albedo_ambient.rgb;
 	
 	// Replace near parts with ambient color to hide polygons.
 	float dist = length(VERTEX);
 	float fade = pow(clamp(smoothstep(0.0, fade_distance, dist), 1e-6, 1.0), fade_power); // fades in
+	float q_fade = floor(clamp(fade + dither_offset, 0.0, 1.0) * levels) / levels;
 	vec3 current = ALBEDO;
-	ALBEDO = (1.0-fade) * (albedo_near.rgb * vertex_mask) 
-		+ (1.0-fade) * (albedo_ambient.rgb * (1.0 - vertex_mask)) 
-		+ fade * current;
-
+	ALBEDO = (1.0-q_fade) * (albedo_near.rgb * q_mask) 
+		+ (1.0-q_fade) * (albedo_ambient.rgb * (1.0 - q_mask)) 
+		+ q_fade * current;
 }

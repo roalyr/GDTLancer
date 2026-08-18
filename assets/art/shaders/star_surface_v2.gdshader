@@ -31,9 +31,8 @@ uniform float rim_exponent = 0.03;
 uniform float rim_intensity = 10;
 
 // Dither and posterization constants
-uniform float dither_threshold : hint_range(0.0, 1.0) = 0.5;
-const float light_dither_strength = 0.5;
-const float posterization_levels = 5.0;
+uniform float light_dither_strength = 0.5;
+uniform float posterization_levels = 5.0;
 const float dither_pixel_size = 2.0;
 
 // NLP
@@ -43,7 +42,7 @@ uniform float scale_power = 1.0;
 uniform float scale_min = 0.5;
 
 const float pi = 3.1415926535;
-const vec3 WHITE = vec3(1.0,1.0,1.0);
+const vec3 WHITE = vec3(1.0, 1.0, 1.0);
 
 // --- Helper Functions ---
 
@@ -62,8 +61,12 @@ float bayer8x8(vec2 screen_pos) {
     return val / 64.0;
 }
 
+// Posterize a single channel
+float posterize(float v, float levels) {
+    return floor(clamp(v, 0.0, 1.0) * levels) / levels;
+}
+
 void vertex() {
-	// --- Non-linear perspective (based on distance) ---
 	float distance_vert = -(MODELVIEW_MATRIX * vec4(VERTEX, 1.0)).z;
     float scale_factor = pow(clamp((scale_end_mul*scale_start - distance_vert) / (scale_end_mul*scale_start - scale_start), scale_min, 1.0), scale_power);
 	VERTEX *= scale_factor;
@@ -75,24 +78,27 @@ void fragment()
 	vec2 dither_pos = FRAGCOORD.xy / max(1.0, dither_pixel_size);
 	float threshold = bayer8x8(dither_pos);
 
-	vec2 p = texture(major_detail_noise, -UV*2.0*major_detail_scale).xy -TIME*major_detail_flow;
-	float detail_major = sin(pow(texture(major_detail_noise, p).r, major_detail_level)*pi+major_phase);
-	float rim = clamp(pow(abs(dot(NORMAL, VIEW)), rim_exponent)*rim_strength, 1e-6, 1.0);
+	// --- Full-precision intermediate values ---
+	vec2 p = texture(major_detail_noise, -UV * 2.0 * major_detail_scale).xy - TIME * major_detail_flow;
+	float detail = abs(sin(pow(texture(major_detail_noise, p).r, major_detail_level) * pi + major_phase));
+	float rim = clamp(pow(abs(dot(NORMAL, VIEW)), rim_exponent) * rim_strength, 1e-6, 1.0);
+	float distance_factor = clamp(pow(length(VERTEX) / detail_decay_distance, detail_decay_power), 0.0, 1.0);
 
-	float distance_factor = clamp(pow(length(VERTEX)/detail_decay_distance, detail_decay_power), 0.0, 1.0);
+	// --- Compose final color at full float precision ---
+	vec3 col = detail * major_detail_intensity * (1.0 - distance_factor) * WHITE;
+	col += overlay_color.rgb;
+	col *= surface_color.rgb;
+	col += fade_color.rgb * distance_factor;
+	col += (1.0 - rim) * rim_color.rgb * rim_intensity * (1.0 - distance_factor);
 
-	// Bi-directional Bayer dithering across quantization steps
+	// --- Apply dithering and posterization once on the final composed color ---
 	float levels = max(1.0, posterization_levels);
 	float step_size = 1.0 / levels;
 	float dither_offset = (threshold - 0.5) * step_size * light_dither_strength;
 
-	float q_detail = floor(clamp(abs(detail_major) + dither_offset, 0.0, 1.0) * levels) / levels;
-	float q_rim = floor(clamp(rim + dither_offset, 0.0, 1.0) * levels) / levels;
-	float q_dist = floor(clamp(distance_factor + dither_offset, 0.0, 1.0) * levels) / levels;
-
-	ALBEDO = (q_detail * major_detail_intensity * WHITE) * (1.0 - q_dist);
-	ALBEDO += overlay_color.rgb;
-	ALBEDO *= surface_color.rgb;
-	ALBEDO += fade_color.rgb * q_dist;
-	ALBEDO += (1.0 - q_rim) * rim_color.rgb * rim_intensity * (1.0 - q_dist);
+	ALBEDO = vec3(
+		posterize(col.r + dither_offset, levels),
+		posterize(col.g + dither_offset, levels),
+		posterize(col.b + dither_offset, levels)
+	);
 }

@@ -1,9 +1,38 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://src/scenes/game_world/station/dockable_station.gd" type="Script" id=1]
-[ext_resource path="res://assets/art/materials/test_solid_glow.tres" type="Material" id=2]
+[ext_resource path="res://assets/art/shaders/simple_solid_NLP.gdshader" type="Shader" id=2]
 
 [sub_resource type="BoxShape" id=4]
+
+[sub_resource type="ShaderMaterial" id=5]
+shader = ExtResource( 2 )
+shader_param/paint_color = Color( 1, 1, 1, 1 )
+shader_param/light_tint = Color( 1, 0.95, 0.9, 1 )
+shader_param/shadow_tint = Color( 0.15, 0.15, 0.25, 1 )
+shader_param/shadow_bias = 0.0
+shader_param/shadow_softness = 0.1
+shader_param/shadow_normal_blend = 0.5
+shader_param/spec_tint = Color( 1, 1, 1, 0.5 )
+shader_param/spec_intensity = 0.0
+shader_param/spec_glossiness = 10.0
+shader_param/spec_softness = 0.1
+shader_param/rim_color = Color( 0.5, 0.7, 1, 1 )
+shader_param/rim_width = 3.0
+shader_param/rim_power = 2.0
+shader_param/rim_mask_on_shadow = true
+shader_param/detail_paint_scale = 1.0
+shader_param/detail_paint_strength = 0.0
+shader_param/detail_paint_contrast = 1.0
+shader_param/detail_normal_scale = 1.0
+shader_param/detail_normal_strength = 1.0
+shader_param/uv_triplanar_sharpness = 10.0
+shader_param/uv_scale = Vector3( 1, 1, 1 )
+shader_param/uv_offset = Vector3( 0, 0, 0 )
+shader_param/scale_start = 3000.0
+shader_param/scale_end_mul = 30.0
+shader_param/scale_power = 1.0
+shader_param/scale_min = 0.25
 
 [sub_resource type="CubeMesh" id=2]
 size = Vector3( 10, 10, 10 )
@@ -20,7 +49,7 @@ shape = SubResource( 4 )
 
 [node name="MeshInstance" type="MeshInstance" parent="."]
 transform = Transform( 2.97317, 0, 0, 0, 2.97317, 0, 0, 0, 2.97317, 0, 0, 0 )
-material_override = ExtResource( 2 )
+material_override = SubResource( 5 )
 mesh = SubResource( 2 )
 
 [node name="DockingZone" type="Area" parent="."]

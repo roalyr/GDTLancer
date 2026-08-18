@@ -1,15 +1,39 @@
-[gd_scene load_steps=12 format=2]
+[gd_scene load_steps=13 format=2]
 
 [ext_resource path="res://src/core/agents/agent.gd" type="Script" id=1]
 [ext_resource path="res://assets/models/ships/Phoenix.glb" type="PackedScene" id=2]
 [ext_resource path="res://src/core/agents/components/movement_system.gd" type="Script" id=3]
 [ext_resource path="res://src/core/agents/components/navigation_system.gd" type="Script" id=4]
 [ext_resource path="res://assets/art/shaders/simple_glow_NLP.gdshader" type="Shader" id=5]
-[ext_resource path="res://assets/art/materials/test_solid_panel.tres" type="Material" id=6]
+[ext_resource path="res://assets/art/shaders/solid_dither_no_alpha_8x8.gdshader" type="Shader" id=6]
 
 [sub_resource type="CapsuleShape" id=6]
 radius = 7.4844
 height = 2.14715
+
+[sub_resource type="ShaderMaterial" id=9]
+shader = ExtResource( 6 )
+shader_param/albedo = Color( 0.121569, 0.172549, 0.219608, 1 )
+shader_param/emission = Color( 0, 0, 0, 1 )
+shader_param/normal_strength = 0.0
+shader_param/albedo_detail_strength = 0.0
+shader_param/albedo_detail_power = 1.0
+shader_param/rim_strength = 1.0
+shader_param/rim_exponent = 3.0
+shader_param/rim_intensity = 0.3
+shader_param/fade_start = 300000.0
+shader_param/fade_end_mul = 5.0
+shader_param/fade_power = 2.0
+shader_param/dither_threshold = 0.5
+shader_param/uv_triplanar_sharpness = 10.0
+shader_param/uv_scale = Vector3( 1, 1, 1 )
+shader_param/uv_offset = Vector3( 0, 0, 0 )
+shader_param/scale_start = 100000.0
+shader_param/scale_end_mul = 100.0
+shader_param/scale_power = 1.0
+shader_param/scale_min = 0.5
+shader_param/normal_scale = 1.0
+shader_param/albedo_detail_scale = 1.0
 
 [sub_resource type="ShaderMaterial" id=7]
 shader = ExtResource( 5 )
@@ -23,6 +47,7 @@ shader_param/rim_outer_exponent = 3.0
 shader_param/fade_distance_near = 100.0
 shader_param/fade_distance_far = 1000.0
 shader_param/fade_power = 0.2
+shader_param/dither_threshold = 0.5
 shader_param/scale_start = 100000.0
 shader_param/scale_end_mul = 100.0
 shader_param/scale_power = 1.0
@@ -42,6 +67,7 @@ shader_param/rim_outer_exponent = 3.0
 shader_param/fade_distance_near = 100.0
 shader_param/fade_distance_far = 1000.0
 shader_param/fade_power = 0.2
+shader_param/dither_threshold = 0.5
 shader_param/scale_start = 100000.0
 shader_param/scale_end_mul = 100.0
 shader_param/scale_power = 1.0
@@ -59,6 +85,7 @@ shader_param/rim_outer_exponent = 3.0
 shader_param/fade_distance_near = 100.0
 shader_param/fade_distance_far = 1000.0
 shader_param/fade_power = 0.2
+shader_param/dither_threshold = 0.5
 shader_param/scale_start = 100000.0
 shader_param/scale_end_mul = 100.0
 shader_param/scale_power = 1.0
@@ -83,7 +110,7 @@ __meta__ = {
 [node name="Phoenix" parent="Model" instance=ExtResource( 2 )]
 
 [node name="Hull joined" parent="Model/Phoenix" index="0"]
-material_override = ExtResource( 6 )
+material_override = SubResource( 9 )
 
 [node name="Exhaust long3" type="Spatial" parent="Model"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1.47573, 0, 0, -0.018764 )
