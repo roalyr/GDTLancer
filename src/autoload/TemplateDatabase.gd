@@ -26,6 +26,7 @@ var utility_tools: Dictionary = {}  # Weapons and other utility tools
 var factions: Dictionary = {}
 var contacts: Dictionary = {}
 var narratives: Dictionary = {}
+var game_starts: Dictionary = {}
 
 
 # Generic getter that searches all template categories
@@ -55,4 +56,6 @@ func get_template(template_id: String) -> Resource:
 		return agents[template_id]
 	if actions.has(template_id):
 		return actions[template_id]
+	if game_starts.has(template_id):
+		return game_starts[template_id]
 	return null

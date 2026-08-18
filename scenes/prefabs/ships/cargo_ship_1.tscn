@@ -1,0 +1,87 @@
+[gd_scene load_steps=6 format=2]
+
+[ext_resource path="res://assets/models/ships/cargo-ship-1.glb" type="PackedScene" id=2]
+[ext_resource path="res://assets/art/shaders/simple_glow_NLP.gdshader" type="Shader" id=5]
+
+[sub_resource type="CapsuleShape" id=6]
+
+[sub_resource type="ShaderMaterial" id=7]
+shader = ExtResource( 5 )
+shader_param/albedo = null
+shader_param/rim_strength = 5.0
+shader_param/rim_exponent = 30.0
+shader_param/rim_power = 1.0
+shader_param/rim_floor = 0.1
+shader_param/rim_outer_strength = 3.0
+shader_param/rim_outer_exponent = 3.0
+shader_param/fade_distance_near = 100.0
+shader_param/fade_distance_far = 1000.0
+shader_param/fade_power = 0.2
+shader_param/dither_threshold = 0.5
+shader_param/scale_start = 100000.0
+shader_param/scale_end_mul = 100.0
+shader_param/scale_power = 1.0
+shader_param/scale_min = 0.5
+
+[sub_resource type="SphereMesh" id=4]
+
+[node name="cargo_ship_1" type="Spatial"]
+
+[node name="CollisionShape" type="CollisionShape" parent="."]
+transform = Transform( 15, 0, 0, 0, 15, 0, 0, 0, 70, 0, 0, 0 )
+shape = SubResource( 6 )
+
+[node name="Model" type="Spatial" parent="."]
+
+[node name="Exhaust long" type="Spatial" parent="Model"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.018764 )
+
+[node name="Exhaust" type="MeshInstance" parent="Model/Exhaust long"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1.86375, 0, 0, 5.17021 )
+material_override = SubResource( 7 )
+cast_shadow = 0
+mesh = SubResource( 4 )
+skeleton = NodePath("")
+
+[node name="Exhaust2" type="MeshInstance" parent="Model/Exhaust long"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1.86375, 3.3694, 0, 8.04084 )
+material_override = SubResource( 7 )
+cast_shadow = 0
+mesh = SubResource( 4 )
+skeleton = NodePath("")
+
+[node name="Exhaust3" type="MeshInstance" parent="Model/Exhaust long"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1.86375, -3.36764, 0, 8.04084 )
+material_override = SubResource( 7 )
+cast_shadow = 0
+mesh = SubResource( 4 )
+skeleton = NodePath("")
+
+[node name="Exhaust short" type="Spatial" parent="Model"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.29184 )
+
+[node name="Exhaust" type="MeshInstance" parent="Model/Exhaust short"]
+transform = Transform( 0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 5.18022 )
+material_override = SubResource( 7 )
+cast_shadow = 0
+mesh = SubResource( 4 )
+skeleton = NodePath("")
+
+[node name="Exhaust2" type="MeshInstance" parent="Model/Exhaust short"]
+transform = Transform( 0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 3.3694, 0, 8.04084 )
+material_override = SubResource( 7 )
+cast_shadow = 0
+mesh = SubResource( 4 )
+skeleton = NodePath("")
+
+[node name="Exhaust3" type="MeshInstance" parent="Model/Exhaust short"]
+transform = Transform( 0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, -3.36764, 0, 8.04084 )
+material_override = SubResource( 7 )
+cast_shadow = 0
+mesh = SubResource( 4 )
+skeleton = NodePath("")
+
+[node name="cargo-ship-1" parent="Model" instance=ExtResource( 2 )]
+
+[node name="DirectionalLight" type="DirectionalLight" parent="."]
+editor_only = true

@@ -22,6 +22,7 @@ func before_each():
 	TemplateDatabase.assets_ships.clear()
 	TemplateDatabase.locations.clear()
 	TemplateDatabase.contracts.clear()
+	TemplateDatabase.game_starts.clear()
 
 	indexer_instance = TemplateIndexer.new()
 	add_child_autofree(indexer_instance)

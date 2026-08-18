@@ -92,13 +92,20 @@ func get_player_ship() -> ShipTemplate:
 
 func get_ship_for_character(character_uid) -> ShipTemplate:
 	if not GameState.characters.has(character_uid):
-		return null
+		# Try string version as a fallback
+		if GameState.characters.has(str(character_uid)):
+			character_uid = str(character_uid)
+		elif GameState.characters.has(int(character_uid)):
+			character_uid = int(character_uid)
+		else:
+			return null
 	var character = GameState.characters[character_uid]
 	if not is_instance_valid(character):
 		return null
 	var ship_uid = character.get("active_ship_uid") if character is Dictionary else character.active_ship_uid
 	if ship_uid != null and ship_uid != -1:
-		return get_ship(ship_uid)
+		var ship = get_ship(ship_uid)
+		return ship
 	return null
 
 func get_ships_for_character(character_uid: int) -> Array:

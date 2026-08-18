@@ -95,6 +95,8 @@ func _register_template(template: Template):
 		TemplateDatabase.factions[template.template_id] = template
 	elif template is NarrativeTemplate:
 		TemplateDatabase.narratives[template.template_id] = template
+	elif template is GameStartTemplate:
+		TemplateDatabase.game_starts[template.template_id] = template
 	else:
 		print("TemplateIndexer Warning: Unknown template type for resource: ", template.resource_path)
 

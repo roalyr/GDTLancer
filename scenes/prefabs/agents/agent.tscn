@@ -1,39 +1,12 @@
-[gd_scene load_steps=13 format=2]
+[gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://src/core/agents/agent.gd" type="Script" id=1]
-[ext_resource path="res://assets/models/ships/Phoenix.glb" type="PackedScene" id=2]
+[ext_resource path="res://assets/models/ships/cargo-ship-1.glb" type="PackedScene" id=2]
 [ext_resource path="res://src/core/agents/components/movement_system.gd" type="Script" id=3]
 [ext_resource path="res://src/core/agents/components/navigation_system.gd" type="Script" id=4]
 [ext_resource path="res://assets/art/shaders/simple_glow_NLP.gdshader" type="Shader" id=5]
-[ext_resource path="res://assets/art/shaders/solid_dither_no_alpha_8x8.gdshader" type="Shader" id=6]
 
 [sub_resource type="CapsuleShape" id=6]
-radius = 7.4844
-height = 2.14715
-
-[sub_resource type="ShaderMaterial" id=9]
-shader = ExtResource( 6 )
-shader_param/albedo = Color( 0.121569, 0.172549, 0.219608, 1 )
-shader_param/emission = Color( 0, 0, 0, 1 )
-shader_param/normal_strength = 0.0
-shader_param/albedo_detail_strength = 0.0
-shader_param/albedo_detail_power = 1.0
-shader_param/rim_strength = 1.0
-shader_param/rim_exponent = 3.0
-shader_param/rim_intensity = 0.3
-shader_param/fade_start = 300000.0
-shader_param/fade_end_mul = 5.0
-shader_param/fade_power = 2.0
-shader_param/dither_threshold = 0.5
-shader_param/uv_triplanar_sharpness = 10.0
-shader_param/uv_scale = Vector3( 1, 1, 1 )
-shader_param/uv_offset = Vector3( 0, 0, 0 )
-shader_param/scale_start = 100000.0
-shader_param/scale_end_mul = 100.0
-shader_param/scale_power = 1.0
-shader_param/scale_min = 0.5
-shader_param/normal_scale = 1.0
-shader_param/albedo_detail_scale = 1.0
 
 [sub_resource type="ShaderMaterial" id=7]
 shader = ExtResource( 5 )
@@ -73,24 +46,6 @@ shader_param/scale_end_mul = 100.0
 shader_param/scale_power = 1.0
 shader_param/scale_min = 0.5
 
-[sub_resource type="ShaderMaterial" id=8]
-shader = ExtResource( 5 )
-shader_param/albedo = null
-shader_param/rim_strength = 5.0
-shader_param/rim_exponent = 30.0
-shader_param/rim_power = 1.0
-shader_param/rim_floor = 0.1
-shader_param/rim_outer_strength = 3.0
-shader_param/rim_outer_exponent = 3.0
-shader_param/fade_distance_near = 100.0
-shader_param/fade_distance_far = 1000.0
-shader_param/fade_power = 0.2
-shader_param/dither_threshold = 0.5
-shader_param/scale_start = 100000.0
-shader_param/scale_end_mul = 100.0
-shader_param/scale_power = 1.0
-shader_param/scale_min = 0.5
-
 [node name="AgentBody" type="RigidBody"]
 gravity_scale = 0.0
 script = ExtResource( 1 )
@@ -98,139 +53,12 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="CollisionShape" type="CollisionShape" parent="."]
-transform = Transform( 1.09343, 0, 0, 0, 0.430446, 0, 0, 0, 1, 0, 0, 0 )
-shape = SubResource( 6 )
+
 
 [node name="Model" type="Spatial" parent="."]
 __meta__ = {
 "_edit_lock_": true
 }
-
-[node name="Phoenix" parent="Model" instance=ExtResource( 2 )]
-
-[node name="Hull joined" parent="Model/Phoenix" index="0"]
-material_override = SubResource( 9 )
-
-[node name="Exhaust long3" type="Spatial" parent="Model"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1.47573, 0, 0, -0.018764 )
-
-[node name="Exhaust" type="MeshInstance" parent="Model/Exhaust long3"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 5.66394, 0, 0, 5.17021 )
-material_override = SubResource( 7 )
-cast_shadow = 0
-mesh = SubResource( 4 )
-skeleton = NodePath("")
-
-[node name="Exhaust2" type="MeshInstance" parent="Model/Exhaust long3"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 5.52252, 3.3694, 0, 7.06125 )
-material_override = SubResource( 7 )
-cast_shadow = 0
-mesh = SubResource( 4 )
-skeleton = NodePath("")
-
-[node name="Exhaust3" type="MeshInstance" parent="Model/Exhaust long3"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 5.52252, -3.36764, 0, 7.06125 )
-material_override = SubResource( 7 )
-cast_shadow = 0
-mesh = SubResource( 4 )
-skeleton = NodePath("")
-
-[node name="Exhaust long2" type="Spatial" parent="Model"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1.24525, 0, 0, -0.018764 )
-
-[node name="Exhaust" type="MeshInstance" parent="Model/Exhaust long2"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 4.18236, 0, 0, 5.17021 )
-material_override = SubResource( 7 )
-cast_shadow = 0
-mesh = SubResource( 4 )
-skeleton = NodePath("")
-
-[node name="Exhaust2" type="MeshInstance" parent="Model/Exhaust long2"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 3.46622, 3.3694, 0, 7.34439 )
-material_override = SubResource( 7 )
-cast_shadow = 0
-mesh = SubResource( 4 )
-skeleton = NodePath("")
-
-[node name="Exhaust3" type="MeshInstance" parent="Model/Exhaust long2"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 3.46622, -3.36764, 0, 7.34439 )
-material_override = SubResource( 7 )
-cast_shadow = 0
-mesh = SubResource( 4 )
-skeleton = NodePath("")
-
-[node name="Exhaust long" type="Spatial" parent="Model"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.018764 )
-
-[node name="Exhaust" type="MeshInstance" parent="Model/Exhaust long"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1.86375, 0, 0, 5.17021 )
-material_override = SubResource( 7 )
-cast_shadow = 0
-mesh = SubResource( 4 )
-skeleton = NodePath("")
-
-[node name="Exhaust2" type="MeshInstance" parent="Model/Exhaust long"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1.86375, 3.3694, 0, 8.04084 )
-material_override = SubResource( 7 )
-cast_shadow = 0
-mesh = SubResource( 4 )
-skeleton = NodePath("")
-
-[node name="Exhaust3" type="MeshInstance" parent="Model/Exhaust long"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1.86375, -3.36764, 0, 8.04084 )
-material_override = SubResource( 7 )
-cast_shadow = 0
-mesh = SubResource( 4 )
-skeleton = NodePath("")
-
-[node name="Exhaust short" type="Spatial" parent="Model"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.29184 )
-
-[node name="Exhaust" type="MeshInstance" parent="Model/Exhaust short"]
-transform = Transform( 0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 5.18022 )
-material_override = SubResource( 5 )
-cast_shadow = 0
-mesh = SubResource( 4 )
-skeleton = NodePath("")
-
-[node name="Exhaust2" type="MeshInstance" parent="Model/Exhaust short"]
-transform = Transform( 0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 3.3694, 0, 8.04084 )
-material_override = SubResource( 5 )
-cast_shadow = 0
-mesh = SubResource( 4 )
-skeleton = NodePath("")
-
-[node name="Exhaust3" type="MeshInstance" parent="Model/Exhaust short"]
-transform = Transform( 0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, -3.36764, 0, 8.04084 )
-material_override = SubResource( 5 )
-cast_shadow = 0
-mesh = SubResource( 4 )
-skeleton = NodePath("")
-
-[node name="Exhaust short2" type="Spatial" parent="Model"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.723569 )
-
-[node name="Exhaust" type="MeshInstance" parent="Model/Exhaust short2"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 5.18022 )
-material_override = SubResource( 8 )
-cast_shadow = 0
-mesh = SubResource( 4 )
-skeleton = NodePath("")
-
-[node name="Exhaust2" type="MeshInstance" parent="Model/Exhaust short2"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3.3694, 0, 8.04084 )
-material_override = SubResource( 8 )
-cast_shadow = 0
-mesh = SubResource( 4 )
-skeleton = NodePath("")
-
-[node name="Exhaust3" type="MeshInstance" parent="Model/Exhaust short2"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -3.36764, 0, 8.04084 )
-material_override = SubResource( 8 )
-cast_shadow = 0
-mesh = SubResource( 4 )
-skeleton = NodePath("")
 
 [node name="MovementSystem" type="Node" parent="."]
 script = ExtResource( 3 )
@@ -243,4 +71,3 @@ transform = Transform( 0.94983, -0.0541661, 0.30804, -0.312766, -0.164495, 0.935
 light_energy = 0.5
 editor_only = true
 
-[editable path="Model/Phoenix"]

@@ -19,7 +19,7 @@ var agent_type: String = ""
 var template_id: String = ""
 var agent_uid = -1
 var character_uid = -1  # Links this agent to a character in GameState
-var interaction_radius: float = 15.0
+var interaction_radius: float = 150.0
 var is_hostile: bool = false  # True if this is a hostile NPC
 var ship_template = null  # Cached ship template for combat registration
 
@@ -71,6 +71,28 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 
 	movement_system.initialize_movement_params(move_params)
 	navigation_system.initialize_navigation(nav_params, movement_system)
+	
+	# Instance the ship visual scene if defined in the template
+	if is_instance_valid(ship_template):
+		if ship_template.ship_scene != null:
+			var ship_visual = ship_template.ship_scene.instance()
+			var model_node = get_node_or_null("Model")
+			if model_node:
+				model_node.add_child(ship_visual)
+				if ship_visual is Spatial:
+					ship_visual.visible = true
+				
+				# If the ship scene has a CollisionShape, reparent it to the RigidBody
+				for child in ship_visual.get_children():
+					if child is CollisionShape:
+						ship_visual.remove_child(child)
+						call_deferred("add_child", child)
+			else:
+				printerr("AgentBody Error: 'Model' node not found!")
+		else:
+			printerr("AgentBody Error: ship_template.ship_scene is null for template_id: ", ship_template.template_id)
+	else:
+		printerr("AgentBody Error: ship_template is null! Cannot instance ship visual.")
 
 	if Constants.VERBOSE_RUNTIME_LOGS:
 		print(

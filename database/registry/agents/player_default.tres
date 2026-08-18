@@ -6,5 +6,9 @@
 script = ExtResource( 1 )
 template_id = "agent_player_default"
 agent_type = "player"
+is_persistent = false
+home_location_id = ""
+character_template_id = ""
+respawn_timeout_seconds = 300.0
 agent_role = "idle"
 initial_tags = PoolStringArray( "HEALTHY", "COMFORTABLE", "EMPTY" )

@@ -115,7 +115,6 @@ func spawn_player():
 			should_apply_spawn_rotation = true
 			GameState.player_arrived_from_sector = ""
 
-	# Get the player character UID from GameState
 	var player_char_uid = GameState.player_character_uid
 	
 	# Overrides include agent_type, template_id, and character_uid for ship stats lookup

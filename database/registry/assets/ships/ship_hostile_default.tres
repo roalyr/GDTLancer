@@ -1,6 +1,7 @@
-[gd_resource type="Resource" load_steps=2 format=2]
+[gd_resource type="Resource" load_steps=3 format=2]
 
 [ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/cargo_ship_1.tscn" type="PackedScene" id=2]
 
 [resource]
 script = ExtResource( 1 )
@@ -8,6 +9,7 @@ template_id = "ship_hostile_default"
 asset_type = "ship"
 asset_icon_id = "asset_default"
 ship_model_name = "Hostile Fighter"
+ship_scene = ExtResource( 2 )
 hull_integrity = 50
 armor_integrity = 25
 cargo_capacity = 10

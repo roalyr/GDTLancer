@@ -26,22 +26,30 @@ const InventorySystem = preload("res://src/core/systems/inventory_system.gd")
 
 var _next_character_uid: int = 0
 var _next_ship_uid: int = 0
-# Commodity UIDs are no longer needed as they are not unique instances.
-# Module UIDs removed — assets_modules pruned in sim rework.
+
+var _current_game_start: GameStartTemplate = null
 
 # --- Public API ---
 
 # Main entry point. Generates all necessary data for a new game.
-func generate_new_world():
+func generate_new_world(start_template_id: String = "start_default"):
 	if VERBOSE_WORLD_BOOT_LOGS:
-		print("WorldGenerator: Generating new world state...")
+		print("WorldGenerator: Generating new world state using start template: ", start_template_id)
+
+	if TemplateDatabase.game_starts.has(start_template_id):
+		_current_game_start = TemplateDatabase.game_starts[start_template_id]
+	else:
+		printerr("WorldGenerator Warning: Could not find game start template ", start_template_id, ". Using defaults.")
+		# Create a fallback in code if missing
+		_current_game_start = GameStartTemplate.new()
+		_current_game_start.player_character_template = "character_default"
+		_current_game_start.player_ship_template = "ship_default"
+		_current_game_start.player_starting_location = ""
 
 	# Load all locations into GameState first (they are keyed by template_id).
 	_load_locations()
 
 	_load_factions()
-	# DEPRECATED: ContactTemplate system replaced by Persistent Agents.
-	# _load_contacts() (See TACTICAL_TODO Task 12)
 
 	# Create characters first.
 	for template_id in TemplateDatabase.characters:
@@ -52,7 +60,7 @@ func generate_new_world():
 	_generate_and_assign_assets()
 
 	# Sprint 10: Start player at system entry point instead of docked.
-	GameState.player_docked_at = ""
+	GameState.player_docked_at = _current_game_start.player_starting_location
 	_apply_player_starting_state()
 
 	if VERBOSE_WORLD_BOOT_LOGS:
@@ -169,7 +177,7 @@ func _create_character_from_template(template: CharacterTemplate):
 	# --- END NEW ---
 
 	# Designate the player character.
-	if template.template_id == "character_default":
+	if template.template_id == _current_game_start.player_character_template:
 		GameState.player_character_uid = uid
 
 
@@ -179,7 +187,11 @@ func _generate_and_assign_assets():
 		var character = GameState.characters[char_uid]
 		
 		# Create and assign a starting ship.
-		var ship_uid = _create_ship_instance("ship_default")
+		var ship_template_id = "ship_default"
+		if str(char_uid) == str(GameState.player_character_uid):
+			ship_template_id = _current_game_start.player_ship_template
+			
+		var ship_uid = _create_ship_instance(ship_template_id)
 		if ship_uid != -1:
 			# Add the ship to the character's inventory.
 			GlobalRefs.inventory_system.add_asset(char_uid, GlobalRefs.inventory_system.InventoryType.SHIP, ship_uid)
