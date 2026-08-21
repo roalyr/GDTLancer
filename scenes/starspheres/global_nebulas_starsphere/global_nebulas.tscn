@@ -5,7 +5,7 @@
 [ext_resource path="res://assets/art/textures/procedural_textures/normal/global_nebulas_1.tres" type="Texture" id=3]
 [ext_resource path="res://assets/models/nebulas/nebula_1.glb" type="PackedScene" id=4]
 [ext_resource path="res://assets/models/nebulas/nebula_2.glb" type="PackedScene" id=5]
-[ext_resource path="res://assets/art/textures/sbs-noise_texture_pack-512x512/normal_maps/Voronoi 8 - 512x512.png" type="Texture" id=6]
+[ext_resource path="res://assets/art/textures/sbs-noise_texture_pack-512x512/normal_maps/Melt 14 - 512x512.png" type="Texture" id=6]
 [ext_resource path="res://assets/models/nebulas/nebula_3.glb" type="PackedScene" id=7]
 [ext_resource path="res://scenes/levels/sectors/sector_star_elace/star_elace/star_elace_sprite.tscn" type="PackedScene" id=8]
 [ext_resource path="res://assets/art/shaders/star_sprite.gdshader" type="Shader" id=9]
@@ -55,23 +55,21 @@ shader_param/dither_threshold = 0.5
 
 [sub_resource type="ShaderMaterial" id=1]
 shader = ExtResource( 2 )
-shader_param/albedo = Color( 0, 0.0705882, 0.0705882, 1 )
+shader_param/albedo = Color( 0.00392157, 0.384314, 0.384314, 1 )
 shader_param/albedo_rim = Color( 1, 1, 1, 1 )
-shader_param/albedo_ambient = Color( 0.027451, 0.0901961, 0, 1 )
-shader_param/normal_intensity = 1.0
+shader_param/albedo_ambient = Color( 0.180392, 0.360784, 0, 1 )
+shader_param/normal_intensity = 0.767
 shader_param/normal_detail_power = 5.0
-shader_param/normal_detail_factor = 2.372
-shader_param/normal_strength = 0.37
+shader_param/normal_detail_factor = 1.272
+shader_param/normal_strength = 0.344
 shader_param/normal_detail_clamp = 1.0
-shader_param/rim_factor = 1.307
-shader_param/rim_strength = 2.041
-shader_param/rim_exponent = 0.476
-shader_param/rim_ambient_exponent = 3.073
+shader_param/rim_factor = 1.384
+shader_param/rim_strength = 3.989
+shader_param/rim_exponent = 0.228
+shader_param/rim_ambient_exponent = 4.366
 shader_param/fade_distance_near = 100000.0
 shader_param/fade_distance_far = 1e+06
-shader_param/fade_power = 0.2
-shader_param/light_dither_strength = 0.3
-shader_param/posterization_levels = 100.0
+shader_param/fade_power = 0.3
 shader_param/uv1_blend_sharpness = 10.0
 shader_param/normal_detail_uv1_scale = -3.569
 shader_param/normal_detail_uv1_offset = Vector3( 0, 0, 0 )
@@ -94,25 +92,23 @@ noise = SubResource( 3 )
 
 [sub_resource type="ShaderMaterial" id=2]
 shader = ExtResource( 2 )
-shader_param/albedo = Color( 0.0745098, 0.0117647, 0, 1 )
-shader_param/albedo_rim = Color( 0, 0.0156863, 0.0352941, 1 )
-shader_param/albedo_ambient = Color( 0, 0.0431373, 0, 1 )
-shader_param/normal_intensity = 0.652
-shader_param/normal_detail_power = 2.52
-shader_param/normal_detail_factor = 0.18
-shader_param/normal_strength = 1.387
+shader_param/albedo = Color( 0.211765, 0.0509804, 0, 1 )
+shader_param/albedo_rim = Color( 0.364706, 0.341176, 0, 1 )
+shader_param/albedo_ambient = Color( 0.0235294, 0, 0.0862745, 1 )
+shader_param/normal_intensity = 0.292
+shader_param/normal_detail_power = 1.883
+shader_param/normal_detail_factor = 0.242
+shader_param/normal_strength = 0.816
 shader_param/normal_detail_clamp = 1.0
-shader_param/rim_factor = 0.777
+shader_param/rim_factor = 2.011
 shader_param/rim_strength = 5.0
 shader_param/rim_exponent = 5.0
-shader_param/rim_ambient_exponent = 4.564
+shader_param/rim_ambient_exponent = 2.474
 shader_param/fade_distance_near = 100000.0
 shader_param/fade_distance_far = 1e+06
 shader_param/fade_power = 0.2
-shader_param/light_dither_strength = 0.3
-shader_param/posterization_levels = 100.0
 shader_param/uv1_blend_sharpness = 10.0
-shader_param/normal_detail_uv1_scale = -2.506
+shader_param/normal_detail_uv1_scale = -3.671
 shader_param/normal_detail_uv1_offset = Vector3( 0, 0, 0 )
 shader_param/scale_start = 100000.0
 shader_param/scale_end_mul = 100.0
@@ -122,25 +118,23 @@ shader_param/normal_noise = SubResource( 4 )
 
 [sub_resource type="ShaderMaterial" id=5]
 shader = ExtResource( 2 )
-shader_param/albedo = Color( 0, 0.0431373, 0.219608, 1 )
-shader_param/albedo_rim = Color( 0.0588235, 0.109804, 0.156863, 1 )
-shader_param/albedo_ambient = Color( 0.0117647, 0.0509804, 0.0627451, 1 )
-shader_param/normal_intensity = 1.0
-shader_param/normal_detail_power = 5.0
-shader_param/normal_detail_factor = 0.4
-shader_param/normal_strength = 0.2
+shader_param/albedo = Color( 0.00392157, 0.0627451, 0.0784314, 1 )
+shader_param/albedo_rim = Color( 0, 0, 0, 1 )
+shader_param/albedo_ambient = Color( 0.0156863, 0.0156863, 0.054902, 1 )
+shader_param/normal_intensity = 0.353
+shader_param/normal_detail_power = 2.143
+shader_param/normal_detail_factor = 0.127
+shader_param/normal_strength = 5.0
 shader_param/normal_detail_clamp = 1.0
-shader_param/rim_factor = 1.496
-shader_param/rim_strength = 5.0
-shader_param/rim_exponent = 5.0
-shader_param/rim_ambient_exponent = 2.143
-shader_param/fade_distance_near = 800000.0
+shader_param/rim_factor = 5.0
+shader_param/rim_strength = 0.0
+shader_param/rim_exponent = 0.0
+shader_param/rim_ambient_exponent = 0.964
+shader_param/fade_distance_near = 100000.0
 shader_param/fade_distance_far = 1e+06
-shader_param/fade_power = 0.4
-shader_param/light_dither_strength = 0.3
-shader_param/posterization_levels = 100.0
+shader_param/fade_power = 0.2
 shader_param/uv1_blend_sharpness = 10.0
-shader_param/normal_detail_uv1_scale = -0.254
+shader_param/normal_detail_uv1_scale = -1.68
 shader_param/normal_detail_uv1_offset = Vector3( 0, 0, 0 )
 shader_param/scale_start = 100000.0
 shader_param/scale_end_mul = 100.0
@@ -165,8 +159,6 @@ shader_param/rim_ambient_exponent = 1.188
 shader_param/fade_distance_near = 100000.0
 shader_param/fade_distance_far = 1e+06
 shader_param/fade_power = 0.2
-shader_param/light_dither_strength = 0.3
-shader_param/posterization_levels = 100.0
 shader_param/uv1_blend_sharpness = 10.0
 shader_param/normal_detail_uv1_scale = -2.573
 shader_param/normal_detail_uv1_offset = Vector3( 0, 0, 0 )
@@ -316,32 +308,32 @@ transform = Transform( 1, 1.86265e-09, 1.49012e-08, 1.49012e-08, 1, -7.45058e-09
 material_override = SubResource( 1 )
 
 [node name="ClusterB" type="Spatial" parent="Large nebulas"]
-transform = Transform( -0.0725186, -0.839348, 0.363187, -1.23566, 0.153811, 0.952019, -0.990386, -0.130444, -1.21439, 140103, -119461, 557084 )
-__meta__ = {
-"_edit_lock_": true
-}
+transform = Transform( 1.6653, -0.324791, 0.570464, -0.667754, -0.941351, 0.141901, 0.485048, -0.180844, -1.76319, 464124, -64906.8, 503152 )
 
 [node name="nebula_4" parent="Large nebulas/ClusterB" instance=ExtResource( 4 )]
-transform = Transform( -81020.7, 80145.8, -38206.3, 113494, -6147.82, -84651.2, -59422.2, -91690.6, -61193.8, 11879, 106178, 141110 )
+transform = Transform( -18990.9, 33902.7, -37841.2, 57049.1, 32295.7, -84935.6, -18607.6, -36892.5, -18455.9, 41431.2, 81688.9, 23682.9 )
 
 [node name="nebula_1" parent="Large nebulas/ClusterB/nebula_4" index="0"]
 transform = Transform( 1, -1.19209e-07, 0, 4.47035e-08, 1, 0, 3.72529e-08, -1.78814e-07, 1, -0.313653, -0.196829, 1.16247 )
 material_override = SubResource( 2 )
 
 [node name="nebula_5" parent="Large nebulas/ClusterB" instance=ExtResource( 4 )]
-transform = Transform( 145936, -124384, 1565.87, 1307.19, 80681.7, -190893, 111065, 135910, 83109.8, -112776, -220433, 59064.4 )
+transform = Transform( 78953.5, -73353.5, -11551.2, 24856.4, 43804.1, -146246, 66790.7, 94895.5, 54112.4, 26451.6, -24239.1, -11007.2 )
 
 [node name="nebula_1" parent="Large nebulas/ClusterB/nebula_5" index="0"]
 material_override = SubResource( 2 )
 
 [node name="nebula_6" parent="Large nebulas/ClusterB" instance=ExtResource( 4 )]
-transform = Transform( -119673, -265836, -101351, -150371, 49154.1, 294949, -256623, 145888, -98457.9, -185278, -212266, 29460.6 )
+transform = Transform( -93348.4, -207368, -49689.4, -183431, 23738.3, 270787, -180972, 97660.7, -89729.7, 32897.7, -26609.6, -12863 )
 
 [node name="nebula_1" parent="Large nebulas/ClusterB/nebula_6" index="0"]
 material_override = SubResource( 2 )
 
 [node name="ClusterC" type="Spatial" parent="Large nebulas"]
-transform = Transform( 0.458892, 0.0579308, -0.281655, 0.0222194, 0.521709, 0.143506, 0.286692, -0.133161, 0.439709, -482132, -4545.31, 218681 )
+transform = Transform( 0.458892, 0.0579308, -0.281655, 0.0308028, 0.723247, 0.198943, 0.286692, -0.133161, 0.439709, -541474, 17402.9, 127641 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="nebula_4" parent="Large nebulas/ClusterC" instance=ExtResource( 5 )]
 transform = Transform( -727796, 446697, -301355, 427949, 453742, -313871, -79531.4, -587706, -666123, 495967, -204468, 274148 )

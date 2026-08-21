@@ -38,8 +38,8 @@ uniform float fade_power = 2.0;
 
 
 // --- Dither and posterization constants ---
-const float light_dither_strength = 0.50;
-const float posterization_levels = 5.0;
+const float light_dither_strength = 0.900;
+const float posterization_levels = 6.0;
 const float dither_pixel_size = 2.0;
 
 
@@ -113,9 +113,10 @@ void fragment() {
     // --- Multi-layer Fresnel color composition ---
     // Three additive layers: base fill, mid specular, tight gloss highlight.
     // Each uses its own color × Fresnel mask × texture sample.
-    ALBEDO = albedo.rgb         * albedo_rim 
-           + albedo_specular.rgb * specular_rim 
-           + albedo_gloss.rgb    * gloss_rim    ;
+    ALBEDO = albedo.rgb;
+	//        * albedo_rim 
+     //      + albedo_specular.rgb * specular_rim 
+      //     + albedo_gloss.rgb    * gloss_rim    ;
     ALBEDO *= COLOR.rgb;
 
     // Fresnel-modulated roughness: smooth at grazing edges, rough face-on

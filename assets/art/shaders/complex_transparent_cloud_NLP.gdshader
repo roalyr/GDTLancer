@@ -30,8 +30,8 @@ uniform float fade_distance_far = 1e6;
 uniform float fade_power = .2;
 
 // Dither and posterization constants
-uniform float light_dither_strength = 0.3;
-uniform float posterization_levels = 100.0;
+const float light_dither_strength = 0.50;
+const float posterization_levels = 80.0;
 const float dither_pixel_size = 2.0;
 
 uniform float uv1_blend_sharpness = 10.0;
