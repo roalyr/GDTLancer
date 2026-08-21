@@ -1,0 +1,27 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=2]
+
+[ext_resource path="res://assets/art/shaders/solid_dither_no_alpha_no_texture_8x8.gdshader" type="Shader" id=1]
+
+[resource]
+shader = ExtResource( 1 )
+shader_param/albedo = Color( 0.12, 0.12, 0.14, 1 )
+shader_param/albedo_specular = Color( 0.3, 0.3, 0.34, 1 )
+shader_param/albedo_gloss = Color( 0.55, 0.55, 0.62, 1 )
+shader_param/emission = Color( 0, 0, 0, 1 )
+shader_param/emission_strength = 1.0
+shader_param/albedo_exponent = 0.0
+shader_param/specular_exponent = 6.0
+shader_param/gloss_exponent = 40.0
+shader_param/roughness_exponent = 2.5
+shader_param/roughness_sharpness = 8.0
+shader_param/roughness = 0.92
+shader_param/rim_strength = 0.8
+shader_param/rim_exponent = 3.5
+shader_param/rim_intensity = 0.25
+shader_param/fade_start = 300000.0
+shader_param/fade_end_mul = 5.0
+shader_param/fade_power = 2.0
+shader_param/scale_start = 100000.0
+shader_param/scale_end_mul = 100.0
+shader_param/scale_power = 1.0
+shader_param/scale_min = 0.5

@@ -1,6 +1,6 @@
 [gd_scene load_steps=9 format=2]
 
-[ext_resource path="res://assets/art/shaders/solid_dither_no_alpha_8x8.gdshader" type="Shader" id=1]
+[ext_resource path="res://assets/art/shaders/solid_dither_no_alpha_no_texture_8x8.gdshader" type="Shader" id=1]
 [ext_resource path="res://assets/art/textures/sbs-noise_texture_pack-512x512/bw_noise/Cracks 3 - 512x512.png" type="Texture" id=2]
 [ext_resource path="res://src/core/utils/rotating_object.gd" type="Script" id=3]
 [ext_resource path="res://assets/art/textures/sbs-noise_texture_pack-512x512/normal_maps/Craters 9 - 512x512.png" type="Texture" id=4]
