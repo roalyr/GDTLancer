@@ -44,9 +44,9 @@ Resolution and interaction are **card-based throughout Mode B.** Dice are not us
 - The player's cards form a **collection** (not a deck). All cards are visible in a scrollable inventory panel, organized by type.
 - **Cards exist in one place at a time.** Slotted into the ship = not in collection. In collection = not slotted.
 - **Acquisition:** Spatial collectibles (Mode A), barter/trade with NPCs, crafting, companion gifts, board rewards. Basic assets are available via trade (functional society provides baseline access).
-- **Asset Cards can degrade, break, and require repair**, making the ship's physical decay tangible. **[TBD]** Degradation mechanic needs dedicated design pass.
+- **Asset Cards can degrade, break, and require repair**, making the ship's physical decay tangible. See [TRUTH_DEGRADATION.md](TRUTH_DEGRADATION.md) for the full lifecycle.
 - **Junk cards are universal crafting fuel.** Never truly worthless — used as base cost for crafting and as trade fodder.
-- **Card crafting:** Tag-pairing system with visual UI hints. Failed combinations produce scrap/junk. **[TBD]** Full rules require degradation mechanic first.
+- **Card crafting:** Tag-pairing system with visual UI hints. Failed combinations produce scrap/junk. Full crafting rules are coupled to the degradation lifecycle defined in [TRUTH_DEGRADATION.md](TRUTH_DEGRADATION.md).
 - Small, easily comprehensible quantitative modifiers (+1, +2) are permitted on cards where balancing requires them.
 
 ---
@@ -59,6 +59,7 @@ Resolution and interaction are **card-based throughout Mode B.** Dice are not us
 - **Cinematic Space Camera:** Utilizes dynamic FOV, drift-to-turn lag, and thruster vibration to communicate mass, velocity, and scale without a ground reference.
 - **Diegetic Minimalist UI:** Explicitly requires functional, in-world dashboard instruments to make piloting mechanically engaging. Pure "zero-HUD" is prohibited.
 - **Sector Travel Clock:** The global World Clock advances **only when the player completes a 3D sector travel**.
+- **Vessel Movement & NPC Availability:** Vessels move between map nodes on sector travel clock ticks. NPC availability on the 2D board is intrinsically linked to their vessel's current location, unless they are permanent station residents.
 
 ### Mode B: Tactical & Social Board
 
@@ -72,7 +73,7 @@ Mode B has **two entry types:**
 - ~5 functional slots per ship. Each slot accepts one Module Card.
 - Filled slot = capability present. Empty slot = capability missing. Ship without minimum operational modules = derelict hull.
 - New slots unlock as progression rewards per vessel type.
-- Legacy markers accumulate on slots over time. **[TBD]** Marker effects pending degradation mechanic.
+- Legacy markers accumulate on slots over time. See [TRUTH_DEGRADATION.md](TRUTH_DEGRADATION.md) §6 for marker mechanics.
 
 #### Contextual Boards
 - **Exploration Boards:** Self-contained mini-games for ruins, derelicts, salvage sites. Branching card path (left-to-right progression, lane shifts for branching, depth = challenge). Push-your-luck structure.

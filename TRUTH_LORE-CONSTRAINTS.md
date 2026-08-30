@@ -21,13 +21,18 @@ LOG_REF: 2026-07-25
 
 The setting represents a raw, isolated frontier within a vast network of ancient ruins. There are no sprawling galactic corporations or sweeping human empires. Society is localized to individual infrastructure nodes, derelict megastructures, and tight-knit communities. The human nucleus is a fragile collective surviving within the titanic graveyard of extinct civilizations.
 
+- **The Gate & Origin:** The network was accessed via a one-way gateway. The **origin sector** (the gate sector) is the most human-controlled, developed, and safe zone — functionally a starting village. Players progress spatially outward from the origin sector deeper into the network.
+- **Player Start:** The player begins inside the network, having already arrived. They may be a representative of the post-arrival generation — born inside, never having seen the other side of the gate.
+- **Population & New Blood:** The appearance of a new vessel in the network is a **major lore event** (whether constructed internally or arrived through the gateway). New vessels, NPCs, and zones are introduced via **content updates** (developer-authored additions), not through in-game systems or procedural generation. The world does not simulate a population pipeline.
+
 #### What This Prohibits
 - ❌ UI/Tags using terms like "corporation", "empire", or "military fleet".
 - ❌ Treating stations as generic hubs. Each is a specific community board, often built into precursor ruins.
+- ❌ In-game mechanics that spawn new vessels or NPCs automatically.
 
 #### What This Requires
 - ✅ Factions are small clans, families, or local alliances.
-- ✅ The setting must logically support a trickle of new vessels/NPCs entering the world (to provide new blood), while strictly preventing anyone from leaving or calling for external rescue.
+- ✅ No one can leave the network or call for external rescue.
 - ✅ Board interactions focus on personal grudges, favors, and survival.
 
 ---

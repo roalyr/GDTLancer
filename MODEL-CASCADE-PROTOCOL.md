@@ -35,15 +35,19 @@ Always read next from this file:
 Read only when the active task requires it:
 
 1. [TRUTH_LORE-CONSTRAINTS.md](TRUTH_LORE-CONSTRAINTS.md) — the binding lore rules and frontier constraints.
-2. [TRUTH_SIMULATION-GRAPH.md](TRUTH_SIMULATION-GRAPH.md) — simulation/runtime authority. Prefer Section 0 plus Section 6 for live implementation work.
-3. [TRUTH_CONTENT-CREATION-MANUAL.md](TRUTH_CONTENT-CREATION-MANUAL.md) — content authoring/data workflows.
+2. [TRUTH_DEGRADATION.md](TRUTH_DEGRADATION.md) — card degradation lifecycle, repair mechanics, legacy markers, and failure cascade bridge.
+3. [TRUTH_META-PROGRESSION.md](TRUTH_META-PROGRESSION.md) — between-run inheritance and unlockable starting conditions (post-M41 scope).
 4. [TRUTH_PROHIBITED-SEAMS.md](TRUTH_PROHIBITED-SEAMS.md) — registry of banned features and mechanics to prevent scope creep.
-5. [STABILIZATION_SEAM_INVENTORY.md](STABILIZATION_SEAM_INVENTORY.md) — retained or carry-forward seam guidance when reopening a compatibility area.
-6. [TRUTH_CONSTRAINTS.md](TRUTH_CONSTRAINTS.md) — compatibility reference for older contracts and historical log links; no longer required as a default first-read surface.
-7. [AI-ACKNOWLEDGEMENT.md](AI-ACKNOWLEDGEMENT.md) — human review and AI-usage boundary.
-8. [GDD-REVISION-LEDGER.md](GDD-REVISION-LEDGER.md) — approved live-vs-frozen doctrine changes; load for architect/design pivots, truth rewrites, and setting-alignment work.
-9. [STRATEGICAL-TODO.md](STRATEGICAL-TODO.md) — consolidated master design directive and strategical roadmap checklist; load for architect milestone generation and tracking design status.
-10. [TRUTH_MVP_CORE.md](TRUTH_MVP_CORE.md) — the playable MVP core implementation proposal and emergent narrative game loop doctrine.
+5. [AI-ACKNOWLEDGEMENT.md](AI-ACKNOWLEDGEMENT.md) — human review and AI-usage boundary.
+6. [STRATEGICAL-TODO.md](STRATEGICAL-TODO.md) — consolidated master design directive and strategical roadmap checklist; load for architect milestone generation and tracking design status.
+
+Archived references (do not load by default, but available in `archive/` if historical context is needed):
+
+7. [archive/GDD-REVISION-LEDGER.md](archive/GDD-REVISION-LEDGER.md) — approved live-vs-frozen doctrine changes; load for architect/design pivots and truth rewrites.
+8. [archive/TRUTH_SIMULATION-GRAPH.md](archive/TRUTH_SIMULATION-GRAPH.md) — superseded simulation layer summary; unique content inlined into TRUTH_GAME-LOOP-VISION.md.
+9. [archive/STABILIZATION_SEAM_INVENTORY-history-1.md](archive/STABILIZATION_SEAM_INVENTORY-history-1.md) — retained seam guidance from prior stabilization passes.
+10. [archive/TRUTH_CONSTRAINTS-redirect-stub.md](archive/TRUTH_CONSTRAINTS-redirect-stub.md) — compatibility reference for older contracts and historical log links.
+11. [archive/ttrpg_prototype/TRUTH_CONTENT-CREATION-MANUAL.md](archive/ttrpg_prototype/TRUTH_CONTENT-CREATION-MANUAL.md) — content authoring/data workflows from the TTRPG prototype era.
 
 Do not load by default:
 
@@ -54,8 +58,8 @@ Do not load by default:
 WORKFLOW CONTEXT LAYERS
 
   CONTROL PLANE (default first-read set): MODEL-CASCADE-PROTOCOL.md, TRUTH_PROJECT.md, TACTICAL_TODO.md, STRATEGICAL-TODO.md, SESSION-LOG.md.
-  LIVE REFERENCE (load only the targeted sections needed for the active task): relevant TRUTH_*.md files linked above, plus `GDD-REVISION-LEDGER.md` for architect/design pivot work, and `STRATEGICAL-TODO.md` when planning milestones.
-  ARCHIVE / GENERATED REFERENCE (do not load by default): frozen GDD snapshots, `archive/PROJECT_DUMP_TEXT_*`, archived focused simulation logs, and other generated artifacts unless the active task explicitly depends on them.
+  LIVE REFERENCE (load only the targeted sections needed for the active task): relevant TRUTH_*.md files linked above (TRUTH_GAME-LOOP-VISION.md, TRUTH_EXPLORATION-PILLARS.md, TRUTH_LORE-CONSTRAINTS.md, TRUTH_DEGRADATION.md, TRUTH_META-PROGRESSION.md, TRUTH_PROHIBITED-SEAMS.md).
+  ARCHIVE / GENERATED REFERENCE (do not load by default): frozen GDD snapshots, `archive/` contents (GDD-REVISION-LEDGER, TRUTH_SIMULATION-GRAPH, STABILIZATION_SEAM_INVENTORY, TRUTH_CONSTRAINTS-redirect-stub, TRUTH_CONTENT-CREATION-MANUAL), `archive/PROJECT_DUMP_TEXT_*`, archived focused simulation logs, and other generated artifacts unless the active task explicitly depends on them.
 
 CORE CONSTRAINTS
 

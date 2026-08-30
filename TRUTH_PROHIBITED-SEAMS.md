@@ -36,6 +36,7 @@ This list tracks features and rules explicitly banned from the board game design
 ## 6. No Loot Grinding or Number Scaling
 - **Rule:** No leveled gear or rarity tiers.
 - **How it's built:** Upgrades function as Cards with specific tags and mechanical trade-offs, not scaling modifiers. Small, easily comprehensible quantitative modifiers (+1, +2) are permitted where balancing requires them.
+- **Modifier Doctrine:** Quantitative modifiers are acceptable only when they modify a *specific verb* on a *specific card* and never stack beyond **+2 cumulative** on any single resolution. Modifiers must remain small, instantly comprehensible, and subordinate to the card's qualitative tag identity. A card's value must always be defined by *what it lets the player do* (its tags), not *how big its number is*. If a modifier becomes the primary reason a player chooses a card, the design has failed.
 
 ## 7. No Instant Communication
 - **Rule:** Information takes time to travel.
