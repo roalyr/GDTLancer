@@ -1,6 +1,7 @@
 # LaserHitEffect (scenes/prefabs/effects/laser_hit.tscn): what a laser hit looks like in vacuum.
-# The beam itself is invisible, so only the hit point shows: a brief flash of light and a puff of
-# vaporized hull material. Size, brightness and amount follow the damage dealt (never the size of
+# The beam itself is invisible, so only the hit point shows: a brief glowing flash and a puff of
+# vaporized hull material. No light source: GLES2 lights each lit object once more per light
+# touching it, and frequent hits on many meshes made frame times spike; the flash is emissive only. Size, brightness and amount follow the damage dealt (never the size of
 # what was hit), so hits can be judged by eye; no damage shows nothing. Looks are authored in the scene and its materials; this script only
 # scales, fades and aims them. Parent it to the target body, then set its global position.
 
@@ -12,10 +13,8 @@ var outward: Vector3 = Vector3.UP  # World direction the vapour plume leaves the
 
 var _intensity: float = 0.0
 var _age := 0.0
-var _base_energy := 0.0
 var _glow_material: ShaderMaterial = null
 
-onready var _light: OmniLight = $Light
 onready var _glow: MeshInstance = $Glow
 onready var _vapor: CPUParticles = $Vapor
 
@@ -32,13 +31,10 @@ func _ready() -> void:
 		set_process(false)
 		queue_free()
 		return
-	_base_energy = _light.light_energy
-	_light.light_energy = _base_energy * _intensity
 	# Hotter beams flash whiter: orange-red for weak hits, white for powerful ones.
 	var flash_color: Color = Constants.HIT_FX_COOL_COLOR.linear_interpolate(
 		Constants.HIT_FX_HOT_COLOR, clamp(_intensity / Constants.HIT_FX_HOT_INTENSITY, 0.0, 1.0)
 	)
-	_light.light_color = flash_color
 	_glow_material = _glow.material_override.duplicate()
 	_glow_material.set_shader_param("tint", flash_color)
 	_glow.material_override = _glow_material
@@ -62,7 +58,6 @@ func _start_vapor() -> void:
 func _process(delta: float) -> void:
 	_age += delta
 	var flash: float = clamp(1.0 - _age / Constants.HIT_FX_FLASH_DURATION, 0.0, 1.0)
-	_light.light_energy = _base_energy * _intensity * flash
 	_glow.visible = flash > 0.0
 	_glow_material.set_shader_param("intensity", min(_intensity, 1.0) * flash)
 	if _age >= Constants.HIT_FX_LIFETIME:
