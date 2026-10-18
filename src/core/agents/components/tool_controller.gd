@@ -29,7 +29,7 @@ signal weapon_ready(weapon_index)
 
 # --- References (set in _ready) ---
 var _agent_body: RigidBody = null  # Parent AgentBody
-var _ship_template = null  # Linked ShipTemplate (via AssetSystem)
+var _ship_template = null  # ShipTemplate cached on the agent body
 var _weapons: Array = []  # Loaded UtilityToolTemplate instances
 var _cooldowns: Dictionary = {}  # weapon_index -> remaining_time
 var _deferred_combatant_uids: Dictionary = {}  # uid -> true while combat handoff is deferred
@@ -46,21 +46,11 @@ func _ready() -> void:
 
 
 func _load_weapons_from_ship() -> void:
-	# Get character_uid from agent, then ship from AssetSystem
-	var raw_char_uid = _agent_body.get("character_uid")
-	var uid_str: String = str(raw_char_uid) if raw_char_uid != null else "-1"
-	var uid_valid: bool = uid_str != "-1" and uid_str != ""
+	# The agent body resolves and caches its ShipTemplate during initialize().
+	var agent_ship = _agent_body.get("ship_template")
+	if is_instance_valid(agent_ship):
+		_ship_template = agent_ship
 
-	# First try to get ship from character (pass original type for dict key match)
-	if uid_valid and is_instance_valid(GlobalRefs.asset_system):
-		_ship_template = GlobalRefs.asset_system.get_ship_for_character(raw_char_uid)
-	
-	# If no ship via character, try to get cached ship_template from agent body (for hostile NPCs)
-	if not is_instance_valid(_ship_template):
-		var agent_ship = _agent_body.get("ship_template")
-		if is_instance_valid(agent_ship):
-			_ship_template = agent_ship
-	
 	if not is_instance_valid(_ship_template):
 		if Constants.VERBOSE_RUNTIME_LOGS:
 			print("ToolController: No ship template available for agent, cannot load weapons.")

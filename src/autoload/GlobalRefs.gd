@@ -1,19 +1,4 @@
-# PROJECT: GDTLancer
-# MODULE: GlobalRefs.gd
-# STATUS: [Level 2 - Implementation]
-# OWNER: architect-governed
-# ACCESS: read-write
-# USER INSTRUCTION: NONE
-# TRUTH_LINK: None
-# LOG_REF: 2026-06-20 18:41:40
-
-#
-# PROJECT: GDTLancer
-# MODULE: GlobalRefs.gd
-# STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT §3 Architecture & Coding Standards
-# LOG_REF: 2026-05-23 17:04:30
-#
+# GlobalRefs: references to key scene nodes and systems, set by the nodes themselves.
 
 extends Node
 
@@ -33,15 +18,9 @@ var game_state_manager = null setget set_game_state_manager
 # --- UI elements ---
 var main_hud = null setget set_main_hud
 
-# --- Core System References (KEPT systems) ---
+# --- Core System References ---
 var agent_spawner = null setget set_agent_spawner
 var asset_system = null setget set_asset_system
-var character_system = null setget set_character_system
-var event_system = null setget set_event_system
-var inventory_system = null setget set_inventory_system
-var time_system = null setget set_time_system
-var simulation_engine = null setget set_simulation_engine
-var contact_manager = null setget set_contact_manager
 
 
 func _ready():
@@ -125,61 +104,6 @@ func set_asset_system(new_ref):
 			print("GlobalRefs: AssetSystem ref ", "set." if new_ref else "cleared.")
 	else:
 		printerr("GlobalRefs Error: Invalid AssetSystem ref: ", new_ref)
-
-func set_character_system(new_ref):
-	if new_ref == character_system: return
-	if new_ref == null or is_instance_valid(new_ref):
-		character_system = new_ref
-		if VERBOSE_REF_LOGS:
-			print("GlobalRefs: CharacterSystem ref ", "set." if new_ref else "cleared.")
-	else:
-		printerr("GlobalRefs Error: Invalid CharacterSystem ref: ", new_ref)
-
-func set_inventory_system(new_ref):
-	if new_ref == inventory_system: return
-	if new_ref == null or is_instance_valid(new_ref):
-		inventory_system = new_ref
-		if VERBOSE_REF_LOGS:
-			print("GlobalRefs: InventorySystem ref ", "set." if new_ref else "cleared.")
-	else:
-		printerr("GlobalRefs Error: Invalid InventorySystem ref: ", new_ref)
-
-func set_time_system(new_ref):
-	if new_ref == time_system: return
-	if new_ref == null or is_instance_valid(new_ref):
-		time_system = new_ref
-		if VERBOSE_REF_LOGS:
-			print("GlobalRefs: TimeSystem ref ", "set." if new_ref else "cleared.")
-	else:
-		printerr("GlobalRefs Error: Invalid TimeSystem ref: ", new_ref)
-
-func set_event_system(new_ref):
-	if new_ref == event_system: return
-	if new_ref == null or is_instance_valid(new_ref):
-		event_system = new_ref
-		if VERBOSE_REF_LOGS:
-			print("GlobalRefs: EventSystem ref ", "set." if new_ref else "cleared.")
-	else:
-		printerr("GlobalRefs Error: Invalid EventSystem ref: ", new_ref)
-
-func set_simulation_engine(new_ref):
-	if new_ref == simulation_engine: return
-	if new_ref == null or is_instance_valid(new_ref):
-		simulation_engine = new_ref
-		if VERBOSE_REF_LOGS:
-			print("GlobalRefs: SimulationEngine ref ", "set." if new_ref else "cleared.")
-	else:
-		printerr("GlobalRefs Error: Invalid SimulationEngine ref: ", new_ref)
-
-func set_contact_manager(new_ref):
-	if new_ref == contact_manager: return
-	if new_ref == null or is_instance_valid(new_ref):
-		contact_manager = new_ref
-		if VERBOSE_REF_LOGS:
-			print("GlobalRefs: ContactManager ref ", "set." if new_ref else "cleared.")
-	else:
-		printerr("GlobalRefs Error: Invalid ContactManager ref: ", new_ref)
-
 
 # --- UI ELEMENTS ---
 

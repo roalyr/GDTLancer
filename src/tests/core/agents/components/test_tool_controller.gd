@@ -23,7 +23,7 @@ const ToolControllerScript = preload("res://src/core/agents/components/tool_cont
 class AgentBodyHarness:
 	extends RigidBody
 	var agent_uid = 0
-	var character_uid = -1
+	var ship_template = null
 
 
 func test_fire_at_target_returns_explicit_combat_unavailable_boundary() -> void:

@@ -1,11 +1,4 @@
-# PROJECT: GDTLancer
-# MODULE: jump_orchestrator.gd
-# STATUS: [Level 2 - Implementation]
-# OWNER: developer
-# ACCESS: read-write
-# USER INSTRUCTION: NONE
-# TRUTH_LINK: TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §4, §6.1, §6.3, §7; TRUTH_DOCS_CanvasItem_Godot_3.6.md §Render modes; TRUTH_SIMULATION-GRAPH.md §1; TACTICAL_TODO.md TASK_2
-# LOG_REF: 2026-06-12 23:42:30
+# JumpOrchestrator: runs the sector-to-sector jump transition for WorldManager.
 
 extends Reference
 
@@ -225,20 +218,15 @@ func _run_jump_transition_sequence(target_sector_id: String) -> void:
 
 	_world_manager._set_jump_transition_camera_locked(false)
 	_world_manager._reset_jump_transition_foundation()
-	_world_manager._request_sector_travel_tick()
 
 
 func _get_sector_type(sector_id: String) -> String:
-	var sector_template = TemplateDatabase.locations.get(sector_id)
-	if sector_template != null and "sector_type" in sector_template:
-		return sector_template.sector_type
-	return "star"
+	return TemplateDatabase.get_sector_type(sector_id)
 
 
 func _travel_to_sector_immediate(target_sector_id: String) -> void:
 	_prepare_sector_travel_state(target_sector_id)
 	_world_manager.load_sector(target_sector_id)
-	_request_sector_travel_tick()
 
 
 func _prepare_sector_travel_state(target_sector_id: String, old_sector_id: String = "") -> String:
@@ -249,8 +237,6 @@ func _prepare_sector_travel_state(target_sector_id: String, old_sector_id: Strin
 	GameState.player_docked_at = ""
 	GameState.player_arrived_from_sector = old_sector
 	GameState.player_arrival_direction = _get_arrival_direction_for_route(old_sector, target_sector_id)
-	if GameState.agents.has("player"):
-		GameState.agents["player"]["current_sector_id"] = target_sector_id
 	EventBus.emit_signal("sector_changed", target_sector_id, old_sector)
 	return old_sector
 
@@ -392,83 +378,6 @@ func _prepare_jump_transition_departure_visuals(departure_direction: Vector3):
 	_world_manager._set_main_hud_hidden(true)
 
 
-func _get_jump_transition_fov_progress(linear_t: float) -> float:
-	var t = clamp(linear_t, 0.0, 1.0)
-	return pow(t, Constants.JUMP_TRANSITION_FOV_EASE_POWER)
-
-
-func _animate_main_camera_fov_override(target_fov: float, duration_sec: float):
-	if not is_instance_valid(GlobalRefs.main_camera) or not GlobalRefs.main_camera.has_method("set_temporary_fov_override"):
-		return
-	var start_fov = GlobalRefs.main_camera.fov
-	if GlobalRefs.main_camera.has_method("get_effective_fov"):
-		start_fov = GlobalRefs.main_camera.get_effective_fov()
-	var start_time_ms = OS.get_ticks_msec()
-	var duration_ms = max(int(duration_sec * 1000.0), 1)
-	while true:
-		var elapsed_ms = OS.get_ticks_msec() - start_time_ms
-		var t = clamp(float(elapsed_ms) / float(duration_ms), 0.0, 1.0)
-		GlobalRefs.main_camera.set_temporary_fov_override(
-			lerp(start_fov, target_fov, _get_jump_transition_fov_progress(t))
-		)
-		if t >= 1.0:
-			break
-		yield(_world_manager.get_tree(), "idle_frame")
-
-
-func _animate_main_camera_fov_restore(duration_sec: float):
-	if not is_instance_valid(GlobalRefs.main_camera) or not GlobalRefs.main_camera.has_method("set_temporary_fov_override"):
-		return
-	var start_fov = GlobalRefs.main_camera.fov
-	if GlobalRefs.main_camera.has_method("get_effective_fov"):
-		start_fov = GlobalRefs.main_camera.get_effective_fov()
-	var target_fov = start_fov
-	if GlobalRefs.main_camera.has_method("get_zoom_controller_fov"):
-		target_fov = GlobalRefs.main_camera.get_zoom_controller_fov()
-	var start_time_ms = OS.get_ticks_msec()
-	var duration_ms = max(int(duration_sec * 1000.0), 1)
-	while true:
-		var elapsed_ms = OS.get_ticks_msec() - start_time_ms
-		var t = clamp(float(elapsed_ms) / float(duration_ms), 0.0, 1.0)
-		GlobalRefs.main_camera.set_temporary_fov_override(
-			lerp(start_fov, target_fov, _get_jump_transition_fov_progress(t))
-		)
-		if t >= 1.0:
-			break
-		yield(_world_manager.get_tree(), "idle_frame")
-	if GlobalRefs.main_camera.has_method("clear_temporary_fov_override"):
-		GlobalRefs.main_camera.clear_temporary_fov_override()
-
-
-func _wait_for_rig_velocity(jump_transition_rig: Node, target_velocity: float, tolerance: float, timeout_sec: float):
-	if not _jump_transition_rig_supports_method(jump_transition_rig, "get_current_velocity"):
-		return true
-	var start_time_ms = OS.get_ticks_msec()
-	var timeout_ms = max(int(timeout_sec * 1000.0), 1)
-	while true:
-		var current_velocity = float(
-			_call_jump_transition_rig_method(jump_transition_rig, "get_current_velocity", [], 0.0)
-		)
-		if abs(current_velocity - target_velocity) <= tolerance:
-			return true
-		if OS.get_ticks_msec() - start_time_ms >= timeout_ms:
-			return false
-		yield(_world_manager.get_tree(), "idle_frame")
-
-
-func _wait_for_rig_route_completion(jump_transition_rig: Node, timeout_sec: float):
-	if not _jump_transition_rig_supports_method(jump_transition_rig, "is_route_complete"):
-		return true
-	var start_time_ms = OS.get_ticks_msec()
-	var timeout_ms = max(int(timeout_sec * 1000.0), 1)
-	while true:
-		if bool(_call_jump_transition_rig_method(jump_transition_rig, "is_route_complete", [], true)):
-			return true
-		if OS.get_ticks_msec() - start_time_ms >= timeout_ms:
-			return false
-		yield(_world_manager.get_tree(), "idle_frame")
-
-
 func _wait_for_player_and_zone_ready(timeout_sec: float):
 	var start_time_ms = OS.get_ticks_msec()
 	var timeout_ms = max(int(timeout_sec * 1000.0), 1)
@@ -487,30 +396,6 @@ func _yield_real_time(duration_sec: float):
 	var duration_ms = max(int(duration_sec * 1000.0), 1)
 	while OS.get_ticks_msec() - start_time_ms < duration_ms:
 		yield(_world_manager.get_tree(), "idle_frame")
-
-
-func _get_jump_transition_route_distance(source_sector_id: String, target_sector_id: String) -> float:
-	return _get_sector_global_position(source_sector_id).distance_to(_get_sector_global_position(target_sector_id))
-
-
-func _get_jump_transition_cruise_speed(route_distance: float, travel_duration_sec: float = Constants.JUMP_TRANSITION_TRAVEL_DURATION_SEC) -> float:
-	if route_distance <= 0.0:
-		return 0.0
-	var effective_travel_window_sec = max(
-		travel_duration_sec - Constants.JUMP_TRANSITION_SPEED_RAMP_DURATION_SEC,
-		0.1
-	)
-	return route_distance / effective_travel_window_sec
-
-
-func _get_jump_transition_route_timeout_sec(route_distance: float, cruise_speed: float, travel_duration_sec: float = Constants.JUMP_TRANSITION_TRAVEL_DURATION_SEC, tolerance: float = Constants.JUMP_TRANSITION_ROUTE_COMPLETION_TOLERANCE) -> float:
-	if route_distance <= tolerance or cruise_speed <= 0.0:
-		return Constants.JUMP_TRANSITION_VELOCITY_TIMEOUT_SEC
-	return travel_duration_sec + Constants.JUMP_TRANSITION_VELOCITY_TIMEOUT_SEC
-
-
-func _request_sector_travel_tick() -> void:
-	_world_manager._request_sector_travel_tick()
 
 
 func _get_departure_direction_for_route(source_sector_id: String, target_sector_id: String) -> Vector3:

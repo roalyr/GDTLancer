@@ -20,16 +20,14 @@ extends GutTest
 const WorldManagerScript = preload("res://src/scenes/game_world/world_manager.gd")
 
 var world_manager = null
+var _saved_locations: Dictionary = {}
 
 
 func before_each():
-	GameState.world_topology = {
-		Constants.INITIAL_SECTOR_ID: {"connections": ["sector_star_cob"]},
-		"sector_star_cob": {"connections": [Constants.INITIAL_SECTOR_ID]},
-	}
+	_saved_locations = TemplateDatabase.locations
 	TemplateDatabase.locations = {
-		Constants.INITIAL_SECTOR_ID: {"global_position": Vector3(0, 0, 0)},
-		"sector_star_cob": {"global_position": Vector3(100, 0, 0)},
+		Constants.INITIAL_SECTOR_ID: {"global_position": Vector3(0, 0, 0), "connections": ["sector_star_cob"]},
+		"sector_star_cob": {"global_position": Vector3(100, 0, 0), "connections": [Constants.INITIAL_SECTOR_ID]},
 	}
 	world_manager = WorldManagerScript.new()
 
@@ -37,8 +35,7 @@ func before_each():
 func after_each():
 	if get_tree() != null:
 		get_tree().paused = false
-	GameState.world_topology.clear()
-	TemplateDatabase.locations.clear()
+	TemplateDatabase.locations = _saved_locations
 	GameState.player_position = Vector3.ZERO
 	GameState.player_rotation = Vector3.ZERO
 	GlobalRefs.player_agent_body = null

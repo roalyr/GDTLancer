@@ -9,11 +9,6 @@
 config_version=4
 
 _global_script_classes=[ {
-"base": "Reference",
-"class": "ActionCheckEngine",
-"language": "GDScript",
-"path": "res://src/core/systems/action_check_engine.gd"
-}, {
 "base": "Template",
 "class": "ActionTemplate",
 "language": "GDScript",
@@ -24,11 +19,6 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://database/definitions/agent_template.gd"
 }, {
-"base": "Resource",
-"class": "AssetCard",
-"language": "GDScript",
-"path": "res://src/core/cards/asset_card.gd"
-}, {
 "base": "Node",
 "class": "AssetSystem",
 "language": "GDScript",
@@ -38,11 +28,6 @@ _global_script_classes=[ {
 "class": "AssetTemplate",
 "language": "GDScript",
 "path": "res://database/definitions/asset_template.gd"
-}, {
-"base": "Control",
-"class": "BoardUI",
-"language": "GDScript",
-"path": "res://src/core/ui/board/board_ui.gd"
 }, {
 "base": "Node",
 "class": "CameraPositionController",
@@ -58,11 +43,6 @@ _global_script_classes=[ {
 "class": "CameraZoomController",
 "language": "GDScript",
 "path": "res://src/scenes/camera/components/camera_zoom_controller.gd"
-}, {
-"base": "Control",
-"class": "CardArea",
-"language": "GDScript",
-"path": "res://src/core/ui/board/components/card_area.gd"
 }, {
 "base": "Label",
 "class": "CenteredGrowingLabel",
@@ -83,11 +63,6 @@ _global_script_classes=[ {
 "class": "ContractTemplate",
 "language": "GDScript",
 "path": "res://database/definitions/contract_template.gd"
-}, {
-"base": "Control",
-"class": "DiceRollFeedback",
-"language": "GDScript",
-"path": "res://src/core/ui/board/components/dice_roll_feedback.gd"
 }, {
 "base": "Template",
 "class": "FactionTemplate",
@@ -110,89 +85,29 @@ _global_script_classes=[ {
 "path": "res://addons/gut/test.gd"
 }, {
 "base": "Node",
-"class": "HookGenerator",
-"language": "GDScript",
-"path": "res://src/core/systems/hook_generator.gd"
-}, {
-"base": "Resource",
-"class": "ImpactCard",
-"language": "GDScript",
-"path": "res://src/core/cards/impact_card.gd"
-}, {
-"base": "Resource",
-"class": "ImpactCardEntry",
-"language": "GDScript",
-"path": "res://src/core/resources/impact_card_entry.gd"
-}, {
-"base": "Resource",
-"class": "ImpactCardPool",
-"language": "GDScript",
-"path": "res://src/core/resources/impact_card_pool.gd"
-}, {
-"base": "Node",
-"class": "ImpactTableManager",
-"language": "GDScript",
-"path": "res://src/core/systems/impact_table_manager.gd"
-}, {
-"base": "Node",
 "class": "InputState",
 "language": "GDScript",
 "path": "res://src/modules/piloting/player_input_states/state_base.gd"
-}, {
-"base": "Reference",
-"class": "LegacySystemNameGenerator",
-"language": "GDScript",
-"path": "res://src/core/utils/legacy_system_name_generator.gd"
 }, {
 "base": "Template",
 "class": "LocationTemplate",
 "language": "GDScript",
 "path": "res://database/definitions/location_template.gd"
 }, {
-"base": "Node",
-"class": "ModeTransitionManager",
-"language": "GDScript",
-"path": "res://src/core/systems/mode_transition_manager.gd"
-}, {
 "base": "AssetTemplate",
 "class": "ModuleTemplate",
 "language": "GDScript",
 "path": "res://database/definitions/asset_module_template.gd"
-}, {
-"base": "Node",
-"class": "NPCManager",
-"language": "GDScript",
-"path": "res://src/core/systems/npc_manager.gd"
-}, {
-"base": "PanelContainer",
-"class": "NPCToken",
-"language": "GDScript",
-"path": "res://src/core/ui/board/components/npc_token.gd"
-}, {
-"base": "Reference",
-"class": "NarrativeSystem",
-"language": "GDScript",
-"path": "res://src/core/systems/narrative_system.gd"
 }, {
 "base": "Template",
 "class": "NarrativeTemplate",
 "language": "GDScript",
 "path": "res://database/definitions/narrative_template.gd"
 }, {
-"base": "Reference",
-"class": "NodeGateSystem",
-"language": "GDScript",
-"path": "res://src/core/systems/node_gate_system.gd"
-}, {
 "base": "Node",
 "class": "PIDController",
 "language": "GDScript",
 "path": "res://src/core/utils/pid_controller.gd"
-}, {
-"base": "Node",
-"class": "SectorManager",
-"language": "GDScript",
-"path": "res://src/core/systems/sector_manager.gd"
 }, {
 "base": "AssetTemplate",
 "class": "ShipTemplate",
@@ -204,70 +119,35 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://database/definitions/template.gd"
 }, {
-"base": "Node",
-"class": "TightBeamSystem",
-"language": "GDScript",
-"path": "res://src/core/systems/tight_beam_system.gd"
-}, {
-"base": "Control",
-"class": "TrackDisplay",
-"language": "GDScript",
-"path": "res://src/core/ui/board/components/track_display.gd"
-}, {
 "base": "Template",
 "class": "UtilityToolTemplate",
 "language": "GDScript",
 "path": "res://database/definitions/utility_tool_template.gd"
-}, {
-"base": "Reference",
-"class": "VesselData",
-"language": "GDScript",
-"path": "res://src/core/simulation/vessel_data.gd"
 } ]
 _global_script_class_icons={
-"ActionCheckEngine": "",
 "ActionTemplate": "",
 "AgentTemplate": "",
-"AssetCard": "",
 "AssetSystem": "",
 "AssetTemplate": "",
-"BoardUI": "",
 "CameraPositionController": "",
 "CameraRotationController": "",
 "CameraZoomController": "",
-"CardArea": "",
 "CenteredGrowingLabel": "res://assets/art/ui/class_labels/class_centered_growing_label.svg",
 "CharacterTemplate": "",
 "CommodityTemplate": "",
 "ContractTemplate": "",
-"DiceRollFeedback": "",
 "FactionTemplate": "",
 "GameStartTemplate": "",
 "GutHookScript": "",
 "GutTest": "",
-"HookGenerator": "",
-"ImpactCard": "",
-"ImpactCardEntry": "",
-"ImpactCardPool": "",
-"ImpactTableManager": "",
 "InputState": "",
-"LegacySystemNameGenerator": "",
 "LocationTemplate": "",
-"ModeTransitionManager": "",
 "ModuleTemplate": "",
-"NPCManager": "",
-"NPCToken": "",
-"NarrativeSystem": "",
 "NarrativeTemplate": "",
-"NodeGateSystem": "",
 "PIDController": "",
-"SectorManager": "",
 "ShipTemplate": "",
 "Template": "",
-"TightBeamSystem": "",
-"TrackDisplay": "",
-"UtilityToolTemplate": "",
-"VesselData": ""
+"UtilityToolTemplate": ""
 }
 
 [application]
@@ -286,9 +166,7 @@ EventBus="*res://src/autoload/EventBus.gd"
 GlobalRefs="*res://src/autoload/GlobalRefs.gd"
 TemplateDatabase="*res://src/autoload/TemplateDatabase.gd"
 GameState="*res://src/autoload/GameState.gd"
-CoreMechanicsAPI="*res://src/autoload/CoreMechanicsAPI.gd"
 GameStateManager="*res://src/autoload/GameStateManager.gd"
-WorldClock="*res://src/core/simulation/world_clock.gd"
 
 [display]
 

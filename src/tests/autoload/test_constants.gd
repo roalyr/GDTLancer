@@ -1,40 +1,6 @@
-# PROJECT: GDTLancer
-# MODULE: test_constants.gd
-# STATUS: [Level 2 - Implementation]
-# OWNER: developer
-# ACCESS: read-write
-# USER INSTRUCTION: NONE
-# TRUTH_LINK: 1-GDD-Core-Mechanics.md § 6.1
-# LOG_REF: 2026-06-14 00:51:29
+# Tests for Constants.
 
 extends GutTest
-
-
-func test_action_check_thresholds_are_correct():
-	# Test Cautious thresholds
-	assert_eq(
-		Constants.ACTION_CHECK_CRIT_THRESHOLD_CAUTIOUS, 14, "Cautious Crit threshold should be 14."
-	)
-	assert_eq(
-		Constants.ACTION_CHECK_SWC_THRESHOLD_CAUTIOUS, 10, "Cautious SwC threshold should be 10."
-	)
-
-	# Test Risky thresholds
-	assert_eq(Constants.ACTION_CHECK_CRIT_THRESHOLD_RISKY, 16, "Risky Crit threshold should be 16.")
-	assert_eq(Constants.ACTION_CHECK_SWC_THRESHOLD_RISKY, 12, "Risky SwC threshold should be 12.")
-	prints("Tested Action Check Thresholds")
-
-
-func test_action_approach_enum_exists():
-	# Test that the enum and its values exist and are correct.
-	assert_not_null(Constants.ActionApproach, "ActionApproach enum should exist.")
-	assert_eq(Constants.ActionApproach.CAUTIOUS, 0, "CAUTIOUS should be enum value 0.")
-	assert_eq(Constants.ActionApproach.NEUTRAL, 1, "NEUTRAL should be enum value 1.")
-	assert_eq(Constants.ActionApproach.RISKY, 2, "RISKY should be enum value 2.")
-	prints("Tested ActionApproach Enum")
-
-
-# NOTE: GDD REVISION - test_focus_constants was pruned as focus points are no longer featured.
 
 
 func test_core_scene_paths_exist():
@@ -47,22 +13,10 @@ func test_core_scene_paths_exist():
 func test_core_node_names_exist():
 	assert_ne(Constants.AGENT_CONTAINER_NAME, "", "Agent Container Name check")
 	assert_ne(Constants.AGENT_BODY_NODE_NAME, "", "Agent Body Node Name check")
-	assert_true(Constants.ENTRY_POINT_NAMES is Array, "Entry Point Names should be an Array")
-	assert_true(Constants.ENTRY_POINT_NAMES.size() > 0, "Entry Point Names should not be empty")
 	prints("Tested Core Node Names Existence")
 
 
-func test_qualitative_wealth_constants_exist():
-	assert_eq(Constants.WEALTH_TRACK_MAX, 10, "WEALTH_TRACK_MAX should be 10.")
-	assert_eq(Constants.WEALTH_TIERS.size(), 3, "There should be 3 wealth tiers.")
-	assert_eq(Constants.WEALTH_TIERS["BROKE"], "Broke", "BROKE tier display name.")
-	assert_eq(Constants.WEALTH_TIERS["COMFORTABLE"], "Comfortable", "COMFORTABLE tier display name.")
-	assert_eq(Constants.WEALTH_TIERS["WEALTHY"], "Wealthy", "WEALTHY tier display name.")
-	assert_eq(Constants.WEALTH_MODIFIERS["BROKE"], -2, "Broke modifier should be -2.")
-	assert_eq(Constants.WEALTH_MODIFIERS["COMFORTABLE"], 0, "Comfortable modifier should be 0.")
-	assert_eq(Constants.WEALTH_MODIFIERS["WEALTHY"], 2, "Wealthy modifier should be 2.")
-	assert_eq(Constants.CONTRACT_VALUE_CLASSES.size(), 3, "There should be 3 contract value classes.")
-	assert_eq(Constants.CONTRACT_VALUE_CLASSES["Low"], 1, "Low value class progress increment.")
-	assert_eq(Constants.CONTRACT_VALUE_CLASSES["Mid"], 2, "Mid value class progress increment.")
-	assert_eq(Constants.CONTRACT_VALUE_CLASSES["High"], 3, "High value class progress increment.")
-	prints("Tested Qualitative Wealth Constants")
+func test_jump_travel_duration_is_symmetric_by_sector_type():
+	assert_eq(Constants.get_jump_travel_duration("star", "planet"), Constants.JUMP_DURATION_STAR_PLANET)
+	assert_eq(Constants.get_jump_travel_duration("planet", "star"), Constants.JUMP_DURATION_STAR_PLANET)
+	assert_eq(Constants.get_jump_travel_duration("moon", "deep_space"), Constants.JUMP_DURATION_ANY_DEEP_SPACE)

@@ -21,17 +21,15 @@ const WorldManagerScript = preload("res://src/scenes/game_world/world_manager.gd
 const JumpTransitionRigScene = preload("res://scenes/prefabs/navigation/jump_transition_rig.tscn")
 
 var _original_mouse_mode: int = Input.MOUSE_MODE_VISIBLE
+var _saved_locations: Dictionary = {}
 
 
 func before_each():
 	_original_mouse_mode = Input.get_mouse_mode()
-	GameState.world_topology = {
-		Constants.INITIAL_SECTOR_ID: {"connections": ["sector_star_cob"]},
-		"sector_star_cob": {"connections": [Constants.INITIAL_SECTOR_ID]},
-	}
+	_saved_locations = TemplateDatabase.locations
 	TemplateDatabase.locations = {
-		Constants.INITIAL_SECTOR_ID: {"global_position": Vector3(1200, 50, -300)},
-		"sector_star_cob": {"global_position": Vector3(2200, 50, -300)},
+		Constants.INITIAL_SECTOR_ID: {"global_position": Vector3(1200, 50, -300), "connections": ["sector_star_cob"]},
+		"sector_star_cob": {"global_position": Vector3(2200, 50, -300), "connections": [Constants.INITIAL_SECTOR_ID]},
 	}
 
 
@@ -39,8 +37,7 @@ func after_each():
 	if get_tree() != null:
 		get_tree().paused = false
 	Input.set_mouse_mode(_original_mouse_mode)
-	GameState.world_topology.clear()
-	TemplateDatabase.locations.clear()
+	TemplateDatabase.locations = _saved_locations
 	GlobalRefs.main_camera = null
 	GlobalRefs.player_agent_body = null
 

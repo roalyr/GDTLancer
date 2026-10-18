@@ -1,19 +1,4 @@
-# PROJECT: GDTLancer
-# MODULE: test_sector_loader.gd
-# STATUS: [Level 2 - Implementation]
-# OWNER: developer
-# ACCESS: read-write
-# USER INSTRUCTION: NONE
-# TRUTH_LINK: None
-# LOG_REF: 2026-06-20 18:41:40
-
-#
-# PROJECT: GDTLancer
-# MODULE: test_sector_loader.gd
-# STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: GDD-REVISION-LEDGER.md REV_005; universe_topology_architecture.md
-# LOG_REF: 2026-06-07 16:45:00
-#
+# Tests for SectorLoader: sector loading and procedural fallback.
 
 extends GutTest
 
@@ -22,18 +7,21 @@ const LocationTemplateScript = preload("res://database/definitions/location_temp
 ## Unit tests for SectorLoader: sector loading, JumpPoint injection, nebula offset.
 
 var sector_loader: Reference = null
+var _saved_locations: Dictionary = {}
 
 
 func before_each():
-	_clear_state()
+	_saved_locations = TemplateDatabase.locations
+	TemplateDatabase.locations = {}
+	GameState.reset_state()
 	_seed_template_database()
-	_seed_world_topology()
 	var Script = load("res://src/core/systems/sector_loader.gd")
 	sector_loader = Script.new()
 
 
 func after_each():
-	_clear_state()
+	GameState.reset_state()
+	TemplateDatabase.locations = _saved_locations
 	sector_loader = null
 
 
@@ -103,12 +91,12 @@ func test_load_sector_with_invalid_scene_path_uses_procedural_fallback():
 	zone.free()
 
 
-func test_load_runtime_discovered_sector_uses_procedural_fallback_and_jump_routes():
-	_seed_discovered_sector()
-	var zone = sector_loader.load_sector("discovered_1")
-	assert_not_null(zone, "Runtime-discovered sectors should load through the generic procedural fallback.")
-	assert_not_null(zone.find_node("AgentContainer", true, false), "Discovered fallback sectors should still contain an AgentContainer.")
-	assert_not_null(zone.find_node("StarsphereSlot", true, false), "Discovered fallback sectors should still contain a StarsphereSlot.")
+func test_load_sector_without_scene_path_uses_procedural_fallback():
+	_seed_procedural_sector()
+	var zone = sector_loader.load_sector("procedural_1")
+	assert_not_null(zone, "Sectors without a scene path should load through the generic procedural fallback.")
+	assert_not_null(zone.find_node("AgentContainer", true, false), "Procedural fallback sectors should still contain an AgentContainer.")
+	assert_not_null(zone.find_node("StarsphereSlot", true, false), "Procedural fallback sectors should still contain a StarsphereSlot.")
 	zone.free()
 
 
@@ -136,11 +124,6 @@ func test_load_runtime_discovered_sector_uses_procedural_fallback_and_jump_route
 # === HELPERS =================================================================
 # =============================================================================
 
-func _clear_state() -> void:
-	GameState.reset_state()
-	TemplateDatabase.locations.clear()
-
-
 func _seed_template_database() -> void:
 	var location_paths: Array = [
 		"res://database/registry/locations/sector_star_elace.tres",
@@ -153,30 +136,12 @@ func _seed_template_database() -> void:
 			TemplateDatabase.locations[res.template_id] = res
 
 
-func _seed_world_topology() -> void:
-	GameState.world_topology = {
-		"sector_star_elace": {
-			"connections": ["sector_star_cob", "sector_star_lywin"],
-		},
-		"sector_star_cob": {
-			"connections": ["sector_star_elace"],
-		},
-		"sector_star_lywin": {
-			"connections": ["sector_star_elace"],
-		},
-	}
-
-
-func _seed_discovered_sector() -> void:
+func _seed_procedural_sector() -> void:
 	var discovered_template = LocationTemplateScript.new()
-	discovered_template.template_id = "discovered_1"
+	discovered_template.template_id = "procedural_1"
 	discovered_template.location_name = "Amber Gate"
 	discovered_template.global_position = Vector3(48000, 2000, 0)
 	discovered_template.sector_scene_path = ""
 	discovered_template.is_procedural = true
 	discovered_template.procedural_type = "asteroid_field"
-	TemplateDatabase.locations["discovered_1"] = discovered_template
-	GameState.world_topology["discovered_1"] = {
-		"connections": ["sector_star_elace"],
-	}
-	GameState.world_topology["sector_star_elace"]["connections"] = ["sector_star_cob", "sector_star_lywin", "discovered_1"]
+	TemplateDatabase.locations["procedural_1"] = discovered_template

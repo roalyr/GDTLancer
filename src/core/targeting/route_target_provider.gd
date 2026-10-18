@@ -19,7 +19,7 @@ func build_targets_for_sector(source_sector_id: String) -> Array:
 		return route_targets
 
 	var source_position: Vector3 = _get_sector_global_position(source_sector_id)
-	var connections: Array = GameState.world_topology.get(source_sector_id, {}).get("connections", [])
+	var connections: Array = TemplateDatabase.get_sector_connections(source_sector_id)
 	for target_sector_id in connections:
 		var target_template = TemplateDatabase.locations.get(target_sector_id)
 		if target_template == null:

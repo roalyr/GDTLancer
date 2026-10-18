@@ -234,8 +234,6 @@ func _process_combat(delta: float) -> void:
 		_change_state(AIState.PATROL)
 		return
 
-	# Hull check — CombatSystem removed, read from GameState agent layer.\n\tvar agent_id_str: String = str(agent_script.agent_uid)\n\tif GameState.agents.has(agent_id_str):\n\t\tvar hull_pct: float = GameState.agents[agent_id_str].get(\"hull_integrity\", 1.0)\n\t\tif hull_pct > 0.0 and hull_pct < flee_hull_threshold:\n\t\t\t_change_state(AIState.FLEE)\n\t\t\treturn
-
 	# Approach target until within weapon range.
 	_repath_timer = max(0.0, _repath_timer - delta)
 	if distance > weapon_range:

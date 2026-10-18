@@ -378,12 +378,7 @@ func _get_jump_route_color() -> Color:
 			dest_id = str(target_ref.target_sector_id)
 			
 		if dest_id != "":
-			if GameState.world_topology.has(dest_id) and GameState.world_topology[dest_id].has("sector_type"):
-				sector_type = GameState.world_topology[dest_id].sector_type
-			elif TemplateDatabase.locations.has(dest_id):
-				var loc = TemplateDatabase.locations[dest_id]
-				if loc != null and loc.get("sector_type") != null:
-					sector_type = loc.sector_type
+			sector_type = TemplateDatabase.get_sector_type(dest_id, "")
 	return Constants.get_jump_type_color(sector_type)
 
 

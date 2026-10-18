@@ -43,12 +43,7 @@ func get_projected_target_overlay_kind(target_ref) -> String:
 		var dest_id = target_ref.get("target_sector_id")
 		var sector_type = "star"
 		if dest_id != null and dest_id != "":
-			if GameState.world_topology.has(dest_id) and GameState.world_topology[dest_id].has("sector_type"):
-				sector_type = GameState.world_topology[dest_id].sector_type
-			elif TemplateDatabase.locations.has(dest_id):
-				var loc = TemplateDatabase.locations[dest_id]
-				if loc != null and loc.get("sector_type") != null:
-					sector_type = loc.sector_type
+			sector_type = TemplateDatabase.get_sector_type(str(dest_id))
 		if sector_type == "star":
 			return _hud.OVERLAY_KIND_JUMP
 		else:
@@ -166,7 +161,7 @@ func sync_route_target_overlay_with_topology() -> void:
 func get_route_target_overlay_signature(sector_id: String) -> String:
 	if sector_id == "":
 		return ""
-	var connections: Array = GameState.world_topology.get(sector_id, {}).get("connections", [])
+	var connections: Array = TemplateDatabase.get_sector_connections(sector_id)
 	var normalized_connections: Array = []
 	for target_sector_id in connections:
 		normalized_connections.append(str(target_sector_id))

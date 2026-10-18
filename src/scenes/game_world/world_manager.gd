@@ -1,24 +1,9 @@
-# PROJECT: GDTLancer
-# MODULE: world_manager.gd
-# STATUS: [Level 2 - Implementation]
-# OWNER: developer
-# ACCESS: read-write
-# USER INSTRUCTION: NONE
-# TRUTH_LINK: None
-# LOG_REF: 2026-06-20 18:41:40
-
-#
-# PROJECT: GDTLancer
-# MODULE: world_manager.gd
-# STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §4, §6.1, §6.3, §7; TRUTH_DOCS_CanvasItem_Godot_3.6.md §Render modes; TRUTH_SIMULATION-GRAPH.md §1; TACTICAL_TODO.md TASK_2
-# LOG_REF: 2026-06-08 02:04:00
-#
+# WorldManager: new game / load flow, sector loading and jump orchestration.
 
 extends Node
 
 ## WorldManager: Core scene orchestrator handling game initialization, zone loading, and save/load flow.
-## Coordinates TemplateIndexer, WorldGenerator, and AgentSpawner for game lifecycle.
+## Coordinates TemplateIndexer, WorldGenerator, AgentSpawner and JumpOrchestrator.
 
 # --- Component Scripts ---
 const TemplateIndexer = preload("res://src/scenes/game_world/world_manager/template_indexer.gd")
@@ -32,7 +17,6 @@ var _pending_jump_target: String = ""
 var _reported_invalid_sectors: Dictionary = {}
 var _jump_transition_active: bool = false
 var _jump_transition_tree_was_paused: bool = false
-var _jump_transition_timer_was_running: bool = false
 var _jump_transition_mouse_mode_before_lock: int = Input.MOUSE_MODE_VISIBLE
 var _recorded_fov: float = 70.0
 var _recorded_zoom_distance: float = 55.0
@@ -41,7 +25,6 @@ var _recorded_zoom_distance: float = 55.0
 var jump_orchestrator: Reference = null
 
 # --- Nodes ---
-var _time_clock_timer: Timer = null
 var _template_indexer: Node = null
 var _world_generator: Node = null
 
@@ -61,13 +44,6 @@ func _ready():
 	add_child(_template_indexer)
 	_template_indexer.index_all_templates()
 
-	# Step 1.5: Instantiate SectorManager system.
-	var SectorManagerScript = load("res://src/core/systems/sector_manager.gd")
-	if SectorManagerScript != null:
-		var sector_mgr = SectorManagerScript.new()
-		sector_mgr.name = "SectorManager"
-		add_child(sector_mgr)
-
 	# Step 2: Boot to Main Menu. World generation/zone load happens only after
 	# the player chooses New Game / Load Game.
 	_show_boot_main_menu()
@@ -84,16 +60,7 @@ func _ready():
 	EventBus.connect("player_jump_requested", self, "_on_player_jump_requested")
 	EventBus.connect("jump_available", self, "_on_jump_available")
 	EventBus.connect("jump_unavailable", self, "_on_jump_unavailable")
-	
 
-	# --- NEW: Setup the Time Clock Timer ---
-	_time_clock_timer = Timer.new()
-	_time_clock_timer.name = "TimeClockTimer"
-	_time_clock_timer.wait_time = Constants.TIME_TICK_INTERVAL_SECONDS
-	_time_clock_timer.autostart = false
-	_time_clock_timer.connect("timeout", self, "_on_Time_Clock_Timer_timeout")
-	add_child(_time_clock_timer)
-	
 	randomize()
 	# Do not load a zone at boot; wait for New Game / Load.
 
@@ -105,8 +72,6 @@ func _on_new_game_requested() -> void:
 	_set_main_hud_hidden(false)
 	# Leaving the Main Menu; resume gameplay.
 	get_tree().paused = false
-	if is_instance_valid(_time_clock_timer):
-		_time_clock_timer.stop()  # Stop timer during cleanup
 
 	_cleanup_all_agents()
 	_cleanup_current_zone()
@@ -120,21 +85,7 @@ func _on_new_game_requested() -> void:
 	yield(get_tree(), "idle_frame")
 	
 	_setup_new_game()
-
-	# Initialize the four-layer simulation from a seed.
-	var seed_str: String = str(OS.get_unix_time())
-	if is_instance_valid(GlobalRefs.simulation_engine):
-		GlobalRefs.simulation_engine.initialize_simulation(seed_str)
-	else:
-		push_warning("WorldManager: SimulationEngine not available, skipping sim init.")
-
-	if not GameState.agents.has("player") or not (GameState.agents["player"] is Dictionary):
-		GameState.agents["player"] = {}
-	GameState.agents["player"]["current_sector_id"] = Constants.INITIAL_SECTOR_ID
 	load_sector(Constants.INITIAL_SECTOR_ID)
-	
-	if is_instance_valid(_time_clock_timer):
-		_time_clock_timer.start()
 
 
 func _on_game_state_loaded() -> void:
@@ -145,35 +96,17 @@ func _on_game_state_loaded() -> void:
 	# A saved state has been applied; we now need to load a zone so AgentSpawner can
 	# spawn the player from the restored GameState.
 	get_tree().paused = false
-	if is_instance_valid(_time_clock_timer):
-		_time_clock_timer.stop()  # Stop timer during cleanup
 
 	_cleanup_all_agents()
 	_cleanup_current_zone()
 	
 	# Wait a frame for cleanup to complete before loading new zone
 	yield(get_tree(), "idle_frame")
-	
-	# Re-initialize simulation from saved seed on load.
-	var saved_seed: String = GameState.world_seed
-	if saved_seed != "" and is_instance_valid(GlobalRefs.simulation_engine):
-		GlobalRefs.simulation_engine.initialize_simulation(saved_seed)
 
 	var saved_sector = _resolve_known_sector_id(GameState.current_sector_id, "GameState.current_sector_id")
 	GameState.current_sector_id = saved_sector
 	load_sector(saved_sector)
 	call_deferred("_emit_loaded_dock_signal")
-	call_deferred("_emit_loaded_resource_signals")
-	
-	if is_instance_valid(_time_clock_timer):
-		_time_clock_timer.start()
-
-
-func _emit_loaded_resource_signals() -> void:
-	if not EventBus:
-		return
-	var wealth_val = GameState.get_player_track("wealth")
-	EventBus.emit_signal("player_track_changed", "wealth", wealth_val)
 
 
 func _emit_loaded_dock_signal() -> void:
@@ -187,16 +120,8 @@ func _emit_loaded_dock_signal() -> void:
 	EventBus.emit_signal("player_docked", GameState.player_docked_at)
 	
 	
-# --- Game State Setup ---
-func _initialize_game_state():
-	print("WorldManager: Initializing game state...")
-	# This is where the logic for choosing "New Game" vs "Load Game" will go.
-	# For now, we default to creating a new game.
-	_setup_new_game()
-
-
 func _show_boot_main_menu() -> void:
-	# Pause the game at boot so no simulation/UI actions occur until New Game.
+	# Pause the game at boot so nothing runs until New Game.
 	get_tree().paused = true
 	# Ask the MainMenu UI to show itself.
 	if is_instance_valid(EventBus) and EventBus.has_signal("main_menu_requested"):
@@ -325,9 +250,6 @@ func _snapshot_player_state_for_sector_travel() -> void:
 
 func _pause_jump_transition_gameplay() -> void:
 	_jump_transition_tree_was_paused = get_tree().paused
-	_jump_transition_timer_was_running = is_instance_valid(_time_clock_timer) and not _time_clock_timer.is_stopped()
-	if is_instance_valid(_time_clock_timer):
-		_time_clock_timer.stop()
 	if is_instance_valid(GlobalRefs.main_camera) and GlobalRefs.main_camera.has_method("set_local_scene_particles_active"):
 		GlobalRefs.main_camera.set_local_scene_particles_active(false, true)
 	get_tree().paused = true
@@ -335,12 +257,9 @@ func _pause_jump_transition_gameplay() -> void:
 
 func _restore_jump_transition_gameplay() -> void:
 	get_tree().paused = _jump_transition_tree_was_paused
-	if _jump_transition_timer_was_running and is_instance_valid(_time_clock_timer):
-		_time_clock_timer.start()
 	if is_instance_valid(GlobalRefs.main_camera) and GlobalRefs.main_camera.has_method("set_local_scene_particles_active"):
 		GlobalRefs.main_camera.set_local_scene_particles_active(true, true)
 	_jump_transition_tree_was_paused = false
-	_jump_transition_timer_was_running = false
 
 
 func _set_jump_transition_camera_locked(is_locked: bool) -> void:
@@ -423,23 +342,16 @@ func _get_jump_transition_rig() -> Node:
 	return null
 
 
-func _request_sector_travel_tick() -> void:
-	if is_instance_valid(GlobalRefs.simulation_engine):
-		GlobalRefs.simulation_engine.request_tick()
-	if WorldClock != null and WorldClock.has_method("advance"):
-		WorldClock.advance(1)
-
-
 func _resolve_known_sector_id(requested_sector_id: String, context: String) -> String:
-	if requested_sector_id != "" and GameState.world_topology.has(requested_sector_id):
+	if TemplateDatabase.has_sector(requested_sector_id):
 		return requested_sector_id
 
 	_report_invalid_sector(context, requested_sector_id)
 
-	if Constants.INITIAL_SECTOR_ID != "" and GameState.world_topology.has(Constants.INITIAL_SECTOR_ID):
+	if TemplateDatabase.has_sector(Constants.INITIAL_SECTOR_ID):
 		return Constants.INITIAL_SECTOR_ID
-	if not GameState.world_topology.empty():
-		return str(GameState.world_topology.keys()[0])
+	if not TemplateDatabase.locations.empty():
+		return str(TemplateDatabase.locations.keys()[0])
 
 	printerr("WorldManager: No valid fallback sector available for %s." % context)
 	return ""
@@ -471,17 +383,6 @@ func _on_jump_unavailable():
 
 func _on_player_jump_requested(target_sector_id):
 	travel_to_sector(target_sector_id)
-
-
-# --- Time System Driver ---
-func _on_Time_Clock_Timer_timeout():
-	# This function is now called every TIME_TICK_INTERVAL_SECONDS.
-	# It drives the core time-based loop of the game.
-	if is_instance_valid(GlobalRefs.time_system):
-		# For now, each tick adds 1 second.
-		GlobalRefs.time_system.advance_game_time(1)
-	else:
-		printerr("WorldManager: Cannot advance time, TimeSystem not registered in GlobalRefs.")
 
 
 # --- Signal Handlers to maintain agent list ---

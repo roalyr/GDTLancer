@@ -29,15 +29,21 @@ var AgentScript = load("res://src/core/agents/agent.gd")
 var PlayerControllerShipScript = load("res://src/modules/piloting/player_controller_ship.gd")
 var StateFreeFlightScript = load("res://src/modules/piloting/player_input_states/state_free_flight.gd")
 
+var _saved_locations: Dictionary = {}
+
+
+func before_each():
+	_saved_locations = TemplateDatabase.locations
+	TemplateDatabase.locations = {}
+
 
 func after_each():
 	GlobalRefs.main_hud = null
 	GlobalRefs.player_agent_body = null
 	GlobalRefs.main_camera = null
 	GlobalRefs.current_zone = null
-	GameState.player_character_uid = ""
 	GameState.reset_state()
-	TemplateDatabase.locations.clear()
+	TemplateDatabase.locations = _saved_locations
 
 
 func test_collect_world_projected_targets_includes_scene_objects_and_npcs_but_excludes_player_and_jump_points():
@@ -62,16 +68,15 @@ func test_collect_world_projected_targets_includes_scene_objects_and_npcs_but_ex
 	var player = RigidBody.new()
 	player.set_script(AgentScript)
 	player.name = "Player"
-	player.character_uid = 5
+	player.agent_type = "player"
 	zone.add_child(player)
 
 	var npc = RigidBody.new()
 	npc.set_script(AgentScript)
 	npc.name = "NPC Ship"
-	npc.character_uid = 1001
+	npc.agent_type = "npc"
 	zone.add_child(npc)
 
-	GameState.player_character_uid = "5"
 	GlobalRefs.current_zone = zone
 	GlobalRefs.player_agent_body = player
 
@@ -279,10 +284,9 @@ func test_projected_target_bracket_applies_colors_by_jump_type() -> void:
 		var type = types[i]
 		var expected_color = colors[i]
 		var sector_id = "sector_test_" + type
-		GameState.world_topology[sector_id] = {
+		TemplateDatabase.locations[sector_id] = {
 			"sector_type": type,
 			"connections": [],
-			"station_ids": []
 		}
 		
 		var route_target = RouteTargetScript.new().configure(

@@ -1,25 +1,9 @@
-# PROJECT: GDTLancer
-# MODULE: test_agent_spawner.gd
-# STATUS: [Level 2 - Implementation]
-# OWNER: developer
-# ACCESS: read-write
-# USER INSTRUCTION: NONE
-# TRUTH_LINK: None
-# LOG_REF: 2026-06-20 18:41:40
-
-#
-# PROJECT: GDTLancer
-# MODULE: test_agent_spawner.gd
-# STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
-# LOG_REF: 2026-05-16 22:38:42
-#
+# Tests for AgentSystem (AgentSpawner): player and NPC spawning from templates.
 
 extends GutTest
 
 # --- Test Subjects ---
 const AgentSystem = preload("res://src/core/systems/agent_system.gd")
-const CharacterTemplate = preload("res://database/definitions/character_template.gd")
 const AgentTemplate = preload("res://database/definitions/agent_template.gd")
 
 # --- Helpers ---
@@ -45,8 +29,7 @@ func before_each():
 	GameState.current_sector_id = Constants.INITIAL_SECTOR_ID
 
 	# 1. Clean and set up the global state
-	GameState.characters.clear()
-	GameState.player_character_uid = ""
+	GameState.player_ship_template_id = "ship_default"
 	GameState.player_position = Vector3.ZERO
 	GameState.player_rotation = Vector3.ZERO
 	GameState.player_docked_at = ""
@@ -59,16 +42,11 @@ func before_each():
 	add_child_autofree(mock_agent_container)
 	GlobalRefs.agent_container = mock_agent_container
 
-	# 3. Create a mock player character in the GameState
-	var player_char = CharacterTemplate.new()
-	GameState.characters[PLAYER_UID] = player_char
-	GameState.player_character_uid = str(PLAYER_UID)
-
-	# 4. Instantiate the system we are testing
+	# 3. Instantiate the system we are testing
 	agent_system_instance = AgentSystem.new()
 	add_child_autofree(agent_system_instance)
 
-	# 5. Setup signal catcher
+	# 4. Setup signal catcher
 	signal_catcher = SignalCatcher.new()
 	add_child_autofree(signal_catcher)
 	EventBus.connect("agent_spawned", signal_catcher, "_on_signal_received")
@@ -78,8 +56,7 @@ func before_each():
 func after_each():
 	TemplateDatabase.locations = _original_locations
 	# Clean up global state and references
-	GameState.characters.clear()
-	GameState.player_character_uid = ""
+	GameState.player_ship_template_id = ""
 	GameState.player_position = Vector3.ZERO
 	GameState.player_rotation = Vector3.ZERO
 	GameState.player_docked_at = ""
@@ -121,6 +98,12 @@ func test_spawn_player_on_zone_loaded():
 	
 	assert_true(is_instance_valid(spawned_body), "Signal should contain a valid agent body.")
 	assert_eq(init_data["agent_uid"], PLAYER_UID, "Spawned agent should be linked to the player UID.")
+	assert_eq(init_data["overrides"]["agent_type"], "player", "Player spawn should be typed as player.")
+	assert_eq(
+		init_data["overrides"]["ship_template_id"],
+		"ship_default",
+		"Player spawn should fly the ship from GameState."
+	)
 
 
 func test_spawn_agent_with_overrides():

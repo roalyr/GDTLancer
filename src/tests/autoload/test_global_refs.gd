@@ -1,15 +1,4 @@
-# PROJECT: GDTLancer
-# MODULE: test_global_refs.gd
-# STATUS: [Level 2 - Implementation]
-# OWNER: developer
-# ACCESS: read-write
-# USER INSTRUCTION: NONE
-# TRUTH_LINK: None
-# LOG_REF: 2026-06-20 18:41:40
-
-# File: tests/autoload/test_global_refs.gd
-# GUT Test Script for GlobalRefs.gd Autoload
-# Version: 1.2
+# Tests for GlobalRefs.
 
 extends GutTest
 
@@ -59,11 +48,6 @@ func reset_all_global_refs():
 	GlobalRefs.game_state_manager = null
 	GlobalRefs.agent_spawner = null
 	GlobalRefs.asset_system = null
-	GlobalRefs.character_system = null
-	GlobalRefs.event_system = null
-	GlobalRefs.inventory_system = null
-	GlobalRefs.time_system = null
-	GlobalRefs.simulation_engine = null
 
 
 # --- Test Methods ---
@@ -73,8 +57,7 @@ func test_initial_references_are_null():
 	assert_null(GlobalRefs.player_agent_body, "Player ref should start null.")
 	assert_null(GlobalRefs.main_camera, "Camera ref should start null.")
 	assert_null(GlobalRefs.world_manager, "World Manager ref should start null.")
-	assert_null(GlobalRefs.time_system, "Time System ref should start null.")
-	assert_null(GlobalRefs.character_system, "Character System ref should start null.")
+	assert_null(GlobalRefs.asset_system, "Asset System ref should start null.")
 	prints("Tested GlobalRefs: Initial Null State")
 
 
@@ -94,10 +77,10 @@ func test_can_set_and_get_valid_reference():
 
 
 func test_can_set_and_get_system_references():
-	assert_null(GlobalRefs.time_system, "Pre-check: TimeSystem ref is null.")
-	GlobalRefs.time_system = test_system_node
-	assert_true(is_instance_valid(GlobalRefs.time_system), "TimeSystem ref should be valid.")
-	assert_eq(GlobalRefs.time_system, test_system_node, "TimeSystem ref holds the correct node.")
+	assert_null(GlobalRefs.asset_system, "Pre-check: AssetSystem ref is null.")
+	GlobalRefs.asset_system = test_system_node
+	assert_true(is_instance_valid(GlobalRefs.asset_system), "AssetSystem ref should be valid.")
+	assert_eq(GlobalRefs.asset_system, test_system_node, "AssetSystem ref holds the correct node.")
 	prints("Tested GlobalRefs: Set/Get System References")
 
 

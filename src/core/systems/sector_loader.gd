@@ -31,9 +31,6 @@ func load_sector(sector_id: String) -> Spatial:
 	if template == null:
 		printerr("SectorLoader: No LocationTemplate for sector_id: ", sector_id)
 		return null
-	if not GameState.world_topology.has(sector_id):
-		printerr("SectorLoader: sector_id not in world_topology: ", sector_id)
-		return null
 
 	var zone_root: Spatial = _load_zone_root(template, sector_id)
 

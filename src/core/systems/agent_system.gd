@@ -1,66 +1,26 @@
-# PROJECT: GDTLancer
-# MODULE: src/core/systems/agent_system.gd
-# STATUS: [Level 2 - Implementation]
-# OWNER: architect-governed
-# ACCESS: read-write
-# USER INSTRUCTION: NONE
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §2.3; TRUTH_CONTENT-CREATION-MANUAL.md §3.6
-# LOG_REF: 2026-06-10 23:41:19
+# AgentSystem (AgentSpawner): spawns the player and NPC agents from AgentTemplates when a zone loads.
 
 extends Node
-
-const VERBOSE_PERSISTENT_AGENT_LOGS = false
-
-const PERSISTENT_AGENT_IDS = [
-	"persistent_kai", "persistent_juno", 
-	"persistent_vera", "persistent_milo", 
-	"persistent_rex", "persistent_ada"
-]
 
 var _player_agent_body: RigidBody = null
 var _next_agent_uid: int = 0  # Counter for generating unique agent UIDs
 
-# Key: agent_id (String), Value: WeakRef or Node (AgentBody)
-# Tracks currently instantiated persistent agents in the scene
-var _active_persistent_agents: Dictionary = {}
-var _reported_invalid_locations: Dictionary = {}
 
 func _ready():
 	GlobalRefs.set_agent_spawner(self)
-	
+
 	# Listen for the zone_loaded signal to know when it's safe to spawn.
 	EventBus.connect("zone_loaded", self, "_on_Zone_Loaded")
-	
-	# Listen for agent disable (death/neutralization) events
-	EventBus.connect("agent_disabled", self, "_on_Agent_Disabled")
-	
-	# Listen for simulation tick to handle respawns
-	EventBus.connect("sim_tick_completed", self, "_on_Sim_Tick")
-	
-	# Listen for player docking to handle contact discovery (Task 11)
-	EventBus.connect("player_docked", self, "_on_player_docked")
-	
-	if VERBOSE_PERSISTENT_AGENT_LOGS:
-		print("AgentSpawner Ready.")
 
 
 func _on_Zone_Loaded(_zone_instance, _zone_path, agent_container_node):
 	if is_instance_valid(agent_container_node):
-		# Clear invalid references from previous zone
-		_active_persistent_agents.clear()
-		
-		# Spawn Player
 		if not is_instance_valid(_player_agent_body):
 			spawn_player()
-			
-		# Spawn Persistent Agents
-		spawn_persistent_agents()
 	else:
 		printerr("AgentSpawner Error: Agent container invalid. Cannot spawn agents.")
 
 
-# Important: player's character and inventory of assets must exist and upon spawining an
-# agent they should get linked to it.
 func spawn_player():
 	var container = GlobalRefs.agent_container
 	if not is_instance_valid(container):
@@ -115,13 +75,10 @@ func spawn_player():
 			should_apply_spawn_rotation = true
 			GameState.player_arrived_from_sector = ""
 
-	var player_char_uid = GameState.player_character_uid
-	
-	# Overrides include agent_type, template_id, and character_uid for ship stats lookup
 	var player_overrides = {
-		"agent_type": "player", 
+		"agent_type": "player",
 		"template_id": "player",
-		"character_uid": player_char_uid
+		"ship_template_id": GameState.player_ship_template_id
 	}
 	var agent_uid = _get_next_agent_uid()
 	
@@ -208,68 +165,6 @@ func _get_jump_in_distance_for_sector(sector_id: String) -> float:
 			return 5000.0
 
 
-func _find_jump_point_targeting(sector_id: String) -> Spatial:
-	if not is_instance_valid(GlobalRefs.current_zone):
-		return null
-	for child in GlobalRefs.current_zone.get_children():
-		if child.get("target_sector_id") == sector_id:
-			return child
-	return null
-
-
-func _get_route_arrival_spawn_position(arrival_direction: Vector3) -> Vector3:
-	var anchor_pos = Vector3.ZERO
-	if is_instance_valid(GlobalRefs.current_zone):
-		var entry_node = GlobalRefs.current_zone.find_node("EntryPoint", true, false)
-		if entry_node and entry_node is Spatial:
-			anchor_pos = entry_node.global_transform.origin
-	
-	# Generate a random offset around the anchor based on jump_in_distance (+/- 10% variation)
-	var base_dist = _get_jump_in_distance_for_sector(GameState.current_sector_id)
-	var random_dir = Vector3(rand_range(-1, 1), rand_range(-1, 1), rand_range(-1, 1)).normalized()
-	var random_dist = rand_range(base_dist * 0.9, base_dist * 1.1)
-	return anchor_pos + (random_dir * random_dist)
-
-
-# Spawns an NPC agent linked to a specific character.
-# character_uid: The UID of the character this NPC represents.
-func spawn_npc(character_uid: int, position: Vector3 = Vector3.ZERO) -> RigidBody:
-	if not GameState.characters.has(character_uid):
-		printerr("AgentSpawner Error: No character found with UID: ", character_uid)
-		return null
-	
-	var npc_template = load(Constants.NPC_TRAFFIC_TEMPLATE_PATH)
-	if not npc_template is AgentTemplate:
-		printerr("AgentSpawner Error: Failed to load NPC AgentTemplate.")
-		return null
-	
-	var final_position = position
-	if position == Vector3.ZERO:
-		var anchor_pos = Vector3.ZERO
-		if is_instance_valid(GlobalRefs.current_zone):
-			var entry_node = GlobalRefs.current_zone.find_node("EntryPoint", true, false)
-			if entry_node and entry_node is Spatial:
-				anchor_pos = entry_node.global_transform.origin
-		
-		var base_dist = _get_jump_in_distance_for_sector(GameState.current_sector_id)
-		var random_dir = Vector3(rand_range(-1, 1), rand_range(-1, 1), rand_range(-1, 1)).normalized()
-		var random_dist = rand_range(base_dist * 0.9, base_dist * 1.1)
-		final_position = anchor_pos + (random_dir * random_dist)
-
-	var npc_overrides = {
-		"agent_type": "npc",
-		"template_id": "npc_default",
-		"character_uid": character_uid
-	}
-	var agent_uid = _get_next_agent_uid()
-	
-	var npc_body = spawn_agent(
-		Constants.NPC_AGENT_SCENE_PATH, final_position, npc_template, npc_overrides, agent_uid
-	)
-	
-	return npc_body
-
-
 # Spawns an NPC using a specific AgentTemplate resource path.
 # This is used for encounter-driven spawns where a fixed template is desired.
 func spawn_npc_from_template(agent_template_path: String, position: Vector3 = Vector3.ZERO, overrides: Dictionary = {}) -> RigidBody:
@@ -287,19 +182,6 @@ func spawn_npc_from_template(agent_template_path: String, position: Vector3 = Ve
 		npc_overrides["agent_type"] = "npc"
 	if not npc_overrides.has("template_id"):
 		npc_overrides["template_id"] = "npc"
-	if not npc_overrides.has("character_uid"):
-		npc_overrides["character_uid"] = -1
-
-	var char_uid = npc_overrides.get("character_uid", -1)
-	if str(char_uid) == "-1" or str(char_uid) == "":
-		var char_template_id = npc_template.character_template_id
-		if char_template_id == "":
-			char_template_id = "character_default"
-		if is_instance_valid(GlobalRefs.character_system):
-			char_uid = GlobalRefs.character_system.create_character(char_template_id)
-			npc_overrides["character_uid"] = char_uid
-			if is_instance_valid(GlobalRefs.inventory_system):
-				GlobalRefs.inventory_system.create_inventory_for_character(char_uid)
 
 	var agent_uid = _get_next_agent_uid()
 	return spawn_agent(Constants.NPC_AGENT_SCENE_PATH, position, npc_template, npc_overrides, agent_uid)
@@ -312,10 +194,6 @@ func _get_next_agent_uid() -> int:
 	return uid
 
 
-# TODO: spawn NPC with proper overrides.
-# Important: NPC's characters and their inventories of assets must exist and upon spawining an
-# agent they should get linked to it.
-
 func spawn_agent(
 	agent_scene_path: String,
 	position: Vector3,
@@ -324,17 +202,6 @@ func spawn_agent(
 	agent_uid: int = -1
 ) -> RigidBody:
 	var final_overrides = overrides.duplicate(true)
-	var char_uid = final_overrides.get("character_uid", -1)
-	if str(char_uid) == "-1" or str(char_uid) == "":
-		var char_template_id = agent_template.character_template_id
-		if char_template_id == "":
-			char_template_id = "character_default"
-		if is_instance_valid(GlobalRefs.character_system):
-			char_uid = GlobalRefs.character_system.create_character(char_template_id)
-			final_overrides["character_uid"] = char_uid
-			if is_instance_valid(GlobalRefs.inventory_system):
-				GlobalRefs.inventory_system.create_inventory_for_character(char_uid)
-
 	var container = GlobalRefs.agent_container
 	if not is_instance_valid(container):
 		printerr("AgentSpawner Spawn Error: Invalid GlobalRefs.agent_container.")
@@ -371,253 +238,4 @@ func spawn_agent(
 		"agent_spawned", agent_node, {"template": agent_template, "overrides": final_overrides, "agent_uid": agent_uid}
 	)
 
-	# The controller is a child of the AgentBody (agent_node), not the scene root.
-	# We also need to check for both AI and Player controllers.
-	var ai_controller = agent_node.get_node_or_null(Constants.AI_CONTROLLER_NODE_NAME)
-	var _player_controller = agent_node.get_node_or_null(Constants.PLAYER_INPUT_HANDLER_NAME)
-	
 	return agent_node
-
-# --- Persistent Agent Lifecycle System (Task 6) ---
-
-func get_persistent_agent_state(agent_id: String) -> Dictionary:
-	if not GameState.persistent_agents.has(agent_id):
-		# Initialize default state if missing
-		var agent_res_path = "res://database/registry/agents/" + agent_id + ".tres"
-		var agent_template = load(agent_res_path)
-		if not agent_template:
-			printerr("AgentSystem: Failed to load persistent agent template: ", agent_id)
-			return {}
-			
-		var char_template_id = agent_template.character_template_id
-		# Create a new character instance for this agent
-		
-		# Load Character Template
-		var char_res_path = "res://database/registry/characters/" + char_template_id + ".tres"
-		var char_template = load(char_res_path)
-		var char_uid = -1
-		
-		if char_template:
-			var runtime_char = char_template.duplicate()
-			
-			# Assign a new UID - Simple generation strategy: 1000 + incremental
-			# Finding max numeric key in characters
-			var max_uid = 1000
-			if not GameState.characters.empty():
-				for k in GameState.characters.keys():
-					var k_int = int(str(k))
-					if k_int >= max_uid:
-						max_uid = k_int + 1
-			
-			char_uid = max_uid
-			GameState.characters[char_uid] = runtime_char
-		
-		GameState.persistent_agents[agent_id] = {
-			"character_uid": char_uid,
-			"current_location": _resolve_known_location_id(
-				agent_template.home_location_id,
-				"%s.home_location_id" % agent_id
-			),
-			"is_disabled": false,
-			"disabled_at_time": 0.0,
-			"relationship": 0,
-			"is_known": false
-		}
-		
-	return GameState.persistent_agents[agent_id]
-
-
-func spawn_persistent_agents() -> void:
-	if not is_instance_valid(GlobalRefs.current_zone):
-		return
-		
-	for agent_id in PERSISTENT_AGENT_IDS:
-		# Check if already active/spawned
-		if _active_persistent_agents.has(agent_id) and is_instance_valid(_active_persistent_agents[agent_id]):
-			continue
- 
-		# Sector filter: only spawn agents whose simulation says they're in the loaded sector
-		var sim_sector = ""
-		if GameState.agents.has(agent_id):
-			sim_sector = GameState.agents[agent_id].get("current_sector_id", "")
-		if sim_sector != GameState.current_sector_id:
-			continue
- 
-		var state = get_persistent_agent_state(agent_id)
-		
-		if state.get("is_disabled", false):
-			continue
-			
-		var current_loc = _resolve_known_location_id(
-			state.get("current_location", ""),
-			"%s.current_location" % agent_id
-		)
-		state["current_location"] = current_loc
-		if current_loc == "":
-			continue
-			
-		# Check if this location exists in the current zone
-		var spawn_pos = _get_dock_position_in_zone(current_loc)
-		if spawn_pos == null:
-			_report_invalid_location(
-				"%s.current_location" % agent_id,
-				current_loc,
-				"Location not found in current zone; persistent agent spawn skipped."
-			)
-			continue # Location not in this zone
-			
-		# Load resources
-		var agent_res_path = "res://database/registry/agents/" + agent_id + ".tres"
-		var agent_template = load(agent_res_path)
-		if not agent_template: 
-			continue
-			
-		var char_uid = state.get("character_uid", -1)
-		
-		var overrides = {
-			"agent_type": "npc",
-			"template_id": agent_id,
-			"character_uid": char_uid
-		}
-		
-		var uid = _get_next_agent_uid()
-		var final_spawn_pos = spawn_pos
-		if current_loc == GameState.current_sector_id:
-			var base_dist = _get_jump_in_distance_for_sector(GameState.current_sector_id)
-			var random_dir = Vector3(rand_range(-1, 1), rand_range(-1, 1), rand_range(-1, 1)).normalized()
-			var random_dist = rand_range(base_dist * 0.9, base_dist * 1.1)
-			final_spawn_pos = spawn_pos + (random_dir * random_dist)
-		else:
-			var spawn_offset = Vector3(
-				rand_range(-50, 50),
-				rand_range(-20, 20),
-				rand_range(-50, 50)
-			)
-			final_spawn_pos = spawn_pos + spawn_offset
-		
-		var agent_body = spawn_agent(
-			Constants.NPC_AGENT_SCENE_PATH,
-			final_spawn_pos,
-			agent_template,
-			overrides,
-			uid
-		)
-		
-		if is_instance_valid(agent_body):
-			_active_persistent_agents[agent_id] = agent_body
-			if VERBOSE_PERSISTENT_AGENT_LOGS:
-				print("AgentSpawner: Spawned persistent agent '%s' at %s (pos=%s)" % [agent_id, current_loc, str(agent_body.global_transform.origin)])
-		else:
-			print("AgentSpawner: FAILED to spawn persistent agent '%s' at %s" % [agent_id, current_loc])
-
-
-func _on_Agent_Disabled(agent_body) -> void:
-	var found_agent_id = ""
-	for agent_id in _active_persistent_agents:
-		if _active_persistent_agents[agent_id] == agent_body:
-			found_agent_id = agent_id
-			break
-	
-	if found_agent_id != "":
-		_handle_persistent_agent_disable(found_agent_id)
-
-
-func _handle_persistent_agent_disable(agent_id: String) -> void:
-	if VERBOSE_PERSISTENT_AGENT_LOGS:
-		print("Persistent Agent Disabled: ", agent_id)
-	if GameState.persistent_agents.has(agent_id):
-		var state = GameState.persistent_agents[agent_id]
-		state["is_disabled"] = true
-		state["disabled_at_time"] = GameState.game_time_seconds
-		# Remove from active list
-		_active_persistent_agents.erase(agent_id)
-
-
-func _on_Sim_Tick(_tick_count) -> void:
-	_check_persistent_agent_respawns()
-
-
-func _check_persistent_agent_respawns() -> void:
-	for agent_id in GameState.persistent_agents:
-		var state = GameState.persistent_agents[agent_id]
-		if state.get("is_disabled", false):
-			var disabled_time = state.get("disabled_at_time", 0.0)
-			
-			var agent_res_path = "res://database/registry/agents/" + agent_id + ".tres"
-			var agent_template = load(agent_res_path)
-			var timeout = 300.0
-			if agent_template:
-				timeout = agent_template.respawn_timeout_seconds
-				
-			if GameState.game_time_seconds - disabled_time >= timeout:
-				# Respawn Logic
-				if VERBOSE_PERSISTENT_AGENT_LOGS:
-					print("Persistent Agent Respawning: ", agent_id)
-				state["is_disabled"] = false
-				state["disabled_at_time"] = 0.0
-				# Reset to home location (assuming they respawn at home, not where they died)
-				if agent_template:
-					state["current_location"] = _resolve_known_location_id(
-						agent_template.home_location_id,
-						"%s.home_location_id" % agent_id
-					)
-				
-				# Try to spawn immediately if in relevant zone
-				spawn_persistent_agents()
-
-# --- Contact Discovery (Task 11) ---
-func _on_player_docked(location_id: String) -> void:
-	for agent_id in PERSISTENT_AGENT_IDS:
-		var state = get_persistent_agent_state(agent_id)
-		if state.get("is_known", false):
-			continue
-			
-		var home = _resolve_known_location_id(
-			state.get("current_location", ""),
-			"%s.current_location" % agent_id
-		)
-		state["current_location"] = home
-		# Assumption: Agents are "available" for contact at their home location (or current location)
-		# We check if the player docked at the agent's current location
-		if home == location_id:
-			state["is_known"] = true
-			EventBus.emit_signal("contact_met", agent_id)
-			if VERBOSE_PERSISTENT_AGENT_LOGS:
-				print("Contact Discovered: ", agent_id, " at ", location_id)
-
-
-func _resolve_known_location_id(requested_location_id: String, context: String) -> String:
-	if _is_known_location_id(requested_location_id):
-		return requested_location_id
-
-	_report_invalid_location(
-		context,
-		requested_location_id,
-		"Falling back to %s." % Constants.INITIAL_SECTOR_ID
-	)
-	return Constants.INITIAL_SECTOR_ID
-
-
-func _is_known_location_id(location_id: String) -> bool:
-	if location_id == "":
-		return false
-	return (
-		GameState.locations.has(location_id)
-		or TemplateDatabase.locations.has(location_id)
-		or GameState.world_topology.has(location_id)
-	)
-
-
-func _report_invalid_location(context: String, requested_location_id: String, message: String) -> void:
-	var normalized_location_id: String = requested_location_id if requested_location_id != "" else "<empty>"
-	var report_key = "%s:%s:%s" % [context, normalized_location_id, message]
-	if _reported_invalid_locations.has(report_key):
-		return
-	_reported_invalid_locations[report_key] = true
-	printerr(
-		"AgentSystem: Invalid location reference for %s -> %s. %s" % [
-			context,
-			normalized_location_id,
-			message,
-		]
-	)

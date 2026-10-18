@@ -1,16 +1,4 @@
-# PROJECT: GDTLancer
-# MODULE: agent.gd
-# STATUS: [Level 2 - Implementation]
-# OWNER: architect-governed
-# ACCESS: read-write
-# USER INSTRUCTION: NONE
-# TRUTH_LINK: gameplay_milestone_audit.md
-# LOG_REF: 2026-06-12 22:50:00
-
-# File: res://core/agents/agent.gd (Attached to AgentBody RigidBody)
-# Version: 4.0 - RigidBody 6DOF physics with thrust-based flight.
-
-# Agent - this is a physical space vessel that exists in simulation space (ship).
+# Agent: a physical space vessel (RigidBody, 6DOF thrust flight) driven by a player or AI controller.
 
 extends RigidBody
 
@@ -18,13 +6,12 @@ extends RigidBody
 var agent_type: String = ""
 var template_id: String = ""
 var agent_uid = -1
-var character_uid = -1  # Links this agent to a character in GameState
 var interaction_radius: float = 150.0
 var is_hostile: bool = false  # True if this is a hostile NPC
-var ship_template = null  # Cached ship template for combat registration
+var ship_template = null  # ShipTemplate this agent flies
 
 func is_player() -> bool:
-	return str(character_uid) == str(GameState.player_character_uid) and str(character_uid) != "" and str(character_uid) != "-1"
+	return agent_type == "player"
 
 # --- Component References ---
 var movement_system: Node = null
@@ -41,14 +28,8 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 	self.template_id = overrides.get("template_id")
 	self.agent_type = overrides.get("agent_type")
 	self.agent_uid = p_agent_uid
-	self.character_uid = overrides.get("character_uid", -1)
 	self.is_hostile = overrides.get("hostile", false)
-	
-	if Constants.VERBOSE_RUNTIME_LOGS:
-		if is_player():
-			print("AgentBody initialized as PLAYER. UID: ", self.agent_uid, " CharUID: ", self.character_uid)
-		else:
-			print("AgentBody initialized as NPC. UID: ", self.agent_uid, " CharUID: ", self.character_uid, " Hostile: ", self.is_hostile)
+	var ship_template_id: String = str(overrides.get("ship_template_id", template.ship_template_id))
 
 	movement_system = get_node_or_null("MovementSystem")
 	navigation_system = get_node_or_null("NavigationSystem")
@@ -61,8 +42,7 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 		)
 		return
 
-	# Get movement parameters from the character's active ship
-	var move_params = _get_movement_params_from_ship()
+	var move_params = _get_movement_params_from_ship(ship_template_id)
 	var nav_params = {
 		"orbit_kp": overrides.get("orbit_kp", 3.0),
 		"orbit_ki": overrides.get("orbit_ki", 0.1),
@@ -98,29 +78,20 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 		print(
 			"AgentBody '",
 			self.name,
-			"' initialized with character_uid=",
-			self.character_uid,
-			" using template '",
+			"' initialized with ship '",
+			ship_template_id,
+			"' using template '",
 			self.template_id,
 			"'."
 		)
 
 
-# Retrieves movement parameters from the character's active ship template.
-# Falls back to Constants defaults if ship data is unavailable.
-# Also caches the ship_template for combat registration.
-func _get_movement_params_from_ship() -> Dictionary:
+# Resolves and caches the ship template, returning its movement parameters.
+# Falls back to Constants defaults if the ship template is unavailable.
+func _get_movement_params_from_ship(ship_template_id: String) -> Dictionary:
 	ship_template = null
-	var uid_str: String = str(character_uid)
-	var uid_valid: bool = uid_str != "-1" and uid_str != ""
-
-	# Try to get ship via AssetSystem if character_uid is valid
-	if uid_valid and is_instance_valid(GlobalRefs.asset_system):
-		ship_template = GlobalRefs.asset_system.get_ship_for_character(character_uid)
-
-	# For hostile NPCs without character, load the default hostile ship
-	if not is_instance_valid(ship_template) and is_hostile:
-		ship_template = load("res://database/registry/assets/ships/ship_hostile_default.tres")
+	if is_instance_valid(GlobalRefs.asset_system):
+		ship_template = GlobalRefs.asset_system.get_ship_template(ship_template_id)
 
 	if is_instance_valid(ship_template):
 		interaction_radius = ship_template.interaction_radius
@@ -131,21 +102,14 @@ func _get_movement_params_from_ship() -> Dictionary:
 			"alignment_threshold_angle_deg": ship_template.alignment_threshold_angle_deg
 		}
 	else:
-		# Fallback to Constants defaults if no ship found (normal for persistent NPCs)
-		if uid_valid and Constants.VERBOSE_RUNTIME_LOGS:
-			print("AgentBody: No ship found for character_uid=", character_uid, ", using defaults.")
+		if Constants.VERBOSE_RUNTIME_LOGS:
+			print("AgentBody: No ship template '", ship_template_id, "', using defaults.")
 		return {
 			"mass": Constants.DEFAULT_SHIP_MASS,
 			"linear_thrust": Constants.DEFAULT_LINEAR_THRUST,
 			"angular_thrust": Constants.DEFAULT_ANGULAR_THRUST,
 			"alignment_threshold_angle_deg": Constants.DEFAULT_ALIGNMENT_ANGLE_THRESHOLD
 		}
-
-
-# NOTE: GDD REVISION - Combat is disabled until re-imagined from the ground up.
-# This stub is DEPRECATED and should not be used.
-func _register_with_combat_system() -> void:
-	pass
 
 
 # --- Godot Lifecycle ---
