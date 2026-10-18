@@ -130,9 +130,14 @@ func _ready():
 
 
 # --- Delegate Godot Functions to Components ---
+# Wheel zoom only; rotation input arrives from PointerRouter via apply_rotation_input().
 func _unhandled_input(event):
-	_rotation_controller.handle_input(event)
 	_zoom_controller.handle_input(event)
+
+
+func apply_rotation_input(event: InputEventMouseMotion) -> void:
+	if is_instance_valid(_rotation_controller):
+		_rotation_controller.handle_input(event)
 
 
 func _physics_process(delta):

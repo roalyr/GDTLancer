@@ -94,7 +94,6 @@ func clear_route_target_overlay() -> void:
 	for selection_key in _hud._route_target_buttons:
 		var button = _hud._route_target_buttons[selection_key]
 		if is_instance_valid(button):
-			_hud._untrack_inflight_drag_control(button)
 			button.queue_free()
 	_hud._route_target_buttons.clear()
 	_hud._route_target_overlay_sector_id = ""
@@ -105,7 +104,6 @@ func clear_world_target_overlay() -> void:
 	for instance_id in _hud._world_target_buttons:
 		var button = _hud._world_target_buttons[instance_id]
 		if is_instance_valid(button):
-			_hud._untrack_inflight_drag_control(button)
 			button.queue_free()
 	_hud._world_target_buttons.clear()
 	_hud._refresh_process_state()
@@ -132,7 +130,6 @@ func rebuild_route_target_overlay() -> void:
 		button.configure_target(route_target)
 		button.connect("pressed", _hud, "_on_route_target_button_pressed", [route_target])
 		_hud.projected_target_overlay.add_child(button)
-		_hud._track_inflight_drag_control(button)
 		_hud._route_target_buttons[route_target.selection_key] = button
 	update_route_target_selection_state()
 	_hud._refresh_process_state()
@@ -166,7 +163,6 @@ func rebuild_world_target_overlay() -> void:
 		button.configure_target(target_node, _hud._resolve_target_display_name(target_node))
 		button.connect("pressed", _hud, "_on_world_target_button_pressed", [target_node])
 		_hud.projected_target_overlay.add_child(button)
-		_hud._track_inflight_drag_control(button)
 		_hud._world_target_buttons[target_node.get_instance_id()] = button
 	update_world_target_selection_state()
 	_hud._refresh_process_state()

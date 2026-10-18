@@ -214,7 +214,7 @@ func test_single_click_clears_selection_without_world_raycast_pick():
 
 	controller._set_selected_target(station)
 	controller._target_under_cursor = station
-	controller._handle_single_click(Vector2.ZERO)
+	controller.handle_world_click(Vector2.ZERO)
 	assert_eq(controller._selected_target, null, "Single-click fallback should now clear selection instead of picking the collider under the cursor.")
 	assert_signal_emitted(EventBus, "player_target_deselected")
 

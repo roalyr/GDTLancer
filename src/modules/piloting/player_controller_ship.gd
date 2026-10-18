@@ -61,6 +61,7 @@ func _ready():
 	EventBus.connect("player_docked", self, "_on_player_docked")
 	EventBus.connect("player_undocked", self, "_on_player_undocked")
 	EventBus.connect("player_dock_pressed", self, "_on_dock_button_pressed")
+	EventBus.connect("player_interact_pressed", self, "_on_interact_button_pressed")
 
 	call_deferred("_deferred_ready_setup")
 	_change_state("default")
@@ -202,6 +203,16 @@ func toggle_primary_tool() -> void:
 		EventBus.emit_signal("attack_action_feedback", false, _describe_tool_failure(result.get("reason", "")))
 
 
+# HUD interact button: attack or cease on a selected ship. Other interactions (salvage, towing) come later.
+func _on_interact_button_pressed() -> void:
+	if _is_jump_transition_active():
+		return
+	if _is_tool_target(_selected_target):
+		toggle_primary_tool()
+	else:
+		EventBus.emit_signal("attack_action_feedback", false, "Select a ship to attack")
+
+
 func _is_tool_target(target) -> bool:
 	return is_instance_valid(target) and target != agent_body and target.has_method("apply_damage")
 
@@ -308,11 +319,24 @@ func _set_selected_target(new_target):
 		EventBus.emit_signal("player_target_deselected")
 
 
-func _handle_single_click(_click_pos: Vector2):
+# --- Pointer entry points (called by PointerRouter) ---
+
+func is_pointer_input_blocked() -> bool:
+	return _is_jump_transition_active()
+
+
+# Click on empty space clears the selection.
+func handle_world_click(_click_pos: Vector2):
 	_set_selected_target(null)
 
 
-func _handle_double_click(click_pos: Vector2):
+func set_free_flight(active: bool) -> void:
+	if active != (_current_input_state is StateFreeFlight):
+		_change_state("free_flight" if active else "default")
+
+
+# Double click on empty space flies toward that point.
+func handle_world_double_click(click_pos: Vector2):
 	_clear_queued_jump()
 	if is_instance_valid(agent_script) and is_instance_valid(_main_camera):
 		var ray_origin = _main_camera.project_ray_origin(click_pos)

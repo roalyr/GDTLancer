@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=2]
+[gd_scene load_steps=21 format=2]
 
 [ext_resource path="res://src/core/ui/main_hud/main_hud.gd" type="Script" id=1]
 [ext_resource path="res://assets/art/ui/controls/button_approach.png" type="Texture" id=2]
@@ -12,6 +12,7 @@
 [ext_resource path="res://assets/art/ui/controls/button_debug.png" type="Texture" id=10]
 [ext_resource path="res://assets/art/ui/controls/button_camera.png" type="Texture" id=11]
 [ext_resource path="res://assets/art/ui/controls/button_ui_opacity.png" type="Texture" id=12]
+[ext_resource path="res://assets/art/ui/controls/button_interaction.png" type="Texture" id=13]
 [ext_resource path="res://src/core/ui/helpers/CenteredGrowingLabel.gd" type="Script" id=14]
 [ext_resource path="res://assets/art/ui/controls/button_dock.png" type="Texture" id=15]
 [ext_resource path="res://assets/art/ui/controls/button_planet.png" type="Texture" id=16]
@@ -58,6 +59,7 @@ __meta__ = {
 }
 
 [node name="_CentralVerticalLine" type="ColorRect" parent="ScreenControls/_ScreenUIArea"]
+mouse_filter = 2
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -69,6 +71,7 @@ margin_bottom = 540.0
 color = Color( 1, 1, 1, 0.12549 )
 
 [node name="_CentralHorizontalLine" type="ColorRect" parent="ScreenControls/_ScreenUIArea"]
+mouse_filter = 2
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -116,6 +119,7 @@ __meta__ = {
 }
 
 [node name="_CentralVerticalLine" type="ColorRect" parent="ScreenControls/CenterLeftZone/_ScreenUIArea"]
+mouse_filter = 2
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -127,6 +131,7 @@ margin_bottom = 540.0
 color = Color( 1, 1, 1, 0.12549 )
 
 [node name="_CentralHorizontalLine" type="ColorRect" parent="ScreenControls/CenterLeftZone/_ScreenUIArea"]
+mouse_filter = 2
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -226,6 +231,7 @@ __meta__ = {
 }
 
 [node name="LabelContainer" type="Control" parent="ScreenControls/CenterLeftZone"]
+mouse_filter = 2
 anchor_top = 0.5
 anchor_bottom = 0.5
 margin_left = 30.0
@@ -278,6 +284,7 @@ __meta__ = {
 }
 
 [node name="_CentralVerticalLine" type="ColorRect" parent="ScreenControls/BottomCenterZone/_ScreenUIArea"]
+mouse_filter = 2
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -289,6 +296,7 @@ margin_bottom = 540.0
 color = Color( 1, 1, 1, 0.12549 )
 
 [node name="_CentralHorizontalLine" type="ColorRect" parent="ScreenControls/BottomCenterZone/_ScreenUIArea"]
+mouse_filter = 2
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -475,6 +483,36 @@ __meta__ = {
 "_edit_lock_": true
 }
 
+[node name="ButtonInteract" type="TextureButton" parent="ScreenControls/BottomCenterZone"]
+anchor_left = 0.5
+anchor_right = 0.5
+margin_left = 405.0
+margin_top = 20.0
+margin_right = 555.0
+margin_bottom = 170.0
+texture_normal = ExtResource( 13 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="LabelButtonInteract" type="Label" parent="ScreenControls/BottomCenterZone/ButtonInteract"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -35.0
+margin_top = -13.5
+margin_right = 35.0
+margin_bottom = 13.5
+grow_horizontal = 2
+theme = ExtResource( 9 )
+text = "INTERACT"
+align = 1
+script = ExtResource( 14 )
+__meta__ = {
+"_edit_lock_": true
+}
+
 [node name="CenterRightZone" type="Control" parent="ScreenControls"]
 anchor_left = 1.0
 anchor_top = 1.0
@@ -498,6 +536,7 @@ __meta__ = {
 }
 
 [node name="_CentralVerticalLine" type="ColorRect" parent="ScreenControls/CenterRightZone/_ScreenUIArea"]
+mouse_filter = 2
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -509,6 +548,7 @@ margin_bottom = 540.0
 color = Color( 1, 1, 1, 0.12549 )
 
 [node name="_CentralHorizontalLine" type="ColorRect" parent="ScreenControls/CenterRightZone/_ScreenUIArea"]
+mouse_filter = 2
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -630,6 +670,7 @@ mouse_filter = 2
 color = Color( 0.431373, 0.431373, 0.431373, 0.168627 )
 
 [node name="_CentralVerticalLine" type="ColorRect" parent="ScreenControls/CenterRightZone/SliderControlRight/_ScreenUIArea"]
+mouse_filter = 2
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -641,6 +682,7 @@ margin_bottom = 540.0
 color = Color( 1, 1, 1, 0.12549 )
 
 [node name="_CentralHorizontalLine" type="ColorRect" parent="ScreenControls/CenterRightZone/SliderControlRight/_ScreenUIArea"]
+mouse_filter = 2
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -652,6 +694,7 @@ margin_bottom = 1.0
 color = Color( 1, 1, 1, 0.12549 )
 
 [node name="LabelContainer" type="Control" parent="ScreenControls/CenterRightZone"]
+mouse_filter = 2
 anchor_left = 1.0
 anchor_top = 0.5
 anchor_right = 1.0
@@ -702,6 +745,7 @@ __meta__ = {
 }
 
 [node name="_CentralVerticalLine" type="ColorRect" parent="ScreenControls/TopLeftZone/_ScreenUIArea"]
+mouse_filter = 2
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -713,6 +757,7 @@ margin_bottom = 540.0
 color = Color( 1, 1, 1, 0.12549 )
 
 [node name="_CentralHorizontalLine" type="ColorRect" parent="ScreenControls/TopLeftZone/_ScreenUIArea"]
+mouse_filter = 2
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -754,6 +799,7 @@ __meta__ = {
 }
 
 [node name="_CentralVerticalLine" type="ColorRect" parent="ScreenControls/TopRightZone/_ScreenUIArea"]
+mouse_filter = 2
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -765,6 +811,7 @@ margin_bottom = 540.0
 color = Color( 1, 1, 1, 0.12549 )
 
 [node name="_CentralHorizontalLine" type="ColorRect" parent="ScreenControls/TopRightZone/_ScreenUIArea"]
+mouse_filter = 2
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -822,6 +869,7 @@ text = "Return to Menu"
 [connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonApproach" to="." method="_on_ButtonApproach_pressed"]
 [connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonFlee" to="." method="_on_ButtonFlee_pressed"]
 [connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonDock" to="." method="_on_ButtonDock_pressed"]
+[connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonInteract" to="." method="_on_ButtonInteract_pressed"]
 [connection signal="pressed" from="ScreenControls/CenterRightZone/ButtonUIOpacity" to="." method="_on_ButtonUIOpacity_pressed"]
 [connection signal="value_changed" from="ScreenControls/CenterRightZone/SliderControlRight" to="." method="_on_SliderControlRight_value_changed"]
 [connection signal="pressed" from="GameOverOverlay (to be made into a dedicated window like main menu)/CenterContainer/PanelContainer/VBoxContainer/ButtonReturnToMenu" to="." method="_on_ButtonReturnToMenu_pressed"]

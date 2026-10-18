@@ -1,4 +1,4 @@
-# Tests for MainHUD projected targets, overlay toggles, drag passthrough and target brackets.
+# Tests for MainHUD projected targets, overlay toggles and target brackets.
 
 extends "res://addons/gut/test.gd"
 
@@ -426,72 +426,6 @@ func test_main_hud_scene_no_longer_instantiates_removed_target_prompt_panels() -
 		"MainHUD should not keep the removed radar panel in the active scene."
 	)
 
-func test_projected_target_bracket_click_release_emits_pressed() -> void:
-	var bracket = _create_projected_target_bracket()
-	yield(get_tree(), "idle_frame")
-	watch_signals(bracket)
-
-	yield(_dispatch_bracket_mouse_button(Vector2(40, 40), true), "completed")
-	yield(_dispatch_bracket_mouse_button(Vector2(40, 40), false), "completed")
-
-	assert_signal_emitted(bracket, "pressed", "Click-release should still emit the bracket pressed signal.")
-
-
-func test_projected_target_bracket_drag_does_not_emit_pressed() -> void:
-	var bracket = _create_projected_target_bracket()
-	yield(get_tree(), "idle_frame")
-	watch_signals(bracket)
-
-	yield(_dispatch_bracket_mouse_button(Vector2(40, 40), true), "completed")
-	yield(_dispatch_bracket_mouse_motion(Vector2(60, 40), Vector2(20, 0)), "completed")
-	yield(_dispatch_bracket_mouse_button(Vector2(60, 40), false), "completed")
-
-	assert_signal_not_emitted(bracket, "pressed", "Drag-release should cancel the pending bracket click.")
-	assert_false(bracket.disabled, "Bracket should restore its enabled state after the drag ends.")
-
-
-
-func test_projected_target_bracket_hover_wheel_forwards_zoom_input_to_camera() -> void:
-	var bracket = _create_projected_target_bracket()
-	var camera = _create_scroll_mock_camera()
-	GlobalRefs.main_camera = camera
-
-	yield(_dispatch_bracket_mouse_wheel(Vector2(40, 40), BUTTON_WHEEL_UP), "completed")
-	yield(_dispatch_bracket_mouse_wheel(Vector2(40, 40), BUTTON_WHEEL_DOWN), "completed")
-
-	assert_eq(camera.forwarded_wheel_buttons, [BUTTON_WHEEL_UP, BUTTON_WHEEL_DOWN], "Hovering a target bracket should still forward mouse wheel zoom input to the camera.")
-
-
-func test_projected_target_bracket_forwards_mouse_motion_to_controller_in_free_flight() -> void:
-	var bracket = _create_projected_target_bracket()
-
-	var player_body = RigidBody.new()
-	player_body.name = "Player"
-	add_child_autofree(player_body)
-
-	var script = GDScript.new()
-	script.source_code = "extends Node\nvar received_motion_events = []\nfunc is_free_flight_active() -> bool:\n\treturn true\nfunc _unhandled_input(event):\n\tif event is InputEventMouseMotion:\n\t\treceived_motion_events.append(event)\n"
-	script.reload()
-	var controller = Node.new()
-	controller.set_script(script)
-	controller.name = Constants.PLAYER_INPUT_HANDLER_NAME
-	player_body.add_child(controller)
-	GlobalRefs.player_agent_body = player_body
-
-	yield(get_tree(), "idle_frame")
-
-	var motion_event = InputEventMouseMotion.new()
-	motion_event.position = Vector2(40, 40)
-	motion_event.relative = Vector2(5, 5)
-
-	bracket._input(motion_event)
-
-	assert_eq(controller.received_motion_events.size(), 1, "Bracket should forward passive mouse motion to player controller when free flight is active.")
-	assert_eq(controller.received_motion_events[0].relative, Vector2(5, 5), "Forwarded event should match the original event details.")
-
-
-
-
 func _create_projected_target_bracket() -> Button:
 	var bracket = ProjectedTargetBracketScene.instance()
 	bracket.rect_position = Vector2(20, 20)
@@ -506,57 +440,6 @@ func _make_location_template(template_id: String, location_name: String, global_
 	template.location_name = location_name
 	template.global_position = global_position
 	return template
-
-
-func _create_mock_camera() -> Node:
-	var script = GDScript.new()
-	script.source_code = "extends Node\nvar rotating_states = []\nvar forwarded_motion = []\nfunc set_is_rotating(rotating):\n\trotating_states.append(rotating)\nfunc _unhandled_input(event):\n\tif event is InputEventMouseMotion:\n\t\tforwarded_motion.append(event.relative)\n"
-	script.reload()
-	var camera = Node.new()
-	camera.set_script(script)
-	add_child_autofree(camera)
-	return camera
-
-
-func _create_scroll_mock_camera() -> Node:
-	var script = GDScript.new()
-	script.source_code = "extends Node\nvar forwarded_wheel_buttons = []\nfunc _unhandled_input(event):\n\tif event is InputEventMouseButton and event.pressed and (event.button_index == BUTTON_WHEEL_UP or event.button_index == BUTTON_WHEEL_DOWN):\n\t\tforwarded_wheel_buttons.append(event.button_index)\n"
-	script.reload()
-	var camera = Node.new()
-	camera.set_script(script)
-	add_child_autofree(camera)
-	return camera
-
-
-func _create_main_hud_drag_harness(stop_camera_on_release: bool = true) -> Dictionary:
-	var camera = _create_external_rotation_camera()
-	GlobalRefs.main_camera = camera
-
-	var player_body = RigidBody.new()
-	player_body.name = "Player"
-	player_body.gravity_scale = 0.0
-	add_child_autofree(player_body)
-
-	var controller = _create_mock_player_input_handler(stop_camera_on_release)
-	controller.name = Constants.PLAYER_INPUT_HANDLER_NAME
-	player_body.add_child(controller)
-	GlobalRefs.player_agent_body = player_body
-
-	var hud = MainHUDScene.instance()
-	add_child_autofree(hud)
-	yield(get_tree(), "idle_frame")
-
-	return {"hud": hud, "camera": camera, "controller": controller}
-
-
-func _create_external_rotation_camera() -> Camera:
-	var script = GDScript.new()
-	script.source_code = "extends Camera\nvar externally_rotating = false\nvar forwarded_motion = []\nfunc set_is_rotating(rotating):\n\texternally_rotating = rotating\nfunc is_externally_rotating():\n\treturn externally_rotating\nfunc _unhandled_input(event):\n\tif event is InputEventMouseMotion:\n\t\tforwarded_motion.append(event.relative)\n"
-	script.reload()
-	var camera = Camera.new()
-	camera.set_script(script)
-	add_child_autofree(camera)
-	return camera
 
 
 func _create_toggle_state_camera() -> Camera:
@@ -576,66 +459,6 @@ func _create_toggle_state_controller() -> Node:
 	var controller = Node.new()
 	controller.set_script(script)
 	return controller
-
-
-func _create_mock_player_input_handler(stop_camera_on_release: bool = true) -> Node:
-	var script = GDScript.new()
-	var source = "extends Node\nvar release_events = []\nfunc _unhandled_input(event):\n\tif event is InputEventMouseButton and event.button_index == BUTTON_LEFT and not event.pressed:\n\t\trelease_events.append(event.position)\n"
-	if stop_camera_on_release:
-		source += "\t\tvar camera = GlobalRefs.main_camera\n\t\tif is_instance_valid(camera):\n\t\t\tcamera.externally_rotating = false\n"
-	script.source_code = source
-	script.reload()
-	var controller = Node.new()
-	controller.set_script(script)
-	return controller
-
-
-func _begin_external_drag(camera: Camera, press_position: Vector2) -> void:
-	camera.externally_rotating = true
-	yield(_dispatch_mouse_button(press_position, true), "completed")
-
-
-func _get_control_center(control: Control) -> Vector2:
-	var control_rect = control.get_global_rect()
-	return control_rect.position + (control_rect.size / 2.0)
-
-
-func _dispatch_mouse_button(position: Vector2, pressed: bool) -> void:
-	var event = InputEventMouseButton.new()
-	event.button_index = BUTTON_LEFT
-	event.pressed = pressed
-	event.position = position
-	Input.parse_input_event(event)
-	yield(get_tree(), "idle_frame")
-
-
-func _dispatch_mouse_wheel(position: Vector2, button_index: int) -> void:
-	var event = InputEventMouseButton.new()
-	event.button_index = button_index
-	event.pressed = true
-	event.position = position
-	Input.parse_input_event(event)
-	yield(get_tree(), "idle_frame")
-
-
-func _dispatch_mouse_motion(position: Vector2, relative: Vector2) -> void:
-	var event = InputEventMouseMotion.new()
-	event.position = position
-	event.relative = relative
-	Input.parse_input_event(event)
-	yield(get_tree(), "idle_frame")
-
-
-func _dispatch_bracket_mouse_button(position: Vector2, pressed: bool) -> void:
-	yield(_dispatch_mouse_button(position, pressed), "completed")
-
-
-func _dispatch_bracket_mouse_wheel(position: Vector2, button_index: int) -> void:
-	yield(_dispatch_mouse_wheel(position, button_index), "completed")
-
-
-func _dispatch_bracket_mouse_motion(position: Vector2, relative: Vector2) -> void:
-	yield(_dispatch_mouse_motion(position, relative), "completed")
 
 
 func test_main_hud_dock_button_label_toggles_between_dock_and_travel() -> void:

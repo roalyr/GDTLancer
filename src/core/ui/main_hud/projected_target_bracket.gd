@@ -1,4 +1,5 @@
 # ProjectedTargetBracket: on-screen bracket for a world or jump-route target, with label, distance and selection.
+# Visual only: it never takes the mouse. PointerRouter hit-tests brackets and emits "pressed".
 
 extends Button
 
@@ -8,7 +9,6 @@ const DISTANCE_PLAIN_THRESHOLD = 2000.0
 const DISTANCE_DECIMAL_K_THRESHOLD = 10000.0
 const DISTANCE_SINGLE_DECIMAL_K_THRESHOLD = 100000.0
 const DISTANCE_FAR_THRESHOLD = 1000000.0
-const DRAG_THRESHOLD_PX_SQ = 10 * 10
 
 var target_ref = null
 var _is_selected: bool = false
@@ -20,17 +20,13 @@ var _info_panel: Control = null
 var _info_label: Label = null
 var _target_label: String = ""
 var _context_hint: String = ""
-var _press_position: Vector2 = Vector2.ZERO
-var _is_pointer_pressed: bool = false
-var _is_dragging_pointer: bool = false
 var _distance_fade_alpha: float = 1.0
 
 
 func _ready() -> void:
 	flat = true
 	focus_mode = Control.FOCUS_NONE
-	mouse_filter = Control.MOUSE_FILTER_STOP
-	keep_pressed_outside = false
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	rect_min_size = BRACKET_TEXTURE_RECT_SIZE
 	_cache_scene_nodes()
 	_apply_bracket_style()
@@ -43,55 +39,6 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
 	if _is_selected:
 		_sync_distance_label()
-		
-	if _is_free_flight_active():
-		if mouse_filter != Control.MOUSE_FILTER_IGNORE:
-			mouse_filter = Control.MOUSE_FILTER_IGNORE
-	else:
-		if mouse_filter != Control.MOUSE_FILTER_STOP:
-			mouse_filter = Control.MOUSE_FILTER_STOP
-
-
-func _gui_input(_event: InputEvent) -> void:
-	pass
-
-
-func _input(event: InputEvent) -> void:
-	if event is InputEventMouseMotion and not _is_pointer_pressed and not _is_dragging_pointer:
-		if _is_free_flight_active():
-			var player_agent = GlobalRefs.player_agent_body
-			if is_instance_valid(player_agent):
-				var player_controller = player_agent.get_node_or_null(Constants.PLAYER_INPUT_HANDLER_NAME)
-				if is_instance_valid(player_controller) and player_controller.has_method("_unhandled_input"):
-					player_controller._unhandled_input(event)
-
-	if event is InputEventMouseButton:
-		if event.pressed and (event.button_index == BUTTON_WHEEL_UP or event.button_index == BUTTON_WHEEL_DOWN):
-			if _is_pointer_hover_position(event.position):
-				_forward_camera_input(event)
-			return
-		if event.button_index == BUTTON_LEFT:
-			if event.pressed:
-				if not disabled and _is_pointer_hover_position(event.position):
-					_begin_pointer_tracking(event.position)
-			else:
-				if _is_pointer_pressed or _is_dragging_pointer:
-					_finish_pointer_tracking_at(event.position)
-			return
-
-	if event is InputEventMouseMotion and _is_pointer_pressed and not _is_dragging_pointer:
-		if event.position.distance_squared_to(_press_position) > DRAG_THRESHOLD_PX_SQ:
-			_cancel_pending_click_for_drag(event)
-
-	if not (_is_pointer_pressed or _is_dragging_pointer or disabled):
-		return
-	if event is InputEventMouseMotion and _is_dragging_pointer:
-		if _is_main_hud_drag_passthrough_active():
-			return
-		_forward_camera_drag_motion(event)
-		return
-	if event is InputEventMouseButton and event.button_index == BUTTON_LEFT and not event.pressed:
-		_finish_pointer_tracking_at(event.position)
 
 
 func configure_target(new_target_ref, new_target_label: String = "") -> void:
@@ -126,58 +73,6 @@ func set_distance_fade_alpha(distance_fade_alpha: float) -> void:
 		return
 	_distance_fade_alpha = safe_alpha
 	_apply_distance_fade_alpha()
-
-
-func _begin_pointer_tracking(pointer_position: Vector2) -> void:
-	_press_position = pointer_position
-	_is_pointer_pressed = true
-	_is_dragging_pointer = false
-	if disabled:
-		disabled = false
-
-
-func _cancel_pending_click_for_drag(motion_event: InputEventMouseMotion) -> void:
-	_is_dragging_pointer = true
-	disabled = true
-	_set_camera_drag_state(true)
-	if not _begin_main_hud_drag_passthrough(motion_event):
-		_forward_camera_drag_motion(motion_event)
-
-
-func _finish_pointer_tracking() -> void:
-	if _is_dragging_pointer and not _is_main_hud_drag_passthrough_active():
-		_set_camera_drag_state(false)
-	_reset_pointer_tracking_state()
-
-
-func _finish_pointer_tracking_at(pointer_position: Vector2) -> void:
-	var should_emit_pressed: bool = _is_pointer_pressed and not _is_dragging_pointer and _is_pointer_hover_position(pointer_position)
-	_finish_pointer_tracking()
-	if should_emit_pressed:
-		emit_signal("pressed")
-
-
-func reset_pointer_tracking_from_main_hud() -> void:
-	_reset_pointer_tracking_state()
-
-
-func _reset_pointer_tracking_state() -> void:
-	_is_pointer_pressed = false
-	_is_dragging_pointer = false
-	if disabled:
-		disabled = false
-
-
-func _set_camera_drag_state(is_rotating: bool) -> void:
-	_call_camera_bridge_method("set_is_rotating", [is_rotating])
-
-
-func _forward_camera_drag_motion(motion_event: InputEventMouseMotion) -> void:
-	_forward_camera_input(motion_event)
-
-
-func _forward_camera_input(event: InputEvent) -> void:
-	_call_camera_bridge_method("_unhandled_input", [event])
 
 
 func _cache_scene_nodes() -> void:
@@ -345,14 +240,6 @@ func _is_jump_point_target(target_candidate) -> bool:
 	return is_instance_valid(target_candidate) and target_candidate is Node and target_candidate.is_in_group("jump_point")
 
 
-func _is_free_flight_active() -> bool:
-	var player_agent = GlobalRefs.player_agent_body
-	if not is_instance_valid(player_agent):
-		return false
-	var player_controller = player_agent.get_node_or_null(Constants.PLAYER_INPUT_HANDLER_NAME)
-	return is_instance_valid(player_controller) and player_controller.has_method("is_free_flight_active") and player_controller.is_free_flight_active()
-
-
 func _get_jump_route_color() -> Color:
 	var sector_type = ""
 	if target_ref != null:
@@ -365,40 +252,3 @@ func _get_jump_route_color() -> Color:
 		if dest_id != "":
 			sector_type = TemplateDatabase.get_sector_type(dest_id, "")
 	return Constants.get_jump_type_color(sector_type)
-
-
-func _begin_main_hud_drag_passthrough(initial_motion_event: InputEventMouseMotion) -> bool:
-	var main_hud = _get_main_hud_drag_passthrough_bridge()
-	if not is_instance_valid(main_hud):
-		return false
-	main_hud.begin_projected_target_drag_passthrough(self, initial_motion_event)
-	return true
-
-
-func _is_main_hud_drag_passthrough_active() -> bool:
-	var main_hud = _get_main_hud_drag_passthrough_bridge()
-	return is_instance_valid(main_hud) and main_hud.is_projected_target_drag_passthrough_active()
-
-
-func _get_main_hud_drag_passthrough_bridge() -> Node:
-	var main_hud = GlobalRefs.main_hud
-	if not is_instance_valid(main_hud):
-		return null
-	if not main_hud.has_method("begin_projected_target_drag_passthrough"):
-		return null
-	if not main_hud.has_method("is_projected_target_drag_passthrough_active"):
-		return null
-	return main_hud
-
-
-func _call_camera_bridge_method(method_name: String, args: Array = [], default_value = null):
-	var camera = GlobalRefs.main_camera
-	if not is_instance_valid(camera) or not camera.has_method(method_name):
-		return default_value
-	if args.empty():
-		return camera.call(method_name)
-	return camera.callv(method_name, args)
-
-
-func _is_pointer_hover_position(pointer_position: Vector2) -> bool:
-	return visible and get_global_rect().has_point(pointer_position)

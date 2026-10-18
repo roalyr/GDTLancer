@@ -17,25 +17,7 @@ const NAV_COMMAND_FLEE = 6
 const OVERLAY_KIND_STRUCTURES = "structures"
 const OVERLAY_KIND_STELLAR = "stellar"
 const OVERLAY_KIND_JUMP = "jump"
-const INFLIGHT_DRAG_CONTROL_PATHS = [
-	"ScreenControls/CenterLeftZone/ButtonMenu",
-	"ScreenControls/CenterLeftZone/ButtonDebug",
-	"ScreenControls/CenterLeftZone/ButtonOverlayStructures",
-	"ScreenControls/CenterLeftZone/ButtonOverlayStellar",
-	"ScreenControls/CenterLeftZone/ButtonOverlayJump",
-	"ScreenControls/CenterLeftZone/SliderControlLeft",
-	"ScreenControls/BottomCenterZone/ButtonOrbit",
-	"ScreenControls/BottomCenterZone/ButtonStop",
-	"ScreenControls/BottomCenterZone/ButtonManualFlight",
-	"ScreenControls/BottomCenterZone/ButtonApproach",
-	"ScreenControls/BottomCenterZone/ButtonFlee",
-	"ScreenControls/BottomCenterZone/ButtonDock",
-	"ScreenControls/CenterRightZone/ButtonUIOpacity",
-	"ScreenControls/CenterRightZone/ButtonCamera",
-	"ScreenControls/CenterRightZone/SliderControlRight"
-]
-
-const HUDDragControllerClass = preload("res://src/core/ui/main_hud/hud_drag_controller.gd")
+const PointerRouterClass = preload("res://src/core/ui/pointer_router.gd")
 const HUDTargetProjectorClass = preload("res://src/core/ui/main_hud/hud_target_projector.gd")
 
 
@@ -53,6 +35,8 @@ onready var button_flee: TextureButton = $ScreenControls/BottomCenterZone/Button
 onready var button_camera: TextureButton = $ScreenControls/CenterRightZone/ButtonCamera
 onready var button_dock: TextureButton = $ScreenControls/BottomCenterZone/ButtonDock
 onready var label_button_dock: Label = $ScreenControls/BottomCenterZone/ButtonDock/LabelButtonDock
+onready var button_interact: TextureButton = $ScreenControls/BottomCenterZone/ButtonInteract
+onready var label_button_interact: Label = $ScreenControls/BottomCenterZone/ButtonInteract/LabelButtonInteract
 onready var label_combat_readout: Label = $ScreenControls/TopLeftZone/LabelCombatReadout
 
 # --- Game Over UI ---
@@ -73,22 +57,15 @@ var _route_target_buttons: Dictionary = {}
 var _route_target_overlay_sector_id: String = ""
 var _route_target_overlay_signature: String = ""
 var _world_target_buttons: Dictionary = {}
-var _tracked_inflight_drag_controls: Array = []
-var _tracked_inflight_drag_filters: Dictionary = {}
-var _inflight_drag_passthrough_active: bool = false
-var _inflight_drag_passthrough_sync_pending: bool = false
-var _projected_target_drag_passthrough_active: bool = false
-var _projected_target_drag_source: Control = null
 var _overlay_structures_enabled: bool = true
 var _overlay_stellar_enabled: bool = true
 var _overlay_jump_enabled: bool = true
 
 # --- Delegates ---
-var _drag_controller: Reference
 var _target_projector: Reference
+var _pointer_router: Node
 
 func _init() -> void:
-	_drag_controller = HUDDragControllerClass.new(self)
 	_target_projector = HUDTargetProjectorClass.new(self)
 
 # --- Initialization ---
@@ -174,7 +151,8 @@ func _ready():
 	_connect_overlay_toggle_button(button_overlay_stellar, "_on_ButtonOverlayStellar_pressed")
 	_connect_overlay_toggle_button(button_overlay_jump, "_on_ButtonOverlayJump_pressed")
 
-	_register_inflight_drag_controls()
+	_pointer_router = PointerRouterClass.new(self)
+	add_child(_pointer_router)
 	_refresh_toggle_button_states()
 
 	pause_mode = PAUSE_MODE_PROCESS
@@ -196,8 +174,7 @@ func _process(_delta):
 	_update_world_target_overlay()
 	_refresh_toggle_button_states()
 	_update_combat_readout()
-	if _inflight_drag_passthrough_active:
-		_sync_inflight_drag_passthrough()
+	_update_interact_button()
 
 
 # --- Signal Handlers ---
@@ -259,30 +236,6 @@ func _on_game_state_loaded() -> void:
 	_on_Player_Target_Deselected()
 	call_deferred("_deferred_refresh_player_hull")
 
-
-func _input(event: InputEvent) -> void:
-	if _projected_target_drag_passthrough_active:
-		if event is InputEventMouseMotion:
-			_forward_inflight_drag_motion(event)
-			get_tree().set_input_as_handled()
-			return
-		if event is InputEventMouseButton and event.button_index == BUTTON_LEFT and not event.pressed:
-			_end_projected_target_drag_passthrough(event)
-			get_tree().set_input_as_handled()
-			return
-	if event is InputEventMouseMotion and not _inflight_drag_passthrough_active:
-		if _is_external_camera_drag_active() and _is_pointer_over_tracked_inflight_control(event.position):
-			_set_inflight_drag_passthrough(true)
-			_forward_inflight_drag_motion(event)
-			get_tree().set_input_as_handled()
-			return
-	if not _inflight_drag_passthrough_active:
-		return
-	if event is InputEventMouseButton and event.button_index == BUTTON_LEFT and not event.pressed:
-		_forward_inflight_drag_release(event)
-		_set_inflight_drag_passthrough(false)
-		get_tree().set_input_as_handled()
-		return
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -394,6 +347,26 @@ func _on_ButtonDock_pressed():
 		return
 
 	EventBus.emit_signal("player_dock_pressed")
+
+
+func _on_ButtonInteract_pressed():
+	if EventBus:
+		EventBus.emit_signal("player_interact_pressed")
+
+
+# ATTACK / CEASE on a live ship (highlighted while the laser is on it); INTERACT otherwise.
+func _update_interact_button() -> void:
+	if not is_instance_valid(label_button_interact):
+		return
+	var text := "INTERACT"
+	var active := false
+	var player = GlobalRefs.player_agent_body
+	var tools = player.get_node_or_null("ToolController") if is_instance_valid(player) else null
+	if _current_target is RigidBody and is_instance_valid(_current_target) and _current_target.has_method("apply_damage") and not _current_target.get("is_wreck"):
+		active = is_instance_valid(tools) and tools.is_active(0) and tools.get_target(0) == _current_target
+		text = "CEASE" if active else "ATTACK"
+	label_button_interact.text = text
+	_apply_button_toggle_state(button_interact, active)
 
 
 func _on_SliderControlLeft_value_changed(value):
@@ -614,7 +587,6 @@ func _refresh_process_state() -> void:
 			or _is_target_valid(_current_target)
 			or _route_target_buttons.size() > 0
 			or _world_target_buttons.size() > 0
-			or _inflight_drag_passthrough_active
 		)
 	)
 
@@ -750,47 +722,22 @@ func _instance_projected_target_bracket():
 # --- DELEGATED METHOD WRAPPERS ---
 
 # In-flight drag controller forwards:
-func _register_inflight_drag_controls() -> void:
-	_drag_controller.register_inflight_drag_controls()
-
-func _track_inflight_drag_control(control: Control) -> void:
-	_drag_controller.track_inflight_drag_control(control)
-
-func _untrack_inflight_drag_control(control: Control) -> void:
-	_drag_controller.untrack_inflight_drag_control(control)
-
-func _on_inflight_drag_control_gui_input(event: InputEvent, control: Control) -> void:
-	_drag_controller.on_inflight_drag_control_gui_input(event, control)
-
-func begin_projected_target_drag_passthrough(source_control: Control, initial_motion_event: InputEventMouseMotion = null) -> void:
-	_drag_controller.begin_projected_target_drag_passthrough(source_control, initial_motion_event)
-
-func is_projected_target_drag_passthrough_active() -> bool:
-	return _drag_controller.is_projected_target_drag_passthrough_active()
-
-func _end_projected_target_drag_passthrough(release_event: InputEventMouseButton = null) -> void:
-	_drag_controller.end_projected_target_drag_passthrough(release_event)
-
-func _is_external_camera_drag_active() -> bool:
-	return _drag_controller.is_external_camera_drag_active()
-
-func _set_inflight_drag_passthrough(is_active: bool) -> void:
-	_drag_controller.set_inflight_drag_passthrough(is_active)
-
-func _compact_tracked_inflight_drag_controls() -> void:
-	_drag_controller.compact_tracked_inflight_drag_controls()
-
-func _is_pointer_over_tracked_inflight_control(pointer_position: Vector2) -> bool:
-	return _drag_controller.is_pointer_over_tracked_inflight_control(pointer_position)
-
-func _forward_inflight_drag_motion(motion_event: InputEventMouseMotion) -> void:
-	_drag_controller.forward_inflight_drag_motion(motion_event)
-
-func _forward_inflight_drag_release(release_event: InputEventMouseButton) -> void:
-	_drag_controller.forward_inflight_drag_release(release_event)
-
-func _sync_inflight_drag_passthrough() -> void:
-	_drag_controller.sync_inflight_drag_passthrough()
+# Visible target bracket whose centre is nearest the pointer, among those under it. Used by
+# PointerRouter, since brackets themselves never take the mouse.
+func find_target_bracket_at(pointer_position: Vector2) -> Control:
+	var best: Control = null
+	var best_distance: float = INF
+	for bracket in _route_target_buttons.values() + _world_target_buttons.values():
+		if not is_instance_valid(bracket) or not bracket.is_visible_in_tree():
+			continue
+		var rect: Rect2 = bracket.get_global_rect()
+		if not rect.has_point(pointer_position):
+			continue
+		var distance: float = pointer_position.distance_squared_to(rect.position + rect.size * 0.5)
+		if distance < best_distance:
+			best = bracket
+			best_distance = distance
+	return best
 
 
 # Projected target projector forwards:
