@@ -509,3 +509,32 @@ func test_selected_bracket_is_red_on_live_hostile_and_yellow_once_wrecked():
 	bracket._process(0.016)
 	assert_eq(selected.modulate, Constants.COLOR_UI_TARGET_SELECTED)
 
+
+
+func test_detected_ship_in_view_gets_a_visible_bracket_undetected_one_does_not():
+	var zone = Spatial.new()
+	add_child_autofree(zone)
+	GlobalRefs.current_zone = zone
+	var player = AgentScript.new()
+	player.agent_type = "player"
+	zone.add_child(player)
+	GlobalRefs.player_agent_body = player
+	var near = AgentScript.new()
+	zone.add_child(near)
+	near.global_transform.origin = Vector3(0, 0, -300)
+	var far = AgentScript.new()
+	zone.add_child(far)
+	far.global_transform.origin = Vector3(0, 0, -9000)
+	var camera = Camera.new()
+	add_child_autofree(camera)
+	camera.global_transform.origin = Vector3(0, 0, 50)
+	camera.current = true
+	GlobalRefs.main_camera = camera
+	var hud = MainHUDScene.instance()
+	add_child_autofree(hud)
+	yield(get_tree(), "idle_frame")
+	hud._main_camera = camera
+	hud._rebuild_world_target_overlay()
+	hud._update_world_target_overlay()
+	assert_true(hud._world_target_buttons[near.get_instance_id()].visible, "Detected and in view: bracket shown.")
+	assert_false(hud._world_target_buttons[far.get_instance_id()].visible, "Beyond its signature: no bracket.")

@@ -248,7 +248,6 @@ func update_world_target_overlay() -> void:
 			continue
 		if button.has_method("set_context_hint") and target_node.has_method("get_signature"):
 			button.set_context_hint(get_projected_target_context_hint(target_node))  # Cues change as the fight does
-			continue
 		var overlay_kind = get_projected_target_overlay_kind(target_node)
 		if not is_projected_target_overlay_enabled(overlay_kind):
 			button.visible = false
