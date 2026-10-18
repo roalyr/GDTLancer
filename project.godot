@@ -10,11 +10,6 @@ config_version=4
 
 _global_script_classes=[ {
 "base": "Template",
-"class": "ActionTemplate",
-"language": "GDScript",
-"path": "res://database/definitions/action_template.gd"
-}, {
-"base": "Template",
 "class": "AgentTemplate",
 "language": "GDScript",
 "path": "res://database/definitions/agent_template.gd"
@@ -49,25 +44,10 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://src/core/ui/helpers/CenteredGrowingLabel.gd"
 }, {
-"base": "Template",
-"class": "CharacterTemplate",
-"language": "GDScript",
-"path": "res://database/definitions/character_template.gd"
-}, {
 "base": "AssetTemplate",
 "class": "CommodityTemplate",
 "language": "GDScript",
 "path": "res://database/definitions/asset_commodity_template.gd"
-}, {
-"base": "Resource",
-"class": "ContractTemplate",
-"language": "GDScript",
-"path": "res://database/definitions/contract_template.gd"
-}, {
-"base": "Template",
-"class": "FactionTemplate",
-"language": "GDScript",
-"path": "res://database/definitions/faction_template.gd"
 }, {
 "base": "Template",
 "class": "GameStartTemplate",
@@ -99,11 +79,6 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://database/definitions/asset_module_template.gd"
 }, {
-"base": "Template",
-"class": "NarrativeTemplate",
-"language": "GDScript",
-"path": "res://database/definitions/narrative_template.gd"
-}, {
 "base": "Node",
 "class": "PIDController",
 "language": "GDScript",
@@ -125,7 +100,6 @@ _global_script_classes=[ {
 "path": "res://database/definitions/utility_tool_template.gd"
 } ]
 _global_script_class_icons={
-"ActionTemplate": "",
 "AgentTemplate": "",
 "AssetSystem": "",
 "AssetTemplate": "",
@@ -133,17 +107,13 @@ _global_script_class_icons={
 "CameraRotationController": "",
 "CameraZoomController": "",
 "CenteredGrowingLabel": "res://assets/art/ui/class_labels/class_centered_growing_label.svg",
-"CharacterTemplate": "",
 "CommodityTemplate": "",
-"ContractTemplate": "",
-"FactionTemplate": "",
 "GameStartTemplate": "",
 "GutHookScript": "",
 "GutTest": "",
 "InputState": "",
 "LocationTemplate": "",
 "ModuleTemplate": "",
-"NarrativeTemplate": "",
 "PIDController": "",
 "ShipTemplate": "",
 "Template": "",

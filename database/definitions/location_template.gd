@@ -54,7 +54,6 @@ export var connections: PoolStringArray = PoolStringArray()
 export var sector_type: String = "star"
 
 ## Dockable infrastructure level: frontier / outpost / colony / hub
-export var development_level: String = "frontier"
 
 # --- World Layer: Hazards (Section 2) ---
 ## Environmental radiation (0.0 = safe, 1.0 = lethal). Increases entropy and wreck degradation.
@@ -72,26 +71,19 @@ export var propellant_sources: float = 0.5
 
 # --- World Layer: Settlement Infrastructure ---
 ## Power output capacity of the sector's primary service hub / station infrastructure.
-export var station_power_output: float = 100.0
 ## Maximum commodity stockpile the sector's service hub can hold.
-export var stockpile_capacity: int = 1000
 
 # --- Market & Services (compatibility boundary for current scene/UI systems) ---
 # Market inventory: commodity_template_id -> {buy_price: int, sell_price: int, quantity: int}
 # Used by current docked trade/UI flows; not the authoritative live economy model.
-export var market_inventory: Dictionary = {}
 ## Service ids exposed by the current docked UI until service simulation is rebuilt.
-export var available_services: Array = ["trade", "contracts"]
 
 # --- Faction Control ---
-export var controlling_faction_id: String = ""
 
 # --- Danger (legacy scene/UI hint; superseded by richer simulation state) ---
 export var danger_level: int = 0
 
 # --- Qualitative Simulation ---
 ## Initial sector tags for qualitative tag simulation.
-export var initial_sector_tags: PoolStringArray = PoolStringArray()
 
 # --- Contracts (optional curated override ids for docked/UI entry points) ---
-export var available_contract_ids: Array = []

@@ -1,63 +1,22 @@
-# PROJECT: GDTLancer
-# MODULE: TemplateDatabase.gd
-# STATUS: [Level 2 - Implementation]
-# OWNER: architect-governed
-# ACCESS: read-write
-# USER INSTRUCTION: NONE
-# TRUTH_LINK: None
-# LOG_REF: 2026-06-20 18:41:40
-
-# File: autoload/TemplateDatabase.gd
-# Autoload Singleton: Scanned templates from /data/ are indexed and stored here
-# Version: 1.3 - Added utility_tools dictionary and get_template method
+# TemplateDatabase: data templates indexed from database/registry/, keyed by template_id.
 
 extends Node
 
 # Dictionaries to hold loaded templates, keyed by their template_id.
-var actions: Dictionary = {}
 var agents: Dictionary = {}
-var characters: Dictionary = {}
 var assets_ships: Dictionary = {}
 var assets_modules: Dictionary = {}
-var assets_commodities: Dictionary = {}
+var assets_commodities: Dictionary = {}  # Salvage cargo
 var locations: Dictionary = {}
-var contracts: Dictionary = {}
 var utility_tools: Dictionary = {}  # Weapons and other utility tools
-var factions: Dictionary = {}
-var contacts: Dictionary = {}
-var narratives: Dictionary = {}
 var game_starts: Dictionary = {}
 
 
 # Generic getter that searches all template categories
 func get_template(template_id: String) -> Resource:
-	if characters.has(template_id):
-		return characters[template_id]
-	if narratives.has(template_id):
-		return narratives[template_id]
-	if factions.has(template_id):
-		return factions[template_id]
-	if contacts.has(template_id):
-
-		return contacts[template_id]
-	if assets_ships.has(template_id):
-		return assets_ships[template_id]
-	if assets_modules.has(template_id):
-		return assets_modules[template_id]
-	if assets_commodities.has(template_id):
-		return assets_commodities[template_id]
-	if locations.has(template_id):
-		return locations[template_id]
-	if contracts.has(template_id):
-		return contracts[template_id]
-	if utility_tools.has(template_id):
-		return utility_tools[template_id]
-	if agents.has(template_id):
-		return agents[template_id]
-	if actions.has(template_id):
-		return actions[template_id]
-	if game_starts.has(template_id):
-		return game_starts[template_id]
+	for category in [assets_ships, assets_modules, assets_commodities, locations, utility_tools, agents, game_starts]:
+		if category.has(template_id):
+			return category[template_id]
 	return null
 
 

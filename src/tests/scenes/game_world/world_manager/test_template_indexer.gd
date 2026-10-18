@@ -1,94 +1,54 @@
-# PROJECT: GDTLancer
-# MODULE: test_template_indexer.gd
-# STATUS: [Level 2 - Implementation]
-# OWNER: developer
-# ACCESS: read-write
-# USER INSTRUCTION: NONE
-# TRUTH_LINK: None
-# LOG_REF: 2026-06-20 18:41:40
-
-# File: tests/scenes/game_world/world_manager/test_template_indexer.gd
-# GUT Test Script for the TemplateIndexer component.
-# Version: 1.0
+# Tests for TemplateIndexer: registry scan into TemplateDatabase.
 
 extends GutTest
 
 const TemplateIndexer = preload("res://src/scenes/game_world/world_manager/template_indexer.gd")
+const CATEGORIES = ["agents", "assets_ships", "assets_modules", "assets_commodities", "locations", "utility_tools", "game_starts"]
+
 var indexer_instance = null
+var _saved_categories: Dictionary = {}
+
 
 func before_each():
-	# Ensure a clean slate before each test by clearing the database.
-	TemplateDatabase.characters.clear()
-	TemplateDatabase.assets_ships.clear()
-	TemplateDatabase.locations.clear()
-	TemplateDatabase.contracts.clear()
-	TemplateDatabase.game_starts.clear()
-
+	# Swap in empty categories so the scan is observable, then restore them afterwards.
+	for category in CATEGORIES:
+		_saved_categories[category] = TemplateDatabase.get(category)
+		TemplateDatabase.set(category, {})
 	indexer_instance = TemplateIndexer.new()
 	add_child_autofree(indexer_instance)
 
-func test_indexing_populates_template_database():
-	# Pre-check: Ensure the database is empty before the test.
-	assert_eq(TemplateDatabase.characters.size(), 0, "Character templates should be empty initially.")
-	assert_eq(TemplateDatabase.assets_ships.size(), 0, "Ship templates should be empty initially.")
 
-	# Run the indexing process.
+func after_each():
+	for category in CATEGORIES:
+		TemplateDatabase.set(category, _saved_categories[category])
+
+
+func test_indexing_populates_every_category():
+	indexer_instance.index_all_templates()
+	for category in CATEGORIES:
+		assert_gt(TemplateDatabase.get(category).size(), 0, "%s should be populated after indexing." % category)
+
+
+func test_indexing_loads_known_templates_with_correct_types():
 	indexer_instance.index_all_templates()
 
-	# Post-check: Assert that the database now contains data.
-	assert_gt(TemplateDatabase.characters.size(), 0, "Character templates should be populated after indexing.")
-	assert_gt(TemplateDatabase.assets_ships.size(), 0, "Ship templates should be populated after indexing.")
+	assert_true(TemplateDatabase.assets_ships.get("ship_default") is ShipTemplate, "'ship_default' should be a ShipTemplate.")
+	assert_true(TemplateDatabase.locations.get(Constants.INITIAL_SECTOR_ID) is LocationTemplate, "Initial sector should be a LocationTemplate.")
+	assert_true(TemplateDatabase.game_starts.get("start_default") is GameStartTemplate, "'start_default' should be a GameStartTemplate.")
+	assert_true(TemplateDatabase.agents.get("agent_npc_hostile_default") is AgentTemplate, "Hostile NPC should be an AgentTemplate.")
 
-func test_indexing_loads_known_templates_correctly():
-	# Run the indexing process.
+
+func test_agent_ship_references_resolve():
 	indexer_instance.index_all_templates()
-
-	# Check for a specific, known character template.
-	var default_char_id = "character_default"
-	assert_has(TemplateDatabase.characters, default_char_id, "Database should contain 'character_default'.")
-	var char_template = TemplateDatabase.characters[default_char_id]
-	assert_true(is_instance_valid(char_template), "'character_default' should be a valid instance.")
-	assert_true(char_template is CharacterTemplate, "'character_default' should be of type CharacterTemplate.")
-
-	# Check for a specific, known ship template.
-	var default_ship_id = "ship_default"
-	assert_has(TemplateDatabase.assets_ships, default_ship_id, "Database should contain 'ship_default'.")
-	var ship_template = TemplateDatabase.assets_ships[default_ship_id]
-	assert_true(is_instance_valid(ship_template), "'ship_default' should be a valid instance.")
-	assert_true(ship_template is ShipTemplate, "'ship_default' should be of type ShipTemplate.")
+	for agent_id in TemplateDatabase.agents:
+		var ship_id: String = TemplateDatabase.agents[agent_id].ship_template_id
+		if ship_id != "":
+			assert_has(TemplateDatabase.assets_ships, ship_id, "%s flies unknown ship '%s'." % [agent_id, ship_id])
+	assert_has(TemplateDatabase.assets_ships, TemplateDatabase.game_starts["start_default"].player_ship_template)
 
 
-func test_indexing_loads_known_contracts_after_locations():
+func test_sector_connections_resolve():
 	indexer_instance.index_all_templates()
-
-	var contract_id = "delivery_test_fixture"
-	assert_has(TemplateDatabase.contracts, contract_id, "Database should contain 'delivery_test_fixture'.")
-	var contract_template = TemplateDatabase.contracts[contract_id]
-	assert_true(is_instance_valid(contract_template), "'delivery_test_fixture' should be a valid instance.")
-	assert_true(contract_template is ContractTemplate, "'delivery_test_fixture' should be of type ContractTemplate.")
-	assert_eq(contract_template.origin_location_id, "sector_star_elace")
-	assert_eq(contract_template.destination_location_id, "sector_star_cob")
-
-
-func test_invalid_contract_locations_are_not_registered():
-	var origin_location = load("res://database/registry/locations/sector_star_elace.tres")
-	var destination_location = load("res://database/registry/locations/sector_star_lywin.tres")
-	assert_true(origin_location is LocationTemplate, "Starter sector fixture should load as a LocationTemplate.")
-	assert_true(destination_location is LocationTemplate, "Station Beta fixture should load as a LocationTemplate.")
-	indexer_instance._register_template(origin_location)
-	indexer_instance._register_template(destination_location)
-
-	var contract_template = load("res://database/registry/contracts/delivery_test_fixture.tres")
-	assert_true(contract_template is ContractTemplate, "Delivery fixture should load as a ContractTemplate.")
-	var invalid_contract = contract_template.duplicate(true)
-	invalid_contract.template_id = "delivery_invalid_missing_destination"
-	invalid_contract.destination_location_id = "station_missing_renamed_away"
-
-	indexer_instance._register_template(invalid_contract)
-	indexer_instance._register_pending_contract_templates()
-
-	assert_false(
-		TemplateDatabase.contracts.has("delivery_invalid_missing_destination"),
-		"Contracts with stale location ids should be rejected during registration."
-	)
-
+	for sector_id in TemplateDatabase.locations:
+		for target_sector_id in TemplateDatabase.get_sector_connections(sector_id):
+			assert_true(TemplateDatabase.has_sector(target_sector_id), "%s connects to unknown sector '%s'." % [sector_id, target_sector_id])

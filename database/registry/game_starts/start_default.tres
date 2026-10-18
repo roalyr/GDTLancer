@@ -7,6 +7,5 @@ script = ExtResource( 1 )
 template_id = "start_default"
 asset_type = "game_start"
 asset_icon_id = "asset_default"
-player_character_template = "character_default"
 player_ship_template = "ship_default"
 player_starting_location = ""

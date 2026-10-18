@@ -1,28 +1,6 @@
-# PROJECT: GDTLancer
-# MODULE: template_indexer.gd
-# STATUS: [Level 2 - Implementation]
-# OWNER: developer
-# ACCESS: read-write
-# USER INSTRUCTION: NONE
-# TRUTH_LINK: None
-# LOG_REF: 2026-06-20 18:41:40
-
-##
-## PROJECT: GDTLancer
-## MODULE: template_indexer.gd
-## STATUS: [Level 2 - Implementation]
-## TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §2, §3.4, §6; TRUTH_SIMULATION-GRAPH.md §2.1
-## LOG_REF: 2026-05-23 17:10:12
-##
-
-# File: src/scenes/game_world/world_manager/template_indexer.gd
-# Purpose: Scans the project's data directories to find and register all
-#          .tres template files into the TemplateDatabase autoload.
-# Version: 1.4 - Added UtilityToolTemplate support.
+# TemplateIndexer: scans database/registry/ and registers every .tres template into TemplateDatabase.
 
 extends Node
-
-var _pending_contract_templates: Array = []
 
 # --- Public API ---
 
@@ -30,9 +8,7 @@ var _pending_contract_templates: Array = []
 func index_all_templates():
 	if Constants.VERBOSE_RUNTIME_LOGS:
 		print("TemplateIndexer: Indexing all data templates...")
-	_pending_contract_templates.clear()
 	_scan_directory_for_templates("res://database/registry/")
-	_register_pending_contract_templates()
 	if Constants.VERBOSE_RUNTIME_LOGS:
 		print("TemplateIndexer: Template indexing complete.")
 
@@ -73,12 +49,8 @@ func _register_template(template: Template):
 		printerr("Template Error: Resource file has no template_id: ", template.resource_path)
 		return
 
-	if template is ActionTemplate:
-		TemplateDatabase.actions[template.template_id] = template
-	elif template is AgentTemplate:
+	if template is AgentTemplate:
 		TemplateDatabase.agents[template.template_id] = template
-	elif template is CharacterTemplate:
-		TemplateDatabase.characters[template.template_id] = template
 	elif template is ShipTemplate:
 		TemplateDatabase.assets_ships[template.template_id] = template
 	elif template is ModuleTemplate:
@@ -87,51 +59,9 @@ func _register_template(template: Template):
 		TemplateDatabase.assets_commodities[template.template_id] = template
 	elif template is LocationTemplate:
 		TemplateDatabase.locations[template.template_id] = template
-	elif template is ContractTemplate:
-		_pending_contract_templates.append(template)
 	elif template is UtilityToolTemplate:
 		TemplateDatabase.utility_tools[template.template_id] = template
-	elif template is FactionTemplate:
-		TemplateDatabase.factions[template.template_id] = template
-	elif template is NarrativeTemplate:
-		TemplateDatabase.narratives[template.template_id] = template
 	elif template is GameStartTemplate:
 		TemplateDatabase.game_starts[template.template_id] = template
 	else:
 		print("TemplateIndexer Warning: Unknown template type for resource: ", template.resource_path)
-
-
-
-func _register_pending_contract_templates() -> void:
-	for template in _pending_contract_templates:
-		if _contract_locations_are_valid(template):
-			TemplateDatabase.contracts[template.template_id] = template
-	_pending_contract_templates.clear()
-
-
-func _contract_locations_are_valid(template: ContractTemplate) -> bool:
-	var invalid_fields: Array = []
-	var origin_location_id: String = template.get("origin_location_id") if template.get("origin_location_id") != null else ""
-	var destination_location_id: String = template.get("destination_location_id") if template.get("destination_location_id") != null else ""
-
-	if not TemplateDatabase.locations.has(origin_location_id):
-		invalid_fields.append("origin_location_id=%s" % _format_location_id(origin_location_id))
-	if not TemplateDatabase.locations.has(destination_location_id):
-		invalid_fields.append("destination_location_id=%s" % _format_location_id(destination_location_id))
-
-	if invalid_fields.empty():
-		return true
-
-	printerr(
-		"TemplateIndexer: Skipping contract '%s' with invalid locations: %s." % [
-			template.template_id,
-			", ".join(invalid_fields),
-		]
-	)
-	return false
-
-
-func _format_location_id(location_id: String) -> String:
-	if location_id == "":
-		return "<empty>"
-	return location_id
