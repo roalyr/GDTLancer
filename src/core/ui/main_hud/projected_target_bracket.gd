@@ -242,7 +242,7 @@ func _build_label_text() -> String:
 func _resolve_primary_label() -> String:
 	if _target_label != "":
 		return _target_label
-	if target_ref == null:
+	if not is_instance_valid(target_ref):
 		return ""
 	if target_ref.get("display_name") != null and str(target_ref.get("display_name")) != "":
 		return str(target_ref.get("display_name"))
@@ -270,7 +270,7 @@ func _resolve_secondary_label() -> String:
 
 
 func _is_route_target(target_candidate) -> bool:
-	return target_candidate != null and target_candidate.get("target_kind") == "jump_route"
+	return is_instance_valid(target_candidate) and target_candidate.get("target_kind") == "jump_route"
 
 
 func _is_dockable_target(target_candidate) -> bool:
@@ -283,7 +283,7 @@ func _is_jump_point_target(target_candidate) -> bool:
 
 func _get_jump_route_color() -> Color:
 	var sector_type = ""
-	if target_ref != null:
+	if is_instance_valid(target_ref):
 		var dest_id = ""
 		if target_ref.get("target_sector_id") != null:
 			dest_id = str(target_ref.get("target_sector_id"))

@@ -288,9 +288,11 @@ func _process_harpoon(index: int, target: Node) -> void:
 		_launch_harpoon(index, target, tool_template)
 		return
 	var tether = _tethers[index]
-	if tether.snapped:
-		deactivate(index, "snapped")
+	if tether.retracting:
+		deactivate(index, "snapped" if tether.snapped else "missed")  # Already winching in
 		return
+	if tether.launching:
+		return  # Hook still in flight
 	if not tether.is_reeled_in() or _cycle_timers.get(index, 0.0) > 0.0:
 		return
 	_cycle_timers[index] = tool_template.strip_interval
@@ -315,7 +317,10 @@ func _launch_harpoon(index: int, target: Node, tool_template) -> void:
 		deactivate(index, "no_power")
 		return
 	var tether = Tether.new()
-	tether.setup(_agent_body, target, distance, get_tether_min_length(_agent_body, target), tool_template.reel_speed)
+	tether.setup(
+		_agent_body, target, distance, get_tether_min_length(_agent_body, target), tool_template.reel_speed,
+		tool_template.launch_speed, tool_template.get_max_range() * Constants.TETHER_LAUNCH_REACH_FACTOR
+	)
 	add_child(tether)
 	_tethers[index] = tether
 	_cycle_timers[index] = tool_template.strip_interval

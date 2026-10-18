@@ -21,6 +21,7 @@ export var power_per_cycle: float = 12.0  # Power spent at the start of each cyc
 
 # Harpoon only. Reach is the same max range as other tools.
 export var reel_speed: float = 15.0  # Tether reel-in speed (m/s) after the harpoon hits.
+export var launch_speed: float = 0.0  # Harpoon hook flight speed (m/s); 0 = hits at once.
 export var strip_interval: float = 1.0  # Seconds per salvage unit stripped once the wreck is reeled in.
 
 # Beyond this distance the tool stays switched on but does not cycle.

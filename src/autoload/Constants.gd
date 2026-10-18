@@ -159,6 +159,7 @@ const TETHER_ROPE_DAMPING = 0.97  # Share of a point's own motion (relative to t
 const TETHER_ROPE_BUCKLE_NUDGE = 0.05  # m of random nudge per step on a fully slack cable, so it buckles
 const TETHER_RENDER_SUBDIVISIONS = 4  # Drawn segments per simulated one (a smooth curve through the points)
 const TETHER_ROPE_SIM_DISTANCE = 1500.0  # m from the camera; further cables are not simulated, just drawn straight
+const TETHER_LAUNCH_REACH_FACTOR = 1.25  # A hook still flying this far past the harpoon's max range has missed: winched back
 const TETHER_RETRACT_SPEED = 40.0  # m/s the winch pulls in a cable that has let go; the harpoon fires again once it is in
 const TETHER_CABLE_WIDTH = 0.35  # m
 const TETHER_STRAIN_FULL_STRETCH = 8.0  # m of stretch shown as full strain

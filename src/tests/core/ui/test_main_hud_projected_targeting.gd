@@ -148,6 +148,14 @@ func test_main_hud_overlay_classification_and_filtering_track_requested_categori
 	assert_eq(hud._get_projected_target_overlay_kind(route_target), hud.OVERLAY_KIND_JUMP, "Jump routes should classify into the Jump overlay bucket.")
 	assert_eq(hud._get_projected_target_overlay_kind(stellar), hud.OVERLAY_KIND_STELLAR, "Named celestial bodies should classify into the Stellar overlay bucket.")
 	assert_eq(hud._get_projected_target_overlay_kind(structure), hud.OVERLAY_KIND_STRUCTURES, "Stations and other non-celestial world targets should stay in the Structures overlay bucket.")
+	var rock = StaticBody.new()
+	rock.name = "Rock12"
+	rock.add_to_group("asteroid")
+	add_child_autofree(rock)
+	assert_eq(hud._get_projected_target_overlay_kind(rock), hud.OVERLAY_KIND_STELLAR, "Asteroids are celestial: they toggle with planets, not with ships and stations.")
+	var ship = AgentScript.new()
+	add_child_autofree(ship)
+	assert_eq(hud._get_projected_target_overlay_kind(ship), hud.OVERLAY_KIND_STRUCTURES)
 
 	hud._on_ButtonOverlayStructures_pressed()
 	assert_false(hud._is_projected_target_overlay_enabled(hud.OVERLAY_KIND_STRUCTURES), "Structures overlay toggle should disable the Structures bucket when switched off.")
@@ -564,4 +572,18 @@ func test_unselected_ship_brackets_take_their_faction_colour():
 	ship.become_wreck()
 	bracket.refresh_style()
 	assert_eq(bracket.get_node("BracketNormal").modulate, Constants.COLOR_UI_WRECK)
+
+
+func test_freed_target_is_not_a_route_and_not_valid():
+	var camera = Camera.new()
+	add_child_autofree(camera)
+	GlobalRefs.main_camera = camera
+	var hud = MainHUDScene.instance()
+	add_child_autofree(hud)
+	yield(get_tree(), "idle_frame")
+	var gone = AgentScript.new()
+	add_child(gone)
+	gone.free()
+	assert_false(hud._target_projector.is_route_target(gone), "A despawned wreck is no longer null, but must not be touched.")
+	assert_false(hud._target_projector.is_target_valid(gone))
 

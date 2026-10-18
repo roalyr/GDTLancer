@@ -1,4 +1,7 @@
 # Tether: a harpoon cable between the ship that fired it (holder) and a towed body.
+# Launch: the hook flies from the holder at launch_speed, homing on the target's hull and paying
+# out cable behind it; it hooks on when it gets there (signal hooked), or, past max_reach, has
+# missed and is winched back.
 # Behaves as a rope: no force while slack, a spring-damper pull when stretched, equal and opposite
 # on both bodies, so towed mass shows up in handling. It reels in until the bodies are
 # min_length apart; when they drift closer, the winch takes up the slack at
@@ -13,6 +16,7 @@
 
 extends Node
 
+signal hooked
 signal retracted
 
 const CableMaterial = preload("res://assets/art/effects/tether_cable_material.tres")
@@ -24,6 +28,9 @@ var towed: RigidBody = null
 var length: float = 0.0  # Centre to centre
 var min_length: float = 0.0
 var reel_speed: float = 0.0
+var launch_speed: float = 0.0  # m/s; 0 = hooked at once
+var max_reach: float = INF  # m from the holder at which a flying hook has missed
+var launching: bool = false  # Hook in flight
 var snapped: bool = false  # The hook tore free
 var retracting: bool = false  # Hook off, cable winching in
 var strain: float = 0.0  # 0 slack .. 1 strained (Constants.TETHER_STRAIN_FULL_STRETCH)
@@ -35,14 +42,20 @@ var _rope_length := 0.0  # Hull to hull: the cable actually paid out
 var _paid_out := -1.0  # Centre to centre, as the winch has it: like `length`, but it also takes in
 	# slack below min_length when the bodies drift closer still, and pays it back out up to `length`
 var _age := 0.0
+var _hook_pos := Vector3.ZERO  # Where the flying hook is
 
 
-func setup(p_holder: RigidBody, p_towed: RigidBody, p_length: float, p_min_length: float, p_reel_speed: float) -> void:
+func setup(p_holder: RigidBody, p_towed: RigidBody, p_length: float, p_min_length: float, p_reel_speed: float, p_launch_speed: float = 0.0, p_max_reach: float = INF) -> void:
 	holder = p_holder
 	towed = p_towed
 	min_length = p_min_length
 	length = max(p_length, p_min_length)
 	reel_speed = p_reel_speed
+	launch_speed = p_launch_speed
+	max_reach = p_max_reach
+	launching = launch_speed > 0.0
+	if launching:
+		_hook_pos = _anchor_point(holder, towed.global_transform.origin)
 
 
 func _ready() -> void:
@@ -58,11 +71,16 @@ func _ready() -> void:
 
 # Hooked on and holding.
 func is_valid() -> bool:
-	return not retracting and not snapped and is_instance_valid(holder) and is_instance_valid(towed) and towed.is_inside_tree()
+	return not launching and not retracting and not snapped and is_instance_valid(holder) and is_instance_valid(towed) and towed.is_inside_tree()
 
 
 func is_reeled_in() -> bool:
-	return length <= min_length + 0.01 and get_distance() <= min_length * 1.25
+	return is_valid() and length <= min_length + 0.01 and get_distance() <= min_length * 1.25
+
+
+# How far the flying hook is from the ship, m.
+func get_hook_distance() -> float:
+	return holder.global_transform.origin.distance_to(_hook_pos) if launching and is_instance_valid(holder) else 0.0
 
 
 func get_distance() -> float:
@@ -85,6 +103,7 @@ func start_retract() -> void:
 	if retracting:
 		return
 	retracting = true
+	launching = false
 	strain = 0.0
 	if _rope.points.size() >= 2:
 		_rope_length = max(_rope_length, _rope.get_length())
@@ -93,6 +112,9 @@ func start_retract() -> void:
 func _physics_process(delta: float) -> void:
 	if retracting:
 		_step_retract(delta)
+		return
+	if launching:
+		_step_launch(delta)
 		return
 	if not is_valid():
 		if is_instance_valid(holder):
@@ -158,6 +180,38 @@ func _step_rope(delta: float) -> void:
 	_rope.step(from, to, _rope_length, frame_velocity, delta, obstacles)
 
 
+# The hook flies at launch_speed toward the point on the target's hull facing the ship, the cable
+# paying out behind it with a little give.
+func _step_launch(delta: float) -> void:
+	if not (is_instance_valid(holder) and is_instance_valid(towed) and towed.is_inside_tree()):
+		start_retract()
+		return
+	var target_point: Vector3 = _anchor_point(towed, holder.global_transform.origin)
+	var to_target: Vector3 = target_point - _hook_pos
+	var travel: float = launch_speed * delta
+	if to_target.length() <= travel:
+		_hook_pos = target_point
+		launching = false  # Hooked on
+		length = max(min_length, holder.global_transform.origin.distance_to(towed.global_transform.origin))
+		_paid_out = length
+		_step_rope(delta)
+		emit_signal("hooked")
+		return
+	_hook_pos += to_target.normalized() * travel
+	if holder.global_transform.origin.distance_to(_hook_pos) > max_reach:
+		start_retract()  # Missed: it outran its cable
+		return
+	var from: Vector3 = _anchor_point(holder, _hook_pos)
+	_rope_length = from.distance_to(_hook_pos) * 1.03
+	if not _is_near_camera():
+		_rope.reset(from, _hook_pos)
+		return
+	var obstacles: Array = []
+	if holder.has_method("get_hull_core_box"):
+		obstacles.append([holder.global_transform, holder.get_hull_core_box()])
+	_rope.step(from, _hook_pos, _rope_length, holder.linear_velocity, delta, obstacles)
+
+
 # The free end flies on; the shrinking cable pulls it home.
 func _step_retract(delta: float) -> void:
 	if not is_instance_valid(holder):
@@ -201,7 +255,7 @@ func _process(delta: float) -> void:
 	_cable.clear()
 	_hook.visible = false
 	var camera = get_viewport().get_camera() if is_inside_tree() else null
-	if _rope.points.size() < 2 or camera == null or not is_instance_valid(holder) or not (retracting or is_valid()):
+	if _rope.points.size() < 2 or camera == null or not is_instance_valid(holder) or not (retracting or launching or is_valid()):
 		return
 	var near: bool = _is_near_camera()
 	var points: Array = TetherRope.smooth_points(_rope.points, Constants.TETHER_RENDER_SUBDIVISIONS) if near else _rope.points

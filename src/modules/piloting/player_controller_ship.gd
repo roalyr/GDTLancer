@@ -273,7 +273,7 @@ func get_active_navigation_command_type() -> int:
 
 
 func _is_route_target(target_ref) -> bool:
-	return target_ref != null and target_ref.get("target_kind") == "jump_route"
+	return is_instance_valid(target_ref) and target_ref.get("target_kind") == "jump_route"
 
 
 func _is_selected_target_valid() -> bool:

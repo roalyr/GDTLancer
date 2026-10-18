@@ -519,3 +519,45 @@ func test_rope_uses_fewer_points_as_the_cable_shortens():
 	assert_lt(rope.points.size(), long_count, "Reeled in: fewer points (%d of %d)" % [rope.points.size(), long_count])
 	assert_almost_eq(rope.get_length(), 40.0, 0.5, "and still the right length")
 	assert_almost_eq(rope.points[rope.points.size() - 1], Vector3(0, 0, -40), Vector3(0.01, 0.01, 0.01), "ending at the anchor.")
+
+
+# --- Harpoon flight ---
+
+func test_harpoon_hook_flies_out_and_hooks_on_when_it_arrives():
+	_make_stripped_ready_wreck(3)
+	var harpoon = _make_harpoon()
+	harpoon.launch_speed = 100.0
+	controller.set_tools([laser, harpoon])
+	controller.activate(1, target)
+	controller._physics_process(0.016)
+	var tether = controller.get_tether(1)
+	assert_true(tether.launching, "Fired: the hook is in flight")
+	assert_false(tether.is_valid(), "and holds nothing yet.")
+	tether._physics_process(1.0)
+	assert_almost_eq(tether.get_hook_distance(), 100.0, 15.0, "100 m out after a second.")
+	controller._physics_process(0.016)
+	assert_true(controller.is_active(1), "Still armed while it flies.")
+	watch_signals(tether)
+	for _i in range(10):
+		tether._physics_process(1.0)
+	assert_signal_emitted(tether, "hooked")
+	assert_false(tether.launching)
+	assert_true(tether.is_valid(), "Hooked on.")
+
+
+func test_harpoon_that_outruns_its_cable_misses_and_winches_back():
+	_make_stripped_ready_wreck(3)
+	var harpoon = _make_harpoon()
+	harpoon.launch_speed = 100.0
+	controller.set_tools([laser, harpoon])
+	controller.activate(1, target)
+	controller._physics_process(0.016)
+	var tether = controller.get_tether(1)
+	tether._physics_process(1.0)
+	target.global_transform.origin = Vector3(0, 0, -5000)  # Gone off faster than the hook flies
+	for _i in range(6):
+		tether._physics_process(1.0)
+	assert_true(tether.retracting, "Missed: cable comes back")
+	controller._physics_process(0.016)
+	assert_true(controller.is_retracting(1), "and the harpoon waits for it.")
+

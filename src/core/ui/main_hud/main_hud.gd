@@ -628,6 +628,8 @@ func _describe_tool_state(tools: Node, index: int) -> String:
 	if not tools.is_active(index):
 		return "%s  OFF" % tool_name
 	var tether = tools.get_tether(index)
+	if is_instance_valid(tether) and tether.launching:
+		return "%s  HOOK OUT %.0f m" % [tool_name, tether.get_hook_distance()]
 	if is_instance_valid(tether):
 		return "%s  %s %.0f m" % [tool_name, "STRIPPING" if tether.is_reeled_in() else "REELING", tether.get_distance()]
 	if tool_template.tool_type == "harpoon":

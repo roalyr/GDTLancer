@@ -54,7 +54,10 @@ func is_projected_target_overlay_enabled(overlay_kind: String) -> bool:
 		_:
 			return true
 
+# Celestial objects: stars, planets, moons and asteroids (the stellar overlay toggle).
 func is_stellar_target(target_node: Node) -> bool:
+	if target_node.is_in_group("asteroid"):
+		return true
 	if not (target_node is StaticBody):
 		return false
 	if target_node.is_in_group("dockable_station") or target_node.is_in_group("jump_point"):
@@ -66,10 +69,10 @@ func is_stellar_target(target_node: Node) -> bool:
 	return false
 
 func is_route_target(target_ref) -> bool:
-	return target_ref != null and target_ref.get("target_kind") == "jump_route"
+	return is_instance_valid(target_ref) and target_ref.get("target_kind") == "jump_route"  # Freed bodies are not null
 
 func is_target_valid(target_ref) -> bool:
-	if target_ref == null:
+	if not is_instance_valid(target_ref):
 		return false
 	if is_route_target(target_ref):
 		return true
