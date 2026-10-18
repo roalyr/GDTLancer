@@ -7,17 +7,19 @@
 # vertex colours get a white set, which looks the same until marked. Each ship gets its own copy
 # of the material for its clock.
 #
-# Where a hit lands is found here on the CPU, once per hit (not in a shader):
-# 1. Each vertex is measured against the shot line, from the shooter to its aim point:
-#    how far along the line it is (t) and how far from it (perpendicular distance).
-# 2. Vertices closer to the line than the mark radius are candidates. Walking along the line, the
-#    first surface the shot meets is the first spot with enough distinct vertex positions within
-#    SCORCH_SURFACE_DEPTH;
-#    sparser ones are thin details (antennas, struts) that the shot passes.
-# 3. Only candidates within Constants.SCORCH_SURFACE_DEPTH behind that surface are marked, with a smooth falloff
-#    away from the line, so the far side of the hull stays clean.
-# Mark area grows with damage (radius ~ sqrt(damage)) at a fixed centre strength, so the marked
-# area is proportional to damage taken. Repeated hits on the same spot deepen the mark.
+# Each hit is worked out here on the CPU, once per hit (not in a shader), as two effects:
+# 1. Where it lands. Each vertex is measured against the shot line (from the shooter to its aim
+#    point): how far along it (t) and how far from it. Walking along the line, the first surface is
+#    the first spot with at least SCORCH_MIN_SURFACE_POINTS distinct vertex positions within the
+#    depth band; sparser ones are thin details (antennas, struts) the shot passes. The impact point
+#    is that surface's vertex nearest the line.
+# 2. The char mark: the beam's footprint. Vertices of that surface within the mark radius of the
+#    line, facing the shooter (the beam only burns what it can see). On an oblique face the
+#    footprint stretches, as a real beam spot does.
+# 3. Heat: conduction through the material. Every vertex within the heat radius of the impact
+#    point, in 3D and whatever its orientation, so the back of a thin plate, nearby edges and
+#    struts heat too, while the far side of a thick hull (beyond the radius) stays cold.
+# Both radii grow with sqrt(damage); repeated hits deepen marks and add heat.
 
 extends Node
 
@@ -99,7 +101,7 @@ func is_paintable() -> bool:
 
 
 # Paints a mark where a shot from `from_global` toward `aim_global` first meets the hull, and
-# records that point in last_hit_point. Returns the number of vertices marked (0 = the shot line
+# records that point in last_hit_point. Returns the number of vertices charred or heated (0 = the shot line
 # passed the hull without touching it, e.g. between wings).
 func add_hit(from_global: Vector3, aim_global: Vector3, damage: float) -> int:
 	last_hit_point = null
@@ -111,8 +113,9 @@ func add_hit(from_global: Vector3, aim_global: Vector3, damage: float) -> int:
 	var heat_radius: float = radius * Constants.SCORCH_HEAT_SPREAD
 	var surfaces_by_key := {}  # surface key -> that surface's arrays
 	var instances_by_key := {}  # surface key -> its MeshInstance
+	var beams_by_key := {}  # surface key -> shot direction in that mesh's space
 	# [surface key, vertex index, t (m), distance from line (m), position]
-	var candidates: Array = _collect_candidates(from_global, aim_global, heat_radius, surfaces_by_key, instances_by_key)
+	var candidates: Array = _collect_candidates(from_global, aim_global, heat_radius, surfaces_by_key, instances_by_key, beams_by_key)
 	# Coarse meshes (a large low-poly rock) can have no vertex this close to the line: widen until
 	# the shot finds enough surface to mark. Such marks are coarser, but always show.
 	for _widen in range(Constants.SCORCH_MAX_WIDENINGS):
@@ -120,30 +123,42 @@ func add_hit(from_global: Vector3, aim_global: Vector3, damage: float) -> int:
 			break
 		radius *= 2.0
 		heat_radius *= 2.0
-		candidates = _collect_candidates(from_global, aim_global, heat_radius, surfaces_by_key, instances_by_key)
+		candidates = _collect_candidates(from_global, aim_global, heat_radius, surfaces_by_key, instances_by_key, beams_by_key)
 	var depth: float = max(Constants.SCORCH_SURFACE_DEPTH, radius * 0.5)
 	var first_t: float = _find_first_surface(candidates, depth)
 
-	# Group the darkening per surface, then edit each colour array once while it is detached:
-	# pool arrays copy on write, so a still-shared array would be copied on every vertex write.
-	var updates := {}  # surface key -> [[vertex index, mark falloff, heat falloff], ...]
-	var painted := 0
+	# 1. The impact point: the first surface's vertex nearest the shot line.
 	var closest_to_line := INF
 	for candidate in candidates:
-		if candidate[2] < first_t or candidate[2] > first_t + depth:
-			continue  # Thin details in front of the surface, or the hull behind it
-		if candidate[3] < closest_to_line:
-			# The hit point: the vertex of the first surface nearest the shot line.
-			closest_to_line = candidate[3]
-			var arrays: Array = surfaces_by_key[candidate[0]]
-			var to_world: Transform = instances_by_key[candidate[0]].global_transform
-			last_hit_point = to_world.xform(arrays[Mesh.ARRAY_VERTEX][candidate[1]])
-			var normals = arrays[Mesh.ARRAY_NORMAL]
-			if normals != null and normals.size() > candidate[1]:
-				last_hit_normal = to_world.basis.xform(normals[candidate[1]]).normalized()
-		if not updates.has(candidate[0]):
-			updates[candidate[0]] = []
-		updates[candidate[0]].append([candidate[1], smoothstep(radius, 0.0, candidate[3]), smoothstep(heat_radius, 0.0, candidate[3])])
+		if candidate[2] < first_t or candidate[2] > first_t + depth or candidate[3] >= closest_to_line:
+			continue
+		closest_to_line = candidate[3]
+		var arrays: Array = surfaces_by_key[candidate[0]]
+		var to_world: Transform = instances_by_key[candidate[0]].global_transform
+		last_hit_point = to_world.xform(candidate[4])
+		var normals = arrays[Mesh.ARRAY_NORMAL]
+		if normals != null and normals.size() > candidate[1]:
+			last_hit_normal = to_world.basis.xform(normals[candidate[1]]).normalized()
+	if last_hit_point == null:
+		return 0
+
+	# 2 and 3. Char on the footprint, heat through the volume. Grouped per surface, then each
+	# array is edited once while detached: pool arrays copy on write, so a still-shared array
+	# would be copied on every vertex write.
+	var updates := {}  # surface key -> [[vertex index, char falloff, heat falloff], ...]
+	var painted := 0
+	for candidate in candidates:
+		var key: int = candidate[0]
+		var char_falloff := 0.0
+		if candidate[2] >= first_t and candidate[2] <= first_t + depth and candidate[3] < radius and _faces_shooter(surfaces_by_key[key], candidate[1], beams_by_key[key]):
+			char_falloff = smoothstep(radius, 0.0, candidate[3])
+		var heat_distance: float = instances_by_key[key].global_transform.xform(candidate[4]).distance_to(last_hit_point)
+		var heat_falloff: float = smoothstep(heat_radius, 0.0, heat_distance)
+		if char_falloff <= 0.0 and heat_falloff <= 0.0:
+			continue
+		if not updates.has(key):
+			updates[key] = []
+		updates[key].append([candidate[1], char_falloff, heat_falloff])
 		painted += 1
 	var heat_gain: float = Constants.SCORCH_HEAT_PER_DAMAGE * damage
 	for key in updates:
@@ -153,10 +168,12 @@ func add_hit(from_global: Vector3, aim_global: Vector3, damage: float) -> int:
 		arrays[Mesh.ARRAY_COLOR] = null
 		arrays[Mesh.ARRAY_TEX_UV2] = null
 		for update in updates[key]:
-			var color: Color = colors[update[0]]
-			color.a *= 1.0 - Constants.SCORCH_CENTRE_MARK * update[1]
-			colors[update[0]] = color
-			heat[update[0]] = Vector2(_clock, min(Constants.SCORCH_MAX_HEAT, get_heat(heat[update[0]]) + heat_gain * update[2]))
+			if update[1] > 0.0:
+				var color: Color = colors[update[0]]
+				color.a *= 1.0 - Constants.SCORCH_CENTRE_MARK * update[1]
+				colors[update[0]] = color
+			if update[2] > 0.0:
+				heat[update[0]] = Vector2(_clock, min(Constants.SCORCH_MAX_HEAT, get_heat(heat[update[0]]) + heat_gain * update[2]))
 		arrays[Mesh.ARRAY_COLOR] = colors
 		arrays[Mesh.ARRAY_TEX_UV2] = heat
 	if painted > 0:
@@ -222,8 +239,17 @@ func clear_marks() -> void:
 	_dirty = true
 
 
+# A vertex the beam can reach: its normal points back toward the shooter. Meshes without normals
+# count every vertex as facing.
+static func _faces_shooter(arrays: Array, index: int, beam_local: Vector3) -> bool:
+	var normals = arrays[Mesh.ARRAY_NORMAL]
+	if normals == null or normals.size() <= index:
+		return true
+	return normals[index].dot(beam_local) < 0.0
+
+
 # Vertices near the shot line, from every paintable surface.
-func _collect_candidates(from_global: Vector3, aim_global: Vector3, radius: float, surfaces_by_key: Dictionary, instances_by_key: Dictionary) -> Array:
+func _collect_candidates(from_global: Vector3, aim_global: Vector3, radius: float, surfaces_by_key: Dictionary, instances_by_key: Dictionary, beams_by_key: Dictionary) -> Array:
 	var candidates: Array = []
 	for mesh_index in range(_meshes.size()):
 		var entry: Dictionary = _meshes[mesh_index]
@@ -237,6 +263,7 @@ func _collect_candidates(from_global: Vector3, aim_global: Vector3, radius: floa
 			var key: int = mesh_index * 1024 + surface
 			surfaces_by_key[key] = entry.arrays[surface]
 			instances_by_key[key] = entry.instance
+			beams_by_key[key] = direction
 			var positions: PoolVector3Array = entry.arrays[surface][Mesh.ARRAY_VERTEX]
 			for i in range(positions.size()):
 				var relative: Vector3 = positions[i] - origin

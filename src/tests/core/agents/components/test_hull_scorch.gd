@@ -135,7 +135,7 @@ func test_hit_heats_the_mark_and_it_cools_over_time():
 	var arrays: Array = scorch._meshes[0].arrays[0]
 	for value in arrays[Mesh.ARRAY_TEX_UV2]:
 		hottest = max(hottest, scorch.get_heat(value))
-	assert_between(hottest, Constants.SCORCH_HEAT_PER_DAMAGE * 6.0 * 0.8, Constants.SCORCH_HEAT_PER_DAMAGE * 6.0, "Heat near the mark centre is proportional to damage.")
+	assert_between(hottest, Constants.SCORCH_HEAT_PER_DAMAGE * 6.0 * 0.8, Constants.SCORCH_HEAT_PER_DAMAGE * 6.0 + 0.001, "Heat near the mark centre is proportional to damage.")
 	scorch._process(Constants.SCORCH_COOL_TIME)
 	var cooled := 0.0
 	for value in arrays[Mesh.ARRAY_TEX_UV2]:
@@ -221,3 +221,50 @@ func test_weak_hit_stays_below_the_glow_threshold():
 	scorch.add_hit(Vector3(0, 200, 0), Vector3.ZERO, 12.0)
 	assert_gt(_heated(Constants.SCORCH_GLOW_THRESHOLD), 0, "A powerful beam glows at once.")
 
+
+
+func _setup_box(size: Vector3) -> void:
+	mesh_instance.mesh = _make_coloured_box(size, 24)
+	scorch.setup(mesh_instance)
+
+
+func _surface_state(predicate: FuncRef) -> Dictionary:
+	var arrays: Array = scorch._meshes[0].arrays[0]
+	var state := {"heated": 0, "charred": 0}
+	for i in range(arrays[Mesh.ARRAY_VERTEX].size()):
+		if predicate.call_func(arrays[Mesh.ARRAY_VERTEX][i], arrays[Mesh.ARRAY_NORMAL][i]):
+			if scorch.get_heat(arrays[Mesh.ARRAY_TEX_UV2][i]) > 0.0:
+				state.heated += 1
+			if arrays[Mesh.ARRAY_COLOR][i].a < 1.0:
+				state.charred += 1
+	return state
+
+
+func _underside(_position: Vector3, normal: Vector3) -> bool:
+	return normal.y < -0.9
+
+
+func _upper_side(_position: Vector3, normal: Vector3) -> bool:
+	return normal.y > 0.9
+
+
+func _right_side(_position: Vector3, normal: Vector3) -> bool:
+	return normal.x > 0.9
+
+
+func test_thin_plate_heats_through_but_chars_only_the_lit_side():
+	_setup_box(Vector3(20, 0.3, 20))
+	scorch.add_hit(Vector3(0, 200, 0), Vector3.ZERO, 6.0)
+	var top: Dictionary = _surface_state(funcref(self, "_upper_side"))
+	var bottom: Dictionary = _surface_state(funcref(self, "_underside"))
+	assert_gt(top.charred, 0, "The lit face is burned.")
+	assert_gt(bottom.heated, 0, "Heat conducts through the plate to the underside.")
+	assert_eq(bottom.charred, 0, "The beam cannot burn the face it cannot see.")
+
+
+func test_heat_wraps_round_an_edge_without_charring_the_side():
+	_setup_box(Vector3(20, 4, 20))
+	scorch.add_hit(Vector3(9.5, 200, 0), Vector3(9.5, 0, 0), 6.0)
+	var side: Dictionary = _surface_state(funcref(self, "_right_side"))
+	assert_gt(side.heated, 0, "The side face next to the hit heats up.")
+	assert_eq(side.charred, 0, "The side face is edge-on to the beam, so it is not burned.")
