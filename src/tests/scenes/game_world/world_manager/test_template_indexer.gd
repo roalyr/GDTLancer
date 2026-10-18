@@ -69,21 +69,8 @@ func test_hostile_top_speed_is_ninety_percent_of_player():
 func test_registry_files_only_use_declared_fields():
 	var problems: Array = []
 	for path in _registry_files("res://database/registry/"):
-		var resource = load(path)
-		var declared := {}
-		for property in resource.get_property_list():
-			declared[property.name] = true
-		var in_resource := false
-		var file := File.new()
-		file.open(path, File.READ)
-		for line in file.get_as_text().split("\n"):
-			if line.begins_with("["):
-				in_resource = line.begins_with("[resource]")
-			elif in_resource and " = " in line and not line.begins_with("\""):
-				var field: String = line.split(" = ")[0]
-				if not declared.has(field):
-					problems.append("%s: %s" % [path, field])
-		file.close()
+		for field in TemplateIndexer.find_undeclared_fields(path, load(path)):
+			problems.append("%s: %s" % [path, field])
 	assert_eq(problems, [], "Registry fields not declared by their template script.")
 
 

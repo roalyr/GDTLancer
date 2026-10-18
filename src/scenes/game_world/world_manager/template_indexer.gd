@@ -36,10 +36,34 @@ func _scan_directory_for_templates(path: String):
 				# If it's a .tres file, load it and register it.
 				var template = load(full_path)
 				if is_instance_valid(template) and template is Template:
+					for field in find_undeclared_fields(full_path, template):
+						printerr("Template Error: ", full_path, " sets '", field, "', which ", template.get_script().resource_path, " does not declare; the value is ignored.")
 					_register_template(template)
 			file_name = dir.get_next()
 	else:
 		printerr("TemplateIndexer Error: Could not open directory for indexing: ", path)
+
+
+# Fields written in a .tres file that its script does not declare. Godot drops them silently,
+# so a renamed field, or a file saved by an editor still holding an old script, loses its values.
+static func find_undeclared_fields(path: String, resource: Resource) -> Array:
+	var declared := {}
+	for property in resource.get_property_list():
+		declared[property.name] = true
+	var undeclared: Array = []
+	var file := File.new()
+	if file.open(path, File.READ) != OK:
+		return undeclared
+	var in_resource := false
+	for line in file.get_as_text().split("\n"):
+		if line.begins_with("["):
+			in_resource = line.begins_with("[resource]")
+		elif in_resource and " = " in line and not line.begins_with("\""):
+			var field: String = line.split(" = ")[0]
+			if not declared.has(field):
+				undeclared.append(field)
+	file.close()
+	return undeclared
 
 
 # Determines the type of a loaded template and adds it to the correct
