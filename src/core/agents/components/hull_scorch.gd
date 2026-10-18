@@ -248,6 +248,15 @@ static func _faces_shooter(arrays: Array, index: int, beam_local: Vector3) -> bo
 	return normals[index].dot(beam_local) < 0.0
 
 
+# PERFORMANCE (deferred until hitches or artifacts show): every hit scans all vertices of the hit
+# mesh, about 15 ms on the densest 37k-vertex rock (7 ms scan, 3 ms re-upload). If that shows:
+# - Index vertex positions in a coarse grid per source mesh: mesh-local, shared by every object
+#   using that mesh, built lazily on first hit (~50 ms once per dense mesh, ~0.4 MB). Query only
+#   the cells along the shot line (~0.1 ms instead of ~7 ms).
+# - Share immutable arrays (positions, normals, indices) per source mesh and keep only colours and
+#   heat per object (~2.6 MB -> ~0.9 MB per dense rock).
+# Key both on the original imported mesh, not the per-object copy made after the first hit.
+
 # Vertices near the shot line, from every paintable surface.
 func _collect_candidates(from_global: Vector3, aim_global: Vector3, radius: float, surfaces_by_key: Dictionary, instances_by_key: Dictionary, beams_by_key: Dictionary) -> Array:
 	var candidates: Array = []
