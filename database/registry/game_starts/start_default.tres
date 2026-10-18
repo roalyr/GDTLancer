@@ -6,4 +6,4 @@
 script = ExtResource( 1 )
 template_id = "start_default"
 player_ship_template = "ship_default"
-player_starting_location = ""
+player_starting_location = "station_elace_home"

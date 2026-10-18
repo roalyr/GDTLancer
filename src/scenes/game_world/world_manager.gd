@@ -86,6 +86,7 @@ func _on_new_game_requested() -> void:
 	
 	_setup_new_game()
 	load_sector(Constants.INITIAL_SECTOR_ID)
+	call_deferred("_emit_loaded_dock_signal")  # A run starts docked at its home port
 
 
 func _on_game_state_loaded() -> void:

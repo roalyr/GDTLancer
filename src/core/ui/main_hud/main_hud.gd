@@ -94,6 +94,7 @@ func _ready():
 		EventBus.connect("dock_available", self, "_on_dock_available")
 		EventBus.connect("dock_unavailable", self, "_on_dock_unavailable")
 		EventBus.connect("player_docked", self, "_on_player_docked")
+		EventBus.connect("player_undocked", self, "_on_player_undocked")
 		EventBus.connect("jump_available", self, "_on_jump_available")
 		EventBus.connect("jump_unavailable", self, "_on_jump_unavailable")
 		
@@ -332,6 +333,10 @@ func _on_ButtonOverlayJump_pressed() -> void:
 
 
 func _on_ButtonDock_pressed():
+	if GameState.player_docked_at != "":
+		EventBus.emit_signal("player_undocked")
+		_update_dock_button_label()
+		return
 	if is_instance_valid(label_button_dock) and label_button_dock.text == "TRAVEL":
 		if _jump_target_id != "":
 			EventBus.emit_signal("player_jump_requested", _jump_target_id)
@@ -396,6 +401,11 @@ func _on_player_docked(_location_id):
 	_dock_location_id = ""
 	_jump_target_id = ""
 	_refresh_projected_target_info_hints()
+	_update_dock_button_label()
+
+
+func _on_player_undocked():
+	_update_dock_button_label()
 
 
 # --- Jump UI Handlers ---
@@ -529,6 +539,7 @@ func _update_combat_readout() -> void:
 		"HULL  %d / %d" % [ceil(player.hull), player.hull_max],
 		"POWER %d / %d" % [floor(player.power), player.power_max],
 		"CARGO %d / %d" % [player.get_cargo_units(), player.cargo_capacity],
+		"BANK  %d WP" % GameState.player_bank,
 	]
 	var tools = player.get_node_or_null("ToolController")
 	if is_instance_valid(tools):
@@ -728,7 +739,9 @@ func _on_ButtonReturnToMenu_pressed() -> void:
 func _update_dock_button_label() -> void:
 	if not is_instance_valid(label_button_dock):
 		return
-	if _current_target != null and (_is_route_target(_current_target) or (is_instance_valid(_current_target) and _current_target.is_in_group("jump_point"))):
+	if GameState.player_docked_at != "":
+		label_button_dock.text = "UNDOCK"
+	elif _current_target != null and (_is_route_target(_current_target) or (is_instance_valid(_current_target) and _current_target.is_in_group("jump_point"))):
 		label_button_dock.text = "TRAVEL"
 	else:
 		label_button_dock.text = "DOCK"

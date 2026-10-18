@@ -26,6 +26,8 @@ var _queued_jump_selection_token: String = ""
 var _nearest_dock_node: Spatial = null   # Nearest station or jump point in prompt range
 var _nearest_dock_type: String = ""      # "station" or "jump"
 
+const HomePort = preload("res://src/core/systems/home_port.gd")
+
 # --- Preload States ---
 const StateBase = preload("res://src/modules/piloting/player_input_states/state_base.gd")
 const StateDefault = preload("res://src/modules/piloting/player_input_states/state_default.gd")
@@ -697,6 +699,12 @@ func _on_player_docked(location_id):
 		print("Player docked at: ", location_id)
 	_clear_queued_jump()
 	GameState.player_docked_at = location_id
+	if is_instance_valid(_tool_controller):
+		_tool_controller.deactivate_all("docked")
+	if HomePort.is_home(location_id):
+		var result: Dictionary = HomePort.service(agent_body)
+		if result.units > 0 or result.repaired > 0.0:
+			EventBus.emit_signal("dock_action_feedback", true, "Home port: banked %d WP from %d units, repaired %d hull" % [result.banked, result.units, result.repaired])
 	set_process_unhandled_input(false)
 	set_physics_process(false)
 	# Stop the ship

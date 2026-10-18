@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://src/scenes/game_world/station/dockable_station.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/cargo_ship_1.tscn" type="PackedScene" id=2]
+
+[sub_resource type="BoxShape" id=1]
+extents = Vector3( 17, 18, 100 )
+
+[node name="ElaceHomeStation" type="StaticBody"]
+script = ExtResource( 1 )
+location_id = "station_elace_home"
+station_name = "Elace Home Station"
+obstacle_radius = 110.0
+undock_offset = Vector3( 0, 70, 0 )
+
+[node name="CollisionShape" type="CollisionShape" parent="."]
+shape = SubResource( 1 )
+
+[node name="Model" parent="." instance=ExtResource( 2 )]

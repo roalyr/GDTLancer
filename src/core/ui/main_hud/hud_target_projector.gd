@@ -218,6 +218,8 @@ func is_world_projectable_target(node: Node) -> bool:
 		return false
 	if node.is_in_group("jump_point"):
 		return false
+	if node.is_in_group("asteroid"):
+		return false  # Scenery for now; dozens of brackets would bury the HUD (mining will bring targeting back)
 	if node is RigidBody:
 		if node.has_method("is_player") and node.is_player():
 			return false

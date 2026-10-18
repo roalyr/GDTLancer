@@ -349,6 +349,25 @@ func add_cargo(commodity_id: String, units: int) -> int:
 	return added
 
 
+func clear_cargo() -> void:
+	cargo.clear()
+	if is_player():
+		GameState.player_cargo = {}
+	_update_mass()
+
+
+# Restores the hull and clears its damage marks; returns hull points restored.
+func repair_hull() -> float:
+	var restored: float = hull_max - hull
+	hull = hull_max
+	if is_instance_valid(_hull_scorch):
+		_hull_scorch.clear_marks()
+	if is_player():
+		GameState.player_hull = hull
+		GameState.player_hull_marks = {}
+	return restored
+
+
 func get_salvage_units() -> int:
 	return count_units(salvage)
 

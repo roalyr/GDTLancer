@@ -12,6 +12,12 @@ var player_hull: float = -1.0
 ## Damage marks on the player's hull (HullScorch.export_marks()); kept until the hull is repaired.
 var player_hull_marks: Dictionary = {}
 
+## The run's home port (station location_id): docking there banks cargo and repairs the ship.
+var home_location_id: String = ""
+
+## Value banked at the home port this run.
+var player_bank: int = 0
+
 ## Player hold: commodity id -> units.
 var player_cargo: Dictionary = {}
 
@@ -41,6 +47,8 @@ func reset_state() -> void:
 	player_ship_template_id = ""
 	player_hull = -1.0
 	player_cargo = {}
+	home_location_id = ""
+	player_bank = 0
 	player_hull_marks = {}
 	current_zone_instance = null
 	current_sector_id = ""

@@ -60,7 +60,7 @@ func spawn_player():
 	elif GameState.player_docked_at != "":
 		var dock_pos = _get_dock_position_in_zone(GameState.player_docked_at)
 		if dock_pos != null:
-			player_spawn_pos = dock_pos + Vector3(0, 5, 15)
+			player_spawn_pos = dock_pos
 	# Priority 3: Use zone entry point (new game or jump arrival)
 	else:
 		var anchor_pos = Vector3.ZERO
@@ -134,7 +134,7 @@ func _get_dock_position_in_zone(location_id: String):
 			if not GlobalRefs.current_zone.is_a_parent_of(station):
 				continue
 			if station.get("location_id") == location_id:
-				return station.global_transform.origin
+				return station.get_undock_position() if station.has_method("get_undock_position") else station.global_transform.origin
 
 		# If the location is the current sector itself (virtual docking), spawn at the EntryPoint or origin
 		if location_id == GameState.current_sector_id:

@@ -73,10 +73,16 @@ func test_main_hud_dock_button_requests_dock_from_player_controller() -> void:
 	root.add_child(hud)
 	yield(get_tree(), "idle_frame")
 
-	GameState.player_docked_at = "sector_star_elace"
+	GameState.player_docked_at = ""
 	watch_signals(EventBus)
 
 	hud._on_ButtonDock_pressed()
 	yield(get_tree(), "idle_frame")
 
 	assert_signal_emitted(EventBus, "player_dock_pressed", "MainHUD dock button should route docking through the player controller.")
+
+	GameState.player_docked_at = "station_elace_home"
+	hud._update_dock_button_label()
+	assert_eq(hud.label_button_dock.text, "UNDOCK", "Docked: the button undocks (mouse-only players need a way out).")
+	hud._on_ButtonDock_pressed()
+	assert_signal_emitted(EventBus, "player_undocked")
