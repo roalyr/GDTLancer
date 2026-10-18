@@ -20,6 +20,8 @@ var max_distance_multiplier: float = 5.0
 var preferred_distance_multiplier: float = 1.0
 var min_fov_deg: float = 25.0
 var max_fov_deg: float = Constants.MAX_ORBIT_CAMERA_FOV
+var telephoto_min_fov_deg: float = 6.0  # Narrowest FoV, reached by zooming past the closest distance.
+var telephoto_zoom_fraction: float = 0.3  # Share of the zoom range spent narrowing FoV at the closest distance.
 
 # --- Rotation & PID ---
 var pitch_min_deg: float = -83.0
@@ -92,6 +94,8 @@ func _ready():
 		"preferred_distance_multiplier": preferred_distance_multiplier,
 		"min_fov_deg": min_fov_deg,
 		"max_fov_deg": max_fov_deg,
+		"telephoto_min_fov_deg": telephoto_min_fov_deg,
+		"telephoto_zoom_fraction": telephoto_zoom_fraction,
 		"pitch_min": deg2rad(pitch_min_deg),
 		"pitch_max": deg2rad(pitch_max_deg),
 		"_rotation_max_speed": rotation_max_speed,
@@ -184,6 +188,15 @@ func get_orbit_forward_direction() -> Vector3:
 	if is_instance_valid(_rotation_controller) and _rotation_controller.has_method("get_orbit_forward_direction"):
 		return _rotation_controller.get_orbit_forward_direction()
 	return -global_transform.basis.z.normalized()
+
+
+func get_zoom_level() -> float:
+	return _zoom_controller.get_zoom_level() if is_instance_valid(_zoom_controller) else 0.5
+
+
+func set_zoom_level(level: float) -> void:
+	if is_instance_valid(_zoom_controller):
+		_zoom_controller.set_zoom_level(level)
 
 
 func get_current_orbit_distance() -> float:

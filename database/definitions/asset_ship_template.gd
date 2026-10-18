@@ -8,6 +8,7 @@ export(PackedScene) var ship_scene: PackedScene
 export var hull_integrity: int = 100
 export var cargo_capacity: int = 100
 export var interaction_radius: float = 15.0
+export var apparent_radius: float = 12.0  # Visual size (m); camera distances and framing scale from it.
 
 export var ship_quirks: Array = [] # De-buffs or narrative elements
 export var ship_upgrades: Array = [] # Buffs

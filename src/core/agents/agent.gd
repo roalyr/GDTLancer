@@ -16,7 +16,7 @@ var hull_max: float = 0.0
 var power: float = 0.0
 var power_max: float = 0.0
 var power_regen: float = 0.0
-var is_wreck: bool = false  # Hull reached zero: no thrust, no AI, drifts until the sector unloads.
+var is_wreck: bool = false  # Hull reached zero: no thrust or AI; drifts to rest and stays until the sector unloads.
 
 # Bounds of the ship's visual model in body space; used to place hit effects on the hull.
 var hull_bounds: AABB = AABB(Vector3(-5, -5, -5), Vector3(10, 10, 10))
@@ -143,6 +143,11 @@ func _measure_hull_bounds(visual_root: Node) -> void:
 			found = true
 
 
+# Size the camera frames this ship by, from its ShipTemplate.
+func get_apparent_radius() -> float:
+	return ship_template.apparent_radius if is_instance_valid(ship_template) else get_hull_radius()
+
+
 func get_hull_radius() -> float:
 	return hull_bounds.size.length() * 0.5
 
@@ -231,10 +236,11 @@ func _physics_process(delta: float) -> void:
 
 # --- RigidBody Physics Integration ---
 func _integrate_forces(state: PhysicsDirectBodyState):
-	# Wrecks get no thrust or drag and keep their momentum.
-	if is_wreck:
-		return
 	if not is_instance_valid(navigation_system) or not is_instance_valid(movement_system):
+		return
+	# Wrecks have no thrust but obey the same drag as everything else, so they come to rest.
+	if is_wreck:
+		movement_system.integrate_forces(state)
 		return
 
 	# Update navigation logic (determines what forces/torques to apply)

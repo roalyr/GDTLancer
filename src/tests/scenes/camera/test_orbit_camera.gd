@@ -72,3 +72,83 @@ func test_set_local_scene_particles_active_toggles_group_visibility_and_clears_e
 	assert_true(local_particles.visible, "Re-enabling local-scene particles should restore the gameplay particle group after the transition ends.")
 	for emitter in local_particles.get_children():
 		assert_true(emitter.visible, "Re-enabling local-scene particles should restore each emitter's visibility under the gameplay camera.")
+
+
+func _make_zoom_target(radius: float) -> Spatial:
+	var script = GDScript.new()
+	script.source_code = "extends Spatial\nvar radius = 12.0\nfunc get_apparent_radius():\n\treturn radius\n"
+	script.reload()
+	var target = Spatial.new()
+	target.set_script(script)
+	target.radius = radius
+	add_child_autofree(target)
+	return target
+
+
+func test_zoom_scales_with_apparent_radius_and_never_crosses_near_plane():
+	var camera = OrbitCameraScene.instance()
+	add_child_autofree(camera)
+	for radius in [12.0, 40.0]:
+		camera.set_target_node(_make_zoom_target(radius))
+		var zoom = camera._zoom_controller
+		camera.set_zoom_level(0.0)
+		assert_true(zoom.current_distance - radius >= camera.near, "Hull stays beyond the near plane at full zoom (radius %s)." % radius)
+		camera.set_zoom_level(1.0)
+		assert_almost_eq(zoom.current_distance, radius * camera.max_distance_multiplier, 0.01, "Max distance scales with radius.")
+
+
+func test_zooming_past_closest_distance_narrows_fov_instead():
+	var camera = OrbitCameraScene.instance()
+	add_child_autofree(camera)
+	camera.set_target_node(_make_zoom_target(12.0))
+	var zoom = camera._zoom_controller
+	camera.set_zoom_level(camera.telephoto_zoom_fraction)
+	var closest: float = zoom.current_distance
+	assert_almost_eq(camera.fov, camera.min_fov_deg, 0.01)
+	camera.set_zoom_level(0.0)
+	assert_almost_eq(zoom.current_distance, closest, 0.001, "Telephoto keeps the closest distance.")
+	assert_almost_eq(camera.fov, camera.telephoto_min_fov_deg, 0.01, "Full zoom reaches the narrowest FoV.")
+	camera.set_zoom_level(1.0)
+	assert_almost_eq(camera.fov, camera.max_fov_deg, 0.01)
+
+
+func test_tracking_elevation_keeps_hull_below_sight_line_and_in_frame():
+	var PositionController = load("res://src/scenes/camera/components/camera_position_controller.gd")
+	for case in [[12.0, 27.0, 6.0], [12.0, 27.0, 25.0], [12.0, 60.0, 100.0]]:
+		var radius: float = case[0]
+		var distance: float = case[1]
+		var fov: float = deg2rad(case[2])
+		var elevation: float = PositionController.get_tracking_elevation(radius, distance, fov)
+		var hull_angle: float = asin(radius / distance)
+		var top_edge_below_centre: float = elevation - hull_angle
+		assert_gt(top_edge_below_centre, 0.0, "Hull top edge is below the line of sight to the target %s." % [case])
+		assert_lt(top_edge_below_centre, fov * 0.5, "Hull top edge is inside the frame %s." % [case])
+
+
+func test_tracking_solver_puts_flat_hull_top_just_below_sight_line():
+	var PositionController = load("res://src/scenes/camera/components/camera_position_controller.gd")
+	var flat_hull = AABB(Vector3(-10, -2, -8.5), Vector3(20, 4, 17))
+	var corners: Array = []
+	for i in range(8):
+		corners.append(flat_hull.get_endpoint(i))
+	var to_target = Vector3(0, 0, -900)
+	for case in [[27.0, 6.0], [27.0, 25.0], [60.0, 100.0]]:
+		var half_fov: float = deg2rad(case[1]) * 0.5
+		var margin: float = half_fov * PositionController.TRACKING_TOP_EDGE_SHARE
+		var elevation: float = PositionController.solve_tracking_elevation(corners, to_target, Vector3.UP, case[0], margin)
+		var offset_dir = Vector3(0, 0, 1) * cos(elevation) + Vector3.UP * sin(elevation)
+		var top: float = PositionController.get_hull_top_angle(corners, to_target, offset_dir, case[0], Vector3.UP)
+		assert_almost_eq(top, -margin, 0.002, "Hull top edge sits at the set share of the lower half-frame %s." % [case])
+
+
+func test_tracking_telephoto_backs_off_to_keep_ship_size_on_screen():
+	var camera = OrbitCameraScene.instance()
+	add_child_autofree(camera)
+	camera.set_target_node(_make_zoom_target(12.0))
+	var zoom = camera._zoom_controller
+	camera.set_zoom_level(camera.telephoto_zoom_fraction)
+	var base_size: float = zoom.get_tracking_distance() * tan(deg2rad(camera.fov) * 0.5)
+	camera.set_zoom_level(0.0)
+	assert_gt(zoom.get_tracking_distance(), zoom.current_distance, "Telephoto pulls the tracking camera back.")
+	assert_almost_eq(zoom.get_tracking_distance() * tan(deg2rad(camera.fov) * 0.5), base_size, 0.01, "Frame height at the ship stays the same.")
+

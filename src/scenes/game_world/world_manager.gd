@@ -19,7 +19,7 @@ var _jump_transition_active: bool = false
 var _jump_transition_tree_was_paused: bool = false
 var _jump_transition_mouse_mode_before_lock: int = Input.MOUSE_MODE_VISIBLE
 var _recorded_fov: float = 70.0
-var _recorded_zoom_distance: float = 55.0
+var _recorded_zoom_level: float = 0.5
 
 # --- Subsystems ---
 var jump_orchestrator: Reference = null

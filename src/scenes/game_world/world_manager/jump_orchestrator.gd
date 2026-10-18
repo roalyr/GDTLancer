@@ -81,10 +81,8 @@ func _run_jump_transition_sequence(target_sector_id: String) -> void:
 	# Record camera state
 	if is_instance_valid(GlobalRefs.main_camera):
 		_world_manager._recorded_fov = GlobalRefs.main_camera.fov
-		if GlobalRefs.main_camera.has_method("get_current_orbit_distance"):
-			_world_manager._recorded_zoom_distance = GlobalRefs.main_camera.get_current_orbit_distance()
-		else:
-			_world_manager._recorded_zoom_distance = GlobalRefs.main_camera.distance
+		if GlobalRefs.main_camera.has_method("get_zoom_level"):
+			_world_manager._recorded_zoom_level = GlobalRefs.main_camera.get_zoom_level()
 
 	# Resume/ensure ship acceleration
 	if is_instance_valid(GlobalRefs.player_agent_body) and GlobalRefs.player_agent_body.has_method("command_align_to"):
@@ -307,11 +305,9 @@ func _restore_gameplay_camera_at_recorded_state() -> void:
 	elif "fov" in GlobalRefs.main_camera:
 		GlobalRefs.main_camera.fov = _world_manager._recorded_fov
 
-	# Restore recorded zoom distance
-	if "_zoom_controller" in GlobalRefs.main_camera and GlobalRefs.main_camera._zoom_controller != null and GlobalRefs.main_camera._zoom_controller.has_method("_set_and_update_zoom_distance"):
-		GlobalRefs.main_camera._zoom_controller._set_and_update_zoom_distance(_world_manager._recorded_zoom_distance, false)
-	elif "distance" in GlobalRefs.main_camera:
-		GlobalRefs.main_camera.distance = _world_manager._recorded_zoom_distance
+	# Restore recorded zoom level
+	if GlobalRefs.main_camera.has_method("set_zoom_level"):
+		GlobalRefs.main_camera.set_zoom_level(_world_manager._recorded_zoom_level)
 
 	# Clear temporary fov override if any
 	if GlobalRefs.main_camera.has_method("clear_temporary_fov_override"):

@@ -13,6 +13,7 @@ ship_scene = ExtResource( 2 )
 hull_integrity = 100
 cargo_capacity = 100
 interaction_radius = 15.0
+apparent_radius = 12.0
 ship_quirks = [  ]
 ship_upgrades = [  ]
 tool_slots_small = 2
