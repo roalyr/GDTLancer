@@ -1,1 +1,0 @@
-# GDTLancer Python Simulation Sandbox
