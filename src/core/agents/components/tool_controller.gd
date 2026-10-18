@@ -4,7 +4,8 @@
 # Child of AgentBody; used identically by the player and the AI.
 #
 # Tool types:
-#   laser   - targets live ships; each cycle deals damage scaled by hit quality.
+#   laser   - targets live ships; each cycle deals damage scaled by hit quality. Whatever is in the
+#             line of fire (a rock, another ship) takes the shot instead: rocks are marked, ships damaged.
 #   harpoon - targets wrecks; one launch attaches a tether that reels in to a safe towing distance,
 #             then strips salvage into the hold one unit per strip_interval. Off = cable released.
 
@@ -18,6 +19,7 @@ signal tool_activated(tool_index, target)
 signal tool_deactivated(tool_index, reason)
 signal tool_cycled(tool_index, target, hit_quality, damage)
 signal salvage_stripped(tool_index, commodities)
+signal tool_blocked(tool_index, target, blocker)  # Something in the line of fire took the shot
 
 # Tethered bodies stop this far apart: the sum of both apparent radii times this factor.
 
@@ -209,11 +211,35 @@ func _process_laser(index: int, target: Node) -> void:
 	var quality: float = tool_template.get_hit_quality(distance, angular)
 	var damage: float = tool_template.damage * quality
 	_cycle_timers[index] = tool_template.cycle_time
-	if damage > 0.0:
-		var hit_point: Vector3 = target.register_hit(from_pos, damage) if target.has_method("register_hit") else _find_hit_point(target)
-		_spawn_hit_effect(target, hit_point, damage, tool_template.damage)
-	target.apply_damage(damage, _agent_body)
+	var blocker = find_blocker(target)
+	if blocker != null:
+		_hit_body(blocker, from_pos, damage, tool_template.damage)
+		emit_signal("tool_blocked", index, target, blocker)
+		return
+	_hit_body(target, from_pos, damage, tool_template.damage)
 	emit_signal("tool_cycled", index, target, quality, damage)
+
+
+# The first body between this ship and the target's aim point, or null for a clear line.
+func find_blocker(target: Spatial):
+	if not _agent_body.is_inside_tree():
+		return null
+	var aim: Vector3 = target.get_random_aim_point() if target.has_method("get_random_aim_point") else target.global_transform.origin
+	var hit: Dictionary = _agent_body.get_world().direct_space_state.intersect_ray(
+		_agent_body.global_transform.origin, aim, [_agent_body]
+	)
+	if hit.empty() or hit.collider == target:
+		return null
+	return hit.collider
+
+
+# Marks, damages (if it can be damaged) and flashes whatever the shot lands on.
+func _hit_body(body: Spatial, from_pos: Vector3, damage: float, full_damage: float) -> void:
+	if damage > 0.0:
+		var hit_point: Vector3 = body.register_hit(from_pos, damage) if body.has_method("register_hit") else _find_hit_point(body)
+		_spawn_hit_effect(body, hit_point, damage, full_damage)
+	if body.has_method("apply_damage"):
+		body.apply_damage(damage, _agent_body)
 
 
 func _process_harpoon(index: int, target: Node) -> void:
@@ -260,10 +286,18 @@ func _spawn_hit_effect(target: Spatial, hit_point: Vector3, damage: float, full_
 	var effect = LaserHitScene.instance()
 	effect.damage = damage
 	effect.full_damage = full_damage
-	effect.size_scale = clamp(target.get_hull_radius() / 10.0, 1.0, 10.0) if target.has_method("get_hull_radius") else 1.0
+	effect.size_scale = clamp(_body_radius(target) / 10.0, 1.0, 10.0)
 	effect.outward = (_agent_body.global_transform.origin - hit_point).normalized()
 	target.add_child(effect)
 	effect.global_transform.origin = hit_point
+
+
+static func _body_radius(body: Node) -> float:
+	if body.has_method("get_hull_radius"):
+		return body.get_hull_radius()
+	if body.has_method("get_apparent_radius"):
+		return body.get_apparent_radius()
+	return 10.0
 
 
 # Fallback hit point for targets without hull marking: the side of their bounds facing this ship.

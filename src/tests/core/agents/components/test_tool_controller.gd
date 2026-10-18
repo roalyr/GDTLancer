@@ -328,3 +328,23 @@ func test_leaks_push_back_against_their_jet_and_weaken_with_pressure():
 	recorder.calls.clear()
 	target._physics_process(0.016)
 	assert_almost_eq(recorder.calls[0][0].length(), Constants.FUEL_LEAK_THRUST * 0.5, 1.0, "Thrust falls with pressure.")
+
+
+func test_rock_in_the_line_of_fire_takes_the_shot():
+	var rock = load("res://scenes/prefabs/celestial/asteroid.tscn").instance()
+	add_child_autofree(rock)
+	rock.global_transform = Transform(Basis().scaled(Vector3.ONE * 30.0), Vector3(0, 0, -200))
+	yield(get_tree(), "physics_frame")
+	yield(get_tree(), "physics_frame")
+	watch_signals(controller)
+	controller.activate(0, target)
+	controller._physics_process(0.016)
+	assert_eq(target.hull, 50.0, "The hidden ship takes nothing.")
+	assert_signal_emitted(controller, "tool_blocked")
+	assert_gt(rock._hull_scorch.get_average_mark(), 0.0, "The rock is marked where the shot landed.")
+	assert_almost_eq(shooter.power, 100.0 - laser.power_per_cycle, 0.001, "The shot still cost power.")
+	rock.global_transform.origin = Vector3(500, 0, -200)
+	yield(get_tree(), "physics_frame")
+	yield(get_tree(), "physics_frame")
+	controller._physics_process(1.0)
+	assert_lt(target.hull, 50.0, "With the line clear the ship is hit.")

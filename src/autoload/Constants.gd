@@ -61,6 +61,13 @@ const NAV_ARRIVAL_DISTANCE_THRESHOLD = 20.0  # m
 const NAV_ARRIVAL_SPEED_THRESHOLD = 5.0  # m/s
 const NAV_CLOSE_ORBIT_DISTANCE_FACTOR = 1.5
 
+# Obstacle avoidance (rocks, stations): the autopilot looks ahead along its velocity and pushes
+# sideways off anything whose clearance sphere the path would cross. Manual flight is not steered.
+const NAV_AVOID_LOOKAHEAD_TIME = 8.0  # s of travel checked ahead
+const NAV_AVOID_CLEARANCE = 1.6  # Keep (obstacle radius + own radius) * this between path and centre
+const NAV_AVOID_THRUST = 1.0  # Share of linear thrust used to sidestep at full urgency
+const NAV_AVOID_MIN_SPEED = 2.0  # m/s; slower than this, nothing to avoid
+
 
 # ==================================================================================================
 # PLAYER INPUT

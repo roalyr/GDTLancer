@@ -200,3 +200,28 @@ func test_invalid_target_in_update_switches_to_stopping():
 
 	assert_eq(nav_system._current_command.type, nav_system.CommandType.STOPPING)
 	assert_called(mock_movement_system, "request_rotation_damping_pid")
+
+
+func test_avoidance_sidesteps_a_rock_on_the_path():
+	var Nav = load("res://src/core/agents/components/navigation_system.gd")
+	var rock = [Vector3(5, 0, -300), 40.0]  # Slightly right of a straight path along -Z
+	var push: Vector3 = Nav.compute_avoidance(Vector3.ZERO, Vector3(0, 0, -50), 12.0, [rock])
+	assert_lt(push.x, 0.0, "Pushes left, away from the rock's side of the path.")
+	assert_almost_eq(push.z, 0.0, 0.001, "Sideways only; the command keeps its own speed.")
+
+
+func test_avoidance_ignores_rocks_behind_far_or_off_the_path():
+	var Nav = load("res://src/core/agents/components/navigation_system.gd")
+	var velocity = Vector3(0, 0, -50)
+	assert_eq(Nav.compute_avoidance(Vector3.ZERO, velocity, 12.0, [[Vector3(0, 0, 300), 40.0]]), Vector3.ZERO, "Behind")
+	assert_eq(Nav.compute_avoidance(Vector3.ZERO, velocity, 12.0, [[Vector3(0, 0, -5000), 40.0]]), Vector3.ZERO, "Beyond the look-ahead")
+	assert_eq(Nav.compute_avoidance(Vector3.ZERO, velocity, 12.0, [[Vector3(500, 0, -300), 40.0]]), Vector3.ZERO, "Well clear of the path")
+	assert_eq(Nav.compute_avoidance(Vector3.ZERO, Vector3(0, 0, -1), 12.0, [[Vector3(0, 0, -30), 40.0]]), Vector3.ZERO, "Drifting too slowly to matter")
+
+
+func test_avoidance_is_more_urgent_for_closer_rocks():
+	var Nav = load("res://src/core/agents/components/navigation_system.gd")
+	var velocity = Vector3(0, 0, -50)
+	var near: Vector3 = Nav.compute_avoidance(Vector3.ZERO, velocity, 12.0, [[Vector3(10, 0, -100), 40.0]])
+	var far: Vector3 = Nav.compute_avoidance(Vector3.ZERO, velocity, 12.0, [[Vector3(10, 0, -350), 40.0]])
+	assert_gt(near.length(), far.length())

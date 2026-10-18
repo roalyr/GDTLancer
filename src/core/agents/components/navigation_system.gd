@@ -145,6 +145,54 @@ func update_navigation(delta: float):
 	else:
 		_command_handlers[CommandType.IDLE].execute(delta)
 
+	if not cmd_type in [CommandType.IDLE, CommandType.MOVE_DIRECTION]:
+		_apply_obstacle_avoidance(target_node)
+
+
+# Sidesteps obstacles (group "obstacle") in the way of the current velocity, except the command's
+# own target (e.g. the station being approached).
+func _apply_obstacle_avoidance(target_node) -> void:
+	var obstacles: Array = []
+	for obstacle in get_tree().get_nodes_in_group("obstacle"):
+		if obstacle != target_node and obstacle is Spatial and obstacle.has_method("get_obstacle_radius"):
+			obstacles.append([obstacle.global_transform.origin, obstacle.get_obstacle_radius()])
+	var own_radius: float = agent_body.get_apparent_radius() if agent_body.has_method("get_apparent_radius") else 10.0
+	var push: Vector3 = compute_avoidance(agent_body.global_transform.origin, agent_body.linear_velocity, own_radius, obstacles)
+	if push != Vector3.ZERO:
+		movement_system.request_thrust_direction(push, min(1.0, push.length()) * Constants.NAV_AVOID_THRUST)
+
+
+# Sideways push away from every obstacle ([centre, radius]) whose clearance sphere the straight
+# path ahead would cross within the look-ahead; each scaled by how close and how soon. ZERO if clear.
+static func compute_avoidance(position: Vector3, velocity: Vector3, own_radius: float, obstacles: Array) -> Vector3:
+	var speed: float = velocity.length()
+	if speed < Constants.NAV_AVOID_MIN_SPEED:
+		return Vector3.ZERO
+	var heading: Vector3 = velocity / speed
+	var reach: float = speed * Constants.NAV_AVOID_LOOKAHEAD_TIME
+	var push := Vector3.ZERO
+	for obstacle in obstacles:
+		var to_centre: Vector3 = obstacle[0] - position
+		var clearance: float = (obstacle[1] + own_radius) * Constants.NAV_AVOID_CLEARANCE
+		var along: float = to_centre.dot(heading)
+		if along < 0.0 or along > reach + clearance:
+			continue
+		var offset: Vector3 = to_centre - heading * along  # From the path to the centre, sideways
+		var miss: float = offset.length()
+		if miss >= clearance:
+			continue
+		var away: Vector3 = -offset / miss if miss > 0.01 else _any_perpendicular(heading)
+		var urgency: float = (1.0 - miss / clearance) * (1.0 - clamp(along / (reach + clearance), 0.0, 1.0))
+		push += away * urgency
+	return push
+
+
+static func _any_perpendicular(direction: Vector3) -> Vector3:
+	var side: Vector3 = direction.cross(Vector3.UP)
+	if side.length_squared() < 0.0001:
+		side = direction.cross(Vector3.RIGHT)
+	return side.normalized()
+
 
 # --- Helper Functions ---
 func _get_target_effective_size(target_node: Spatial) -> float:
