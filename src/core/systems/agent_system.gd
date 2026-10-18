@@ -2,8 +2,12 @@
 
 extends Node
 
+var populate_sectors: bool = true  # Tests switch this off to spawn only the player.
+
 var _player_agent_body: RigidBody = null
 var _next_agent_uid: int = 0  # Counter for generating unique agent UIDs
+var _npc_bodies: Array = []  # Live NPCs in the current sector
+var _respawn_timer: Timer = null
 
 
 func _ready():
@@ -12,11 +16,20 @@ func _ready():
 	# Listen for the zone_loaded signal to know when it's safe to spawn.
 	EventBus.connect("zone_loaded", self, "_on_Zone_Loaded")
 
+	_respawn_timer = Timer.new()
+	_respawn_timer.wait_time = Constants.NPC_RESPAWN_INTERVAL
+	_respawn_timer.connect("timeout", self, "_top_up_population")
+	add_child(_respawn_timer)
+
 
 func _on_Zone_Loaded(_zone_instance, _zone_path, agent_container_node):
 	if is_instance_valid(agent_container_node):
 		if not is_instance_valid(_player_agent_body):
 			spawn_player()
+		_npc_bodies.clear()
+		if populate_sectors:
+			_top_up_population()
+			_respawn_timer.start()
 	else:
 		printerr("AgentSpawner Error: Agent container invalid. Cannot spawn agents.")
 
@@ -163,6 +176,34 @@ func _get_jump_in_distance_for_sector(sector_id: String) -> float:
 			return 2000.0
 		_:
 			return 5000.0
+
+
+# --- NPC Population ---
+
+# Spawns hostiles until the sector holds NPC_POPULATION_PER_SECTOR live ships. Wrecks do not count.
+func _top_up_population() -> void:
+	if not is_instance_valid(GlobalRefs.agent_container) or not is_instance_valid(_player_agent_body):
+		return
+	var live: Array = []
+	for npc in _npc_bodies:
+		if is_instance_valid(npc) and not npc.is_wreck:
+			live.append(npc)
+	_npc_bodies = live
+	var center: Vector3 = _player_agent_body.global_transform.origin
+	for _i in range(Constants.NPC_POPULATION_PER_SECTOR - live.size()):
+		var npc = spawn_npc_from_template(
+			Constants.NPC_HOSTILE_TEMPLATE_PATH, _random_spawn_position(center), {"hostile": true}
+		)
+		if is_instance_valid(npc):
+			_npc_bodies.append(npc)
+
+
+func _random_spawn_position(center: Vector3) -> Vector3:
+	var direction = Vector3(rand_range(-1, 1), rand_range(-1, 1), rand_range(-1, 1))
+	if direction.length_squared() < 0.0001:
+		direction = Vector3.FORWARD
+	var distance = rand_range(Constants.NPC_SPAWN_MIN_DISTANCE, Constants.NPC_SPAWN_MAX_DISTANCE)
+	return center + direction.normalized() * distance
 
 
 # Spawns an NPC using a specific AgentTemplate resource path.

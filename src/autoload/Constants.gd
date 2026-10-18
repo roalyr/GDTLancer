@@ -73,6 +73,17 @@ const MAX_THRUST_THROTTLE = 1.0
 const ORBIT_FULL_SPEED_RADIUS = 2000.0
 const TARGETING_RAY_LENGTH = 1e7
 
+# --- NPC Population (uniform in every sector until the layout of space is final) ---
+const NPC_POPULATION_PER_SECTOR: int = 3
+const NPC_SPAWN_MIN_DISTANCE: float = 2000.0  # From the player's arrival point
+const NPC_SPAWN_MAX_DISTANCE: float = 6000.0
+const NPC_RESPAWN_INTERVAL: float = 60.0  # Seconds between top-ups of a depleted sector
+
+# --- AI ---
+const AI_DETECTION_RANGE: float = 3000.0  # Until signature and detection exist
+const AI_PATROL_RADIUS: float = 1000.0
+const AI_FLEE_HULL_FRACTION: float = 0.2
+
 # --- Sectors, Docking and Jumping ---
 const JUMP_POINT_RING_RADIUS: float = 80000.0       # Fallback distance from sector center (procedural sectors)
 const JUMP_POINT_STATION_OFFSET: float = 2000.0      # Distance from station where JumpPoints appear
