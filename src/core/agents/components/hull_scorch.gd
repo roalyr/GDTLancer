@@ -43,8 +43,8 @@ func setup(visual_root: Node) -> void:
 	while not stack.empty():
 		var node = stack.pop_back()
 		stack += node.get_children()
-		if not (node is MeshInstance and node.mesh is Mesh):
-			continue
+		if not (node is MeshInstance and node.mesh is Mesh) or node.is_in_group("lod_mesh"):
+			continue  # Lower levels of detail never show marks (MeshLod)
 		var entry := {"instance": node, "primitives": [], "arrays": [], "materials": [], "paintable": []}
 		for surface in range(node.mesh.get_surface_count()):
 			var arrays: Array = node.mesh.surface_get_arrays(surface)

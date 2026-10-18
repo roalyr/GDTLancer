@@ -6,6 +6,7 @@
 extends StaticBody
 
 const HullScorch = preload("res://src/core/agents/components/hull_scorch.gd")
+const MeshLod = preload("res://src/core/agents/components/mesh_lod.gd")
 const RockMaterial = preload("res://assets/art/materials_generic/mat_asteroid_rock.tres")
 
 export var model: PackedScene = null  # Rock mesh scene; the prefab's default is used if unset
@@ -34,6 +35,7 @@ func _ready() -> void:
 	# Collision sphere fits inside the rock, so ships and shots touch rock, not air.
 	var collision_radius: float = min(hull_bounds.size.x, min(hull_bounds.size.y, hull_bounds.size.z)) * 0.45
 	_collision.transform = Transform(Basis().scaled(Vector3.ONE * collision_radius), hull_bounds.position + hull_bounds.size * 0.5)
+	MeshLod.attach(_model, get_apparent_radius(), Constants.LOD_DISTANCE_RADII_DENSE)  # Before the marks: they stay on LOD0
 	_hull_scorch = HullScorch.new()
 	add_child(_hull_scorch)
 	_hull_scorch.setup(_model)

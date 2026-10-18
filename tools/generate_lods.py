@@ -10,11 +10,15 @@ Output: <model folder>/lod/<model>_LOD<n>.glb. Run the Godot editor once afterwa
 Never for nebulas: their look depends on the exact cloud geometry. Paths under a "nebulas"
 folder are refused.
 
-Usage:
-    blender -b -P tools/generate_lods.py -- [--levels 3] [--ratio 0.5] model.glb [model2.glb ...]
+Ratio: 0.5 suits dense meshes (rocks); already low-poly hard-surface models (ships) fall apart
+that fast, so use a gentler ratio for them (0.7).
+
+Usage (tools/blender links the project's Blender 3.6):
+    tools/blender -b -P tools/generate_lods.py -- [--levels 3] [--ratio 0.5] model.glb [model2.glb ...]
 """
 
 import argparse
+import math
 import os
 import sys
 
@@ -22,11 +26,14 @@ import bmesh
 import bpy
 import numpy
 
-# Blender 3.4's glTF add-on still uses numpy aliases removed in numpy 1.24 (system Blender on
-# Debian runs against the system numpy). Restore them for this process only.
+# Older Blender glTF add-ons (3.4) use numpy aliases removed in numpy 1.24, which bites when a
+# system Blender runs against the system numpy. Restore them for this process only; harmless otherwise.
 for _alias, _type in (("bool", bool), ("int", int), ("float", float), ("object", object)):
     if _alias not in numpy.__dict__:
         setattr(numpy, _alias, _type)
+
+
+AUTO_SMOOTH_DEGREES = 30.0  # Edges sharper than this shade hard on decimated levels
 
 
 def parse_args():
@@ -64,6 +71,17 @@ def decimate_all(ratio):
         modifier.ratio = ratio
         bpy.ops.object.modifier_apply(modifier=modifier.name)
         delete_loose(obj)
+        restore_hard_edges(obj)
+
+
+# The imported custom normals no longer match the decimated faces, and without them everything
+# shades smooth: hard-surface hulls go dark and blobby. Drop them and shade by angle instead.
+def restore_hard_edges(obj):
+    mesh = obj.data
+    if mesh.has_custom_normals:
+        bpy.ops.mesh.customdata_custom_splitnormals_clear()
+    mesh.use_auto_smooth = True
+    mesh.auto_smooth_angle = math.radians(AUTO_SMOOTH_DEGREES)
 
 
 # Decimating can leave vertices and edges no face uses (thin parts of a hull collapse to lines);

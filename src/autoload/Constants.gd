@@ -217,6 +217,10 @@ const SCORCH_COOL_TIME = 6.0  # s for heat to fall to ~37%; pushed to the shader
 # Laser hit flash and vapour.
 # Every hit effect scales with absolute beam damage: a weak hit barely shows, a powerful one flashes
 # hard and throws a big, fast vapour jet. Intensity = sqrt(damage / HIT_FX_REFERENCE_DAMAGE).
+# Hit flashes light their surroundings only near the camera, and only a few at once: in GLES2
+# every light touching an object draws that object once more.
+const HIT_FX_LIGHT_DISTANCE = 800.0  # m from the camera
+const HIT_FX_MAX_LIGHTS = 4
 const HIT_FX_REFERENCE_DAMAGE = 6.0  # A hit of this damage shows at intensity 1
 const HIT_FX_MAX_INTENSITY = 4.0
 const HIT_FX_COOL_COLOR = Color(1.0, 0.45, 0.2)  # Flash colour of a weak hit
@@ -236,6 +240,18 @@ const EXPLOSION_REFERENCE_RADIUS = 12.0  # Apparent radius the explosion scene i
 const EXPLOSION_LIFETIME = 30.0  # s
 const EXPLOSION_FLASH_DURATION = 0.6  # s
 const EXPLOSION_DRAG = 0.8  # Per second; the cloud centre slows a bit faster than a wreck (LINEAR_DRAG)
+
+
+# ==================================================================================================
+# LEVELS OF DETAIL (MeshLod, tools/generate_lods.py)
+# ==================================================================================================
+
+# A model switches to LOD n+1 beyond LOD_DISTANCE_RADII[n] of its own radii from the camera:
+# at 15 radii it is ~70 px tall on a 743 px screen (70 degree view), at 40 ~25 px, at 100 ~10 px.
+const LOD_DISTANCE_RADII = [15.0, 40.0, 100.0]  # Low-poly models (ships): keep detail long
+const LOD_DISTANCE_RADII_DENSE = [4.0, 10.0, 25.0]  # Dense meshes (rocks, tens of thousands of triangles): drop it early
+const LOD_HYSTERESIS = 0.1  # Share of a threshold to pass beyond before switching back, so levels do not flicker
+const LOD_CHECK_INTERVAL = 0.25  # s between distance checks per model
 
 
 # ==================================================================================================

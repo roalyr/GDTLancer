@@ -30,6 +30,7 @@ var cargo_capacity: int = 0  # Units
 var salvage: Dictionary = {}  # Wrecks only: commodity id -> units left to strip
 
 const HullScorch = preload("res://src/core/agents/components/hull_scorch.gd")
+const MeshLod = preload("res://src/core/agents/components/mesh_lod.gd")
 const ShipFit = preload("res://src/core/systems/ship_fit.gd")
 
 # --- Fit ---
@@ -104,6 +105,7 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 						ship_visual.remove_child(child)
 						call_deferred("add_child", child)
 				_measure_hull_bounds(ship_visual)
+				MeshLod.attach(ship_visual, get_apparent_radius())  # Before the marks: they stay on LOD0
 				_hull_scorch = HullScorch.new()
 				add_child(_hull_scorch)
 				_hull_scorch.setup(ship_visual)
