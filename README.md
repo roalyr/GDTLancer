@@ -32,6 +32,7 @@ The project is pruned back to its flight core. What works now:
 - Fuel leaks vent along the hull and push the ship; destroyed ships explode into a drifting cloud
 - Run loop: start docked at the home station, bank cargo and repair there, lose the ship and the run is over (permadeath), start a new run
 - Hand-placed asteroids around the Elace home station block laser fire; the autopilot steers around them
+- Fitting at the home station: tool and module slots, data-driven modules, part mass, buy / sell with banked value
 
 ## Roadmap
 
@@ -65,7 +66,10 @@ Complete the engine, then freeze it. After the freeze, work is content, tuning a
 | Input | Action |
 |---|---|
 | Left mouse | Select target |
-| Space | Tool on/off for the selected target (laser on ships, harpoon on wrecks); otherwise dock or jump |
+| Tool buttons (one per fitted tool) | That tool on the selected target, or off (laser: FIRE / CEASE, harpoon: LAUNCH / RELEASE) |
+| Dock button | DOCK at a selected station, UNDOCK, or TRAVEL along a selected route |
+| Ship button (docked at home) | Fitting: buy, sell, fit and unfit parts |
+| Space | Shortcut: the tool that fits the selected target on or off; otherwise dock or jump |
 | A | Approach target |
 | O | Orbit target |
 | F | Flee from target |

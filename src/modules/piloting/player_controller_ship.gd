@@ -61,6 +61,7 @@ func _ready():
 	EventBus.connect("player_undocked", self, "_on_player_undocked")
 	EventBus.connect("player_dock_pressed", self, "_on_dock_button_pressed")
 	EventBus.connect("player_interact_pressed", self, "_on_interact_button_pressed")
+	EventBus.connect("player_tool_pressed", self, "_on_tool_button_pressed")
 
 	call_deferred("_deferred_ready_setup")
 	_change_state("default")
@@ -204,17 +205,32 @@ func toggle_tool_for_selected() -> void:
 		EventBus.emit_signal("attack_action_feedback", false, _describe_tool_failure(result.get("reason", "")))
 
 
-# HUD interact button: attack a live ship, harpoon a wreck, or switch that tool off again.
+# HUD interact button: general interaction with the selected target. Tools have their own buttons.
 func _on_interact_button_pressed() -> void:
-	if _is_jump_transition_active():
+	EventBus.emit_signal("attack_action_feedback", false, "Nothing to interact with here yet")
+
+
+# A HUD tool button: that tool off if it is on, otherwise on against the selected target.
+func _on_tool_button_pressed(index: int) -> void:
+	if _is_jump_transition_active() or not is_instance_valid(_tool_controller):
 		return
 	if GameState.player_docked_at != "":
 		EventBus.emit_signal("attack_action_feedback", false, "Undock first")
 		return
-	if _is_tool_target(_selected_target):
-		toggle_tool_for_selected()
-	else:
-		EventBus.emit_signal("attack_action_feedback", false, "Select a ship, wreck or rock")
+	var tool_template = _tool_controller.get_tool(index)
+	if tool_template == null:
+		return
+	if _tool_controller.is_active(index):
+		_tool_controller.deactivate(index)
+		return
+	var target = _get_current_target()
+	if not _tool_controller.can_target(tool_template, target):
+		var needs: String = "a wreck" if tool_template.tool_type == "harpoon" else "a ship or rock"
+		EventBus.emit_signal("attack_action_feedback", false, "%s needs %s selected" % [tool_template.tool_name, needs])
+		return
+	var result: Dictionary = _tool_controller.activate(index, target)
+	if not result.get("success", false):
+		EventBus.emit_signal("attack_action_feedback", false, _describe_tool_failure(result.get("reason", "")))
 
 
 func _is_tool_target(target) -> bool:

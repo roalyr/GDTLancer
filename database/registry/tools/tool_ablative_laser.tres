@@ -7,6 +7,7 @@ script = ExtResource( 1 )
 template_id = "tool_ablative_laser"
 tool_name = "Ablative Laser"
 description = "A mining laser repurposed for combat. Vaporizes hull plating where it lands."
+hud_label = "LASER"
 tool_type = "laser"
 mount_size = "small"
 damage = 6.0

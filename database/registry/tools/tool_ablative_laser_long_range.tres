@@ -7,6 +7,7 @@ script = ExtResource( 1 )
 template_id = "tool_ablative_laser_long_range"
 tool_name = "Long-Range Ablative Laser"
 description = "Testing variant of the ablative laser with a long reach."
+hud_label = "LR LASER"
 tool_type = "laser"
 mount_size = "small"
 damage = 6.0

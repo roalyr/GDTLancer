@@ -41,6 +41,7 @@ onready var label_button_interact: Label = $ScreenControls/BottomCenterZone/Butt
 onready var label_combat_readout: Label = $ScreenControls/TopLeftZone/LabelCombatReadout
 onready var label_docked_banner: Label = $ScreenControls/LabelDockedBanner
 onready var button_ship: TextureButton = $ScreenControls/CenterRightZone/ButtonShip
+onready var tool_buttons: Array = $ScreenControls/TemporaryToolZone.get_children()
 var fitting_window: Control = null
 var _banner_location_id: String = ""
 
@@ -159,6 +160,8 @@ func _ready():
 
 	_pointer_router = PointerRouterClass.new(self)
 	add_child(_pointer_router)
+	for index in range(tool_buttons.size()):
+		tool_buttons[index].connect("pressed", self, "_on_tool_button_pressed", [index])
 	fitting_window = FittingWindowScene.instance()
 	add_child(fitting_window)
 	if is_instance_valid(button_ship):
@@ -184,7 +187,7 @@ func _process(_delta):
 	_update_world_target_overlay()
 	_refresh_toggle_button_states()
 	_update_combat_readout()
-	_update_interact_button()
+	_update_tool_buttons()
 	_update_docked_banner()
 	_update_dock_button_label()
 
@@ -370,25 +373,31 @@ func _on_ButtonInteract_pressed():
 		EventBus.emit_signal("player_interact_pressed")
 
 
-# ATTACK / CEASE on a live ship, HARPOON / RELEASE on a wreck (highlighted while the tool is on it);
-# INTERACT otherwise.
-func _update_interact_button() -> void:
-	if not is_instance_valid(label_button_interact):
-		return
-	var text := "INTERACT"
-	var active := false
+# One button per fitted tool (placeholders in TemporaryToolZone), two states each: the tool's
+# action while off (FIRE, LAUNCH), CEASE / RELEASE while on, highlighted then. Buttons past the
+# fitted tools are hidden.
+const TOOL_ACTIONS = {"laser": ["FIRE", "CEASE"], "harpoon": ["LAUNCH", "RELEASE"]}
+
+
+func _update_tool_buttons() -> void:
 	var player = GlobalRefs.player_agent_body
 	var tools = player.get_node_or_null("ToolController") if is_instance_valid(player) else null
-	if is_instance_valid(tools) and is_instance_valid(_current_target) and _current_target is Spatial:
-		var index: int = tools.find_tool_for(_current_target)
-		if index >= 0:
-			active = tools.is_active(index) and tools.get_target(index) == _current_target
-			if _current_target.get("is_wreck"):
-				text = "RELEASE" if active else "HARPOON"
-			else:
-				text = "CEASE" if active else "ATTACK"
-	label_button_interact.text = text
-	_apply_button_toggle_state(button_interact, active)
+	var count: int = tools.get_tool_count() if is_instance_valid(tools) else 0
+	for index in range(tool_buttons.size()):
+		var button: TextureButton = tool_buttons[index]
+		button.visible = index < count
+		if index >= count:
+			continue
+		var tool_template = tools.get_tool(index)
+		var active: bool = tools.is_active(index)
+		var actions: Array = TOOL_ACTIONS.get(tool_template.tool_type, ["USE", "STOP"])
+		var name: String = tool_template.hud_label if tool_template.hud_label != "" else tool_template.tool_name.to_upper()
+		button.get_node("Label").text = "%s\n%s" % [name, actions[1] if active else actions[0]]
+		_apply_button_toggle_state(button, active)
+
+
+func _on_tool_button_pressed(index: int) -> void:
+	EventBus.emit_signal("player_tool_pressed", index)
 
 
 func _on_SliderControlLeft_value_changed(value):

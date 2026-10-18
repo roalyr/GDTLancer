@@ -513,6 +513,81 @@ __meta__ = {
 "_edit_lock_": true
 }
 
+[node name="TemporaryToolZone" type="Control" parent="ScreenControls"]
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+margin_left = -320.0
+margin_top = -330.0
+margin_right = 320.0
+margin_bottom = -200.0
+mouse_filter = 2
+
+[node name="ButtonTool1" type="TextureButton" parent="ScreenControls/TemporaryToolZone"]
+margin_left = 0.0
+margin_right = 150.0
+margin_bottom = 120.0
+texture_normal = ExtResource( 4 )
+expand = true
+
+[node name="Label" type="Label" parent="ScreenControls/TemporaryToolZone/ButtonTool1"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 9 )
+text = "TOOL 1"
+align = 1
+valign = 1
+autowrap = true
+
+[node name="ButtonTool2" type="TextureButton" parent="ScreenControls/TemporaryToolZone"]
+margin_left = 160.0
+margin_right = 310.0
+margin_bottom = 120.0
+texture_normal = ExtResource( 4 )
+expand = true
+
+[node name="Label" type="Label" parent="ScreenControls/TemporaryToolZone/ButtonTool2"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 9 )
+text = "TOOL 2"
+align = 1
+valign = 1
+autowrap = true
+
+[node name="ButtonTool3" type="TextureButton" parent="ScreenControls/TemporaryToolZone"]
+margin_left = 320.0
+margin_right = 470.0
+margin_bottom = 120.0
+texture_normal = ExtResource( 4 )
+expand = true
+
+[node name="Label" type="Label" parent="ScreenControls/TemporaryToolZone/ButtonTool3"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 9 )
+text = "TOOL 3"
+align = 1
+valign = 1
+autowrap = true
+
+[node name="ButtonTool4" type="TextureButton" parent="ScreenControls/TemporaryToolZone"]
+margin_left = 480.0
+margin_right = 630.0
+margin_bottom = 120.0
+texture_normal = ExtResource( 4 )
+expand = true
+
+[node name="Label" type="Label" parent="ScreenControls/TemporaryToolZone/ButtonTool4"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 9 )
+text = "TOOL 4"
+align = 1
+valign = 1
+autowrap = true
+
 [node name="CenterRightZone" type="Control" parent="ScreenControls"]
 anchor_left = 1.0
 anchor_top = 1.0

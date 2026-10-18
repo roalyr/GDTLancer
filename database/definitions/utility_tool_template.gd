@@ -5,6 +5,7 @@ extends Template
 class_name UtilityToolTemplate
 
 export var tool_name: String = "Unknown Tool"
+export var hud_label: String = ""  # Short name on the tool's HUD button; tool_name if empty
 export var description: String = ""
 export var tool_type: String = "laser"  # Behaviour: "laser" (damages live ships), "harpoon" (tethers wrecks); "drill" is a placeholder.
 export var mount_size: String = "small"  # "small", "medium", "large"; fits slots of its size or larger
