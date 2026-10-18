@@ -186,9 +186,15 @@ func get_hull_radius() -> float:
 
 # Point on the hull facing `from_global`: where the line to the hull centre enters the
 # model's bounds, pulled in toward the centre so it sits on the hull rather than the box corner.
-func get_hull_point_facing(from_global: Vector3) -> Vector3:
+# The solid core of the hull, in body space: cable anchors sit on it and slack cable is kept out of it.
+func get_hull_core_box() -> AABB:
 	var center: Vector3 = hull_bounds.position + hull_bounds.size * 0.5
-	var inner := AABB(center - hull_bounds.size * 0.35, hull_bounds.size * 0.7)
+	return AABB(center - hull_bounds.size * 0.35, hull_bounds.size * 0.7)
+
+
+func get_hull_point_facing(from_global: Vector3) -> Vector3:
+	var inner: AABB = get_hull_core_box()
+	var center: Vector3 = inner.position + inner.size * 0.5
 	var from_local: Vector3 = to_local(from_global)
 	if inner.has_point(from_local):
 		return to_global(center)

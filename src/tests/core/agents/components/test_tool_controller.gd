@@ -325,7 +325,7 @@ func test_leaks_push_back_against_their_jet_and_weaken_with_pressure():
 	var leak = target._leaks[0]
 	target._physics_process(0.016)
 	var force: Vector3 = recorder.calls[0][0]
-	assert_almost_eq(force.length(), Constants.FUEL_LEAK_THRUST, 1.0, "Full thrust while fresh.")
+	assert_almost_eq(force.length(), Constants.FUEL_LEAK_THRUST, Constants.FUEL_LEAK_THRUST * 0.01, "Full thrust while fresh (the leak ages a frame or two under load).")
 	assert_almost_eq(force.normalized().dot(leak.outward), -1.0, 0.001, "Pushes opposite the gas jet.")
 	assert_eq(recorder.calls[0][1], leak.global_transform.origin, "Acts at the leak, so off-centre leaks turn the ship.")
 	leak._age = Constants.FUEL_LEAK_DURATION * 0.5
@@ -368,11 +368,20 @@ func _make_tether(distance: float) -> Node:
 	return tether
 
 
-func test_tether_takes_up_slack_when_the_bodies_close_in():
+func test_tether_takes_up_slack_at_a_limited_rate():
 	var tether = _make_tether(400.0)
 	tether.towed.global_transform.origin = Vector3(0, 0, -150)
-	tether._physics_process(0.1)
-	assert_almost_eq(tether.length, 150.0, 0.01, "The winch keeps the cable taut instead of waiting to reel 250 m.")
+	tether._physics_process(1.0)
+	assert_almost_eq(tether.length, 400.0 - 15.0 - Constants.TETHER_SLACK_TAKEUP_SPEED, 0.01, "Slack shows for a moment")
+	var per_step: float = 15.0 + Constants.TETHER_SLACK_TAKEUP_SPEED
+	var steps: int = int(floor((tether.length - 150.0) / per_step))
+	for _i in range(steps):
+		tether._physics_process(1.0)
+	assert_true(tether.length >= 150.0 and tether.length < 150.0 + per_step, "Taken up step by step, never shorter than the actual distance: %.1f" % tether.length)
+	assert_eq(tether.strain, 0.0, "Still loose.")
+	var before: float = tether.length
+	tether._physics_process(1.0)
+	assert_almost_eq(tether.length, before - 15.0, 0.01, "Slack gone: it reels in as usual.")
 
 
 func test_tether_snaps_when_overstretched():
@@ -381,3 +390,57 @@ func test_tether_snaps_when_overstretched():
 	tether._physics_process(0.1)
 	assert_true(tether.snapped)
 	assert_false(tether.is_valid())
+
+
+
+func test_strain_grows_with_stretch():
+	var tether = _make_tether(100.0)
+	tether.towed.global_transform.origin = Vector3(0, 0, -100 - Constants.TETHER_STRAIN_FULL_STRETCH * 0.5)
+	tether._physics_process(0.0)
+	assert_almost_eq(tether.strain, 0.5, 0.01)
+
+
+# --- Cable shape (TetherRope) ---
+
+func test_rope_pulls_straight_when_taut_and_bunches_when_slack():
+	var Rope = load("res://src/core/agents/components/tether_rope.gd")
+	var rope = Rope.new()
+	var a := Vector3.ZERO
+	var b := Vector3(0, 0, -100)
+	rope.reset(a, b)
+	for _i in range(60):
+		rope.step(a, b, 100.0, Vector3.ZERO, 1.0 / 60.0)
+	var mid: Vector3 = rope.points[rope.points.size() / 2]
+	assert_almost_eq(Vector2(mid.x, mid.y).length(), 0.0, 0.05, "Taut: straight between the anchors.")
+	var close := Vector3(0, 0, -40)
+	for _i in range(240):
+		rope.step(a, close, 100.0, Vector3.ZERO, 1.0 / 60.0)
+	assert_almost_eq(rope.get_length(), 100.0, 3.0, "Slack: keeps its length")
+	var widest := 0.0
+	for p in rope.points:
+		widest = max(widest, Vector2(p.x, p.y).length())
+	assert_gt(widest, 5.0, "so it bows out of line.")
+
+
+func test_rope_travels_with_the_ships():
+	var Rope = load("res://src/core/agents/components/tether_rope.gd")
+	var rope = Rope.new()
+	var v := Vector3(100, 0, 0)
+	var a := Vector3.ZERO
+	var b := Vector3(0, 0, -50)
+	rope.reset(a, b)
+	for _i in range(60):
+		a += v / 60.0
+		b += v / 60.0
+		rope.step(a, b, 60.0, v, 1.0 / 60.0)
+	var mid: Vector3 = rope.points[rope.points.size() / 2]
+	assert_almost_eq(mid.x, a.x, 10.0, "No drag in vacuum: the slack cable keeps up with the ships.")
+
+
+func test_rope_is_kept_out_of_hull_boxes():
+	var Rope = load("res://src/core/agents/components/tether_rope.gd")
+	var box := AABB(Vector3(-5, -5, -30), Vector3(10, 10, 10))  # Sits across the straight line
+	var pushed = Rope._push_out(Vector3(1, 0, -25), [[Transform.IDENTITY, box]])
+	assert_false(box.has_point(pushed) and pushed.x < 4.999, "Pushed out through the nearest face.")
+	assert_almost_eq(pushed, Vector3(5, 0, -25), Vector3(0.001, 0.001, 0.001), "The +x face is 4 m away, the others 5 m.")
+

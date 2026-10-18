@@ -145,6 +145,17 @@ const TETHER_CLEARANCE = 1.5  # Reels in to (both apparent radii) * this
 const TETHER_PERIOD = 2.0  # s; cable stiffness for the pair's combined mass
 const TETHER_DAMPING_RATIO = 0.9
 const TETHER_SNAP_STRETCH = 500.0  # m beyond the cable's length: it snaps
+const TETHER_SLACK_TAKEUP_SPEED = 20.0  # m/s the winch takes up slack when the ships close in (on top of reeling); closing faster shows a loose cable
+# Cable looks (TetherRope, tether_cable.gdshader): shape, strain cue.
+const TETHER_ROPE_POINTS = 24
+const TETHER_ROPE_ITERATIONS = 8  # Spacing passes per step: more = stiffer, truer length
+const TETHER_ROPE_DAMPING = 0.97  # Share of a point's own motion (relative to the ships) kept per step
+const TETHER_ROPE_BUCKLE_NUDGE = 0.05  # m of random nudge per step on a fully slack cable, so it buckles
+const TETHER_CABLE_WIDTH = 0.35  # m
+const TETHER_STRAIN_FULL_STRETCH = 8.0  # m of stretch shown as full strain
+const TETHER_STRAIN_THINNING = 0.35  # Share of the width lost at full strain
+const TETHER_SHIVER_AMPLITUDE = 0.12  # m of sideways shiver at full strain
+const TETHER_SHIVER_FREQUENCY = 40.0  # rad/s
 
 
 # ==================================================================================================
