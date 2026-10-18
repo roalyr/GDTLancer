@@ -26,7 +26,7 @@ func execute(delta: float):
 	
 	# Arrival check
 	var current_speed = _movement_system.get_current_speed()
-	if distance < _nav_sys.ARRIVAL_DISTANCE_THRESHOLD and current_speed < _nav_sys.ARRIVAL_SPEED_THRESHOLD:
+	if distance < Constants.NAV_ARRIVAL_DISTANCE_THRESHOLD and current_speed < Constants.NAV_ARRIVAL_SPEED_THRESHOLD:
 		if not cmd.get("signaled_stop", false):
 			EventBus.emit_signal("agent_reached_destination", _agent_body)
 			cmd["signaled_stop"] = true

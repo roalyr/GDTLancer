@@ -5,9 +5,6 @@ extends Node
 
 enum AIState { IDLE, PATROL, COMBAT, FLEE, DISABLED }
 
-const REPATH_INTERVAL: float = 0.5
-const SCAN_INTERVAL: float = 1.0
-const PATROL_ARRIVAL_DISTANCE: float = 50.0
 
 var is_hostile: bool = false
 
@@ -94,7 +91,7 @@ func _change_state(new_state: int) -> void:
 
 func _process_patrol() -> void:
 	if _scan_timer <= 0.0:
-		_scan_timer = SCAN_INTERVAL
+		_scan_timer = Constants.AI_SCAN_INTERVAL
 		var target = scan_for_target()
 		if is_instance_valid(target):
 			_target_agent = target
@@ -102,7 +99,7 @@ func _process_patrol() -> void:
 			return
 
 	var current_pos = agent_script.global_transform.origin
-	if not _has_patrol_destination or current_pos.distance_to(_patrol_destination) <= PATROL_ARRIVAL_DISTANCE:
+	if not _has_patrol_destination or current_pos.distance_to(_patrol_destination) <= Constants.AI_PATROL_ARRIVAL_DISTANCE:
 		_patrol_destination = _pick_patrol_destination()
 		_has_patrol_destination = true
 		agent_script.command_move_to(_patrol_destination)
@@ -126,7 +123,7 @@ func _process_combat() -> void:
 	if distance > engagement_range * 1.2:
 		if _orbiting or _repath_timer <= 0.0:
 			_orbiting = false
-			_repath_timer = REPATH_INTERVAL
+			_repath_timer = Constants.AI_REPATH_INTERVAL
 			agent_script.command_approach(_target_agent)
 	elif not _orbiting:
 		_orbiting = true
@@ -151,7 +148,7 @@ func _process_flee() -> void:
 		_change_state(AIState.PATROL)
 		return
 	if _repath_timer <= 0.0:
-		_repath_timer = REPATH_INTERVAL
+		_repath_timer = Constants.AI_REPATH_INTERVAL
 		agent_script.command_flee(_target_agent)
 
 

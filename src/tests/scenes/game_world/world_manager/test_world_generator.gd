@@ -35,5 +35,5 @@ func test_applies_game_start_template():
 
 func test_missing_game_start_falls_back_to_default_ship():
 	generator_instance.generate_new_world("start_does_not_exist")
-	assert_eq(GameState.player_ship_template_id, WorldGenerator.FALLBACK_SHIP_TEMPLATE_ID)
+	assert_eq(GameState.player_ship_template_id, Constants.FALLBACK_SHIP_TEMPLATE_ID)
 	assert_eq(GameState.player_docked_at, "")

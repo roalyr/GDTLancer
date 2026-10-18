@@ -5,8 +5,6 @@
 
 extends Node
 
-const PERIOD = 2.0  # Seconds; stiffness of the cable for the pair's combined mass.
-const DAMPING_RATIO = 0.9
 const CableMaterial = preload("res://assets/art/effects/tether_cable_material.tres")
 
 var holder: RigidBody = null
@@ -47,8 +45,8 @@ func get_distance() -> float:
 
 func get_tension(stretch: float, closing_speed: float) -> float:
 	var reduced_mass: float = holder.mass * towed.mass / max(holder.mass + towed.mass, 0.001)
-	var omega: float = TAU / PERIOD
-	return max(0.0, reduced_mass * omega * omega * stretch + 2.0 * reduced_mass * omega * DAMPING_RATIO * closing_speed)
+	var omega: float = TAU / Constants.TETHER_PERIOD
+	return max(0.0, reduced_mass * omega * omega * stretch + 2.0 * reduced_mass * omega * Constants.TETHER_DAMPING_RATIO * closing_speed)
 
 
 func _physics_process(delta: float) -> void:

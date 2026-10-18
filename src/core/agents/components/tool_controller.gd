@@ -20,7 +20,6 @@ signal tool_cycled(tool_index, target, hit_quality, damage)
 signal salvage_stripped(tool_index, commodities)
 
 # Tethered bodies stop this far apart: the sum of both apparent radii times this factor.
-const TETHER_CLEARANCE = 1.5
 
 var _agent_body: RigidBody = null
 var _tools: Array = []  # UtilityToolTemplate per mount, in ship order
@@ -162,7 +161,7 @@ static func compute_angular_velocity(from_pos: Vector3, from_vel: Vector3, to_po
 
 # Closest distance a tether reels two bodies to.
 static func get_tether_min_length(holder: Node, towed: Node) -> float:
-	return (_apparent_radius(holder) + _apparent_radius(towed)) * TETHER_CLEARANCE
+	return (_apparent_radius(holder) + _apparent_radius(towed)) * Constants.TETHER_CLEARANCE
 
 
 static func _apparent_radius(body: Node) -> float:

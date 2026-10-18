@@ -4,11 +4,6 @@ extends Node
 
 # --- Enums and Constants ---
 enum CommandType { IDLE, STOPPING, MOVE_TO, MOVE_DIRECTION, APPROACH, ORBIT, FLEE, ALIGN_TO }
-const APPROACH_DISTANCE_MULTIPLIER = 1.3
-const APPROACH_MIN_DISTANCE = 50.0
-const ARRIVAL_DISTANCE_THRESHOLD = 20.0
-const ARRIVAL_SPEED_THRESHOLD = 5.0
-const CLOSE_ORBIT_DISTANCE_THRESHOLD_FACTOR = 1.5
 
 # --- References ---
 var agent_body: RigidBody = null

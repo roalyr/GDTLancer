@@ -12,7 +12,6 @@ var _tool_controller: Node = null
 
 # --- Thrust Throttle Control (0.0 to 1.0) ---
 var current_thrust_throttle: float = 1.0
-const KEY_THROTTLE_INCREMENT: float = 0.05
 
 # --- State ---
 var _current_input_state: InputState = null
@@ -26,8 +25,6 @@ var _queued_jump_direction: Vector3 = Vector3.ZERO
 var _queued_jump_selection_token: String = ""
 var _nearest_dock_node: Spatial = null   # Nearest station or jump point in prompt range
 var _nearest_dock_type: String = ""      # "station" or "jump"
-const JUMP_ALIGNMENT_MAX_DEVIATION_DEG: float = 5.0
-const JUMP_ALIGNMENT_FULL_THRUST_SCALE: float = 1.0
 
 # --- Preload States ---
 const StateBase = preload("res://src/modules/piloting/player_input_states/state_base.gd")
@@ -148,7 +145,7 @@ func _unhandled_input(event: InputEvent):
 		return
 
 	if Input.is_action_pressed("command_speed_up"):
-		var change = KEY_THROTTLE_INCREMENT * event.get_action_strength("command_speed_up")
+		var change = Constants.PLAYER_KEY_THROTTLE_STEP * event.get_action_strength("command_speed_up")
 		current_thrust_throttle = clamp(current_thrust_throttle + change, 0.0, 1.0)
 		_update_throttle_and_slider_visuals()
 		get_viewport().set_input_as_handled()
@@ -156,7 +153,7 @@ func _unhandled_input(event: InputEvent):
 
 	if Input.is_action_pressed("command_speed_down"):
 		var change = (
-			KEY_THROTTLE_INCREMENT
+			Constants.PLAYER_KEY_THROTTLE_STEP
 			* event.get_action_strength("command_speed_down")
 		)
 		current_thrust_throttle = clamp(current_thrust_throttle - change, 0.0, 1.0)
@@ -479,9 +476,9 @@ func _is_jump_facing_direction_ready(jump_direction: Vector3) -> bool:
 	var target_direction = jump_direction.normalized()
 	var current_forward = -agent_body.global_transform.basis.z.normalized()
 	var deviation_angle_deg = rad2deg(current_forward.angle_to(target_direction))
-	return deviation_angle_deg < JUMP_ALIGNMENT_MAX_DEVIATION_DEG or is_equal_approx(
+	return deviation_angle_deg < Constants.JUMP_ALIGNMENT_MAX_DEVIATION_DEG or is_equal_approx(
 		deviation_angle_deg,
-		JUMP_ALIGNMENT_MAX_DEVIATION_DEG
+		Constants.JUMP_ALIGNMENT_MAX_DEVIATION_DEG
 	)
 
 
@@ -502,7 +499,7 @@ func _command_jump_alignment(jump_direction: Vector3) -> void:
 	agent_script.command_align_to(
 		normalized_direction,
 		true,
-		JUMP_ALIGNMENT_FULL_THRUST_SCALE,
+		Constants.JUMP_ALIGNMENT_FULL_THRUST_SCALE,
 		true
 	)
 

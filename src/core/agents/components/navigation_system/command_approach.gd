@@ -29,7 +29,7 @@ func execute(delta: float):
 		
 	var target_pos = target_node.global_transform.origin
 	var target_size = _nav_sys._get_target_effective_size(target_node)
-	var safe_distance = max(_nav_sys.APPROACH_MIN_DISTANCE, target_size * _nav_sys.APPROACH_DISTANCE_MULTIPLIER)
+	var safe_distance = max(Constants.NAV_APPROACH_MIN_DISTANCE, target_size * Constants.NAV_APPROACH_DISTANCE_MULTIPLIER)
 
 	# Estimate target velocity
 	if cmd.get("is_new", true):
@@ -46,7 +46,7 @@ func execute(delta: float):
 
 	# Arrival check
 	var current_speed = _movement_system.get_current_speed()
-	if distance < (safe_distance + _nav_sys.ARRIVAL_DISTANCE_THRESHOLD):
+	if distance < (safe_distance + Constants.NAV_ARRIVAL_DISTANCE_THRESHOLD):
 		if not cmd.get("signaled_stop", false):
 			EventBus.emit_signal("agent_reached_destination", _agent_body)
 			cmd["signaled_stop"] = true

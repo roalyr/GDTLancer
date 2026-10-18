@@ -41,7 +41,7 @@ func execute(delta: float):
 	# --- Safety Distance Check ---
 	var safe_dist = (
 		_nav_sys._get_target_effective_size(target_node)
-		* _nav_sys.CLOSE_ORBIT_DISTANCE_THRESHOLD_FACTOR
+		* Constants.NAV_CLOSE_ORBIT_DISTANCE_FACTOR
 	)
 	
 	if current_radius < safe_dist:

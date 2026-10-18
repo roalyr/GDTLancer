@@ -21,11 +21,10 @@ export var reel_speed: float = 15.0  # Tether reel-in speed (m/s) after the harp
 export var strip_interval: float = 1.0  # Seconds per salvage unit stripped once the wreck is reeled in.
 
 # Beyond this distance the tool stays switched on but does not cycle.
-const MAX_RANGE_FALLOFFS = 2.0
 
 
 func get_max_range() -> float:
-	return optimal_range + falloff * MAX_RANGE_FALLOFFS
+	return optimal_range + falloff * Constants.TOOL_MAX_RANGE_FALLOFFS
 
 
 # EVE-style turret formula without the signature term:

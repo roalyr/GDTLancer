@@ -22,16 +22,12 @@ var _telephoto_min_fov_deg: float = 0.0
 var _telephoto_fraction: float = 0.0
 
 # --- Constants ---
-const MIN_ABSOLUTE_DISTANCE = 1.0
-const MAX_ABSOLUTE_DISTANCE = 500.0
-const NEAR_PLANE_MARGIN = 1.5  # Closest camera distance is radius + near * this.
-const DEFAULT_RADIUS = 10.0
 
 # --- State ---
 var current_distance: float = 0.0
 var current_fov_deg: float = 70.0
 var _zoom_level: float = 0.5
-var _target_radius: float = DEFAULT_RADIUS
+var _target_radius: float = Constants.CAMERA_DEFAULT_TARGET_RADIUS
 var _is_programmatically_setting_slider: bool = false
 
 
@@ -112,21 +108,21 @@ func set_zoom_level(level: float, from_slider_event: bool = false) -> void:
 func get_min_distance() -> float:
 	var near_plane: float = _camera.near if _camera != null else 0.0
 	var by_radius: float = _target_radius * min_distance_multiplier
-	return max(MIN_ABSOLUTE_DISTANCE, max(by_radius, _target_radius + near_plane * NEAR_PLANE_MARGIN))
+	return max(Constants.CAMERA_MIN_DISTANCE, max(by_radius, _target_radius + near_plane * Constants.CAMERA_NEAR_PLANE_MARGIN))
 
 
 func get_max_distance() -> float:
-	return min(MAX_ABSOLUTE_DISTANCE, max(get_min_distance() + 1.0, _target_radius * max_distance_multiplier))
+	return min(Constants.CAMERA_MAX_DISTANCE, max(get_min_distance() + 1.0, _target_radius * max_distance_multiplier))
 
 
 static func get_target_radius_of(target_node: Spatial) -> float:
 	if not is_instance_valid(target_node):
-		return DEFAULT_RADIUS
+		return Constants.CAMERA_DEFAULT_TARGET_RADIUS
 	if target_node.has_method("get_apparent_radius"):
 		return max(float(target_node.get_apparent_radius()), 1.0)
 	if target_node.has_method("get_interaction_radius"):
 		return max(float(target_node.get_interaction_radius()), 1.0)
-	return DEFAULT_RADIUS
+	return Constants.CAMERA_DEFAULT_TARGET_RADIUS
 
 
 # --- Signal Handlers ---

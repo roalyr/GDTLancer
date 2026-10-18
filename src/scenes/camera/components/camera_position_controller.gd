@@ -118,8 +118,6 @@ func _update_orbit_mode(delta: float, bob_offset: Vector3):
 # silhouette sits below the line of sight to the target, inside the lower half of the frame. Zooming
 # in brings the camera close behind the ship (distance scales with the ship's apparent radius); the
 # telephoto range then narrows the FoV onto the target while backing off so the ship stays in frame.
-const TRACKING_TOP_EDGE_SHARE = 0.3  # Hull top edge sits this share of half the FoV below the frame centre.
-const TRACKING_MAX_ELEVATION = 1.4  # Radians.
 const TRACKING_SOLVER_STEPS = 14
 
 
@@ -144,7 +142,7 @@ func _update_target_tracking_mode(delta: float, bob_offset: Vector3):
 	if corners.empty():
 		elevation = get_tracking_elevation(_zoom_controller.get_target_radius(), camera_distance, half_fov * 2.0)
 	else:
-		elevation = solve_tracking_elevation(corners, to_target, up, camera_distance, half_fov * TRACKING_TOP_EDGE_SHARE)
+		elevation = solve_tracking_elevation(corners, to_target, up, camera_distance, half_fov * Constants.CAMERA_TRACKING_TOP_EDGE_SHARE)
 	var offset_dir = -dir_to_target * cos(elevation) + up * sin(elevation)
 	var desired_position = player_pos + offset_dir * camera_distance + bob_offset
 
@@ -174,7 +172,7 @@ static func get_hull_corners(ship: Spatial) -> Array:
 static func solve_tracking_elevation(corners: Array, to_target: Vector3, up: Vector3, camera_distance: float, margin: float) -> float:
 	var dir: Vector3 = to_target.normalized()
 	var low := 0.0
-	var high := TRACKING_MAX_ELEVATION
+	var high := Constants.CAMERA_TRACKING_MAX_ELEVATION
 	for _i in range(TRACKING_SOLVER_STEPS):
 		var elevation: float = (low + high) * 0.5
 		if get_hull_top_angle(corners, to_target, -dir * cos(elevation) + up * sin(elevation), camera_distance, up) > -margin:
@@ -199,4 +197,4 @@ static func get_hull_top_angle(corners: Array, to_target: Vector3, offset_dir: V
 # Fallback without model bounds: treat the hull as a sphere of the apparent radius.
 static func get_tracking_elevation(hull_radius: float, camera_distance: float, fov_rad: float) -> float:
 	var hull_angle: float = asin(clamp(hull_radius / max(camera_distance, 0.001), 0.0, 1.0))
-	return hull_angle + fov_rad * 0.5 * TRACKING_TOP_EDGE_SHARE
+	return hull_angle + fov_rad * 0.5 * Constants.CAMERA_TRACKING_TOP_EDGE_SHARE

@@ -2,40 +2,39 @@
 
 extends Camera
 
-# --- INTERNAL CONFIGURATION ---
-# All tuning is now done directly in this script.
+# --- Configuration (tuning values live in Constants, CAMERA block) ---
 
 # --- General ---
-var distance: float = 55.0
-var position_smoothing_speed: float = 30.0
-var rotation_smoothing_speed: float = 18.0
-var target_smoothing_speed: float = 50.0
-var bob_frequency: float = 0.1
-var bob_amplitude: float = 0.2
+var distance: float = Constants.CAMERA_START_DISTANCE
+var position_smoothing_speed: float = Constants.CAMERA_POSITION_SMOOTHING
+var rotation_smoothing_speed: float = Constants.CAMERA_ROTATION_SMOOTHING
+var target_smoothing_speed: float = Constants.CAMERA_TARGET_SMOOTHING
+var bob_frequency: float = Constants.CAMERA_BOB_FREQUENCY
+var bob_amplitude: float = Constants.CAMERA_BOB_AMPLITUDE
 
 # --- Zoom & FoV ---
-var zoom_speed: float = 0.5
-var min_distance_multiplier: float = 1.0
-var max_distance_multiplier: float = 5.0
-var preferred_distance_multiplier: float = 1.0
-var min_fov_deg: float = 25.0
+var zoom_speed: float = Constants.CAMERA_ZOOM_SPEED
+var min_distance_multiplier: float = Constants.CAMERA_MIN_DISTANCE_MULTIPLIER
+var max_distance_multiplier: float = Constants.CAMERA_MAX_DISTANCE_MULTIPLIER
+var preferred_distance_multiplier: float = Constants.CAMERA_PREFERRED_DISTANCE_MULTIPLIER
+var min_fov_deg: float = Constants.CAMERA_MIN_FOV_DEG
 var max_fov_deg: float = Constants.MAX_ORBIT_CAMERA_FOV
-var telephoto_min_fov_deg: float = 6.0  # Narrowest FoV, reached by zooming past the closest distance.
-var telephoto_zoom_fraction: float = 0.3  # Share of the zoom range spent narrowing FoV at the closest distance.
+var telephoto_min_fov_deg: float = Constants.CAMERA_TELEPHOTO_MIN_FOV_DEG
+var telephoto_zoom_fraction: float = Constants.CAMERA_TELEPHOTO_ZOOM_FRACTION
 
 # --- Rotation & PID ---
-var pitch_min_deg: float = -83.0
-var pitch_max_deg: float = 83.0
-var rotation_max_speed: float = 15.0
-var rotation_input_curve: float = 1.1
-var pid_yaw_kp: float = 10.0
-var pid_yaw_ki: float = 0.01
-var pid_yaw_kd: float = 0.1
-var pid_pitch_kp: float = 10.0
-var pid_pitch_ki: float = 0.01
-var pid_pitch_kd: float = 0.1
-var pid_integral_limit: float = 10.0
-var pid_output_limit_multiplier: float = 100.0
+var pitch_min_deg: float = Constants.CAMERA_PITCH_MIN_DEG
+var pitch_max_deg: float = Constants.CAMERA_PITCH_MAX_DEG
+var rotation_max_speed: float = Constants.CAMERA_ROTATION_MAX_SPEED
+var rotation_input_curve: float = Constants.CAMERA_ROTATION_INPUT_CURVE
+var pid_yaw_kp: float = Constants.CAMERA_PID_YAW_KP
+var pid_yaw_ki: float = Constants.CAMERA_PID_YAW_KI
+var pid_yaw_kd: float = Constants.CAMERA_PID_YAW_KD
+var pid_pitch_kp: float = Constants.CAMERA_PID_PITCH_KP
+var pid_pitch_ki: float = Constants.CAMERA_PID_PITCH_KI
+var pid_pitch_kd: float = Constants.CAMERA_PID_PITCH_KD
+var pid_integral_limit: float = Constants.CAMERA_PID_INTEGRAL_LIMIT
+var pid_output_limit_multiplier: float = Constants.CAMERA_PID_OUTPUT_LIMIT_MULTIPLIER
 
 # --- Camera Mode ---
 enum CameraMode { ORBIT, TARGET_TRACKING }

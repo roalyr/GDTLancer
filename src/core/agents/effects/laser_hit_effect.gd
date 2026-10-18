@@ -6,9 +6,6 @@
 
 extends Spatial
 
-const MAX_INTENSITY = 2.0  # Hits above the tool's full damage flash brighter, up to this.
-const FLASH_DURATION = 0.15
-const LIFETIME = 2.0
 
 var damage: float = 0.0
 var full_damage: float = 6.0  # The firing tool's preset damage: a full-quality hit shows at intensity 1.
@@ -29,7 +26,7 @@ onready var _vapor: CPUParticles = $Vapor
 static func intensity_for_damage(amount: float, full: float) -> float:
 	if full <= 0.0:
 		return 0.0
-	return clamp(sqrt(max(amount, 0.0) / full), 0.0, MAX_INTENSITY)
+	return clamp(sqrt(max(amount, 0.0) / full), 0.0, Constants.HIT_FX_MAX_INTENSITY)
 
 
 func _ready() -> void:
@@ -57,9 +54,9 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_age += delta
-	var flash: float = clamp(1.0 - _age / FLASH_DURATION, 0.0, 1.0)
+	var flash: float = clamp(1.0 - _age / Constants.HIT_FX_FLASH_DURATION, 0.0, 1.0)
 	_light.light_energy = _base_energy * _intensity * flash
 	_glow.visible = flash > 0.0
 	_glow_material.set_shader_param("intensity", min(_intensity, 1.0) * flash)
-	if _age >= LIFETIME:
+	if _age >= Constants.HIT_FX_LIFETIME:
 		queue_free()

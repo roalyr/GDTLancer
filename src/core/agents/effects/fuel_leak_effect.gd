@@ -6,7 +6,6 @@
 
 extends Spatial
 
-const DURATION = 25.0  # Seconds until the leak has bled out
 
 var outward: Vector3 = Vector3.UP  # World direction the jet leaves the hull
 var size_scale: float = 1.0
@@ -29,7 +28,7 @@ func _ready() -> void:
 
 # 1 when fresh, 0 when bled out.
 func get_pressure() -> float:
-	return clamp(1.0 - _age / DURATION, 0.0, 1.0)
+	return clamp(1.0 - _age / Constants.FUEL_LEAK_DURATION, 0.0, 1.0)
 
 
 func _process(delta: float) -> void:
@@ -39,5 +38,5 @@ func _process(delta: float) -> void:
 	_jet.initial_velocity = _base_velocity * (0.3 + 0.7 * pressure)
 	if pressure <= 0.0:
 		_jet.emitting = false
-	if _age >= DURATION + _jet.lifetime:
+	if _age >= Constants.FUEL_LEAK_DURATION + _jet.lifetime:
 		queue_free()

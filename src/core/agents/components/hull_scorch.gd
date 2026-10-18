@@ -12,20 +12,13 @@
 #    how far along the line it is (t) and how far from it (perpendicular distance).
 # 2. Vertices closer to the line than the mark radius are candidates. The smallest t among
 #    them is the first surface the shot meets.
-# 3. Only candidates within SURFACE_DEPTH behind that surface are marked, with a smooth falloff
+# 3. Only candidates within Constants.SCORCH_SURFACE_DEPTH behind that surface are marked, with a smooth falloff
 #    away from the line, so the far side of the hull stays clean.
 # Mark area grows with damage (radius ~ sqrt(damage)) at a fixed centre strength, so the marked
 # area is proportional to damage taken. Repeated hits on the same spot deepen the mark.
 
 extends Node
 
-const MARK_RADIUS_PER_SQRT_DAMAGE = 1.0  # m; a 6-damage hit marks about 2.5 m across
-const CENTRE_MARK = 0.35  # Share of the clean surface a single hit marks at its centre
-const SURFACE_DEPTH = 1.0  # m
-const REBUILD_INTERVAL = 0.2  # s; marks are painted at once, the mesh is re-uploaded at most this often
-const HEAT_PER_DAMAGE = 0.08  # Heat added at a mark's centre per point of damage (1 = full glow)
-const MAX_HEAT = 1.0
-const COOL_TIME = 6.0  # s for heat to fall to ~37%; pushed to the shader so both agree
 # UV2 holds the hit time, so keep it at full float precision when uploading.
 const UPLOAD_FORMAT = Mesh.ARRAY_COMPRESS_DEFAULT & ~Mesh.ARRAY_COMPRESS_TEX_UV2
 
@@ -91,7 +84,7 @@ func _use_own_material_copies(instance: MeshInstance) -> void:
 
 func _own_copy(material: ShaderMaterial) -> ShaderMaterial:
 	var copy: ShaderMaterial = material.duplicate()
-	copy.set_shader_param("damage_cool_time", COOL_TIME)
+	copy.set_shader_param("damage_cool_time", Constants.SCORCH_COOL_TIME)
 	_materials.append(copy)
 	return copy
 
@@ -107,7 +100,7 @@ func add_hit(from_global: Vector3, aim_global: Vector3, damage: float) -> int:
 	last_hit_point = null
 	if damage <= 0.0 or _meshes.empty():
 		return 0
-	var radius: float = MARK_RADIUS_PER_SQRT_DAMAGE * sqrt(damage)
+	var radius: float = Constants.SCORCH_RADIUS_PER_SQRT_DAMAGE * sqrt(damage)
 	var candidates: Array = []  # [surface key, vertex index, t (m), distance from line (m)]
 	var surfaces_by_key := {}  # surface key -> that surface's arrays
 	var instances_by_key := {}  # surface key -> its MeshInstance
@@ -139,7 +132,7 @@ func add_hit(from_global: Vector3, aim_global: Vector3, damage: float) -> int:
 	var painted := 0
 	var closest_to_line := INF
 	for candidate in candidates:
-		if candidate[2] > first_t + SURFACE_DEPTH:
+		if candidate[2] > first_t + Constants.SCORCH_SURFACE_DEPTH:
 			continue
 		if candidate[3] < closest_to_line:
 			# The hit point: the vertex of the first surface nearest the shot line.
@@ -150,7 +143,7 @@ func add_hit(from_global: Vector3, aim_global: Vector3, damage: float) -> int:
 			updates[candidate[0]] = []
 		updates[candidate[0]].append([candidate[1], smoothstep(radius, 0.0, candidate[3])])
 		painted += 1
-	var heat_gain: float = HEAT_PER_DAMAGE * damage
+	var heat_gain: float = Constants.SCORCH_HEAT_PER_DAMAGE * damage
 	for key in updates:
 		var arrays: Array = surfaces_by_key[key]
 		var colors: PoolColorArray = arrays[Mesh.ARRAY_COLOR]
@@ -160,9 +153,9 @@ func add_hit(from_global: Vector3, aim_global: Vector3, damage: float) -> int:
 		for update in updates[key]:
 			var falloff: float = update[1]
 			var color: Color = colors[update[0]]
-			color.a *= 1.0 - CENTRE_MARK * falloff
+			color.a *= 1.0 - Constants.SCORCH_CENTRE_MARK * falloff
 			colors[update[0]] = color
-			heat[update[0]] = Vector2(_clock, min(MAX_HEAT, get_heat(heat[update[0]]) + heat_gain * falloff))
+			heat[update[0]] = Vector2(_clock, min(Constants.SCORCH_MAX_HEAT, get_heat(heat[update[0]]) + heat_gain * falloff))
 		arrays[Mesh.ARRAY_COLOR] = colors
 		arrays[Mesh.ARRAY_TEX_UV2] = heat
 	if painted > 0:
@@ -242,7 +235,7 @@ func get_average_mark() -> float:
 
 # Heat left now from a stored (hit time, heat then) pair; same decay as the shader.
 func get_heat(stored: Vector2) -> float:
-	return stored.y * exp(-max(_clock - stored.x, 0.0) / COOL_TIME)
+	return stored.y * exp(-max(_clock - stored.x, 0.0) / Constants.SCORCH_COOL_TIME)
 
 
 func _process(delta: float) -> void:
@@ -257,7 +250,7 @@ func _process(delta: float) -> void:
 # Uploads the painted colours: each ship gets its own mesh copy, since the imported mesh is shared.
 func rebuild_meshes() -> void:
 	_dirty = false
-	_rebuild_timer = REBUILD_INTERVAL
+	_rebuild_timer = Constants.SCORCH_REBUILD_INTERVAL
 	for entry in _meshes:
 		if not is_instance_valid(entry.instance):
 			continue

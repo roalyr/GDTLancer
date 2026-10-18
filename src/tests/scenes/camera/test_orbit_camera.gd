@@ -134,7 +134,7 @@ func test_tracking_solver_puts_flat_hull_top_just_below_sight_line():
 	var to_target = Vector3(0, 0, -900)
 	for case in [[27.0, 6.0], [27.0, 25.0], [60.0, 100.0]]:
 		var half_fov: float = deg2rad(case[1]) * 0.5
-		var margin: float = half_fov * PositionController.TRACKING_TOP_EDGE_SHARE
+		var margin: float = half_fov * Constants.CAMERA_TRACKING_TOP_EDGE_SHARE
 		var elevation: float = PositionController.solve_tracking_elevation(corners, to_target, Vector3.UP, case[0], margin)
 		var offset_dir = Vector3(0, 0, 1) * cos(elevation) + Vector3.UP * sin(elevation)
 		var top: float = PositionController.get_hull_top_angle(corners, to_target, offset_dir, case[0], Vector3.UP)

@@ -29,9 +29,6 @@ var salvage: Dictionary = {}  # Wrecks only: commodity id -> units left to strip
 const HullScorch = preload("res://src/core/agents/components/hull_scorch.gd")
 const FuelLeakScene = preload("res://scenes/prefabs/effects/fuel_leak.tscn")
 const WreckExplosionScene = preload("res://scenes/prefabs/effects/wreck_explosion.tscn")
-const AIM_SPREAD = 0.6  # Shots aim at a random point within this central share of the hull bounds
-const LEAK_EVERY_DAMAGE = 15.0  # Hull damage that opens one more fuel leak
-const MAX_LEAKS = 6  # The oldest leak gives way beyond this
 var _hull_scorch: Node = null
 var _damage_toward_leak := 0.0
 var _leaks: Array = []
@@ -255,7 +252,7 @@ func get_hull_fraction() -> float:
 # Random point inside the central part of the hull bounds, in world space.
 func get_random_aim_point() -> Vector3:
 	var centre: Vector3 = hull_bounds.position + hull_bounds.size * 0.5
-	var offset := Vector3(randf() - 0.5, randf() - 0.5, randf() - 0.5) * hull_bounds.size * AIM_SPREAD
+	var offset := Vector3(randf() - 0.5, randf() - 0.5, randf() - 0.5) * hull_bounds.size * Constants.HIT_AIM_SPREAD
 	return to_global(centre + offset)
 
 
@@ -282,15 +279,15 @@ func _accumulate_leak_damage(point: Vector3, damage: float) -> void:
 	if is_wreck or damage <= 0.0 or not is_inside_tree():
 		return
 	_damage_toward_leak += damage
-	if _damage_toward_leak < LEAK_EVERY_DAMAGE:
+	if _damage_toward_leak < Constants.FUEL_LEAK_EVERY_DAMAGE:
 		return
-	_damage_toward_leak -= LEAK_EVERY_DAMAGE
+	_damage_toward_leak -= Constants.FUEL_LEAK_EVERY_DAMAGE
 	var live: Array = []
 	for leak in _leaks:
 		if is_instance_valid(leak):
 			live.append(leak)
 	_leaks = live
-	if _leaks.size() >= MAX_LEAKS:
+	if _leaks.size() >= Constants.FUEL_LEAK_MAX_PER_SHIP:
 		_leaks.pop_front().queue_free()
 	var leak = FuelLeakScene.instance()
 	leak.outward = (point - to_global(hull_bounds.position + hull_bounds.size * 0.5)).normalized()

@@ -9,7 +9,7 @@
 # 3. A press the GUI leaves reaches _unhandled_input and starts a world gesture. Until its release
 #    the router takes every motion and the release in _input, ahead of the GUI, so controls the
 #    pointer crosses cannot steal or end the gesture.
-# 4. A world gesture that moves past DRAG_THRESHOLD_PX rotates the camera. Otherwise it is a click:
+# 4. A world gesture that moves past Constants.POINTER_DRAG_THRESHOLD_PX rotates the camera. Otherwise it is a click:
 #    the target bracket nearest the pointer is selected, or the selection is cleared;
 #    a double click flies toward the point.
 # 5. Free flight captures the mouse: all motion steers the camera, and a click leaves free flight
@@ -18,14 +18,12 @@
 
 extends Node
 
-const DRAG_THRESHOLD_PX = 10.0
-const DOUBLE_CLICK_MS = 400
 
 var _hud: Control = null
 var _gesture_active: bool = false
 var _is_dragging: bool = false
 var _press_position: Vector2 = Vector2.ZERO
-var _last_click_ms: int = -DOUBLE_CLICK_MS
+var _last_click_ms: int = -Constants.POINTER_DOUBLE_CLICK_MS
 
 
 func _init(hud: Control = null) -> void:
@@ -58,7 +56,7 @@ func _input(event: InputEvent) -> void:
 	if not _gesture_active:
 		return
 	if event is InputEventMouseMotion:
-		if not _is_dragging and event.position.distance_to(_press_position) > DRAG_THRESHOLD_PX:
+		if not _is_dragging and event.position.distance_to(_press_position) > Constants.POINTER_DRAG_THRESHOLD_PX:
 			_is_dragging = true
 			_set_camera_rotating(true)
 		if _is_dragging:
@@ -99,15 +97,15 @@ func _handle_captured_input(event: InputEvent) -> void:
 func _handle_world_click(position: Vector2) -> void:
 	var bracket = _hud.find_target_bracket_at(position) if is_instance_valid(_hud) else null
 	if is_instance_valid(bracket):
-		_last_click_ms = -DOUBLE_CLICK_MS
+		_last_click_ms = -Constants.POINTER_DOUBLE_CLICK_MS
 		bracket.emit_signal("pressed")
 		return
 	var controller = _get_player_controller()
 	if not is_instance_valid(controller):
 		return
 	var now: int = OS.get_ticks_msec()
-	if now - _last_click_ms <= DOUBLE_CLICK_MS:
-		_last_click_ms = -DOUBLE_CLICK_MS
+	if now - _last_click_ms <= Constants.POINTER_DOUBLE_CLICK_MS:
+		_last_click_ms = -Constants.POINTER_DOUBLE_CLICK_MS
 		controller.handle_world_double_click(position)
 	else:
 		_last_click_ms = now

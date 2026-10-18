@@ -126,7 +126,7 @@ func test_hit_effect_intensity_follows_damage():
 	assert_eq(Effect.intensity_for_damage(0.0, 8.0), 0.0, "No damage, no visible hit.")
 	assert_almost_eq(Effect.intensity_for_damage(8.0, 8.0), 1.0, 0.001, "The tool's preset damage is a full-strength hit.")
 	assert_almost_eq(Effect.intensity_for_damage(2.0, 8.0), 0.5, 0.001)
-	assert_eq(Effect.intensity_for_damage(1000.0, 8.0), Effect.MAX_INTENSITY)
+	assert_eq(Effect.intensity_for_damage(1000.0, 8.0), Constants.HIT_FX_MAX_INTENSITY)
 
 
 func test_zero_damage_cycle_spawns_no_hit_effect():
@@ -176,7 +176,7 @@ func test_harpoon_launch_attaches_tether_that_reels_to_clearance():
 	assert_not_null(tether, "Harpoon hit attaches a tether.")
 	assert_almost_eq(shooter.power, 80.0, 0.001, "Launch costs power_per_cycle.")
 	assert_almost_eq(tether.length, 400.0, 0.01, "Cable starts at the hit distance.")
-	var expected_min: float = (shooter.get_apparent_radius() + target.get_apparent_radius()) * controller.TETHER_CLEARANCE
+	var expected_min: float = (shooter.get_apparent_radius() + target.get_apparent_radius()) * Constants.TETHER_CLEARANCE
 	assert_almost_eq(tether.min_length, expected_min, 0.001, "Reels in to the sum of both apparent radii plus clearance.")
 	tether._physics_process(100.0)
 	assert_almost_eq(tether.length, expected_min, 0.001, "Never reels closer than the clearance.")
@@ -271,8 +271,8 @@ func test_wreck_salvage_includes_its_cargo_and_cargo_adds_mass():
 
 func test_aim_points_spread_inside_the_hull_bounds():
 	var inner := AABB(
-		target.hull_bounds.position + target.hull_bounds.size * (0.5 - target.AIM_SPREAD * 0.5),
-		target.hull_bounds.size * target.AIM_SPREAD
+		target.hull_bounds.position + target.hull_bounds.size * (0.5 - Constants.HIT_AIM_SPREAD * 0.5),
+		target.hull_bounds.size * Constants.HIT_AIM_SPREAD
 	).grow(0.001)
 	var distinct := {}
 	for _i in range(50):
@@ -284,14 +284,14 @@ func test_aim_points_spread_inside_the_hull_bounds():
 
 func test_fuel_leaks_open_with_damage_and_are_capped():
 	var from: Vector3 = shooter.global_transform.origin
-	target.register_hit(from, target.LEAK_EVERY_DAMAGE * 0.5)
+	target.register_hit(from, Constants.FUEL_LEAK_EVERY_DAMAGE * 0.5)
 	assert_eq(target.get_leak_count(), 0, "Not enough damage for a leak yet.")
-	target.register_hit(from, target.LEAK_EVERY_DAMAGE * 0.5)
+	target.register_hit(from, Constants.FUEL_LEAK_EVERY_DAMAGE * 0.5)
 	assert_eq(target.get_leak_count(), 1)
 	for _i in range(20):
-		target.register_hit(from, target.LEAK_EVERY_DAMAGE)
+		target.register_hit(from, Constants.FUEL_LEAK_EVERY_DAMAGE)
 	yield(get_tree(), "idle_frame")
-	assert_eq(target.get_leak_count(), target.MAX_LEAKS, "The oldest leaks give way.")
+	assert_eq(target.get_leak_count(), Constants.FUEL_LEAK_MAX_PER_SHIP, "The oldest leaks give way.")
 
 
 func test_wreck_explodes_into_cloud_carrying_ship_momentum():
