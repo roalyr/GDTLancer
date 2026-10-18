@@ -5,8 +5,8 @@
 # Levels switch at a number of object radii from the camera (a big rock keeps its detail further
 # out than a small ship): Constants.LOD_DISTANCE_RADII for low-poly models,
 # LOD_DISTANCE_RADII_DENSE for dense ones; with Constants.LOD_HYSTERESIS so they do not flicker.
-# Hit marks stay on LOD0 only: lower levels get the original material with marks switched off,
-# and their meshes join group "lod_mesh", which HullScorch leaves alone.
+# Lower levels take the original's materials and join group "lod_mesh": HullScorch paints the
+# marks found on the full-detail mesh onto them too, so marks and heat show at every level.
 
 extends Node
 
@@ -17,11 +17,11 @@ var level: int = 0
 
 var _timer := 0.0
 
-const _CACHE := {}  # Source material -> its copy with marks off, shared by all LOD meshes (a const dictionary stays mutable)
 
 
 # Adds a MeshLod for every model under `visual_root` that has LOD files. Call before
-# HullScorch.setup so the marks keep to the originals. Returns the MeshLod nodes.
+# HullScorch.setup, so the levels get marks and the originals' materials are still unshared.
+# Returns the MeshLod nodes.
 static func attach(visual_root: Node, object_radius: float, thresholds: Array = Constants.LOD_DISTANCE_RADII) -> Array:
 	var created: Array = []
 	var stack: Array = [visual_root]
@@ -67,7 +67,7 @@ func setup(original: Spatial, paths: Array, object_radius: float) -> void:
 	_timer = randf() * Constants.LOD_CHECK_INTERVAL  # Spread the checks over frames
 
 
-# Each LOD mesh takes the materials of the original node of the same name, with marks off.
+# Each LOD mesh takes the materials of the original node of the same name.
 # Surfaces are matched by their imported material's name (Blender's ".001" suffixes aside):
 # decimation can drop a material from a level, which shifts the surfaces after it.
 func _match_materials(original: Node, copy: Node) -> void:
@@ -79,7 +79,7 @@ func _match_materials(original: Node, copy: Node) -> void:
 		if not source is MeshInstance:
 			continue
 		if source.material_override != null:
-			node.material_override = _marks_off(source.material_override)
+			node.material_override = source.material_override
 		var by_name := {}
 		for surface in range(source.mesh.get_surface_count()):
 			by_name[material_key(source.mesh.surface_get_material(surface))] = surface
@@ -87,7 +87,7 @@ func _match_materials(original: Node, copy: Node) -> void:
 			var key: String = material_key(node.mesh.surface_get_material(surface))
 			var source_surface: int = by_name.get(key, surface) if key != "" else surface
 			if source_surface < source.get_surface_material_count() and source.get_surface_material(source_surface) != null:
-				node.set_surface_material(surface, _marks_off(source.get_surface_material(source_surface)))
+				node.set_surface_material(surface, source.get_surface_material(source_surface))
 
 
 # A material's name without Blender's duplicate suffix ("metal.001" -> "metal"); "" if unnamed.
@@ -99,16 +99,6 @@ static func material_key(material: Material) -> String:
 	if dot > 0 and key.substr(dot + 1).is_valid_integer():
 		key = key.substr(0, dot)
 	return key
-
-
-static func _marks_off(material: Material) -> Material:
-	if not (material is ShaderMaterial and material.shader != null and "damage_mark_strength" in material.shader.code):
-		return material
-	if not _CACHE.has(material):
-		var copy: ShaderMaterial = material.duplicate()
-		copy.set_shader_param("damage_mark_strength", 0.0)
-		_CACHE[material] = copy
-	return _CACHE[material]
 
 
 # Level for a camera `distance` away, given the level shown now (hysteresis keeps it from

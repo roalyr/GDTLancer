@@ -21,13 +21,24 @@
 #    point, in 3D and whatever its orientation, so the back of a thin plate, nearby edges and
 #    struts heat too, while the far side of a thick hull (beyond the radius) stays cold.
 # Both radii grow with sqrt(damage); repeated hits deepen marks and add heat.
+#
+# Levels of detail (MeshLod): where the beam lands is worked out on the full-detail mesh, then
+# the same char footprint and heat are painted onto every lower level, measured against the
+# same shot line and impact point, so marks and glow stay put when a level switches. Lower levels
+# are looked up through a coarse vertex grid (VertexGrid, built once per source mesh and shared by
+# all objects using it), so painting them costs a few cells around the hit, not a full scan.
+# Only the levels on screen are painted at once; hits on hidden levels wait and are replayed (with
+# their own hit times, so heat has cooled exactly as it would have) when the level shows, a few
+# per frame (Constants.SCORCH_LOD_REPLAY_BUDGET_MS).
 
 extends Node
 
 # UV2 holds the hit time, so keep it at full float precision when uploading.
 const UPLOAD_FORMAT = Mesh.ARRAY_COMPRESS_DEFAULT & ~Mesh.ARRAY_COMPRESS_TEX_UV2
+const VertexGrid = preload("res://src/core/agents/components/vertex_grid.gd")
 
-var _meshes: Array = []  # {instance, primitives, arrays, materials, paintable: [surface index]}
+var _meshes: Array = []  # Full detail: {instance, primitives, arrays, materials, paintable: [surface index], source, dirty}
+var _lod_meshes: Array = []  # Lower levels of detail, same entries plus "pending" hits; painted from the full-detail hit
 var _dirty := false
 var _rebuild_timer := 0.0
 var _clock := 0.0  # Seconds since setup; the shader's damage_time
@@ -39,13 +50,14 @@ var last_hit_normal = null  # World surface normal there (from the mesh), or nul
 # Collects the mesh surfaces under the ship's visual model that are drawn with a marking shader.
 func setup(visual_root: Node) -> void:
 	_meshes.clear()
+	_lod_meshes.clear()
 	var stack: Array = [visual_root]
 	while not stack.empty():
 		var node = stack.pop_back()
 		stack += node.get_children()
-		if not (node is MeshInstance and node.mesh is Mesh) or node.is_in_group("lod_mesh"):
-			continue  # Lower levels of detail never show marks (MeshLod)
-		var entry := {"instance": node, "primitives": [], "arrays": [], "materials": [], "paintable": []}
+		if not (node is MeshInstance and node.mesh is Mesh):
+			continue
+		var entry := {"instance": node, "primitives": [], "arrays": [], "materials": [], "paintable": [], "source": node.mesh, "dirty": false}
 		for surface in range(node.mesh.get_surface_count()):
 			var arrays: Array = node.mesh.surface_get_arrays(surface)
 			entry.primitives.append(node.mesh.surface_get_primitive_type(surface) if node.mesh is ArrayMesh else Mesh.PRIMITIVE_TRIANGLES)
@@ -67,7 +79,11 @@ func setup(visual_root: Node) -> void:
 					heat[i] = Vector2.ZERO
 				arrays[Mesh.ARRAY_TEX_UV2] = heat
 		if not entry.paintable.empty():
-			_meshes.append(entry)
+			if node.is_in_group("lod_mesh"):
+				entry["pending"] = []
+				_lod_meshes.append(entry)
+			else:
+				_meshes.append(entry)
 			_use_own_material_copies(node)
 
 
@@ -147,6 +163,7 @@ func add_hit(from_global: Vector3, aim_global: Vector3, damage: float) -> int:
 	# array is edited once while detached: pool arrays copy on write, so a still-shared array
 	# would be copied on every vertex write.
 	var updates := {}  # surface key -> [[vertex index, char falloff, heat falloff], ...]
+	var entries_by_key := {}  # surface key -> its mesh entry
 	var painted := 0
 	for candidate in candidates:
 		var key: int = candidate[0]
@@ -159,6 +176,7 @@ func add_hit(from_global: Vector3, aim_global: Vector3, damage: float) -> int:
 			continue
 		if not updates.has(key):
 			updates[key] = []
+			entries_by_key[key] = _meshes[key / 1024]
 		updates[key].append([candidate[1], char_falloff, heat_falloff])
 		painted += 1
 	var heat_gain: float = Constants.SCORCH_HEAT_PER_DAMAGE * damage
@@ -177,9 +195,78 @@ func add_hit(from_global: Vector3, aim_global: Vector3, damage: float) -> int:
 				heat[update[0]] = Vector2(_clock, min(Constants.SCORCH_MAX_HEAT, get_heat(heat[update[0]]) + heat_gain * update[2]))
 		arrays[Mesh.ARRAY_COLOR] = colors
 		arrays[Mesh.ARRAY_TEX_UV2] = heat
+		entries_by_key[key].dirty = true
 	if painted > 0:
+		var hit := {"from": from_global, "aim": aim_global, "first_t": first_t, "depth": depth, "radius": radius,
+			"heat_radius": heat_radius, "heat_gain": heat_gain, "point": last_hit_point, "clock": _clock}
+		for entry in _lod_meshes:
+			if entry.instance.is_visible_in_tree() and entry.pending.empty():  # Older hits first
+				_paint_lod_entry(entry, hit)
+			else:
+				entry.pending.append(hit)
+				if entry.pending.size() > Constants.SCORCH_LOD_MAX_PENDING:
+					entry.pending.pop_front()  # The oldest: long cooled, only its char is lost
 		_dirty = true
 	return painted
+
+
+# A full-detail hit painted onto one lower level of detail: vertices near the impact point, found
+# through the source mesh's vertex grid, judged by the same rules as on the full-detail mesh.
+# `hit` holds the shot line, the surface found, both radii, the heat added and the hit time.
+func _paint_lod_entry(entry: Dictionary, hit: Dictionary) -> void:
+	var first_t: float = hit.first_t
+	var depth: float = hit.depth
+	var radius: float = hit.radius
+	var heat_radius: float = hit.heat_radius
+	var reach: float = max(heat_radius, radius + depth)
+	var to_local: Transform = entry.instance.global_transform.affine_inverse()
+	var scale: float = entry.instance.global_transform.basis.get_scale().x
+	var origin: Vector3 = to_local.xform(hit.from)
+	var direction: Vector3 = (to_local.xform(hit.aim) - origin).normalized()
+	var centre: Vector3 = to_local.xform(hit.point)
+	var by_surface := {}
+	for packed in VertexGrid.query(VertexGrid.for_mesh(entry.source, entry.arrays, entry.paintable), centre, reach / scale):
+		var surface: int = packed / VertexGrid.STRIDE
+		if not by_surface.has(surface):
+			by_surface[surface] = []
+		by_surface[surface].append(packed % VertexGrid.STRIDE)
+	for surface in by_surface:
+		var arrays: Array = entry.arrays[surface]
+		var positions: PoolVector3Array = arrays[Mesh.ARRAY_VERTEX]
+		var colors: PoolColorArray = arrays[Mesh.ARRAY_COLOR]
+		var heat: PoolVector2Array = arrays[Mesh.ARRAY_TEX_UV2]
+		arrays[Mesh.ARRAY_COLOR] = null
+		arrays[Mesh.ARRAY_TEX_UV2] = null
+		for i in by_surface[surface]:
+			var relative: Vector3 = positions[i] - origin
+			var t_local: float = relative.dot(direction)
+			var t: float = t_local * scale  # Along the shot line, m (as on the full-detail mesh)
+			var line_distance: float = sqrt(max(relative.length_squared() - t_local * t_local, 0.0)) * scale
+			var char_falloff := 0.0
+			if t >= first_t and t <= first_t + depth and line_distance < radius and _faces_shooter(arrays, i, direction):
+				char_falloff = smoothstep(radius, 0.0, line_distance)
+			var heat_falloff: float = smoothstep(heat_radius, 0.0, positions[i].distance_to(centre) * scale)
+			if char_falloff > 0.0:
+				var color: Color = colors[i]
+				color.a *= 1.0 - Constants.SCORCH_CENTRE_MARK * char_falloff
+				colors[i] = color
+				entry.dirty = true
+			if heat_falloff > 0.0:
+				heat[i] = Vector2(hit.clock, min(Constants.SCORCH_MAX_HEAT, heat_at(heat[i], hit.clock) + hit.heat_gain * heat_falloff))
+				entry.dirty = true
+		arrays[Mesh.ARRAY_COLOR] = colors
+		arrays[Mesh.ARRAY_TEX_UV2] = heat
+
+
+# Replays hits that landed while a level was hidden, now that it shows, within the frame budget.
+func _replay_pending() -> void:
+	var start: int = OS.get_ticks_usec()
+	for entry in _lod_meshes:
+		while not entry.pending.empty() and entry.instance.is_visible_in_tree():
+			_paint_lod_entry(entry, entry.pending.pop_front())
+			_dirty = true
+			if OS.get_ticks_usec() - start > Constants.SCORCH_LOD_REPLAY_BUDGET_MS * 1000:
+				return
 
 
 # --- Persistence (the player's hull keeps its marks across sectors and saves) ---
@@ -222,12 +309,16 @@ func import_marks(marks: Dictionary) -> void:
 			color.a = alphas[i]
 			colors[i] = color
 		arrays[Mesh.ARRAY_COLOR] = colors
+		_meshes[mesh_index].dirty = true
 		_dirty = true
 
 
 # Restores a clean hull (repairs).
 func clear_marks() -> void:
-	for entry in _meshes:
+	for entry in _lod_meshes:
+		entry.pending.clear()
+	for entry in _meshes + _lod_meshes:
+		entry.dirty = true
 		for surface in entry.paintable:
 			var arrays: Array = entry.arrays[surface]
 			var colors: PoolColorArray = arrays[Mesh.ARRAY_COLOR]
@@ -335,7 +426,12 @@ func get_average_mark() -> float:
 
 # Heat left now from a stored (hit time, heat then) pair; same decay as the shader.
 func get_heat(stored: Vector2) -> float:
-	return stored.y * exp(-max(_clock - stored.x, 0.0) / Constants.SCORCH_COOL_TIME)
+	return heat_at(stored, _clock)
+
+
+# Heat left at `clock` (a replayed hit's time) from a stored (hit time, heat then) pair.
+static func heat_at(stored: Vector2, clock: float) -> float:
+	return stored.y * exp(-max(clock - stored.x, 0.0) / Constants.SCORCH_COOL_TIME)
 
 
 func _process(delta: float) -> void:
@@ -343,17 +439,23 @@ func _process(delta: float) -> void:
 	for material in _materials:
 		material.set_shader_param("damage_time", _clock)
 	_rebuild_timer = max(0.0, _rebuild_timer - delta)
+	_replay_pending()
 	if _dirty and _rebuild_timer <= 0.0:
 		rebuild_meshes()
 
 
 # Uploads the painted colours: each ship gets its own mesh copy, since the imported mesh is shared.
+# Only changed meshes, and only while shown: a hidden level of detail uploads once it appears.
 func rebuild_meshes() -> void:
 	_dirty = false
 	_rebuild_timer = Constants.SCORCH_REBUILD_INTERVAL
-	for entry in _meshes:
-		if not is_instance_valid(entry.instance):
+	for entry in _meshes + _lod_meshes:
+		if not is_instance_valid(entry.instance) or not entry.dirty:
 			continue
+		if not entry.instance.is_visible_in_tree():
+			_dirty = true  # Try again once it shows
+			continue
+		entry.dirty = false
 		var mesh := ArrayMesh.new()
 		for surface in range(entry.arrays.size()):
 			mesh.add_surface_from_arrays(entry.primitives[surface], entry.arrays[surface], [], UPLOAD_FORMAT)

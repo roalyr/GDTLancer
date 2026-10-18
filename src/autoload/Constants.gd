@@ -209,7 +209,9 @@ const SCORCH_SURFACE_DEPTH = 1.0  # m; vertices this far behind the first surfac
 const SCORCH_MIN_SURFACE_POINTS = 8  # Fewer distinct vertices near the shot line = a thin detail (antenna); the shot passes it
 const SCORCH_MAX_WIDENINGS = 3  # On coarse meshes the mark radius doubles up to this many times to find surface
 const SCORCH_REBUILD_INTERVAL = 0.2  # s; marks paint at once, the mesh re-uploads at most this often
-const SCORCH_HEAT_PER_DAMAGE = 0.11  # Heat added at a mark's centre per point of damage (6 damage = red, 30+ = white)
+const SCORCH_LOD_REPLAY_BUDGET_MS = 2.0  # Per frame: hits on hidden levels of detail are painted when shown, this much at a time
+const SCORCH_LOD_MAX_PENDING = 64  # Hits kept per hidden level; the oldest (cooled, char only) give way
+const SCORCH_HEAT_PER_DAMAGE = 0.2  # Heat added at a mark's centre per point of damage (6 damage = red, 30+ = white)
 const SCORCH_HEAT_SPREAD = 1.5  # Heat reaches this many mark radii from the hit (heat outruns the char)
 const SCORCH_GLOW_THRESHOLD = 0.25  # Heat below this does not glow (incandescence), pushed to the shader
 const SCORCH_MAX_HEAT = 3.0  # Heat is temperature: this reads white-hot (glow ramps red, orange, yellow-white)
@@ -262,7 +264,7 @@ const EXPLOSION_DRAG = 0.8  # Per second; the cloud centre slows a bit faster th
 # A model switches to LOD n+1 beyond LOD_DISTANCE_RADII[n] of its own radii from the camera:
 # at 15 radii it is ~70 px tall on a 743 px screen (70 degree view), at 40 ~25 px, at 100 ~10 px.
 const LOD_DISTANCE_RADII = [15.0, 40.0, 100.0]  # Low-poly models (ships): keep detail long
-const LOD_DISTANCE_RADII_DENSE = [10.0, 20.0, 50.0]  # Dense meshes (rocks, tens of thousands of triangles): drop it early
+const LOD_DISTANCE_RADII_DENSE = [4.0, 10.0, 25.0]  # Dense meshes (rocks, tens of thousands of triangles): drop it early
 const LOD_HYSTERESIS = 0.1  # Share of a threshold to pass beyond before switching back, so levels do not flicker
 const LOD_CHECK_INTERVAL = 0.25  # s between distance checks per model
 
