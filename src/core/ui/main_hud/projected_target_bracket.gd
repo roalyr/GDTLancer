@@ -252,14 +252,14 @@ func _build_distance_label_text() -> String:
 		return ""
 	if _is_route_target(target_ref):
 		return "FAR"
-	if not (target_ref is Spatial and is_instance_valid(target_ref)):
+	if not (is_instance_valid(target_ref) and target_ref is Spatial):
 		return ""
 	if target_ref.is_in_group("jump_point"):
 		return "FAR"
 	if not target_ref.is_inside_tree():
 		return ""
 	var player_agent = GlobalRefs.player_agent_body
-	if not (player_agent is Spatial and is_instance_valid(player_agent)):
+	if not (is_instance_valid(player_agent) and player_agent is Spatial):
 		return ""
 	var distance_units = player_agent.global_transform.origin.distance_to(target_ref.global_transform.origin)
 	return _format_distance_label(distance_units)
@@ -338,11 +338,11 @@ func _is_route_target(target_candidate) -> bool:
 
 
 func _is_dockable_target(target_candidate) -> bool:
-	return target_candidate is Node and is_instance_valid(target_candidate) and target_candidate.is_in_group("dockable_station")
+	return is_instance_valid(target_candidate) and target_candidate is Node and target_candidate.is_in_group("dockable_station")
 
 
 func _is_jump_point_target(target_candidate) -> bool:
-	return target_candidate is Node and is_instance_valid(target_candidate) and target_candidate.is_in_group("jump_point")
+	return is_instance_valid(target_candidate) and target_candidate is Node and target_candidate.is_in_group("jump_point")
 
 
 func _is_free_flight_active() -> bool:

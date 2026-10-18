@@ -33,7 +33,7 @@ func get_projected_target_overlay_kind(target_ref) -> String:
 			return _hud.OVERLAY_KIND_JUMP
 		else:
 			return _hud.OVERLAY_KIND_STELLAR
-	if not (target_ref is Node and is_instance_valid(target_ref)):
+	if not (is_instance_valid(target_ref) and target_ref is Node):
 		return ""
 	if target_ref.is_in_group("jump_point"):
 		return _hud.OVERLAY_KIND_JUMP
@@ -86,7 +86,7 @@ func get_target_world_position(target_ref) -> Vector3:
 			get_projection_origin(),
 			Constants.SECTOR_JUMP_ARRIVAL_RADIUS
 		)
-	if target_ref is Spatial and is_instance_valid(target_ref):
+	if is_instance_valid(target_ref) and target_ref is Spatial:
 		return target_ref.global_transform.origin
 	return Vector3.ZERO
 
@@ -240,7 +240,7 @@ func update_world_target_overlay() -> void:
 		if not is_instance_valid(button):
 			continue
 		var target_node = button.target_ref
-		if not (target_node is Spatial and is_instance_valid(target_node)):
+		if not (is_instance_valid(target_node) and target_node is Spatial):
 			button.visible = false
 			apply_projected_target_distance_fade(button, 1.0)
 			continue
@@ -276,14 +276,14 @@ func update_route_target_selection_state() -> void:
 				button.call("set_context_hint", get_projected_target_context_hint(button.target_ref))
 
 func get_world_target_instance_id() -> int:
-	if _hud._current_target is Spatial and is_instance_valid(_hud._current_target) and not is_route_target(_hud._current_target):
+	if is_instance_valid(_hud._current_target) and _hud._current_target is Spatial and not is_route_target(_hud._current_target):
 		return _hud._current_target.get_instance_id()
 	return -1
 
 func get_projected_target_context_hint(target_ref) -> String:
 	if is_route_target(target_ref):
 		return ""
-	if target_ref is Node and is_instance_valid(target_ref) and target_ref.is_in_group("dockable_station"):
+	if is_instance_valid(target_ref) and target_ref is Node and target_ref.is_in_group("dockable_station"):
 		return "Dock Target"
 	if target_ref == _hud._current_target and is_target_valid(target_ref):
 		return "Target Locked"
