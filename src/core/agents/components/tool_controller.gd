@@ -7,7 +7,8 @@
 #   laser   - targets live ships; each cycle deals damage scaled by hit quality. Whatever is in the
 #             line of fire (a rock, another ship) takes the shot instead: rocks are marked, ships damaged.
 #   harpoon - targets wrecks; one launch attaches a tether that reels in to a safe towing distance,
-#             then strips salvage into the hold one unit per strip_interval. Off = cable released.
+#             then strips salvage into the hold one unit per strip_interval. Off (or the hook tears
+#             free) = the hook lets go and the cable winches in; it cannot fire again until it is in.
 
 extends Node
 
@@ -28,6 +29,7 @@ var _tools: Array = []  # UtilityToolTemplate per mount, in ship order
 var _targets: Dictionary = {}  # tool_index -> target body while switched on
 var _cycle_timers: Dictionary = {}  # tool_index -> seconds until the next cycle may start
 var _tethers: Dictionary = {}  # tool_index -> Tether node while a harpoon is attached
+var _retracting: Dictionary = {}  # tool_index -> Tether node winching its cable in
 var _last_cycle_ms: int = -1000000  # When a tool last cycled (drives the firing signature)
 
 
@@ -112,6 +114,18 @@ func get_tether(index: int) -> Node:
 	return _tethers.get(index)
 
 
+# The harpoon's cable is still winching in: it cannot fire yet.
+func is_retracting(index: int) -> bool:
+	if _retracting.has(index) and is_instance_valid(_retracting[index]):
+		return true
+	_retracting.erase(index)
+	return false
+
+
+func get_retracting_tether(index: int) -> Node:
+	return _retracting.get(index) if is_retracting(index) else null
+
+
 # 0 at the start of a cycle, 1 when the next cycle is due.
 func get_cycle_progress(index: int) -> float:
 	var tool_template = get_tool(index)
@@ -128,6 +142,8 @@ func activate(index: int, target: Node) -> Dictionary:
 		return {"success": false, "reason": "not_implemented"}
 	if _agent_body.get("is_wreck"):
 		return {"success": false, "reason": "wrecked"}
+	if is_retracting(index):
+		return {"success": false, "reason": "retracting"}
 	if not can_target(tool_template, target):
 		return {"success": false, "reason": "invalid_target"}
 	if is_active(index):
@@ -144,9 +160,11 @@ func deactivate(index: int, reason: String = "manual") -> void:
 		return
 	_targets.erase(index)
 	if _tethers.has(index):
-		if is_instance_valid(_tethers[index]):
-			_tethers[index].queue_free()
+		var tether = _tethers[index]
 		_tethers.erase(index)
+		if is_instance_valid(tether):
+			tether.start_retract()
+			_retracting[index] = tether
 	emit_signal("tool_deactivated", index, reason)
 
 

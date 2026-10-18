@@ -392,7 +392,10 @@ func _update_tool_buttons() -> void:
 		var active: bool = tools.is_active(index)
 		var actions: Array = TOOL_ACTIONS.get(tool_template.tool_type, ["USE", "STOP"])
 		var name: String = tool_template.hud_label if tool_template.hud_label != "" else tool_template.tool_name.to_upper()
-		button.get_node("Label").text = "%s\n%s" % [name, actions[1] if active else actions[0]]
+		var action: String = actions[1] if active else actions[0]
+		if tools.has_method("is_retracting") and tools.is_retracting(index):
+			action = "WINCHING"
+		button.get_node("Label").text = "%s\n%s" % [name, action]
 		_apply_button_toggle_state(button, active)
 
 
@@ -620,6 +623,8 @@ static func describe_signature(player) -> String:
 func _describe_tool_state(tools: Node, index: int) -> String:
 	var tool_template = tools.get_tool(index)
 	var tool_name: String = tool_template.tool_name.to_upper()
+	if tools.has_method("is_retracting") and tools.is_retracting(index):
+		return "%s  WINCHING IN %.0f m" % [tool_name, tools.get_retracting_tether(index).get_paid_out_length()]
 	if not tools.is_active(index):
 		return "%s  OFF" % tool_name
 	var tether = tools.get_tether(index)

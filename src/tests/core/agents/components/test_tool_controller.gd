@@ -384,12 +384,6 @@ func test_tether_takes_up_slack_at_a_limited_rate():
 	assert_almost_eq(tether.length, before - 15.0, 0.01, "Slack gone: it reels in as usual.")
 
 
-func test_tether_snaps_when_overstretched():
-	var tether = _make_tether(200.0)
-	tether.towed.global_transform.origin = Vector3(0, 0, -200 - Constants.TETHER_SNAP_STRETCH - 10)
-	tether._physics_process(0.1)
-	assert_true(tether.snapped)
-	assert_false(tether.is_valid())
 
 
 
@@ -444,3 +438,84 @@ func test_rope_is_kept_out_of_hull_boxes():
 	assert_false(box.has_point(pushed) and pushed.x < 4.999, "Pushed out through the nearest face.")
 	assert_almost_eq(pushed, Vector3(5, 0, -25), Vector3(0.001, 0.001, 0.001), "The +x face is 4 m away, the others 5 m.")
 
+
+
+# --- Letting go: hook off, cable winched in, then the harpoon is free again ---
+
+func test_released_harpoon_winches_in_before_it_can_fire_again():
+	_make_stripped_ready_wreck(3)
+	controller.set_tools([laser, _make_harpoon()])
+	controller.activate(1, target)
+	controller._physics_process(0.016)
+	var tether = controller.get_tether(1)
+	tether._physics_process(0.016)  # Lays out the cable
+	controller.deactivate(1)
+	assert_null(controller.get_tether(1), "No longer holding the wreck")
+	assert_true(controller.is_retracting(1), "but the cable is still out.")
+	assert_true(tether.retracting)
+	assert_false(tether.is_valid(), "Pulls nothing while winching in.")
+	var result: Dictionary = controller.activate(1, target)
+	assert_false(result.success)
+	assert_eq(result.reason, "retracting")
+	var out: float = tether.get_paid_out_length()
+	assert_gt(out, 300.0)
+	tether._physics_process(1.0)
+	assert_almost_eq(tether.get_paid_out_length(), out - Constants.TETHER_RETRACT_SPEED, 0.01)
+	tether._physics_process(100.0)
+	yield(get_tree(), "idle_frame")
+	assert_false(controller.is_retracting(1), "All in")
+	assert_true(controller.activate(1, target).success, "so it can fire again.")
+
+
+func test_hook_tears_free_when_overstretched_and_winches_in():
+	var tether = _make_tether(200.0)
+	tether._physics_process(0.016)
+	tether.towed.global_transform.origin = Vector3(0, 0, -200 - Constants.TETHER_SNAP_STRETCH - 10)
+	tether._physics_process(0.016)
+	assert_true(tether.snapped)
+	assert_true(tether.retracting, "The cable comes home on its own.")
+
+
+func test_free_cable_end_is_pulled_home_as_it_shortens():
+	var Rope = load("res://src/core/agents/components/tether_rope.gd")
+	var rope = Rope.new()
+	rope.reset(Vector3.ZERO, Vector3(0, 0, -100))
+	var rest := 100.0
+	for _i in range(120):
+		rest = max(1.0, rest - 1.0)
+		rope.step(Vector3.ZERO, Vector3.ZERO, rest, Vector3.ZERO, 1.0 / 60.0, [], false)
+	var tip: Vector3 = rope.points[rope.points.size() - 1]
+	assert_true(tip.length() <= 1.5, "The hook end follows the winch in: %.2f m out" % tip.length())
+
+
+func test_drawn_curve_passes_through_the_rope_points():
+	var Rope = load("res://src/core/agents/components/tether_rope.gd")
+	var source := [Vector3.ZERO, Vector3(1, 2, 0), Vector3(3, 0, 1), Vector3(4, 4, 4)]
+	var smooth: Array = Rope.smooth_points(source, 4)
+	assert_eq(smooth.size(), (source.size() - 1) * 4 + 1)
+	for i in range(source.size()):
+		assert_almost_eq(smooth[i * 4], source[i], Vector3(0.0001, 0.0001, 0.0001))
+
+
+func test_drawn_cable_takes_in_slack_below_the_towing_distance():
+	var Tether = load("res://src/core/agents/components/tether.gd")
+	assert_almost_eq(Tether.get_next_paid_out(36.0, 36.0, 18.0, 0.1), 36.0 - Constants.TETHER_SLACK_TAKEUP_SPEED * 0.1, 0.001, "Closer than towing distance: still takes in slack")
+	assert_almost_eq(Tether.get_next_paid_out(19.0, 36.0, 18.0, 1.0), 18.0, 0.001, "down to the actual distance")
+	assert_almost_eq(Tether.get_next_paid_out(18.0, 36.0, 30.0, 0.1), 30.0, 0.001, "and pays out as they drift apart")
+	assert_almost_eq(Tether.get_next_paid_out(30.0, 36.0, 50.0, 0.1), 36.0, 0.001, "never past the cable's length.")
+
+
+func test_rope_uses_fewer_points_as_the_cable_shortens():
+	var Rope = load("res://src/core/agents/components/tether_rope.gd")
+	assert_eq(Rope.point_count_for(1000.0), Constants.TETHER_ROPE_POINTS, "Long cable: the most points")
+	assert_eq(Rope.point_count_for(10.0), Constants.TETHER_ROPE_MIN_POINTS, "short one: the fewest")
+	var rope = Rope.new()
+	var a := Vector3.ZERO
+	rope.reset(a, Vector3(0, 0, -150))
+	var long_count: int = rope.points.size()
+	for rest in [150.0, 120.0, 90.0, 60.0, 40.0]:
+		for _i in range(30):
+			rope.step(a, Vector3(0, 0, -rest), rest, Vector3.ZERO, 1.0 / 60.0)
+	assert_lt(rope.points.size(), long_count, "Reeled in: fewer points (%d of %d)" % [rope.points.size(), long_count])
+	assert_almost_eq(rope.get_length(), 40.0, 0.5, "and still the right length")
+	assert_almost_eq(rope.points[rope.points.size() - 1], Vector3(0, 0, -40), Vector3(0.01, 0.01, 0.01), "ending at the anchor.")

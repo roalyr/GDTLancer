@@ -147,10 +147,19 @@ const TETHER_DAMPING_RATIO = 0.9
 const TETHER_SNAP_STRETCH = 500.0  # m beyond the cable's length: it snaps
 const TETHER_SLACK_TAKEUP_SPEED = 20.0  # m/s the winch takes up slack when the ships close in (on top of reeling); closing faster shows a loose cable
 # Cable looks (TetherRope, tether_cable.gdshader): shape, strain cue.
-const TETHER_ROPE_POINTS = 24
-const TETHER_ROPE_ITERATIONS = 8  # Spacing passes per step: more = stiffer, truer length
+# Simulated points follow the cable's length: one per TETHER_ROPE_SEGMENT_LENGTH, within the
+# min/max below. Cost grows with points (~0.75 ms per cable per physics frame at 32, ~0.2 at 8);
+# a short towing cable needs few. Drawn smoother still (TETHER_RENDER_SUBDIVISIONS).
+const TETHER_ROPE_POINTS = 32  # At most
+const TETHER_ROPE_MIN_POINTS = 8
+const TETHER_ROPE_SEGMENT_LENGTH = 6.0  # m
+const TETHER_ROPE_ITERATIONS = 12  # Spacing passes per step: more = stiffer, truer length (more points need more)
+const TETHER_ROPE_HULL_PASSES = 3  # Of those, the last this many also keep the cable out of the hulls
 const TETHER_ROPE_DAMPING = 0.97  # Share of a point's own motion (relative to the ships) kept per step
 const TETHER_ROPE_BUCKLE_NUDGE = 0.05  # m of random nudge per step on a fully slack cable, so it buckles
+const TETHER_RENDER_SUBDIVISIONS = 4  # Drawn segments per simulated one (a smooth curve through the points)
+const TETHER_ROPE_SIM_DISTANCE = 1500.0  # m from the camera; further cables are not simulated, just drawn straight
+const TETHER_RETRACT_SPEED = 40.0  # m/s the winch pulls in a cable that has let go; the harpoon fires again once it is in
 const TETHER_CABLE_WIDTH = 0.35  # m
 const TETHER_STRAIN_FULL_STRETCH = 8.0  # m of stretch shown as full strain
 const TETHER_STRAIN_THINNING = 0.35  # Share of the width lost at full strain

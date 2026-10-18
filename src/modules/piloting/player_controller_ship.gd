@@ -248,6 +248,8 @@ func _describe_tool_failure(reason: String) -> String:
 			return "This tool does not work yet"
 		"wrecked":
 			return "Ship is wrecked"
+		"retracting":
+			return "Harpoon cable still winching in"
 	return "Tool unavailable"
 
 
