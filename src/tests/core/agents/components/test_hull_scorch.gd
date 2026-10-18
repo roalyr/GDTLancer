@@ -196,3 +196,28 @@ func test_thin_details_in_front_of_the_hull_are_passed():
 	scorch.add_hit(Vector3(0, 200, 0), Vector3.ZERO, 6.0)
 	assert_almost_eq(scorch.last_hit_point.y, 2.0, 0.01, "The shot lands on the hull, not the antenna tip at y=12.")
 
+
+func _heated(threshold: float) -> int:
+	var count := 0
+	for value in scorch._meshes[0].arrays[0][Mesh.ARRAY_TEX_UV2]:
+		if scorch.get_heat(value) > threshold:
+			count += 1
+	return count
+
+
+func test_stronger_beam_heats_a_wider_area():
+	scorch.add_hit(Vector3(0, 200, 0), Vector3.ZERO, 3.0)
+	var weak: int = _heated(0.0)
+	before_each()
+	scorch.add_hit(Vector3(0, 200, 0), Vector3.ZERO, 12.0)
+	assert_gt(_heated(0.0), weak * 2, "Heat radius grows with beam power.")
+
+
+func test_weak_hit_stays_below_the_glow_threshold():
+	scorch.add_hit(Vector3(0, 200, 0), Vector3.ZERO, 1.0)
+	assert_gt(_heated(0.0), 0, "It still warms the surface")
+	assert_eq(_heated(Constants.SCORCH_GLOW_THRESHOLD), 0, "but not enough to glow.")
+	before_each()
+	scorch.add_hit(Vector3(0, 200, 0), Vector3.ZERO, 12.0)
+	assert_gt(_heated(Constants.SCORCH_GLOW_THRESHOLD), 0, "A powerful beam glows at once.")
+

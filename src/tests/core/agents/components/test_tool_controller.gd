@@ -121,12 +121,14 @@ func test_wreck_drifts_and_cannot_spend_power():
 	assert_almost_eq(shooter.power, 50.0 + shooter.power_regen, 0.001, "Live ships regenerate power.")
 
 
-func test_hit_effect_intensity_follows_damage():
+func test_hit_effect_intensity_follows_absolute_damage():
 	var Effect = load("res://src/core/agents/effects/laser_hit_effect.gd")
-	assert_eq(Effect.intensity_for_damage(0.0, 8.0), 0.0, "No damage, no visible hit.")
-	assert_almost_eq(Effect.intensity_for_damage(8.0, 8.0), 1.0, 0.001, "The tool's preset damage is a full-strength hit.")
-	assert_almost_eq(Effect.intensity_for_damage(2.0, 8.0), 0.5, 0.001)
-	assert_eq(Effect.intensity_for_damage(1000.0, 8.0), Constants.HIT_FX_MAX_INTENSITY)
+	var reference: float = Constants.HIT_FX_REFERENCE_DAMAGE
+	assert_eq(Effect.intensity_for_damage(0.0), 0.0, "No damage, no visible hit.")
+	assert_almost_eq(Effect.intensity_for_damage(reference), 1.0, 0.001)
+	assert_almost_eq(Effect.intensity_for_damage(reference * 0.25), 0.5, 0.001, "A weak beam shows weakly")
+	assert_almost_eq(Effect.intensity_for_damage(reference * 4.0), 2.0, 0.001, "A powerful beam shows more, whatever tool fires it")
+	assert_eq(Effect.intensity_for_damage(1e6), Constants.HIT_FX_MAX_INTENSITY)
 
 
 func test_zero_damage_cycle_spawns_no_hit_effect():

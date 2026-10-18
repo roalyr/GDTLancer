@@ -216,10 +216,10 @@ func _process_laser(index: int, target: Node) -> void:
 	_cycle_timers[index] = tool_template.cycle_time
 	var blocker = find_blocker(target)
 	if blocker != null:
-		_hit_body(blocker, from_pos, damage, tool_template.damage)
+		_hit_body(blocker, from_pos, damage)
 		emit_signal("tool_blocked", index, target, blocker)
 		return
-	_hit_body(target, from_pos, damage, tool_template.damage)
+	_hit_body(target, from_pos, damage)
 	emit_signal("tool_cycled", index, target, quality, damage)
 
 
@@ -237,10 +237,10 @@ func find_blocker(target: Spatial):
 
 
 # Marks, damages (if it can be damaged) and flashes whatever the shot lands on.
-func _hit_body(body: Spatial, from_pos: Vector3, damage: float, full_damage: float) -> void:
+func _hit_body(body: Spatial, from_pos: Vector3, damage: float) -> void:
 	if damage > 0.0:
 		var hit_point: Vector3 = body.register_hit(from_pos, damage) if body.has_method("register_hit") else _find_hit_point(body)
-		_spawn_hit_effect(body, hit_point, damage, full_damage)
+		_spawn_hit_effect(body, hit_point, damage)
 	if body.has_method("apply_damage"):
 		body.apply_damage(damage, _agent_body)
 
@@ -283,12 +283,11 @@ func _launch_harpoon(index: int, target: Node, tool_template) -> void:
 
 
 # Lasers are invisible in vacuum: only the hit shows, as a flash and vaporized hull material.
-func _spawn_hit_effect(target: Spatial, hit_point: Vector3, damage: float, full_damage: float) -> void:
-	if LaserHitEffect.intensity_for_damage(damage, full_damage) <= 0.0 or not target.is_inside_tree():
+func _spawn_hit_effect(target: Spatial, hit_point: Vector3, damage: float) -> void:
+	if LaserHitEffect.intensity_for_damage(damage) <= 0.0 or not target.is_inside_tree():
 		return
 	var effect = LaserHitScene.instance()
 	effect.damage = damage
-	effect.full_damage = full_damage
 	effect.outward = (_agent_body.global_transform.origin - hit_point).normalized()
 	target.add_child(effect)
 	effect.global_transform = Transform(Basis(), hit_point)  # Unscaled even on scaled bodies (asteroids)

@@ -88,6 +88,7 @@ func _use_own_material_copies(instance: MeshInstance) -> void:
 func _own_copy(material: ShaderMaterial) -> ShaderMaterial:
 	var copy: ShaderMaterial = material.duplicate()
 	copy.set_shader_param("damage_cool_time", Constants.SCORCH_COOL_TIME)
+	copy.set_shader_param("damage_glow_threshold", Constants.SCORCH_GLOW_THRESHOLD)
 	_materials.append(copy)
 	return copy
 
@@ -104,24 +105,27 @@ func add_hit(from_global: Vector3, aim_global: Vector3, damage: float) -> int:
 	last_hit_normal = null
 	if damage <= 0.0 or _meshes.empty():
 		return 0
+	# Both grow with beam power: the char mark, and the wider area the heat reaches.
 	var radius: float = Constants.SCORCH_RADIUS_PER_SQRT_DAMAGE * sqrt(damage)
+	var heat_radius: float = radius * Constants.SCORCH_HEAT_SPREAD
 	var surfaces_by_key := {}  # surface key -> that surface's arrays
 	var instances_by_key := {}  # surface key -> its MeshInstance
 	# [surface key, vertex index, t (m), distance from line (m), position]
-	var candidates: Array = _collect_candidates(from_global, aim_global, radius, surfaces_by_key, instances_by_key)
+	var candidates: Array = _collect_candidates(from_global, aim_global, heat_radius, surfaces_by_key, instances_by_key)
 	# Coarse meshes (a large low-poly rock) can have no vertex this close to the line: widen until
 	# the shot finds enough surface to mark. Such marks are coarser, but always show.
 	for _widen in range(Constants.SCORCH_MAX_WIDENINGS):
 		if _count_points(candidates) >= Constants.SCORCH_MIN_SURFACE_POINTS:
 			break
 		radius *= 2.0
-		candidates = _collect_candidates(from_global, aim_global, radius, surfaces_by_key, instances_by_key)
+		heat_radius *= 2.0
+		candidates = _collect_candidates(from_global, aim_global, heat_radius, surfaces_by_key, instances_by_key)
 	var depth: float = max(Constants.SCORCH_SURFACE_DEPTH, radius * 0.5)
 	var first_t: float = _find_first_surface(candidates, depth)
 
 	# Group the darkening per surface, then edit each colour array once while it is detached:
 	# pool arrays copy on write, so a still-shared array would be copied on every vertex write.
-	var updates := {}  # surface key -> [[vertex index, falloff], ...]
+	var updates := {}  # surface key -> [[vertex index, mark falloff, heat falloff], ...]
 	var painted := 0
 	var closest_to_line := INF
 	for candidate in candidates:
@@ -138,7 +142,7 @@ func add_hit(from_global: Vector3, aim_global: Vector3, damage: float) -> int:
 				last_hit_normal = to_world.basis.xform(normals[candidate[1]]).normalized()
 		if not updates.has(candidate[0]):
 			updates[candidate[0]] = []
-		updates[candidate[0]].append([candidate[1], smoothstep(radius, 0.0, candidate[3])])
+		updates[candidate[0]].append([candidate[1], smoothstep(radius, 0.0, candidate[3]), smoothstep(heat_radius, 0.0, candidate[3])])
 		painted += 1
 	var heat_gain: float = Constants.SCORCH_HEAT_PER_DAMAGE * damage
 	for key in updates:
@@ -148,11 +152,10 @@ func add_hit(from_global: Vector3, aim_global: Vector3, damage: float) -> int:
 		arrays[Mesh.ARRAY_COLOR] = null
 		arrays[Mesh.ARRAY_TEX_UV2] = null
 		for update in updates[key]:
-			var falloff: float = update[1]
 			var color: Color = colors[update[0]]
-			color.a *= 1.0 - Constants.SCORCH_CENTRE_MARK * falloff
+			color.a *= 1.0 - Constants.SCORCH_CENTRE_MARK * update[1]
 			colors[update[0]] = color
-			heat[update[0]] = Vector2(_clock, min(Constants.SCORCH_MAX_HEAT, get_heat(heat[update[0]]) + heat_gain * falloff))
+			heat[update[0]] = Vector2(_clock, min(Constants.SCORCH_MAX_HEAT, get_heat(heat[update[0]]) + heat_gain * update[2]))
 		arrays[Mesh.ARRAY_COLOR] = colors
 		arrays[Mesh.ARRAY_TEX_UV2] = heat
 	if painted > 0:

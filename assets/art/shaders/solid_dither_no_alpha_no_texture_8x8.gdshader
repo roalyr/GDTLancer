@@ -19,6 +19,7 @@ uniform vec4 damage_hot_color : hint_color = vec4(1.0, 0.18, 0.03, 1.0);
 uniform vec4 damage_dull_color : hint_color = vec4(0.35, 0.02, 0.0, 1.0);
 uniform float damage_glow_strength = 1.5;
 uniform float damage_cool_time = 6.0;  // Seconds for heat to fall to ~37%
+uniform float damage_glow_threshold = 0.25;  // Heat below this does not glow (incandescence)
 uniform float damage_time = 0.0;  // Per-ship clock, set every frame by HullScorch
 varying float damage_heat;
 uniform vec4 albedo_specular : hint_color = vec4(0.5, 0.5, 0.5, 1.0);
@@ -138,7 +139,7 @@ void fragment() {
     ROUGHNESS = 1.0 - roughness * pow(1.0 - roughness_rim, roughness_sharpness);
 
     EMISSION = emission.rgb * COLOR.rgb * emission_strength;
-    float heat = clamp(damage_heat, 0.0, 1.0);
+    float heat = clamp((damage_heat - damage_glow_threshold) / max(1.0 - damage_glow_threshold, 0.001), 0.0, 1.0);
     EMISSION += mix(damage_dull_color.rgb, damage_hot_color.rgb, heat) * heat * damage_glow_strength;
 }
 

@@ -153,6 +153,8 @@ const SCORCH_MIN_SURFACE_POINTS = 8  # Fewer distinct vertices near the shot lin
 const SCORCH_MAX_WIDENINGS = 3  # On coarse meshes the mark radius doubles up to this many times to find surface
 const SCORCH_REBUILD_INTERVAL = 0.2  # s; marks paint at once, the mesh re-uploads at most this often
 const SCORCH_HEAT_PER_DAMAGE = 0.11  # Heat added at a mark's centre per point of damage (1 = full glow)
+const SCORCH_HEAT_SPREAD = 1.5  # Heat reaches this many mark radii from the hit (heat outruns the char)
+const SCORCH_GLOW_THRESHOLD = 0.25  # Heat below this does not glow (incandescence), pushed to the shader
 const SCORCH_MAX_HEAT = 1.0
 const SCORCH_COOL_TIME = 6.0  # s for heat to fall to ~37%; pushed to the shader so both agree
 
@@ -162,7 +164,10 @@ const SCORCH_COOL_TIME = 6.0  # s for heat to fall to ~37%; pushed to the shader
 # ==================================================================================================
 
 # Laser hit flash and vapour.
-const HIT_FX_MAX_INTENSITY = 2.0  # Hits above the tool's full damage flash brighter, up to this
+# Every hit effect scales with absolute beam damage: a weak hit barely shows, a powerful one flashes
+# hard and throws a big, fast vapour jet. Intensity = sqrt(damage / HIT_FX_REFERENCE_DAMAGE).
+const HIT_FX_REFERENCE_DAMAGE = 6.0  # A hit of this damage shows at intensity 1
+const HIT_FX_MAX_INTENSITY = 4.0
 const HIT_FX_FLASH_DURATION = 0.15  # s
 const HIT_FX_LIFETIME = 2.0  # s
 

@@ -8,7 +8,6 @@ extends Spatial
 
 
 var damage: float = 0.0
-var full_damage: float = 6.0  # The firing tool's preset damage: a full-quality hit shows at intensity 1.
 var outward: Vector3 = Vector3.UP  # World direction the vapour plume leaves the hull (toward the shooter).
 
 var _intensity: float = 0.0
@@ -21,15 +20,14 @@ onready var _glow: MeshInstance = $Glow
 onready var _vapor: CPUParticles = $Vapor
 
 
-# Square root so brightness reads roughly proportional to damage: a quarter-damage hit shows at half strength.
-static func intensity_for_damage(amount: float, full: float) -> float:
-	if full <= 0.0:
-		return 0.0
-	return clamp(sqrt(max(amount, 0.0) / full), 0.0, Constants.HIT_FX_MAX_INTENSITY)
+# Square root of absolute damage, so brightness reads roughly proportional to the energy delivered:
+# a quarter of the reference damage shows at half strength, four times it at double.
+static func intensity_for_damage(amount: float) -> float:
+	return clamp(sqrt(max(amount, 0.0) / Constants.HIT_FX_REFERENCE_DAMAGE), 0.0, Constants.HIT_FX_MAX_INTENSITY)
 
 
 func _ready() -> void:
-	_intensity = intensity_for_damage(damage, full_damage)
+	_intensity = intensity_for_damage(damage)
 	if _intensity <= 0.0:
 		set_process(false)
 		queue_free()
@@ -40,11 +38,13 @@ func _ready() -> void:
 	_glow.material_override = _glow_material
 	_glow.scale = Vector3.ONE * (0.5 + 0.5 * _intensity)
 
+	# More vapour, bigger puffs and a faster jet as the beam gets stronger.
 	var vapor_material: ShaderMaterial = _vapor.material_override.duplicate()
 	vapor_material.set_shader_param("intensity", min(_intensity, 1.0))
 	_vapor.material_override = vapor_material
-	_vapor.amount = int(max(2.0, _vapor.amount * min(_intensity, 1.0)))
+	_vapor.amount = int(max(2.0, _vapor.amount * _intensity))
 	_vapor.scale_amount *= 0.5 + 0.5 * _intensity
+	_vapor.initial_velocity *= sqrt(_intensity)
 	call_deferred("_start_vapor")  # After the spawner has placed the effect
 
 
