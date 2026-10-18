@@ -1,27 +1,10 @@
-# PROJECT: GDTLancer
-# MODULE: test_debug_window.gd
-# STATUS: [Level 2 - Implementation]
-# OWNER: developer
-# ACCESS: read-write
-# USER INSTRUCTION: NONE
-# TRUTH_LINK: None
-# LOG_REF: 2026-06-20 18:41:40
-
-##
-## PROJECT: GDTLancer
-## MODULE: test_debug_window.gd
-## STATUS: [Level 2 - Implementation]
-## TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_PROJECT.md § Automated Testing Boundary; TRUTH_CONSTRAINTS.md §1; TACTICAL_TODO.md TASK_1
-## LOG_REF: 2026-06-04 00:54:15
-##
+# Tests for the debug window, main menu close and HUD dock button.
 
 extends "res://addons/gut/test.gd"
 
 var MainHUDScene = load("res://scenes/ui/hud/main_hud.tscn")
 var DebugWindowScene = load("res://scenes/ui/menus/debug_window.tscn")
-var ContractBoardScene = load("res://scenes/ui/menus/contract_board/ContractBoard.tscn")
 var MainMenuScene = load("res://scenes/ui/menus/main_menu.tscn")
-var StationMenuScene = load("res://scenes/ui/menus/station_menu/StationMenu.tscn")
 
 
 func after_each() -> void:
@@ -30,12 +13,8 @@ func after_each() -> void:
 	GlobalRefs.main_camera = null
 	GlobalRefs.player_agent_body = null
 	GlobalRefs.current_zone = null
-	GlobalRefs.simulation_engine = null
 	GameState.current_sector_id = ""
 	GameState.player_docked_at = ""
-	GameState.player_character_uid = ""
-	GameState.characters.clear()
-	GameState.locations.clear()
 
 
 func test_button_debug_toggles_debug_window_sibling() -> void:
@@ -65,30 +44,6 @@ func test_button_debug_toggles_debug_window_sibling() -> void:
 	assert_false(debug_window.visible, "Pressing ButtonDebug again should hide the DebugWindow.")
 
 
-func test_debug_window_contract_board_button_toggles_contract_board_panel() -> void:
-	var root = Node.new()
-	add_child_autofree(root)
-
-	var debug_window = DebugWindowScene.instance()
-	root.add_child(debug_window)
-
-	var contract_board = ContractBoardScene.instance()
-	root.add_child(contract_board)
-	yield(get_tree(), "idle_frame")
-
-	var contract_board_panel: Panel = contract_board.get_node("Panel")
-	assert_false(contract_board_panel.visible, "ContractBoard should start hidden.")
-
-	var contract_button: Button = debug_window.get_node("Panel/VBoxContainer/debug_ButtonContractBoard")
-	contract_button.emit_signal("pressed")
-	yield(get_tree(), "idle_frame")
-	assert_true(contract_board_panel.visible, "DebugWindow contract board button should open the ContractBoard overlay.")
-
-	contract_button.emit_signal("pressed")
-	yield(get_tree(), "idle_frame")
-	assert_false(contract_board_panel.visible, "Pressing the contract board button again should hide the ContractBoard overlay.")
-
-
 func test_main_menu_close_hides_and_unpauses_live_session() -> void:
 	GameState.current_sector_id = "sector_star_elace"
 
@@ -106,70 +61,7 @@ func test_main_menu_close_hides_and_unpauses_live_session() -> void:
 	assert_false(get_tree().paused, "MainMenu close should unpause gameplay during a live session.")
 
 
-func test_station_menu_close_hides_without_undocking_and_reopens() -> void:
-	var station_menu = StationMenuScene.instance()
-	add_child_autofree(station_menu)
-	GameState.player_docked_at = "sector_star_elace"
-	yield(get_tree(), "idle_frame")
-
-	station_menu._on_player_docked("sector_star_elace")
-	assert_true(station_menu.visible, "Docking should open the station menu.")
-
-	var close_button: BaseButton = station_menu.get_node("Panel/VBoxContainer/HeaderRow/BtnClose")
-	close_button.emit_signal("pressed")
-	yield(get_tree(), "idle_frame")
-
-	assert_false(station_menu.visible, "Closing the station menu should hide it.")
-	assert_eq(GameState.player_docked_at, "sector_star_elace", "Closing the station menu must not undock the player.")
-
-	station_menu.open_for_current_dock()
-	yield(get_tree(), "idle_frame")
-	assert_true(station_menu.visible, "StationMenu should reopen for the current docked location.")
-
-
-func test_station_menu_open_for_current_dock_hides_when_player_is_no_longer_docked() -> void:
-	var station_menu = StationMenuScene.instance()
-	add_child_autofree(station_menu)
-	yield(get_tree(), "idle_frame")
-
-	GameState.player_docked_at = "sector_star_elace"
-	station_menu._on_player_docked("sector_star_elace")
-	assert_true(station_menu.visible, "Precondition: docking should open the station menu.")
-
-	GameState.player_docked_at = ""
-	station_menu.open_for_current_dock()
-	yield(get_tree(), "idle_frame")
-
-	assert_false(station_menu.visible, "StationMenu should hide instead of reopening from stale dock state.")
-
-
-func test_station_menu_service_buttons_show_explicit_trade_feedback_and_do_not_claim_contracts() -> void:
-	var station_menu = StationMenuScene.instance()
-	add_child_autofree(station_menu)
-	GameState.player_docked_at = "sector_star_elace"
-	GameState.locations["sector_star_elace"] = {
-		"location_name": "Elace System",
-		"available_services": ["trade", "contracts", "repair"],
-		"market_inventory": {},
-	}
-	yield(get_tree(), "idle_frame")
-
-	station_menu.open_for_current_dock()
-	station_menu._on_trade_pressed()
-	var market_section = station_menu.get_node("Panel/VBoxContainer/MarketSection")
-	assert_false(
-		market_section.visible,
-		"Trade should not make the market section visible since standalone trading is deprecated."
-	)
-
-	station_menu._on_contracts_pressed()
-	assert_eq(GameState.player_claimed_occurrence_id, "",
-		"StationMenu should not claim contracts directly from its service button path.")
-	assert_eq(GameState.player_cargo_tag, "EMPTY",
-		"StationMenu should not load contract cargo directly from its service button path.")
-
-
-func test_main_hud_dock_button_reopens_station_menu_while_docked() -> void:
+func test_main_hud_dock_button_requests_dock_from_player_controller() -> void:
 	var root = Node.new()
 	add_child_autofree(root)
 
@@ -187,29 +79,4 @@ func test_main_hud_dock_button_reopens_station_menu_while_docked() -> void:
 	hud._on_ButtonDock_pressed()
 	yield(get_tree(), "idle_frame")
 
-	assert_true(is_instance_valid(hud._board_ui_station_instance) and hud._board_ui_station_instance.visible, "MainHUD dock button should open the station board interface.")
-	assert_signal_not_emitted(EventBus, "player_dock_pressed", "Opening the station board should not emit a 3d flight travel request.")
-
-
-func test_main_hud_inventory_button_shows_explicit_placeholder_popup() -> void:
-	var root = Node.new()
-	add_child_autofree(root)
-
-	var camera = Camera.new()
-	add_child_autofree(camera)
-	GlobalRefs.main_camera = camera
-
-	var hud = MainHUDScene.instance()
-	root.add_child(hud)
-	yield(get_tree(), "idle_frame")
-
-	hud._on_ButtonInventory_pressed()
-	yield(get_tree(), "idle_frame")
-
-	assert_true(is_instance_valid(hud._action_feedback_popup), "Inventory button should create a feedback popup for the deferred inventory surface.")
-	assert_eq(hud._action_feedback_popup.window_title, "Inventory Failed", "Deferred inventory feedback should use the failure popup title.")
-	assert_true(
-		hud._action_feedback_popup.dialog_text.find("Inventory management is deferred.") != -1,
-		"Inventory button should explain that the screen is deferred instead of doing nothing."
-	)
-	assert_true(hud._action_feedback_popup.visible, "Deferred inventory feedback should be visible to the player.")
+	assert_signal_emitted(EventBus, "player_dock_pressed", "MainHUD dock button should route docking through the player controller.")

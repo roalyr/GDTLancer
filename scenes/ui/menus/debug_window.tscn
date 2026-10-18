@@ -54,24 +54,6 @@ margin_left = 570.0
 margin_right = 720.0
 margin_bottom = 150.0
 
-[node name="debug_LabelCredits" type="Label" parent="Panel/VBoxContainer"]
-margin_top = 166.0
-margin_right = 720.0
-margin_bottom = 193.0
-text = "Credits: --"
-
-[node name="debug_LabelFP" type="Label" parent="Panel/VBoxContainer"]
-margin_top = 209.0
-margin_right = 720.0
-margin_bottom = 236.0
-text = "Current FP: --"
-
-[node name="debug_LabelTime" type="Label" parent="Panel/VBoxContainer"]
-margin_top = 252.0
-margin_right = 720.0
-margin_bottom = 279.0
-text = "Time: 00:00"
-
 [node name="debug_LabelPlayerHull" type="Label" parent="Panel/VBoxContainer"]
 margin_top = 295.0
 margin_right = 720.0
@@ -84,23 +66,3 @@ margin_right = 720.0
 margin_bottom = 365.0
 value = 100.0
 
-[node name="debug_ButtonSimPanel" type="Button" parent="Panel/VBoxContainer"]
-margin_top = 381.0
-margin_right = 720.0
-margin_bottom = 431.0
-rect_min_size = Vector2( 0, 50 )
-text = "SIM DEBUG"
-
-[node name="debug_ButtonMapPanel" type="Button" parent="Panel/VBoxContainer"]
-margin_top = 447.0
-margin_right = 720.0
-margin_bottom = 497.0
-rect_min_size = Vector2( 0, 50 )
-text = "MAP DEBUG"
-
-[node name="debug_ButtonContractBoard" type="Button" parent="Panel/VBoxContainer"]
-margin_top = 513.0
-margin_right = 720.0
-margin_bottom = 563.0
-rect_min_size = Vector2( 0, 50 )
-text = "CONTRACT BOARD"

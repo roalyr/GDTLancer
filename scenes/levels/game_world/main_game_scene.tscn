@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=2]
+[gd_scene load_steps=16 format=2]
 
 [ext_resource path="res://src/scenes/game_world/world_manager.gd" type="Script" id=1]
 [ext_resource path="res://scenes/ui/hud/main_hud.tscn" type="PackedScene" id=2]
@@ -12,12 +12,9 @@
 [ext_resource path="res://src/scenes/game_world/world_rendering.gd" type="Script" id=16]
 [ext_resource path="res://scenes/ui/menus/main_menu.tscn" type="PackedScene" id=17]
 [ext_resource path="res://scenes/ui/menus/debug_window.tscn" type="PackedScene" id=18]
-[ext_resource path="res://scenes/ui/hud/sim_debug_panel.tscn" type="PackedScene" id=25]
 [ext_resource path="res://src/core/simulation/world_clock.gd" type="Script" id=26]
 [ext_resource path="res://src/core/systems/contact_manager.gd" type="Script" id=27]
-[ext_resource path="res://src/core/ui/debug_map_panel/debug_map_panel.tscn" type="PackedScene" id=28]
 [ext_resource path="res://scenes/prefabs/navigation/jump_transition_rig.tscn" type="PackedScene" id=29]
-[ext_resource path="res://scenes/ui/menus/contract_board/ContractBoard.tscn" type="PackedScene" id=30]
 
 [node name="MainGameScene" type="Node"]
 
@@ -66,8 +63,3 @@ __meta__ = {
 
 [node name="JumpTransitionRig" parent="." instance=ExtResource( 29 )]
 
-[node name="SimDebugPanel" parent="." instance=ExtResource( 25 )]
-
-[node name="DebugMapPanel" parent="." instance=ExtResource( 28 )]
-
-[node name="ContractBoard" parent="." instance=ExtResource( 30 )]

@@ -26,11 +26,9 @@ const NAV_COMMAND_FLEE = 6
 const OVERLAY_KIND_STRUCTURES = "structures"
 const OVERLAY_KIND_STELLAR = "stellar"
 const OVERLAY_KIND_JUMP = "jump"
-const INVENTORY_DEFERRED_MESSAGE = "Inventory management is deferred. Use the debug window for current resource inspection until the inventory screen is rebuilt."
 const INFLIGHT_DRAG_CONTROL_PATHS = [
 	"ScreenControls/CenterLeftZone/ButtonMenu",
 	"ScreenControls/CenterLeftZone/ButtonDebug",
-	"ScreenControls/CenterLeftZone/ButtonInfo",
 	"ScreenControls/CenterLeftZone/ButtonOverlayStructures",
 	"ScreenControls/CenterLeftZone/ButtonOverlayStellar",
 	"ScreenControls/CenterLeftZone/ButtonOverlayJump",
@@ -41,7 +39,6 @@ const INFLIGHT_DRAG_CONTROL_PATHS = [
 	"ScreenControls/BottomCenterZone/ButtonApproach",
 	"ScreenControls/BottomCenterZone/ButtonFlee",
 	"ScreenControls/BottomCenterZone/ButtonDock",
-	"ScreenControls/BottomCenterZone/ButtonInteract",
 	"ScreenControls/CenterRightZone/ButtonUIOpacity",
 	"ScreenControls/CenterRightZone/ButtonCamera",
 	"ScreenControls/CenterRightZone/SliderControlRight"
@@ -49,19 +46,6 @@ const INFLIGHT_DRAG_CONTROL_PATHS = [
 
 const HUDDragControllerClass = preload("res://src/core/ui/main_hud/hud_drag_controller.gd")
 const HUDTargetProjectorClass = preload("res://src/core/ui/main_hud/hud_target_projector.gd")
-
-# --- Sub-Screens ---
-const StationMenuScene = preload("res://scenes/ui/menus/station_menu/StationMenu.tscn")
-var _station_menu_instance = null
-const InteractionWindowScene = preload("res://scenes/ui/menus/interaction_window/InteractionWindow.tscn")
-var _interaction_window_instance = null
-const BoardUIStationScene = preload("res://scenes/ui/board/board_ui_station.tscn")
-const BoardUIVesselScene = preload("res://scenes/ui/board/board_ui_vessel.tscn")
-const BoardUISurveyScene = preload("res://scenes/ui/board/board_ui_survey.tscn")
-var _board_ui_station_instance = null
-var _board_ui_vessel_instance = null
-var _board_ui_survey_instance = null
-var _active_board_instance = null
 
 
 # --- Nodes ---
@@ -78,10 +62,6 @@ onready var button_flee: TextureButton = $ScreenControls/BottomCenterZone/Button
 onready var button_camera: TextureButton = $ScreenControls/CenterRightZone/ButtonCamera
 onready var button_dock: TextureButton = $ScreenControls/BottomCenterZone/ButtonDock
 onready var label_button_dock: Label = $ScreenControls/BottomCenterZone/ButtonDock/LabelButtonDock
-onready var button_interact: TextureButton = $ScreenControls/BottomCenterZone/ButtonInteract
-onready var label_button_interact: Label = $ScreenControls/BottomCenterZone/ButtonInteract/LabelButtonInteract
-onready var label_time: Label = $ScreenControls/TopLeftZone/LabelTime
-onready var label_stats: Label = $ScreenControls/TopRightZone/LabelStats
 
 # --- Game Over UI ---
 onready var game_over_overlay: Control = $"GameOverOverlay (to be made into a dedicated window like main menu)"
@@ -142,18 +122,6 @@ func _ready():
 		):
 			EventBus.connect("player_target_deselected", self, "_on_Player_Target_Deselected")
 
-		if not EventBus.is_connected("player_wealth_changed", self, "_on_player_wealth_changed"):
-			EventBus.connect("player_wealth_changed", self, "_on_player_wealth_changed")
-
-		if not EventBus.is_connected("player_fp_changed", self, "_on_player_fp_changed"):
-			EventBus.connect("player_fp_changed", self, "_on_player_fp_changed")
-
-		if not EventBus.is_connected("sim_tick_completed", self, "_on_sim_tick_completed"):
-			EventBus.connect("sim_tick_completed", self, "_on_sim_tick_completed")
-
-		if EventBus.has_signal("game_time_advanced") and not EventBus.is_connected("game_time_advanced", self, "_on_game_time_advanced"):
-			EventBus.connect("game_time_advanced", self, "_on_game_time_advanced")
-			
 		EventBus.connect("dock_available", self, "_on_dock_available")
 		EventBus.connect("dock_unavailable", self, "_on_dock_unavailable")
 		EventBus.connect("player_docked", self, "_on_player_docked")
@@ -163,11 +131,6 @@ func _ready():
 		# Dock/Attack feedback signals
 		EventBus.connect("dock_action_feedback", self, "_on_dock_action_feedback")
 		EventBus.connect("attack_action_feedback", self, "_on_attack_action_feedback")
-		EventBus.connect("interact_action_feedback", self, "_on_interact_action_feedback")
-
-		# NPC interaction — open InteractionWindow as gatekeeper
-		if not EventBus.is_connected("player_npc_interact_requested", self, "_on_player_npc_interact_requested"):
-			EventBus.connect("player_npc_interact_requested", self, "_on_player_npc_interact_requested")
 
 		# Combat flow (Phase 1: debug feedback)
 		if not EventBus.is_connected("combat_initiated", self, "_on_combat_initiated"):
@@ -192,15 +155,10 @@ func _ready():
 			EventBus.connect("zone_loaded", self, "_on_zone_loaded")
 		if not EventBus.is_connected("sector_changed", self, "_on_sector_changed"):
 			EventBus.connect("sector_changed", self, "_on_sector_changed")
-		if not EventBus.is_connected("tick_advanced", self, "_on_tick_advanced"):
-			EventBus.connect("tick_advanced", self, "_on_tick_advanced")
-		if not EventBus.is_connected("sector_travel_completed", self, "_on_sector_travel_completed"):
-			EventBus.connect("sector_travel_completed", self, "_on_sector_travel_completed")
 
 	else:
 		printerr("MainHUD Error: EventBus not available!")
 
-	call_deferred("_refresh_player_resources")
 	call_deferred("_deferred_refresh_player_hull")
 	set_process_input(true)
 
@@ -225,20 +183,7 @@ func _ready():
 	_register_inflight_drag_controls()
 	_refresh_toggle_button_states()
 
-	# Initialize TU display
-	_refresh_time_display()
-
 	pause_mode = PAUSE_MODE_PROCESS
-
-	# --- Instance Station Menu sub-screen ---
-	_station_menu_instance = StationMenuScene.instance()
-	add_child(_station_menu_instance)
-
-	# --- Instance Interaction Window sub-screen ---
-	_interaction_window_instance = InteractionWindowScene.instance()
-	add_child(_interaction_window_instance)
-	if is_instance_valid(_interaction_window_instance):
-		_interaction_window_instance.connect("closed", self, "_on_interaction_window_closed")
 
 	_refresh_process_state()
 	_update_dock_button_label()
@@ -268,8 +213,7 @@ func _on_Player_Target_Selected(target_node):
 		_update_route_target_selection_state()
 		_update_world_target_selection_state()
 		_update_dock_button_label()
-		_update_interact_button_label()
-		
+
 		# Update camera look_at_target if in target tracking mode
 		var camera = GlobalRefs.main_camera
 		if is_instance_valid(camera) and camera.get_camera_mode() == 1 and target_node is Spatial:  # TARGET_TRACKING
@@ -286,8 +230,7 @@ func _on_Player_Target_Deselected():
 	_refresh_process_state()
 	_refresh_player_hull()
 	_update_dock_button_label()
-	_update_interact_button_label()
-	
+
 	# If camera is in target tracking mode, switch back to orbit mode
 	var camera = GlobalRefs.main_camera
 	if is_instance_valid(camera) and camera.get_camera_mode() == 1:  # TARGET_TRACKING
@@ -316,76 +259,6 @@ func _on_game_state_loaded() -> void:
 	# After load, clear stale UI and refresh player hull label/bar.
 	_on_Player_Target_Deselected()
 	call_deferred("_deferred_refresh_player_hull")
-
-
-func _on_player_wealth_changed(_new_tier = null, _new_progress = null):
-	_refresh_player_resources()
-
-
-func _on_player_fp_changed(_new_fp_value = null):
-	_refresh_player_resources()
-
-
-func _refresh_player_resources() -> void:
-	if is_instance_valid(label_stats):
-		var stats_text = "--- PLAYER STATUS ---"
-		if GameState.agents.has("player"):
-			var p_state = GameState.agents["player"]
-			var wealth_tier = p_state.get("wealth_tier", 0)
-			var health = p_state.get("condition_tag", "NOMINAL")
-			var morale = 30
-			var sub_agents = p_state.get("sub_agents", {})
-			var total_morale = 0.0
-			var count = 0
-			for sub_id in sub_agents:
-				if sub_agents[sub_id].has("morale"):
-					total_morale += sub_agents[sub_id]["morale"]
-					count += 1
-			if count > 0:
-				morale = int(total_morale / count)
-			var supplies = []
-			if p_state.has("cargo_tags"):
-				supplies = p_state.cargo_tags
-			stats_text += "\nHealth: " + str(health) + " | Wealth: " + str(wealth_tier) + "\nMorale: " + str(morale) + " | Supplies: " + str(supplies)
-		label_stats.text = stats_text
-
-	var debug_window = _get_debug_window()
-	if is_instance_valid(debug_window) and debug_window.has_method("refresh_debug_window_resources"):
-		debug_window.call("refresh_debug_window_resources")
-
-
-func _refresh_time_display() -> void:
-	if is_instance_valid(label_time):
-		var time_text = "Time: " + str(GameState.game_time_seconds)
-		time_text += "\nTick: " + str(GameState.sim_tick_count)
-		time_text += " | Sub-tick: " + str(GameState.sub_tick_accumulator)
-		label_time.text = time_text
-
-	if is_instance_valid(label_stats):
-		var ticks: int = 0
-		if WorldClock != null and "current_tick" in WorldClock:
-			ticks = WorldClock.current_tick
-		elif GameState != null:
-			ticks = GameState.sim_tick_count
-		var cycle: int = (ticks / 10) + 1
-		label_stats.text = "SECTOR TRAVEL CLOCK\nTICK %d  |  CYCLE %d" % [ticks, cycle]
-
-	var debug_window = _get_debug_window()
-	if is_instance_valid(debug_window) and debug_window.has_method("refresh_debug_window_time_display"):
-		debug_window.call("refresh_debug_window_time_display")
-
-
-func _on_sim_tick_completed(_tick_count: int = 0) -> void:
-	_refresh_time_display()
-	_refresh_player_resources()
-	_sync_route_target_overlay_with_topology()
-
-func _on_tick_advanced(_current_tick: int = 0, _delta_ticks: int = 0) -> void:
-	_refresh_time_display()
-
-
-func _on_game_time_advanced(_seconds_added: int = 0) -> void:
-	_refresh_time_display()
 
 
 func _input(event: InputEvent) -> void:
@@ -521,64 +394,7 @@ func _on_ButtonDock_pressed():
 			EventBus.emit_signal("player_dock_pressed")
 		return
 
-	open_board_ui("station")
-
-func _on_ButtonInteract_pressed():
-	if _current_target != null and is_instance_valid(_current_target):
-		if _is_celestial(_current_target) or "survey" in _current_target.name.to_lower() or "anomaly" in _current_target.name.to_lower():
-			open_board_ui("survey")
-		else:
-			open_board_ui("station")
-	else:
-		# Status / Interact without target -> Vessel board
-		open_board_ui("vessel")
-
-func open_board_ui(context_type: String = "vessel") -> void:
-	close_board_ui()
-	set_ui_mode("MODE_B")
-	var target_instance = null
-	if context_type == "station":
-		if not is_instance_valid(_board_ui_station_instance):
-			_board_ui_station_instance = BoardUIStationScene.instance()
-			add_child(_board_ui_station_instance)
-			if _board_ui_station_instance.has_signal("board_closed"):
-				_board_ui_station_instance.connect("board_closed", self, "_on_board_ui_closed")
-		target_instance = _board_ui_station_instance
-	elif context_type == "survey":
-		if not is_instance_valid(_board_ui_survey_instance):
-			_board_ui_survey_instance = BoardUISurveyScene.instance()
-			add_child(_board_ui_survey_instance)
-			if _board_ui_survey_instance.has_signal("board_closed"):
-				_board_ui_survey_instance.connect("board_closed", self, "_on_board_ui_closed")
-		target_instance = _board_ui_survey_instance
-	else:
-		if not is_instance_valid(_board_ui_vessel_instance):
-			_board_ui_vessel_instance = BoardUIVesselScene.instance()
-			add_child(_board_ui_vessel_instance)
-			if _board_ui_vessel_instance.has_signal("board_closed"):
-				_board_ui_vessel_instance.connect("board_closed", self, "_on_board_ui_closed")
-		target_instance = _board_ui_vessel_instance
-
-	_active_board_instance = target_instance
-	if is_instance_valid(_active_board_instance):
-		_active_board_instance.visible = true
-		if _active_board_instance.has_method("_populate_board"):
-			_active_board_instance.call("_populate_board")
-
-func close_board_ui() -> void:
-	if is_instance_valid(_board_ui_station_instance):
-		_board_ui_station_instance.visible = false
-	if is_instance_valid(_board_ui_vessel_instance):
-		_board_ui_vessel_instance.visible = false
-	if is_instance_valid(_board_ui_survey_instance):
-		_board_ui_survey_instance.visible = false
-	set_ui_mode("MODE_A")
-
-func _on_board_ui_closed() -> void:
-	close_board_ui()
-
-func _on_player_npc_interact_requested(_agent_id: String, _target_node: Spatial) -> void:
-	open_board_ui("station")
+	EventBus.emit_signal("player_dock_pressed")
 
 
 func _on_SliderControlLeft_value_changed(value):
@@ -629,10 +445,6 @@ func _on_attack_action_feedback(success: bool, message: String) -> void:
 	_show_action_feedback_popup("Attack", success, message)
 
 
-func _on_interact_action_feedback(success: bool, message: String) -> void:
-	_show_action_feedback_popup("Interact", success, message)
-
-
 func _show_action_feedback_popup(action_type: String, success: bool, message: String) -> void:
 	if not is_instance_valid(_action_feedback_popup):
 		_action_feedback_popup = AcceptDialog.new()
@@ -653,30 +465,6 @@ func _on_SliderControlRight_value_changed(value):
 	# This slider is inverted (rotated by 180) for the sake of appearance.
 	if EventBus:
 		EventBus.emit_signal("player_ship_speed_changed", value)
-
-
-func _on_ButtonCharacter_pressed():
-	_toggle_debug_panel("SimDebugPanel", "_toggle")
-
-
-func _on_ButtonNarrativeStatus_pressed():
-	_toggle_debug_panel("DebugMapPanel", "_toggle_panel")
-
-
-func _on_ButtonInventory_pressed():
-	_show_action_feedback_popup("Inventory", false, INVENTORY_DEFERRED_MESSAGE)
-
-
-func _toggle_debug_panel(panel_name: String, toggle_method: String) -> void:
-	var scene_root = get_tree().current_scene
-	if not is_instance_valid(scene_root):
-		return
-	var panel = scene_root.find_node(panel_name, true, false)
-	if not is_instance_valid(panel):
-		printerr("MainHUD: Missing debug panel: %s" % panel_name)
-		return
-	if panel.has_method(toggle_method):
-		panel.call(toggle_method)
 
 
 func _get_debug_window() -> Node:
@@ -790,11 +578,6 @@ func _on_zone_loaded(_zone_node, _zone_path, _agent_container_node) -> void:
 func _on_sector_changed(_new_sector_id, _old_sector_id) -> void:
 	_rebuild_projected_target_overlays()
 	_reset_travel_state_and_target()
-	_refresh_time_display()
-
-func _on_sector_travel_completed(_dest_sector_id, _supplies_cost, _tick_cost) -> void:
-	_reset_travel_state_and_target()
-	_refresh_time_display()
 
 
 func _refresh_process_state() -> void:
@@ -834,17 +617,7 @@ func _resolve_target_display_name(target_node) -> String:
 		if "station_name" in target_node and target_node.station_name != "":
 			return target_node.station_name
 		return "Station"
-	if "character_uid" in target_node:
-		var char_uid = target_node.character_uid
-		if GameState.characters.has(char_uid):
-			var char_res = GameState.characters[char_uid]
-			if char_res and "character_name" in char_res:
-				return char_res.character_name
-		var alt_key = int(char_uid) if typeof(char_uid) == TYPE_STRING else str(char_uid)
-		if GameState.characters.has(alt_key):
-			var char_res = GameState.characters[alt_key]
-			if char_res and "character_name" in char_res:
-				return char_res.character_name
+	if target_node.is_in_group("agent_body"):
 		return target_node.name
 	return target_node.name.replace("_", " ")
 
@@ -937,28 +710,6 @@ func _update_dock_button_label() -> void:
 		label_button_dock.text = "TRAVEL"
 	else:
 		label_button_dock.text = "DOCK"
-
-
-func _update_interact_button_label() -> void:
-	if not is_instance_valid(label_button_interact):
-		return
-	if _current_target != null and _current_target is Node and is_instance_valid(_current_target) and (_current_target.is_in_group("agent_body") or _current_target.is_in_group("Agents")):
-		label_button_interact.text = "HAIL"
-	elif _current_target != null and _current_target is Node and is_instance_valid(_current_target) and (_current_target.is_in_group("planet") or _current_target.is_in_group("moon") or _current_target.is_in_group("stellar_body") or _is_celestial(_current_target)):
-		label_button_interact.text = "SCAN"
-	else:
-		label_button_interact.text = "STATUS"
-
-
-func _is_celestial(node) -> bool:
-	if not is_instance_valid(node) or not node is Node:
-		return false
-	if node.is_in_group("planet") or node.is_in_group("moon") or node.is_in_group("stellar_body"):
-		return true
-	var name_lower = node.name.to_lower()
-	if name_lower.find("star") != -1 or name_lower.find("planet") != -1 or name_lower.find("moon") != -1:
-		return true
-	return false
 
 
 func _instance_projected_target_bracket():
@@ -1094,45 +845,3 @@ func _get_projected_target_context_hint(target_ref) -> String:
 
 func _update_world_target_selection_state() -> void:
 	_target_projector.update_world_target_selection_state()
-
-
-func set_ui_mode(new_mode: String) -> void:
-	if new_mode == "MODE_B":
-		GameState.current_ui_mode = "MODE_B"
-		get_tree().paused = true
-		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
-		
-		# Hide Mode A HUD elements
-		if has_node("ScreenControls"):
-			get_node("ScreenControls").visible = false
-		if is_instance_valid(projected_target_overlay):
-			projected_target_overlay.visible = false
-			
-		EventBus.emit_signal("ui_mode_changed", "MODE_B")
-		
-	elif new_mode == "MODE_A":
-		GameState.current_ui_mode = "MODE_A"
-		get_tree().paused = false
-		
-		# Restore appropriate mouse mode
-		var is_free_flight = _is_player_free_flight_active()
-		if is_free_flight:
-			Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
-		else:
-			Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
-			
-		# Show Mode A HUD elements
-		if has_node("ScreenControls"):
-			get_node("ScreenControls").visible = true
-		if is_instance_valid(projected_target_overlay):
-			projected_target_overlay.visible = true
-			
-		# Ensure Mode B panels are closed
-		if is_instance_valid(_interaction_window_instance):
-			_interaction_window_instance.visible = false
-			
-		EventBus.emit_signal("ui_mode_changed", "MODE_A")
-
-
-func _on_interaction_window_closed() -> void:
-	set_ui_mode("MODE_A")
