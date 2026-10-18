@@ -27,7 +27,14 @@ var cargo_capacity: int = 0  # Units
 var salvage: Dictionary = {}  # Wrecks only: commodity id -> units left to strip
 
 const HullScorch = preload("res://src/core/agents/components/hull_scorch.gd")
+const FuelLeakScene = preload("res://scenes/prefabs/effects/fuel_leak.tscn")
+const WreckExplosionScene = preload("res://scenes/prefabs/effects/wreck_explosion.tscn")
+const AIM_SPREAD = 0.6  # Shots aim at a random point within this central share of the hull bounds
+const LEAK_EVERY_DAMAGE = 15.0  # Hull damage that opens one more fuel leak
+const MAX_LEAKS = 6  # The oldest leak gives way beyond this
 var _hull_scorch: Node = null
+var _damage_toward_leak := 0.0
+var _leaks: Array = []
 
 func is_player() -> bool:
 	return agent_type == "player"
@@ -208,8 +215,6 @@ func apply_damage(amount: float, source: Node = null) -> void:
 	hull = max(0.0, hull - amount)
 	if is_player():
 		GameState.player_hull = hull
-	if is_instance_valid(_hull_scorch) and source is Spatial:
-		_hull_scorch.add_hit(source.global_transform.origin, amount)
 	EventBus.emit_signal("agent_damaged", self, amount, source)
 	if hull <= 0.0:
 		become_wreck()
@@ -227,6 +232,7 @@ func become_wreck() -> void:
 		salvage[commodity_id] = int(salvage.get(commodity_id, 0)) + int(cargo[commodity_id])
 	cargo.clear()
 	_update_mass()
+	_spawn_explosion()
 	add_to_group("wreck")
 	EventBus.emit_signal("agent_disabled", self)
 
@@ -240,6 +246,73 @@ func try_spend_power(amount: float) -> bool:
 
 func get_hull_fraction() -> float:
 	return hull / hull_max if hull_max > 0.0 else 0.0
+
+
+# --- Hits & Damage Effects (placed from the hull itself; no hardpoints) ---
+
+# Random point inside the central part of the hull bounds, in world space.
+func get_random_aim_point() -> Vector3:
+	var centre: Vector3 = hull_bounds.position + hull_bounds.size * 0.5
+	var offset := Vector3(randf() - 0.5, randf() - 0.5, randf() - 0.5) * hull_bounds.size * AIM_SPREAD
+	return to_global(centre + offset)
+
+
+# A shot from `from_global` lands on the hull: marks it, may open a fuel leak, and returns the
+# world point it hit. Aims at random points (a line can pass between wings), then the centre.
+func register_hit(from_global: Vector3, damage: float) -> Vector3:
+	var point = null
+	if is_instance_valid(_hull_scorch) and _hull_scorch.is_paintable() and damage > 0.0:
+		for attempt in range(3):
+			var aim: Vector3 = get_random_aim_point() if attempt < 2 else to_global(hull_bounds.position + hull_bounds.size * 0.5)
+			_hull_scorch.add_hit(from_global, aim, damage)
+			point = _hull_scorch.last_hit_point
+			if point != null:
+				break
+	if point == null:
+		point = get_hull_point_facing(from_global)
+	_accumulate_leak_damage(point, damage)
+	return point
+
+
+func _accumulate_leak_damage(point: Vector3, damage: float) -> void:
+	if is_wreck or damage <= 0.0 or not is_inside_tree():
+		return
+	_damage_toward_leak += damage
+	if _damage_toward_leak < LEAK_EVERY_DAMAGE:
+		return
+	_damage_toward_leak -= LEAK_EVERY_DAMAGE
+	var live: Array = []
+	for leak in _leaks:
+		if is_instance_valid(leak):
+			live.append(leak)
+	_leaks = live
+	if _leaks.size() >= MAX_LEAKS:
+		_leaks.pop_front().queue_free()
+	var leak = FuelLeakScene.instance()
+	leak.outward = (point - to_global(hull_bounds.position + hull_bounds.size * 0.5)).normalized()
+	leak.size_scale = clamp(get_apparent_radius() / 12.0, 0.5, 5.0)
+	add_child(leak)
+	leak.global_transform.origin = point
+	_leaks.append(leak)
+
+
+func get_leak_count() -> int:
+	var count := 0
+	for leak in _leaks:
+		if is_instance_valid(leak):
+			count += 1
+	return count
+
+
+func _spawn_explosion() -> void:
+	if not is_inside_tree():
+		return
+	var holder: Node = GlobalRefs.agent_container if is_instance_valid(GlobalRefs.agent_container) else get_parent()
+	var explosion = WreckExplosionScene.instance()
+	explosion.velocity = linear_velocity
+	explosion.radius = get_apparent_radius()
+	holder.add_child(explosion)
+	explosion.global_transform.origin = global_transform.origin
 
 
 # --- Cargo & Salvage API ---

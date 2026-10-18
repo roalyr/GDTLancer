@@ -9,14 +9,15 @@ render_mode
 
 // --- Base colors per Fresnel layer ---
 uniform vec4 albedo : hint_color = vec4(0.3, 0.3, 0.3, 1.0);
-// Damage marks (HullScorch). Off unless damage_mark_strength > 0.
+// Damage marks (HullScorch), on by default; set damage_mark_strength = 0 for special surfaces.
 // Vertex alpha: 1 = clean, lower = marked (blends to damage_mark_color, the cooled char).
 // UV2: (time of last hit, heat then); heat decays with damage_cool_time and glows red while hot.
+// Keep in sync with the other solid shader.
 uniform vec4 damage_mark_color : hint_color = vec4(0.02, 0.02, 0.02, 1.0);
-uniform float damage_mark_strength : hint_range(0.0, 1.0) = 0.0;
+uniform float damage_mark_strength : hint_range(0.0, 1.0) = 1.0;
 uniform vec4 damage_hot_color : hint_color = vec4(1.0, 0.18, 0.03, 1.0);
 uniform vec4 damage_dull_color : hint_color = vec4(0.35, 0.02, 0.0, 1.0);
-uniform float damage_glow_strength = 3.0;
+uniform float damage_glow_strength = 1.5;
 uniform float damage_cool_time = 6.0;  // Seconds for heat to fall to ~37%
 uniform float damage_time = 0.0;  // Per-ship clock, set every frame by HullScorch
 varying float damage_heat;

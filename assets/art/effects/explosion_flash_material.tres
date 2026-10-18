@@ -1,0 +1,9 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=2]
+
+[ext_resource path="res://assets/art/shaders/hit_flash.gdshader" type="Shader" id=1]
+
+[resource]
+shader = ExtResource( 1 )
+shader_param/tint = Color( 1, 0.8, 0.55, 1 )
+shader_param/intensity = 1.0
+shader_param/min_screen_height = 0.04

@@ -7,7 +7,7 @@ extends Node
 
 const PERIOD = 2.0  # Seconds; stiffness of the cable for the pair's combined mass.
 const DAMPING_RATIO = 0.9
-const CABLE_COLOR = Color(0.55, 0.55, 0.6)
+const CableMaterial = preload("res://assets/art/effects/tether_cable_material.tres")
 
 var holder: RigidBody = null
 var towed: RigidBody = null
@@ -29,10 +29,7 @@ func setup(p_holder: RigidBody, p_towed: RigidBody, p_length: float, p_min_lengt
 func _ready() -> void:
 	_cable = ImmediateGeometry.new()
 	_cable.set_as_toplevel(true)
-	var material = SpatialMaterial.new()
-	material.flags_unshaded = true
-	material.albedo_color = CABLE_COLOR
-	_cable.material_override = material
+	_cable.material_override = CableMaterial
 	add_child(_cable)
 
 

@@ -11,6 +11,7 @@
 extends Node
 
 const LaserHitEffect = preload("res://src/core/agents/effects/laser_hit_effect.gd")
+const LaserHitScene = preload("res://scenes/prefabs/effects/laser_hit.tscn")
 const Tether = preload("res://src/core/agents/components/tether.gd")
 
 signal tool_activated(tool_index, target)
@@ -209,7 +210,9 @@ func _process_laser(index: int, target: Node) -> void:
 	var quality: float = tool_template.get_hit_quality(distance, angular)
 	var damage: float = tool_template.damage * quality
 	_cycle_timers[index] = tool_template.cycle_time
-	_spawn_hit_effect(target, damage, tool_template.damage)
+	if damage > 0.0:
+		var hit_point: Vector3 = target.register_hit(from_pos, damage) if target.has_method("register_hit") else _find_hit_point(target)
+		_spawn_hit_effect(target, hit_point, damage, tool_template.damage)
 	target.apply_damage(damage, _agent_body)
 	emit_signal("tool_cycled", index, target, quality, damage)
 
@@ -252,11 +255,10 @@ func _launch_harpoon(index: int, target: Node, tool_template) -> void:
 
 
 # Lasers are invisible in vacuum: only the hit shows, as a flash and vaporized hull material.
-func _spawn_hit_effect(target: Spatial, damage: float, full_damage: float) -> void:
+func _spawn_hit_effect(target: Spatial, hit_point: Vector3, damage: float, full_damage: float) -> void:
 	if LaserHitEffect.intensity_for_damage(damage, full_damage) <= 0.0 or not target.is_inside_tree():
 		return
-	var hit_point: Vector3 = _find_hit_point(target)
-	var effect = LaserHitEffect.new()
+	var effect = LaserHitScene.instance()
 	effect.damage = damage
 	effect.full_damage = full_damage
 	effect.size_scale = clamp(target.get_hull_radius() / 10.0, 1.0, 10.0) if target.has_method("get_hull_radius") else 1.0
@@ -265,8 +267,7 @@ func _spawn_hit_effect(target: Spatial, damage: float, full_damage: float) -> vo
 	effect.global_transform.origin = hit_point
 
 
-# Point on the target's hull facing this ship. Collision shapes are placeholders,
-# so the visual model's bounds are used instead of a physics ray.
+# Fallback hit point for targets without hull marking: the side of their bounds facing this ship.
 func _find_hit_point(target: Spatial) -> Vector3:
 	if target.has_method("get_hull_point_facing"):
 		return target.get_hull_point_facing(_agent_body.global_transform.origin)

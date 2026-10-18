@@ -1,22 +1,14 @@
-# LaserHitEffect: what a laser hit looks like in vacuum. The beam itself is invisible, so only
-# the hit point shows: a brief flash of light and a puff of vaporized hull material.
-# Brightness and amount follow the damage dealt, so hits can be judged by eye; no damage shows nothing.
-# Parent it to the target body so it moves with the hull, then set global position.
+# LaserHitEffect (scenes/prefabs/effects/laser_hit.tscn): what a laser hit looks like in vacuum.
+# The beam itself is invisible, so only the hit point shows: a brief flash of light and a puff of
+# vaporized hull material. Brightness and amount follow the damage dealt, so hits can be judged by
+# eye; no damage shows nothing. Looks are authored in the scene and its materials; this script only
+# scales, fades and aims them. Parent it to the target body, then set its global position.
 
 extends Spatial
-
-const FlashShader = preload("res://assets/art/shaders/hit_flash.gdshader")
-const VaporShader = preload("res://assets/art/shaders/hit_vapor.gdshader")
 
 const MAX_INTENSITY = 2.0  # Hits above the tool's full damage flash brighter, up to this.
 const FLASH_DURATION = 0.15
 const LIFETIME = 2.0
-const FLASH_ENERGY = 6.0
-const FLASH_RANGE = 40.0
-const FLASH_COLOR = Color(1.0, 0.85, 0.65)
-const VAPOR_AMOUNT = 24
-const VAPOR_SIZE = 2.5  # Metres.
-const FLASH_MIN_SCREEN_HEIGHT = 0.02  # The flash stays readable at any range; vapour uses the shader default.
 
 var damage: float = 0.0
 var full_damage: float = 6.0  # The firing tool's preset damage: a full-quality hit shows at intensity 1.
@@ -24,10 +16,13 @@ var size_scale: float = 1.0  # Grows the effect with the target's size so large 
 var outward: Vector3 = Vector3.UP  # World direction the vapour plume leaves the hull (toward the shooter).
 
 var _intensity: float = 0.0
-var _light: OmniLight = null
-var _glow: MeshInstance = null
+var _age := 0.0
+var _base_energy := 0.0
 var _glow_material: ShaderMaterial = null
-var _age: float = 0.0
+
+onready var _light: OmniLight = $Light
+onready var _glow: MeshInstance = $Glow
+onready var _vapor: CPUParticles = $Vapor
 
 
 # Square root so brightness reads roughly proportional to damage: a quarter-damage hit shows at half strength.
@@ -43,70 +38,28 @@ func _ready() -> void:
 		set_process(false)
 		queue_free()
 		return
+	scale = Vector3.ONE * size_scale
+	_base_energy = _light.light_energy
+	_light.omni_range *= size_scale
+	_light.light_energy = _base_energy * _intensity
+	_glow_material = _glow.material_override.duplicate()
+	_glow.material_override = _glow_material
+	_glow.scale = Vector3.ONE * (0.5 + 0.5 * _intensity)
 
-	_light = OmniLight.new()
-	_light.light_color = FLASH_COLOR
-	_light.omni_range = FLASH_RANGE * size_scale
-	_light.light_energy = FLASH_ENERGY * _intensity
-	add_child(_light)
-
-	_glow_material = ShaderMaterial.new()
-	_glow_material.shader = FlashShader
-	_glow_material.set_shader_param("tint", FLASH_COLOR)
-	_glow_material.set_shader_param("min_screen_height", FLASH_MIN_SCREEN_HEIGHT)
-	_glow_material.set_shader_param("intensity", min(_intensity, 1.0))
-	var glow_mesh = QuadMesh.new()
-	glow_mesh.size = Vector2.ONE * VAPOR_SIZE * 2.0 * size_scale * (0.5 + 0.5 * _intensity)
-	glow_mesh.material = _glow_material
-	_glow = MeshInstance.new()
-	_glow.mesh = glow_mesh
-	add_child(_glow)
-
-	add_child(_make_vapor())
+	var vapor_material: ShaderMaterial = _vapor.material_override.duplicate()
+	vapor_material.set_shader_param("intensity", min(_intensity, 1.0))
+	_vapor.material_override = vapor_material
+	_vapor.amount = int(max(2.0, _vapor.amount * min(_intensity, 1.0)))
+	_vapor.scale_amount *= 0.5 + 0.5 * _intensity
+	_vapor.direction = global_transform.basis.xform_inv(outward).normalized()
+	_vapor.emitting = true
 
 
 func _process(delta: float) -> void:
 	_age += delta
 	var flash: float = clamp(1.0 - _age / FLASH_DURATION, 0.0, 1.0)
-	_light.light_energy = FLASH_ENERGY * _intensity * flash
+	_light.light_energy = _base_energy * _intensity * flash
 	_glow.visible = flash > 0.0
 	_glow_material.set_shader_param("intensity", min(_intensity, 1.0) * flash)
 	if _age >= LIFETIME:
 		queue_free()
-
-
-# Glowing then cooling, expanding and fading puffs that drift off the hull.
-func _make_vapor() -> CPUParticles:
-	var material = ShaderMaterial.new()
-	material.shader = VaporShader
-	material.set_shader_param("intensity", min(_intensity, 1.0))
-	var mesh = QuadMesh.new()
-	mesh.size = Vector2.ONE * VAPOR_SIZE * size_scale
-	mesh.material = material
-
-	var vapor = CPUParticles.new()
-	vapor.mesh = mesh
-	vapor.one_shot = true
-	vapor.explosiveness = 0.85
-	vapor.amount = int(max(2.0, VAPOR_AMOUNT * min(_intensity, 1.0)))
-	vapor.lifetime = LIFETIME * 0.8
-	vapor.direction = global_transform.basis.xform_inv(outward).normalized()
-	vapor.spread = 70.0
-	vapor.gravity = Vector3.ZERO
-	vapor.initial_velocity = 12.0 * size_scale
-	vapor.initial_velocity_random = 0.7
-	vapor.damping = 6.0 * size_scale
-	vapor.scale_amount = 0.4 * (0.5 + 0.5 * _intensity)
-	vapor.scale_amount_random = 0.5
-	var growth = Curve.new()
-	growth.add_point(Vector2(0.0, 0.3))
-	growth.add_point(Vector2(1.0, 1.0))
-	vapor.scale_amount_curve = growth
-	var ramp = Gradient.new()
-	ramp.set_color(0, Color(1.0, 0.9, 0.7, 1.0))  # Incandescent
-	ramp.set_color(1, Color(0.35, 0.33, 0.32, 0.0))  # Cooled dust, faded
-	ramp.add_point(0.15, Color(1.0, 0.45, 0.15, 0.9))
-	ramp.add_point(0.4, Color(0.5, 0.45, 0.42, 0.5))
-	vapor.color_ramp = ramp
-	vapor.emitting = true
-	return vapor

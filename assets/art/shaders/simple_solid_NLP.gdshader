@@ -7,6 +7,18 @@ render_mode
     depth_draw_opaque; 
 
 uniform vec4 paint_color : hint_color = vec4(1.0);
+// Damage marks (HullScorch), on by default; set damage_mark_strength = 0 for special surfaces.
+// Vertex alpha: 1 = clean, lower = marked (blends to damage_mark_color, the cooled char).
+// UV2: (time of last hit, heat then); heat decays with damage_cool_time and glows red while hot.
+// Keep in sync with the other solid shader.
+uniform vec4 damage_mark_color : hint_color = vec4(0.02, 0.02, 0.02, 1.0);
+uniform float damage_mark_strength : hint_range(0.0, 1.0) = 1.0;
+uniform vec4 damage_hot_color : hint_color = vec4(1.0, 0.18, 0.03, 1.0);
+uniform vec4 damage_dull_color : hint_color = vec4(0.35, 0.02, 0.0, 1.0);
+uniform float damage_glow_strength = 1.5;
+uniform float damage_cool_time = 6.0;  // Seconds for heat to fall to ~37%
+uniform float damage_time = 0.0;  // Per-ship clock, set every frame by HullScorch
+varying float damage_heat;
 
 uniform sampler2D detail_texture : hint_albedo; // Green channel used for scratches/dirt
 uniform sampler2D normal_texture : hint_normal;
@@ -80,6 +92,8 @@ void vertex() {
 	float distance_vert = -(MODELVIEW_MATRIX * vec4(VERTEX, 1.0)).z;
     float scale_factor = pow(clamp((scale_end_mul*scale_start - distance_vert) / (scale_end_mul*scale_start - scale_start), scale_min, 1.0), scale_power);
 	VERTEX *= scale_factor;
+
+	damage_heat = UV2.y * exp(-max(damage_time - UV2.x, 0.0) / damage_cool_time) * damage_mark_strength;
 	
     // Standard TBN generation for Triplanar
     TANGENT = vec3(0.0, 0.0, -1.0) * abs(NORMAL.x);
@@ -130,6 +144,9 @@ void fragment() {
     // 3. Apply Paint
     // Base Color + (Detail * Strength). Clamped to avoid negative colors.
     ALBEDO = max(paint_color.rgb + (vec3(detail_val) * detail_paint_strength), vec3(0.0));
+    ALBEDO = mix(ALBEDO, damage_mark_color.rgb, (1.0 - COLOR.a) * damage_mark_strength);
+    float heat = clamp(damage_heat, 0.0, 1.0);
+    EMISSION = mix(damage_dull_color.rgb, damage_hot_color.rgb, heat) * heat * damage_glow_strength;
 }
 
 // --- Light Function ---

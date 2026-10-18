@@ -265,3 +265,43 @@ func test_wreck_salvage_includes_its_cargo_and_cargo_adds_mass():
 	assert_eq(shooter.get_cargo_units(), 0)
 	TemplateDatabase.assets_commodities = saved
 
+
+
+# --- Hit spread and damage effects ---
+
+func test_aim_points_spread_inside_the_hull_bounds():
+	var inner := AABB(
+		target.hull_bounds.position + target.hull_bounds.size * (0.5 - target.AIM_SPREAD * 0.5),
+		target.hull_bounds.size * target.AIM_SPREAD
+	).grow(0.001)
+	var distinct := {}
+	for _i in range(50):
+		var aim: Vector3 = target.to_local(target.get_random_aim_point())
+		assert_true(inner.has_point(aim), "Aim stays in the central part of the hull.")
+		distinct[aim.round()] = true
+	assert_gt(distinct.size(), 10, "Hits spread instead of landing on one spot.")
+
+
+func test_fuel_leaks_open_with_damage_and_are_capped():
+	var from: Vector3 = shooter.global_transform.origin
+	target.register_hit(from, target.LEAK_EVERY_DAMAGE * 0.5)
+	assert_eq(target.get_leak_count(), 0, "Not enough damage for a leak yet.")
+	target.register_hit(from, target.LEAK_EVERY_DAMAGE * 0.5)
+	assert_eq(target.get_leak_count(), 1)
+	for _i in range(20):
+		target.register_hit(from, target.LEAK_EVERY_DAMAGE)
+	yield(get_tree(), "idle_frame")
+	assert_eq(target.get_leak_count(), target.MAX_LEAKS, "The oldest leaks give way.")
+
+
+func test_wreck_explodes_into_cloud_carrying_ship_momentum():
+	target.linear_velocity = Vector3(12, 0, -3)
+	target.become_wreck()
+	var explosion = null
+	for child in target.get_parent().get_children():
+		if child.filename == target.WreckExplosionScene.resource_path:
+			explosion = child
+	assert_not_null(explosion, "Destruction spawns an explosion in the zone, not on the wreck.")
+	assert_eq(explosion.velocity, Vector3(12, 0, -3))
+	assert_eq(explosion.radius, target.get_apparent_radius())
+	explosion.queue_free()
