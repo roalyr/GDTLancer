@@ -1,7 +1,7 @@
 [gd_resource type="Resource" load_steps=3 format=2]
 
 [ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
-[ext_resource path="res://scenes/prefabs/ships/cargo_ship_1.tscn" type="PackedScene" id=2]
+[ext_resource path="res://scenes/prefabs/ships/phoenix_light.tscn" type="PackedScene" id=2]
 
 [resource]
 script = ExtResource( 1 )
@@ -13,7 +13,7 @@ ship_scene = ExtResource( 2 )
 hull_integrity = 100
 armor_integrity = 100
 cargo_capacity = 100
-interaction_radius = 150.0
+interaction_radius = 15.0
 ship_quirks = [  ]
 ship_upgrades = [  ]
 tool_slots_small = 2
@@ -22,7 +22,7 @@ tool_slots_large = 0
 equipped_tools = [ "tool_ablative_laser" ]
 power_capacity = 100.0
 power_regen = 10.0
-mass = 60000.0
-linear_thrust = 5e+06
-angular_thrust = 5e+06
+mass = 6000.0
+linear_thrust = 500000.0
+angular_thrust = 500000.0
 alignment_threshold_angle_deg = 45.0

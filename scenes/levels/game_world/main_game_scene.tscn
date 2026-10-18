@@ -38,4 +38,3 @@ __meta__ = {
 [node name="OrbitCamera" parent="." instance=ExtResource( 3 )]
 
 [node name="JumpTransitionRig" parent="." instance=ExtResource( 29 )]
-

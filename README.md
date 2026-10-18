@@ -43,6 +43,12 @@ Complete the engine, then freeze it. After the freeze, work is content, tuning a
 11. Optional data-driven run modifiers (infrastructure only)
 12. Feel pass on camera, HUD, docking and jumps
 
+**Decisions so far:**
+- Combat has no manual aim, EVE-style: you fly the ship (distance, relative velocity) and tools resolve on their own. The laser comes first.
+- Damage is hull only.
+- Running out of power stops the tool, nothing more.
+- A run is the hand-built sector graph with free travel. Spawns are uniform everywhere until the layout of space is final.
+
 **Freeze when:** all of the above work with placeholder content, new parts, hulls, sectors and encounters need only data or scene files, and the tests pass.
 
 **Out of scope:** multiplayer, narrative, companions, crafting, economy, world simulation, meta-progression, card or board mechanics.
