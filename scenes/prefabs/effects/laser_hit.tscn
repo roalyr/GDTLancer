@@ -31,6 +31,7 @@ mesh = SubResource( 1 )
 
 [node name="Vapor" type="CPUParticles" parent="."]
 material_override = ExtResource( 3 )
+emitting = false
 amount = 24
 lifetime = 1.6
 one_shot = true

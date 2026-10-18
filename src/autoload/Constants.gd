@@ -150,6 +150,7 @@ const SCORCH_RADIUS_PER_SQRT_DAMAGE = 1.0  # m; a 6-damage hit marks about 2.5 m
 const SCORCH_CENTRE_MARK = 0.35  # Share of the clean surface a single hit marks at its centre
 const SCORCH_SURFACE_DEPTH = 1.0  # m; vertices this far behind the first surface count as it
 const SCORCH_MIN_SURFACE_POINTS = 8  # Fewer distinct vertices near the shot line = a thin detail (antenna); the shot passes it
+const SCORCH_MAX_WIDENINGS = 3  # On coarse meshes the mark radius doubles up to this many times to find surface
 const SCORCH_REBUILD_INTERVAL = 0.2  # s; marks paint at once, the mesh re-uploads at most this often
 const SCORCH_HEAT_PER_DAMAGE = 0.11  # Heat added at a mark's centre per point of damage (1 = full glow)
 const SCORCH_MAX_HEAT = 1.0

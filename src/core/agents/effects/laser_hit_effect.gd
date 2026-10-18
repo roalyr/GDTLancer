@@ -1,7 +1,7 @@
 # LaserHitEffect (scenes/prefabs/effects/laser_hit.tscn): what a laser hit looks like in vacuum.
 # The beam itself is invisible, so only the hit point shows: a brief flash of light and a puff of
-# vaporized hull material. Brightness and amount follow the damage dealt, so hits can be judged by
-# eye; no damage shows nothing. Looks are authored in the scene and its materials; this script only
+# vaporized hull material. Size, brightness and amount follow the damage dealt (never the size of
+# what was hit), so hits can be judged by eye; no damage shows nothing. Looks are authored in the scene and its materials; this script only
 # scales, fades and aims them. Parent it to the target body, then set its global position.
 
 extends Spatial
@@ -9,7 +9,6 @@ extends Spatial
 
 var damage: float = 0.0
 var full_damage: float = 6.0  # The firing tool's preset damage: a full-quality hit shows at intensity 1.
-var size_scale: float = 1.0  # Grows the effect with the target's size so large hulls show a visible hit.
 var outward: Vector3 = Vector3.UP  # World direction the vapour plume leaves the hull (toward the shooter).
 
 var _intensity: float = 0.0
@@ -35,9 +34,7 @@ func _ready() -> void:
 		set_process(false)
 		queue_free()
 		return
-	scale = Vector3.ONE * size_scale
 	_base_energy = _light.light_energy
-	_light.omni_range *= size_scale
 	_light.light_energy = _base_energy * _intensity
 	_glow_material = _glow.material_override.duplicate()
 	_glow.material_override = _glow_material
@@ -48,6 +45,10 @@ func _ready() -> void:
 	_vapor.material_override = vapor_material
 	_vapor.amount = int(max(2.0, _vapor.amount * min(_intensity, 1.0)))
 	_vapor.scale_amount *= 0.5 + 0.5 * _intensity
+	call_deferred("_start_vapor")  # After the spawner has placed the effect
+
+
+func _start_vapor() -> void:
 	_vapor.direction = global_transform.basis.xform_inv(outward).normalized()
 	_vapor.emitting = true
 

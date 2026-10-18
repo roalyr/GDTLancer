@@ -46,3 +46,21 @@ func test_hostile_starts_patrolling_and_wreck_disables():
 	assert_eq(ai.get_state(), AIScript.AIState.PATROL)
 	hostile.become_wreck()
 	assert_eq(ai.get_state(), AIScript.AIState.DISABLED)
+
+
+func test_shot_from_beyond_detection_range_makes_it_chase_the_attacker():
+	ai.initialize({"hostile": true, "patrol_center": Vector3.ZERO})
+	var sniper = _make_body(Vector3(0, 0, -(Constants.AI_DETECTION_RANGE * 3.0)), false)
+	assert_null(ai.scan_for_target(), "Too far to be noticed on its own.")
+	hostile.apply_damage(1.0, sniper)
+	assert_eq(ai.get_state(), AIScript.AIState.COMBAT)
+	assert_eq(ai._target_agent, sniper)
+	ai._process_combat()
+	assert_eq(ai.get_state(), AIScript.AIState.COMBAT, "Stays on the attacker beyond detection range.")
+
+
+func test_damage_from_nothing_alive_does_not_provoke():
+	ai.initialize({"hostile": true, "patrol_center": Vector3.ZERO})
+	hostile.apply_damage(1.0, null)
+	assert_eq(ai.get_state(), AIScript.AIState.PATROL)
+

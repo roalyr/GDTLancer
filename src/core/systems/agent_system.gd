@@ -61,6 +61,8 @@ func spawn_player():
 		var dock_pos = _get_dock_position_in_zone(GameState.player_docked_at)
 		if dock_pos != null:
 			player_spawn_pos = dock_pos
+		else:
+			GameState.player_docked_at = ""  # No such station here: spawn undocked rather than stuck
 	# Priority 3: Use zone entry point (new game or jump arrival)
 	else:
 		var anchor_pos = Vector3.ZERO
@@ -135,13 +137,6 @@ func _get_dock_position_in_zone(location_id: String):
 				continue
 			if station.get("location_id") == location_id:
 				return station.get_undock_position() if station.has_method("get_undock_position") else station.global_transform.origin
-
-		# If the location is the current sector itself (virtual docking), spawn at the EntryPoint or origin
-		if location_id == GameState.current_sector_id:
-			var entry_node = GlobalRefs.current_zone.find_node("EntryPoint", true, false)
-			if entry_node and entry_node is Spatial:
-				return entry_node.global_transform.origin
-			return Vector3.ZERO
 
 	return null
 

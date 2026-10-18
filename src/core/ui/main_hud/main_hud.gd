@@ -38,6 +38,8 @@ onready var label_button_dock: Label = $ScreenControls/BottomCenterZone/ButtonDo
 onready var button_interact: TextureButton = $ScreenControls/BottomCenterZone/ButtonInteract
 onready var label_button_interact: Label = $ScreenControls/BottomCenterZone/ButtonInteract/LabelButtonInteract
 onready var label_combat_readout: Label = $ScreenControls/TopLeftZone/LabelCombatReadout
+onready var label_docked_banner: Label = $ScreenControls/LabelDockedBanner
+var _banner_location_id: String = ""
 
 # --- Game Over UI ---
 onready var game_over_overlay: Control = $"GameOverOverlay (to be made into a dedicated window like main menu)"
@@ -176,6 +178,8 @@ func _process(_delta):
 	_refresh_toggle_button_states()
 	_update_combat_readout()
 	_update_interact_button()
+	_update_docked_banner()
+	_update_dock_button_label()
 
 
 # --- Signal Handlers ---
@@ -368,7 +372,7 @@ func _update_interact_button() -> void:
 	var active := false
 	var player = GlobalRefs.player_agent_body
 	var tools = player.get_node_or_null("ToolController") if is_instance_valid(player) else null
-	if is_instance_valid(tools) and is_instance_valid(_current_target) and _current_target is RigidBody:
+	if is_instance_valid(tools) and is_instance_valid(_current_target) and _current_target is Spatial:
 		var index: int = tools.find_tool_for(_current_target)
 		if index >= 0:
 			active = tools.is_active(index) and tools.get_target(index) == _current_target
@@ -402,10 +406,30 @@ func _on_player_docked(_location_id):
 	_jump_target_id = ""
 	_refresh_projected_target_info_hints()
 	_update_dock_button_label()
+	_banner_location_id = ""
+	_update_docked_banner()
 
 
+# Deferred: the player controller clears GameState.player_docked_at in its own handler.
 func _on_player_undocked():
-	_update_dock_button_label()
+	call_deferred("_update_dock_button_label")
+	call_deferred("_update_docked_banner")
+
+
+# "DOCKED AT <station>" while docked; follows GameState, so it can never disagree with it.
+func _update_docked_banner() -> void:
+	if not is_instance_valid(label_docked_banner):
+		return
+	var location_id: String = GameState.player_docked_at
+	label_docked_banner.visible = location_id != ""
+	if location_id == "" or location_id == _banner_location_id:
+		return
+	_banner_location_id = location_id
+	var station_name: String = location_id
+	for station in get_tree().get_nodes_in_group("dockable_station"):
+		if station.get("location_id") == location_id:
+			station_name = station.station_name
+	label_docked_banner.text = "DOCKED AT %s" % station_name.to_upper()
 
 
 # --- Jump UI Handlers ---
@@ -545,10 +569,12 @@ func _update_combat_readout() -> void:
 	if is_instance_valid(tools):
 		for index in range(tools.get_tool_count()):
 			lines.append(_describe_tool_state(tools, index))
-	if is_instance_valid(_current_target) and _current_target is RigidBody and _current_target.get("hull_max"):
+	if is_instance_valid(_current_target) and _current_target is Spatial and (_current_target.get("hull_max") or _current_target.is_in_group("asteroid")):
 		var distance: float = player.global_transform.origin.distance_to(_current_target.global_transform.origin)
 		var condition: String
-		if _current_target.get("is_wreck"):
+		if _current_target.is_in_group("asteroid"):
+			condition = "%.0f m across" % (_current_target.get_apparent_radius() * 2.0)
+		elif _current_target.get("is_wreck"):
 			condition = "SALVAGE %d" % _current_target.get_salvage_units()
 		else:
 			condition = "%d / %d" % [ceil(_current_target.hull), _current_target.hull_max]
@@ -647,6 +673,8 @@ func _resolve_target_display_name(target_node) -> String:
 		if "station_name" in target_node and target_node.station_name != "":
 			return target_node.station_name
 		return "Station"
+	if target_node.is_in_group("asteroid"):
+		return "Asteroid"
 	if target_node.is_in_group("agent_body"):
 		var ship = target_node.get("ship_template")
 		var ship_name: String = ship.ship_model_name if is_instance_valid(ship) else target_node.name

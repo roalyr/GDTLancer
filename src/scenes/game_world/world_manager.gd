@@ -118,7 +118,11 @@ func _emit_loaded_dock_signal() -> void:
 
 	if GameState.player_docked_at == "":
 		return
-	EventBus.emit_signal("player_docked", GameState.player_docked_at)
+	for station in get_tree().get_nodes_in_group("dockable_station"):
+		if station.get("location_id") == GameState.player_docked_at:
+			EventBus.emit_signal("player_docked", GameState.player_docked_at)
+			return
+	GameState.player_docked_at = ""  # Docked at a station that is not in this sector: undocked
 	
 	
 func _show_boot_main_menu() -> void:

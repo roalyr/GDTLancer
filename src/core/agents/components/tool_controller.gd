@@ -83,14 +83,16 @@ func find_tool_for(target) -> int:
 	return -1
 
 
+# Laser: live ships and rocks. Harpoon: wrecks.
 func can_target(tool_template, target) -> bool:
-	if not (is_instance_valid(target) and target != _agent_body and target.has_method("apply_damage")):
+	if not (is_instance_valid(target) and target != _agent_body and target is Spatial):
 		return false
+	var is_ship: bool = target.has_method("apply_damage")
 	match tool_template.tool_type:
 		"laser":
-			return not target.get("is_wreck")
+			return (is_ship and not target.get("is_wreck")) or target.is_in_group("asteroid")
 		"harpoon":
-			return bool(target.get("is_wreck"))
+			return is_ship and bool(target.get("is_wreck"))
 	return false
 
 
@@ -205,8 +207,9 @@ func _process_laser(index: int, target: Node) -> void:
 		deactivate(index, "no_power")
 		return
 
+	var target_velocity = target.get("linear_velocity")  # Rocks are static
 	var angular: float = compute_angular_velocity(
-		from_pos, _agent_body.linear_velocity, to_pos, target.linear_velocity
+		from_pos, _agent_body.linear_velocity, to_pos, target_velocity if target_velocity is Vector3 else Vector3.ZERO
 	)
 	var quality: float = tool_template.get_hit_quality(distance, angular)
 	var damage: float = tool_template.damage * quality
@@ -286,18 +289,9 @@ func _spawn_hit_effect(target: Spatial, hit_point: Vector3, damage: float, full_
 	var effect = LaserHitScene.instance()
 	effect.damage = damage
 	effect.full_damage = full_damage
-	effect.size_scale = clamp(_body_radius(target) / 10.0, 1.0, 10.0)
 	effect.outward = (_agent_body.global_transform.origin - hit_point).normalized()
 	target.add_child(effect)
-	effect.global_transform.origin = hit_point
-
-
-static func _body_radius(body: Node) -> float:
-	if body.has_method("get_hull_radius"):
-		return body.get_hull_radius()
-	if body.has_method("get_apparent_radius"):
-		return body.get_apparent_radius()
-	return 10.0
+	effect.global_transform = Transform(Basis(), hit_point)  # Unscaled even on scaled bodies (asteroids)
 
 
 # Fallback hit point for targets without hull marking: the side of their bounds facing this ship.

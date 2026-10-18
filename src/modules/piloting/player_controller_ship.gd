@@ -208,14 +208,17 @@ func toggle_tool_for_selected() -> void:
 func _on_interact_button_pressed() -> void:
 	if _is_jump_transition_active():
 		return
+	if GameState.player_docked_at != "":
+		EventBus.emit_signal("attack_action_feedback", false, "Undock first")
+		return
 	if _is_tool_target(_selected_target):
 		toggle_tool_for_selected()
 	else:
-		EventBus.emit_signal("attack_action_feedback", false, "Select a ship or wreck")
+		EventBus.emit_signal("attack_action_feedback", false, "Select a ship, wreck or rock")
 
 
 func _is_tool_target(target) -> bool:
-	return is_instance_valid(target) and target != agent_body and target.has_method("apply_damage")
+	return is_instance_valid(target) and target != agent_body and (target.has_method("apply_damage") or target.is_in_group("asteroid"))
 
 
 func _describe_tool_failure(reason: String) -> String:
@@ -229,9 +232,10 @@ func _describe_tool_failure(reason: String) -> String:
 	return "Tool unavailable"
 
 
-func _get_current_target() -> RigidBody:
-	if is_instance_valid(_selected_target) and _selected_target is RigidBody:
-		return _selected_target as RigidBody
+# The selected ship, wreck or rock (route markers are not bodies).
+func _get_current_target() -> Spatial:
+	if is_instance_valid(_selected_target) and (_selected_target is RigidBody or _selected_target.is_in_group("asteroid")):
+		return _selected_target
 	return null
 
 
@@ -266,47 +270,39 @@ func _is_jump_transition_active() -> bool:
 
 
 # --- Contextual Interact ---
+# Space on a non-ship target / the Dock button: jump along a selected route, or dock at a
+# selected station. Docking is only ever at a station.
 func _handle_interact_input() -> void:
-	if _is_jump_transition_active():
+	if _is_jump_transition_active() or GameState.player_docked_at != "":
 		return
-
 	if is_instance_valid(_selected_target):
 		if _is_route_target(_selected_target) or _selected_target.is_in_group("jump_point"):
 			_attempt_selected_jump()
 			return
-		elif _selected_target.is_in_group("dockable_station"):
-			var dist = agent_body.global_transform.origin.distance_to(
-				_selected_target.global_transform.origin
-			)
-			if dist > Constants.DOCKING_ACTION_RADIUS:
-				_clear_queued_jump()
-				EventBus.emit_signal("dock_action_feedback", false, "Target is too far away")
-				return
-			_clear_queued_jump()
-			EventBus.emit_signal("player_docked", _selected_target.location_id)
+		if _selected_target.is_in_group("dockable_station"):
+			request_dock(_selected_target)
 			return
+	EventBus.emit_signal("dock_action_feedback", false, "Select a station to dock at")
 
-	if GameState.current_sector_id != "":
-		_clear_queued_jump()
-		EventBus.emit_signal("player_docked", GameState.current_sector_id)
-	else:
-		_clear_queued_jump()
-		EventBus.emit_signal("dock_action_feedback", false, "Can not dock with target")
+
+func request_dock(station: Spatial) -> void:
+	_clear_queued_jump()
+	var gap: float = get_docking_gap(station)
+	if gap > Constants.DOCKING_ACTION_RADIUS:
+		EventBus.emit_signal("dock_action_feedback", false, "Too far to dock: %.0f m to the station, %.0f m needed" % [gap, Constants.DOCKING_ACTION_RADIUS])
+		return
+	EventBus.emit_signal("player_docked", station.location_id)
+
+
+# Distance from this ship to the station's hull (its centre minus its obstacle radius).
+func get_docking_gap(station: Spatial) -> float:
+	var radius: float = station.get_obstacle_radius() if station.has_method("get_obstacle_radius") else 0.0
+	return max(0.0, agent_body.global_transform.origin.distance_to(station.global_transform.origin) - radius)
 
 
 # --- Dock/Attack Button Handlers ---
 func _on_dock_button_pressed() -> void:
-	var target = _get_current_target()
-	if not is_instance_valid(target):
-		# No target selected: falls back to virtual dock to sector
-		_handle_interact_input()
-		return
-	
-	if target.is_in_group("dockable_station") or target.is_in_group("jump_point") or _is_route_target(target):
-		_handle_interact_input()
-	else:
-		if EventBus:
-			EventBus.emit_signal("dock_action_feedback", false, "Cannot dock with target")
+	_handle_interact_input()
 
 
 func _set_selected_target(new_target):
@@ -701,6 +697,8 @@ func _on_player_docked(location_id):
 	GameState.player_docked_at = location_id
 	if is_instance_valid(_tool_controller):
 		_tool_controller.deactivate_all("docked")
+	if agent_body.has_method("dock_at"):
+		agent_body.dock_at(_find_station(location_id))
 	if HomePort.is_home(location_id):
 		var result: Dictionary = HomePort.service(agent_body)
 		if result.units > 0 or result.repaired > 0.0:
@@ -716,5 +714,14 @@ func _on_player_undocked():
 		print("Player undocked")
 	_clear_queued_jump()
 	GameState.player_docked_at = ""
+	if agent_body.has_method("undock"):
+		agent_body.undock()
 	set_process_unhandled_input(true)
 	set_physics_process(true)
+
+
+func _find_station(location_id: String) -> Spatial:
+	for station in get_tree().get_nodes_in_group("dockable_station"):
+		if station.get("location_id") == location_id:
+			return station
+	return null

@@ -16,6 +16,7 @@ var hull_max: float = 0.0
 var power: float = 0.0
 var power_max: float = 0.0
 var power_regen: float = 0.0
+var is_docked: bool = false  # Held at a station: no motion, no leak thrust
 var is_wreck: bool = false  # Hull reached zero: no thrust or AI; drifts to rest and stays until the sector unloads.
 
 # Bounds of the ship's visual model in body space; used to place hit effects on the hull.
@@ -205,6 +206,21 @@ func _init_hull_and_power() -> void:
 	cargo_capacity = int(ship_template.cargo_capacity) if is_instance_valid(ship_template) else 0
 	cargo = GameState.player_cargo.duplicate() if is_player() else {}
 	_update_mass()
+
+
+# --- Docking ---
+
+# Held at the station's dock point until undock(); `station` may be null (stays where it is).
+func dock_at(station: Spatial) -> void:
+	is_docked = true
+	linear_velocity = Vector3.ZERO
+	angular_velocity = Vector3.ZERO
+	if is_instance_valid(station) and station.has_method("get_undock_position"):
+		global_transform.origin = station.get_undock_position()
+
+
+func undock() -> void:
+	is_docked = false
 
 
 # --- Hull & Power API ---
@@ -424,7 +440,7 @@ func _physics_process(delta: float) -> void:
 
 # Venting gas pushes back on the hull where it leaks; off-centre leaks turn the ship (wrecks too).
 func _apply_leak_thrust() -> void:
-	if _leaks.empty() or not is_instance_valid(movement_system):
+	if _leaks.empty() or is_docked or not is_instance_valid(movement_system):
 		return
 	for leak in _leaks:
 		if not is_instance_valid(leak) or not leak.is_inside_tree():
@@ -438,6 +454,10 @@ func _apply_leak_thrust() -> void:
 
 # --- RigidBody Physics Integration ---
 func _integrate_forces(state: PhysicsDirectBodyState):
+	if is_docked:
+		state.linear_velocity = Vector3.ZERO
+		state.angular_velocity = Vector3.ZERO
+		return
 	if not is_instance_valid(navigation_system) or not is_instance_valid(movement_system):
 		return
 	# Wrecks have no thrust but obey the same drag as everything else, so they come to rest.

@@ -105,30 +105,19 @@ func add_hit(from_global: Vector3, aim_global: Vector3, damage: float) -> int:
 	if damage <= 0.0 or _meshes.empty():
 		return 0
 	var radius: float = Constants.SCORCH_RADIUS_PER_SQRT_DAMAGE * sqrt(damage)
-	var candidates: Array = []  # [surface key, vertex index, t (m), distance from line (m), position]
 	var surfaces_by_key := {}  # surface key -> that surface's arrays
 	var instances_by_key := {}  # surface key -> its MeshInstance
-	var first_t := INF
-	for mesh_index in range(_meshes.size()):
-		var entry: Dictionary = _meshes[mesh_index]
-		var to_local: Transform = entry.instance.global_transform.affine_inverse()
-		var scale: float = entry.instance.global_transform.basis.get_scale().x
-		var origin: Vector3 = to_local.xform(from_global)
-		var direction: Vector3 = (to_local.xform(aim_global) - origin).normalized()
-		var radius_local: float = radius / scale
-		var radius_sq: float = radius_local * radius_local
-		for surface in entry.paintable:
-			var key: int = mesh_index * 1024 + surface
-			surfaces_by_key[key] = entry.arrays[surface]
-			instances_by_key[key] = entry.instance
-			var positions: PoolVector3Array = entry.arrays[surface][Mesh.ARRAY_VERTEX]
-			for i in range(positions.size()):
-				var relative: Vector3 = positions[i] - origin
-				var t: float = relative.dot(direction)
-				var distance_sq: float = relative.length_squared() - t * t
-				if distance_sq < radius_sq:
-					candidates.append([key, i, t * scale, sqrt(max(distance_sq, 0.0)) * scale, positions[i]])
-	first_t = _find_first_surface(candidates)
+	# [surface key, vertex index, t (m), distance from line (m), position]
+	var candidates: Array = _collect_candidates(from_global, aim_global, radius, surfaces_by_key, instances_by_key)
+	# Coarse meshes (a large low-poly rock) can have no vertex this close to the line: widen until
+	# the shot finds enough surface to mark. Such marks are coarser, but always show.
+	for _widen in range(Constants.SCORCH_MAX_WIDENINGS):
+		if _count_points(candidates) >= Constants.SCORCH_MIN_SURFACE_POINTS:
+			break
+		radius *= 2.0
+		candidates = _collect_candidates(from_global, aim_global, radius, surfaces_by_key, instances_by_key)
+	var depth: float = max(Constants.SCORCH_SURFACE_DEPTH, radius * 0.5)
+	var first_t: float = _find_first_surface(candidates, depth)
 
 	# Group the darkening per surface, then edit each colour array once while it is detached:
 	# pool arrays copy on write, so a still-shared array would be copied on every vertex write.
@@ -136,7 +125,7 @@ func add_hit(from_global: Vector3, aim_global: Vector3, damage: float) -> int:
 	var painted := 0
 	var closest_to_line := INF
 	for candidate in candidates:
-		if candidate[2] < first_t or candidate[2] > first_t + Constants.SCORCH_SURFACE_DEPTH:
+		if candidate[2] < first_t or candidate[2] > first_t + depth:
 			continue  # Thin details in front of the surface, or the hull behind it
 		if candidate[3] < closest_to_line:
 			# The hit point: the vertex of the first surface nearest the shot line.
@@ -229,17 +218,49 @@ func clear_marks() -> void:
 	_dirty = true
 
 
+# Vertices near the shot line, from every paintable surface.
+func _collect_candidates(from_global: Vector3, aim_global: Vector3, radius: float, surfaces_by_key: Dictionary, instances_by_key: Dictionary) -> Array:
+	var candidates: Array = []
+	for mesh_index in range(_meshes.size()):
+		var entry: Dictionary = _meshes[mesh_index]
+		var to_local: Transform = entry.instance.global_transform.affine_inverse()
+		var scale: float = entry.instance.global_transform.basis.get_scale().x
+		var origin: Vector3 = to_local.xform(from_global)
+		var direction: Vector3 = (to_local.xform(aim_global) - origin).normalized()
+		var radius_local: float = radius / scale
+		var radius_sq: float = radius_local * radius_local
+		for surface in entry.paintable:
+			var key: int = mesh_index * 1024 + surface
+			surfaces_by_key[key] = entry.arrays[surface]
+			instances_by_key[key] = entry.instance
+			var positions: PoolVector3Array = entry.arrays[surface][Mesh.ARRAY_VERTEX]
+			for i in range(positions.size()):
+				var relative: Vector3 = positions[i] - origin
+				var t: float = relative.dot(direction)
+				var distance_sq: float = relative.length_squared() - t * t
+				if distance_sq < radius_sq:
+					candidates.append([key, i, t * scale, sqrt(max(distance_sq, 0.0)) * scale, positions[i]])
+	return candidates
+
+
+static func _count_points(candidates: Array) -> int:
+	var points := {}
+	for candidate in candidates:
+		points[candidate[4].snapped(Vector3.ONE * 0.001)] = true
+	return points.size()
+
+
 # Smallest t with at least SCORCH_MIN_SURFACE_POINTS distinct vertex positions within
-# SCORCH_SURFACE_DEPTH behind it (meshes repeat a vertex per face at hard edges, so positions are
+# `depth` behind it (meshes repeat a vertex per face at hard edges, so positions are
 # counted, not vertices). Falls back to the nearest candidate when the line only grazes thin parts.
-static func _find_first_surface(candidates: Array) -> float:
+static func _find_first_surface(candidates: Array, depth: float) -> float:
 	if candidates.empty():
 		return INF
 	var sorted: Array = candidates.duplicate()
 	sorted.sort_custom(ScorchDepthSorter, "by_depth")
 	for start in range(sorted.size()):
 		var points := {}
-		var limit: float = sorted[start][2] + Constants.SCORCH_SURFACE_DEPTH
+		var limit: float = sorted[start][2] + depth
 		for index in range(start, sorted.size()):
 			if sorted[index][2] > limit:
 				break

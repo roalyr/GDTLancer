@@ -18,6 +18,7 @@ var _has_patrol_destination: bool = false
 var _repath_timer: float = 0.0
 var _scan_timer: float = 0.0
 var _orbiting: bool = false
+var _provoked: bool = false  # Shot at: chase the attacker from any distance
 
 
 func _ready() -> void:
@@ -30,6 +31,7 @@ func _ready() -> void:
 	_tool_controller = parent.get_node_or_null("ToolController")
 	_home_position = parent.global_transform.origin
 	EventBus.connect("agent_disabled", self, "_on_agent_disabled")
+	EventBus.connect("agent_damaged", self, "_on_agent_damaged")
 
 
 func initialize(config: Dictionary) -> void:
@@ -77,10 +79,12 @@ func _change_state(new_state: int) -> void:
 
 	match _current_state:
 		AIState.IDLE, AIState.DISABLED:
+			_provoked = false
 			_target_agent = null
 			_has_patrol_destination = false
 			agent_script.command_stop()
 		AIState.PATROL:
+			_provoked = false
 			_target_agent = null
 			_has_patrol_destination = false
 		AIState.COMBAT:
@@ -114,7 +118,7 @@ func _process_combat() -> void:
 		return
 
 	var distance: float = agent_script.global_transform.origin.distance_to(_target_agent.global_transform.origin)
-	if distance > Constants.AI_DETECTION_RANGE:
+	if distance > Constants.AI_DETECTION_RANGE and not _provoked:
 		_change_state(AIState.PATROL)
 		return
 
@@ -179,3 +183,18 @@ func _pick_patrol_destination() -> Vector3:
 func _on_agent_disabled(agent_body) -> void:
 	if agent_body == agent_script:
 		_change_state(AIState.DISABLED)
+
+
+# Shot at by anyone: turn on the attacker and close in, however far away it fired from.
+func _on_agent_damaged(agent_body, _amount, source) -> void:
+	if agent_body != agent_script or not _is_live_target(source) or source == agent_script:
+		return
+	if _current_state in [AIState.DISABLED, AIState.FLEE]:
+		return
+	_provoked = true
+	if _current_state == AIState.COMBAT and _target_agent == source:
+		return
+	_target_agent = source
+	_current_state = AIState.IDLE  # Re-enter combat so the approach starts toward the attacker
+	_change_state(AIState.COMBAT)
+
