@@ -39,6 +39,7 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
 	if _is_selected:
 		_sync_distance_label()
+		_apply_selected_color()  # A hostile can become a wreck while selected
 
 
 func configure_target(new_target_ref, new_target_label: String = "") -> void:
@@ -117,6 +118,15 @@ func _apply_bracket_style() -> void:
 			_normal_bracket.modulate = Color(0.35, 0.95, 1, 0.95)
 	if is_instance_valid(_selected_bracket):
 		_selected_bracket.visible = _is_selected
+		_apply_selected_color()
+
+
+# Red while the selected target is a live hostile ship, yellow otherwise (wrecks included).
+func _apply_selected_color() -> void:
+	if not is_instance_valid(_selected_bracket):
+		return
+	var live_hostile: bool = is_instance_valid(target_ref) and target_ref.get("is_hostile") == true and not target_ref.get("is_wreck")
+	_selected_bracket.modulate = Constants.COLOR_UI_TARGET_HOSTILE if live_hostile else Constants.COLOR_UI_TARGET_SELECTED
 
 
 func _apply_distance_fade_alpha() -> void:

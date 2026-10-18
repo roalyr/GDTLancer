@@ -182,3 +182,16 @@ func test_marks_for_a_different_mesh_are_ignored():
 	scorch.import_marks({"0:0": PoolRealArray([0.5, 0.5])})
 	assert_eq(scorch.get_average_mark(), 0.0)
 
+
+func test_thin_details_in_front_of_the_hull_are_passed():
+	var antenna = MeshInstance.new()
+	var pole = CubeMesh.new()
+	pole.size = Vector3(0.2, 10, 0.2)
+	antenna.mesh = pole
+	antenna.material_override = mesh_instance.material_override
+	antenna.translation = Vector3(0, 7, 0)
+	ship.add_child(antenna)
+	scorch.setup(ship)
+	scorch.add_hit(Vector3(0, 200, 0), Vector3.ZERO, 6.0)
+	assert_almost_eq(scorch.last_hit_point.y, 2.0, 0.01, "The shot lands on the hull, not the antenna tip at y=12.")
+

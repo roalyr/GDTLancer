@@ -493,3 +493,19 @@ func test_main_hud_dock_button_label_toggles_between_dock_and_travel() -> void:
 	hud._on_Player_Target_Deselected()
 	yield(get_tree(), "idle_frame")
 	assert_eq(label_dock.text, "DOCK", "Dock button label should return to DOCK on target deselect.")
+
+
+func test_selected_bracket_is_red_on_live_hostile_and_yellow_once_wrecked():
+	var bracket = ProjectedTargetBracketScene.instance()
+	add_child_autofree(bracket)
+	var hostile = AgentScript.new()
+	add_child_autofree(hostile)
+	hostile.is_hostile = true
+	bracket.configure_target(hostile, "Hostile")
+	bracket.set_selected_state(true)
+	var selected: Control = bracket.get_node("BracketSelected")
+	assert_eq(selected.modulate, Constants.COLOR_UI_TARGET_HOSTILE)
+	hostile.become_wreck()
+	bracket._process(0.016)
+	assert_eq(selected.modulate, Constants.COLOR_UI_TARGET_SELECTED)
+

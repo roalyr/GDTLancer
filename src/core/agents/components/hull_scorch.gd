@@ -10,8 +10,10 @@
 # Where a hit lands is found here on the CPU, once per hit (not in a shader):
 # 1. Each vertex is measured against the shot line, from the shooter to its aim point:
 #    how far along the line it is (t) and how far from it (perpendicular distance).
-# 2. Vertices closer to the line than the mark radius are candidates. The smallest t among
-#    them is the first surface the shot meets.
+# 2. Vertices closer to the line than the mark radius are candidates. Walking along the line, the
+#    first surface the shot meets is the first spot with enough distinct vertex positions within
+#    SCORCH_SURFACE_DEPTH;
+#    sparser ones are thin details (antennas, struts) that the shot passes.
 # 3. Only candidates within Constants.SCORCH_SURFACE_DEPTH behind that surface are marked, with a smooth falloff
 #    away from the line, so the far side of the hull stays clean.
 # Mark area grows with damage (radius ~ sqrt(damage)) at a fixed centre strength, so the marked
@@ -101,7 +103,7 @@ func add_hit(from_global: Vector3, aim_global: Vector3, damage: float) -> int:
 	if damage <= 0.0 or _meshes.empty():
 		return 0
 	var radius: float = Constants.SCORCH_RADIUS_PER_SQRT_DAMAGE * sqrt(damage)
-	var candidates: Array = []  # [surface key, vertex index, t (m), distance from line (m)]
+	var candidates: Array = []  # [surface key, vertex index, t (m), distance from line (m), position]
 	var surfaces_by_key := {}  # surface key -> that surface's arrays
 	var instances_by_key := {}  # surface key -> its MeshInstance
 	var first_t := INF
@@ -123,8 +125,8 @@ func add_hit(from_global: Vector3, aim_global: Vector3, damage: float) -> int:
 				var t: float = relative.dot(direction)
 				var distance_sq: float = relative.length_squared() - t * t
 				if distance_sq < radius_sq:
-					candidates.append([key, i, t * scale, sqrt(max(distance_sq, 0.0)) * scale])
-					first_t = min(first_t, t * scale)
+					candidates.append([key, i, t * scale, sqrt(max(distance_sq, 0.0)) * scale, positions[i]])
+	first_t = _find_first_surface(candidates)
 
 	# Group the darkening per surface, then edit each colour array once while it is detached:
 	# pool arrays copy on write, so a still-shared array would be copied on every vertex write.
@@ -132,8 +134,8 @@ func add_hit(from_global: Vector3, aim_global: Vector3, damage: float) -> int:
 	var painted := 0
 	var closest_to_line := INF
 	for candidate in candidates:
-		if candidate[2] > first_t + Constants.SCORCH_SURFACE_DEPTH:
-			continue
+		if candidate[2] < first_t or candidate[2] > first_t + Constants.SCORCH_SURFACE_DEPTH:
+			continue  # Thin details in front of the surface, or the hull behind it
 		if candidate[3] < closest_to_line:
 			# The hit point: the vertex of the first surface nearest the shot line.
 			closest_to_line = candidate[3]
@@ -219,6 +221,31 @@ func clear_marks() -> void:
 				colors[i] = color
 			arrays[Mesh.ARRAY_COLOR] = colors
 	_dirty = true
+
+
+# Smallest t with at least SCORCH_MIN_SURFACE_POINTS distinct vertex positions within
+# SCORCH_SURFACE_DEPTH behind it (meshes repeat a vertex per face at hard edges, so positions are
+# counted, not vertices). Falls back to the nearest candidate when the line only grazes thin parts.
+static func _find_first_surface(candidates: Array) -> float:
+	if candidates.empty():
+		return INF
+	var sorted: Array = candidates.duplicate()
+	sorted.sort_custom(ScorchDepthSorter, "by_depth")
+	for start in range(sorted.size()):
+		var points := {}
+		var limit: float = sorted[start][2] + Constants.SCORCH_SURFACE_DEPTH
+		for index in range(start, sorted.size()):
+			if sorted[index][2] > limit:
+				break
+			points[sorted[index][4].snapped(Vector3.ONE * 0.001)] = true
+		if points.size() >= Constants.SCORCH_MIN_SURFACE_POINTS:
+			return sorted[start][2]
+	return sorted[0][2]
+
+
+class ScorchDepthSorter:
+	static func by_depth(a, b) -> bool:
+		return a[2] < b[2]
 
 
 # Average marked share across paintable vertices (0 = clean hull, 1 = fully marked).

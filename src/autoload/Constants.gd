@@ -126,7 +126,7 @@ const CAMERA_PID_OUTPUT_LIMIT_MULTIPLIER = 100.0
 # ==================================================================================================
 
 const TOOL_MAX_RANGE_FALLOFFS = 2.0  # A tool stops cycling beyond optimal range + falloff * this
-const HIT_AIM_SPREAD = 0.6  # Shots aim at a random point within this central share of the hull bounds
+const HIT_AIM_SPREAD = 0.3  # Shots aim at a random point within this central share of the hull bounds
 
 # Harpoon tether.
 const TETHER_CLEARANCE = 1.5  # Reels in to (both apparent radii) * this
@@ -141,8 +141,9 @@ const TETHER_DAMPING_RATIO = 0.9
 const SCORCH_RADIUS_PER_SQRT_DAMAGE = 1.0  # m; a 6-damage hit marks about 2.5 m across
 const SCORCH_CENTRE_MARK = 0.35  # Share of the clean surface a single hit marks at its centre
 const SCORCH_SURFACE_DEPTH = 1.0  # m; vertices this far behind the first surface count as it
+const SCORCH_MIN_SURFACE_POINTS = 8  # Fewer distinct vertices near the shot line = a thin detail (antenna); the shot passes it
 const SCORCH_REBUILD_INTERVAL = 0.2  # s; marks paint at once, the mesh re-uploads at most this often
-const SCORCH_HEAT_PER_DAMAGE = 0.08  # Heat added at a mark's centre per point of damage (1 = full glow)
+const SCORCH_HEAT_PER_DAMAGE = 0.11  # Heat added at a mark's centre per point of damage (1 = full glow)
 const SCORCH_MAX_HEAT = 1.0
 const SCORCH_COOL_TIME = 6.0  # s for heat to fall to ~37%; pushed to the shader so both agree
 
@@ -157,8 +158,8 @@ const HIT_FX_FLASH_DURATION = 0.15  # s
 const HIT_FX_LIFETIME = 2.0  # s
 
 # Fuel leaks: open where hits land.
-const FUEL_LEAK_EVERY_DAMAGE = 15.0  # Hull damage that opens one more leak
-const FUEL_LEAK_MAX_PER_SHIP = 6  # The oldest leak gives way beyond this
+const FUEL_LEAK_EVERY_DAMAGE = 40.0  # Hull damage that opens one more leak
+const FUEL_LEAK_MAX_PER_SHIP = 3  # The oldest leak gives way beyond this
 const FUEL_LEAK_DURATION = 25.0  # s until a leak has bled out
 
 # Wreck explosion.
@@ -239,6 +240,10 @@ func get_reference_origin_offset(world_position: Vector3) -> Vector3:
 # ==================================================================================================
 # UI COLOURS
 # ==================================================================================================
+
+# Selected-target bracket.
+const COLOR_UI_TARGET_SELECTED = Color(1.0, 0.9, 0.35, 1.0)  # Yellow: anything not hostile, wrecks included
+const COLOR_UI_TARGET_HOSTILE = Color(1.0, 0.22, 0.18, 1.0)  # Red: a live hostile ship
 
 # Jump route brackets, by sector type.
 const COLOR_UI_JUMP_ROUTE = Color(0.0, 0.7, 1.0, 1.0)  # Fallback
