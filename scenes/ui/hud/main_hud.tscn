@@ -853,6 +853,10 @@ theme = ExtResource( 9 )
 text = "GAME OVER"
 align = 1
 
+[node name="ButtonNewRun" type="Button" parent="GameOverOverlay (to be made into a dedicated window like main menu)/CenterContainer/PanelContainer/VBoxContainer"]
+theme = ExtResource( 9 )
+text = "New Run"
+
 [node name="ButtonReturnToMenu" type="Button" parent="GameOverOverlay (to be made into a dedicated window like main menu)/CenterContainer/PanelContainer/VBoxContainer"]
 margin_top = 31.0
 margin_right = 139.0
@@ -872,4 +876,5 @@ text = "Return to Menu"
 [connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonInteract" to="." method="_on_ButtonInteract_pressed"]
 [connection signal="pressed" from="ScreenControls/CenterRightZone/ButtonUIOpacity" to="." method="_on_ButtonUIOpacity_pressed"]
 [connection signal="value_changed" from="ScreenControls/CenterRightZone/SliderControlRight" to="." method="_on_SliderControlRight_value_changed"]
+[connection signal="pressed" from="GameOverOverlay (to be made into a dedicated window like main menu)/CenterContainer/PanelContainer/VBoxContainer/ButtonNewRun" to="." method="_on_ButtonNewRun_pressed"]
 [connection signal="pressed" from="GameOverOverlay (to be made into a dedicated window like main menu)/CenterContainer/PanelContainer/VBoxContainer/ButtonReturnToMenu" to="." method="_on_ButtonReturnToMenu_pressed"]

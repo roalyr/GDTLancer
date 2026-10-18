@@ -29,6 +29,9 @@ The project is pruned back to its flight core. What works now:
 - Hostile NPCs spawn in every sector, patrol, engage and flee
 - Hits leave lasting marks on the hull (vertex-painted, proportional to damage)
 - Salvage: harpoon a wreck, it reels in to a safe towing distance and is stripped into the hold; cargo adds mass
+- Fuel leaks vent along the hull and push the ship; destroyed ships explode into a drifting cloud
+- Run loop: start docked at the home station, bank cargo and repair there, lose the ship and the run is over (permadeath), start a new run
+- Hand-placed asteroids around the Elace home station block laser fire; the autopilot steers around them
 
 ## Roadmap
 

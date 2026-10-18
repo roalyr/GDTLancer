@@ -23,6 +23,7 @@ const AI_CONTROLLER_NODE_NAME = "AIController"
 const PLAYER_INPUT_HANDLER_NAME = "PlayerInputHandler"
 
 const INITIAL_SECTOR_ID: String = "sector_star_elace"  # Starting sector for a new game
+const RUN_PERMADEATH = true  # Losing the ship ends the run: its saves are deleted
 const DEFAULT_GAME_START_ID = "start_default"
 const FALLBACK_SHIP_TEMPLATE_ID = "ship_default"  # If the game start names no ship
 

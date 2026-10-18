@@ -1,13 +1,15 @@
 {
-  "dirs":["res://src/tests/"],
-  "should_maximize":false,
-  "should_exit":true,
-  "ignore_pause":true,
-  "log_level":3,
-  "opacity":100,
-  "double_strategy":"partial",
-  "include_subdirs":true,
-
-  "compact_mode":true,
-  "gut_on_top":true
+  "dirs": [
+    "res://src/tests/"
+  ],
+  "should_maximize": false,
+  "should_exit": true,
+  "ignore_pause": true,
+  "log_level": 3,
+  "opacity": 100,
+  "double_strategy": "partial",
+  "include_subdirs": true,
+  "compact_mode": true,
+  "gut_on_top": true,
+  "pre_run_script": "res://src/tests/helpers/pre_run_hook.gd"
 }

@@ -7,14 +7,13 @@ const TEST_SLOT = 999
 
 func before_each():
 	GameState.reset_state()
+	GameStateManager.save_dir = "user://test_savegames/"  # Never the player's real saves
 
 
 func after_each():
 	GameState.reset_state()
-	var dir = Directory.new()
-	var save_path = GameStateManager._get_save_path(TEST_SLOT)
-	if dir.file_exists(save_path):
-		dir.remove(save_path)
+	GameStateManager.delete_all_saves()  # Only the test folder
+	GameStateManager.save_dir = GameStateManager.SAVE_DIR
 
 
 func _populate_game_state() -> void:
@@ -94,3 +93,25 @@ func test_reset_to_defaults_clears_state():
 	assert_eq(GameState.player_docked_at, "")
 	assert_eq(GameState.player_position, Vector3.ZERO)
 	assert_eq(GameState.player_arrival_direction, Vector3.ZERO)
+
+
+func test_losing_the_player_ship_deletes_saves_under_permadeath():
+	_populate_game_state()
+	GameStateManager.save_game(TEST_SLOT)
+	assert_true(GameStateManager.has_save_file(TEST_SLOT))
+	var ship = RigidBody.new()
+	add_child_autofree(ship)
+	GlobalRefs.player_agent_body = ship
+	GameStateManager._on_agent_disabled(ship)
+	assert_eq(GameStateManager.has_save_file(TEST_SLOT), not Constants.RUN_PERMADEATH)
+	GlobalRefs.player_agent_body = null
+
+
+func test_losing_another_ship_keeps_saves():
+	_populate_game_state()
+	GameStateManager.save_game(TEST_SLOT)
+	var other = RigidBody.new()
+	add_child_autofree(other)
+	GameStateManager._on_agent_disabled(other)
+	assert_true(GameStateManager.has_save_file(TEST_SLOT))
+

@@ -717,6 +717,9 @@ func _on_agent_disabled(agent_body) -> void:
 
 func _show_game_over_overlay() -> void:
 	_is_game_over = true
+	var summary = game_over_overlay.get_node_or_null("CenterContainer/PanelContainer/VBoxContainer/LabelGameOver") if is_instance_valid(game_over_overlay) else null
+	if is_instance_valid(summary):
+		summary.text = "SHIP LOST\nThe run is over.\nBanked this run: %d WP" % GameState.player_bank
 	if is_instance_valid(game_over_overlay):
 		game_over_overlay.visible = true
 		game_over_overlay.raise()
@@ -724,6 +727,16 @@ func _show_game_over_overlay() -> void:
 			button_return_to_menu.grab_focus()
 	# Pause gameplay while the overlay is visible.
 	get_tree().paused = true
+
+
+# Starts the next run straight from the run-over screen.
+func _on_ButtonNewRun_pressed() -> void:
+	get_tree().paused = false
+	_is_game_over = false
+	if is_instance_valid(game_over_overlay):
+		game_over_overlay.visible = false
+	if EventBus:
+		EventBus.emit_signal("new_game_requested")
 
 
 func _on_ButtonReturnToMenu_pressed() -> void:

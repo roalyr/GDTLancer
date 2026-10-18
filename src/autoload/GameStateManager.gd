@@ -3,11 +3,43 @@
 extends Node
 
 const SAVE_DIR = "user://savegames/"
+
+var save_dir: String = SAVE_DIR  # Tests point this at their own folder so real saves are never touched
 const SAVE_FILE_PREFIX = "save_"
 const SAVE_FILE_EXT = ".sav"
 
 
+func _ready() -> void:
+	EventBus.connect("agent_disabled", self, "_on_agent_disabled")
+
+
 # --- Public API ---
+
+func delete_save(slot_id: int = 0) -> void:
+	var dir := Directory.new()
+	var path: String = _get_save_path(slot_id)
+	if dir.file_exists(path):
+		dir.remove(path)
+
+
+# Every save slot, for the end of a run under permadeath.
+func delete_all_saves() -> void:
+	var dir := Directory.new()
+	if dir.open(save_dir) != OK:
+		return
+	dir.list_dir_begin(true, true)
+	var file_name: String = dir.get_next()
+	while file_name != "":
+		if file_name.begins_with(SAVE_FILE_PREFIX) and file_name.ends_with(SAVE_FILE_EXT):
+			dir.remove(save_dir.plus_file(file_name))
+		file_name = dir.get_next()
+
+
+# The player's ship is lost: under permadeath the run's saves go with it.
+func _on_agent_disabled(agent_body) -> void:
+	if Constants.RUN_PERMADEATH and is_instance_valid(agent_body) and agent_body == GlobalRefs.player_agent_body:
+		delete_all_saves()
+
 
 func reset_to_defaults() -> void:
 	GameState.reset_state()
@@ -60,7 +92,7 @@ func has_save_file(slot_id: int = 0) -> bool:
 # --- Internals ---
 
 func _get_save_path(slot_id: int) -> String:
-	return SAVE_DIR + SAVE_FILE_PREFIX + str(slot_id) + SAVE_FILE_EXT
+	return save_dir + SAVE_FILE_PREFIX + str(slot_id) + SAVE_FILE_EXT
 
 
 func _read_save_data(slot_id: int):
@@ -85,10 +117,10 @@ func _is_save_data_valid(save_data: Dictionary) -> bool:
 
 func _ensure_save_dir_exists() -> void:
 	var dir = Directory.new()
-	if not dir.dir_exists(SAVE_DIR):
-		var err = dir.make_dir_recursive(SAVE_DIR)
+	if not dir.dir_exists(save_dir):
+		var err = dir.make_dir_recursive(save_dir)
 		if err != OK:
-			printerr("GameStateManager Error: Could not create save dir: ", SAVE_DIR, " (", err, ")")
+			printerr("GameStateManager Error: Could not create save dir: ", save_dir, " (", err, ")")
 
 
 func _capture_player_transform() -> void:
