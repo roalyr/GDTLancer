@@ -10,6 +10,17 @@ var interaction_radius: float = 150.0
 var is_hostile: bool = false  # True if this is a hostile NPC
 var ship_template = null  # ShipTemplate this agent flies
 
+# --- Hull & Power ---
+var hull: float = 0.0
+var hull_max: float = 0.0
+var power: float = 0.0
+var power_max: float = 0.0
+var power_regen: float = 0.0
+var is_wreck: bool = false  # Hull reached zero: no thrust, no AI, drifts until the sector unloads.
+
+# Bounds of the ship's visual model in body space; used to place hit effects on the hull.
+var hull_bounds: AABB = AABB(Vector3(-5, -5, -5), Vector3(10, 10, 10))
+
 func is_player() -> bool:
 	return agent_type == "player"
 
@@ -49,6 +60,8 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 		"orbit_kd": overrides.get("orbit_kd", 0.5)
 	}
 
+	_init_hull_and_power()
+
 	movement_system.initialize_movement_params(move_params)
 	navigation_system.initialize_navigation(nav_params, movement_system)
 	
@@ -67,12 +80,17 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 					if child is CollisionShape:
 						ship_visual.remove_child(child)
 						call_deferred("add_child", child)
+				_measure_hull_bounds(ship_visual)
 			else:
 				printerr("AgentBody Error: 'Model' node not found!")
 		else:
 			printerr("AgentBody Error: ship_template.ship_scene is null for template_id: ", ship_template.template_id)
 	else:
 		printerr("AgentBody Error: ship_template is null! Cannot instance ship visual.")
+
+	var ai_controller = get_node_or_null(Constants.AI_CONTROLLER_NODE_NAME)
+	if is_instance_valid(ai_controller) and ai_controller.has_method("initialize"):
+		ai_controller.initialize({"hostile": is_hostile, "patrol_center": global_transform.origin})
 
 	if Constants.VERBOSE_RUNTIME_LOGS:
 		print(
@@ -112,6 +130,90 @@ func _get_movement_params_from_ship(ship_template_id: String) -> Dictionary:
 		}
 
 
+func _measure_hull_bounds(visual_root: Node) -> void:
+	var to_body: Transform = global_transform.affine_inverse()
+	var found := false
+	var stack: Array = [visual_root]
+	while not stack.empty():
+		var node = stack.pop_back()
+		stack += node.get_children()
+		if node is GeometryInstance and node.is_visible_in_tree():
+			var box: AABB = (to_body * node.global_transform).xform(node.get_aabb())
+			hull_bounds = box if not found else hull_bounds.merge(box)
+			found = true
+
+
+func get_hull_radius() -> float:
+	return hull_bounds.size.length() * 0.5
+
+
+# Point on the hull facing `from_global`: where the line to the hull centre enters the
+# model's bounds, pulled in toward the centre so it sits on the hull rather than the box corner.
+func get_hull_point_facing(from_global: Vector3) -> Vector3:
+	var center: Vector3 = hull_bounds.position + hull_bounds.size * 0.5
+	var inner := AABB(center - hull_bounds.size * 0.35, hull_bounds.size * 0.7)
+	var from_local: Vector3 = to_local(from_global)
+	if inner.has_point(from_local):
+		return to_global(center)
+	# Slab method: latest entry across the three axis-aligned slab pairs.
+	var direction: Vector3 = center - from_local
+	var t_enter := 0.0
+	for axis in range(3):
+		if abs(direction[axis]) > 0.000001:
+			var t1: float = (inner.position[axis] - from_local[axis]) / direction[axis]
+			var t2: float = (inner.end[axis] - from_local[axis]) / direction[axis]
+			t_enter = max(t_enter, min(t1, t2))
+	return to_global(from_local + direction * t_enter)
+
+
+func _init_hull_and_power() -> void:
+	if is_instance_valid(ship_template):
+		hull_max = float(ship_template.hull_integrity)
+		power_max = float(ship_template.power_capacity)
+		power_regen = float(ship_template.power_regen)
+	else:
+		hull_max = 100.0
+		power_max = 100.0
+		power_regen = 10.0
+	hull = hull_max
+	if is_player() and GameState.player_hull >= 0.0:
+		hull = min(GameState.player_hull, hull_max)
+	power = power_max
+
+
+# --- Hull & Power API ---
+func apply_damage(amount: float, source: Node = null) -> void:
+	if is_wreck or amount <= 0.0:
+		return
+	hull = max(0.0, hull - amount)
+	if is_player():
+		GameState.player_hull = hull
+	EventBus.emit_signal("agent_damaged", self, amount, source)
+	if hull <= 0.0:
+		become_wreck()
+
+
+func become_wreck() -> void:
+	if is_wreck:
+		return
+	is_wreck = true
+	hull = 0.0
+	power = 0.0
+	add_to_group("wreck")
+	EventBus.emit_signal("agent_disabled", self)
+
+
+func try_spend_power(amount: float) -> bool:
+	if is_wreck or power < amount:
+		return false
+	power -= amount
+	return true
+
+
+func get_hull_fraction() -> float:
+	return hull / hull_max if hull_max > 0.0 else 0.0
+
+
 # --- Godot Lifecycle ---
 func _ready():
 	add_to_group("Agents")
@@ -122,8 +224,16 @@ func _ready():
 	can_sleep = false  # Always active
 
 
+func _physics_process(delta: float) -> void:
+	if not is_wreck and power < power_max:
+		power = min(power_max, power + power_regen * delta)
+
+
 # --- RigidBody Physics Integration ---
 func _integrate_forces(state: PhysicsDirectBodyState):
+	# Wrecks get no thrust or drag and keep their momentum.
+	if is_wreck:
+		return
 	if not is_instance_valid(navigation_system) or not is_instance_valid(movement_system):
 		return
 

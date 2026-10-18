@@ -6,7 +6,6 @@ class_name ShipTemplate
 export var ship_model_name: String = "Default Ship Model" 
 export(PackedScene) var ship_scene: PackedScene
 export var hull_integrity: int = 100
-export var armor_integrity: int = 100
 export var cargo_capacity: int = 100
 export var interaction_radius: float = 15.0
 

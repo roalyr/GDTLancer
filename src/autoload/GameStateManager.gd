@@ -101,6 +101,7 @@ func _capture_player_transform() -> void:
 func _serialize_game_state() -> Dictionary:
 	return {
 		"player_ship_template_id": GameState.player_ship_template_id,
+		"player_hull": GameState.player_hull,
 		"current_sector_id": GameState.current_sector_id,
 		"player_docked_at": GameState.player_docked_at,
 		"player_position": _serialize_vector3(GameState.player_position),
@@ -113,6 +114,7 @@ func _serialize_game_state() -> Dictionary:
 func _deserialize_and_apply_game_state(save_data: Dictionary) -> void:
 	reset_to_defaults()
 	GameState.player_ship_template_id = str(save_data.get("player_ship_template_id", ""))
+	GameState.player_hull = float(save_data.get("player_hull", -1.0))
 	GameState.current_sector_id = str(save_data.get("current_sector_id", ""))
 	GameState.player_docked_at = str(save_data.get("player_docked_at", ""))
 	GameState.player_position = _deserialize_vector3(save_data.get("player_position", {}))
