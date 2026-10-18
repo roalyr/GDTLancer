@@ -55,7 +55,7 @@ Next is completing the engine (damage, tools, fitting, power, signature and dete
 | `database/definitions/` | Template resource scripts (ships, modules, tools, agents, locations, game starts) |
 | `database/registry/` | Template data (`.tres`); new content goes here |
 | `scenes/` | Levels, sectors, prefabs and UI scenes |
-| `docs/godot/` | Godot 3.6 shader and CanvasItem reference |
+| `docs/godot/` | Godot 3.6 shader reference (spatial, CanvasItem, particle, shading language) |
 
 ## Running Tests
 
