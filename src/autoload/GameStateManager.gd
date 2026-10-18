@@ -103,6 +103,7 @@ func _serialize_game_state() -> Dictionary:
 		"player_ship_template_id": GameState.player_ship_template_id,
 		"player_hull": GameState.player_hull,
 		"player_cargo": GameState.player_cargo.duplicate(),
+		"player_hull_marks": GameState.player_hull_marks.duplicate(),
 		"current_sector_id": GameState.current_sector_id,
 		"player_docked_at": GameState.player_docked_at,
 		"player_position": _serialize_vector3(GameState.player_position),
@@ -116,6 +117,8 @@ func _deserialize_and_apply_game_state(save_data: Dictionary) -> void:
 	reset_to_defaults()
 	GameState.player_ship_template_id = str(save_data.get("player_ship_template_id", ""))
 	GameState.player_hull = float(save_data.get("player_hull", -1.0))
+	var saved_marks = save_data.get("player_hull_marks", {})
+	GameState.player_hull_marks = saved_marks if saved_marks is Dictionary else {}
 	var saved_cargo = save_data.get("player_cargo", {})
 	GameState.player_cargo = {}
 	if saved_cargo is Dictionary:

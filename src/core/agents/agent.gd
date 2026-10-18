@@ -100,6 +100,8 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 				_hull_scorch = HullScorch.new()
 				add_child(_hull_scorch)
 				_hull_scorch.setup(ship_visual)
+				if is_player():
+					_hull_scorch.import_marks(GameState.player_hull_marks)
 			else:
 				printerr("AgentBody Error: 'Model' node not found!")
 		else:
@@ -268,6 +270,8 @@ func register_hit(from_global: Vector3, damage: float) -> Vector3:
 			point = _hull_scorch.last_hit_point
 			if point != null:
 				break
+		if is_player():
+			GameState.player_hull_marks = _hull_scorch.export_marks()
 	if point == null:
 		point = get_hull_point_facing(from_global)
 	_accumulate_leak_damage(point, damage)

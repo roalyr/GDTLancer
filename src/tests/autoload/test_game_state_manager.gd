@@ -53,6 +53,19 @@ func test_save_and_load_restores_hull_and_cargo():
 	assert_eq_deep(GameState.player_cargo, {"commodity_scrap": 7, "commodity_tech": 1})
 
 
+func test_save_and_load_restores_hull_marks():
+	_populate_game_state()
+	GameState.player_hull_marks = {"0:0": PoolRealArray([1.0, 0.4, 0.75])}
+	GameStateManager.save_game(TEST_SLOT)
+	GameState.reset_state()
+	assert_eq(GameState.player_hull_marks.size(), 0, "A new game starts with a clean hull.")
+	GameStateManager.load_game(TEST_SLOT)
+	var restored: PoolRealArray = GameState.player_hull_marks["0:0"]
+	assert_eq(restored.size(), 3)
+	for i in range(3):
+		assert_almost_eq(restored[i], [1.0, 0.4, 0.75][i], 0.0001)
+
+
 func test_load_emits_game_state_loaded():
 	_populate_game_state()
 	GameStateManager.save_game(TEST_SLOT)

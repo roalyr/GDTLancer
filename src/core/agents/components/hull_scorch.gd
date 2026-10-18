@@ -170,6 +170,64 @@ func add_hit(from_global: Vector3, aim_global: Vector3, damage: float) -> int:
 	return painted
 
 
+# --- Persistence (the player's hull keeps its marks across sectors and saves) ---
+
+# Marks as {"mesh index:surface": PoolRealArray of vertex alpha}, for marked surfaces only.
+# Heat is not kept: restored marks come back cooled.
+func export_marks() -> Dictionary:
+	var marks := {}
+	for mesh_index in range(_meshes.size()):
+		var entry: Dictionary = _meshes[mesh_index]
+		for surface in entry.paintable:
+			var alphas := PoolRealArray()
+			var marked := false
+			for color in entry.arrays[surface][Mesh.ARRAY_COLOR]:
+				alphas.append(color.a)
+				marked = marked or color.a < 1.0
+			if marked:
+				marks["%d:%d" % [mesh_index, surface]] = alphas
+	return marks
+
+
+# Applies exported marks; surfaces whose vertex count no longer matches (another hull) are skipped.
+func import_marks(marks: Dictionary) -> void:
+	for key in marks:
+		var parts: PoolStringArray = str(key).split(":")
+		if parts.size() != 2:
+			continue
+		var mesh_index: int = int(parts[0])
+		var surface: int = int(parts[1])
+		if mesh_index >= _meshes.size() or not surface in _meshes[mesh_index].paintable:
+			continue
+		var arrays: Array = _meshes[mesh_index].arrays[surface]
+		var alphas = marks[key]
+		var colors: PoolColorArray = arrays[Mesh.ARRAY_COLOR]
+		if alphas.size() != colors.size():
+			continue
+		arrays[Mesh.ARRAY_COLOR] = null
+		for i in range(colors.size()):
+			var color: Color = colors[i]
+			color.a = alphas[i]
+			colors[i] = color
+		arrays[Mesh.ARRAY_COLOR] = colors
+		_dirty = true
+
+
+# Restores a clean hull (repairs).
+func clear_marks() -> void:
+	for entry in _meshes:
+		for surface in entry.paintable:
+			var arrays: Array = entry.arrays[surface]
+			var colors: PoolColorArray = arrays[Mesh.ARRAY_COLOR]
+			arrays[Mesh.ARRAY_COLOR] = null
+			for i in range(colors.size()):
+				var color: Color = colors[i]
+				color.a = 1.0
+				colors[i] = color
+			arrays[Mesh.ARRAY_COLOR] = colors
+	_dirty = true
+
+
 # Average marked share across paintable vertices (0 = clean hull, 1 = fully marked).
 func get_average_mark() -> float:
 	var total := 0.0

@@ -164,3 +164,21 @@ func test_shot_line_that_misses_the_hull_marks_nothing():
 	assert_eq(painted, 0)
 	assert_null(scorch.last_hit_point)
 
+
+func test_marks_export_and_import_onto_a_fresh_hull():
+	scorch.add_hit(Vector3(0, 200, 0), Vector3.ZERO, 6.0)
+	var marks: Dictionary = scorch.export_marks()
+	assert_eq(marks.size(), 1, "Only marked surfaces are exported.")
+	var marked: float = scorch.get_average_mark()
+	before_each()
+	assert_eq(scorch.get_average_mark(), 0.0)
+	scorch.import_marks(marks)
+	assert_almost_eq(scorch.get_average_mark(), marked, 0.0001, "A respawned hull shows the same marks.")
+	scorch.clear_marks()
+	assert_eq(scorch.get_average_mark(), 0.0, "Repair restores a clean hull.")
+
+
+func test_marks_for_a_different_mesh_are_ignored():
+	scorch.import_marks({"0:0": PoolRealArray([0.5, 0.5])})
+	assert_eq(scorch.get_average_mark(), 0.0)
+

@@ -9,6 +9,9 @@ var player_ship_template_id: String = ""
 ## Player hull carried across sector loads; negative means full (new ship).
 var player_hull: float = -1.0
 
+## Damage marks on the player's hull (HullScorch.export_marks()); kept until the hull is repaired.
+var player_hull_marks: Dictionary = {}
+
 ## Player hold: commodity id -> units.
 var player_cargo: Dictionary = {}
 
@@ -38,6 +41,7 @@ func reset_state() -> void:
 	player_ship_template_id = ""
 	player_hull = -1.0
 	player_cargo = {}
+	player_hull_marks = {}
 	current_zone_instance = null
 	current_sector_id = ""
 	player_docked_at = ""
