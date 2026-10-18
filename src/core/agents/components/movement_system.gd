@@ -16,6 +16,7 @@ var thrust_throttle: float = 1.0
 # These are accumulated by commands and applied in _integrate_forces
 var _accumulated_force := Vector3.ZERO
 var _accumulated_torque := Vector3.ZERO
+var _external_force := Vector3.ZERO  # From tethers and other bodies; not scaled by throttle
 
 # Reference to the parent AgentBody RigidBody
 var agent_body: RigidBody = null
@@ -93,12 +94,18 @@ func integrate_forces(state: PhysicsDirectBodyState):
 	state.add_torque(angular_drag_torque)
 	
 	# Apply accumulated forces from navigation commands (scaled by throttle)
-	state.add_central_force(_accumulated_force * thrust_throttle)
+	state.add_central_force(_accumulated_force * thrust_throttle + _external_force)
 	state.add_torque(_accumulated_torque)
 	
 	# Clear accumulated forces for next frame
 	_accumulated_force = Vector3.ZERO
 	_accumulated_torque = Vector3.ZERO
+	_external_force = Vector3.ZERO
+
+
+# Force from outside the ship's own engines (e.g. a tether), applied on the next physics step.
+func add_external_force(force: Vector3) -> void:
+	_external_force += force
 
 
 # --- Public Methods Called by NavigationSystem Commands ---

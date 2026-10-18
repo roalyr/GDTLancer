@@ -9,3 +9,4 @@ asset_type = "commodity"
 asset_icon_id = "icon_scrap"
 commodity_name = "Scrap Metal"
 base_value = 5
+unit_mass = 100.0

@@ -131,7 +131,7 @@ func _unhandled_input(event: InputEvent):
 	# Space toggles the laser when a ship is selected; otherwise it docks or jumps.
 	# Key-only so it does not interfere with LMB targeting/drag.
 	if event is InputEventKey and event.is_action_pressed("fire_weapon") and _is_tool_target(_selected_target):
-		toggle_primary_tool()
+		toggle_tool_for_selected()
 		get_viewport().set_input_as_handled()
 		return
 
@@ -189,28 +189,30 @@ func _unhandled_input(event: InputEvent):
 		_current_input_state.handle_input(event)
 
 
-# Switches the first tool on against the selected ship, or off if it is already on that ship.
-func toggle_primary_tool() -> void:
-	if not is_instance_valid(_tool_controller) or _tool_controller.get_tool_count() == 0:
-		EventBus.emit_signal("attack_action_feedback", false, "No tool fitted")
-		return
+# Switches the tool that suits the selected target on (laser for a live ship, harpoon for a
+# wreck), or off if it is already on that target.
+func toggle_tool_for_selected() -> void:
 	var target = _get_current_target()
-	if _tool_controller.is_active(0) and _tool_controller.get_target(0) == target:
-		_tool_controller.deactivate(0)
+	var index: int = _tool_controller.find_tool_for(target) if is_instance_valid(_tool_controller) else -1
+	if index < 0:
+		EventBus.emit_signal("attack_action_feedback", false, "No fitted tool works on this target")
 		return
-	var result: Dictionary = _tool_controller.activate(0, target)
+	if _tool_controller.is_active(index) and _tool_controller.get_target(index) == target:
+		_tool_controller.deactivate(index)
+		return
+	var result: Dictionary = _tool_controller.activate(index, target)
 	if not result.get("success", false):
 		EventBus.emit_signal("attack_action_feedback", false, _describe_tool_failure(result.get("reason", "")))
 
 
-# HUD interact button: attack or cease on a selected ship. Other interactions (salvage, towing) come later.
+# HUD interact button: attack a live ship, harpoon a wreck, or switch that tool off again.
 func _on_interact_button_pressed() -> void:
 	if _is_jump_transition_active():
 		return
 	if _is_tool_target(_selected_target):
-		toggle_primary_tool()
+		toggle_tool_for_selected()
 	else:
-		EventBus.emit_signal("attack_action_feedback", false, "Select a ship to attack")
+		EventBus.emit_signal("attack_action_feedback", false, "Select a ship or wreck")
 
 
 func _is_tool_target(target) -> bool:
@@ -220,7 +222,7 @@ func _is_tool_target(target) -> bool:
 func _describe_tool_failure(reason: String) -> String:
 	match reason:
 		"invalid_target":
-			return "Target is a wreck or out of reach"
+			return "No fitted tool works on this target"
 		"not_implemented":
 			return "This tool does not work yet"
 		"wrecked":

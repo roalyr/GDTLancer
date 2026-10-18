@@ -9,3 +9,4 @@ asset_type = "commodity"
 asset_icon_id = "icon_tech"
 commodity_name = "Tech Components"
 base_value = 60
+unit_mass = 20.0

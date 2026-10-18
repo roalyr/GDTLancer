@@ -48,6 +48,10 @@ func _register_template(template: Template):
 	if template.template_id == "":
 		printerr("Template Error: Resource file has no template_id: ", template.resource_path)
 		return
+	var existing = TemplateDatabase.get_template(template.template_id)
+	if existing is Resource and existing.resource_path != template.resource_path:
+		printerr("Template Error: Duplicate template_id '", template.template_id, "' in ", template.resource_path, " (already used by ", existing.resource_path, ")")
+		return
 
 	if template is AgentTemplate:
 		TemplateDatabase.agents[template.template_id] = template

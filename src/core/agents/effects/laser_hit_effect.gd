@@ -8,8 +8,7 @@ extends Spatial
 const FlashShader = preload("res://assets/art/shaders/hit_flash.gdshader")
 const VaporShader = preload("res://assets/art/shaders/hit_vapor.gdshader")
 
-const FULL_INTENSITY_DAMAGE = 6.0  # Damage of a full-strength hit; bigger hits flash brighter, up to MAX_INTENSITY.
-const MAX_INTENSITY = 2.0
+const MAX_INTENSITY = 2.0  # Hits above the tool's full damage flash brighter, up to this.
 const FLASH_DURATION = 0.15
 const LIFETIME = 2.0
 const FLASH_ENERGY = 6.0
@@ -20,6 +19,7 @@ const VAPOR_SIZE = 2.5  # Metres.
 const FLASH_MIN_SCREEN_HEIGHT = 0.02  # The flash stays readable at any range; vapour uses the shader default.
 
 var damage: float = 0.0
+var full_damage: float = 6.0  # The firing tool's preset damage: a full-quality hit shows at intensity 1.
 var size_scale: float = 1.0  # Grows the effect with the target's size so large hulls show a visible hit.
 var outward: Vector3 = Vector3.UP  # World direction the vapour plume leaves the hull (toward the shooter).
 
@@ -31,12 +31,14 @@ var _age: float = 0.0
 
 
 # Square root so brightness reads roughly proportional to damage: a quarter-damage hit shows at half strength.
-static func intensity_for_damage(amount: float) -> float:
-	return clamp(sqrt(max(amount, 0.0) / FULL_INTENSITY_DAMAGE), 0.0, MAX_INTENSITY)
+static func intensity_for_damage(amount: float, full: float) -> float:
+	if full <= 0.0:
+		return 0.0
+	return clamp(sqrt(max(amount, 0.0) / full), 0.0, MAX_INTENSITY)
 
 
 func _ready() -> void:
-	_intensity = intensity_for_damage(damage)
+	_intensity = intensity_for_damage(damage, full_damage)
 	if _intensity <= 0.0:
 		set_process(false)
 		queue_free()

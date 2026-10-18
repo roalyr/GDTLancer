@@ -9,6 +9,9 @@ var player_ship_template_id: String = ""
 ## Player hull carried across sector loads; negative means full (new ship).
 var player_hull: float = -1.0
 
+## Player hold: commodity id -> units.
+var player_cargo: Dictionary = {}
+
 ## Currently loaded zone node.
 var current_zone_instance: Node = null
 
@@ -34,6 +37,7 @@ var player_arrival_direction: Vector3 = Vector3.ZERO
 func reset_state() -> void:
 	player_ship_template_id = ""
 	player_hull = -1.0
+	player_cargo = {}
 	current_zone_instance = null
 	current_sector_id = ""
 	player_docked_at = ""

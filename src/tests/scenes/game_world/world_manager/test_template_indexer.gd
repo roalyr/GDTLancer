@@ -62,3 +62,53 @@ func test_hostile_top_speed_is_ninety_percent_of_player():
 	var player_speed: float = player_ship.linear_thrust / player_ship.mass
 	var hostile_speed: float = hostile_ship.linear_thrust / hostile_ship.mass
 	assert_almost_eq(hostile_speed / player_speed, 0.9, 0.001)
+
+
+# Godot silently drops .tres fields the script does not declare, so a renamed or misspelled field
+# would just vanish. Every field written in a registry file must exist on its template script.
+func test_registry_files_only_use_declared_fields():
+	var problems: Array = []
+	for path in _registry_files("res://database/registry/"):
+		var resource = load(path)
+		var declared := {}
+		for property in resource.get_property_list():
+			declared[property.name] = true
+		var in_resource := false
+		var file := File.new()
+		file.open(path, File.READ)
+		for line in file.get_as_text().split("\n"):
+			if line.begins_with("["):
+				in_resource = line.begins_with("[resource]")
+			elif in_resource and " = " in line and not line.begins_with("\""):
+				var field: String = line.split(" = ")[0]
+				if not declared.has(field):
+					problems.append("%s: %s" % [path, field])
+		file.close()
+	assert_eq(problems, [], "Registry fields not declared by their template script.")
+
+
+func test_ship_tools_and_salvage_resolve():
+	indexer_instance.index_all_templates()
+	for ship_id in TemplateDatabase.assets_ships:
+		var ship = TemplateDatabase.assets_ships[ship_id]
+		for tool_id in ship.equipped_tools:
+			assert_true(TemplateDatabase.utility_tools.get(tool_id) is UtilityToolTemplate, "%s fits unknown tool '%s'." % [ship_id, tool_id])
+		for commodity_id in ship.salvage_yield:
+			assert_has(TemplateDatabase.assets_commodities, commodity_id, "%s salvages unknown commodity '%s'." % [ship_id, commodity_id])
+
+
+func _registry_files(path: String) -> Array:
+	var files: Array = []
+	var dir := Directory.new()
+	if dir.open(path) != OK:
+		return files
+	dir.list_dir_begin(true, true)
+	var name: String = dir.get_next()
+	while name != "":
+		if dir.current_is_dir():
+			files += _registry_files(path.plus_file(name))
+		elif name.ends_with(".tres"):
+			files.append(path.plus_file(name))
+		name = dir.get_next()
+	return files
+

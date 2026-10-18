@@ -1,0 +1,17 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/utility_tool_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "tool_ablative_laser_long_range"
+tool_name = "Long-Range Ablative Laser"
+description = "Testing variant of the ablative laser with a long reach."
+tool_type = "laser"
+mount_size = "small"
+damage = 6.0
+optimal_range = 1000.0
+falloff = 500.0
+tracking = 0.2
+cycle_time = 2.0
+power_per_cycle = 5.0

@@ -45,11 +45,16 @@ func get_state() -> int:
 	return _current_state
 
 
-# Distance the AI tries to fight at: the first tool's optimal range.
+# Distance the AI tries to fight at: the optimal range of the tool that works on the target.
 func get_engagement_range() -> float:
-	if is_instance_valid(_tool_controller) and _tool_controller.get_tool_count() > 0:
-		return _tool_controller.get_tool(0).optimal_range
-	return 0.0
+	var index: int = _get_attack_tool_index()
+	return _tool_controller.get_tool(index).optimal_range if index >= 0 else 0.0
+
+
+func _get_attack_tool_index() -> int:
+	if not is_instance_valid(_tool_controller) or not is_instance_valid(_target_agent):
+		return -1
+	return _tool_controller.find_tool_for(_target_agent)
 
 
 func _physics_process(delta: float) -> void:
@@ -127,13 +132,14 @@ func _process_combat() -> void:
 		_orbiting = true
 		agent_script.command_orbit(_target_agent)
 
-	# Keep the first tool on the target; ToolController stops it on its own when power runs out.
-	if is_instance_valid(_tool_controller) and _tool_controller.get_tool_count() > 0:
-		var tool_template = _tool_controller.get_tool(0)
+	# Keep the attack tool on the target; ToolController stops it on its own when power runs out.
+	var index: int = _get_attack_tool_index()
+	if index >= 0:
+		var tool_template = _tool_controller.get_tool(index)
 		var in_reach: bool = distance <= tool_template.get_max_range()
 		var enough_power: bool = agent_script.power >= tool_template.power_per_cycle
-		if in_reach and enough_power and not _tool_controller.is_active(0):
-			_tool_controller.activate(0, _target_agent)
+		if in_reach and enough_power and not _tool_controller.is_active(index):
+			_tool_controller.activate(index, _target_agent)
 
 
 func _process_flee() -> void:

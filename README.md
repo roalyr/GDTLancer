@@ -27,6 +27,8 @@ The project is pruned back to its flight core. What works now:
 - New game, save and load
 - Laser combat without manual aim: damage depends on range and the target's angular velocity; hull, power and wrecks
 - Hostile NPCs spawn in every sector, patrol, engage and flee
+- Hits leave lasting marks on the hull (vertex-painted, proportional to damage)
+- Salvage: harpoon a wreck, it reels in to a safe towing distance and is stripped into the hold; cargo adds mass
 
 ## Roadmap
 
@@ -60,7 +62,7 @@ Complete the engine, then freeze it. After the freeze, work is content, tuning a
 | Input | Action |
 |---|---|
 | Left mouse | Select target |
-| Space | Laser on/off when a ship is selected; otherwise dock or jump |
+| Space | Tool on/off for the selected target (laser on ships, harpoon on wrecks); otherwise dock or jump |
 | A | Approach target |
 | O | Orbit target |
 | F | Flee from target |

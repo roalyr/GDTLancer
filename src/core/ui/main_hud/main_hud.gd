@@ -354,7 +354,8 @@ func _on_ButtonInteract_pressed():
 		EventBus.emit_signal("player_interact_pressed")
 
 
-# ATTACK / CEASE on a live ship (highlighted while the laser is on it); INTERACT otherwise.
+# ATTACK / CEASE on a live ship, HARPOON / RELEASE on a wreck (highlighted while the tool is on it);
+# INTERACT otherwise.
 func _update_interact_button() -> void:
 	if not is_instance_valid(label_button_interact):
 		return
@@ -362,9 +363,14 @@ func _update_interact_button() -> void:
 	var active := false
 	var player = GlobalRefs.player_agent_body
 	var tools = player.get_node_or_null("ToolController") if is_instance_valid(player) else null
-	if _current_target is RigidBody and is_instance_valid(_current_target) and _current_target.has_method("apply_damage") and not _current_target.get("is_wreck"):
-		active = is_instance_valid(tools) and tools.is_active(0) and tools.get_target(0) == _current_target
-		text = "CEASE" if active else "ATTACK"
+	if is_instance_valid(tools) and is_instance_valid(_current_target) and _current_target is RigidBody:
+		var index: int = tools.find_tool_for(_current_target)
+		if index >= 0:
+			active = tools.is_active(index) and tools.get_target(index) == _current_target
+			if _current_target.get("is_wreck"):
+				text = "RELEASE" if active else "HARPOON"
+			else:
+				text = "CEASE" if active else "ATTACK"
 	label_button_interact.text = text
 	_apply_button_toggle_state(button_interact, active)
 
@@ -511,7 +517,7 @@ func _is_projected_target_center_fade_enabled() -> bool:
 	return bool(world_rendering.get("projected_target_center_fade_enabled"))
 
 
-# Hull, power, the first tool's state and the selected ship's hull.
+# Hull, power, cargo, each fitted tool's state and the selected ship's hull or wreck's salvage.
 func _update_combat_readout() -> void:
 	if not is_instance_valid(label_combat_readout):
 		return
@@ -522,20 +528,34 @@ func _update_combat_readout() -> void:
 	var lines: Array = [
 		"HULL  %d / %d" % [ceil(player.hull), player.hull_max],
 		"POWER %d / %d" % [floor(player.power), player.power_max],
+		"CARGO %d / %d" % [player.get_cargo_units(), player.cargo_capacity],
 	]
 	var tools = player.get_node_or_null("ToolController")
-	if is_instance_valid(tools) and tools.get_tool_count() > 0:
-		var tool_name: String = tools.get_tool(0).tool_name.to_upper()
-		if tools.is_active(0):
-			lines.append("%s  ON  %d%%" % [tool_name, int(tools.get_cycle_progress(0) * 100.0)])
-		else:
-			lines.append("%s  OFF" % tool_name)
+	if is_instance_valid(tools):
+		for index in range(tools.get_tool_count()):
+			lines.append(_describe_tool_state(tools, index))
 	if is_instance_valid(_current_target) and _current_target is RigidBody and _current_target.get("hull_max"):
 		var distance: float = player.global_transform.origin.distance_to(_current_target.global_transform.origin)
-		lines.append("TARGET %s  %d / %d  %.0f m" % [
-			_resolve_target_display_name(_current_target), ceil(_current_target.hull), _current_target.hull_max, distance
-		])
+		var condition: String
+		if _current_target.get("is_wreck"):
+			condition = "SALVAGE %d" % _current_target.get_salvage_units()
+		else:
+			condition = "%d / %d" % [ceil(_current_target.hull), _current_target.hull_max]
+		lines.append("TARGET %s  %s  %.0f m" % [_resolve_target_display_name(_current_target), condition, distance])
 	label_combat_readout.text = PoolStringArray(lines).join("\n")
+
+
+func _describe_tool_state(tools: Node, index: int) -> String:
+	var tool_template = tools.get_tool(index)
+	var tool_name: String = tool_template.tool_name.to_upper()
+	if not tools.is_active(index):
+		return "%s  OFF" % tool_name
+	var tether = tools.get_tether(index)
+	if is_instance_valid(tether):
+		return "%s  %s %.0f m" % [tool_name, "STRIPPING" if tether.is_reeled_in() else "REELING", tether.get_distance()]
+	if tool_template.tool_type == "harpoon":
+		return "%s  ARMED" % tool_name
+	return "%s  ON  %d%%" % [tool_name, int(tools.get_cycle_progress(index) * 100.0)]
 
 
 func _refresh_player_hull() -> void:
@@ -672,6 +692,7 @@ func _on_agent_damaged(agent_body, damage_amount: float, _source_agent) -> void:
 
 
 func _on_agent_disabled(agent_body) -> void:
+	call_deferred("_rebuild_world_target_overlay")  # Relabel the bracket as a wreck.
 	if _is_game_over:
 		return
 	if not is_instance_valid(agent_body):

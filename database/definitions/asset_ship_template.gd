@@ -17,7 +17,8 @@ export var ship_upgrades: Array = [] # Buffs
 export var tool_slots_small: int = 2  # Number of small weapon mounts
 export var tool_slots_medium: int = 0  # Number of medium weapon mounts
 export var tool_slots_large: int = 0  # Number of large weapon mounts
-export var equipped_tools: Array = []  # Array of weapon template_ids
+export var equipped_tools: Array = []  # UtilityToolTemplate ids, in mount order
+export var salvage_yield: Dictionary = {}  # Commodity id -> units left in this ship's wreck (plus its cargo)
 
 # --- Power ---
 export var power_capacity: float = 100.0

@@ -42,6 +42,17 @@ func test_save_and_load_restores_all_fields():
 	assert_eq(GameState.player_arrival_direction, Vector3(0, 0, -1))
 
 
+func test_save_and_load_restores_hull_and_cargo():
+	_populate_game_state()
+	GameState.player_hull = 42.5
+	GameState.player_cargo = {"commodity_scrap": 7, "commodity_tech": 1}
+	GameStateManager.save_game(TEST_SLOT)
+	GameState.reset_state()
+	GameStateManager.load_game(TEST_SLOT)
+	assert_almost_eq(GameState.player_hull, 42.5, 0.001)
+	assert_eq_deep(GameState.player_cargo, {"commodity_scrap": 7, "commodity_tech": 1})
+
+
 func test_load_emits_game_state_loaded():
 	_populate_game_state()
 	GameStateManager.save_game(TEST_SLOT)

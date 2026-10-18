@@ -21,6 +21,14 @@ var is_wreck: bool = false  # Hull reached zero: no thrust or AI; drifts to rest
 # Bounds of the ship's visual model in body space; used to place hit effects on the hull.
 var hull_bounds: AABB = AABB(Vector3(-5, -5, -5), Vector3(10, 10, 10))
 
+# --- Cargo & Salvage ---
+var cargo: Dictionary = {}  # Commodity id -> units in the hold
+var cargo_capacity: int = 0  # Units
+var salvage: Dictionary = {}  # Wrecks only: commodity id -> units left to strip
+
+const HullScorch = preload("res://src/core/agents/components/hull_scorch.gd")
+var _hull_scorch: Node = null
+
 func is_player() -> bool:
 	return agent_type == "player"
 
@@ -63,6 +71,7 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 	_init_hull_and_power()
 
 	movement_system.initialize_movement_params(move_params)
+	_update_mass()  # Movement params set the hull mass; add the cargo back on top.
 	navigation_system.initialize_navigation(nav_params, movement_system)
 	
 	# Instance the ship visual scene if defined in the template
@@ -81,6 +90,9 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 						ship_visual.remove_child(child)
 						call_deferred("add_child", child)
 				_measure_hull_bounds(ship_visual)
+				_hull_scorch = HullScorch.new()
+				add_child(_hull_scorch)
+				_hull_scorch.setup(ship_visual)
 			else:
 				printerr("AgentBody Error: 'Model' node not found!")
 		else:
@@ -184,6 +196,9 @@ func _init_hull_and_power() -> void:
 	if is_player() and GameState.player_hull >= 0.0:
 		hull = min(GameState.player_hull, hull_max)
 	power = power_max
+	cargo_capacity = int(ship_template.cargo_capacity) if is_instance_valid(ship_template) else 0
+	cargo = GameState.player_cargo.duplicate() if is_player() else {}
+	_update_mass()
 
 
 # --- Hull & Power API ---
@@ -193,6 +208,8 @@ func apply_damage(amount: float, source: Node = null) -> void:
 	hull = max(0.0, hull - amount)
 	if is_player():
 		GameState.player_hull = hull
+	if is_instance_valid(_hull_scorch) and source is Spatial:
+		_hull_scorch.add_hit(source.global_transform.origin, amount)
 	EventBus.emit_signal("agent_damaged", self, amount, source)
 	if hull <= 0.0:
 		become_wreck()
@@ -204,6 +221,12 @@ func become_wreck() -> void:
 	is_wreck = true
 	hull = 0.0
 	power = 0.0
+	# What can be stripped from the wreck: the hull's own salvage plus whatever was in its hold.
+	salvage = ship_template.salvage_yield.duplicate() if is_instance_valid(ship_template) else {}
+	for commodity_id in cargo:
+		salvage[commodity_id] = int(salvage.get(commodity_id, 0)) + int(cargo[commodity_id])
+	cargo.clear()
+	_update_mass()
 	add_to_group("wreck")
 	EventBus.emit_signal("agent_disabled", self)
 
@@ -217,6 +240,72 @@ func try_spend_power(amount: float) -> bool:
 
 func get_hull_fraction() -> float:
 	return hull / hull_max if hull_max > 0.0 else 0.0
+
+
+# --- Cargo & Salvage API ---
+static func count_units(stock: Dictionary) -> int:
+	var total := 0
+	for units in stock.values():
+		total += int(units)
+	return total
+
+
+func get_cargo_units() -> int:
+	return count_units(cargo)
+
+
+func get_free_cargo() -> int:
+	return int(max(0, cargo_capacity - get_cargo_units()))
+
+
+# Adds up to `units` of a commodity, limited by free hold space; returns how many fit.
+func add_cargo(commodity_id: String, units: int) -> int:
+	var added: int = int(min(units, get_free_cargo()))
+	if added <= 0:
+		return 0
+	cargo[commodity_id] = int(cargo.get(commodity_id, 0)) + added
+	if is_player():
+		GameState.player_cargo = cargo.duplicate()
+	_update_mass()
+	return added
+
+
+func get_salvage_units() -> int:
+	return count_units(salvage)
+
+
+# Removes up to `units` from the wreck, taking commodities in name order; returns {id: units}.
+func take_salvage(units: int) -> Dictionary:
+	var taken := {}
+	var ids: Array = salvage.keys()
+	ids.sort()
+	for commodity_id in ids:
+		if units <= 0:
+			break
+		var amount: int = int(min(units, int(salvage[commodity_id])))
+		if amount <= 0:
+			continue
+		taken[commodity_id] = amount
+		units -= amount
+		salvage[commodity_id] = int(salvage[commodity_id]) - amount
+		if salvage[commodity_id] <= 0:
+			salvage.erase(commodity_id)
+	return taken
+
+
+func get_cargo_mass() -> float:
+	var total := 0.0
+	for commodity_id in cargo:
+		var commodity = TemplateDatabase.get_template(commodity_id)
+		var unit_mass: float = commodity.unit_mass if commodity is CommodityTemplate else 0.0
+		total += unit_mass * int(cargo[commodity_id])
+	return total
+
+
+# Hull mass plus cargo; drag scales with mass, so a loaded ship is slower and heavier to turn.
+func _update_mass() -> void:
+	var base_mass: float = ship_template.mass if is_instance_valid(ship_template) else Constants.DEFAULT_SHIP_MASS
+	mass = base_mass + get_cargo_mass()
 
 
 # --- Godot Lifecycle ---

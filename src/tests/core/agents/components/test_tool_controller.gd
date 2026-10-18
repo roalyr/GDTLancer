@@ -1,4 +1,4 @@
-# Tests for ToolController: hit quality, cycling, the power gate and the wreck transition.
+# Tests for ToolController: hit quality, cycling, the power gate, wrecks, harpoon towing and salvage.
 
 extends GutTest
 
@@ -105,9 +105,9 @@ func test_zero_hull_makes_wreck_and_stops_tool():
 
 
 func test_unimplemented_tool_types_cannot_be_switched_on():
-	var harpoon = UtilityToolTemplate.new()
-	harpoon.tool_type = "harpoon"
-	controller.set_tools([harpoon])
+	var drill = UtilityToolTemplate.new()
+	drill.tool_type = "drill"
+	controller.set_tools([drill])
 	assert_eq(controller.activate(0, target).reason, "not_implemented")
 
 
@@ -123,10 +123,10 @@ func test_wreck_drifts_and_cannot_spend_power():
 
 func test_hit_effect_intensity_follows_damage():
 	var Effect = load("res://src/core/agents/effects/laser_hit_effect.gd")
-	assert_eq(Effect.intensity_for_damage(0.0), 0.0, "No damage, no visible hit.")
-	assert_almost_eq(Effect.intensity_for_damage(Effect.FULL_INTENSITY_DAMAGE), 1.0, 0.001)
-	assert_almost_eq(Effect.intensity_for_damage(Effect.FULL_INTENSITY_DAMAGE * 0.25), 0.5, 0.001)
-	assert_eq(Effect.intensity_for_damage(1000.0), Effect.MAX_INTENSITY)
+	assert_eq(Effect.intensity_for_damage(0.0, 8.0), 0.0, "No damage, no visible hit.")
+	assert_almost_eq(Effect.intensity_for_damage(8.0, 8.0), 1.0, 0.001, "The tool's preset damage is a full-strength hit.")
+	assert_almost_eq(Effect.intensity_for_damage(2.0, 8.0), 0.5, 0.001)
+	assert_eq(Effect.intensity_for_damage(1000.0, 8.0), Effect.MAX_INTENSITY)
 
 
 func test_zero_damage_cycle_spawns_no_hit_effect():
@@ -138,3 +138,130 @@ func test_zero_damage_cycle_spawns_no_hit_effect():
 		if child.get_script() == load("res://src/core/agents/effects/laser_hit_effect.gd"):
 			effects += 1
 	assert_eq(effects, 0, "Zero-damage hits are invisible.")
+
+
+# --- Harpoon, tether and salvage ---
+
+func _make_harpoon() -> UtilityToolTemplate:
+	var harpoon = UtilityToolTemplate.new()
+	harpoon.tool_type = "harpoon"
+	harpoon.optimal_range = 300.0
+	harpoon.falloff = 100.0
+	harpoon.power_per_cycle = 20.0
+	harpoon.reel_speed = 15.0
+	harpoon.strip_interval = 1.0
+	return harpoon
+
+
+func _make_stripped_ready_wreck(units: int) -> void:
+	target.become_wreck()
+	target.salvage = {"commodity_scrap": units}
+	shooter.cargo_capacity = 10
+
+
+func test_tools_are_picked_by_target_kind():
+	controller.set_tools([laser, _make_harpoon()])
+	assert_eq(controller.find_tool_for(target), 0, "Laser for a live ship.")
+	target.become_wreck()
+	assert_eq(controller.find_tool_for(target), 1, "Harpoon for a wreck.")
+	assert_false(controller.activate(1, shooter).success, "Harpoon never targets its own ship.")
+
+
+func test_harpoon_launch_attaches_tether_that_reels_to_clearance():
+	_make_stripped_ready_wreck(3)
+	controller.set_tools([laser, _make_harpoon()])
+	assert_true(controller.activate(1, target).success)
+	controller._physics_process(0.016)
+	var tether = controller.get_tether(1)
+	assert_not_null(tether, "Harpoon hit attaches a tether.")
+	assert_almost_eq(shooter.power, 80.0, 0.001, "Launch costs power_per_cycle.")
+	assert_almost_eq(tether.length, 400.0, 0.01, "Cable starts at the hit distance.")
+	var expected_min: float = (shooter.get_apparent_radius() + target.get_apparent_radius()) * controller.TETHER_CLEARANCE
+	assert_almost_eq(tether.min_length, expected_min, 0.001, "Reels in to the sum of both apparent radii plus clearance.")
+	tether._physics_process(100.0)
+	assert_almost_eq(tether.length, expected_min, 0.001, "Never reels closer than the clearance.")
+
+
+func test_harpoon_out_of_reach_stays_armed():
+	_make_stripped_ready_wreck(3)
+	target.global_transform.origin = Vector3(0, 0, -2000)
+	controller.set_tools([_make_harpoon()])
+	controller.activate(0, target)
+	controller._physics_process(0.016)
+	assert_true(controller.is_active(0))
+	assert_null(controller.get_tether(0))
+	assert_eq(shooter.power, 100.0)
+
+
+func test_reeled_in_wreck_is_stripped_into_cargo_then_released():
+	_make_stripped_ready_wreck(3)
+	controller.set_tools([_make_harpoon()])
+	controller.activate(0, target)
+	controller._physics_process(0.016)
+	var tether = controller.get_tether(0)
+	tether._physics_process(100.0)
+	target.global_transform.origin = Vector3(0, 0, -tether.min_length)
+	watch_signals(controller)
+	for _i in range(5):
+		controller._physics_process(1.0)
+	assert_eq(shooter.cargo.get("commodity_scrap", 0), 3, "One unit per strip interval until the wreck is empty.")
+	assert_eq(target.get_salvage_units(), 0)
+	assert_false(controller.is_active(0), "Harpoon releases once the wreck is stripped.")
+	assert_signal_emitted_with_parameters(controller, "tool_deactivated", [0, "stripped"])
+
+
+func test_full_hold_keeps_towing_without_stripping():
+	_make_stripped_ready_wreck(3)
+	shooter.cargo_capacity = 0
+	controller.set_tools([_make_harpoon()])
+	controller.activate(0, target)
+	controller._physics_process(0.016)
+	var tether = controller.get_tether(0)
+	tether._physics_process(100.0)
+	target.global_transform.origin = Vector3(0, 0, -tether.min_length)
+	controller._physics_process(1.0)
+	controller._physics_process(1.0)
+	assert_eq(target.get_salvage_units(), 3)
+	assert_true(controller.is_active(0), "Still towing.")
+
+
+func test_tether_pulls_both_bodies_only_when_stretched():
+	var Tether = load("res://src/core/agents/components/tether.gd")
+	var recorder_script = GDScript.new()
+	recorder_script.source_code = "extends Node\nvar total = Vector3.ZERO\nfunc add_external_force(force):\n\ttotal += force\n"
+	recorder_script.reload()
+	for body in [shooter, target]:
+		var recorder = Node.new()
+		recorder.set_script(recorder_script)
+		add_child_autofree(recorder)
+		body.movement_system = recorder
+	shooter.mass = 6000.0
+	target.mass = 6000.0
+	var tether = Tether.new()
+	tether.setup(shooter, target, 500.0, 50.0, 0.0)
+	add_child_autofree(tether)
+	tether._physics_process(0.016)
+	assert_eq(shooter.movement_system.total, Vector3.ZERO, "Slack cable (400 m apart, 500 m long) pulls nothing.")
+	tether.length = 300.0
+	tether._physics_process(0.016)
+	var pull: Vector3 = shooter.movement_system.total
+	assert_gt(pull.dot(Vector3(0, 0, -1)), 0.0, "Holder is pulled toward the towed body.")
+	assert_eq(target.movement_system.total, -pull, "Equal and opposite.")
+
+
+func test_wreck_salvage_includes_its_cargo_and_cargo_adds_mass():
+	var scrap = CommodityTemplate.new()
+	scrap.template_id = "test_scrap"
+	scrap.unit_mass = 100.0
+	var saved: Dictionary = TemplateDatabase.assets_commodities
+	TemplateDatabase.assets_commodities = {"test_scrap": scrap}
+	shooter.cargo_capacity = 5
+	shooter._update_mass()
+	var base_mass: float = shooter.mass
+	assert_eq(shooter.add_cargo("test_scrap", 8), 5, "Hold capacity caps what fits.")
+	assert_almost_eq(shooter.mass, base_mass + 500.0, 0.01, "Cargo mass adds to the ship.")
+	shooter.become_wreck()
+	assert_eq(shooter.salvage.get("test_scrap", 0), 5, "A wreck's hold becomes salvage.")
+	assert_eq(shooter.get_cargo_units(), 0)
+	TemplateDatabase.assets_commodities = saved
+

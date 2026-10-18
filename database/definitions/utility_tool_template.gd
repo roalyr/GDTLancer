@@ -6,7 +6,7 @@ class_name UtilityToolTemplate
 
 export var tool_name: String = "Unknown Tool"
 export var description: String = ""
-export var tool_type: String = "laser"  # Behaviour. Only "laser" is implemented; "harpoon" and "drill" are placeholders.
+export var tool_type: String = "laser"  # Behaviour: "laser" (damages live ships), "harpoon" (tethers wrecks); "drill" is a placeholder.
 export var mount_size: String = "small"  # "small", "medium", "large"
 
 export var damage: float = 6.0  # Hull damage per cycle at full hit quality.
@@ -14,7 +14,11 @@ export var optimal_range: float = 500.0  # Full hit quality out to this distance
 export var falloff: float = 300.0  # Distance past optimal at which hit quality halves (m).
 export var tracking: float = 0.2  # Angular velocity of the target (rad/s) at which hit quality halves.
 export var cycle_time: float = 1.0  # Seconds per cycle.
-export var power_per_cycle: float = 12.0  # Power spent at the start of each cycle.
+export var power_per_cycle: float = 12.0  # Power spent at the start of each cycle (harpoon: per launch).
+
+# Harpoon only. Reach is the same max range as other tools.
+export var reel_speed: float = 15.0  # Tether reel-in speed (m/s) after the harpoon hits.
+export var strip_interval: float = 1.0  # Seconds per salvage unit stripped once the wreck is reeled in.
 
 # Beyond this distance the tool stays switched on but does not cycle.
 const MAX_RANGE_FALLOFFS = 2.0

@@ -1,0 +1,106 @@
+# Tests for HullScorch: hits mark vertex alpha on the surface facing the shooter, in proportion to damage.
+
+extends GutTest
+
+const HullScorch = preload("res://src/core/agents/components/hull_scorch.gd")
+
+var ship: Spatial = null
+var mesh_instance: MeshInstance = null
+var scorch: Node = null
+
+
+func before_each():
+	ship = Spatial.new()
+	add_child_autofree(ship)
+	mesh_instance = MeshInstance.new()
+	mesh_instance.mesh = _make_coloured_box(Vector3(20, 4, 20), 24)
+	ship.add_child(mesh_instance)
+	scorch = HullScorch.new()
+	ship.add_child(scorch)
+	scorch.setup(mesh_instance)
+
+
+# A subdivided box with white vertex colours, like an imported hull.
+func _make_coloured_box(size: Vector3, subdivisions: int) -> ArrayMesh:
+	var cube = CubeMesh.new()
+	cube.size = size
+	cube.subdivide_width = subdivisions
+	cube.subdivide_height = subdivisions
+	cube.subdivide_depth = subdivisions
+	var arrays: Array = cube.surface_get_arrays(0)
+	var colors := PoolColorArray()
+	colors.resize(arrays[Mesh.ARRAY_VERTEX].size())
+	for i in range(colors.size()):
+		colors[i] = Color.white
+	arrays[Mesh.ARRAY_COLOR] = colors
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	return mesh
+
+
+func _mark_of_vertices(predicate: FuncRef) -> float:
+	var arrays: Array = scorch._meshes[0].arrays[0]
+	var total := 0.0
+	var count := 0
+	for i in range(arrays[Mesh.ARRAY_VERTEX].size()):
+		if predicate.call_func(arrays[Mesh.ARRAY_VERTEX][i]):
+			total += 1.0 - arrays[Mesh.ARRAY_COLOR][i].a
+			count += 1
+	return total / max(count, 1)
+
+
+func _is_top_face(position: Vector3) -> bool:
+	return position.y > 1.99
+
+
+func _is_bottom_face(position: Vector3) -> bool:
+	return position.y < -1.99
+
+
+func test_hit_from_above_marks_only_the_top_surface():
+	var painted: int = scorch.add_hit(Vector3(0, 200, 0), 6.0)
+	assert_gt(painted, 0)
+	assert_gt(_mark_of_vertices(funcref(self, "_is_top_face")), 0.0, "Top face, facing the shooter, is marked.")
+	assert_eq(_mark_of_vertices(funcref(self, "_is_bottom_face")), 0.0, "Far side stays clean.")
+
+
+func test_mark_area_grows_with_damage():
+	var small: int = scorch.add_hit(Vector3(0, 200, 0), 1.0)
+	before_each()
+	var large: int = scorch.add_hit(Vector3(0, 200, 0), 9.0)
+	assert_gt(large, small * 4, "Radius ~ sqrt(damage), so marked area ~ damage (9x here).")
+
+
+func test_repeated_hits_accumulate_and_saturate():
+	scorch.add_hit(Vector3(0, 200, 0), 6.0)
+	var once: float = scorch.get_average_mark()
+	scorch.add_hit(Vector3(0, 200, 0), 6.0)
+	assert_gt(scorch.get_average_mark(), once, "A second hit on the same spot deepens the mark.")
+	for _i in range(60):
+		scorch.add_hit(Vector3(0, 200, 0), 6.0)
+	var deepest := 0.0
+	var arrays: Array = scorch._meshes[0].arrays[0]
+	for i in range(arrays[Mesh.ARRAY_VERTEX].size()):
+		deepest = max(deepest, 1.0 - arrays[Mesh.ARRAY_COLOR][i].a)
+	assert_true(deepest <= 1.0, "Marks saturate at fully marked.")
+	assert_gt(deepest, 0.95)
+
+
+func test_marks_switch_on_in_a_per_ship_material_copy():
+	var shader = load("res://assets/art/shaders/solid_dither_no_alpha_no_texture_8x8.gdshader")
+	var shared = ShaderMaterial.new()
+	shared.shader = shader
+	mesh_instance.material_override = shared
+	scorch.setup(mesh_instance)
+	assert_ne(mesh_instance.material_override, shared, "The shared material is never edited.")
+	assert_eq(mesh_instance.material_override.get_shader_param("damage_mark_strength"), 1.0)
+	var shared_strength = shared.get_shader_param("damage_mark_strength")
+	assert_true(shared_strength == null or shared_strength == 0.0, "Shared material keeps the shader default (off).")
+
+
+func test_rebuild_gives_ship_its_own_mesh_copy():
+	var shared_mesh = mesh_instance.mesh
+	scorch.add_hit(Vector3(0, 200, 0), 6.0)
+	scorch.rebuild_meshes()
+	assert_ne(mesh_instance.mesh, shared_mesh, "Painting never touches the shared imported mesh.")
+	assert_eq(mesh_instance.mesh.get_surface_count(), 1)
