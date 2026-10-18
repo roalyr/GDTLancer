@@ -24,17 +24,31 @@ script = ExtResource( 7 )
 [node name="WorldRendering" type="Node" parent="."]
 script = ExtResource( 16 )
 
+[node name="WorldViewContainer" type="ViewportContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+stretch = true
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="WorldViewport" type="Viewport" parent="WorldViewContainer"]
+size = Vector2( 1920, 1080 )
+handle_input_locally = false
+render_target_update_mode = 3
+
 [node name="MainHUD" parent="." instance=ExtResource( 2 )]
 
 [node name="DebugWindow" parent="." instance=ExtResource( 18 )]
 
 [node name="MainMenu" parent="." instance=ExtResource( 17 )]
 
-[node name="CurrentZoneContainer" type="Spatial" parent="."]
+[node name="CurrentZoneContainer" type="Spatial" parent="WorldViewContainer/WorldViewport"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="OrbitCamera" parent="." instance=ExtResource( 3 )]
+[node name="OrbitCamera" parent="WorldViewContainer/WorldViewport" instance=ExtResource( 3 )]
 
-[node name="JumpTransitionRig" parent="." instance=ExtResource( 29 )]
+[node name="JumpTransitionRig" parent="WorldViewContainer/WorldViewport" instance=ExtResource( 29 )]

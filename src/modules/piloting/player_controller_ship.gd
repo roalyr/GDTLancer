@@ -3,6 +3,7 @@
 extends Node
 
 # --- References ---
+const ScreenSpace = preload("res://src/core/ui/screen_space.gd")
 var agent_script: Node = null
 var agent_body: RigidBody = null
 var movement_system: Node = null
@@ -357,8 +358,8 @@ func set_free_flight(active: bool) -> void:
 func handle_world_double_click(click_pos: Vector2):
 	_clear_queued_jump()
 	if is_instance_valid(agent_script) and is_instance_valid(_main_camera):
-		var ray_origin = _main_camera.project_ray_origin(click_pos)
-		var ray_normal = _main_camera.project_ray_normal(click_pos)
+		var ray_origin = ScreenSpace.ray_origin(_main_camera, click_pos)
+		var ray_normal = ScreenSpace.ray_normal(_main_camera, click_pos)
 		var target_point = ray_origin + ray_normal * Constants.TARGETING_RAY_LENGTH
 		agent_script.command_move_to(target_point)
 
@@ -417,8 +418,8 @@ func _update_throttle_and_slider_visuals():
 func _raycast_for_target(screen_pos: Vector2) -> Spatial:
 	if not is_instance_valid(agent_body) or not is_instance_valid(_main_camera):
 		return null
-	var ray_origin = _main_camera.project_ray_origin(screen_pos)
-	var ray_normal = _main_camera.project_ray_normal(screen_pos)
+	var ray_origin = ScreenSpace.ray_origin(_main_camera, screen_pos)
+	var ray_normal = ScreenSpace.ray_normal(_main_camera, screen_pos)
 	var ray_end = ray_origin + ray_normal * Constants.TARGETING_RAY_LENGTH
 	# --- FIX: Call get_world() from the agent_body node ---
 	var space_state = agent_body.get_world().direct_space_state

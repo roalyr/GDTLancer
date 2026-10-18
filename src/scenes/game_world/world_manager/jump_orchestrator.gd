@@ -440,7 +440,7 @@ func _is_jump_transition_enabled() -> bool:
 
 func _get_jump_transition_rig() -> Node:
 	if is_instance_valid(_world_manager.get_parent()):
-		return _world_manager.get_parent().get_node_or_null(Constants.JUMP_TRANSITION_RIG_NODE_NAME)
+		return _world_manager.get_parent().find_node(Constants.JUMP_TRANSITION_RIG_NODE_NAME, true, false)  # Inside the world viewport
 	return null
 
 

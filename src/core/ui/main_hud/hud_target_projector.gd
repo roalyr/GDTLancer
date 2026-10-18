@@ -3,6 +3,7 @@
 extends Reference
 
 const CombatAssessment = preload("res://src/core/systems/combat_assessment.gd")
+const ScreenSpace = preload("res://src/core/ui/screen_space.gd")
 
 var _hud: Control
 
@@ -194,7 +195,7 @@ func update_route_target_overlay() -> void:
 		var target_world_position: Vector3 = get_target_world_position(route_target)
 		var target_dir = (target_world_position - _hud._main_camera.global_transform.origin).normalized()
 		var is_in_front = target_dir.dot(camera_fwd) >= 0
-		var screen_pos = _hud._main_camera.unproject_position(target_world_position)
+		var screen_pos = ScreenSpace.world_to_screen(_hud._main_camera, target_world_position)
 		var is_on_screen = viewport_rect.has_point(screen_pos)
 		button.visible = is_in_front and is_on_screen
 		if button.visible:
@@ -260,7 +261,7 @@ func update_world_target_overlay() -> void:
 		var target_world_position: Vector3 = get_target_world_position(target_node)
 		var target_dir = (target_world_position - _hud._main_camera.global_transform.origin).normalized()
 		var is_in_front = target_dir.dot(camera_fwd) >= 0
-		var screen_pos = _hud._main_camera.unproject_position(target_world_position)
+		var screen_pos = ScreenSpace.world_to_screen(_hud._main_camera, target_world_position)
 		var is_on_screen = viewport_rect.has_point(screen_pos)
 		button.visible = is_in_front and is_on_screen
 		if button.visible:

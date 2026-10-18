@@ -193,7 +193,7 @@ func load_sector(sector_id: String):
 		printerr("WM Error: SectorLoader returned null for: ", resolved_sector_id)
 		return
 
-	var zone_holder = get_parent().get_node_or_null(Constants.CURRENT_ZONE_CONTAINER_NAME)
+	var zone_holder = get_parent().find_node(Constants.CURRENT_ZONE_CONTAINER_NAME, true, false)  # Inside the world viewport
 	if not is_instance_valid(zone_holder):
 		printerr("WM Error: Could not find valid zone holder node!")
 		return
