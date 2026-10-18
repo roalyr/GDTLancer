@@ -143,6 +143,21 @@ const TETHER_DAMPING_RATIO = 0.9
 
 
 # ==================================================================================================
+# SIGNATURE AND DETECTION (one rule for everyone)
+# ==================================================================================================
+
+# A ship's signature is a distance: the hull's base (ShipTemplate.signature, plus modules) plus what
+# it is doing. Another ship detects it within signature * its own sensor strength.
+const SIG_ENGINE_FULL = 2500.0  # m added at full thrust
+const SIG_ENGINE_SMOOTHING = 0.5  # s; engine signature follows thrust this quickly
+const SIG_TOOL_FIRING = 3000.0  # m added right after a tool cycle
+const SIG_TOOL_DECAY = 4.0  # s for the firing signature to fade
+const SIG_PER_LEAK = 800.0  # m per fuel leak at full pressure
+const SIG_WRECK_FACTOR = 0.6  # A wreck's signature is this share of its hull's base (cold, but a big lump of metal)
+const SIG_MIN = 200.0  # m; nothing is quieter than this
+
+
+# ==================================================================================================
 # HULL DAMAGE MARKS (HullScorch + solid shaders)
 # ==================================================================================================
 
@@ -191,10 +206,18 @@ const EXPLOSION_DRAG = 0.8  # Per second; the cloud centre slows a bit faster th
 # AI AND NPC POPULATION
 # ==================================================================================================
 
-const AI_DETECTION_RANGE: float = 3000.0  # m, until signature and detection exist
 const AI_PATROL_RADIUS: float = 1000.0  # m
 const AI_PATROL_ARRIVAL_DISTANCE = 50.0  # m
-const AI_FLEE_HULL_FRACTION: float = 0.2
+# Predator rule: desire = advantage * clamp(gain / AI_GAIN_REFERENCE, AI_GAIN_FACTOR_MIN, AI_GAIN_FACTOR_MAX),
+# where advantage = (own time to die) / (time to kill the target) from current hulls and laser DPS,
+# and gain = the target's salvage + cargo value. Engage at desire >= AI_ENGAGE_DESIRE, keep
+# fighting while >= AI_DISENGAGE_DESIRE, otherwise break off and flee.
+const AI_GAIN_REFERENCE = 200.0  # WP; a target worth this counts as gain factor 1
+const AI_GAIN_FACTOR_MIN = 0.25
+const AI_GAIN_FACTOR_MAX = 4.0
+const AI_ENGAGE_DESIRE = 1.0
+const AI_DISENGAGE_DESIRE = 0.8  # Below the engage level, so a fight does not flip-flop
+const AI_FLEE_DISTANCE = 6000.0  # m from the threat at which a fleeing ship resumes patrol
 const AI_REPATH_INTERVAL = 0.5  # s
 const AI_SCAN_INTERVAL = 1.0  # s
 

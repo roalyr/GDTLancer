@@ -240,6 +240,10 @@ func update_world_target_overlay() -> void:
 			button.visible = false
 			apply_projected_target_distance_fade(button, 1.0)
 			continue
+		var player = GlobalRefs.player_agent_body
+		if is_instance_valid(player) and player.has_method("detects") and not player.detects(target_node):
+			button.visible = false  # Undetected ships get no bracket (same rule as for AI)
+			continue
 		var overlay_kind = get_projected_target_overlay_kind(target_node)
 		if not is_projected_target_overlay_enabled(overlay_kind):
 			button.visible = false

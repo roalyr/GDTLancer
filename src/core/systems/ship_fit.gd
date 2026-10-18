@@ -6,7 +6,7 @@
 extends Reference
 
 const SIZES = ["small", "medium", "large"]
-const STATS = ["hull", "power_capacity", "power_regen", "cargo_capacity", "linear_thrust", "angular_thrust"]
+const STATS = ["hull", "power_capacity", "power_regen", "cargo_capacity", "linear_thrust", "angular_thrust", "signature", "sensor_strength"]
 
 
 static func tool_slot_sizes(ship) -> Array:
@@ -98,6 +98,8 @@ static func compute_stats(ship, fit: Dictionary) -> Dictionary:
 		"cargo_capacity": float(ship.cargo_capacity),
 		"linear_thrust": float(ship.linear_thrust),
 		"angular_thrust": float(ship.angular_thrust),
+		"signature": float(ship.signature),
+		"sensor_strength": float(ship.sensor_strength),
 		"mass": float(ship.mass),
 	}
 	for tool_id in fit.get("tools", []):

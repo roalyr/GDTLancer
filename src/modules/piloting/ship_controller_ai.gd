@@ -113,15 +113,17 @@ func _process_combat() -> void:
 	if not _is_live_target(_target_agent):
 		_change_state(AIState.PATROL)
 		return
-	if agent_script.get_hull_fraction() <= Constants.AI_FLEE_HULL_FRACTION:
-		_change_state(AIState.FLEE)
+	if not _provoked and not agent_script.detects(_target_agent):
+		_change_state(AIState.PATROL)  # Lost contact
 		return
+	# Keep weighing the fight: break off once it stops being worth it.
+	if _scan_timer <= 0.0:
+		_scan_timer = Constants.AI_SCAN_INTERVAL
+		if desire_against(_target_agent) < Constants.AI_DISENGAGE_DESIRE:
+			_change_state(AIState.FLEE)
+			return
 
 	var distance: float = agent_script.global_transform.origin.distance_to(_target_agent.global_transform.origin)
-	if distance > Constants.AI_DETECTION_RANGE and not _provoked:
-		_change_state(AIState.PATROL)
-		return
-
 	# Close to optimal range, then orbit there; re-approach if pushed out.
 	var engagement_range: float = get_engagement_range()
 	if distance > engagement_range * 1.2:
@@ -148,7 +150,7 @@ func _process_flee() -> void:
 		_change_state(AIState.PATROL)
 		return
 	var distance: float = agent_script.global_transform.origin.distance_to(_target_agent.global_transform.origin)
-	if distance > Constants.AI_DETECTION_RANGE * 2.0:
+	if distance > Constants.AI_FLEE_DISTANCE or not agent_script.detects(_target_agent):
 		_change_state(AIState.PATROL)
 		return
 	if _repath_timer <= 0.0:
@@ -156,19 +158,39 @@ func _process_flee() -> void:
 		agent_script.command_flee(_target_agent)
 
 
-# Nearest non-hostile, non-wrecked agent within detection range.
+# The detected non-hostile ship most worth attacking, if any is worth it at all.
 func scan_for_target() -> RigidBody:
 	var best: RigidBody = null
-	var best_distance: float = Constants.AI_DETECTION_RANGE
-	var own_pos: Vector3 = agent_script.global_transform.origin
+	var best_desire: float = Constants.AI_ENGAGE_DESIRE
 	for body in get_tree().get_nodes_in_group("agent_body"):
 		if body == agent_script or not _is_live_target(body) or body.get("is_hostile"):
 			continue
-		var distance: float = own_pos.distance_to(body.global_transform.origin)
-		if distance <= best_distance:
+		if not agent_script.detects(body):
+			continue
+		var desire: float = desire_against(body)
+		if desire >= best_desire:
 			best = body
-			best_distance = distance
+			best_desire = desire
 	return best
+
+
+# How much this ship wants to fight `target` (see Constants AI block).
+func desire_against(target) -> float:
+	return compute_desire(
+		agent_script.hull, agent_script.get_damage_per_second(),
+		target.hull, target.get_damage_per_second(), target.get_salvage_value()
+	)
+
+
+# advantage = (own time to die) / (time to kill the target); scaled by what the kill is worth.
+static func compute_desire(own_hull: float, own_dps: float, target_hull: float, target_dps: float, gain: float) -> float:
+	if own_dps <= 0.0:
+		return 0.0
+	var time_to_kill: float = target_hull / own_dps
+	var time_to_die: float = own_hull / max(target_dps, 0.001)
+	var advantage: float = min(time_to_die / max(time_to_kill, 0.001), 100.0)
+	var gain_factor: float = clamp(gain / Constants.AI_GAIN_REFERENCE, Constants.AI_GAIN_FACTOR_MIN, Constants.AI_GAIN_FACTOR_MAX)
+	return advantage * gain_factor
 
 
 func _is_live_target(body) -> bool:
@@ -185,16 +207,22 @@ func _on_agent_disabled(agent_body) -> void:
 		_change_state(AIState.DISABLED)
 
 
-# Shot at by anyone: turn on the attacker and close in, however far away it fired from.
+# Shot at by anyone: turn on the attacker and close in however far away it fired from, if the
+# fight is worth it; otherwise flee from it.
 func _on_agent_damaged(agent_body, _amount, source) -> void:
 	if agent_body != agent_script or not _is_live_target(source) or source == agent_script:
 		return
 	if _current_state in [AIState.DISABLED, AIState.FLEE]:
 		return
-	_provoked = true
 	if _current_state == AIState.COMBAT and _target_agent == source:
+		_provoked = true
 		return
 	_target_agent = source
+	# Shot at: fight back if the same rule says it is worth it, otherwise run.
+	if desire_against(source) < Constants.AI_DISENGAGE_DESIRE:
+		_change_state(AIState.FLEE)
+		return
+	_provoked = true
 	_current_state = AIState.IDLE  # Re-enter combat so the approach starts toward the attacker
 	_change_state(AIState.COMBAT)
 

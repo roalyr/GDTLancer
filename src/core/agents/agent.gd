@@ -37,6 +37,7 @@ const FuelLeakScene = preload("res://scenes/prefabs/effects/fuel_leak.tscn")
 const WreckExplosionScene = preload("res://scenes/prefabs/effects/wreck_explosion.tscn")
 var _hull_scorch: Node = null
 var _damage_toward_leak := 0.0
+var _engine_activity := 0.0  # Smoothed engine thrust fraction, 0..1 (signature)
 var _leaks: Array = []
 
 func is_player() -> bool:
@@ -387,6 +388,53 @@ func _spawn_explosion() -> void:
 	explosion.global_transform.origin = global_transform.origin
 
 
+# --- Signature & Detection (one rule for everyone; see Constants SIGNATURE block) ---
+
+# How far away this ship can be detected (m): its hull's base plus engines, firing and leaks.
+func get_signature() -> float:
+	var base: float = float(fit_stats.get("signature", ship_template.signature if is_instance_valid(ship_template) else 1500.0))
+	if is_wreck:
+		return max(Constants.SIG_MIN, base * Constants.SIG_WRECK_FACTOR)
+	var signature: float = base + Constants.SIG_ENGINE_FULL * _engine_activity
+	var tools = get_node_or_null("ToolController")
+	if is_instance_valid(tools) and tools.has_method("get_firing_activity"):
+		signature += Constants.SIG_TOOL_FIRING * tools.get_firing_activity()
+	for leak in _leaks:
+		if is_instance_valid(leak):
+			signature += Constants.SIG_PER_LEAK * leak.get_pressure()
+	return max(Constants.SIG_MIN, signature)
+
+
+func get_sensor_strength() -> float:
+	return float(fit_stats.get("sensor_strength", ship_template.sensor_strength if is_instance_valid(ship_template) else 1.0))
+
+
+# Whether this ship's sensors see `other`. Things without a signature (stations, rocks, stars)
+# are always known.
+func detects(other) -> bool:
+	if not is_instance_valid(other) or other == self or not other.has_method("get_signature"):
+		return true
+	return global_transform.origin.distance_to(other.global_transform.origin) <= other.get_signature() * get_sensor_strength()
+
+
+func get_damage_per_second() -> float:
+	var tools = get_node_or_null("ToolController")
+	return tools.get_damage_per_second() if is_instance_valid(tools) and tools.has_method("get_damage_per_second") else 0.0
+
+
+# What this ship's wreck would be worth to a salvager: its hull's salvage plus its cargo.
+func get_salvage_value() -> int:
+	var stock: Dictionary = (ship_template.salvage_yield if is_instance_valid(ship_template) else {}).duplicate()
+	for commodity_id in cargo:
+		stock[commodity_id] = int(stock.get(commodity_id, 0)) + int(cargo[commodity_id])
+	var value := 0
+	for commodity_id in stock:
+		var commodity = TemplateDatabase.get_template(commodity_id)
+		if commodity is CommodityTemplate:
+			value += int(stock[commodity_id]) * commodity.base_value
+	return value
+
+
 # --- Cargo & Salvage API ---
 static func count_units(stock: Dictionary) -> int:
 	var total := 0
@@ -487,6 +535,9 @@ func _physics_process(delta: float) -> void:
 	if not is_wreck and power < power_max:
 		power = min(power_max, power + power_regen * delta)
 	_apply_leak_thrust()
+	var thrust_used = movement_system.get("last_thrust_fraction") if is_instance_valid(movement_system) else null
+	var thrust: float = float(thrust_used) if thrust_used != null and not is_wreck and not is_docked else 0.0
+	_engine_activity = lerp(_engine_activity, thrust, 1.0 - exp(-delta / Constants.SIG_ENGINE_SMOOTHING))
 
 
 # Venting gas pushes back on the hull where it leaks; off-centre leaks turn the ship (wrecks too).

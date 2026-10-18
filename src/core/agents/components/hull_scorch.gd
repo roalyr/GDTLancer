@@ -10,8 +10,9 @@
 # Each hit is worked out here on the CPU, once per hit (not in a shader), as two effects:
 # 1. Where it lands. Each vertex is measured against the shot line (from the shooter to its aim
 #    point): how far along it (t) and how far from it. Walking along the line, the first surface is
-#    the first spot with at least SCORCH_MIN_SURFACE_POINTS distinct vertex positions within the
-#    depth band; sparser ones are thin details (antennas, struts) the shot passes. The impact point
+#    the first spot with at least SCORCH_MIN_SURFACE_POINTS distinct vertex positions facing the
+#    shooter within the depth band; back faces never stop the beam, and sparser spots are thin
+#    details (antennas, struts) the shot passes. The impact point
 #    is that surface's vertex nearest the line.
 # 2. The char mark: the beam's footprint. Vertices of that surface within the mark radius of the
 #    line, facing the shooter (the beam only burns what it can see). On an oblique face the
@@ -114,7 +115,7 @@ func add_hit(from_global: Vector3, aim_global: Vector3, damage: float) -> int:
 	var surfaces_by_key := {}  # surface key -> that surface's arrays
 	var instances_by_key := {}  # surface key -> its MeshInstance
 	var beams_by_key := {}  # surface key -> shot direction in that mesh's space
-	# [surface key, vertex index, t (m), distance from line (m), position]
+	# [surface key, vertex index, t (m), distance from line (m), position, faces the shooter]
 	var candidates: Array = _collect_candidates(from_global, aim_global, heat_radius, surfaces_by_key, instances_by_key, beams_by_key)
 	# Coarse meshes (a large low-poly rock) can have no vertex this close to the line: widen until
 	# the shot finds enough surface to mark. Such marks are coarser, but always show.
@@ -130,7 +131,7 @@ func add_hit(from_global: Vector3, aim_global: Vector3, damage: float) -> int:
 	# 1. The impact point: the first surface's vertex nearest the shot line.
 	var closest_to_line := INF
 	for candidate in candidates:
-		if candidate[2] < first_t or candidate[2] > first_t + depth or candidate[3] >= closest_to_line:
+		if not candidate[5] or candidate[2] < first_t or candidate[2] > first_t + depth or candidate[3] >= closest_to_line:
 			continue
 		closest_to_line = candidate[3]
 		var arrays: Array = surfaces_by_key[candidate[0]]
@@ -150,7 +151,7 @@ func add_hit(from_global: Vector3, aim_global: Vector3, damage: float) -> int:
 	for candidate in candidates:
 		var key: int = candidate[0]
 		var char_falloff := 0.0
-		if candidate[2] >= first_t and candidate[2] <= first_t + depth and candidate[3] < radius and _faces_shooter(surfaces_by_key[key], candidate[1], beams_by_key[key]):
+		if candidate[5] and candidate[2] >= first_t and candidate[2] <= first_t + depth and candidate[3] < radius:
 			char_falloff = smoothstep(radius, 0.0, candidate[3])
 		var heat_distance: float = instances_by_key[key].global_transform.xform(candidate[4]).distance_to(last_hit_point)
 		var heat_falloff: float = smoothstep(heat_radius, 0.0, heat_distance)
@@ -279,7 +280,7 @@ func _collect_candidates(from_global: Vector3, aim_global: Vector3, radius: floa
 				var t: float = relative.dot(direction)
 				var distance_sq: float = relative.length_squared() - t * t
 				if distance_sq < radius_sq:
-					candidates.append([key, i, t * scale, sqrt(max(distance_sq, 0.0)) * scale, positions[i]])
+					candidates.append([key, i, t * scale, sqrt(max(distance_sq, 0.0)) * scale, positions[i], _faces_shooter(entry.arrays[surface], i, direction)])
 	return candidates
 
 
@@ -294,9 +295,14 @@ static func _count_points(candidates: Array) -> int:
 # `depth` behind it (meshes repeat a vertex per face at hard edges, so positions are
 # counted, not vertices). Falls back to the nearest candidate when the line only grazes thin parts.
 static func _find_first_surface(candidates: Array, depth: float) -> float:
-	if candidates.empty():
+	# The beam lands on the first surface it can see: back faces (inner walls, nozzle interiors)
+	# never stop it.
+	var sorted: Array = []
+	for candidate in candidates:
+		if candidate[5]:
+			sorted.append(candidate)
+	if sorted.empty():
 		return INF
-	var sorted: Array = candidates.duplicate()
 	sorted.sort_custom(ScorchDepthSorter, "by_depth")
 	for start in range(sorted.size()):
 		var points := {}

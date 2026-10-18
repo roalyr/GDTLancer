@@ -52,9 +52,9 @@ func refresh() -> void:
 static func describe_stats(ship_body) -> String:
 	var stats: Dictionary = ship_body.fit_stats
 	var top_speed: float = stats.linear_thrust / max(ship_body.mass * Constants.LINEAR_DRAG, 0.001)
-	return "HULL %d   POWER %d (+%d/s)   CARGO %d   THRUST %d kN   MASS %.1f t   TOP SPEED %d m/s" % [
+	return "HULL %d   POWER %d (+%d/s)   CARGO %d   THRUST %d kN   MASS %.1f t   TOP SPEED %d m/s   SIGNATURE %.1f km   SENSORS x%.1f" % [
 		stats.hull, stats.power_capacity, stats.power_regen, stats.cargo_capacity,
-		stats.linear_thrust / 1000.0, ship_body.mass / 1000.0, top_speed
+		stats.linear_thrust / 1000.0, ship_body.mass / 1000.0, top_speed, stats.signature / 1000.0, stats.sensor_strength
 	]
 
 
@@ -65,6 +65,8 @@ const STAT_LABELS = {
 	"cargo_capacity": ["%+d cargo", 1.0],
 	"linear_thrust": ["%+d kN thrust", 0.001],
 	"angular_thrust": ["%+d kNm turn", 0.001],
+	"signature": ["%+d m signature", 1.0],
+	"sensor_strength": ["%+.1f sensors", 1.0],
 }
 
 

@@ -28,6 +28,7 @@ var _tools: Array = []  # UtilityToolTemplate per mount, in ship order
 var _targets: Dictionary = {}  # tool_index -> target body while switched on
 var _cycle_timers: Dictionary = {}  # tool_index -> seconds until the next cycle may start
 var _tethers: Dictionary = {}  # tool_index -> Tether node while a harpoon is attached
+var _last_cycle_ms: int = -1000000  # When a tool last cycled (drives the firing signature)
 
 
 func _ready() -> void:
@@ -89,6 +90,8 @@ func can_target(tool_template, target) -> bool:
 	if not (is_instance_valid(target) and target != _agent_body and target is Spatial):
 		return false
 	var is_ship: bool = target.has_method("apply_damage")
+	if _agent_body.has_method("detects") and not _agent_body.detects(target):
+		return false  # Tools act only on what the ship's sensors can see
 	match tool_template.tool_type:
 		"laser":
 			return (is_ship and not target.get("is_wreck")) or target.is_in_group("asteroid")
@@ -173,6 +176,20 @@ static func _apparent_radius(body: Node) -> float:
 	return float(body.get_apparent_radius()) if body.has_method("get_apparent_radius") else 10.0
 
 
+# 1 right after a tool cycle, fading to 0 over SIG_TOOL_DECAY.
+func get_firing_activity() -> float:
+	return clamp(1.0 - (OS.get_ticks_msec() - _last_cycle_ms) / (Constants.SIG_TOOL_DECAY * 1000.0), 0.0, 1.0)
+
+
+# Laser damage per second at full hit quality, from the fitted tools (what an observer sees).
+func get_damage_per_second() -> float:
+	var total := 0.0
+	for tool_template in _tools:
+		if tool_template.tool_type == "laser" and tool_template.cycle_time > 0.0:
+			total += tool_template.damage / tool_template.cycle_time
+	return total
+
+
 # --- Cycling ---
 
 func _physics_process(delta: float) -> void:
@@ -215,6 +232,7 @@ func _process_laser(index: int, target: Node) -> void:
 	var quality: float = tool_template.get_hit_quality(distance, angular)
 	var damage: float = tool_template.damage * quality
 	_cycle_timers[index] = tool_template.cycle_time
+	_last_cycle_ms = OS.get_ticks_msec()
 	var blocker = find_blocker(target)
 	if blocker != null:
 		_hit_body(blocker, from_pos, damage)

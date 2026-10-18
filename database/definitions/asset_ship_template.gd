@@ -9,6 +9,8 @@ export var hull_integrity: int = 100
 export var cargo_capacity: int = 100
 export var interaction_radius: float = 15.0
 export var apparent_radius: float = 12.0  # Visual size (m); camera distances and framing scale from it.
+export var signature: float = 1500.0  # m; base detectability of the hull (see Constants SIGNATURE block)
+export var sensor_strength: float = 1.0  # Detects ships within their signature times this
 
 
 # --- Tool Mounts ---

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/asset_module_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "module_signature_dampener"
+module_name = "Signature Dampener"
+description = "Baffles and heat sinks over the hull. Harder to detect at rest."
+base_value = 160
+mass = 500.0
+stat_modifiers = {
+"signature": -600
+}

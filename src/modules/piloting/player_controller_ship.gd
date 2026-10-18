@@ -121,6 +121,9 @@ func _physics_process(delta: float):
 		return
 	if _current_input_state != null:
 		_current_input_state.physics_update(delta)
+	# A selected ship that slips out of sensor range is lost.
+	if is_instance_valid(_selected_target) and agent_body.has_method("detects") and not agent_body.detects(_selected_target):
+		_set_selected_target(null)
 	_poll_docking_proximity()
 	_process_queued_jump()
 

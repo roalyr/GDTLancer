@@ -83,6 +83,7 @@ func test_out_of_power_stops_tool_without_effect():
 
 
 func test_out_of_range_stays_on_but_idles():
+	shooter.fit_stats = {"sensor_strength": 10.0}  # Still seen; this test is about reach
 	target.global_transform.origin = Vector3(0, 0, -2000)
 	controller.activate(0, target)
 	controller._physics_process(0.016)
@@ -186,6 +187,7 @@ func test_harpoon_launch_attaches_tether_that_reels_to_clearance():
 
 func test_harpoon_out_of_reach_stays_armed():
 	_make_stripped_ready_wreck(3)
+	shooter.fit_stats = {"sensor_strength": 10.0}  # Still seen; this test is about reach
 	target.global_transform.origin = Vector3(0, 0, -2000)
 	controller.set_tools([_make_harpoon()])
 	controller.activate(0, target)

@@ -580,6 +580,7 @@ func _update_combat_readout() -> void:
 		"POWER %d / %d" % [floor(player.power), player.power_max],
 		"CARGO %d / %d" % [player.get_cargo_units(), player.cargo_capacity],
 		"BANK  %d WP" % GameState.player_bank,
+		"SIGNATURE %.1f km  SENSORS x%.1f" % [player.get_signature() / 1000.0, player.get_sensor_strength()],
 	]
 	var tools = player.get_node_or_null("ToolController")
 	if is_instance_valid(tools):
