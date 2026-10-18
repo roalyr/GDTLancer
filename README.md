@@ -19,14 +19,33 @@ A raw, early-stage frontier. There are no sprawling empires or massive navies, o
 
 ## Status
 
-The project has just been pruned back to its flight core (see [PRUNE-PLAN.md](PRUNE-PLAN.md)). What works now:
+The project is pruned back to its flight core. What works now:
 
 - 6DOF RigidBody flight with PID autopilot commands: approach, orbit, flee, align, move and stop
 - Targeting, the orbit camera and the flight HUD
 - Docking, and jumping between handcrafted sectors with a jump transition
 - New game, save and load
 
-Next is completing the engine (damage, tools, fitting, power, signature and detection, towing, salvage, predator AI, the run loop), followed by an **engine freeze**. After the freeze, work is content, tuning and art only. PRUNE-PLAN.md §6 lists the features and the freeze criteria.
+## Roadmap
+
+Complete the engine, then freeze it. After the freeze, work is content, tuning and art only.
+
+1. Damage, destruction and wrecks (same for player and AI)
+2. Tools end-to-end from `utility_tool_template` data: fire, cooldown, power draw, damage / grapple / drill
+3. Fitting at docks with slots; recomputed mass and stats; fitting UI
+4. Module effects as data (stat modifiers plus verb flags)
+5. Power budget: capacity, regeneration, draw
+6. Signature and detection, one rule for player and AI
+7. Harpoon tether / towing; towed mass affects handling
+8. Salvage cargo; cargo adds mass and perceived value
+9. Predator AI: engage or disengage on expected gain vs. risk
+10. Run loop: start, bank salvage at home, die, restart
+11. Optional data-driven run modifiers (infrastructure only)
+12. Feel pass on camera, HUD, docking and jumps
+
+**Freeze when:** all of the above work with placeholder content, new parts, hulls, sectors and encounters need only data or scene files, and the tests pass.
+
+**Out of scope:** multiplayer, narrative, companions, crafting, economy, world simulation, meta-progression, card or board mechanics.
 
 ## Controls
 
@@ -55,7 +74,7 @@ Next is completing the engine (damage, tools, fitting, power, signature and dete
 | `database/definitions/` | Template resource scripts (ships, modules, tools, agents, locations, game starts) |
 | `database/registry/` | Template data (`.tres`); new content goes here |
 | `scenes/` | Levels, sectors, prefabs and UI scenes |
-| `docs/godot/` | Godot 3.6 shader reference (spatial, CanvasItem, particle, shading language) |
+| `docs/godot/` | Godot 3.6 shader reference |
 
 ## Running Tests
 

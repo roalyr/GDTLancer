@@ -33,7 +33,7 @@ func refresh_debug_window_state() -> void:
 	refresh_debug_window_player_hull()
 
 
-# Hull is not modelled yet (see PRUNE-PLAN.md §6.1); show a placeholder until it is.
+# Hull is not modelled yet; show a placeholder until it is.
 func refresh_debug_window_player_hull() -> void:
 	if not is_instance_valid(debug_label_player_hull) or not is_instance_valid(debug_player_hull_bar):
 		return

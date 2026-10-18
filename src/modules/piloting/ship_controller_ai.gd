@@ -3,7 +3,7 @@
 
 extends Node
 
-# Combat states are wired but damage is stubbed until the damage model lands (PRUNE-PLAN.md §6.1).
+# Combat states are wired but damage is stubbed until the damage model lands.
 enum AIState { IDLE, PATROL, COMBAT, FLEE, DISABLED }
 
 # --- Configuration ---
@@ -124,7 +124,7 @@ func _physics_process(delta: float) -> void:
 		AIState.PATROL:
 			_process_patrol(delta)
 		AIState.COMBAT:
-			# Combat is disabled until predator AI is built (PRUNE-PLAN.md §6.9). Revert to PATROL.
+			# Combat is disabled until predator AI is built. Revert to PATROL.
 			_change_state(AIState.PATROL)
 		AIState.FLEE:
 			_process_flee(delta)
@@ -308,7 +308,7 @@ func _process_flee(delta: float) -> void:
 
 
 func _scan_for_target() -> RigidBody:
-	# Target scanning is disabled until predator AI is built (PRUNE-PLAN.md §6.9).
+	# Target scanning is disabled until predator AI is built.
 	return null
 
 
