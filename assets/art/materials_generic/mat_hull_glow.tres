@@ -1,0 +1,22 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=2]
+
+[ext_resource path="res://assets/art/shaders/simple_glow_NLP.gdshader" type="Shader" id=1]
+
+[resource]
+resource_name = "hull glow"
+shader = ExtResource( 1 )
+shader_param/albedo = Color( 0.55, 0.85, 1, 1 )
+shader_param/rim_strength = 0.656
+shader_param/rim_exponent = 26.247
+shader_param/rim_power = 0.285
+shader_param/rim_floor = 0.199
+shader_param/rim_outer_strength = 1.859
+shader_param/rim_outer_exponent = 3.846
+shader_param/fade_distance_near = 0.0
+shader_param/fade_distance_far = 1000.0
+shader_param/fade_power = 1.0
+shader_param/dither_threshold = 0.5
+shader_param/scale_start = 100000.0
+shader_param/scale_end_mul = 100.0
+shader_param/scale_power = 1.0
+shader_param/scale_min = 0.5

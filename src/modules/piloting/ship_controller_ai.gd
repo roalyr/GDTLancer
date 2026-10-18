@@ -177,10 +177,14 @@ func _process_combat() -> void:
 		_orbiting = true
 		agent_script.command_orbit(_target_agent)
 
-	# Keep the attack tool on the target; ToolController stops it on its own when power runs out.
-	var index: int = _get_attack_tool_index()
-	if index >= 0:
+	# Keep every weapon that works on the target on it; ToolController stops each on its own
+	# when power runs out.
+	if not is_instance_valid(_tool_controller):
+		return
+	for index in range(_tool_controller.get_tool_count()):
 		var tool_template = _tool_controller.get_tool(index)
+		if not _tool_controller.can_target(tool_template, _target_agent):
+			continue
 		var in_reach: bool = distance <= tool_template.get_max_range()
 		var enough_power: bool = agent_script.power >= tool_template.power_per_cycle
 		if in_reach and enough_power and not _tool_controller.is_active(index):

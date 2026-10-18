@@ -1,0 +1,12 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=2]
+
+[ext_resource path="res://assets/art/shaders/engine_exhaust.gdshader" type="Shader" id=1]
+
+[resource]
+resource_name = "engine_exhaust_halo"
+shader = ExtResource( 1 )
+shader_param/albedo = Color( 0.0745098, 0.313726, 0.027451, 1 )
+shader_param/pulse_amount = 0.05
+shader_param/pulse_frequency = 50.0
+shader_param/power = 4.0
+shader_param/intensity = 1.0

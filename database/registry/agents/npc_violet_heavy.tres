@@ -1,0 +1,11 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_npc_violet_heavy"
+agent_type = "npc"
+ship_template_id = "ship_violet_heavy"
+faction = "violet"
+skill = 0.45

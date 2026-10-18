@@ -1,0 +1,15 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+path="res://.import/GDTLancer ambient 1.mp3-7de4bcd05d7797867724f8c275b6f7d4.mp3str"
+
+[deps]
+
+source_file="res://assets/audio/music/ambient/GDTLancer ambient 1.mp3"
+dest_files=[ "res://.import/GDTLancer ambient 1.mp3-7de4bcd05d7797867724f8c275b6f7d4.mp3str" ]
+
+[params]
+
+loop=true
+loop_offset=0

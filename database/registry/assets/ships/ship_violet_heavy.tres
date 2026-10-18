@@ -1,0 +1,32 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/phoenix_heavy_violet.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "ship_violet_heavy"
+ship_model_name = "Violet Heavy"
+ship_scene = ExtResource( 2 )
+hull_integrity = 150
+cargo_capacity = 30
+interaction_radius = 30.0
+apparent_radius = 34.0
+signature = 2600.0
+sensor_strength = 1.25
+tool_slots_small = 3
+tool_slots_medium = 0
+tool_slots_large = 0
+module_slots = 3
+equipped_tools = [ "tool_ablative_laser", "tool_ablative_laser", "tool_harpoon" ]
+equipped_modules = [  ]
+salvage_yield = {
+"commodity_scrap": 50,
+"commodity_tech": 6
+}
+power_capacity = 160.0
+power_regen = 16.0
+mass = 16000.0
+linear_thrust = 820000.0
+angular_thrust = 1600000.0
+alignment_threshold_angle_deg = 45.0

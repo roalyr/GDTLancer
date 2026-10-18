@@ -197,12 +197,25 @@ func _top_up_population(fill: bool = false) -> void:
 		for _i in range(missing if fill else min(missing, 1)):
 			var home_point: Vector3 = battle.arrivals[faction]
 			var npc = spawn_npc_from_template(
-				Constants.NPC_FACTION_TEMPLATE_PATHS[faction], _scatter(home_point),
+				pick_template(Constants.NPC_FACTION_TEMPLATE_PATHS[faction]), _scatter(home_point),
 				{"faction": faction, "patrol_center": battle.center, "home_point": home_point}
 			)
 			if is_instance_valid(npc):
 				_npc_bodies.append(npc)
 	clear_old_wrecks()
+
+
+# One AgentTemplate path from {path: chance}, at random by chance.
+static func pick_template(chances: Dictionary) -> String:
+	var total := 0.0
+	for path in chances:
+		total += float(chances[path])
+	var roll: float = randf() * total
+	for path in chances:
+		roll -= float(chances[path])
+		if roll <= 0.0:
+			return path
+	return chances.keys().back()
 
 
 # The middle of the battlefield, off the home station, and each faction's arrival point, on

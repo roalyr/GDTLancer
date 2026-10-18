@@ -436,6 +436,11 @@ func _spawn_explosion() -> void:
 # --- Signature & Detection (one rule for everyone; see Constants SIGNATURE block) ---
 
 # How far away this ship can be detected (m): its hull's base plus engines, firing and leaks.
+# Smoothed engine thrust, 0 idle .. 1 full burn (engine exhaust looks, signature).
+func get_engine_activity() -> float:
+	return _engine_activity
+
+
 func get_signature() -> float:
 	var base: float = float(fit_stats.get("signature", ship_template.signature if is_instance_valid(ship_template) else 1500.0))
 	if is_wreck:

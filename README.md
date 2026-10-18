@@ -27,11 +27,12 @@ The project is pruned back to its flight core. What works now:
 - Docking, and jumping between handcrafted sectors with a jump transition
 - New game, save and load
 - Laser combat without manual aim: damage depends on range and the target's angular velocity; hull, power and wrecks
-- A battlefield near the home station: two factions at war (Verdant and Violet) keep arriving, fight, strip each other's wrecks and fly home with full holds. They leave the player alone unless the player shoots one. Brackets show each side in its colour, and what each ship is doing
+- A battlefield near the home station: two factions at war (Verdant and Violet), flying Phoenix fighters and heavies, keep arriving, fight, strip each other's wrecks and fly home with full holds. They leave the player alone unless the player shoots one. Brackets show each side in its colour, and what each ship is doing
 - Hits leave lasting marks on the hull (vertex-painted, proportional to damage)
 - Salvage: harpoon a wreck, it reels in to a safe towing distance and is stripped into the hold; cargo adds mass
 - Fuel leaks vent along the hull and push the ship; destroyed ships explode into a drifting cloud
 - Run loop: start docked at the home station, bank cargo and repair there, lose the ship and the run is over (permadeath), start a new run
+- Engine exhausts that stretch and brighten with thrust; a space ambient soundtrack
 - Hand-placed asteroids around the Elace home station block laser fire; the autopilot steers around them
 - Signatures and detection (one rule for all), predators that weigh gain against risk and hesitate by skill; target difficulty and "sees you" cues for the player
 - Fitting at the home station: tool and module slots, data-driven modules, part mass, buy / sell with banked value

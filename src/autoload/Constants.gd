@@ -15,9 +15,15 @@ const PLAYER_AGENT_SCENE_PATH = "res://scenes/prefabs/agents/player_agent.tscn"
 const NPC_AGENT_SCENE_PATH = "res://scenes/prefabs/agents/npc_agent.tscn"
 const PLAYER_DEFAULT_TEMPLATE_PATH = "res://database/registry/agents/player_default.tres"
 const NPC_HOSTILE_TEMPLATE_PATH = "res://database/registry/agents/npc_hostile_default.tres"
-const NPC_FACTION_TEMPLATE_PATHS = {  # Faction id -> AgentTemplate spawned on the battlefield
-	"verdant": "res://database/registry/agents/npc_verdant_fighter.tres",
-	"violet": "res://database/registry/agents/npc_violet_fighter.tres",
+const NPC_FACTION_TEMPLATE_PATHS = {  # Faction id -> {AgentTemplate spawned on the battlefield: chance}
+	"verdant": {
+		"res://database/registry/agents/npc_verdant_fighter.tres": 0.7,
+		"res://database/registry/agents/npc_verdant_heavy.tres": 0.3,
+	},
+	"violet": {
+		"res://database/registry/agents/npc_violet_fighter.tres": 0.7,
+		"res://database/registry/agents/npc_violet_heavy.tres": 0.3,
+	},
 }
 
 const CURRENT_ZONE_CONTAINER_NAME = "CurrentZoneContainer"
@@ -217,6 +223,13 @@ const SCORCH_COOL_TIME = 6.0  # s for heat to fall to ~37%; pushed to the shader
 # Laser hit flash and vapour.
 # Every hit effect scales with absolute beam damage: a weak hit barely shows, a powerful one flashes
 # hard and throws a big, fast vapour jet. Intensity = sqrt(damage / HIT_FX_REFERENCE_DAMAGE).
+# Engine exhausts (EngineExhaustSet): plume size relative to the exhaust cone models, by thrust.
+const ENGINE_PLUME_IDLE_LENGTH = 0.15
+const ENGINE_PLUME_MAX_LENGTH = 6.0
+const ENGINE_PLUME_MIN_WIDTH = 0.5
+const ENGINE_PLUME_MAX_WIDTH = 1.0
+const ENGINE_GLOW_IDLE = 0.12  # Exhaust brightness of an idle engine (1 = full burn)
+
 # Hit flashes light their surroundings only near the camera, and only a few at once: in GLES2
 # every light touching an object draws that object once more.
 const HIT_FX_LIGHT_DISTANCE = 800.0  # m from the camera
@@ -361,6 +374,10 @@ func get_reference_origin_offset(world_position: Vector3) -> Vector3:
 # ==================================================================================================
 
 # Selected-target bracket.
+const MUSIC_AMBIENT_VOLUME_DB = -8.0  # Space ambient soundtrack (AmbientMusic)
+const MUSIC_AMBIENT_FADE_IN = 6.0  # s
+const MUSIC_SILENT_DB = -60.0
+
 const RENDER_SCALE_STEPS = [1.0, 0.5, 0.25]  # Render resolution shares the HUD's render scale button cycles through
 
 const COLOR_UI_TARGET_SELECTED = Color(1.0, 0.9, 0.35, 1.0)  # Yellow: anything not hostile, wrecks included

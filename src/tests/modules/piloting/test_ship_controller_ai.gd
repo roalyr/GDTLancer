@@ -246,3 +246,15 @@ func test_strips_the_nearest_free_wreck_and_leaves_when_full():
 	yield(get_tree(), "idle_frame")
 	assert_false(is_instance_valid(hostile), "Gone with the loot.")
 
+
+
+func test_fires_every_weapon_that_reaches():
+	var prey = _make_ship(Vector3(0, 0, -300), "verdant", 50.0)
+	var tools = hostile.get_node("ToolController")
+	tools.set_tools([tools.get_tool(0), tools.get_tool(0)])
+	hostile.power_max = 100.0
+	hostile.power = 100.0
+	ai.initialize({"patrol_center": Vector3.ZERO})
+	ai._start_combat(prey, false)
+	ai._process_combat()
+	assert_true(tools.is_active(0) and tools.is_active(1), "Both lasers on the target.")

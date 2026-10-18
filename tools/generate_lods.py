@@ -115,7 +115,8 @@ def generate(model_path, levels, ratio):
             report.append("%s: LOD0 %d tris" % (base, triangle_count()))
         decimate_all(ratio)
         out_path = os.path.join(out_dir, "%s_LOD%d.glb" % (base, level))
-        bpy.ops.export_scene.gltf(filepath=out_path, export_format="GLB", export_apply=True)
+        # Materials go along, so each material slot stays its own surface on every level.
+        bpy.ops.export_scene.gltf(filepath=out_path, export_format="GLB", export_apply=True, export_materials="EXPORT")
         report.append("LOD%d %d tris" % (level, triangle_count()))
         source = out_path
     print("LODS " + ", ".join(report))

@@ -67,7 +67,9 @@ func setup(original: Spatial, paths: Array, object_radius: float) -> void:
 	_timer = randf() * Constants.LOD_CHECK_INTERVAL  # Spread the checks over frames
 
 
-# Each LOD mesh takes the material of the original node of the same name, with marks off.
+# Each LOD mesh takes the materials of the original node of the same name, with marks off.
+# Surfaces are matched by their imported material's name (Blender's ".001" suffixes aside):
+# decimation can drop a material from a level, which shifts the surfaces after it.
 func _match_materials(original: Node, copy: Node) -> void:
 	for node in _all_nodes(copy):
 		if not node is MeshInstance:
@@ -78,9 +80,25 @@ func _match_materials(original: Node, copy: Node) -> void:
 			continue
 		if source.material_override != null:
 			node.material_override = _marks_off(source.material_override)
-		for surface in range(min(source.get_surface_material_count(), node.get_surface_material_count())):
-			if source.get_surface_material(surface) != null:
-				node.set_surface_material(surface, _marks_off(source.get_surface_material(surface)))
+		var by_name := {}
+		for surface in range(source.mesh.get_surface_count()):
+			by_name[material_key(source.mesh.surface_get_material(surface))] = surface
+		for surface in range(node.mesh.get_surface_count()):
+			var key: String = material_key(node.mesh.surface_get_material(surface))
+			var source_surface: int = by_name.get(key, surface) if key != "" else surface
+			if source_surface < source.get_surface_material_count() and source.get_surface_material(source_surface) != null:
+				node.set_surface_material(surface, _marks_off(source.get_surface_material(source_surface)))
+
+
+# A material's name without Blender's duplicate suffix ("metal.001" -> "metal"); "" if unnamed.
+static func material_key(material: Material) -> String:
+	if material == null:
+		return ""
+	var key: String = material.resource_name
+	var dot: int = key.find_last(".")
+	if dot > 0 and key.substr(dot + 1).is_valid_integer():
+		key = key.substr(0, dot)
+	return key
 
 
 static func _marks_off(material: Material) -> Material:

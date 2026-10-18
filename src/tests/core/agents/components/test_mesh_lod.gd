@@ -5,7 +5,7 @@ extends GutTest
 
 const MeshLod = preload("res://src/core/agents/components/mesh_lod.gd")
 const HullScorch = preload("res://src/core/agents/components/hull_scorch.gd")
-const PHOENIX = "res://assets/models/ships/Phoenix.glb"
+const PHOENIX = "res://assets/models/ships/Phoenix_light.glb"
 
 
 func test_levels_follow_distance_in_object_radii_with_hysteresis():
@@ -25,7 +25,7 @@ func test_levels_follow_distance_in_object_radii_with_hysteresis():
 func test_finds_generated_lod_files_and_never_for_nebulas():
 	var paths: Array = MeshLod.lod_paths_for(PHOENIX)
 	assert_eq(paths.size(), 3)
-	assert_eq(paths[0], "res://assets/models/ships/lod/Phoenix_LOD1.glb")
+	assert_eq(paths[0], "res://assets/models/ships/lod/Phoenix_light_LOD1.glb")
 	assert_eq(MeshLod.lod_paths_for("res://assets/models/nebulas/nebula_1.glb"), [])
 
 
@@ -79,3 +79,31 @@ func test_dense_meshes_never_keep_more_detail_than_low_poly_ones():
 		var dense: int = MeshLod.level_for(distance, 100.0, 0, 4, Constants.LOD_DISTANCE_RADII_DENSE)
 		var low_poly: int = MeshLod.level_for(distance, 100.0, 0, 4)
 		assert_true(dense >= low_poly, "At %d radii: dense LOD%d, low-poly LOD%d" % [radii, dense, low_poly])
+
+
+func test_lod_surfaces_take_the_material_of_the_same_name():
+	var root = Spatial.new()
+	add_child_autofree(root)
+	var model: Spatial = load(PHOENIX).instance()
+	root.add_child(model)
+	var hull: MeshInstance = model.get_node("Hull joined")
+	var assigned := {}
+	for surface in range(hull.mesh.get_surface_count()):
+		var material := SpatialMaterial.new()
+		hull.set_surface_material(surface, material)
+		assigned[MeshLod.material_key(hull.mesh.surface_get_material(surface))] = material
+	var lod = MeshLod.attach(root, 12.0)[0]
+	var lod2_hull: MeshInstance = lod.levels[2].get_node("Hull joined")
+	assert_lt(lod2_hull.mesh.get_surface_count(), hull.mesh.get_surface_count(), "This level lost a material (the small glow strips)")
+	for surface in range(lod2_hull.mesh.get_surface_count()):
+		var key: String = MeshLod.material_key(lod2_hull.mesh.surface_get_material(surface))
+		assert_eq(lod2_hull.get_surface_material(surface), assigned[key], "but each surface still gets its own material: " + key)
+
+
+func test_material_key_drops_blender_duplicate_suffixes():
+	var material := SpatialMaterial.new()
+	material.resource_name = "paint 1 main color.001"
+	assert_eq(MeshLod.material_key(material), "paint 1 main color")
+	material.resource_name = "v1.5 alloy"
+	assert_eq(MeshLod.material_key(material), "v1.5 alloy", "Only a numeric suffix is dropped.")
+
