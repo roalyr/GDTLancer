@@ -270,6 +270,9 @@ func _process_harpoon(index: int, target: Node) -> void:
 		_launch_harpoon(index, target, tool_template)
 		return
 	var tether = _tethers[index]
+	if tether.snapped:
+		deactivate(index, "snapped")
+		return
 	if not tether.is_reeled_in() or _cycle_timers.get(index, 0.0) > 0.0:
 		return
 	_cycle_timers[index] = tool_template.strip_interval

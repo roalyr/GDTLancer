@@ -352,3 +352,32 @@ func test_rock_in_the_line_of_fire_takes_the_shot():
 	yield(get_tree(), "physics_frame")
 	controller._physics_process(1.0)
 	assert_lt(target.hull, 50.0, "With the line clear the ship is hit.")
+
+
+# --- Tether cable ---
+
+func _make_tether(distance: float) -> Node:
+	var a = RigidBody.new()
+	var b = RigidBody.new()
+	add_child_autofree(a)
+	add_child_autofree(b)
+	b.global_transform.origin = Vector3(0, 0, -distance)
+	var tether = load("res://src/core/agents/components/tether.gd").new()
+	tether.setup(a, b, distance, 30.0, 15.0)
+	add_child_autofree(tether)
+	return tether
+
+
+func test_tether_takes_up_slack_when_the_bodies_close_in():
+	var tether = _make_tether(400.0)
+	tether.towed.global_transform.origin = Vector3(0, 0, -150)
+	tether._physics_process(0.1)
+	assert_almost_eq(tether.length, 150.0, 0.01, "The winch keeps the cable taut instead of waiting to reel 250 m.")
+
+
+func test_tether_snaps_when_overstretched():
+	var tether = _make_tether(200.0)
+	tether.towed.global_transform.origin = Vector3(0, 0, -200 - Constants.TETHER_SNAP_STRETCH - 10)
+	tether._physics_process(0.1)
+	assert_true(tether.snapped)
+	assert_false(tether.is_valid())

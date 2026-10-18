@@ -498,10 +498,15 @@ func test_main_hud_dock_button_label_toggles_between_dock_and_travel() -> void:
 func test_selected_bracket_is_red_on_live_hostile_and_yellow_once_wrecked():
 	var bracket = ProjectedTargetBracketScene.instance()
 	add_child_autofree(bracket)
+	var player = AgentScript.new()
+	player.faction = "player"
+	add_child_autofree(player)
+	GlobalRefs.player_agent_body = player
 	var hostile = AgentScript.new()
 	add_child_autofree(hostile)
-	hostile.is_hostile = true
+	hostile.faction = "raiders"  # At war with the player
 	bracket.configure_target(hostile, "Hostile")
+	assert_eq(bracket.get_node("BracketNormal").modulate, Constants.COLOR_UI_TARGET_HOSTILE, "Hostile to you: red even unselected.")
 	bracket.set_selected_state(true)
 	var selected: Control = bracket.get_node("BracketSelected")
 	assert_eq(selected.modulate, Constants.COLOR_UI_TARGET_HOSTILE)
@@ -538,3 +543,25 @@ func test_detected_ship_in_view_gets_a_visible_bracket_undetected_one_does_not()
 	hud._update_world_target_overlay()
 	assert_true(hud._world_target_buttons[near.get_instance_id()].visible, "Detected and in view: bracket shown.")
 	assert_false(hud._world_target_buttons[far.get_instance_id()].visible, "Beyond its signature: no bracket.")
+
+
+func test_unselected_ship_brackets_take_their_faction_colour():
+	var player = AgentScript.new()
+	player.faction = "player"
+	add_child_autofree(player)
+	GlobalRefs.player_agent_body = player
+	var bracket = ProjectedTargetBracketScene.instance()
+	add_child_autofree(bracket)
+	var ship = AgentScript.new()
+	add_child_autofree(ship)
+	ship.faction = "verdant"
+	ship.hull = 10.0
+	bracket.configure_target(ship, "Verdant Fighter")
+	assert_eq(bracket.get_node("BracketNormal").modulate, Constants.FACTIONS.verdant.color, "Neutral to you: its faction colour.")
+	ship.apply_damage(1.0, player)
+	bracket.refresh_style()
+	assert_eq(bracket.get_node("BracketNormal").modulate, Constants.COLOR_UI_TARGET_HOSTILE, "Shot by you: hostile.")
+	ship.become_wreck()
+	bracket.refresh_style()
+	assert_eq(bracket.get_node("BracketNormal").modulate, Constants.COLOR_UI_WRECK)
+

@@ -15,6 +15,10 @@ const PLAYER_AGENT_SCENE_PATH = "res://scenes/prefabs/agents/player_agent.tscn"
 const NPC_AGENT_SCENE_PATH = "res://scenes/prefabs/agents/npc_agent.tscn"
 const PLAYER_DEFAULT_TEMPLATE_PATH = "res://database/registry/agents/player_default.tres"
 const NPC_HOSTILE_TEMPLATE_PATH = "res://database/registry/agents/npc_hostile_default.tres"
+const NPC_FACTION_TEMPLATE_PATHS = {  # Faction id -> AgentTemplate spawned on the battlefield
+	"verdant": "res://database/registry/agents/npc_verdant_fighter.tres",
+	"violet": "res://database/registry/agents/npc_violet_fighter.tres",
+}
 
 const CURRENT_ZONE_CONTAINER_NAME = "CurrentZoneContainer"
 const AGENT_CONTAINER_NAME = "AgentContainer"
@@ -140,6 +144,7 @@ const HIT_AIM_SPREAD = 0.3  # Shots aim at a random point within this central sh
 const TETHER_CLEARANCE = 1.5  # Reels in to (both apparent radii) * this
 const TETHER_PERIOD = 2.0  # s; cable stiffness for the pair's combined mass
 const TETHER_DAMPING_RATIO = 0.9
+const TETHER_SNAP_STRETCH = 500.0  # m beyond the cable's length: it snaps
 
 
 # ==================================================================================================
@@ -228,6 +233,9 @@ const AI_GAIN_FACTOR_MAX = 4.0
 const AI_ENGAGE_DESIRE = 1.0
 const AI_DISENGAGE_DESIRE = 0.8  # Below the engage level, so a fight does not flip-flop
 const AI_FLEE_DISTANCE = 6000.0  # m from the threat at which a fleeing ship resumes patrol
+const AI_ENEMY_DESIRE_FACTOR = 1.5  # Ships at war (or holding a grudge) want the fight this much more
+const AI_SALVAGE_SEARCH_RANGE = 6000.0  # m; wrecks further than this are not worth the trip
+const AI_DEPART_ARRIVAL_DISTANCE = 300.0  # m from its spawn point at which a hauler leaves the sector
 
 # NPCs hesitate like people: a decision the rule calls for (engage, break off, answer being shot)
 # is taken after a delay, then re-checked. Delay = lerp(SLOW, FAST, skill)
@@ -239,11 +247,26 @@ const AI_DECISION_RANDOMNESS = 0.4
 const AI_REPATH_INTERVAL = 0.5  # s
 const AI_SCAN_INTERVAL = 1.0  # s
 
-# Uniform in every sector until the layout of space is final.
-const NPC_POPULATION_PER_SECTOR: int = 3
-const NPC_SPAWN_MIN_DISTANCE: float = 2000.0  # m from the player's arrival point
-const NPC_SPAWN_MAX_DISTANCE: float = 6000.0
-const NPC_RESPAWN_INTERVAL: float = 60.0  # s between top-ups of a depleted sector
+# Factions: who is at war with whom. "player" is the player's faction; NPCs are neutral to the
+# player unless at war with it, or holding a grudge (the player shot them).
+const FACTIONS = {
+	"verdant": {"name": "Verdant", "color": Color(0.45, 1.0, 0.35, 1.0), "enemies": ["violet"]},
+	"violet": {"name": "Violet", "color": Color(0.85, 0.45, 1.0, 1.0), "enemies": ["verdant"]},
+	"raiders": {"name": "Raiders", "color": Color(1.0, 0.55, 0.3, 1.0), "enemies": ["player", "verdant", "violet"]},
+}
+
+# The battlefield: each faction arrives from its own side of a point near the home station,
+# patrols around that point and fights whoever it meets there. Losses are topped up one ship per
+# faction per interval. Haulers with a full hold fly back to their side and leave.
+const BATTLE_OFFSET_FROM_HOME = 2500.0  # m from the home station to the middle of the battlefield
+const BATTLE_FACTION_SPAWN_DISTANCE = 6000.0  # m from the middle to each faction's arrival point
+const BATTLE_SPAWN_SPREAD = 800.0  # m of scatter around the arrival point
+const NPC_POPULATION_PER_FACTION: int = 4
+const NPC_RESPAWN_INTERVAL: float = 15.0  # s between top-ups
+
+# Wrecks pile up in a long fight: past this many, the oldest stripped ones are removed.
+const WRECK_LOOTED_CAP: int = 6
+const WRECK_MAX: int = 16  # Past this, the oldest are removed even with salvage left
 
 
 # ==================================================================================================
@@ -302,7 +325,9 @@ func get_reference_origin_offset(world_position: Vector3) -> Vector3:
 
 # Selected-target bracket.
 const COLOR_UI_TARGET_SELECTED = Color(1.0, 0.9, 0.35, 1.0)  # Yellow: anything not hostile, wrecks included
-const COLOR_UI_TARGET_HOSTILE = Color(1.0, 0.22, 0.18, 1.0)  # Red: a live hostile ship
+const COLOR_UI_TARGET_HOSTILE = Color(1.0, 0.22, 0.18, 1.0)  # Red: a live ship hostile to the player
+const COLOR_UI_TARGET_NEUTRAL = Color(0.35, 0.95, 1.0, 0.95)  # Cyan: brackets of things without a faction
+const COLOR_UI_WRECK = Color(0.6, 0.6, 0.6, 0.9)  # Grey: wreck brackets
 
 # Jump route brackets, by sector type.
 const COLOR_UI_JUMP_ROUTE = Color(0.0, 0.7, 1.0, 1.0)  # Fallback

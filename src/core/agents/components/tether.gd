@@ -1,7 +1,8 @@
 # Tether: a harpoon cable between the ship that fired it (holder) and a towed body.
 # Behaves as a rope: no force while slack, a spring-damper pull when stretched, equal and opposite
 # on both bodies, so towed mass shows up in handling. It reels in until the bodies are
-# min_length apart. Child of the holder's ToolController.
+# min_length apart, and the winch takes up slack at once when they drift closer. Stretched past
+# Constants.TETHER_SNAP_STRETCH, the cable snaps. Child of the holder's ToolController.
 
 extends Node
 
@@ -12,6 +13,7 @@ var towed: RigidBody = null
 var length: float = 0.0
 var min_length: float = 0.0
 var reel_speed: float = 0.0
+var snapped: bool = false
 
 var _cable: ImmediateGeometry = null
 
@@ -32,7 +34,7 @@ func _ready() -> void:
 
 
 func is_valid() -> bool:
-	return is_instance_valid(holder) and is_instance_valid(towed) and towed.is_inside_tree()
+	return not snapped and is_instance_valid(holder) and is_instance_valid(towed) and towed.is_inside_tree()
 
 
 func is_reeled_in() -> bool:
@@ -52,11 +54,16 @@ func get_tension(stretch: float, closing_speed: float) -> float:
 func _physics_process(delta: float) -> void:
 	if not is_valid():
 		return
-	length = max(min_length, length - reel_speed * delta)
 	var offset: Vector3 = towed.global_transform.origin - holder.global_transform.origin
 	var distance: float = offset.length()
+	length = max(min_length, min(length - reel_speed * delta, distance))
 	if distance <= length or distance < 0.001:
 		return  # Slack
+	if distance - length > Constants.TETHER_SNAP_STRETCH:
+		snapped = true
+		if is_instance_valid(_cable):
+			_cable.clear()
+		return
 	var direction: Vector3 = offset / distance
 	var separating_speed: float = (towed.linear_velocity - holder.linear_velocity).dot(direction)
 	var tension: float = get_tension(distance - length, separating_speed)

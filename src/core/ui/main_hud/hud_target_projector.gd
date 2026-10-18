@@ -248,6 +248,7 @@ func update_world_target_overlay() -> void:
 			continue
 		if button.has_method("set_context_hint") and target_node.has_method("get_signature"):
 			button.set_context_hint(get_projected_target_context_hint(target_node))  # Cues change as the fight does
+			button.refresh_style()  # Colours too: a ship turns hostile, a ship becomes a wreck
 		var overlay_kind = get_projected_target_overlay_kind(target_node)
 		if not is_projected_target_overlay_enabled(overlay_kind):
 			button.visible = false
@@ -289,24 +290,33 @@ func get_projected_target_context_hint(target_ref) -> String:
 		return ""
 	if is_instance_valid(target_ref) and target_ref is Node and target_ref.is_in_group("dockable_station"):
 		return "Dock Target"
+	var selected: bool = target_ref == _hud._current_target and is_target_valid(target_ref)
 	var cues: Array = []
-	if target_ref == _hud._current_target and is_target_valid(target_ref):
+	if selected:
 		cues.append("Target Locked")
-	cues += get_ship_cues(target_ref)
+	cues += get_ship_cues(target_ref, selected)
 	return PoolStringArray(cues).join("  ")
 
 
-# The player's read of a live ship, in words: how tough it is, and whether it can see the player.
-func get_ship_cues(target_ref) -> Array:
+# The player's read of a live ship, in words: what it is doing, whether it is hostile to the
+# player, and (when selected or hostile) how tough it is and whether it can see the player.
+func get_ship_cues(target_ref, detailed: bool = true) -> Array:
 	var cues: Array = []
 	var player = GlobalRefs.player_agent_body
 	if not (is_instance_valid(target_ref) and target_ref is Node and target_ref.has_method("get_signature") and not target_ref.get("is_wreck")):
 		return cues
 	if not (is_instance_valid(player) and player.has_method("get_damage_per_second")):
 		return cues
-	cues.append(CombatAssessment.difficulty_label(CombatAssessment.advantage_between(player, target_ref)))
-	if target_ref.detects(player):
-		cues.append("SEES YOU")
+	var hostile: bool = target_ref.is_enemy_of(player)
+	if hostile:
+		cues.append("HOSTILE")
+	var ai = target_ref.get_node_or_null(Constants.AI_CONTROLLER_NODE_NAME)
+	if ai != null and ai.has_method("get_activity_label") and ai.get_activity_label() != "":
+		cues.append(ai.get_activity_label())
+	if detailed or hostile:
+		cues.append(CombatAssessment.difficulty_label(CombatAssessment.advantage_between(player, target_ref)))
+		if target_ref.detects(player):
+			cues.append("SEES YOU")
 	return cues
 
 func update_world_target_selection_state() -> void:

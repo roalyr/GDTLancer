@@ -64,7 +64,8 @@ func _create_contact_entry(agent_body: Node) -> void:
 	# Disposition color dot
 	var dot := ColorRect.new()
 	dot.rect_min_size = Vector2(12, 12)
-	dot.color = _get_disposition_color("hostile" if agent_body.get("is_hostile") else "neutral")
+	var hostile: bool = agent_body.has_method("is_enemy_of") and agent_body.is_enemy_of(GlobalRefs.player_agent_body)
+	dot.color = _get_disposition_color("hostile") if hostile else (agent_body.get_faction_color() if agent_body.has_method("get_faction_color") else _get_disposition_color("neutral"))
 	row.add_child(dot)
 
 	var name_label := Label.new()

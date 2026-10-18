@@ -115,18 +115,43 @@ func _apply_bracket_style() -> void:
 		if _is_route_target(target_ref) or _is_jump_point_target(target_ref):
 			_normal_bracket.modulate = _get_jump_route_color()
 		else:
-			_normal_bracket.modulate = Color(0.35, 0.95, 1, 0.95)
+			_normal_bracket.modulate = _get_ship_color()
 	if is_instance_valid(_selected_bracket):
 		_selected_bracket.visible = _is_selected
 		_apply_selected_color()
 
 
-# Red while the selected target is a live hostile ship, yellow otherwise (wrecks included).
+# Red while the selected target is a live ship hostile to the player, yellow otherwise (wrecks included).
 func _apply_selected_color() -> void:
 	if not is_instance_valid(_selected_bracket):
 		return
-	var live_hostile: bool = is_instance_valid(target_ref) and target_ref.get("is_hostile") == true and not target_ref.get("is_wreck")
-	_selected_bracket.modulate = Constants.COLOR_UI_TARGET_HOSTILE if live_hostile else Constants.COLOR_UI_TARGET_SELECTED
+	_selected_bracket.modulate = Constants.COLOR_UI_TARGET_HOSTILE if _is_hostile_to_player() else Constants.COLOR_UI_TARGET_SELECTED
+
+
+func refresh_style() -> void:
+	_apply_bracket_style()
+	if _is_live_ship() or is_instance_valid(target_ref) and target_ref.get("is_wreck"):
+		_sync_label()  # Label colour follows the bracket's
+
+
+# Unselected: red for a live ship hostile to the player, its faction's colour otherwise, grey for wrecks.
+func _get_ship_color() -> Color:
+	if not (is_instance_valid(target_ref) and target_ref.has_method("get_faction_color")):
+		return Constants.COLOR_UI_TARGET_NEUTRAL
+	if target_ref.get("is_wreck"):
+		return Constants.COLOR_UI_WRECK
+	if _is_hostile_to_player():
+		return Constants.COLOR_UI_TARGET_HOSTILE
+	return target_ref.get_faction_color()
+
+
+func _is_live_ship() -> bool:
+	return is_instance_valid(target_ref) and target_ref.has_method("get_faction_color") and not target_ref.get("is_wreck")
+
+
+func _is_hostile_to_player() -> bool:
+	var player = GlobalRefs.player_agent_body
+	return is_instance_valid(target_ref) and target_ref.has_method("is_enemy_of") and not target_ref.get("is_wreck") and target_ref.is_enemy_of(player)
 
 
 func _apply_distance_fade_alpha() -> void:
@@ -140,6 +165,8 @@ func _sync_label() -> void:
 	_info_label.text = label_text
 	if _is_route_target(target_ref) or _is_jump_point_target(target_ref):
 		_info_label.add_color_override("font_color", _get_jump_route_color())
+	elif _is_live_ship():
+		_info_label.add_color_override("font_color", _get_ship_color())  # Sides read at a glance
 	else:
 		_info_label.remove_color_override("font_color")
 	if is_instance_valid(_info_panel):
@@ -199,6 +226,10 @@ func _refresh_distance_process_state() -> void:
 
 
 func _build_label_text() -> String:
+	# Unselected ships show only what they are doing; the colour already says whose they are.
+	# Keeps a crowded battlefield readable.
+	if _is_live_ship() and not _is_selected:
+		return _context_hint
 	var primary_text = _resolve_primary_label()
 	var secondary_text = _resolve_secondary_label()
 	if primary_text == "":

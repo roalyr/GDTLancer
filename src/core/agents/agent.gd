@@ -7,7 +7,8 @@ var agent_type: String = ""
 var template_id: String = ""
 var agent_uid = -1
 var interaction_radius: float = 150.0
-var is_hostile: bool = false  # True if this is a hostile NPC
+var faction: String = ""  # Constants.FACTIONS id; the player's is "player"
+var _grudges: Dictionary = {}  # Instance ids of ships that shot this one: enemies whatever their faction
 var ship_template = null  # ShipTemplate this agent flies
 
 # --- Hull & Power ---
@@ -17,7 +18,8 @@ var power: float = 0.0
 var power_max: float = 0.0
 var power_regen: float = 0.0
 var is_docked: bool = false  # Held at a station: no motion, no leak thrust
-var is_wreck: bool = false  # Hull reached zero: no thrust or AI; drifts to rest and stays until the sector unloads.
+var is_wreck: bool = false  # Hull reached zero: no thrust or AI; drifts until stripped and cleared away (Constants WRECK_*).
+var wreck_time_ms: int = 0  # When it became a wreck
 
 # Bounds of the ship's visual model in body space; used to place hit effects on the hull.
 var hull_bounds: AABB = AABB(Vector3(-5, -5, -5), Vector3(10, 10, 10))
@@ -58,7 +60,7 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 	self.template_id = overrides.get("template_id")
 	self.agent_type = overrides.get("agent_type")
 	self.agent_uid = p_agent_uid
-	self.is_hostile = overrides.get("hostile", false)
+	self.faction = "player" if is_player() else str(overrides.get("faction", template.faction))
 	var ship_template_id: String = str(overrides.get("ship_template_id", template.ship_template_id))
 
 	movement_system = get_node_or_null("MovementSystem")
@@ -116,7 +118,11 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 
 	var ai_controller = get_node_or_null(Constants.AI_CONTROLLER_NODE_NAME)
 	if is_instance_valid(ai_controller) and ai_controller.has_method("initialize"):
-		ai_controller.initialize({"hostile": is_hostile, "patrol_center": global_transform.origin, "skill": template.skill})
+		ai_controller.initialize({
+			"patrol_center": overrides.get("patrol_center", global_transform.origin),
+			"home_point": overrides.get("home_point", global_transform.origin),
+			"skill": template.skill,
+		})
 
 	if Constants.VERBOSE_RUNTIME_LOGS:
 		print(
@@ -274,11 +280,41 @@ func undock() -> void:
 	is_docked = false
 
 
+# --- Factions ---
+
+# Whether this ship treats `other` as an enemy: its faction is at war with other's, or other shot it.
+# One-sided: a ship that hits another by accident does not start hating it.
+func is_enemy_of(other) -> bool:
+	if not (is_instance_valid(other) and other != self and other.get("faction") != null):
+		return false
+	if _grudges.has(other.get_instance_id()):
+		return true
+	return other.faction in Constants.FACTIONS.get(faction, {}).get("enemies", [])
+
+
+func get_faction_color() -> Color:
+	return Constants.FACTIONS.get(faction, {}).get("color", Constants.COLOR_UI_TARGET_NEUTRAL)
+
+
+func get_faction_name() -> String:
+	return Constants.FACTIONS.get(faction, {}).get("name", "")
+
+
+# Shot by another ship: it is now an enemy. Stray fire from its own side is forgiven.
+func _hold_grudge(source) -> void:
+	if not (is_instance_valid(source) and source != self and source.get("faction") != null):
+		return
+	if source.faction != "" and source.faction == faction:
+		return
+	_grudges[source.get_instance_id()] = true
+
+
 # --- Hull & Power API ---
 func apply_damage(amount: float, source: Node = null) -> void:
 	if is_wreck or amount <= 0.0:
 		return
 	hull = max(0.0, hull - amount)
+	_hold_grudge(source)
 	if is_player():
 		GameState.player_hull = hull
 	EventBus.emit_signal("agent_damaged", self, amount, source)
@@ -290,6 +326,7 @@ func become_wreck() -> void:
 	if is_wreck:
 		return
 	is_wreck = true
+	wreck_time_ms = OS.get_ticks_msec()
 	hull = 0.0
 	power = 0.0
 	# What can be stripped from the wreck: the hull's own salvage plus whatever was in its hold.
@@ -666,6 +703,10 @@ func get_interaction_radius() -> float:
 
 # --- Despawn ---
 func despawn():
-	print("AgentBody '", self.name, "' despawning...")
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print("AgentBody '", self.name, "' despawning...")
 	EventBus.emit_signal("agent_despawning", self)
-	call_deferred("queue_free")
+	# Spawned agents sit under their scene's root in the agent container: free that root too.
+	var root: Node = get_parent()
+	var owner_root: Node = root if is_instance_valid(root) and root.get_parent() == GlobalRefs.agent_container else self
+	owner_root.call_deferred("queue_free")

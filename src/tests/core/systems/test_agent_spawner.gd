@@ -138,10 +138,3 @@ func test_spawn_player_on_route_arrival_preserves_saved_rotation():
 		distance_from_origin >= 1799.0 and distance_from_origin <= 2201.0,
 		"Route-arrival spawns should apply a varied offset near the anchor position (+/- 10%)."
 	)
-
-
-func test_npc_spawn_positions_stay_in_band_around_center():
-	var center = Vector3(1000, -500, 250)
-	for _i in range(50):
-		var distance: float = agent_system_instance._random_spawn_position(center).distance_to(center)
-		assert_between(distance, Constants.NPC_SPAWN_MIN_DISTANCE - 0.01, Constants.NPC_SPAWN_MAX_DISTANCE + 0.01)

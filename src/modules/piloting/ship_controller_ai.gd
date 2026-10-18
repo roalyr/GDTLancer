@@ -1,20 +1,27 @@
-# ShipControllerAI: patrol / combat / flee state machine for NPC agents.
+# ShipControllerAI: state machine for NPC agents. Patrols, fights enemies (other factions at war
+# with its own, or ships that shot it), flees fights not worth it, strips wrecks, and with a full
+# hold flies back to where it came from and leaves the sector.
 # Uses the same commands and ToolController as the player. Child of AgentBody in npc_agent.tscn.
 
 extends Node
 
 const CombatAssessment = preload("res://src/core/systems/combat_assessment.gd")
 
-enum AIState { IDLE, PATROL, COMBAT, FLEE, DISABLED }
+enum AIState { IDLE, PATROL, COMBAT, FLEE, DISABLED, SALVAGE, DEPART }
 
+# What the player reads off a ship's behaviour (see the parity rule in the README).
+const ACTIVITY_LABELS = {
+	AIState.PATROL: "PATROLLING", AIState.COMBAT: "FIGHTING", AIState.FLEE: "FLEEING",
+	AIState.SALVAGE: "SALVAGING", AIState.DEPART: "HAULING",
+}
 
-var is_hostile: bool = false
 
 var agent_script: RigidBody = null
 var _tool_controller: Node = null
 var _current_state: int = AIState.IDLE
 var _target_agent: RigidBody = null
-var _home_position: Vector3 = Vector3.ZERO
+var _home_position: Vector3 = Vector3.ZERO  # Middle of its patrol
+var _home_point: Vector3 = Vector3.ZERO  # Where it came from; it leaves the sector from there
 var _patrol_destination: Vector3 = Vector3.ZERO
 var _has_patrol_destination: bool = false
 var _repath_timer: float = 0.0
@@ -40,13 +47,22 @@ func _ready() -> void:
 
 func initialize(config: Dictionary) -> void:
 	_home_position = config.get("patrol_center", agent_script.global_transform.origin)
-	is_hostile = bool(config.get("hostile", is_hostile))
+	_home_point = config.get("home_point", agent_script.global_transform.origin)
 	skill = clamp(float(config.get("skill", skill)), 0.0, 1.0)
-	_change_state(AIState.PATROL if is_hostile else AIState.IDLE)
+	_change_state(AIState.PATROL)
 
 
 func get_state() -> int:
 	return _current_state
+
+
+func get_activity_label() -> String:
+	return ACTIVITY_LABELS.get(_current_state, "")
+
+
+# The ship it is fighting, fleeing from or salvaging, if any.
+func get_focus() -> Node:
+	return _target_agent if is_instance_valid(_target_agent) else null
 
 
 # Distance the AI tries to fight at: the optimal range of the tool that works on the target.
@@ -72,6 +88,10 @@ func _physics_process(delta: float) -> void:
 			_process_combat()
 		AIState.FLEE:
 			_process_flee()
+		AIState.SALVAGE:
+			_process_salvage()
+		AIState.DEPART:
+			_process_depart()
 
 
 func _change_state(new_state: int) -> void:
@@ -98,6 +118,12 @@ func _change_state(new_state: int) -> void:
 			agent_script.command_approach(_target_agent)
 		AIState.FLEE:
 			agent_script.command_flee(_target_agent)
+		AIState.SALVAGE:
+			agent_script.command_approach(_target_agent)
+		AIState.DEPART:
+			_provoked = false
+			_target_agent = null
+			agent_script.command_move_to(_home_point)
 
 
 func _process_patrol() -> void:
@@ -106,6 +132,15 @@ func _process_patrol() -> void:
 		var target = scan_for_target()
 		if is_instance_valid(target):
 			_consider("engage", target, desire_against(target), Constants.AI_ENGAGE_DESIRE)
+		elif _pending.empty():
+			if agent_script.get_free_cargo() <= 0:
+				_change_state(AIState.DEPART)
+				return
+			var wreck = scan_for_wreck()
+			if is_instance_valid(wreck):
+				_target_agent = wreck
+				_change_state(AIState.SALVAGE)
+				return
 
 	var current_pos = agent_script.global_transform.origin
 	if not _has_patrol_destination or current_pos.distance_to(_patrol_destination) <= Constants.AI_PATROL_ARRIVAL_DISTANCE:
@@ -165,12 +200,78 @@ func _process_flee() -> void:
 		agent_script.command_flee(_target_agent)
 
 
-# The detected non-hostile ship most worth attacking, if any is worth it at all.
+# Close in on a wreck, harpoon it and strip it until it is empty or the hold is full. Enemies
+# that show up come first.
+func _process_salvage() -> void:
+	var wreck = _target_agent
+	if not (is_instance_valid(wreck) and wreck.is_inside_tree() and wreck.get("is_wreck") and wreck.get_salvage_units() > 0) or agent_script.get_free_cargo() <= 0:
+		_change_state(AIState.PATROL)
+		return
+	if _scan_timer <= 0.0:
+		_scan_timer = Constants.AI_SCAN_INTERVAL
+		var enemy = scan_for_target()
+		if is_instance_valid(enemy):
+			_consider("engage", enemy, desire_against(enemy), Constants.AI_ENGAGE_DESIRE)
+	var index: int = _tool_controller.find_tool_for(wreck) if is_instance_valid(_tool_controller) else -1
+	if index < 0:
+		if not agent_script.detects(wreck):
+			_change_state(AIState.PATROL)
+		return  # No harpoon fitted, or not seen yet: keep closing in
+	var harpoon_range: float = _tool_controller.get_tool(index).optimal_range
+	var distance: float = agent_script.global_transform.origin.distance_to(wreck.global_transform.origin)
+	if not _tool_controller.is_active(index):
+		_tool_controller.activate(index, wreck)  # Launches once in reach
+	if distance <= harpoon_range * 0.8 and not _orbiting:
+		_orbiting = true  # Here: in reach; stop and let the tether reel it in
+		agent_script.command_stop()
+	elif distance > harpoon_range and _orbiting:
+		_orbiting = false
+		agent_script.command_approach(wreck)
+
+
+# Full hold: fly back to where it came from and leave the sector with the loot.
+func _process_depart() -> void:
+	if agent_script.global_transform.origin.distance_to(_home_point) <= Constants.AI_DEPART_ARRIVAL_DISTANCE:
+		_change_state(AIState.IDLE)
+		agent_script.despawn()
+		return
+	if _repath_timer <= 0.0:
+		_repath_timer = Constants.AI_REPATH_INTERVAL * 4.0
+		agent_script.command_move_to(_home_point)
+
+
+# The nearest detected wreck with something left on it that nobody else has harpooned.
+func scan_for_wreck() -> RigidBody:
+	var best: RigidBody = null
+	var best_distance: float = Constants.AI_SALVAGE_SEARCH_RANGE
+	var own_pos: Vector3 = agent_script.global_transform.origin
+	for body in get_tree().get_nodes_in_group("agent_body"):
+		if not (body.get("is_wreck") and body.get_salvage_units() > 0 and agent_script.detects(body)):
+			continue
+		var distance: float = own_pos.distance_to(body.global_transform.origin)
+		if distance < best_distance and not _is_claimed(body):
+			best = body
+			best_distance = distance
+	return best
+
+
+func _is_claimed(wreck) -> bool:
+	for body in get_tree().get_nodes_in_group("agent_body"):
+		var tools = body.get_node_or_null("ToolController") if body != agent_script else null
+		if tools == null:
+			continue
+		for index in range(tools.get_tool_count()):
+			if tools.get_target(index) == wreck:
+				return true
+	return false
+
+
+# The detected enemy most worth attacking, if any is worth it at all.
 func scan_for_target() -> RigidBody:
 	var best: RigidBody = null
 	var best_desire: float = Constants.AI_ENGAGE_DESIRE
 	for body in get_tree().get_nodes_in_group("agent_body"):
-		if body == agent_script or not _is_live_target(body) or body.get("is_hostile"):
+		if body == agent_script or not _is_live_target(body) or not agent_script.is_enemy_of(body):
 			continue
 		if not agent_script.detects(body):
 			continue
@@ -183,10 +284,11 @@ func scan_for_target() -> RigidBody:
 
 # How much this ship wants to fight `target` (see Constants AI block and CombatAssessment).
 func desire_against(target) -> float:
-	return compute_desire(
+	var desire: float = compute_desire(
 		agent_script.hull, agent_script.get_damage_per_second(),
 		target.hull, target.get_damage_per_second(), target.get_salvage_value()
 	)
+	return desire * (Constants.AI_ENEMY_DESIRE_FACTOR if agent_script.is_enemy_of(target) else 1.0)
 
 
 static func compute_desire(own_hull: float, own_dps: float, target_hull: float, target_dps: float, gain: float) -> float:
@@ -257,7 +359,7 @@ func _tick_decision(delta: float) -> void:
 	var desire: float = desire_against(target)
 	match decision.kind:
 		"engage":
-			if _current_state == AIState.PATROL and agent_script.detects(target) and desire >= Constants.AI_ENGAGE_DESIRE:
+			if _current_state in [AIState.PATROL, AIState.SALVAGE] and agent_script.detects(target) and desire >= Constants.AI_ENGAGE_DESIRE:
 				_start_combat(target, false)
 		"disengage":
 			if _current_state == AIState.COMBAT and desire < Constants.AI_DISENGAGE_DESIRE:

@@ -8,6 +8,7 @@ var _player_agent_body: RigidBody = null
 var _next_agent_uid: int = 0  # Counter for generating unique agent UIDs
 var _npc_bodies: Array = []  # Live NPCs in the current sector
 var _respawn_timer: Timer = null
+var _battlefield: Dictionary = {}  # get_battlefield(), reset per sector
 
 
 func _ready():
@@ -27,8 +28,9 @@ func _on_Zone_Loaded(_zone_instance, _zone_path, agent_container_node):
 		if not is_instance_valid(_player_agent_body):
 			spawn_player()
 		_npc_bodies.clear()
+		_battlefield = {}
 		if populate_sectors:
-			_top_up_population()
+			_top_up_population(true)
 			_respawn_timer.start()
 	else:
 		printerr("AgentSpawner Error: Agent container invalid. Cannot spawn agents.")
@@ -173,10 +175,11 @@ func _get_jump_in_distance_for_sector(sector_id: String) -> float:
 			return 5000.0
 
 
-# --- NPC Population ---
+# --- NPC Population: the battlefield (see Constants AI AND NPC POPULATION) ---
 
-# Spawns hostiles until the sector holds NPC_POPULATION_PER_SECTOR live ships. Wrecks do not count.
-func _top_up_population() -> void:
+# Tops up each faction to NPC_POPULATION_PER_FACTION live ships: all at once when the sector
+# loads, then one ship per faction per call, so reinforcements trickle in. Also clears old wrecks.
+func _top_up_population(fill: bool = false) -> void:
 	if not is_instance_valid(GlobalRefs.agent_container) or not is_instance_valid(_player_agent_body):
 		return
 	var live: Array = []
@@ -184,21 +187,104 @@ func _top_up_population() -> void:
 		if is_instance_valid(npc) and not npc.is_wreck:
 			live.append(npc)
 	_npc_bodies = live
-	var center: Vector3 = _player_agent_body.global_transform.origin
-	for _i in range(Constants.NPC_POPULATION_PER_SECTOR - live.size()):
-		var npc = spawn_npc_from_template(
-			Constants.NPC_HOSTILE_TEMPLATE_PATH, _random_spawn_position(center), {"hostile": true}
-		)
-		if is_instance_valid(npc):
-			_npc_bodies.append(npc)
+	var battle: Dictionary = get_battlefield()
+	for faction in Constants.NPC_FACTION_TEMPLATE_PATHS:
+		var count := 0
+		for npc in live:
+			if npc.faction == faction:
+				count += 1
+		var missing: int = Constants.NPC_POPULATION_PER_FACTION - count
+		for _i in range(missing if fill else min(missing, 1)):
+			var home_point: Vector3 = battle.arrivals[faction]
+			var npc = spawn_npc_from_template(
+				Constants.NPC_FACTION_TEMPLATE_PATHS[faction], _scatter(home_point),
+				{"faction": faction, "patrol_center": battle.center, "home_point": home_point}
+			)
+			if is_instance_valid(npc):
+				_npc_bodies.append(npc)
+	clear_old_wrecks()
 
 
-func _random_spawn_position(center: Vector3) -> Vector3:
+# The middle of the battlefield, off the home station, and each faction's arrival point, on
+# opposite sides of it. Fixed per sector load.
+func get_battlefield() -> Dictionary:
+	if not _battlefield.empty():
+		return _battlefield
+	var anchor: Vector3 = _player_agent_body.global_transform.origin if is_instance_valid(_player_agent_body) else Vector3.ZERO
+	var station = _find_home_station()
+	if is_instance_valid(station):
+		anchor = station.global_transform.origin
+	var offset_dir: Vector3 = _random_direction()
+	var side: Vector3 = offset_dir.cross(Vector3.UP)
+	if side.length_squared() < 0.01:
+		side = offset_dir.cross(Vector3.RIGHT)
+	side = side.normalized()
+	var center: Vector3 = anchor + offset_dir * Constants.BATTLE_OFFSET_FROM_HOME
+	var arrivals := {}
+	var sign_ := 1.0
+	for faction in Constants.NPC_FACTION_TEMPLATE_PATHS:
+		arrivals[faction] = center + side * sign_ * Constants.BATTLE_FACTION_SPAWN_DISTANCE
+		sign_ = -sign_
+	_battlefield = {"center": center, "arrivals": arrivals}
+	return _battlefield
+
+
+func _find_home_station() -> Node:
+	var fallback: Node = null
+	for station in get_tree().get_nodes_in_group("dockable_station"):
+		if not (station is Spatial and is_instance_valid(GlobalRefs.current_zone) and GlobalRefs.current_zone.is_a_parent_of(station)):
+			continue
+		if station.get("location_id") == GameState.home_location_id:
+			return station
+		if fallback == null:
+			fallback = station
+	return fallback
+
+
+func _scatter(point: Vector3) -> Vector3:
+	return point + _random_direction() * randf() * Constants.BATTLE_SPAWN_SPREAD
+
+
+static func _random_direction() -> Vector3:
 	var direction = Vector3(rand_range(-1, 1), rand_range(-1, 1), rand_range(-1, 1))
-	if direction.length_squared() < 0.0001:
-		direction = Vector3.FORWARD
-	var distance = rand_range(Constants.NPC_SPAWN_MIN_DISTANCE, Constants.NPC_SPAWN_MAX_DISTANCE)
-	return center + direction.normalized() * distance
+	return direction.normalized() if direction.length_squared() > 0.0001 else Vector3.FORWARD
+
+
+# Past WRECK_LOOTED_CAP wrecks, removes the oldest stripped ones; past WRECK_MAX, the oldest of
+# any. Wrecks someone is harpooning, and the player's own, stay.
+func clear_old_wrecks() -> void:
+	var wrecks: Array = []
+	var held := {}
+	for body in get_tree().get_nodes_in_group("agent_body"):
+		if body.get("is_wreck"):
+			if not body.is_player():
+				wrecks.append(body)
+			continue
+		var tools = body.get_node_or_null("ToolController")
+		if tools != null:
+			for index in range(tools.get_tool_count()):
+				if is_instance_valid(tools.get_target(index)):
+					held[tools.get_target(index)] = true
+	wrecks.sort_custom(self, "_older_wreck_first")
+	var excess: int = wrecks.size() - Constants.WRECK_LOOTED_CAP
+	for wreck in wrecks.duplicate():
+		if excess <= 0:
+			break
+		if wreck.get_salvage_units() <= 0 and not held.has(wreck):
+			wrecks.erase(wreck)
+			wreck.despawn()
+			excess -= 1
+	excess = wrecks.size() - Constants.WRECK_MAX
+	for wreck in wrecks:
+		if excess <= 0:
+			break
+		if not held.has(wreck):
+			wreck.despawn()
+			excess -= 1
+
+
+func _older_wreck_first(a, b) -> bool:
+	return a.wreck_time_ms < b.wreck_time_ms
 
 
 # Spawns an NPC using a specific AgentTemplate resource path.

@@ -27,7 +27,7 @@ The project is pruned back to its flight core. What works now:
 - Docking, and jumping between handcrafted sectors with a jump transition
 - New game, save and load
 - Laser combat without manual aim: damage depends on range and the target's angular velocity; hull, power and wrecks
-- Hostile NPCs spawn in every sector, patrol, engage and flee
+- A battlefield near the home station: two factions at war (Verdant and Violet) keep arriving, fight, strip each other's wrecks and fly home with full holds. They leave the player alone unless the player shoots one. Brackets show each side in its colour, and what each ship is doing
 - Hits leave lasting marks on the hull (vertex-painted, proportional to damage)
 - Salvage: harpoon a wreck, it reels in to a safe towing distance and is stripped into the hold; cargo adds mass
 - Fuel leaks vent along the hull and push the ship; destroyed ships explode into a drifting cloud
