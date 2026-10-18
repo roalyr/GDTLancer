@@ -1,19 +1,4 @@
-# PROJECT: GDTLancer
-# MODULE: main_menu.gd
-# STATUS: [Level 2 - Implementation]
-# OWNER: developer
-# ACCESS: read-write
-# USER INSTRUCTION: NONE
-# TRUTH_LINK: None
-# LOG_REF: 2026-06-20 18:41:40
-
-##
-## PROJECT: GDTLancer
-## MODULE: main_menu.gd
-## STATUS: [Level 2 - Implementation]
-## TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §1, §2, §6; TACTICAL_TODO.md TASK_1
-## LOG_REF: 2026-05-13 16:47:02
-##
+# MainMenu: new game, save, load and exit.
 
 extends Control
 

@@ -1,22 +1,6 @@
-# PROJECT: GDTLancer
-# MODULE: test_navigation_system.gd
-# STATUS: [Level 2 - Implementation]
-# OWNER: developer
-# ACCESS: read-write
-# USER INSTRUCTION: NONE
-# TRUTH_LINK: None
-# LOG_REF: 2026-06-20 18:41:40
-
-#
-# PROJECT: GDTLancer
-# MODULE: test_navigation_system.gd
-# STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
-# LOG_REF: 2026-05-23 16:43:24
-#
+# Tests for NavigationSystem commands on a RigidBody agent.
 
 extends GutTest
-# Version: 2.0 - Updated for RigidBody physics with thrust-based flight.
 
 var NavigationSystem = load("res://src/core/agents/components/navigation_system.gd")
 var MovementSystem = load("res://src/core/agents/components/movement_system.gd")

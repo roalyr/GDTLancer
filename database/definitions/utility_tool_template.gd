@@ -1,15 +1,4 @@
-# PROJECT: GDTLancer
-# MODULE: utility_tool_template.gd
-# STATUS: [Level 2 - Implementation]
-# OWNER: developer
-# ACCESS: read-write
-# USER INSTRUCTION: NONE
-# TRUTH_LINK: None
-# LOG_REF: 2026-06-20 18:41:40
-
-# File: core/resource/utility_tool_template.gd
-# Purpose: Defines utility tools (weapons/industrial tools) for ships
-# Version: 1.1 - Now extends Template for proper indexing
+# Defines utility tools (weapons/industrial tools) for ships
 
 extends Template
 class_name UtilityToolTemplate

@@ -1,19 +1,4 @@
-# PROJECT: GDTLancer
-# MODULE: test_world_manager.gd
-# STATUS: [Level 2 - Implementation]
-# OWNER: developer
-# ACCESS: read-write
-# USER INSTRUCTION: NONE
-# TRUTH_LINK: None
-# LOG_REF: 2026-06-20 18:41:40
-
-#
-# PROJECT: GDTLancer
-# MODULE: test_world_manager.gd
-# STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §7; TRUTH_SIMULATION-GRAPH.md §1, §3.2, §3.3; TACTICAL_TODO.md TASK_4
-# LOG_REF: 2026-05-27 04:19:04
-#
+# Tests for WorldManager sector resolution and jump transition foundation.
 
 extends GutTest
 

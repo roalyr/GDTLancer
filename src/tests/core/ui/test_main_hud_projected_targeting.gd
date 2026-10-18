@@ -1,19 +1,4 @@
-# PROJECT: GDTLancer
-# MODULE: test_main_hud_projected_targeting.gd
-# STATUS: [Level 2 - Implementation]
-# OWNER: developer
-# ACCESS: read-write
-# USER INSTRUCTION: NONE
-# TRUTH_LINK: None
-# LOG_REF: 2026-06-20 18:41:40
-
-#
-# PROJECT: GDTLancer
-# MODULE: test_main_hud_projected_targeting.gd
-# STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3; TACTICAL_TODO.md TASK_4
-# LOG_REF: 2026-06-09 20:56:00
-#
+# Tests for MainHUD projected targets, overlay toggles, drag passthrough and target brackets.
 
 extends "res://addons/gut/test.gd"
 

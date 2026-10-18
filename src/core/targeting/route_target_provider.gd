@@ -1,11 +1,4 @@
-# PROJECT: GDTLancer
-# MODULE: route_target_provider.gd
-# STATUS: [Level 2 - Implementation]
-# OWNER: developer
-# ACCESS: read-write
-# USER INSTRUCTION: NONE
-# TRUTH_LINK: None
-# LOG_REF: 2026-06-20 18:41:40
+# RouteTargetProvider: builds jump-route targets for a sector from the static sector graph.
 
 extends Reference
 

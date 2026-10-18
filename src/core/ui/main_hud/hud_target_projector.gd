@@ -1,19 +1,4 @@
-# PROJECT: GDTLancer
-# MODULE: hud_target_projector.gd
-# STATUS: [Level 2 - Implementation]
-# OWNER: developer
-# ACCESS: read-write
-# USER INSTRUCTION: NONE
-# TRUTH_LINK: None
-# LOG_REF: 2026-06-20 18:41:40
-
-#
-# PROJECT: GDTLancer
-# MODULE: hud_target_projector.gd
-# STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md § Workflow And Scope Boundary
-# LOG_REF: 2026-06-13 06:40:05
-#
+# HUD target projector: builds, positions and filters projected target brackets for MainHUD.
 
 extends Reference
 

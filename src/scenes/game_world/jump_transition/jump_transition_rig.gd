@@ -1,19 +1,4 @@
-# PROJECT: GDTLancer
-# MODULE: jump_transition_rig.gd
-# STATUS: [Level 2 - Implementation]
-# OWNER: developer
-# ACCESS: read-write
-# USER INSTRUCTION: NONE
-# TRUTH_LINK: None
-# LOG_REF: 2026-06-20 18:41:40
-
-#
-# PROJECT: GDTLancer
-# MODULE: jump_transition_rig.gd
-# STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §4, §6.1, §6.3, §7; TRUTH_DOCS_CanvasItem_Godot_3.6.md §Render modes; TRUTH_SIMULATION-GRAPH.md §1; TACTICAL_TODO.md TASK_3
-# LOG_REF: 2026-06-08 02:20:00
-#
+# JumpTransitionRig: transition camera, particles, nebula and fade overlay used during sector jumps.
 
 extends Spatial
 

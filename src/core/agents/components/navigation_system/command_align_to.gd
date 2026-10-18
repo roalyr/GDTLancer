@@ -1,22 +1,5 @@
-# PROJECT: GDTLancer
-# MODULE: command_align_to.gd
-# STATUS: [Level 2 - Implementation]
-# OWNER: architect-governed
-# ACCESS: read-write
-# USER INSTRUCTION: NONE
-# TRUTH_LINK: None
-# LOG_REF: 2026-06-20 18:41:40
+# Navigation command: rotate to face a direction, optionally thrusting forward.
 
-#
-# PROJECT: GDTLancer
-# MODULE: command_align_to.gd
-# STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3
-# LOG_REF: 2026-05-17 01:30:40
-#
-
-# File: core/agents/components/navigation_system/command_align_to.gd
-# Version: 3.0 - RigidBody physics with PID-controlled rotation.
 extends Node
 
 var _nav_sys: Node

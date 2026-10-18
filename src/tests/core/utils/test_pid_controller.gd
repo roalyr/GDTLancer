@@ -1,13 +1,5 @@
-# PROJECT: GDTLancer
-# MODULE: test_pid_controller.gd
-# STATUS: [Level 2 - Implementation]
-# OWNER: developer
-# ACCESS: read-write
-# USER INSTRUCTION: NONE
-# TRUTH_LINK: None
-# LOG_REF: 2026-06-20 18:41:40
-
 # tests/core/utils/test_pid_controller.gd
+
 extends GutTest
 
 var PIDController = load("res://src/core/utils/pid_controller.gd")

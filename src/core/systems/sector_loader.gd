@@ -1,20 +1,3 @@
-# PROJECT: GDTLancer
-# MODULE: sector_loader.gd
-# STATUS: [Level 2 - Implementation]
-# OWNER: architect-governed
-# ACCESS: read-write
-# USER INSTRUCTION: NONE
-# TRUTH_LINK: None
-# LOG_REF: 2026-06-20 18:41:40
-
-#
-# PROJECT: GDTLancer
-# MODULE: sector_loader.gd
-# STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: GDD-REVISION-LEDGER.md REV_005; universe_topology_architecture.md
-# LOG_REF: 2026-06-07 16:56:00
-#
-
 extends Reference
 
 ## SectorLoader: Stateless builder that loads a sector's .tscn preset

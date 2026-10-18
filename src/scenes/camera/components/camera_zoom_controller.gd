@@ -1,22 +1,4 @@
-# PROJECT: GDTLancer
-# MODULE: camera_zoom_controller.gd
-# STATUS: [Level 2 - Implementation]
-# OWNER: developer
-# ACCESS: read-write
-# USER INSTRUCTION: NONE
-# TRUTH_LINK: None
-# LOG_REF: 2026-06-20 18:41:40
-
-#
-# PROJECT: GDTLancer
-# MODULE: camera_zoom_controller.gd
-# STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3; TRUTH_SIMULATION-GRAPH.md §3.2, §3.3
-# LOG_REF: 2026-05-16 18:32:14
-#
-
-# File: scenes/camera/components/camera_zoom_controller.gd
-# Purpose: Manages camera zoom, distance from target, and FoV calculations.
+# Manages camera zoom, distance from target, and FoV calculations.
 # This is a component of the main OrbitCamera.
 
 extends Node

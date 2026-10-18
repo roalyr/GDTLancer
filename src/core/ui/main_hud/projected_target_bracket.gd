@@ -1,19 +1,4 @@
-# PROJECT: GDTLancer
-# MODULE: projected_target_bracket.gd
-# STATUS: [Level 2 - Implementation]
-# OWNER: developer
-# ACCESS: read-write
-# USER INSTRUCTION: NONE
-# TRUTH_LINK: None
-# LOG_REF: 2026-06-20 18:41:40
-
-#
-# PROJECT: GDTLancer
-# MODULE: projected_target_bracket.gd
-# STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_SIMULATION-GRAPH.md §6.4; TACTICAL_TODO.md TASK_4
-# LOG_REF: 2026-06-09 20:56:00
-#
+# ProjectedTargetBracket: on-screen bracket for a world or jump-route target, with label, distance and selection.
 
 extends Button
 

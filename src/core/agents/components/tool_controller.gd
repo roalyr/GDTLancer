@@ -1,22 +1,6 @@
-# PROJECT: GDTLancer
-# MODULE: tool_controller.gd
-# STATUS: [Level 2 - Implementation]
-# OWNER: architect-governed
-# ACCESS: read-write
-# USER INSTRUCTION: NONE
-# TRUTH_LINK: None
-# LOG_REF: 2026-06-20 18:41:40
-
-#
-# PROJECT: GDTLancer
-# MODULE: tool_controller.gd
-# STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TRUTH_SIMULATION-GRAPH.md §6.4; TACTICAL_TODO.md TASK_3
-# LOG_REF: 2026-05-23 17:10:12
-#
-
 ## ToolController: Manages tool (weapon) firing and cooldowns for an agent.
 ## Attaches as child of AgentBody (RigidBody), interfaces with CombatSystem for damage.
+
 extends Node
 
 const UtilityToolTemplate = preload("res://database/definitions/utility_tool_template.gd")

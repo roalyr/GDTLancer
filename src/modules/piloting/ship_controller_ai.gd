@@ -1,18 +1,9 @@
-# PROJECT: GDTLancer
-# MODULE: ship_controller_ai.gd
-# STATUS: [Level 2 - Implementation]
-# OWNER: developer
-# ACCESS: read-write
-# USER INSTRUCTION: NONE
-# TRUTH_LINK: gameplay_milestone_audit.md
-# LOG_REF: 2026-06-12 22:50:00
-
+# ShipControllerAI: patrol / combat / flee state machine for NPC agents.
 # Attach to Node child of AgentBody in npc_agent.tscn
 
 extends Node
 
-# NOTE: GDD REVISION - Combat is disabled until re-imagined from the ground up.
-# Real-time dogfighting is deprecated. States and systems relating to combat are marked as DEPRECATED.
+# Combat states are wired but damage is stubbed until the damage model lands (PRUNE-PLAN.md §6.1).
 enum AIState { IDLE, PATROL, COMBAT, FLEE, DISABLED }
 
 # --- Configuration ---
@@ -133,7 +124,7 @@ func _physics_process(delta: float) -> void:
 		AIState.PATROL:
 			_process_patrol(delta)
 		AIState.COMBAT:
-			# DEPRECATED: Combat is disabled. Revert state to PATROL.
+			# Combat is disabled until predator AI is built (PRUNE-PLAN.md §6.9). Revert to PATROL.
 			_change_state(AIState.PATROL)
 		AIState.FLEE:
 			_process_flee(delta)
@@ -317,8 +308,7 @@ func _process_flee(delta: float) -> void:
 
 
 func _scan_for_target() -> RigidBody:
-	# DEPRECATED: Real-time combat scanning is disabled.
-	return null
+	# Target scanning is disabled until predator AI is built (PRUNE-PLAN.md §6.9).
 	return null
 
 

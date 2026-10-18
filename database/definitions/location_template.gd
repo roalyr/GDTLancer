@@ -1,30 +1,7 @@
-# PROJECT: GDTLancer
-# MODULE: location_template.gd
-# STATUS: [Level 2 - Implementation]
-# OWNER: developer
-# ACCESS: read-write
-# USER INSTRUCTION: NONE
-# TRUTH_LINK: None
-# LOG_REF: 2026-06-20 18:41:40
-
-#
-# PROJECT: GDTLancer
-# MODULE: location_template.gd
-# STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: GDD-REVISION-LEDGER.md REV_005; universe_topology_architecture.md
-# LOG_REF: 2026-06-07 16:45:00
-#
+# LocationTemplate: a sector — its scene, galactic position, jump connections and environment.
 
 extends Template
 class_name LocationTemplate
-
-## LocationTemplate: Canonical sector/location resource contract.
-## Authored registry entries are sector-level resources keyed by ids such as
-## `sector_star_elace`; scene-local dockables remain inside `sector_scene_path`.
-## This resource drives sector loading, topology, and the current compatibility
-## data consumed by docked UI and bootstrap flows. Runtime qualitative demand
-## and default contract generation come from simulation tags, not from authored
-## `available_contract_ids` lists.
 
 # --- Identity & Scene ---
 export var location_name: String = "Unknown Station"
@@ -47,43 +24,25 @@ export var procedural_hints: Dictionary = {}
 ## Human-readable description of the sector for UI and generator context.
 export var sector_description: String = ""
 
-# --- World Layer: Topology (Section 2) ---
-## IDs of connected sectors. These define the world-topology graph and jump routes.
+# --- Sector Graph ---
+## IDs of connected sectors. These define the sector graph and jump routes.
 export var connections: PoolStringArray = PoolStringArray()
 ## Celestial geographic classification: star / star_companion / planet / moon / deep_space / hazard_zone
 export var sector_type: String = "star"
 
-## Dockable infrastructure level: frontier / outpost / colony / hub
-
-# --- World Layer: Hazards (Section 2) ---
-## Environmental radiation (0.0 = safe, 1.0 = lethal). Increases entropy and wreck degradation.
+# --- Hazards ---
+## Environmental radiation (0.0 = safe, 1.0 = lethal).
 export var radiation_level: float = 0.0
-## Background thermal temperature in Kelvin. 300K = nominal. Deviations increase entropy.
+## Background thermal temperature in Kelvin. 300K = nominal.
 export var thermal_background_k: float = 300.0
-## Gravity well multiplier on entropy/maintenance (1.0 = normal, >1 = heavier penalty).
+## Gravity well multiplier (1.0 = normal, >1 = heavier penalty).
 export var gravity_well_penalty: float = 1.0
 
-# --- World Layer: Resource Potential (Section 2) ---
-## Finite mineral deposit density. Depleted by extraction over ticks.
+# --- Resource Potential ---
+## Mineral deposit density.
 export var mineral_density: float = 0.5
-## Finite propellant source density. Depleted by extraction over ticks.
+## Propellant source density.
 export var propellant_sources: float = 0.5
 
-# --- World Layer: Settlement Infrastructure ---
-## Power output capacity of the sector's primary service hub / station infrastructure.
-## Maximum commodity stockpile the sector's service hub can hold.
-
-# --- Market & Services (compatibility boundary for current scene/UI systems) ---
-# Market inventory: commodity_template_id -> {buy_price: int, sell_price: int, quantity: int}
-# Used by current docked trade/UI flows; not the authoritative live economy model.
-## Service ids exposed by the current docked UI until service simulation is rebuilt.
-
-# --- Faction Control ---
-
-# --- Danger (legacy scene/UI hint; superseded by richer simulation state) ---
+# --- Danger ---
 export var danger_level: int = 0
-
-# --- Qualitative Simulation ---
-## Initial sector tags for qualitative tag simulation.
-
-# --- Contracts (optional curated override ids for docked/UI entry points) ---

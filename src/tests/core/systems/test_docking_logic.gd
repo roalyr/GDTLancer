@@ -1,19 +1,4 @@
-# PROJECT: GDTLancer
-# MODULE: test_docking_logic.gd
-# STATUS: [Level 2 - Implementation]
-# OWNER: developer
-# ACCESS: read-write
-# USER INSTRUCTION: NONE
-# TRUTH_LINK: None
-# LOG_REF: 2026-06-20 18:41:40
-
-##
-## PROJECT: GDTLancer
-## MODULE: test_docking_logic.gd
-## STATUS: [Level 2 - Implementation]
-## TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
-## LOG_REF: 2026-05-23 16:28:25
-##
+# Tests for player docking and jump queueing through the player controller.
 
 extends "res://addons/gut/test.gd"
 

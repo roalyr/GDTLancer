@@ -1,19 +1,4 @@
-# PROJECT: GDTLancer
-# MODULE: test_tool_controller.gd
-# STATUS: [Level 2 - Implementation]
-# OWNER: developer
-# ACCESS: read-write
-# USER INSTRUCTION: NONE
-# TRUTH_LINK: None
-# LOG_REF: 2026-06-20 18:41:40
-
-#
-# PROJECT: GDTLancer
-# MODULE: test_tool_controller.gd
-# STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TACTICAL_TODO.md TASK_3
-# LOG_REF: 2026-05-23 15:24:18
-#
+# Tests for ToolController and its stubbed combat hand-off.
 
 extends GutTest
 

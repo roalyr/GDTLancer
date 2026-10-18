@@ -1,12 +1,3 @@
-# PROJECT: GDTLancer
-# MODULE: main_hud.gd
-# STATUS: [Level 2 - Implementation]
-# OWNER: developer
-# ACCESS: read-write
-# USER INSTRUCTION: NONE
-# TRUTH_LINK: GDD-MASTER-DESIGN-DIRECTIVE.md §2; TRUTH_GAME-LOOP-VISION.md §5
-# LOG_REF: 2026-06-20 20:45:00
-
 extends Control
 
 ## MainHUD: Primary gameplay HUD displaying player resources, target info, and combat status.

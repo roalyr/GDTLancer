@@ -1,19 +1,4 @@
-# PROJECT: GDTLancer
-# MODULE: test_jump_transition_regressions.gd
-# STATUS: [Level 2 - Implementation]
-# OWNER: developer
-# ACCESS: read-write
-# USER INSTRUCTION: NONE
-# TRUTH_LINK: None
-# LOG_REF: 2026-06-20 18:41:40
-
-#
-# PROJECT: GDTLancer
-# MODULE: test_jump_transition_regressions.gd
-# STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.3, §7; TRUTH_DOCS_CanvasItem_Godot_3.6.md §Render modes; TRUTH_DOCS_Particle shaders_Godot_3.6.md note plus §Render modes; TRUTH_SIMULATION-GRAPH.md §1; TACTICAL_TODO.md TASK_4
-# LOG_REF: 2026-06-08 02:20:00
-#
+# Regression tests for the jump transition sequence and rig.
 
 extends GutTest
 
@@ -124,7 +109,7 @@ func test_prepare_jump_transition_departure_visuals_aims_before_lock_and_hides_h
 	assert_false(hud.visible, "Jump departure visuals should hide the HUD immediately before the FoV shift begins.")
 	assert_false(
 		event_order.has("cover_True"),
-		"Jump departure visuals should no longer force the overlay on before the FoV widen starts; TASK_2 shifts that timing into the orchestration path."
+		"Jump departure visuals should no longer force the overlay on before the FoV widen starts; the orchestration path owns that timing."
 	)
 
 

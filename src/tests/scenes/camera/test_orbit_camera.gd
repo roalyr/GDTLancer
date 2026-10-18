@@ -1,19 +1,4 @@
-# PROJECT: GDTLancer
-# MODULE: test_orbit_camera.gd
-# STATUS: [Level 2 - Implementation]
-# OWNER: developer
-# ACCESS: read-write
-# USER INSTRUCTION: NONE
-# TRUTH_LINK: None
-# LOG_REF: 2026-06-20 18:41:40
-
-#
-# PROJECT: GDTLancer
-# MODULE: test_orbit_camera.gd
-# STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3, §7; TRUTH_DOCS_Particle shaders_Godot_3.6.md note plus §Render modes; TRUTH_SIMULATION-GRAPH.md §1
-# LOG_REF: 2026-05-16 23:40:29
-#
+# Tests for the orbit camera: FoV overrides, orbit orientation and particle toggling.
 
 extends GutTest
 

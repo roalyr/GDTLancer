@@ -1,23 +1,4 @@
-# PROJECT: GDTLancer
-# MODULE: movement_system.gd
-# STATUS: [Level 2 - Implementation]
-# OWNER: architect-governed
-# ACCESS: read-write
-# USER INSTRUCTION: NONE
-# TRUTH_LINK: None
-# LOG_REF: 2026-06-20 18:41:40
-
-##
-## PROJECT: GDTLancer
-## MODULE: movement_system.gd
-## STATUS: [Level 2 - Implementation]
-## TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TRUTH_CONSTRAINTS.md §1
-## LOG_REF: 2026-05-23 17:10:12
-##
-
-# File: res://core/agents/components/movement_system.gd
-# Version: 3.0 - RigidBody physics with PID-controlled 6DOF thrust-based flight system.
-# Purpose: Handles the low-level execution of agent movement via forces and torques.
+# Handles the low-level execution of agent movement via forces and torques.
 # Called by NavigationSystem. Parent must be RigidBody with custom_integrator = true.
 
 extends Node

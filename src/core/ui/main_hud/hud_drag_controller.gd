@@ -1,19 +1,4 @@
-# PROJECT: GDTLancer
-# MODULE: hud_drag_controller.gd
-# STATUS: [Level 2 - Implementation]
-# OWNER: developer
-# ACCESS: read-write
-# USER INSTRUCTION: NONE
-# TRUTH_LINK: None
-# LOG_REF: 2026-06-20 18:41:40
-
-#
-# PROJECT: GDTLancer
-# MODULE: hud_drag_controller.gd
-# STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md § Workflow And Scope Boundary
-# LOG_REF: 2026-06-13 06:40:05
-#
+# HUD drag controller: passes camera drags through HUD controls while flying.
 
 extends Reference
 

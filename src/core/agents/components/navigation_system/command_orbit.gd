@@ -1,16 +1,6 @@
-# PROJECT: GDTLancer
-# MODULE: command_orbit.gd
-# STATUS: [Level 2 - Implementation]
-# OWNER: architect-governed
-# ACCESS: read-write
-# USER INSTRUCTION: NONE
-# TRUTH_LINK: None
-# LOG_REF: 2026-06-20 18:41:40
-
-# File: core/agents/components/navigation_system/command_orbit.gd
-# Version: 5.0 - Stateless tangential orbit: ship follows tangent based on velocity & turn rate.
 # The ship will naturally settle into an orbit radius determined by its turning capability.
 # At closer distances it needs to turn faster; if it can't, it spirals outward until stable.
+
 extends Node
 
 var _nav_sys: Node

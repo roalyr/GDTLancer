@@ -1,19 +1,4 @@
-# PROJECT: GDTLancer
-# MODULE: camera_rotation_controller.gd
-# STATUS: [Level 2 - Implementation]
-# OWNER: developer
-# ACCESS: read-write
-# USER INSTRUCTION: NONE
-# TRUTH_LINK: None
-# LOG_REF: 2026-06-20 18:41:40
-
-#
-# PROJECT: GDTLancer
-# MODULE: camera_rotation_controller.gd
-# STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
-# LOG_REF: 2026-05-16 20:12:02
-#
+# Camera rotation: PID-smoothed yaw/pitch from mouse input.
 
 extends Node
 class_name CameraRotationController

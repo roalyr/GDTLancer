@@ -1,11 +1,4 @@
-# PROJECT: GDTLancer
-# MODULE: game_start_template.gd
-# STATUS: [Level 2 - Implementation]
-# OWNER: developer
-# ACCESS: read-write
-# USER INSTRUCTION: NONE
-# TRUTH_LINK: None
-# LOG_REF: 2026-08-18 07:53:00
+# GameStartTemplate: starting ship and location for a new run.
 
 extends Template
 class_name GameStartTemplate

@@ -1,11 +1,4 @@
-# PROJECT: GDTLancer
-# MODULE: starsphere_slot.gd
-# STATUS: [Level 2 - Implementation]
-# OWNER: developer
-# ACCESS: read-write
-# USER INSTRUCTION: NONE
-# TRUTH_LINK: None
-# LOG_REF: 2026-06-20 18:41:40
+# StarsphereSlot: keeps the starsphere centred on the main camera.
 
 extends Spatial
 

@@ -1,22 +1,4 @@
-# PROJECT: GDTLancer
-# MODULE: navigation_system.gd
-# STATUS: [Level 2 - Implementation]
-# OWNER: architect-governed
-# ACCESS: read-write
-# USER INSTRUCTION: NONE
-# TRUTH_LINK: None
-# LOG_REF: 2026-06-20 18:41:40
-
-#
-# PROJECT: GDTLancer
-# MODULE: navigation_system.gd
-# STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6; TACTICAL_TODO.md TASK_1
-# LOG_REF: 2026-05-23 17:10:12
-#
-
-# File: res://core/agents/components/navigation_system.gd
-# Version: 3.0 - RigidBody physics with thrust-based 6DOF flight.
+# NavigationSystem: runs the active autopilot command (stop, move, approach, orbit, flee, align) for an agent.
 
 extends Node
 
