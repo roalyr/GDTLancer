@@ -1,65 +1,32 @@
-# Defines utility tools (weapons/industrial tools) for ships
+# UtilityToolTemplate: a ship tool. Tools are switched on against a target and cycle on their own;
+# the pilot never aims, so results depend on range and on how fast the target crosses the view.
 
 extends Template
 class_name UtilityToolTemplate
 
-# --- Identity ---
-# template_id is inherited from Template
 export var tool_name: String = "Unknown Tool"
 export var description: String = ""
-export var tool_type: String = "weapon"  # "weapon", "mining", "utility", "grapple"
+export var tool_type: String = "laser"  # Behaviour. Only "laser" is implemented; "harpoon" and "drill" are placeholders.
+export var mount_size: String = "small"  # "small", "medium", "large"
 
-# --- Combat Stats ---
-export var damage: float = 10.0
-export var range_effective: float = 100.0
-export var range_max: float = 150.0
-export var fire_rate: float = 1.0  # Shots per second
-export var projectile_speed: float = 200.0  # 0 = hitscan
-export var accuracy: float = 0.9  # Base hit chance at optimal range (0.0 - 1.0)
-export var hull_damage_multiplier: float = 1.0
-export var armor_damage_multiplier: float = 1.0
+export var damage: float = 6.0  # Hull damage per cycle at full hit quality.
+export var optimal_range: float = 500.0  # Full hit quality out to this distance (m).
+export var falloff: float = 300.0  # Distance past optimal at which hit quality halves (m).
+export var tracking: float = 0.2  # Angular velocity of the target (rad/s) at which hit quality halves.
+export var cycle_time: float = 1.0  # Seconds per cycle.
+export var power_per_cycle: float = 12.0  # Power spent at the start of each cycle.
 
-# --- Resource Costs ---
-export var energy_per_shot: float = 5.0
-export var ammo_type: String = ""  # Empty = unlimited/energy-based
-export var ammo_per_shot: int = 1
-
-# --- Timing ---
-export var cooldown_time: float = 0.0  # Time between shots beyond fire_rate
-export var charge_time: float = 0.0  # Time to charge before firing
-export var warmup_time: float = 0.0  # Time to spin up
-
-# --- Special Effects ---
-export var effect_type: String = ""  # "disable", "grapple", "breach", etc.
-export var effect_strength: float = 0.0
-export var effect_duration: float = 0.0
-
-# --- Mount Requirements ---
-export var mount_size: String = "small"  # "small", "medium", "large", "turret"
-export var power_draw: float = 10.0
-
-# --- Visual/Audio ---
-export var projectile_scene: String = ""
-export var muzzle_effect: String = ""
-export var impact_effect: String = ""
-export var fire_sound: String = ""
+# Beyond this distance the tool stays switched on but does not cycle.
+const MAX_RANGE_FALLOFFS = 2.0
 
 
-func get_damage_at_range(distance: float) -> float:
-	# Damage falls off beyond effective range
-	if distance <= range_effective:
-		return damage
-	elif distance <= range_max:
-		var falloff = 1.0 - ((distance - range_effective) / (range_max - range_effective))
-		return damage * falloff
-	return 0.0
+func get_max_range() -> float:
+	return optimal_range + falloff * MAX_RANGE_FALLOFFS
 
 
-func get_accuracy_at_range(distance: float) -> float:
-	# Accuracy decreases at range
-	if distance <= range_effective:
-		return accuracy
-	elif distance <= range_max:
-		var falloff = 1.0 - ((distance - range_effective) / (range_max - range_effective)) * 0.5
-		return accuracy * falloff
-	return 0.0
+# EVE-style turret formula without the signature term:
+# 0.5 ^ ((angular / tracking)^2 + (max(0, distance - optimal) / falloff)^2)
+func get_hit_quality(distance: float, angular_velocity: float) -> float:
+	var tracking_term: float = angular_velocity / tracking if tracking > 0.0 else 0.0
+	var range_term: float = max(0.0, distance - optimal_range) / falloff if falloff > 0.0 else 0.0
+	return pow(0.5, tracking_term * tracking_term + range_term * range_term)
