@@ -4,3 +4,6 @@
 __pycache__/
 
 *PROJECT_DUMP*
+
+# Local link to the legacy project (reference only)
+GDTLancer-legacy
