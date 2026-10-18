@@ -723,6 +723,15 @@ margin_right = 960.0
 margin_bottom = 1.0
 color = Color( 1, 1, 1, 0.12549 )
 
+[node name="LabelCombatReadout" type="Label" parent="ScreenControls/TopLeftZone"]
+anchor_right = 1.0
+margin_left = 8.0
+margin_top = 8.0
+margin_right = -8.0
+margin_bottom = 120.0
+mouse_filter = 2
+theme = ExtResource( 9 )
+
 [node name="TopRightZone" type="Control" parent="ScreenControls"]
 anchor_left = 1.0
 anchor_right = 1.0

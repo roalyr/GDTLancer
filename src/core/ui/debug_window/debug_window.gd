@@ -33,12 +33,16 @@ func refresh_debug_window_state() -> void:
 	refresh_debug_window_player_hull()
 
 
-# Hull is not modelled yet; show a placeholder until it is.
 func refresh_debug_window_player_hull() -> void:
 	if not is_instance_valid(debug_label_player_hull) or not is_instance_valid(debug_player_hull_bar):
 		return
-	debug_player_hull_bar.value = 100.0
-	debug_label_player_hull.text = "Hull: --"
+	var player = GlobalRefs.player_agent_body
+	if not is_instance_valid(player) or not player.get("hull_max"):
+		debug_player_hull_bar.value = 100.0
+		debug_label_player_hull.text = "Hull: --"
+		return
+	debug_player_hull_bar.value = player.get_hull_fraction() * 100.0
+	debug_label_player_hull.text = "Hull: %d / %d" % [ceil(player.hull), player.hull_max]
 
 
 func _on_debug_button_close_pressed() -> void:

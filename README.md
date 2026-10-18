@@ -25,6 +25,8 @@ The project is pruned back to its flight core. What works now:
 - Targeting, the orbit camera and the flight HUD
 - Docking, and jumping between handcrafted sectors with a jump transition
 - New game, save and load
+- Laser combat without manual aim: damage depends on range and the target's angular velocity; hull, power and wrecks
+- Hostile NPCs spawn in every sector, patrol, engage and flee
 
 ## Roadmap
 
@@ -57,8 +59,8 @@ Complete the engine, then freeze it. After the freeze, work is content, tuning a
 
 | Input | Action |
 |---|---|
-| Left mouse | Select target / fire |
-| Space | Fire |
+| Left mouse | Select target |
+| Space | Laser on/off when a ship is selected; otherwise dock or jump |
 | A | Approach target |
 | O | Orbit target |
 | F | Flee from target |

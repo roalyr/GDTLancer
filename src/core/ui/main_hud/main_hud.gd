@@ -53,6 +53,7 @@ onready var button_flee: TextureButton = $ScreenControls/BottomCenterZone/Button
 onready var button_camera: TextureButton = $ScreenControls/CenterRightZone/ButtonCamera
 onready var button_dock: TextureButton = $ScreenControls/BottomCenterZone/ButtonDock
 onready var label_button_dock: Label = $ScreenControls/BottomCenterZone/ButtonDock/LabelButtonDock
+onready var label_combat_readout: Label = $ScreenControls/TopLeftZone/LabelCombatReadout
 
 # --- Game Over UI ---
 onready var game_over_overlay: Control = $"GameOverOverlay (to be made into a dedicated window like main menu)"
@@ -144,6 +145,8 @@ func _ready():
 			EventBus.connect("zone_unloading", self, "_on_zone_unloading")
 		if not EventBus.is_connected("zone_loaded", self, "_on_zone_loaded"):
 			EventBus.connect("zone_loaded", self, "_on_zone_loaded")
+		if not EventBus.is_connected("player_spawned", self, "_on_player_spawned"):
+			EventBus.connect("player_spawned", self, "_on_player_spawned")
 		if not EventBus.is_connected("sector_changed", self, "_on_sector_changed"):
 			EventBus.connect("sector_changed", self, "_on_sector_changed")
 
@@ -192,6 +195,7 @@ func _process(_delta):
 	_update_route_target_overlay()
 	_update_world_target_overlay()
 	_refresh_toggle_button_states()
+	_update_combat_readout()
 	if _inflight_drag_passthrough_active:
 		_sync_inflight_drag_passthrough()
 
@@ -231,9 +235,13 @@ func _on_Player_Target_Deselected():
 
 func _on_agent_despawning(agent_body) -> void:
 	# If our selected target is being removed, clear target UI.
-	if _current_target is Spatial and is_instance_valid(_current_target) and agent_body == _current_target:
+	if is_instance_valid(_current_target) and _current_target is Spatial and agent_body == _current_target:
 		_on_Player_Target_Deselected()
 	call_deferred("_rebuild_world_target_overlay")
+
+
+func _on_player_spawned(_player_body) -> void:
+	_refresh_process_state()
 
 
 func _on_agent_spawned(_agent_body, _init_data) -> void:
@@ -307,7 +315,7 @@ func _on_ButtonCamera_pressed() -> void:
 	
 	# If switching to target tracking mode, set the look_at_target
 	if camera.get_camera_mode() == CAMERA_MODE_TARGET_TRACKING:
-		if _current_target is Spatial and is_instance_valid(_current_target):
+		if is_instance_valid(_current_target) and _current_target is Spatial:
 			camera.set_look_at_target(_current_target)
 		else:
 			# No target selected, switch back to orbit mode
@@ -493,7 +501,7 @@ func _is_camera_target_follow_active() -> bool:
 	if not camera.has_method("get_look_at_target"):
 		return true
 	var look_at_target = camera.get_look_at_target()
-	return look_at_target is Spatial and is_instance_valid(look_at_target)
+	return is_instance_valid(look_at_target) and look_at_target is Spatial
 
 
 func _refresh_toggle_button_states() -> void:
@@ -528,6 +536,33 @@ func _is_projected_target_center_fade_enabled() -> bool:
 	if not is_instance_valid(world_rendering):
 		return false
 	return bool(world_rendering.get("projected_target_center_fade_enabled"))
+
+
+# Hull, power, the first tool's state and the selected ship's hull.
+func _update_combat_readout() -> void:
+	if not is_instance_valid(label_combat_readout):
+		return
+	var player = GlobalRefs.player_agent_body
+	if not is_instance_valid(player) or player.get("hull_max") == null:
+		label_combat_readout.text = ""
+		return
+	var lines: Array = [
+		"HULL  %d / %d" % [ceil(player.hull), player.hull_max],
+		"POWER %d / %d" % [floor(player.power), player.power_max],
+	]
+	var tools = player.get_node_or_null("ToolController")
+	if is_instance_valid(tools) and tools.get_tool_count() > 0:
+		var tool_name: String = tools.get_tool(0).tool_name.to_upper()
+		if tools.is_active(0):
+			lines.append("%s  ON  %d%%" % [tool_name, int(tools.get_cycle_progress(0) * 100.0)])
+		else:
+			lines.append("%s  OFF" % tool_name)
+	if is_instance_valid(_current_target) and _current_target is RigidBody and _current_target.get("hull_max"):
+		var distance: float = player.global_transform.origin.distance_to(_current_target.global_transform.origin)
+		lines.append("TARGET %s  %d / %d  %.0f m" % [
+			_resolve_target_display_name(_current_target), ceil(_current_target.hull), _current_target.hull_max, distance
+		])
+	label_combat_readout.text = PoolStringArray(lines).join("\n")
 
 
 func _refresh_player_hull() -> void:
@@ -575,7 +610,8 @@ func _refresh_process_state() -> void:
 	set_process(
 		is_instance_valid(_main_camera)
 		and (
-			_is_target_valid(_current_target)
+			is_instance_valid(GlobalRefs.player_agent_body)
+			or _is_target_valid(_current_target)
 			or _route_target_buttons.size() > 0
 			or _world_target_buttons.size() > 0
 			or _inflight_drag_passthrough_active
@@ -609,7 +645,9 @@ func _resolve_target_display_name(target_node) -> String:
 			return target_node.station_name
 		return "Station"
 	if target_node.is_in_group("agent_body"):
-		return target_node.name
+		var ship = target_node.get("ship_template")
+		var ship_name: String = ship.ship_model_name if is_instance_valid(ship) else target_node.name
+		return "Wreck of " + ship_name if target_node.get("is_wreck") else ship_name
 	return target_node.name.replace("_", " ")
 
 

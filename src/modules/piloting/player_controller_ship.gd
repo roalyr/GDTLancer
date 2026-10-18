@@ -127,15 +127,16 @@ func _physics_process(delta: float):
 func _unhandled_input(event: InputEvent):
 	if _is_jump_transition_active():
 		return
-	# Global inputs that work in any state
-	if event.is_action_pressed("ui_accept"):
-		_handle_interact_input()
+	# Space toggles the laser when a ship is selected; otherwise it docks or jumps.
+	# Key-only so it does not interfere with LMB targeting/drag.
+	if event is InputEventKey and event.is_action_pressed("fire_weapon") and _is_tool_target(_selected_target):
+		toggle_primary_tool()
 		get_viewport().set_input_as_handled()
 		return
 
-	# Combat input (key-based to avoid interfering with LMB targeting/drag)
-	if event is InputEventKey and event.is_action_pressed("fire_weapon"):
-		_fire_weapon_at_selected_target(false, "key")
+	# Global inputs that work in any state
+	if event.is_action_pressed("ui_accept"):
+		_handle_interact_input()
 		get_viewport().set_input_as_handled()
 		return
 
@@ -187,63 +188,33 @@ func _unhandled_input(event: InputEvent):
 		_current_input_state.handle_input(event)
 
 
-func _fire_weapon_at_selected_target(force: bool, source: String = "") -> void:
-	if not is_instance_valid(_tool_controller):
-		print("PlayerController: Fire skipped (no ToolController)")
+# Switches the first tool on against the selected ship, or off if it is already on that ship.
+func toggle_primary_tool() -> void:
+	if not is_instance_valid(_tool_controller) or _tool_controller.get_tool_count() == 0:
+		EventBus.emit_signal("attack_action_feedback", false, "No tool fitted")
 		return
-	if not _tool_controller.has_method("fire_at_target"):
-		print("PlayerController: Fire skipped (ToolController missing fire_at_target)")
+	var target = _get_current_target()
+	if _tool_controller.is_active(0) and _tool_controller.get_target(0) == target:
+		_tool_controller.deactivate(0)
 		return
-	if not force and not Input.is_action_just_pressed("fire_weapon"):
-		return
-
-	var target_body: RigidBody = _get_current_target()
-	if not is_instance_valid(target_body):
-		print("PlayerController: Fire skipped (no selected target)")
-		return
-
-	var raw_uid = target_body.get("agent_uid")
-	if raw_uid == null:
-		print("PlayerController: Fire skipped (target has no agent_uid)")
-		return
-	var target_uid: int = int(raw_uid)
-	if target_uid < 0:
-		print("PlayerController: Fire skipped (invalid target uid)")
-		return
-
-	var target_pos: Vector3 = target_body.global_transform.origin
-	var result: Dictionary = _tool_controller.call("fire_at_target", 0, target_uid, target_pos)
+	var result: Dictionary = _tool_controller.activate(0, target)
 	if not result.get("success", false):
-		print("PlayerController: Fire failed[", source, "]: ", result.get("reason", "Unknown"), " details=", result)
-		return
+		EventBus.emit_signal("attack_action_feedback", false, _describe_tool_failure(result.get("reason", "")))
 
-	# Debug for manual verification
-	var hit: bool = bool(result.get("hit", true))
-	if hit:
-		var damage_dict = result.get("damage_dealt", {})
-		print(
-			"PlayerController: Hit[",
-			source,
-			"] target_uid=",
-			target_uid,
-			" damage=",
-			damage_dict,
-			" hull_remaining=",
-			result.get("target_hull_remaining", "?"),
-			" disabled=",
-			result.get("target_disabled", false)
-		)
-	else:
-		print(
-			"PlayerController: Miss[",
-			source,
-			"] target_uid=",
-			target_uid,
-			" accuracy=",
-			result.get("accuracy", "?"),
-			" roll=",
-			result.get("roll", "?")
-		)
+
+func _is_tool_target(target) -> bool:
+	return is_instance_valid(target) and target != agent_body and target.has_method("apply_damage")
+
+
+func _describe_tool_failure(reason: String) -> String:
+	match reason:
+		"invalid_target":
+			return "Target is a wreck or out of reach"
+		"not_implemented":
+			return "This tool does not work yet"
+		"wrecked":
+			return "Ship is wrecked"
+	return "Tool unavailable"
 
 
 func _get_current_target() -> RigidBody:
@@ -324,25 +295,6 @@ func _on_dock_button_pressed() -> void:
 	else:
 		if EventBus:
 			EventBus.emit_signal("dock_action_feedback", false, "Cannot dock with target")
-
-
-func _on_attack_button_pressed() -> void:
-	var target = _get_current_target()
-	if is_instance_valid(target):
-		print("PlayerController: Attack button pressed, attacking target")
-		_fire_weapon_at_selected_target(true, "button")
-		# Emit signal to show "attacking" popup on HUD
-		if EventBus:
-			EventBus.emit_signal("attack_action_feedback", true, "Attacking!")
-	else:
-		# Emit signal to show "no target" popup on HUD
-		if EventBus:
-			EventBus.emit_signal("attack_action_feedback", false, "No target selected")
-
-
-# --- Helper & Command Functions (Publicly callable by states) ---
-func _update_target_under_cursor():
-	_target_under_cursor = null
 
 
 func _set_selected_target(new_target):
@@ -593,17 +545,17 @@ func _on_Player_Stop_Pressed():
 
 
 func _on_Player_Orbit_Pressed():
-	if _selected_target is Spatial and is_instance_valid(_selected_target):
+	if is_instance_valid(_selected_target) and _selected_target is Spatial:
 		agent_script.command_orbit(_selected_target)
 
 
 func _on_Player_Approach_Pressed():
-	if _selected_target is Spatial and is_instance_valid(_selected_target):
+	if is_instance_valid(_selected_target) and _selected_target is Spatial:
 		agent_script.command_approach(_selected_target)
 
 
 func _on_Player_Flee_Pressed():
-	if _selected_target is Spatial and is_instance_valid(_selected_target):
+	if is_instance_valid(_selected_target) and _selected_target is Spatial:
 		agent_script.command_flee(_selected_target)
 
 func _on_player_target_selection_requested(target_ref) -> void:
