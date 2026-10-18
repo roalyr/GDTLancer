@@ -22,6 +22,6 @@ equipped_tools = [ "tool_ablative_laser" ]
 power_capacity = 100.0
 power_regen = 10.0
 mass = 60000.0
-linear_thrust = 5e+06
+linear_thrust = 4.5e+06
 angular_thrust = 5e+06
 alignment_threshold_angle_deg = 45.0

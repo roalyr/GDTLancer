@@ -52,3 +52,13 @@ func test_sector_connections_resolve():
 	for sector_id in TemplateDatabase.locations:
 		for target_sector_id in TemplateDatabase.get_sector_connections(sector_id):
 			assert_true(TemplateDatabase.has_sector(target_sector_id), "%s connects to unknown sector '%s'." % [sector_id, target_sector_id])
+
+
+# Top speed under linear drag is thrust / (mass * drag); hostiles stay catchable at 90% of the player's.
+func test_hostile_top_speed_is_ninety_percent_of_player():
+	indexer_instance.index_all_templates()
+	var player_ship = TemplateDatabase.assets_ships[TemplateDatabase.game_starts["start_default"].player_ship_template]
+	var hostile_ship = TemplateDatabase.assets_ships[TemplateDatabase.agents["agent_npc_hostile_default"].ship_template_id]
+	var player_speed: float = player_ship.linear_thrust / player_ship.mass
+	var hostile_speed: float = hostile_ship.linear_thrust / hostile_ship.mass
+	assert_almost_eq(hostile_speed / player_speed, 0.9, 0.001)
