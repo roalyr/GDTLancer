@@ -28,6 +28,11 @@ var cargo_capacity: int = 0  # Units
 var salvage: Dictionary = {}  # Wrecks only: commodity id -> units left to strip
 
 const HullScorch = preload("res://src/core/agents/components/hull_scorch.gd")
+const ShipFit = preload("res://src/core/systems/ship_fit.gd")
+
+# --- Fit ---
+var fit: Dictionary = {}  # ShipFit fit: parts per slot. The player's lives in GameState.player_fit.
+var fit_stats: Dictionary = {}  # ShipFit.compute_stats(): hull, power, cargo, thrust and mass with the fit
 const FuelLeakScene = preload("res://scenes/prefabs/effects/fuel_leak.tscn")
 const WreckExplosionScene = preload("res://scenes/prefabs/effects/wreck_explosion.tscn")
 var _hull_scorch: Node = null
@@ -73,10 +78,11 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 		"orbit_kd": overrides.get("orbit_kd", 0.5)
 	}
 
+	_init_fit()
 	_init_hull_and_power()
 
 	movement_system.initialize_movement_params(move_params)
-	_update_mass()  # Movement params set the hull mass; add the cargo back on top.
+	_apply_fit_to_movement()  # Movement params set the bare hull's thrust and mass; use the fitted ones.
 	navigation_system.initialize_navigation(nav_params, movement_system)
 	
 	# Instance the ship visual scene if defined in the template
@@ -190,22 +196,66 @@ func get_hull_point_facing(from_global: Vector3) -> Vector3:
 	return to_global(from_local + direction * t_enter)
 
 
-func _init_hull_and_power() -> void:
-	if is_instance_valid(ship_template):
-		hull_max = float(ship_template.hull_integrity)
-		power_max = float(ship_template.power_capacity)
-		power_regen = float(ship_template.power_regen)
+# The player keeps their fit in GameState (new runs start from the hull's default fit);
+# everyone else flies the hull's default fit.
+func _init_fit() -> void:
+	if not is_instance_valid(ship_template):
+		fit = {"tools": [], "modules": []}
+		fit_stats = {}
+		return
+	if is_player() and not GameState.player_fit.empty():
+		fit = ShipFit.normalized(ship_template, GameState.player_fit)
 	else:
-		hull_max = 100.0
-		power_max = 100.0
-		power_regen = 10.0
+		fit = ShipFit.default_fit(ship_template)
+	if is_player():
+		GameState.player_fit = fit.duplicate(true)
+	fit_stats = ShipFit.compute_stats(ship_template, fit)
+
+
+func _init_hull_and_power() -> void:
+	_apply_fit_stats()
 	hull = hull_max
 	if is_player() and GameState.player_hull >= 0.0:
 		hull = min(GameState.player_hull, hull_max)
 	power = power_max
-	cargo_capacity = int(ship_template.cargo_capacity) if is_instance_valid(ship_template) else 0
 	cargo = GameState.player_cargo.duplicate() if is_player() else {}
 	_update_mass()
+
+
+func _apply_fit_stats() -> void:
+	hull_max = float(fit_stats.get("hull", 100.0))
+	power_max = float(fit_stats.get("power_capacity", 100.0))
+	power_regen = float(fit_stats.get("power_regen", 10.0))
+	cargo_capacity = int(fit_stats.get("cargo_capacity", 0))
+
+
+func _apply_fit_to_movement() -> void:
+	if is_instance_valid(movement_system) and not fit_stats.empty():
+		movement_system.linear_thrust = fit_stats.linear_thrust
+		movement_system.angular_thrust = fit_stats.angular_thrust
+	_update_mass()
+
+
+# Refit a live ship: new stats, thrust, mass and tools at once. Hull and power keep their
+# current values, capped to the new maximums.
+func apply_fit(new_fit: Dictionary) -> void:
+	fit = ShipFit.normalized(ship_template, new_fit)
+	if is_player():
+		GameState.player_fit = fit.duplicate(true)
+	fit_stats = ShipFit.compute_stats(ship_template, fit)
+	_apply_fit_stats()
+	hull = min(hull, hull_max)
+	power = min(power, power_max)
+	if is_player():
+		GameState.player_hull = hull
+	_apply_fit_to_movement()
+	var tools = get_node_or_null("ToolController")
+	if is_instance_valid(tools) and tools.has_method("load_tools_from_ship"):
+		tools.load_tools_from_ship()
+
+
+func get_fitted_tool_ids() -> Array:
+	return ShipFit.fitted_tool_ids(fit) if not fit.empty() else (ship_template.equipped_tools if is_instance_valid(ship_template) else [])
 
 
 # --- Docking ---
@@ -417,8 +467,9 @@ func get_cargo_mass() -> float:
 
 
 # Hull mass plus cargo; drag scales with mass, so a loaded ship is slower and heavier to turn.
+# Hull and parts (the fit) plus cargo; drag scales with mass, so a loaded ship is slower and heavier to turn.
 func _update_mass() -> void:
-	var base_mass: float = ship_template.mass if is_instance_valid(ship_template) else Constants.DEFAULT_SHIP_MASS
+	var base_mass: float = float(fit_stats.get("mass", ship_template.mass if is_instance_valid(ship_template) else Constants.DEFAULT_SHIP_MASS))
 	mass = base_mass + get_cargo_mass()
 
 

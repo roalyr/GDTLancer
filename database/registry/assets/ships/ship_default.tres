@@ -6,19 +6,17 @@
 [resource]
 script = ExtResource( 1 )
 template_id = "ship_default"
-asset_type = "ship"
-asset_icon_id = "asset_default"
 ship_model_name = "Default Ship Model"
 ship_scene = ExtResource( 2 )
 hull_integrity = 1000
 cargo_capacity = 100
 interaction_radius = 15.0
-ship_quirks = [  ]
-ship_upgrades = [  ]
 tool_slots_small = 2
 tool_slots_medium = 0
 tool_slots_large = 0
+module_slots = 3
 equipped_tools = [ "tool_ablative_laser_long_range", "tool_harpoon" ]
+equipped_modules = [  ]
 salvage_yield = {
 "commodity_scrap": 20,
 "commodity_tech": 2

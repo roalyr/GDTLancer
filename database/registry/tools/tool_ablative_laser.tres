@@ -15,3 +15,5 @@ falloff = 250.0
 tracking = 0.2
 cycle_time = 1.0
 power_per_cycle = 5.0
+base_value = 100
+mass = 300.0

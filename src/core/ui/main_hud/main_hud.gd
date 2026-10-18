@@ -18,6 +18,7 @@ const OVERLAY_KIND_STRUCTURES = "structures"
 const OVERLAY_KIND_STELLAR = "stellar"
 const OVERLAY_KIND_JUMP = "jump"
 const PointerRouterClass = preload("res://src/core/ui/pointer_router.gd")
+const FittingWindowScene = preload("res://scenes/ui/menus/fitting_window.tscn")
 const HUDTargetProjectorClass = preload("res://src/core/ui/main_hud/hud_target_projector.gd")
 
 
@@ -39,6 +40,8 @@ onready var button_interact: TextureButton = $ScreenControls/BottomCenterZone/Bu
 onready var label_button_interact: Label = $ScreenControls/BottomCenterZone/ButtonInteract/LabelButtonInteract
 onready var label_combat_readout: Label = $ScreenControls/TopLeftZone/LabelCombatReadout
 onready var label_docked_banner: Label = $ScreenControls/LabelDockedBanner
+onready var button_ship: TextureButton = $ScreenControls/CenterRightZone/ButtonShip
+var fitting_window: Control = null
 var _banner_location_id: String = ""
 
 # --- Game Over UI ---
@@ -156,6 +159,10 @@ func _ready():
 
 	_pointer_router = PointerRouterClass.new(self)
 	add_child(_pointer_router)
+	fitting_window = FittingWindowScene.instance()
+	add_child(fitting_window)
+	if is_instance_valid(button_ship):
+		button_ship.connect("pressed", fitting_window, "open")
 	_refresh_toggle_button_states()
 
 	pause_mode = PAUSE_MODE_PROCESS

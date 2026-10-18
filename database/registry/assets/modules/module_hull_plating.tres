@@ -1,0 +1,14 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/asset_module_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "module_hull_plating"
+module_name = "Hull Plating"
+description = "Bolt-on plates over the frame. More hull to burn through; heavier."
+base_value = 120
+mass = 1500.0
+stat_modifiers = {
+"hull": 300
+}

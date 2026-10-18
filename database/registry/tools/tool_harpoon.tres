@@ -17,3 +17,5 @@ cycle_time = 4.0
 power_per_cycle = 20.0
 reel_speed = 15.0
 strip_interval = 1.0
+base_value = 80
+mass = 400.0

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/asset_module_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "module_power_cell"
+module_name = "Power Cell"
+description = "Extra storage for the capacitor bank. Longer bursts before the tools go quiet."
+base_value = 80
+mass = 300.0
+stat_modifiers = {
+"power_capacity": 80
+}

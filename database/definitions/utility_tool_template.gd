@@ -7,7 +7,9 @@ class_name UtilityToolTemplate
 export var tool_name: String = "Unknown Tool"
 export var description: String = ""
 export var tool_type: String = "laser"  # Behaviour: "laser" (damages live ships), "harpoon" (tethers wrecks); "drill" is a placeholder.
-export var mount_size: String = "small"  # "small", "medium", "large"
+export var mount_size: String = "small"  # "small", "medium", "large"; fits slots of its size or larger
+export var base_value: int = 100  # WP; buy price at the home station (sells back for half)
+export var mass: float = 300.0  # kg, added to the ship
 
 export var damage: float = 6.0  # Hull damage per cycle at full hit quality.
 export var optimal_range: float = 500.0  # Full hit quality out to this distance (m).

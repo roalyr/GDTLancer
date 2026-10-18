@@ -57,7 +57,8 @@ func load_tools_from_ship() -> void:
 	var ship = _agent_body.get("ship_template")
 	if not is_instance_valid(ship):
 		return
-	for tool_id in ship.equipped_tools:
+	var tool_ids: Array = _agent_body.get_fitted_tool_ids() if _agent_body.has_method("get_fitted_tool_ids") else ship.equipped_tools
+	for tool_id in tool_ids:
 		var tool_template = TemplateDatabase.get_template(tool_id)
 		if tool_template is UtilityToolTemplate:
 			_tools.append(tool_template)

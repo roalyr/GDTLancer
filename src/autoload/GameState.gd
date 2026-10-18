@@ -18,6 +18,12 @@ var home_location_id: String = ""
 ## Value banked at the home port this run.
 var player_bank: int = 0
 
+## The player's ship fit (ShipFit: parts per slot); empty means the hull's default fit.
+var player_fit: Dictionary = {}
+
+## Parts kept at the home port, not fitted: part id -> count.
+var player_storage: Dictionary = {}
+
 ## Player hold: commodity id -> units.
 var player_cargo: Dictionary = {}
 
@@ -49,6 +55,8 @@ func reset_state() -> void:
 	player_cargo = {}
 	home_location_id = ""
 	player_bank = 0
+	player_fit = {}
+	player_storage = {}
 	player_hull_marks = {}
 	current_zone_instance = null
 	current_sector_id = ""

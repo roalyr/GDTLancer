@@ -10,14 +10,14 @@ export var cargo_capacity: int = 100
 export var interaction_radius: float = 15.0
 export var apparent_radius: float = 12.0  # Visual size (m); camera distances and framing scale from it.
 
-export var ship_quirks: Array = [] # De-buffs or narrative elements
-export var ship_upgrades: Array = [] # Buffs
 
 # --- Tool Mounts ---
 export var tool_slots_small: int = 2  # Number of small weapon mounts
 export var tool_slots_medium: int = 0  # Number of medium weapon mounts
 export var tool_slots_large: int = 0  # Number of large weapon mounts
-export var equipped_tools: Array = []  # UtilityToolTemplate ids, in mount order
+export var module_slots: int = 2  # Number of module slots
+export var equipped_tools: Array = []  # Default fit: UtilityToolTemplate ids, small slots first, then medium, then large
+export var equipped_modules: Array = []  # Default fit: ModuleTemplate ids
 export var salvage_yield: Dictionary = {}  # Commodity id -> units left in this ship's wreck (plus its cargo)
 
 # --- Power ---
