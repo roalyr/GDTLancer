@@ -152,10 +152,10 @@ const SCORCH_SURFACE_DEPTH = 1.0  # m; vertices this far behind the first surfac
 const SCORCH_MIN_SURFACE_POINTS = 8  # Fewer distinct vertices near the shot line = a thin detail (antenna); the shot passes it
 const SCORCH_MAX_WIDENINGS = 3  # On coarse meshes the mark radius doubles up to this many times to find surface
 const SCORCH_REBUILD_INTERVAL = 0.2  # s; marks paint at once, the mesh re-uploads at most this often
-const SCORCH_HEAT_PER_DAMAGE = 0.11  # Heat added at a mark's centre per point of damage (1 = full glow)
+const SCORCH_HEAT_PER_DAMAGE = 0.11  # Heat added at a mark's centre per point of damage (6 damage = red, 30+ = white)
 const SCORCH_HEAT_SPREAD = 1.5  # Heat reaches this many mark radii from the hit (heat outruns the char)
 const SCORCH_GLOW_THRESHOLD = 0.25  # Heat below this does not glow (incandescence), pushed to the shader
-const SCORCH_MAX_HEAT = 1.0
+const SCORCH_MAX_HEAT = 3.0  # Heat is temperature: this reads white-hot (glow ramps red, orange, yellow-white)
 const SCORCH_COOL_TIME = 6.0  # s for heat to fall to ~37%; pushed to the shader so both agree
 
 
@@ -168,6 +168,9 @@ const SCORCH_COOL_TIME = 6.0  # s for heat to fall to ~37%; pushed to the shader
 # hard and throws a big, fast vapour jet. Intensity = sqrt(damage / HIT_FX_REFERENCE_DAMAGE).
 const HIT_FX_REFERENCE_DAMAGE = 6.0  # A hit of this damage shows at intensity 1
 const HIT_FX_MAX_INTENSITY = 4.0
+const HIT_FX_COOL_COLOR = Color(1.0, 0.45, 0.2)  # Flash colour of a weak hit
+const HIT_FX_HOT_COLOR = Color(1.0, 0.95, 0.88)  # Flash colour at HIT_FX_HOT_INTENSITY and above
+const HIT_FX_HOT_INTENSITY = 2.0
 const HIT_FX_FLASH_DURATION = 0.15  # s
 const HIT_FX_LIFETIME = 2.0  # s
 

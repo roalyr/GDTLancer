@@ -89,6 +89,7 @@ func _own_copy(material: ShaderMaterial) -> ShaderMaterial:
 	var copy: ShaderMaterial = material.duplicate()
 	copy.set_shader_param("damage_cool_time", Constants.SCORCH_COOL_TIME)
 	copy.set_shader_param("damage_glow_threshold", Constants.SCORCH_GLOW_THRESHOLD)
+	copy.set_shader_param("damage_max_heat", Constants.SCORCH_MAX_HEAT)
 	_materials.append(copy)
 	return copy
 

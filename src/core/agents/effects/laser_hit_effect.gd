@@ -34,7 +34,13 @@ func _ready() -> void:
 		return
 	_base_energy = _light.light_energy
 	_light.light_energy = _base_energy * _intensity
+	# Hotter beams flash whiter: orange-red for weak hits, white for powerful ones.
+	var flash_color: Color = Constants.HIT_FX_COOL_COLOR.linear_interpolate(
+		Constants.HIT_FX_HOT_COLOR, clamp(_intensity / Constants.HIT_FX_HOT_INTENSITY, 0.0, 1.0)
+	)
+	_light.light_color = flash_color
 	_glow_material = _glow.material_override.duplicate()
+	_glow_material.set_shader_param("tint", flash_color)
 	_glow.material_override = _glow_material
 	_glow.scale = Vector3.ONE * (0.5 + 0.5 * _intensity)
 

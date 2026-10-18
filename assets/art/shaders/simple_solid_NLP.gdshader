@@ -13,13 +13,27 @@ uniform vec4 paint_color : hint_color = vec4(1.0);
 // Keep in sync with the other solid shader.
 uniform vec4 damage_mark_color : hint_color = vec4(0.02, 0.02, 0.02, 1.0);
 uniform float damage_mark_strength : hint_range(0.0, 1.0) = 1.0;
-uniform vec4 damage_hot_color : hint_color = vec4(1.0, 0.18, 0.03, 1.0);
+// Blackbody ramp for the glow, coolest to hottest (heat is temperature).
 uniform vec4 damage_dull_color : hint_color = vec4(0.35, 0.02, 0.0, 1.0);
+uniform vec4 damage_hot_color : hint_color = vec4(1.0, 0.18, 0.03, 1.0);
+uniform vec4 damage_orange_color : hint_color = vec4(1.0, 0.5, 0.12, 1.0);
+uniform vec4 damage_white_color : hint_color = vec4(1.0, 0.9, 0.7, 1.0);
+uniform float damage_max_heat = 3.0;  // Heat that reads white-hot; pushed from Constants.SCORCH_MAX_HEAT
 uniform float damage_glow_strength = 1.5;
 uniform float damage_cool_time = 6.0;  // Seconds for heat to fall to ~37%
 uniform float damage_glow_threshold = 0.25;  // Heat below this does not glow (incandescence)
 uniform float damage_time = 0.0;  // Per-ship clock, set every frame by HullScorch
 varying float damage_heat;
+
+// Glow for a temperature above the incandescence threshold: dull red, red, orange, then
+// yellow-white, brighter as it gets hotter.
+vec3 damage_glow(float raw_heat) {
+    float t = clamp((raw_heat - damage_glow_threshold) / max(damage_max_heat - damage_glow_threshold, 0.001), 0.0, 1.0);
+    vec3 color = mix(damage_dull_color.rgb, damage_hot_color.rgb, smoothstep(0.0, 0.25, t));
+    color = mix(color, damage_orange_color.rgb, smoothstep(0.25, 0.6, t));
+    color = mix(color, damage_white_color.rgb, smoothstep(0.6, 1.0, t));
+    return color * sqrt(t) * damage_glow_strength;
+}
 
 uniform sampler2D detail_texture : hint_albedo; // Green channel used for scratches/dirt
 uniform sampler2D normal_texture : hint_normal;
@@ -146,8 +160,7 @@ void fragment() {
     // Base Color + (Detail * Strength). Clamped to avoid negative colors.
     ALBEDO = max(paint_color.rgb + (vec3(detail_val) * detail_paint_strength), vec3(0.0));
     ALBEDO = mix(ALBEDO, damage_mark_color.rgb, (1.0 - COLOR.a) * damage_mark_strength);
-    float heat = clamp((damage_heat - damage_glow_threshold) / max(1.0 - damage_glow_threshold, 0.001), 0.0, 1.0);
-    EMISSION = mix(damage_dull_color.rgb, damage_hot_color.rgb, heat) * heat * damage_glow_strength;
+    EMISSION = damage_glow(damage_heat);
 }
 
 // --- Light Function ---
