@@ -80,13 +80,17 @@ func test_breaks_off_when_the_fight_turns():
 	hostile.hull = 10.0
 	ai._scan_timer = 0.0
 	ai._process_combat()
-	assert_eq(ai.get_state(), AIScript.AIState.FLEE, "Badly hurt: the fight is no longer worth it.")
+	assert_eq(ai.get_state(), AIScript.AIState.COMBAT, "It takes a moment to decide")
+	assert_true(ai.has_pending_decision())
+	ai._tick_decision(100.0)
+	assert_eq(ai.get_state(), AIScript.AIState.FLEE, "then breaks off: the fight is no longer worth it.")
 
 
 func test_shot_by_a_tougher_ship_it_runs_shot_by_a_weaker_one_it_turns():
 	ai.initialize({"hostile": true, "patrol_center": Vector3.ZERO})
 	var tough = _make_ship(Vector3(0, 0, -800), false, 1000.0)
 	hostile.apply_damage(1.0, tough)
+	ai._tick_decision(100.0)
 	assert_eq(ai.get_state(), AIScript.AIState.FLEE)
 
 	ai._change_state(AIScript.AIState.PATROL)
@@ -94,6 +98,7 @@ func test_shot_by_a_tougher_ship_it_runs_shot_by_a_weaker_one_it_turns():
 	var sniper = _make_ship(Vector3(0, 0, -9000), false, 20.0)
 	assert_false(hostile.detects(sniper), "Too far to be seen.")
 	hostile.apply_damage(1.0, sniper)
+	ai._tick_decision(100.0)
 	assert_eq(ai.get_state(), AIScript.AIState.COMBAT, "Worth chasing even unseen: it knows where the shot came from.")
 	ai._process_combat()
 	assert_eq(ai.get_state(), AIScript.AIState.COMBAT, "Provoked: stays on the attacker without seeing it.")
@@ -141,3 +146,53 @@ func test_tools_act_only_on_detected_targets():
 	other.global_transform.origin = Vector3(0, 0, -900)  # Still within laser reach, but
 	other.ship_template.signature = 500.0  # quiet enough to be unseen
 	assert_false(tools.can_target(tools.get_tool(0), other))
+
+
+# --- Player parity: the same assessment, as words ---
+
+func test_player_reads_difficulty_with_the_same_rule():
+	var CombatAssessment = load("res://src/core/systems/combat_assessment.gd")
+	var weak = _make_ship(Vector3(0, 0, -500), false, 10.0)
+	var even = _make_ship(Vector3(0, 0, -500), false, 50.0)
+	var tough = _make_ship(Vector3(0, 0, -500), false, 1000.0)
+	assert_eq(CombatAssessment.difficulty_label(CombatAssessment.advantage_between(hostile, weak)), "EASY")
+	assert_eq(CombatAssessment.difficulty_label(CombatAssessment.advantage_between(hostile, even)), "EVEN")
+	assert_eq(CombatAssessment.difficulty_label(CombatAssessment.advantage_between(hostile, tough)), "DEADLY")
+
+
+func test_signature_meter_reads_as_a_word():
+	var MainHUD = load("res://src/core/ui/main_hud/main_hud.gd")
+	assert_true(MainHUD.describe_signature(hostile).ends_with("QUIET"), "At rest.")
+	hostile._engine_activity = 1.0
+	hostile.get_node("ToolController")._last_cycle_ms = OS.get_ticks_msec()
+	assert_true(MainHUD.describe_signature(hostile).ends_with("BLAZING"), "Full burn and firing: " + MainHUD.describe_signature(hostile))
+
+
+# --- Hesitation ---
+
+func test_veterans_decide_faster_and_close_calls_take_longer():
+	seed(1)
+	ai.skill = 0.0
+	var novice: float = ai.decision_delay(3.0, 1.0)
+	ai.skill = 1.0
+	var veteran: float = ai.decision_delay(3.0, 1.0)
+	assert_gt(novice, veteran * 3.0, "A veteran makes up its mind much sooner.")
+	var clear_total := 0.0
+	var close_total := 0.0
+	for _i in range(20):
+		clear_total += ai.decision_delay(3.0, 1.0)
+		close_total += ai.decision_delay(1.05, 1.0)
+	assert_gt(close_total, clear_total * 1.5, "A coin-flip situation takes longer than an obvious one.")
+
+
+func test_a_decision_is_dropped_if_the_situation_changed_meanwhile():
+	ai.initialize({"hostile": true, "patrol_center": Vector3.ZERO, "skill": 0.0})
+	var prey = _make_ship(Vector3(0, 0, -500), false, 20.0)
+	ai._scan_timer = 0.0
+	ai._process_patrol()
+	assert_true(ai.has_pending_decision(), "Spots easy prey and starts deciding.")
+	assert_eq(ai.get_state(), AIScript.AIState.PATROL)
+	prey.hull = 1000.0  # Turns out to be much tougher before it commits
+	ai._tick_decision(100.0)
+	assert_eq(ai.get_state(), AIScript.AIState.PATROL, "Thinks better of it.")
+

@@ -580,7 +580,7 @@ func _update_combat_readout() -> void:
 		"POWER %d / %d" % [floor(player.power), player.power_max],
 		"CARGO %d / %d" % [player.get_cargo_units(), player.cargo_capacity],
 		"BANK  %d WP" % GameState.player_bank,
-		"SIGNATURE %.1f km  SENSORS x%.1f" % [player.get_signature() / 1000.0, player.get_sensor_strength()],
+		describe_signature(player),
 	]
 	var tools = player.get_node_or_null("ToolController")
 	if is_instance_valid(tools):
@@ -594,9 +594,27 @@ func _update_combat_readout() -> void:
 		elif _current_target.get("is_wreck"):
 			condition = "SALVAGE %d" % _current_target.get_salvage_units()
 		else:
-			condition = "%d / %d" % [ceil(_current_target.hull), _current_target.hull_max]
+			condition = "%d / %d  %s" % [ceil(_current_target.hull), _current_target.hull_max, PoolStringArray(_target_projector.get_ship_cues(_current_target)).join("  ")]
 		lines.append("TARGET %s  %s  %.0f m" % [_resolve_target_display_name(_current_target), condition, distance])
 	label_combat_readout.text = PoolStringArray(lines).join("\n")
+
+
+# Own signature as a cue, not a number: a bar from the hull's quiet base upward, and a word.
+static func describe_signature(player) -> String:
+	var base: float = float(player.fit_stats.get("signature", 1500.0)) if player.get("fit_stats") else 1500.0
+	var ratio: float = player.get_signature() / max(base, 1.0)
+	var word := "QUIET"
+	if ratio > Constants.SIG_LEVEL_BLAZING:
+		word = "BLAZING"
+	elif ratio > Constants.SIG_LEVEL_LOUD:
+		word = "LOUD"
+	elif ratio > Constants.SIG_LEVEL_ACTIVE:
+		word = "ACTIVE"
+	var filled: int = int(round(clamp((ratio - 1.0) / (Constants.SIG_LEVEL_BLAZING - 1.0), 0.0, 1.0) * 10.0))
+	var bar := ""
+	for i in range(10):
+		bar += "|" if i < filled else "."
+	return "SIGNATURE [%s] %s" % [bar, word]
 
 
 func _describe_tool_state(tools: Node, index: int) -> String:

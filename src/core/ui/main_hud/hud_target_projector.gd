@@ -2,6 +2,8 @@
 
 extends Reference
 
+const CombatAssessment = preload("res://src/core/systems/combat_assessment.gd")
+
 var _hud: Control
 
 func _init(hud: Control) -> void:
@@ -244,6 +246,9 @@ func update_world_target_overlay() -> void:
 		if is_instance_valid(player) and player.has_method("detects") and not player.detects(target_node):
 			button.visible = false  # Undetected ships get no bracket (same rule as for AI)
 			continue
+		if button.has_method("set_context_hint") and target_node.has_method("get_signature"):
+			button.set_context_hint(get_projected_target_context_hint(target_node))  # Cues change as the fight does
+			continue
 		var overlay_kind = get_projected_target_overlay_kind(target_node)
 		if not is_projected_target_overlay_enabled(overlay_kind):
 			button.visible = false
@@ -285,9 +290,25 @@ func get_projected_target_context_hint(target_ref) -> String:
 		return ""
 	if is_instance_valid(target_ref) and target_ref is Node and target_ref.is_in_group("dockable_station"):
 		return "Dock Target"
+	var cues: Array = []
 	if target_ref == _hud._current_target and is_target_valid(target_ref):
-		return "Target Locked"
-	return ""
+		cues.append("Target Locked")
+	cues += get_ship_cues(target_ref)
+	return PoolStringArray(cues).join("  ")
+
+
+# The player's read of a live ship, in words: how tough it is, and whether it can see the player.
+func get_ship_cues(target_ref) -> Array:
+	var cues: Array = []
+	var player = GlobalRefs.player_agent_body
+	if not (is_instance_valid(target_ref) and target_ref is Node and target_ref.has_method("get_signature") and not target_ref.get("is_wreck")):
+		return cues
+	if not (is_instance_valid(player) and player.has_method("get_damage_per_second")):
+		return cues
+	cues.append(CombatAssessment.difficulty_label(CombatAssessment.advantage_between(player, target_ref)))
+	if target_ref.detects(player):
+		cues.append("SEES YOU")
+	return cues
 
 func update_world_target_selection_state() -> void:
 	var selected_instance_id = get_world_target_instance_id()

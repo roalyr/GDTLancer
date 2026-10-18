@@ -116,7 +116,7 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 
 	var ai_controller = get_node_or_null(Constants.AI_CONTROLLER_NODE_NAME)
 	if is_instance_valid(ai_controller) and ai_controller.has_method("initialize"):
-		ai_controller.initialize({"hostile": is_hostile, "patrol_center": global_transform.origin})
+		ai_controller.initialize({"hostile": is_hostile, "patrol_center": global_transform.origin, "skill": template.skill})
 
 	if Constants.VERBOSE_RUNTIME_LOGS:
 		print(

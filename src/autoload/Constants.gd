@@ -156,6 +156,16 @@ const SIG_PER_LEAK = 800.0  # m per fuel leak at full pressure
 const SIG_WRECK_FACTOR = 0.6  # A wreck's signature is this share of its hull's base (cold, but a big lump of metal)
 const SIG_MIN = 200.0  # m; nothing is quieter than this
 
+# The player reads these as cues, not numbers (NPCs use the numbers directly).
+# Own signature meter: signature / hull base.
+const SIG_LEVEL_ACTIVE = 1.15  # Above this ratio: ACTIVE (below: QUIET)
+const SIG_LEVEL_LOUD = 2.0
+const SIG_LEVEL_BLAZING = 3.5
+# Target difficulty from the player's advantage (see CombatAssessment).
+const DIFFICULTY_EASY_ADVANTAGE = 2.0
+const DIFFICULTY_EVEN_ADVANTAGE = 0.8
+const DIFFICULTY_HARD_ADVANTAGE = 0.3
+
 
 # ==================================================================================================
 # HULL DAMAGE MARKS (HullScorch + solid shaders)
@@ -218,6 +228,14 @@ const AI_GAIN_FACTOR_MAX = 4.0
 const AI_ENGAGE_DESIRE = 1.0
 const AI_DISENGAGE_DESIRE = 0.8  # Below the engage level, so a fight does not flip-flop
 const AI_FLEE_DISTANCE = 6000.0  # m from the threat at which a fleeing ship resumes patrol
+
+# NPCs hesitate like people: a decision the rule calls for (engage, break off, answer being shot)
+# is taken after a delay, then re-checked. Delay = lerp(SLOW, FAST, skill)
+# * (1 + AMBIGUITY_WEIGHT * how close the call is) * random(1 +- RANDOMNESS).
+const AI_DECISION_DELAY_SLOW = 3.0  # s for a novice (skill 0)
+const AI_DECISION_DELAY_FAST = 0.3  # s for a veteran (skill 1)
+const AI_DECISION_AMBIGUITY_WEIGHT = 1.0  # A coin-flip situation takes up to this much longer again
+const AI_DECISION_RANDOMNESS = 0.4
 const AI_REPATH_INTERVAL = 0.5  # s
 const AI_SCAN_INTERVAL = 1.0  # s
 

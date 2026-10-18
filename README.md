@@ -12,6 +12,7 @@ There is a clear "right way" to play, and the rules are consistent enough to lea
 - **Parts change verbs, not just numbers.** Every part has a legitimate purpose.
 - **A few interacting rules, not many rules.**
 - **The world reacts by its rules.** For example, predators weigh expected gain against risk.
+- **Parity between player and NPCs.** Whatever an NPC knows or can do, the player gets an equivalent, and vice versa. NPCs read numbers; the player reads the same facts as cues (a target's difficulty, who can see you, your own signature). NPCs act like players: they hesitate before deciding, faster when skilled, slower when the call is close.
 
 ## Setting
 
@@ -32,6 +33,7 @@ The project is pruned back to its flight core. What works now:
 - Fuel leaks vent along the hull and push the ship; destroyed ships explode into a drifting cloud
 - Run loop: start docked at the home station, bank cargo and repair there, lose the ship and the run is over (permadeath), start a new run
 - Hand-placed asteroids around the Elace home station block laser fire; the autopilot steers around them
+- Signatures and detection (one rule for all), predators that weigh gain against risk and hesitate by skill; target difficulty and "sees you" cues for the player
 - Fitting at the home station: tool and module slots, data-driven modules, part mass, buy / sell with banked value
 
 ## Roadmap
