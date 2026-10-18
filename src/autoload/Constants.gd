@@ -161,6 +161,7 @@ const HIT_FX_LIFETIME = 2.0  # s
 const FUEL_LEAK_EVERY_DAMAGE = 40.0  # Hull damage that opens one more leak
 const FUEL_LEAK_MAX_PER_SHIP = 3  # The oldest leak gives way beyond this
 const FUEL_LEAK_DURATION = 25.0  # s until a leak has bled out
+const FUEL_LEAK_THRUST = 400.0  # N at full pressure, opposite the jet, at the leak point (mostly turns the ship)
 
 # Wreck explosion.
 const EXPLOSION_REFERENCE_RADIUS = 12.0  # Apparent radius the explosion scene is authored for

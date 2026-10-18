@@ -30,6 +30,7 @@ var _rebuild_timer := 0.0
 var _clock := 0.0  # Seconds since setup; the shader's damage_time
 var _materials: Array = []  # Per-ship hull material copies that show marks
 var last_hit_point = null  # World point where the last add_hit met the hull; null if it missed
+var last_hit_normal = null  # World surface normal there (from the mesh), or null
 
 
 # Collects the mesh surfaces under the ship's visual model that are drawn with a marking shader.
@@ -100,6 +101,7 @@ func is_paintable() -> bool:
 # passed the hull without touching it, e.g. between wings).
 func add_hit(from_global: Vector3, aim_global: Vector3, damage: float) -> int:
 	last_hit_point = null
+	last_hit_normal = null
 	if damage <= 0.0 or _meshes.empty():
 		return 0
 	var radius: float = Constants.SCORCH_RADIUS_PER_SQRT_DAMAGE * sqrt(damage)
@@ -139,8 +141,12 @@ func add_hit(from_global: Vector3, aim_global: Vector3, damage: float) -> int:
 		if candidate[3] < closest_to_line:
 			# The hit point: the vertex of the first surface nearest the shot line.
 			closest_to_line = candidate[3]
-			var position: Vector3 = surfaces_by_key[candidate[0]][Mesh.ARRAY_VERTEX][candidate[1]]
-			last_hit_point = instances_by_key[candidate[0]].global_transform.xform(position)
+			var arrays: Array = surfaces_by_key[candidate[0]]
+			var to_world: Transform = instances_by_key[candidate[0]].global_transform
+			last_hit_point = to_world.xform(arrays[Mesh.ARRAY_VERTEX][candidate[1]])
+			var normals = arrays[Mesh.ARRAY_NORMAL]
+			if normals != null and normals.size() > candidate[1]:
+				last_hit_normal = to_world.basis.xform(normals[candidate[1]]).normalized()
 		if not updates.has(candidate[0]):
 			updates[candidate[0]] = []
 		updates[candidate[0]].append([candidate[1], smoothstep(radius, 0.0, candidate[3])])

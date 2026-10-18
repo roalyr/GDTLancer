@@ -156,6 +156,7 @@ func test_hit_point_is_on_the_surface_facing_the_shooter():
 	scorch.add_hit(Vector3(0, 200, 0), Vector3(3, 0, -2), 6.0)
 	assert_not_null(scorch.last_hit_point)
 	assert_almost_eq(scorch.last_hit_point.y, 2.0, 0.01, "Lands on the top face.")
+	assert_almost_eq(scorch.last_hit_normal.dot(Vector3.UP), 1.0, 0.001, "Reports the surface normal there.")
 	assert_almost_eq(Vector2(scorch.last_hit_point.x, scorch.last_hit_point.z).distance_to(Vector2(3, -2)), 0.0, 1.5, "Near where the aimed line enters.")
 
 

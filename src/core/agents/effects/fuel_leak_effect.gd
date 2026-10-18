@@ -7,7 +7,8 @@
 extends Spatial
 
 
-var outward: Vector3 = Vector3.UP  # World direction the jet leaves the hull
+var outward: Vector3 = Vector3.UP  # World direction the jet leaves the hull, at spawn
+var outward_local: Vector3 = Vector3.UP  # The same in the ship's frame; the jet turns with the ship
 var size_scale: float = 1.0
 
 var _age := 0.0

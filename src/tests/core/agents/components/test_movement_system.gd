@@ -137,3 +137,10 @@ func test_throttle_affects_force():
 	# The throttle is applied during integrate_forces, not during request
 	# So the accumulated force should be full thrust
 	assert_almost_eq(full_force, 5000.0, 1.0, "Accumulated force should be full thrust.")
+
+func test_force_at_a_point_off_centre_adds_torque():
+	movement_system.add_external_force_at(Vector3(0, 0, 100), agent_body.global_transform.origin + Vector3(5, 0, 0))
+	assert_eq(movement_system._external_force, Vector3(0, 0, 100))
+	assert_eq(movement_system._external_torque, Vector3(0, -500, 0), "Torque is r x F about the centre of mass.")
+	movement_system.add_external_force_at(Vector3(0, 0, 100), agent_body.global_transform.origin)
+	assert_eq(movement_system._external_torque, Vector3(0, -500, 0), "A force through the centre adds no torque.")

@@ -16,7 +16,8 @@ var thrust_throttle: float = 1.0
 # These are accumulated by commands and applied in _integrate_forces
 var _accumulated_force := Vector3.ZERO
 var _accumulated_torque := Vector3.ZERO
-var _external_force := Vector3.ZERO  # From tethers and other bodies; not scaled by throttle
+var _external_force := Vector3.ZERO  # From tethers, leaks and other bodies; not scaled by throttle
+var _external_torque := Vector3.ZERO  # From forces acting off the centre of mass (leaks)
 
 # Reference to the parent AgentBody RigidBody
 var agent_body: RigidBody = null
@@ -95,17 +96,24 @@ func integrate_forces(state: PhysicsDirectBodyState):
 	
 	# Apply accumulated forces from navigation commands (scaled by throttle)
 	state.add_central_force(_accumulated_force * thrust_throttle + _external_force)
-	state.add_torque(_accumulated_torque)
+	state.add_torque(_accumulated_torque + _external_torque)
 	
 	# Clear accumulated forces for next frame
 	_accumulated_force = Vector3.ZERO
 	_accumulated_torque = Vector3.ZERO
 	_external_force = Vector3.ZERO
+	_external_torque = Vector3.ZERO
 
 
 # Force from outside the ship's own engines (e.g. a tether), applied on the next physics step.
 func add_external_force(force: Vector3) -> void:
 	_external_force += force
+
+
+# A force acting at a world point: pushes the centre of mass and turns the ship about it.
+func add_external_force_at(force: Vector3, world_point: Vector3) -> void:
+	_external_force += force
+	_external_torque += (world_point - agent_body.global_transform.origin).cross(force)
 
 
 # --- Public Methods Called by NavigationSystem Commands ---

@@ -305,3 +305,26 @@ func test_wreck_explodes_into_cloud_carrying_ship_momentum():
 	assert_eq(explosion.velocity, Vector3(12, 0, -3))
 	assert_eq(explosion.radius, target.get_apparent_radius())
 	explosion.queue_free()
+
+
+func test_leaks_push_back_against_their_jet_and_weaken_with_pressure():
+	var recorder_script = GDScript.new()
+	recorder_script.source_code = "extends Node\nvar calls = []\nfunc add_external_force_at(force, point):\n\tcalls.append([force, point])\n"
+	recorder_script.reload()
+	var recorder = Node.new()
+	recorder.set_script(recorder_script)
+	add_child_autofree(recorder)
+	target.movement_system = recorder
+	target.register_hit(shooter.global_transform.origin, Constants.FUEL_LEAK_EVERY_DAMAGE)
+	yield(get_tree(), "idle_frame")
+	assert_eq(target.get_leak_count(), 1)
+	var leak = target._leaks[0]
+	target._physics_process(0.016)
+	var force: Vector3 = recorder.calls[0][0]
+	assert_almost_eq(force.length(), Constants.FUEL_LEAK_THRUST, 1.0, "Full thrust while fresh.")
+	assert_almost_eq(force.normalized().dot(leak.outward), -1.0, 0.001, "Pushes opposite the gas jet.")
+	assert_eq(recorder.calls[0][1], leak.global_transform.origin, "Acts at the leak, so off-centre leaks turn the ship.")
+	leak._age = Constants.FUEL_LEAK_DURATION * 0.5
+	recorder.calls.clear()
+	target._physics_process(0.016)
+	assert_almost_eq(recorder.calls[0][0].length(), Constants.FUEL_LEAK_THRUST * 0.5, 1.0, "Thrust falls with pressure.")

@@ -260,22 +260,26 @@ func get_random_aim_point() -> Vector3:
 # world point it hit. Aims at random points (a line can pass between wings), then the centre.
 func register_hit(from_global: Vector3, damage: float) -> Vector3:
 	var point = null
+	var normal = null
 	if is_instance_valid(_hull_scorch) and _hull_scorch.is_paintable() and damage > 0.0:
 		for attempt in range(3):
 			var aim: Vector3 = get_random_aim_point() if attempt < 2 else to_global(hull_bounds.position + hull_bounds.size * 0.5)
 			_hull_scorch.add_hit(from_global, aim, damage)
 			point = _hull_scorch.last_hit_point
+			normal = _hull_scorch.last_hit_normal
 			if point != null:
 				break
 		if is_player():
 			GameState.player_hull_marks = _hull_scorch.export_marks()
 	if point == null:
 		point = get_hull_point_facing(from_global)
-	_accumulate_leak_damage(point, damage)
+	_accumulate_leak_damage(point, normal, damage)
 	return point
 
 
-func _accumulate_leak_damage(point: Vector3, damage: float) -> void:
+# `normal` is the hull's surface normal at the hit (null without a marked mesh): the leak vents
+# along it. On a long hull that is mostly sideways, so off-centre leaks turn the ship.
+func _accumulate_leak_damage(point: Vector3, normal, damage: float) -> void:
 	if is_wreck or damage <= 0.0 or not is_inside_tree():
 		return
 	_damage_toward_leak += damage
@@ -290,7 +294,8 @@ func _accumulate_leak_damage(point: Vector3, damage: float) -> void:
 	if _leaks.size() >= Constants.FUEL_LEAK_MAX_PER_SHIP:
 		_leaks.pop_front().queue_free()
 	var leak = FuelLeakScene.instance()
-	leak.outward = (point - to_global(hull_bounds.position + hull_bounds.size * 0.5)).normalized()
+	leak.outward = normal if normal != null else (point - to_global(hull_bounds.position + hull_bounds.size * 0.5)).normalized()
+	leak.outward_local = global_transform.basis.xform_inv(leak.outward).normalized()
 	leak.size_scale = clamp(get_apparent_radius() / 12.0, 0.5, 5.0)
 	add_child(leak)
 	leak.global_transform.origin = point
@@ -395,6 +400,21 @@ func _ready():
 func _physics_process(delta: float) -> void:
 	if not is_wreck and power < power_max:
 		power = min(power_max, power + power_regen * delta)
+	_apply_leak_thrust()
+
+
+# Venting gas pushes back on the hull where it leaks; off-centre leaks turn the ship (wrecks too).
+func _apply_leak_thrust() -> void:
+	if _leaks.empty() or not is_instance_valid(movement_system):
+		return
+	for leak in _leaks:
+		if not is_instance_valid(leak) or not leak.is_inside_tree():
+			continue
+		var pressure: float = leak.get_pressure()
+		if pressure <= 0.0:
+			continue
+		var jet_direction: Vector3 = global_transform.basis.xform(leak.outward_local).normalized()
+		movement_system.add_external_force_at(-jet_direction * Constants.FUEL_LEAK_THRUST * pressure, leak.global_transform.origin)
 
 
 # --- RigidBody Physics Integration ---
