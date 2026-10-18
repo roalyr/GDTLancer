@@ -203,8 +203,8 @@ const DIFFICULTY_HARD_ADVANTAGE = 0.3
 # HULL DAMAGE MARKS (HullScorch + solid shaders)
 # ==================================================================================================
 
-const SCORCH_RADIUS_PER_SQRT_DAMAGE = 1.0  # m; a 6-damage hit marks about 2.5 m across
-const SCORCH_CENTRE_MARK = 0.35  # Share of the clean surface a single hit marks at its centre
+const SCORCH_RADIUS_PER_SQRT_DAMAGE = 0.7  # m; a 6-damage hit marks about 1.7 m across
+const SCORCH_CENTRE_MARK = 0.5  # Share of the clean surface a single hit marks at its centre
 const SCORCH_SURFACE_DEPTH = 1.0  # m; vertices this far behind the first surface count as it
 const SCORCH_MIN_SURFACE_POINTS = 8  # Fewer distinct vertices near the shot line = a thin detail (antenna); the shot passes it
 const SCORCH_MAX_WIDENINGS = 3  # On coarse meshes the mark radius doubles up to this many times to find surface
@@ -255,6 +255,12 @@ const EXPLOSION_REFERENCE_RADIUS = 12.0  # Apparent radius the explosion scene i
 const EXPLOSION_LIFETIME = 30.0  # s
 const EXPLOSION_FLASH_DURATION = 0.6  # s
 const EXPLOSION_DRAG = 0.8  # Per second; the cloud centre slows a bit faster than a wreck (LINEAR_DRAG)
+# Cloud puffs (spheroids), sizes for the authored ship radius: each grows as it thins out.
+const EXPLOSION_PUFF_START_SIZE = 6.0  # m, radius of the spheroid's long axes at the start
+const EXPLOSION_PUFF_END_SIZE = 40.0  # m, by the end of EXPLOSION_LIFETIME
+const EXPLOSION_PUFF_SPREAD = 14.0  # m the puffs drift apart from the centre
+const EXPLOSION_PUFF_OPACITY = 0.85  # At the start
+const EXPLOSION_PUFF_COOL_SHARE = 0.15  # Share of the lifetime over which the puffs cool from orange to grey
 
 
 # ==================================================================================================

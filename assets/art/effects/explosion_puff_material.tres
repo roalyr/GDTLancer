@@ -1,0 +1,14 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=2]
+
+[ext_resource path="res://assets/art/shaders/explosion_puff.gdshader" type="Shader" id=1]
+
+[resource]
+shader = ExtResource( 1 )
+shader_param/hot_color = Color( 1, 0.45, 0.12, 1 )
+shader_param/smoke_color = Color( 0.45, 0.43, 0.41, 1 )
+shader_param/heat = 1.0
+shader_param/opacity = 1.0
+shader_param/edge_softness = 1.6
+shader_param/posterization_levels = 20.0
+shader_param/light_dither_strength = 0.5
+shader_param/dither_pixel_size = 2.0
