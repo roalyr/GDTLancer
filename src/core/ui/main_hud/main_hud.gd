@@ -41,6 +41,8 @@ onready var label_button_interact: Label = $ScreenControls/BottomCenterZone/Butt
 onready var label_combat_readout: Label = $ScreenControls/TopLeftZone/LabelCombatReadout
 onready var label_docked_banner: Label = $ScreenControls/LabelDockedBanner
 onready var button_ship: TextureButton = $ScreenControls/CenterRightZone/ButtonShip
+onready var button_render_scale: TextureButton = $ScreenControls/CenterRightZone/ButtonRenderScale
+onready var label_render_scale: Label = $ScreenControls/CenterRightZone/ButtonRenderScale/LabelButtonScale
 onready var tool_buttons: Array = $ScreenControls/TemporaryToolZone.get_children()
 var fitting_window: Control = null
 var _banner_location_id: String = ""
@@ -162,6 +164,8 @@ func _ready():
 	add_child(_pointer_router)
 	for index in range(tool_buttons.size()):
 		tool_buttons[index].connect("pressed", self, "_on_tool_button_pressed", [index])
+	button_render_scale.connect("pressed", self, "_on_ButtonRenderScale_pressed")
+	_update_render_scale_label()
 	fitting_window = FittingWindowScene.instance()
 	add_child(fitting_window)
 	if is_instance_valid(button_ship):
@@ -649,6 +653,25 @@ func _deferred_refresh_player_hull() -> void:
 
 func _on_any_damage_dealt_refresh_player(_target_uid: int, _amount: float, _source_uid: int) -> void:
 	_refresh_player_hull()
+
+
+# Cycles the render resolution (WorldRendering.viewport_downscale_factor): x1.0, x0.5, x0.25.
+func _on_ButtonRenderScale_pressed() -> void:
+	var world_rendering = _get_world_rendering()
+	if is_instance_valid(world_rendering):
+		world_rendering.cycle_downscale_factor()
+	_update_render_scale_label()
+
+
+func _update_render_scale_label() -> void:
+	var world_rendering = _get_world_rendering()
+	var factor: float = float(world_rendering.viewport_downscale_factor) if is_instance_valid(world_rendering) else 1.0
+	label_render_scale.text = "x%s" % str(factor) if str(factor).find(".") >= 0 else "x%s.0" % str(factor)
+
+
+func _get_world_rendering() -> Node:
+	var scene = get_tree().current_scene if is_inside_tree() else null
+	return scene.get_node_or_null("WorldRendering") if is_instance_valid(scene) else null
 
 
 func _on_ButtonUIOpacity_pressed() -> void:

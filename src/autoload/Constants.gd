@@ -249,7 +249,7 @@ const EXPLOSION_DRAG = 0.8  # Per second; the cloud centre slows a bit faster th
 # A model switches to LOD n+1 beyond LOD_DISTANCE_RADII[n] of its own radii from the camera:
 # at 15 radii it is ~70 px tall on a 743 px screen (70 degree view), at 40 ~25 px, at 100 ~10 px.
 const LOD_DISTANCE_RADII = [15.0, 40.0, 100.0]  # Low-poly models (ships): keep detail long
-const LOD_DISTANCE_RADII_DENSE = [4.0, 10.0, 25.0]  # Dense meshes (rocks, tens of thousands of triangles): drop it early
+const LOD_DISTANCE_RADII_DENSE = [10.0, 20.0, 50.0]  # Dense meshes (rocks, tens of thousands of triangles): drop it early
 const LOD_HYSTERESIS = 0.1  # Share of a threshold to pass beyond before switching back, so levels do not flicker
 const LOD_CHECK_INTERVAL = 0.25  # s between distance checks per model
 
@@ -361,6 +361,8 @@ func get_reference_origin_offset(world_position: Vector3) -> Vector3:
 # ==================================================================================================
 
 # Selected-target bracket.
+const RENDER_SCALE_STEPS = [1.0, 0.5, 0.25]  # Render resolution shares the HUD's render scale button cycles through
+
 const COLOR_UI_TARGET_SELECTED = Color(1.0, 0.9, 0.35, 1.0)  # Yellow: anything not hostile, wrecks included
 const COLOR_UI_TARGET_HOSTILE = Color(1.0, 0.22, 0.18, 1.0)  # Red: a live ship hostile to the player
 const COLOR_UI_TARGET_NEUTRAL = Color(0.35, 0.95, 1.0, 0.95)  # Cyan: brackets of things without a faction

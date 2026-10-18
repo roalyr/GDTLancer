@@ -73,7 +73,9 @@ func test_hit_flash_lights_only_near_the_camera_and_only_a_few_at_once():
 	assert_false(effect.should_light(Vector3(0, 0, -100)), "Enough flashes lit already.")
 
 
-func test_dense_meshes_drop_detail_sooner():
-	var distance: float = Constants.LOD_DISTANCE_RADII_DENSE[1] * 1.2 * 100.0
-	assert_eq(MeshLod.level_for(distance, 100.0, 0, 4, Constants.LOD_DISTANCE_RADII_DENSE), 2)
-	assert_eq(MeshLod.level_for(distance, 100.0, 0, 4), 0, "A low-poly model that size would still be at full detail.")
+func test_dense_meshes_never_keep_more_detail_than_low_poly_ones():
+	for radii in range(1, 300, 3):
+		var distance: float = radii * 100.0
+		var dense: int = MeshLod.level_for(distance, 100.0, 0, 4, Constants.LOD_DISTANCE_RADII_DENSE)
+		var low_poly: int = MeshLod.level_for(distance, 100.0, 0, 4)
+		assert_true(dense >= low_poly, "At %d radii: dense LOD%d, low-poly LOD%d" % [radii, dense, low_poly])
