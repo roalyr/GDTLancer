@@ -1,23 +1,16 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://src/scenes/game_world/celestial/asteroid.gd" type="Script" id=1]
-[ext_resource path="res://assets/models/nebulas/spheroid.glb" type="PackedScene" id=2]
-[ext_resource path="res://assets/art/materials_generic/mat_asteroid_rock.tres" type="Material" id=3]
+[ext_resource path="res://assets/models/rocks/rock_02_3k.glb" type="PackedScene" id=2]
 
 [sub_resource type="SphereShape" id=1]
-radius = 1.2
+radius = 1.0
 
 [node name="Asteroid" type="StaticBody"]
 script = ExtResource( 1 )
+model = ExtResource( 2 )
 
 [node name="CollisionShape" type="CollisionShape" parent="."]
 shape = SubResource( 1 )
 
 [node name="Model" type="Spatial" parent="."]
-
-[node name="spheroid" parent="Model" instance=ExtResource( 2 )]
-
-[node name="Spheroid" parent="Model/spheroid" index="0"]
-material_override = ExtResource( 3 )
-
-[editable path="Model/spheroid"]

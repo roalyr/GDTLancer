@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=2]
+[gd_scene load_steps=21 format=2]
 
 [ext_resource path="res://src/core/utils/editor_object.gd" type="Script" id=1]
 [ext_resource path="res://src/scenes/game_world/starsphere_slot.gd" type="Script" id=2]
@@ -6,6 +6,18 @@
 [ext_resource path="res://scenes/levels/sectors/sector_star_elace/star_elace/star_elace.tscn" type="PackedScene" id=4]
 [ext_resource path="res://scenes/levels/sectors/sector_star_elace/station_elace_home.tscn" type="PackedScene" id=5]
 [ext_resource path="res://scenes/prefabs/celestial/asteroid.tscn" type="PackedScene" id=6]
+[ext_resource path="res://assets/models/rocks/rock_01_6k.glb" type="PackedScene" id=7]
+[ext_resource path="res://assets/models/rocks/rock_02_3k.glb" type="PackedScene" id=8]
+[ext_resource path="res://assets/models/rocks/rock_03_4k.glb" type="PackedScene" id=9]
+[ext_resource path="res://assets/models/rocks/rock_04_3k.glb" type="PackedScene" id=10]
+[ext_resource path="res://assets/models/rocks/rock_05_4k.glb" type="PackedScene" id=11]
+[ext_resource path="res://assets/models/rocks/rock_06_73k.glb" type="PackedScene" id=12]
+[ext_resource path="res://assets/models/rocks/rock_07_49k.glb" type="PackedScene" id=13]
+[ext_resource path="res://assets/models/rocks/rock_08_45k.glb" type="PackedScene" id=14]
+[ext_resource path="res://assets/models/rocks/rock_09_49k.glb" type="PackedScene" id=15]
+[ext_resource path="res://assets/models/rocks/rock_10_61k.glb" type="PackedScene" id=16]
+[ext_resource path="res://assets/models/rocks/rock_11_73k.glb" type="PackedScene" id=17]
+[ext_resource path="res://assets/models/rocks/rock_12_61k.glb" type="PackedScene" id=18]
 
 [sub_resource type="SpatialMaterial" id=1]
 flags_unshaded = true
@@ -52,145 +64,145 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1500, 20000 )
 [node name="Asteroids" type="Spatial" parent="SceneAssets"]
 
 [node name="Asteroid01" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
-transform = Transform( -2.111, 10.56, -0.88, -8.046, -2.181, -6.873, -6.895, -0.6876, 8.289, -1517, 1797, 1.817e+04 )
-stretch = Vector3( 0.85, 1.04, 1.02 )
+transform = Transform( 32.3952, -8.42021, -18.5775, 12.7308, -18.8944, 30.7636, -15.9358, -32.2114, -13.1889, -853.015, 1756.44, 16731.7 )
+model = ExtResource( 10 )
 
 [node name="Asteroid02" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
-transform = Transform( 4.887, -3.277, -6.067, 3.507, 7.584, -1.272, 5.937, -1.782, 5.745, -342.6, 444.9, 2.161e+04 )
-stretch = Vector3( 0.99, 0.72, 1.1 )
+transform = Transform( -33.5941, -7.35706, -29.7908, 22.7061, -35.6726, -16.7953, -20.641, -27.2676, 30.0101, 1889.96, 2192.17, 20964 )
+model = ExtResource( 11 )
 
 [node name="Asteroid03" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
-transform = Transform( 1.408, -10.8, -10.68, -13.95, -5.158, 3.377, -6.002, 9.454, -10.36, -2372, 1031, 1.922e+04 )
-stretch = Vector3( 1.2, 1.27, 0.98 )
+transform = Transform( 7.22521, 0.502498, -48.3335, 40.8348, 26.0855, 6.37545, 25.863, -41.3265, 3.43652, -93.28, 1173.43, 19522 )
+model = ExtResource( 7 )
 
 [node name="Asteroid04" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
-transform = Transform( 6.148, -0.3119, 4.08, -3.013, -5.328, 4.132, 2.769, -5.104, -4.563, 1436, 1730, 1.811e+04 )
-stretch = Vector3( 1.1, 0.71, 0.98 )
+transform = Transform( 151.859, 77.1648, 39.6751, -58.1249, 149.849, -68.9669, -64.4206, 46.6962, 155.753, -954.658, 2578.81, 20336.7 )
+model = ExtResource( 13 )
 
 [node name="Asteroid05" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
-transform = Transform( 10.37, 8.733, -1.872, -8.785, 9.46, -4.55, -1.609, 4.649, 12.77, 642.4, 1733, 2.015e+04 )
-stretch = Vector3( 0.75, 0.97, 1.03 )
+transform = Transform( 23.7855, 38.7282, 6.31996, 28.4269, -22.1005, 28.4437, 27.0504, -10.8287, -35.4483, -51.7426, 1897.59, 19769.2 )
+model = ExtResource( 11 )
 
 [node name="Asteroid06" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
-transform = Transform( 11.05, 1.978, 1.814, -2.177, 11.1, 1.158, -1.57, -1.473, 11.17, 1315, 368.6, 1.971e+04 )
-stretch = Vector3( 0.79, 0.81, 0.84 )
+transform = Transform( 18.8964, 21.6217, -34.3756, -14.8982, 38.9622, 16.317, 37.7786, 4.55005, 23.6289, -1091.88, 1955.23, 21596.4 )
+model = ExtResource( 7 )
 
 [node name="Asteroid07" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
-transform = Transform( -6.453, 0.2927, 3.155, -2.533, 3.826, -5.534, -1.905, -6.079, -3.331, -1080, 1541, 1.999e+04 )
-stretch = Vector3( 1.27, 1.11, 1.01 )
+transform = Transform( 32.8112, -0.937121, -3.99218, 2.03161, 31.6779, 9.26146, 3.56206, -9.43525, 31.4909, 1036.64, 586.267, 22005.3 )
+model = ExtResource( 11 )
 
 [node name="Asteroid08" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
-transform = Transform( -4.503, -2.088, 12.34, -12.33, -1.527, -4.756, 2.163, -13.05, -1.418, -236.9, 1310, 2.223e+04 )
-stretch = Vector3( 0.94, 0.76, 1.08 )
+transform = Transform( 3.55609, -32.9328, 15.4884, 34.8323, -1.42866, -11.0351, 10.5437, 15.8271, 31.232, -366.543, 1578.86, 22212.3 )
+model = ExtResource( 8 )
 
 [node name="Asteroid09" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
-transform = Transform( 6.908, 0.02535, 0.1739, 0.1267, 4.019, -5.62, -0.1218, 5.621, 4.017, 408.4, 1574, 2.031e+04 )
-stretch = Vector3( 0.76, 0.92, 0.72 )
+transform = Transform( 27.3465, 32.3746, -9.10047, -33.6293, 26.2962, -7.50655, -0.0856819, 11.7966, 41.7085, -596.993, 2353.16, 19750.7 )
+model = ExtResource( 11 )
 
 [node name="Asteroid10" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
-transform = Transform( 11.09, 2.22, 4.827, -5.083, 7.683, 8.146, -1.545, -9.342, 7.847, -2340, 684.6, 1.993e+04 )
-stretch = Vector3( 1.3, 0.98, 0.99 )
+transform = Transform( 15.7701, -13.4895, -25.8735, 5.84537, 30.2749, -12.2214, 28.5873, 1.25097, 16.7719, 696.677, 1340.72, 20935.7 )
+model = ExtResource( 8 )
 
 [node name="Asteroid11" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
-transform = Transform( 7.345, 0.238, -0.1016, -0.1963, 7.005, 2.215, 0.1686, -2.211, 7.008, 488.2, 1646, 1.988e+04 )
-stretch = Vector3( 1.02, 0.79, 1.03 )
+transform = Transform( 6.15088, 6.99733, 28.5723, 23.5696, -18.6383, -0.509423, 17.6015, 22.5128, -9.3025, 583.143, 1753.38, 21972.6 )
+model = ExtResource( 8 )
 
 [node name="Asteroid12" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
-transform = Transform( 6.097, -4.05, -2.166, 4.312, 3.809, 5.017, -1.581, -5.231, 5.33, -402.6, 1471, 2.015e+04 )
-stretch = Vector3( 1.16, 1.02, 1.17 )
+transform = Transform( 79.3845, -138.672, -9.58842, -136.284, -79.8196, 26.0624, -27.359, -4.76153, -157.647, 431.326, 1519.48, 19846.2 )
+model = ExtResource( 18 )
 
 [node name="Asteroid13" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
-transform = Transform( -0.6454, -11.79, -2.966, 10.9, 0.7526, -5.363, 5.377, -2.941, 10.52, 160.1, 1874, 2.101e+04 )
-stretch = Vector3( 0.84, 1.01, 0.91 )
+transform = Transform( -34.1734, -146.814, -98.3702, 47.769, 88.7889, -149.109, 170.144, -54.4155, 22.1056, 331.687, 1499.46, 18686.7 )
+model = ExtResource( 16 )
 
 [node name="Asteroid14" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
-transform = Transform( 17.19, -0.4428, -3.966, 1.682, 16.71, 5.427, 3.618, -5.664, 16.31, 431.9, 1531, 1.995e+04 )
-stretch = Vector3( 1.29, 1.27, 0.92 )
+transform = Transform( 32.622, 19.3566, 19.9898, -7.46961, 35.7639, -22.4412, -26.8044, 13.5914, 30.582, -1310.34, 2204.2, 22373 )
+model = ExtResource( 11 )
 
 [node name="Asteroid15" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
-transform = Transform( -2.719, 6.628, -3.745, 5.63, -0.9265, -5.727, -5.125, -4.534, -4.304, 130, 1855, 2.054e+04 )
-stretch = Vector3( 1.09, 1.18, 0.75 )
+transform = Transform( 123.788, -86.6124, 77.069, 91.4021, 142.265, 13.0727, -71.3231, 31.9927, 150.513, -1666.09, 2107.69, 19459.5 )
+model = ExtResource( 16 )
 
 [node name="Asteroid16" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
-transform = Transform( -0.5183, -8.994, -2.807, 3.408, -2.8, 8.342, -8.784, -0.5555, 3.402, 2051, 977.8, 2e+04 )
-stretch = Vector3( 1.18, 1.28, 0.94 )
+transform = Transform( 201.007, -16.5011, 30.9212, 18.6956, 202.743, -13.339, -29.646, 15.974, 201.242, -88.0221, 1126.57, 18736.3 )
+model = ExtResource( 18 )
 
 [node name="Asteroid17" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
-transform = Transform( 5.605, 12.29, -6.375, -9.999, 8.35, 7.3, 9.571, 1.529, 11.36, 1507, 1291, 2.025e+04 )
-stretch = Vector3( 0.79, 1.2, 1.29 )
+transform = Transform( 32.9194, 1.12434, 2.05399, -1.11981, 32.9834, -0.107633, -2.05646, 0.0376678, 32.9384, 172.537, 2052.5, 18758.8 )
+model = ExtResource( 8 )
 
 [node name="Asteroid18" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
-transform = Transform( -18.74, 2.625, -3.735, 3.788, 17.75, -6.528, 2.548, -7.076, -17.76, -1422, 2279, 2.022e+04 )
-stretch = Vector3( 1.26, 0.96, 1.22 )
+transform = Transform( -9.62327, 5.93078, -33.4637, 26.729, 22.8006, -3.64561, 20.9893, -26.3165, -10.7, 326.591, 1925.35, 22223.4 )
+model = ExtResource( 11 )
 
 [node name="Asteroid19" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
-transform = Transform( -0.17, -8.752, -11.24, -14.03, -1.876, 1.672, -2.507, 11.09, -8.592, 692.5, 2609, 1.926e+04 )
-stretch = Vector3( 0.78, 1.25, 0.91 )
+transform = Transform( 5.82582, 1.57689, -40.4746, 40.3777, 3.01801, 5.92945, 3.21349, -40.7803, -1.12626, -633.065, 1617.42, 20681.4 )
+model = ExtResource( 11 )
 
 [node name="Asteroid20" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
-transform = Transform( -1.59, -11.63, 1.191, -11.6, 1.717, 1.276, -1.431, -0.9989, -11.67, -1151, 1234, 1.88e+04 )
-stretch = Vector3( 0.71, 0.96, 0.81 )
+transform = Transform( 37.5256, 0.170373, -20.285, 6.54138, -40.4793, 11.761, -19.2021, -13.4567, -35.6354, 952.827, 874.489, 19443.6 )
+model = ExtResource( 7 )
 
 [node name="Asteroid21" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
-transform = Transform( -16.31, -10.88, -1.718, -9.369, 12.09, 12.37, -5.784, 11.07, -15.2, 39.86, 1450, 1.966e+04 )
-stretch = Vector3( 1.03, 1.17, 0.76 )
+transform = Transform( -33.3694, 9.13275, 4.77303, -8.27583, -14.1125, -30.8554, -6.14, -30.6127, 15.6483, -746.374, 1679.14, 19460 )
+model = ExtResource( 11 )
 
 [node name="Asteroid22" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
-transform = Transform( 6.336, -0.6896, 2.974, 1.59, 6.594, -1.859, -2.606, 2.347, 6.097, 19.6, 2329, 2.043e+04 )
-stretch = Vector3( 0.97, 1.07, 1 )
+transform = Transform( 32.0007, -2.88852, -1.24062, 2.96776, 31.9434, 2.17738, 1.03687, -2.28145, 32.0569, 205.762, 1415.42, 19661.3 )
+model = ExtResource( 10 )
 
 [node name="Asteroid23" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
-transform = Transform( 13.02, -5.216, -11.4, 3.776, 17.3, -3.606, 11.95, 0.2164, 13.56, -484.8, 984.5, 1.86e+04 )
-stretch = Vector3( 1.27, 0.86, 1.04 )
+transform = Transform( -22.5354, 17.7141, 15.9157, 23.5738, 19.6969, 11.4562, -3.37198, 19.3179, -26.2752, 1760.78, 1610.31, 20041.3 )
+model = ExtResource( 11 )
 
 [node name="Asteroid24" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
-transform = Transform( 9.807, -0.9404, 3.136, 1.903, 9.696, -3.044, -2.664, 3.464, 9.37, 1017, 859, 2.273e+04 )
-stretch = Vector3( 1.1, 1.17, 1.24 )
+transform = Transform( 193.365, -1.2396, -9.29495, 1.67687, 193.371, 9.09572, 9.22609, -9.16556, 193.155, 846.716, 601.729, 19746.2 )
+model = ExtResource( 12 )
 
 [node name="Asteroid25" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
-transform = Transform( 27.27, -0.2173, -3.242, 1.086, 26.43, 7.367, 3.062, -7.443, 26.26, -132.8, 1254, 2.055e+04 )
-stretch = Vector3( 0.94, 0.99, 1.29 )
+transform = Transform( 70.0305, -82.8103, 97.0548, -55.4622, 79.9458, 108.231, -114.896, -89.065, 6.91092, 754.572, 2132.1, 18078.7 )
+model = ExtResource( 13 )
 
 [node name="Asteroid26" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
-transform = Transform( -4.348, 23.71, -11.78, -25.83, -1.186, 7.149, 5.798, 12.5, 23.02, 1194, 2268, 1.807e+04 )
-stretch = Vector3( 0.71, 1.03, 0.96 )
+transform = Transform( -9.46693, -2.62954, -35.7715, -35.5412, -4.29448, 9.72169, -4.83023, 36.7529, -1.42336, 664.371, 1322.4, 22730 )
+model = ExtResource( 10 )
 
 [node name="Asteroid27" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
-transform = Transform( -0.06108, -25.16, 18.79, 31.29, -1.653, -2.111, 2.681, 18.72, 25.07, -36.29, 1830, 1.665e+04 )
-stretch = Vector3( 0.78, 0.95, 1.25 )
+transform = Transform( 35.8451, 9.05996, -25.8284, 19.5092, 21.3939, 34.5796, 19.1985, -38.6559, 13.0844, -1321.85, 1255.99, 20492.7 )
+model = ExtResource( 10 )
 
 [node name="Asteroid28" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
-transform = Transform( 42.9, 0.3806, -7.706, -2.749, 41.43, -13.26, 7.209, 13.54, 40.8, 1761, 1449, 2.234e+04 )
-stretch = Vector3( 1.11, 0.96, 0.74 )
+transform = Transform( -10.6289, 38.8402, -12.5759, 40.731, 10.9717, -0.539419, 2.77407, -12.2779, -40.2647, -1761.37, 630.519, 20862.9 )
+model = ExtResource( 10 )
 
 [node name="Asteroid29" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
-transform = Transform( -4.781, 7.483, 26.91, 18.5, -19.6, 8.738, 20.93, 19.04, -1.578, -738.3, 644.2, 1.759e+04 )
-stretch = Vector3( 0.9, 1.03, 1.26 )
+transform = Transform( 6.1461, 5.02665, 34.5051, -19.631, 29.4556, -0.794353, -28.8182, -18.9931, 7.90004, 1139.08, 1210.81, 19834.7 )
+model = ExtResource( 8 )
 
 [node name="Asteroid30" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
-transform = Transform( 11.45, -10.33, 34.68, 13.76, 34.89, 5.851, -33.47, 10.81, 14.27, 659.1, 1774, 2.072e+04 )
-stretch = Vector3( 0.89, 0.88, 1.16 )
+transform = Transform( 3.1527, 14.5639, -35.5558, 32.7383, 17.6563, 10.135, 20.1128, -31.0227, -10.9238, -1024.54, 1590.77, 19065.3 )
+model = ExtResource( 10 )
 
 [node name="Asteroid31" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
-transform = Transform( 10.08, -20.52, -32.01, -20.32, 25.08, -22.48, 32.13, 22.3, -4.173, 505.1, 1037, 2e+04 )
-stretch = Vector3( 1.03, 0.81, 0.98 )
+transform = Transform( -129.145, 4.44151, -174.127, 108.502, 171.625, -76.0954, 136.262, -132.452, -104.44, -1855.39, 1658.29, 19869.1 )
+model = ExtResource( 12 )
 
 [node name="Asteroid32" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
-transform = Transform( 13.05, -20.31, -22.4, -21.41, -23.44, 8.775, -21.35, 11.09, -22.5, 312, 2530, 2.203e+04 )
-stretch = Vector3( 1.11, 1.29, 0.91 )
+transform = Transform( 36.8011, 1.58492, -28.0309, -18.994, 35.4382, -22.933, 20.6754, 29.7353, 28.8255, 2632.37, 959.066, 19464.9 )
+model = ExtResource( 9 )
 
 [node name="Asteroid33" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
-transform = Transform( 35.45, -8.865, 6.685, 6.259, 34.43, 12.47, -9.17, -10.77, 34.35, -1540, 1227, 1.755e+04 )
-stretch = Vector3( 1.14, 0.85, 0.8 )
+transform = Transform( 59.1974, -1.53878, 2.66643, 2.00324, 58.2388, -10.8647, -2.33767, 10.9401, 58.2122, -1025.77, 883.648, 19239.3 )
+model = ExtResource( 7 )
 
 [node name="Asteroid34" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
-transform = Transform( -34.7, 54.44, -17.96, 56.13, 36.54, 2.296, 11.66, -13.86, -64.52, 53.65, 1633, 1.948e+04 )
-stretch = Vector3( 0.79, 0.97, 0.86 )
+transform = Transform( 62.1637, -69.408, -160.059, 44.5168, -157.981, 85.7962, -168.685, -67.2701, -36.3429, -181.378, 1702.06, 18480.1 )
+model = ExtResource( 12 )
 
 [node name="Asteroid35" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
-transform = Transform( 66.86, 0.05889, 0.4449, -0.05879, 66.86, -0.01573, -0.4449, 0.01533, 66.86, 1863, 2611, 1.952e+04 )
-stretch = Vector3( 0.93, 0.98, 1 )
+transform = Transform( -18.4493, 23.3208, 34.87, 31.7868, -17.0865, 28.2454, 27.3747, 35.5576, -9.29708, 1317.62, 1356.42, 22958.8 )
+model = ExtResource( 10 )
 
 [node name="Asteroid36" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
-transform = Transform( 73.15, 4.916, 9.138, -5.017, 73.71, 0.5054, -9.083, -1.121, 73.32, 976.8, 1455, 2e+04 )
-stretch = Vector3( 0.88, 0.84, 1.05 )
+transform = Transform( 84.8566, 4.91094, 147.884, 123.213, 92.0473, -73.7573, -81.9281, 143.519, 42.2448, -623.113, 1287.12, 19513.3 )
+model = ExtResource( 12 )
