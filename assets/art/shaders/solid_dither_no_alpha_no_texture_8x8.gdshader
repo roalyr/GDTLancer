@@ -9,9 +9,17 @@ render_mode
 
 // --- Base colors per Fresnel layer ---
 uniform vec4 albedo : hint_color = vec4(0.3, 0.3, 0.3, 1.0);
-// Damage marks: HullScorch lowers vertex alpha where hits land (1 = clean). Off unless strength > 0.
-uniform vec4 damage_mark_color : hint_color = vec4(0.55, 0.5, 0.45, 1.0);
+// Damage marks (HullScorch). Off unless damage_mark_strength > 0.
+// Vertex alpha: 1 = clean, lower = marked (blends to damage_mark_color, the cooled char).
+// UV2: (time of last hit, heat then); heat decays with damage_cool_time and glows red while hot.
+uniform vec4 damage_mark_color : hint_color = vec4(0.02, 0.02, 0.02, 1.0);
 uniform float damage_mark_strength : hint_range(0.0, 1.0) = 0.0;
+uniform vec4 damage_hot_color : hint_color = vec4(1.0, 0.18, 0.03, 1.0);
+uniform vec4 damage_dull_color : hint_color = vec4(0.35, 0.02, 0.0, 1.0);
+uniform float damage_glow_strength = 3.0;
+uniform float damage_cool_time = 6.0;  // Seconds for heat to fall to ~37%
+uniform float damage_time = 0.0;  // Per-ship clock, set every frame by HullScorch
+varying float damage_heat;
 uniform vec4 albedo_specular : hint_color = vec4(0.5, 0.5, 0.5, 1.0);
 uniform vec4 albedo_gloss : hint_color = vec4(1.0, 1.0, 1.0, 1.0);
 uniform vec4 emission : hint_color = vec4(0.0, 0.0, 0.0, 1.0);
@@ -76,6 +84,8 @@ void vertex() {
     float scale_factor = pow(clamp((scale_end_mul*scale_start - distance_vert) / (scale_end_mul*scale_start - scale_start), scale_min, 1.0), scale_power);
     VERTEX *= scale_factor;
 
+    damage_heat = UV2.y * exp(-max(damage_time - UV2.x, 0.0) / damage_cool_time) * damage_mark_strength;
+
     // TBN for triplanar
     TANGENT = vec3(0.0, 0.0, -1.0) * abs(NORMAL.x);
     TANGENT += vec3(1.0, 0.0, 0.0) * abs(NORMAL.y);
@@ -127,6 +137,8 @@ void fragment() {
     ROUGHNESS = 1.0 - roughness * pow(1.0 - roughness_rim, roughness_sharpness);
 
     EMISSION = emission.rgb * COLOR.rgb * emission_strength;
+    float heat = clamp(damage_heat, 0.0, 1.0);
+    EMISSION += mix(damage_dull_color.rgb, damage_hot_color.rgb, heat) * heat * damage_glow_strength;
 }
 
 // --- Light Function ---

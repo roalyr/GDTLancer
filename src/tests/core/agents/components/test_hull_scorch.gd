@@ -104,3 +104,27 @@ func test_rebuild_gives_ship_its_own_mesh_copy():
 	scorch.rebuild_meshes()
 	assert_ne(mesh_instance.mesh, shared_mesh, "Painting never touches the shared imported mesh.")
 	assert_eq(mesh_instance.mesh.get_surface_count(), 1)
+
+
+func test_hit_heats_the_mark_and_it_cools_over_time():
+	scorch.add_hit(Vector3(0, 200, 0), 6.0)
+	var hottest := 0.0
+	var arrays: Array = scorch._meshes[0].arrays[0]
+	for value in arrays[Mesh.ARRAY_TEX_UV2]:
+		hottest = max(hottest, scorch.get_heat(value))
+	assert_between(hottest, HullScorch.HEAT_PER_DAMAGE * 6.0 * 0.8, HullScorch.HEAT_PER_DAMAGE * 6.0, "Heat near the mark centre is proportional to damage.")
+	scorch._process(HullScorch.COOL_TIME)
+	var cooled := 0.0
+	for value in arrays[Mesh.ARRAY_TEX_UV2]:
+		cooled = max(cooled, scorch.get_heat(value))
+	assert_almost_eq(cooled, hottest * exp(-1.0), 0.01, "One cool time later the heat is down to ~37%.")
+
+
+func test_reheating_adds_to_remaining_heat_up_to_cap():
+	for _i in range(20):
+		scorch.add_hit(Vector3(0, 200, 0), 6.0)
+	var hottest := 0.0
+	for value in scorch._meshes[0].arrays[0][Mesh.ARRAY_TEX_UV2]:
+		hottest = max(hottest, scorch.get_heat(value))
+	assert_almost_eq(hottest, HullScorch.MAX_HEAT, 0.001)
+

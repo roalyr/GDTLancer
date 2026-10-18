@@ -1,6 +1,9 @@
-# HullScorch: accumulated damage marks, painted into the alpha channel of the hull's vertex colours.
-# The hull shader blends toward damage_mark_color where vertex alpha drops (1 = clean); each ship
-# gets its own copy of its hull material with damage_mark_strength switched on.
+# HullScorch: accumulated damage marks on the hull, painted into mesh vertex data.
+# - Vertex alpha: how marked a spot is (1 = clean); the shader blends it toward the cooled char colour.
+# - UV2: (time of the last hit, heat then). The shader decays heat over damage_cool_time against a
+#   per-ship clock set here every frame, glowing red, then dull red, then gone, so cooling needs no
+#   mesh updates; the mesh is only re-uploaded after hits.
+# Each ship gets its own copy of its hull material with damage_mark_strength switched on.
 #
 # Where a hit lands is found here on the CPU, once per hit (not in a shader):
 # 1. Each vertex is measured against the shot line, from the shooter to the hull centre:
@@ -18,10 +21,17 @@ const MARK_RADIUS_PER_SQRT_DAMAGE = 1.2  # m; a 6-damage hit marks about 3 m acr
 const CENTRE_MARK = 0.35  # Share of the clean surface a single hit marks at its centre
 const SURFACE_DEPTH = 1.0  # m
 const REBUILD_INTERVAL = 0.2  # s; marks are painted at once, the mesh is re-uploaded at most this often
+const HEAT_PER_DAMAGE = 0.15  # Heat added at a mark's centre per point of damage (1 = full glow)
+const MAX_HEAT = 1.5
+const COOL_TIME = 6.0  # s for heat to fall to ~37%; pushed to the shader so both agree
+# UV2 holds the hit time, so keep it at full float precision when uploading.
+const UPLOAD_FORMAT = Mesh.ARRAY_COMPRESS_DEFAULT & ~Mesh.ARRAY_COMPRESS_TEX_UV2
 
 var _meshes: Array = []  # {instance, primitives, arrays, materials, paintable: [surface index]}
 var _dirty := false
 var _rebuild_timer := 0.0
+var _clock := 0.0  # Seconds since setup; the shader's damage_time
+var _materials: Array = []  # Per-ship hull material copies that show marks
 
 
 # Collects mesh surfaces that carry vertex colours under the ship's visual model.
@@ -42,6 +52,11 @@ func setup(visual_root: Node) -> void:
 			var colors = arrays[Mesh.ARRAY_COLOR]
 			if colors != null and colors.size() == arrays[Mesh.ARRAY_VERTEX].size():
 				entry.paintable.append(surface)
+				var heat := PoolVector2Array()
+				heat.resize(colors.size())
+				for i in range(heat.size()):
+					heat[i] = Vector2.ZERO
+				arrays[Mesh.ARRAY_TEX_UV2] = heat
 		if not entry.paintable.empty():
 			_meshes.append(entry)
 			_enable_marks_on_own_material(node)
@@ -53,6 +68,8 @@ func _enable_marks_on_own_material(instance: MeshInstance) -> void:
 	if material is ShaderMaterial and material.shader != null and "damage_mark_strength" in material.shader.code:
 		instance.material_override = material.duplicate()
 		instance.material_override.set_shader_param("damage_mark_strength", 1.0)
+		instance.material_override.set_shader_param("damage_cool_time", COOL_TIME)
+		_materials.append(instance.material_override)
 
 
 func is_paintable() -> bool:
@@ -98,17 +115,23 @@ func add_hit(from_global: Vector3, damage: float) -> int:
 			continue
 		if not updates.has(candidate[0]):
 			updates[candidate[0]] = []
-		updates[candidate[0]].append([candidate[1], 1.0 - CENTRE_MARK * smoothstep(radius, 0.0, candidate[3])])
+		updates[candidate[0]].append([candidate[1], smoothstep(radius, 0.0, candidate[3])])
 		painted += 1
+	var heat_gain: float = HEAT_PER_DAMAGE * damage
 	for key in updates:
 		var arrays: Array = surfaces_by_key[key]
 		var colors: PoolColorArray = arrays[Mesh.ARRAY_COLOR]
+		var heat: PoolVector2Array = arrays[Mesh.ARRAY_TEX_UV2]
 		arrays[Mesh.ARRAY_COLOR] = null
+		arrays[Mesh.ARRAY_TEX_UV2] = null
 		for update in updates[key]:
+			var falloff: float = update[1]
 			var color: Color = colors[update[0]]
-			color.a *= update[1]
+			color.a *= 1.0 - CENTRE_MARK * falloff
 			colors[update[0]] = color
+			heat[update[0]] = Vector2(_clock, min(MAX_HEAT, get_heat(heat[update[0]]) + heat_gain * falloff))
 		arrays[Mesh.ARRAY_COLOR] = colors
+		arrays[Mesh.ARRAY_TEX_UV2] = heat
 	if painted > 0:
 		_dirty = true
 	return painted
@@ -126,7 +149,15 @@ func get_average_mark() -> float:
 	return total / count if count > 0 else 0.0
 
 
+# Heat left now from a stored (hit time, heat then) pair; same decay as the shader.
+func get_heat(stored: Vector2) -> float:
+	return stored.y * exp(-max(_clock - stored.x, 0.0) / COOL_TIME)
+
+
 func _process(delta: float) -> void:
+	_clock += delta
+	for material in _materials:
+		material.set_shader_param("damage_time", _clock)
 	_rebuild_timer = max(0.0, _rebuild_timer - delta)
 	if _dirty and _rebuild_timer <= 0.0:
 		rebuild_meshes()
@@ -141,6 +172,6 @@ func rebuild_meshes() -> void:
 			continue
 		var mesh := ArrayMesh.new()
 		for surface in range(entry.arrays.size()):
-			mesh.add_surface_from_arrays(entry.primitives[surface], entry.arrays[surface])
+			mesh.add_surface_from_arrays(entry.primitives[surface], entry.arrays[surface], [], UPLOAD_FORMAT)
 			mesh.surface_set_material(surface, entry.materials[surface])
 		entry.instance.mesh = mesh
