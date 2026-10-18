@@ -119,3 +119,22 @@ func test_wreck_drifts_and_cannot_spend_power():
 	shooter.power = 50.0
 	shooter._physics_process(1.0)
 	assert_almost_eq(shooter.power, 50.0 + shooter.power_regen, 0.001, "Live ships regenerate power.")
+
+
+func test_hit_effect_intensity_follows_damage():
+	var Effect = load("res://src/core/agents/effects/laser_hit_effect.gd")
+	assert_eq(Effect.intensity_for_damage(0.0), 0.0, "No damage, no visible hit.")
+	assert_almost_eq(Effect.intensity_for_damage(Effect.FULL_INTENSITY_DAMAGE), 1.0, 0.001)
+	assert_almost_eq(Effect.intensity_for_damage(Effect.FULL_INTENSITY_DAMAGE * 0.25), 0.5, 0.001)
+	assert_eq(Effect.intensity_for_damage(1000.0), Effect.MAX_INTENSITY)
+
+
+func test_zero_damage_cycle_spawns_no_hit_effect():
+	laser.damage = 0.0
+	controller.activate(0, target)
+	controller._physics_process(0.016)
+	var effects := 0
+	for child in target.get_children():
+		if child.get_script() == load("res://src/core/agents/effects/laser_hit_effect.gd"):
+			effects += 1
+	assert_eq(effects, 0, "Zero-damage hits are invisible.")

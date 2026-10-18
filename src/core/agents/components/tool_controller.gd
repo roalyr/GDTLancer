@@ -157,7 +157,7 @@ func _process_tool(index: int) -> void:
 	var damage: float = tool_template.damage * quality
 	_cycle_timers[index] = tool_template.cycle_time
 	target.apply_damage(damage, _agent_body)
-	_spawn_hit_effect(target, quality)
+	_spawn_hit_effect(target, damage)
 	emit_signal("tool_cycled", index, target, quality, damage)
 
 
@@ -171,12 +171,12 @@ func _is_valid_target(target) -> bool:
 
 
 # Lasers are invisible in vacuum: only the hit shows, as a flash and vaporized hull material.
-func _spawn_hit_effect(target: Spatial, quality: float) -> void:
-	if quality <= 0.01 or not target.is_inside_tree():
+func _spawn_hit_effect(target: Spatial, damage: float) -> void:
+	if LaserHitEffect.intensity_for_damage(damage) <= 0.0 or not target.is_inside_tree():
 		return
 	var hit_point: Vector3 = _find_hit_point(target)
 	var effect = LaserHitEffect.new()
-	effect.intensity = quality
+	effect.damage = damage
 	effect.size_scale = clamp(target.get_hull_radius() / 10.0, 1.0, 10.0) if target.has_method("get_hull_radius") else 1.0
 	effect.outward = (_agent_body.global_transform.origin - hit_point).normalized()
 	target.add_child(effect)
