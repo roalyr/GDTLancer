@@ -15,8 +15,8 @@ uniform vec4 damage_mark_color : hint_color = vec4(0.02, 0.02, 0.02, 1.0);
 uniform float damage_mark_strength : hint_range(0.0, 1.0) = 1.0;
 // Char shows as crisp, dithered patches rather than a smear across the hull's big triangles:
 // the interpolated mark is cut at damage_mark_edge, with a Bayer-dithered band damage_mark_softness wide.
-uniform float damage_mark_edge : hint_range(0.0, 1.0) = 0.2;
-uniform float damage_mark_softness : hint_range(0.0, 1.0) = 0.25;
+uniform float damage_mark_edge : hint_range(0.0, 1.0) = 0.15;
+uniform float damage_mark_softness : hint_range(0.0, 1.0) = 0.5;
 // Blackbody ramp for the glow, coolest to hottest (heat is temperature).
 uniform vec4 damage_dull_color : hint_color = vec4(0.35, 0.02, 0.0, 1.0);
 uniform vec4 damage_hot_color : hint_color = vec4(1.0, 0.18, 0.03, 1.0);
@@ -165,7 +165,7 @@ void fragment() {
     ALBEDO = max(paint_color.rgb + (vec3(detail_val) * detail_paint_strength), vec3(0.0));
     float damage_mark = (1.0 - COLOR.a) * damage_mark_strength;
     float damage_mark_dither = (bayer8x8(dither_pos) - 0.5) * damage_mark_softness;
-    damage_mark = step(damage_mark_edge, damage_mark + damage_mark_dither) * clamp(damage_mark * 2.0 + 0.4, 0.0, 1.0);
+    damage_mark = step(damage_mark_edge, damage_mark + damage_mark_dither) * clamp(damage_mark * 1.4 + 0.25, 0.0, 1.0);
     ALBEDO = mix(ALBEDO, damage_mark_color.rgb, damage_mark);
     EMISSION = damage_glow(damage_heat);
 }

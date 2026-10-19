@@ -1,9 +1,8 @@
-[gd_scene load_steps=9 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://src/core/agents/effects/wreck_explosion_effect.gd" type="Script" id=1]
 [ext_resource path="res://assets/art/effects/explosion_flash_material.tres" type="Material" id=2]
-[ext_resource path="res://assets/art/effects/explosion_puff_material.tres" type="Material" id=3]
-[ext_resource path="res://assets/models/shapes/Ellipsoid_05/Ellipsoid_05_LOD1.tres" type="ArrayMesh" id=7]
+[ext_resource path="res://assets/models/nebulas/spheroid.glb" type="PackedScene" id=7]
 [ext_resource path="res://assets/art/effects/explosion_fragment_material.tres" type="Material" id=4]
 
 [sub_resource type="QuadMesh" id=1]
@@ -29,17 +28,11 @@ mesh = SubResource( 1 )
 
 [node name="Puffs" type="Spatial" parent="."]
 
-[node name="Puff1" type="MeshInstance" parent="Puffs"]
-material_override = ExtResource( 3 )
-mesh = ExtResource( 7 )
+[node name="Puff1" parent="Puffs" instance=ExtResource( 7 )]
 
-[node name="Puff2" type="MeshInstance" parent="Puffs"]
-material_override = ExtResource( 3 )
-mesh = ExtResource( 7 )
+[node name="Puff2" parent="Puffs" instance=ExtResource( 7 )]
 
-[node name="Puff3" type="MeshInstance" parent="Puffs"]
-material_override = ExtResource( 3 )
-mesh = ExtResource( 7 )
+[node name="Puff3" parent="Puffs" instance=ExtResource( 7 )]
 
 [node name="Fragments" type="CPUParticles" parent="."]
 material_override = ExtResource( 4 )

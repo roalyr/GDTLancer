@@ -256,10 +256,12 @@ const EXPLOSION_LIFETIME = 30.0  # s
 const EXPLOSION_FLASH_DURATION = 0.6  # s
 const EXPLOSION_DRAG = 0.8  # Per second; the cloud centre slows a bit faster than a wreck (LINEAR_DRAG)
 # Cloud puffs (spheroids), sizes for the authored ship radius: each grows as it thins out.
-const EXPLOSION_PUFF_START_SIZE = 6.0  # m, radius of the spheroid's long axes at the start
-const EXPLOSION_PUFF_END_SIZE = 40.0  # m, by the end of EXPLOSION_LIFETIME
+const EXPLOSION_PUFF_START_SIZE = 5.0  # m, radius of the spheroid at the start
+const EXPLOSION_PUFF_END_SIZE = 32.0  # m, by the end of EXPLOSION_LIFETIME
 const EXPLOSION_PUFF_SPREAD = 14.0  # m the puffs drift apart from the centre
-const EXPLOSION_PUFF_OPACITY = 0.85  # At the start
+const EXPLOSION_PUFF_OPACITY = 0.85  # Glow at the start (additive: brightness)
+const EXPLOSION_PUFF_HOT_COLOR = Color(1.0, 0.45, 0.12)
+const EXPLOSION_PUFF_SMOKE_COLOR = Color(0.32, 0.3, 0.29)
 const EXPLOSION_PUFF_COOL_SHARE = 0.15  # Share of the lifetime over which the puffs cool from orange to grey
 
 
