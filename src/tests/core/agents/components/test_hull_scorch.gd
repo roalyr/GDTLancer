@@ -310,3 +310,16 @@ func test_the_agent_does_not_retry_a_recorded_hit():
 	assert_eq(scorch._pending_hits.size(), 1, "One shot, recorded once")
 	assert_true(point.is_equal_approx(body.get_hull_point_facing(Vector3(0, 50, 0))), "and the hit effect still gets a spot on the hull.")
 
+
+func test_a_hull_on_screen_is_painted_at_once_at_any_distance():
+	var camera = Camera.new()
+	add_child_autofree(camera)
+	camera.current = true
+	camera.far = 100000.0
+	camera.translation = Vector3(0, 0, 20000)
+	camera.look_at(Vector3.ZERO, Vector3.UP)
+	mesh_instance.visible = false  # Far: a lower level of detail shows instead
+	assert_true(scorch.is_watched(), "In view, however far")
+	assert_gt(scorch.add_hit(Vector3(0, 50, 0), Vector3.ZERO, 6.0), 0, "so the hit is painted now")
+	assert_false(scorch.last_hit_deferred)
+

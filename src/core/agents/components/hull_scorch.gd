@@ -31,7 +31,7 @@
 # their own hit times, so heat has cooled exactly as it would have) when the level shows, a few
 # per frame (Constants.SCORCH_REPLAY_BUDGET_MS).
 #
-# Cost: a hull no one can see records shots and does nothing else until it is seen (most hits in
+# Cost: a hull off screen records shots and does nothing else until it is in view (many hits in
 # a big fight). Seen hulls find the shot's surface through the full-detail mesh's vertex grid
 # (cells along the shot line) instead of scanning every vertex. Grids are built in the background
 # when objects are set up.
@@ -128,9 +128,9 @@ func is_paintable() -> bool:
 # Paints a mark where a shot from `from_global` toward `aim_global` first meets the hull, and
 # records that point in last_hit_point. Returns the number of vertices charred or heated (0 = the shot line
 # passed the hull without touching it, e.g. between wings).
-# A hull no one can see (off screen, or far enough that its full-detail mesh is hidden) only
-# records the shot: last_hit_deferred is set, no point is found, and the hit is painted, with its
-# own hit time, once the hull is in view (see _replay_pending).
+# A hull off screen only records the shot: last_hit_deferred is set, no point is found, and the
+# hit is painted, with its own hit time, once the hull is in view (see _replay_pending). On
+# screen it is painted at once at any distance, whichever level of detail shows.
 func add_hit(from_global: Vector3, aim_global: Vector3, damage: float) -> int:
 	last_hit_point = null
 	last_hit_normal = null
@@ -146,14 +146,15 @@ func add_hit(from_global: Vector3, aim_global: Vector3, damage: float) -> int:
 	return _apply_hit(from_global, aim_global, damage, _clock)
 
 
-# Whether anyone can see the hull now: its full-detail mesh is shown and inside the camera's view.
+# Whether the hull is in the camera's view, at any distance (the full-detail mesh stands for every
+# level of detail: they share its place and size).
 func is_watched() -> bool:
 	var camera = get_viewport().get_camera() if is_inside_tree() else null
 	if camera == null:
 		return true  # Nothing to judge by (tests, tools)
 	var planes: Array = camera.get_frustum()
 	for entry in _meshes:
-		if not (is_instance_valid(entry.instance) and entry.instance.is_visible_in_tree()):
+		if not is_instance_valid(entry.instance):
 			continue
 		var box: AABB = entry.instance.get_aabb()
 		var to_world: Transform = entry.instance.global_transform
