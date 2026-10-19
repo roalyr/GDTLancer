@@ -23,6 +23,12 @@ var agent_spawner = null setget set_agent_spawner
 var asset_system = null setget set_asset_system
 
 
+# On exit, join the background thread that builds hull-mark vertex grids (VertexGrid): a
+# thread still running at exit is an error. Autoloads leave the tree last.
+func _exit_tree() -> void:
+	load("res://src/core/agents/components/vertex_grid.gd").shutdown()
+
+
 func _ready():
 	if VERBOSE_REF_LOGS:
 		print("GlobalRefs Ready.")

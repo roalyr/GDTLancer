@@ -29,7 +29,12 @@
 # all objects using it), so painting them costs a few cells around the hit, not a full scan.
 # Only the levels on screen are painted at once; hits on hidden levels wait and are replayed (with
 # their own hit times, so heat has cooled exactly as it would have) when the level shows, a few
-# per frame (Constants.SCORCH_LOD_REPLAY_BUDGET_MS).
+# per frame (Constants.SCORCH_REPLAY_BUDGET_MS).
+#
+# Cost: a hull no one can see records shots and does nothing else until it is seen (most hits in
+# a big fight). Seen hulls find the shot's surface through the full-detail mesh's vertex grid
+# (cells along the shot line) instead of scanning every vertex. Grids are built in the background
+# when objects are set up.
 
 extends Node
 
@@ -45,6 +50,8 @@ var _clock := 0.0  # Seconds since setup; the shader's damage_time
 var _materials: Array = []  # Per-ship hull material copies that show marks
 var last_hit_point = null  # World point where the last add_hit met the hull; null if it missed
 var last_hit_normal = null  # World surface normal there (from the mesh), or null
+var last_hit_deferred := false  # The last add_hit only recorded the shot (no one could see the hull)
+var _pending_hits: Array = []  # Shots recorded while no one could see the hull: [from, aim, damage, clock]
 
 
 # Collects the mesh surfaces under the ship's visual model that are drawn with a marking shader.
@@ -79,6 +86,7 @@ func setup(visual_root: Node) -> void:
 					heat[i] = Vector2.ZERO
 				arrays[Mesh.ARRAY_TEX_UV2] = heat
 		if not entry.paintable.empty():
+			VertexGrid.request(entry.source, entry.arrays, entry.paintable)  # Built in the background
 			if node.is_in_group("lod_mesh"):
 				entry["pending"] = []
 				_lod_meshes.append(entry)
@@ -120,31 +128,72 @@ func is_paintable() -> bool:
 # Paints a mark where a shot from `from_global` toward `aim_global` first meets the hull, and
 # records that point in last_hit_point. Returns the number of vertices charred or heated (0 = the shot line
 # passed the hull without touching it, e.g. between wings).
+# A hull no one can see (off screen, or far enough that its full-detail mesh is hidden) only
+# records the shot: last_hit_deferred is set, no point is found, and the hit is painted, with its
+# own hit time, once the hull is in view (see _replay_pending).
 func add_hit(from_global: Vector3, aim_global: Vector3, damage: float) -> int:
 	last_hit_point = null
 	last_hit_normal = null
+	last_hit_deferred = false
 	if damage <= 0.0 or _meshes.empty():
 		return 0
+	if not _pending_hits.empty() or not is_watched():
+		last_hit_deferred = true
+		_pending_hits.append([from_global, aim_global, damage, _clock])
+		if _pending_hits.size() > Constants.SCORCH_MAX_PENDING:
+			_pending_hits.pop_front()  # The oldest: long cooled, only its char is lost
+		return 0
+	return _apply_hit(from_global, aim_global, damage, _clock)
+
+
+# Whether anyone can see the hull now: its full-detail mesh is shown and inside the camera's view.
+func is_watched() -> bool:
+	var camera = get_viewport().get_camera() if is_inside_tree() else null
+	if camera == null:
+		return true  # Nothing to judge by (tests, tools)
+	var planes: Array = camera.get_frustum()
+	for entry in _meshes:
+		if not (is_instance_valid(entry.instance) and entry.instance.is_visible_in_tree()):
+			continue
+		var box: AABB = entry.instance.get_aabb()
+		var to_world: Transform = entry.instance.global_transform
+		var centre: Vector3 = to_world.xform(box.position + box.size * 0.5)
+		var radius: float = box.size.length() * 0.5 * to_world.basis.get_scale().x
+		var inside := true
+		for plane in planes:
+			if plane.distance_to(centre) > radius:
+				inside = false
+				break
+		if inside:
+			return true
+	return false
+
+
+# The hit itself, stamped with `clock` (now, or the time of a replayed hit).
+# 1. The surface: vertices along the shot line within the char radius (through the mesh's vertex
+#    grid, not a scan of the whole mesh), widened on coarse meshes.
+# 2. The impact point: the first surface's vertex nearest the line.
+# 3. Char and heat, painted around the impact point on every mesh (full detail at once, lower
+#    levels of detail when shown).
+func _apply_hit(from_global: Vector3, aim_global: Vector3, damage: float, clock: float) -> int:
 	# Both grow with beam power: the char mark, and the wider area the heat reaches.
 	var radius: float = Constants.SCORCH_RADIUS_PER_SQRT_DAMAGE * sqrt(damage)
-	var heat_radius: float = radius * Constants.SCORCH_HEAT_SPREAD
 	var surfaces_by_key := {}  # surface key -> that surface's arrays
 	var instances_by_key := {}  # surface key -> its MeshInstance
 	var beams_by_key := {}  # surface key -> shot direction in that mesh's space
 	# [surface key, vertex index, t (m), distance from line (m), position, faces the shooter]
-	var candidates: Array = _collect_candidates(from_global, aim_global, heat_radius, surfaces_by_key, instances_by_key, beams_by_key)
+	var candidates: Array = _collect_candidates(from_global, aim_global, radius, surfaces_by_key, instances_by_key, beams_by_key)
 	# Coarse meshes (a large low-poly rock) can have no vertex this close to the line: widen until
 	# the shot finds enough surface to mark. Such marks are coarser, but always show.
 	for _widen in range(Constants.SCORCH_MAX_WIDENINGS):
 		if _count_points(candidates) >= Constants.SCORCH_MIN_SURFACE_POINTS:
 			break
 		radius *= 2.0
-		heat_radius *= 2.0
-		candidates = _collect_candidates(from_global, aim_global, heat_radius, surfaces_by_key, instances_by_key, beams_by_key)
+		candidates = _collect_candidates(from_global, aim_global, radius, surfaces_by_key, instances_by_key, beams_by_key)
+	var heat_radius: float = radius * Constants.SCORCH_HEAT_SPREAD
 	var depth: float = max(Constants.SCORCH_SURFACE_DEPTH, radius * 0.5)
 	var first_t: float = _find_first_surface(candidates, depth)
 
-	# 1. The impact point: the first surface's vertex nearest the shot line.
 	var closest_to_line := INF
 	for candidate in candidates:
 		if not candidate[5] or candidate[2] < first_t or candidate[2] > first_t + depth or candidate[3] >= closest_to_line:
@@ -159,61 +208,29 @@ func add_hit(from_global: Vector3, aim_global: Vector3, damage: float) -> int:
 	if last_hit_point == null:
 		return 0
 
-	# 2 and 3. Char on the footprint, heat through the volume. Grouped per surface, then each
-	# array is edited once while detached: pool arrays copy on write, so a still-shared array
-	# would be copied on every vertex write.
-	var updates := {}  # surface key -> [[vertex index, char falloff, heat falloff], ...]
-	var entries_by_key := {}  # surface key -> its mesh entry
+	var hit := {"from": from_global, "aim": aim_global, "first_t": first_t, "depth": depth, "radius": radius,
+		"heat_radius": heat_radius, "heat_gain": Constants.SCORCH_HEAT_PER_DAMAGE * damage, "point": last_hit_point, "clock": clock}
 	var painted := 0
-	for candidate in candidates:
-		var key: int = candidate[0]
-		var char_falloff := 0.0
-		if candidate[5] and candidate[2] >= first_t and candidate[2] <= first_t + depth and candidate[3] < radius:
-			char_falloff = smoothstep(radius, 0.0, candidate[3])
-		var heat_distance: float = instances_by_key[key].global_transform.xform(candidate[4]).distance_to(last_hit_point)
-		var heat_falloff: float = smoothstep(heat_radius, 0.0, heat_distance)
-		if char_falloff <= 0.0 and heat_falloff <= 0.0:
-			continue
-		if not updates.has(key):
-			updates[key] = []
-			entries_by_key[key] = _meshes[key / 1024]
-		updates[key].append([candidate[1], char_falloff, heat_falloff])
-		painted += 1
-	var heat_gain: float = Constants.SCORCH_HEAT_PER_DAMAGE * damage
-	for key in updates:
-		var arrays: Array = surfaces_by_key[key]
-		var colors: PoolColorArray = arrays[Mesh.ARRAY_COLOR]
-		var heat: PoolVector2Array = arrays[Mesh.ARRAY_TEX_UV2]
-		arrays[Mesh.ARRAY_COLOR] = null
-		arrays[Mesh.ARRAY_TEX_UV2] = null
-		for update in updates[key]:
-			if update[1] > 0.0:
-				var color: Color = colors[update[0]]
-				color.a *= 1.0 - Constants.SCORCH_CENTRE_MARK * update[1]
-				colors[update[0]] = color
-			if update[2] > 0.0:
-				heat[update[0]] = Vector2(_clock, min(Constants.SCORCH_MAX_HEAT, get_heat(heat[update[0]]) + heat_gain * update[2]))
-		arrays[Mesh.ARRAY_COLOR] = colors
-		arrays[Mesh.ARRAY_TEX_UV2] = heat
-		entries_by_key[key].dirty = true
+	for entry in _meshes:
+		painted += _paint_entry(entry, hit)
 	if painted > 0:
-		var hit := {"from": from_global, "aim": aim_global, "first_t": first_t, "depth": depth, "radius": radius,
-			"heat_radius": heat_radius, "heat_gain": heat_gain, "point": last_hit_point, "clock": _clock}
 		for entry in _lod_meshes:
 			if entry.instance.is_visible_in_tree() and entry.pending.empty():  # Older hits first
-				_paint_lod_entry(entry, hit)
+				_paint_entry(entry, hit)
 			else:
 				entry.pending.append(hit)
-				if entry.pending.size() > Constants.SCORCH_LOD_MAX_PENDING:
+				if entry.pending.size() > Constants.SCORCH_MAX_PENDING:
 					entry.pending.pop_front()  # The oldest: long cooled, only its char is lost
 		_dirty = true
 	return painted
 
 
-# A full-detail hit painted onto one lower level of detail: vertices near the impact point, found
-# through the source mesh's vertex grid, judged by the same rules as on the full-detail mesh.
-# `hit` holds the shot line, the surface found, both radii, the heat added and the hit time.
-func _paint_lod_entry(entry: Dictionary, hit: Dictionary) -> void:
+# A hit painted onto one mesh (full detail or a lower level): vertices near the impact point,
+# found through the source mesh's vertex grid. Char where the beam's footprint meets the surface
+# facing the shooter; heat by distance from the impact point. `hit` holds the shot line, the
+# surface found, both radii, the heat added and the hit time. Returns the vertices painted.
+func _paint_entry(entry: Dictionary, hit: Dictionary) -> int:
+	var painted := 0
 	var first_t: float = hit.first_t
 	var depth: float = hit.depth
 	var radius: float = hit.radius
@@ -251,21 +268,30 @@ func _paint_lod_entry(entry: Dictionary, hit: Dictionary) -> void:
 				color.a *= 1.0 - Constants.SCORCH_CENTRE_MARK * char_falloff
 				colors[i] = color
 				entry.dirty = true
+			if char_falloff > 0.0 or heat_falloff > 0.0:
+				painted += 1
 			if heat_falloff > 0.0:
 				heat[i] = Vector2(hit.clock, min(Constants.SCORCH_MAX_HEAT, heat_at(heat[i], hit.clock) + hit.heat_gain * heat_falloff))
 				entry.dirty = true
 		arrays[Mesh.ARRAY_COLOR] = colors
 		arrays[Mesh.ARRAY_TEX_UV2] = heat
+	return painted
 
 
-# Replays hits that landed while a level was hidden, now that it shows, within the frame budget.
+# Replays, within the frame budget: hits that landed while no one could see the hull (once someone
+# can), then hits waiting for a hidden level of detail (once it shows).
 func _replay_pending() -> void:
 	var start: int = OS.get_ticks_usec()
+	while not _pending_hits.empty() and is_watched():
+		var shot: Array = _pending_hits.pop_front()
+		_apply_hit(shot[0], shot[1], shot[2], shot[3])
+		if OS.get_ticks_usec() - start > Constants.SCORCH_REPLAY_BUDGET_MS * 1000:
+			return
 	for entry in _lod_meshes:
 		while not entry.pending.empty() and entry.instance.is_visible_in_tree():
-			_paint_lod_entry(entry, entry.pending.pop_front())
+			_paint_entry(entry, entry.pending.pop_front())
 			_dirty = true
-			if OS.get_ticks_usec() - start > Constants.SCORCH_LOD_REPLAY_BUDGET_MS * 1000:
+			if OS.get_ticks_usec() - start > Constants.SCORCH_REPLAY_BUDGET_MS * 1000:
 				return
 
 
@@ -315,6 +341,7 @@ func import_marks(marks: Dictionary) -> void:
 
 # Restores a clean hull (repairs).
 func clear_marks() -> void:
+	_pending_hits.clear()
 	for entry in _lod_meshes:
 		entry.pending.clear()
 	for entry in _meshes + _lod_meshes:
@@ -340,16 +367,15 @@ static func _faces_shooter(arrays: Array, index: int, beam_local: Vector3) -> bo
 	return normals[index].dot(beam_local) < 0.0
 
 
-# PERFORMANCE (deferred until hitches or artifacts show): every hit scans all vertices of the hit
-# mesh, about 15 ms on the densest 37k-vertex rock (7 ms scan, 3 ms re-upload). If that shows:
-# - Index vertex positions in a coarse grid per source mesh: mesh-local, shared by every object
-#   using that mesh, built lazily on first hit (~50 ms once per dense mesh, ~0.4 MB). Query only
-#   the cells along the shot line (~0.1 ms instead of ~7 ms).
-# - Share immutable arrays (positions, normals, indices) per source mesh and keep only colours and
-#   heat per object (~2.6 MB -> ~0.9 MB per dense rock).
-# Key both on the original imported mesh, not the per-object copy made after the first hit.
+# PERFORMANCE (headless bench, 6-damage hit): ~3 ms on the densest rock, ~24 ms on the light
+# Phoenix, whose remaining cost is mostly _find_first_surface (it re-counts points for every
+# candidate start; a sliding window over the depth-sorted candidates would make it one pass).
+# Further options if needed: update only the colour/UV2 byte ranges on upload
+# (ArrayMesh.surface_update_region) instead of rebuilding the mesh; share immutable arrays per
+# source mesh and keep only colours and heat per object.
 
-# Vertices near the shot line, from every paintable surface.
+# Vertices near the shot line, from every full-detail surface: those in the grid cells along the
+# line where it crosses the mesh, measured exactly.
 func _collect_candidates(from_global: Vector3, aim_global: Vector3, radius: float, surfaces_by_key: Dictionary, instances_by_key: Dictionary, beams_by_key: Dictionary) -> Array:
 	var candidates: Array = []
 	for mesh_index in range(_meshes.size()):
@@ -365,13 +391,17 @@ func _collect_candidates(from_global: Vector3, aim_global: Vector3, radius: floa
 			surfaces_by_key[key] = entry.arrays[surface]
 			instances_by_key[key] = entry.instance
 			beams_by_key[key] = direction
-			var positions: PoolVector3Array = entry.arrays[surface][Mesh.ARRAY_VERTEX]
-			for i in range(positions.size()):
-				var relative: Vector3 = positions[i] - origin
-				var t: float = relative.dot(direction)
-				var distance_sq: float = relative.length_squared() - t * t
-				if distance_sq < radius_sq:
-					candidates.append([key, i, t * scale, sqrt(max(distance_sq, 0.0)) * scale, positions[i], _faces_shooter(entry.arrays[surface], i, direction)])
+		var grid: Dictionary = VertexGrid.for_mesh(entry.source, entry.arrays, entry.paintable)
+		for packed in VertexGrid.query_line(grid, origin, direction, radius_local):
+			var surface: int = packed / VertexGrid.STRIDE
+			var i: int = packed % VertexGrid.STRIDE
+			var arrays: Array = entry.arrays[surface]
+			var position: Vector3 = arrays[Mesh.ARRAY_VERTEX][i]
+			var relative: Vector3 = position - origin
+			var t: float = relative.dot(direction)
+			var distance_sq: float = relative.length_squared() - t * t
+			if distance_sq < radius_sq:
+				candidates.append([mesh_index * 1024 + surface, i, t * scale, sqrt(max(distance_sq, 0.0)) * scale, position, _faces_shooter(arrays, i, direction)])
 	return candidates
 
 

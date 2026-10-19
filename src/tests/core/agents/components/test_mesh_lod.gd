@@ -161,10 +161,7 @@ func test_vertex_grid_finds_the_vertices_near_a_point():
 	var positions := PoolVector3Array()
 	for i in range(1000):
 		positions.append(Vector3(i % 10, (i / 10) % 10, i / 100))
-	var arrays: Array = []
-	arrays.resize(Mesh.ARRAY_MAX)
-	arrays[Mesh.ARRAY_VERTEX] = positions
-	var grid: Dictionary = VertexGrid.build([arrays, arrays], [1])
+	var grid: Dictionary = VertexGrid.build({1: positions})
 	var found: Array = VertexGrid.query(grid, Vector3(5, 5, 5), 1.0)
 	assert_true(found.has(1 * VertexGrid.STRIDE + 555), "The vertex at the point, tagged with its surface")
 	for i in range(positions.size()):
@@ -172,3 +169,41 @@ func test_vertex_grid_finds_the_vertices_near_a_point():
 			assert_true(found.has(VertexGrid.STRIDE + i), "and every vertex within reach.")
 	assert_lt(found.size(), 300, "Not the whole mesh.")
 	assert_eq(VertexGrid.query(grid, Vector3(5, 5, 5), 50.0).size(), 1000, "A reach past the mesh finds all of it.")
+
+
+func test_line_query_holds_every_vertex_near_the_line_and_little_else():
+	var VertexGrid = load("res://src/core/agents/components/vertex_grid.gd")
+	var positions := PoolVector3Array()
+	for i in range(8000):
+		positions.append(Vector3(i % 20, (i / 20) % 20, i / 400))
+	var grid: Dictionary = VertexGrid.build({0: positions})
+	var origin := Vector3(-30, 3.3, 7.1)
+	var direction: Vector3 = (Vector3(40, 15.2, 12.4) - origin).normalized()
+	var found: Array = VertexGrid.query_line(grid, origin, direction, 1.5)
+	for i in range(positions.size()):
+		var relative: Vector3 = positions[i] - origin
+		var t: float = relative.dot(direction)
+		if relative.length_squared() - t * t < 1.5 * 1.5:
+			assert_true(found.has(i), "Every vertex within reach of the line is offered")
+	assert_lt(found.size(), positions.size() / 4, "without offering the whole mesh.")
+	assert_eq(VertexGrid.query_line(grid, Vector3(-30, 100, 0), Vector3.RIGHT, 1.5), [], "A line past the mesh finds nothing.")
+
+
+func test_grids_build_in_the_background_and_match_a_direct_build():
+	var VertexGrid = load("res://src/core/agents/components/vertex_grid.gd")
+	var source := ArrayMesh.new()
+	var positions := PoolVector3Array()
+	for i in range(3000):
+		positions.append(Vector3(i % 15, (i / 15) % 15, i / 225))
+	var arrays: Array = []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = positions
+	VertexGrid.request(source, [arrays], [0])
+	var waited := 0
+	while not VertexGrid.is_ready(source) and waited < 200:
+		yield(get_tree(), "idle_frame")
+		waited += 1
+	assert_true(VertexGrid.is_ready(source), "Built off the main thread")
+	var grid: Dictionary = VertexGrid.for_mesh(source, [arrays], [0])
+	assert_eq(grid.cells.size(), VertexGrid.build({0: positions}).cells.size(), "the same grid a direct build gives.")
+

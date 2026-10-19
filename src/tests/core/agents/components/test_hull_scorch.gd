@@ -268,3 +268,45 @@ func test_heat_wraps_round_an_edge_without_charring_the_side():
 	var side: Dictionary = _surface_state(funcref(self, "_right_side"))
 	assert_gt(side.heated, 0, "The side face next to the hit heats up.")
 	assert_eq(side.charred, 0, "The side face is edge-on to the beam, so it is not burned.")
+
+
+# --- No one watching ---
+
+func test_a_hull_no_one_can_see_records_hits_and_paints_them_once_seen():
+	var camera = Camera.new()
+	add_child_autofree(camera)
+	camera.current = true
+	camera.far = 10000.0
+	camera.translation = Vector3(0, 0, 200)
+	camera.look_at(Vector3(0, 0, 400), Vector3.UP)  # Looking away from the hull
+	assert_false(scorch.is_watched())
+	var clock_at_hit: float = scorch._clock
+	assert_eq(scorch.add_hit(Vector3(0, 50, 0), Vector3.ZERO, 6.0), 0, "Out of sight: nothing painted now")
+	assert_true(scorch.last_hit_deferred, "the shot is only recorded")
+	assert_eq(_mark_of_vertices(funcref(self, "_is_top_face")), 0.0)
+	scorch._clock += 3.0
+	camera.look_at(Vector3.ZERO, Vector3.UP)
+	assert_true(scorch.is_watched())
+	scorch._replay_pending()
+	assert_gt(_mark_of_vertices(funcref(self, "_is_top_face")), 0.0, "In view: painted")
+	var stamped := false
+	for stored in scorch._meshes[0].arrays[0][Mesh.ARRAY_TEX_UV2]:
+		stamped = stamped or (stored.y > 0.0 and is_equal_approx(stored.x, clock_at_hit))
+	assert_true(stamped, "at its own hit time, so its heat has cooled as if painted then.")
+
+
+func test_the_agent_does_not_retry_a_recorded_hit():
+	var AgentScript = load("res://src/core/agents/agent.gd")
+	var body = AgentScript.new()
+	add_child_autofree(body)
+	body._hull_scorch = scorch
+	var camera = Camera.new()
+	add_child_autofree(camera)
+	camera.current = true
+	camera.far = 10000.0
+	camera.translation = Vector3(0, 0, 200)
+	camera.look_at(Vector3(0, 0, 400), Vector3.UP)
+	var point: Vector3 = body.register_hit(Vector3(0, 50, 0), 6.0)
+	assert_eq(scorch._pending_hits.size(), 1, "One shot, recorded once")
+	assert_true(point.is_equal_approx(body.get_hull_point_facing(Vector3(0, 50, 0))), "and the hit effect still gets a spot on the hull.")
+

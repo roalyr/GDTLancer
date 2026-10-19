@@ -379,8 +379,8 @@ func register_hit(from_global: Vector3, damage: float) -> Vector3:
 			_hull_scorch.add_hit(from_global, aim, damage)
 			point = _hull_scorch.last_hit_point
 			normal = _hull_scorch.last_hit_normal
-			if point != null:
-				break
+			if point != null or _hull_scorch.last_hit_deferred:
+				break  # Marked, or recorded for when someone can see the hull
 		if is_player():
 			GameState.player_hull_marks = _hull_scorch.export_marks()
 	if point == null:

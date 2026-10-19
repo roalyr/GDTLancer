@@ -209,8 +209,8 @@ const SCORCH_SURFACE_DEPTH = 1.0  # m; vertices this far behind the first surfac
 const SCORCH_MIN_SURFACE_POINTS = 8  # Fewer distinct vertices near the shot line = a thin detail (antenna); the shot passes it
 const SCORCH_MAX_WIDENINGS = 3  # On coarse meshes the mark radius doubles up to this many times to find surface
 const SCORCH_REBUILD_INTERVAL = 0.2  # s; marks paint at once, the mesh re-uploads at most this often
-const SCORCH_LOD_REPLAY_BUDGET_MS = 2.0  # Per frame: hits on hidden levels of detail are painted when shown, this much at a time
-const SCORCH_LOD_MAX_PENDING = 64  # Hits kept per hidden level; the oldest (cooled, char only) give way
+const SCORCH_REPLAY_BUDGET_MS = 2.0  # Per frame: hits recorded while no one could see a hull (or a level of detail) are painted when seen, this much at a time
+const SCORCH_MAX_PENDING = 64  # Hits kept per hull (and per hidden level); the oldest (cooled, char only) give way
 const SCORCH_HEAT_PER_DAMAGE = 0.2  # Heat added at a mark's centre per point of damage (6 damage = red, 30+ = white)
 const SCORCH_HEAT_SPREAD = 1.5  # Heat reaches this many mark radii from the hit (heat outruns the char)
 const SCORCH_GLOW_THRESHOLD = 0.25  # Heat below this does not glow (incandescence), pushed to the shader
