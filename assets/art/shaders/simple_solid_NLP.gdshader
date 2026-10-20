@@ -10,10 +10,10 @@ uniform vec4 paint_color : hint_color = vec4(1.0);
 // Damage marks (HullScorch), on by default; set damage_mark_strength = 0 for special surfaces.
 // A hull that has been hit gets its own material copy with damage_active = 1 and the slots below,
 // in the mesh's own space; shared materials (hulls never hit) skip all damage work.
-// - Scars (char): damage_scar_N = (where the shot met the collision hull, radius), damage_scar_dir_N
+// - Scars (char): damage_scar_N = (where the shot met the hit surface, radius), damage_scar_dir_N
 //   = (shot direction, strength; 0 = unused slot). Surfaces within the radius of the shot line, from
-//   damage_scar_reach_front before that point to damage_scar_reach_back behind it, and facing the
-//   shot, blend to damage_mark_color (the cooled char).
+//   damage_scar_reach_front before that point to damage_scar_reach_back behind it (at least the
+//   radius either way), and facing the shot, blend to damage_mark_color (the cooled char).
 // - Wear: a damage_wear share of the hull charred in blocky patches damage_wear_cell wide.
 // - Heat: damage_heat_N = (point, radius), damage_heat_time_N = (hit time, heat then), worked out per
 //   vertex; it cools over damage_cool_time against damage_time, the ship's clock.
@@ -84,7 +84,7 @@ float damage_scar_mark(vec3 pos, vec3 normal, vec4 scar, vec4 line) {
     vec3 rel = pos - scar.xyz;
     float along = dot(rel, line.xyz);
     float off_line = length(rel - line.xyz * along);
-    float in_reach = step(-damage_scar_reach_front, along) * step(along, damage_scar_reach_back);
+    float in_reach = step(-max(damage_scar_reach_front, scar.w), along) * step(along, max(damage_scar_reach_back, scar.w));
     float facing = step(dot(normal, line.xyz), -damage_facing_min);
     return line.w * in_reach * facing * (1.0 - smoothstep(0.0, scar.w, off_line));
 }

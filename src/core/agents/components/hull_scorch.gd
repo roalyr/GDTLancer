@@ -3,10 +3,11 @@
 # copies, so marks cost the same on any mesh, show on every level of detail, and need no work while
 # the hull is off screen.
 # - Scars (char), up to Constants.SCORCH_MAX_SCARS: a stretch of the shot line (where it met the
-#   collision hull, its direction, a radius and a strength). The shader chars surfaces within the
-#   radius of that line, a little in front of the point and up to SCORCH_SCAR_REACH_BACK behind it,
-#   that face the shot. So the char lands on the visible plating even though the point comes from
-#   the convex collision hull, and stretches on oblique faces as a real beam spot does. A hit near
+#   hit surface, its direction, a radius and a strength). The shader chars surfaces within the
+#   radius of that line that face the shot, from SCORCH_SCAR_REACH_FRONT in front of the point to
+#   SCORCH_SCAR_REACH_BACK behind it (at least the radius either way). So the char lands on every
+#   level of detail although the point comes from one, covers rough faces a wide beam would, and
+#   stretches on oblique faces as a real beam spot does. A hit near
 #   an existing scar from about the same direction joins it (deeper, a bit wider); otherwise it takes
 #   a free slot, or the weakest scar gives way and its share of the hull turns into wear.
 # - Wear: blocky char patches over a share of the whole hull (old damage no slot can hold).
@@ -18,7 +19,7 @@
 # into each mesh's own space when pushed: meshes are grouped by their placement under the root
 # (lower levels of detail share their original's), and each group has its own material copies.
 # Hulls that were never hit keep the shared materials, which skip all damage work in the shader.
-# Where a shot lands is the caller's business: the collision hull (CollisionHull.ray_onto).
+# Where a shot lands is the caller's business: the hit surface (CollisionHull.ray_onto).
 
 extends Node
 
@@ -308,7 +309,7 @@ func get_char_at(point_global: Vector3, normal_global: Vector3) -> float:
 	for scar in _scars:
 		var relative: Vector3 = point - scar.point
 		var along: float = relative.dot(scar.direction)
-		if along < -front or along > back or normal.dot(scar.direction) > -Constants.SCORCH_FACING_MIN:
+		if along < -max(front, scar.radius) or along > max(back, scar.radius) or normal.dot(scar.direction) > -Constants.SCORCH_FACING_MIN:
 			continue
 		var off_line: float = (relative - scar.direction * along).length()
 		clean *= 1.0 - scar.strength * (1.0 - smoothstep(0.0, scar.radius, off_line))

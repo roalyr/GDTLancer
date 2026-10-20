@@ -116,6 +116,7 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 				_hull_scorch = HullScorch.new()
 				add_child(_hull_scorch)
 				_hull_scorch.setup(ship_visual)
+				CollisionHull.add_hit_surface(self, ship_visual)  # Where shots land: the plating, not the hull round it
 				if is_player():
 					_hull_scorch.import_marks(GameState.player_hull_marks)
 			else:
@@ -376,7 +377,7 @@ func get_random_aim_point() -> Vector3:
 
 
 # A shot from `from_global` lands on the hull: marks it, may open a fuel leak, and returns the
-# world point it hit. The shot line meets the collision hull (CollisionHull.ray_onto), aimed at
+# world point it hit. The shot line meets the hit surface (CollisionHull.ray_onto), aimed at
 # random points (a line can pass between wings), then the centre; failing that, the hull point
 # facing the shooter.
 func register_hit(from_global: Vector3, damage: float) -> Vector3:

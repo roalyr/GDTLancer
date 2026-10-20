@@ -49,9 +49,11 @@ func test_mark_grows_with_damage():
 	assert_gt(scorch.get_char_at(Vector3(1.2, 2, 0), Vector3.UP), 0.0, "a strong one a wider one (radius ~ sqrt(damage)).")
 
 
-func test_char_lands_behind_the_collision_point_on_the_plating():
-	scorch.add_hit(Vector3(0, 200, 0), Vector3(0, 4, 0), 6.0)  # Convex hull 2 m above the plating
-	assert_gt(scorch.get_char_at(Vector3(0, 2, 0), Vector3.UP), 0.4, "The shot line carries the char down to the visible surface.")
+func test_char_reaches_other_levels_of_detail_but_not_plates_behind():
+	scorch.add_hit(Vector3(0, 200, 0), Vector3(0, 3, 0), 6.0)  # The hit surface's level sits 1 m above this one
+	assert_gt(scorch.get_char_at(Vector3(0, 2, 0), Vector3.UP), 0.4, "The shot line carries the char to the level shown")
+	assert_gt(scorch.get_char_at(Vector3(0, 4, 0), Vector3.UP), 0.4, "whether it sinks in or bulges out,")
+	assert_eq(scorch.get_char_at(Vector3(0, -2, 0), Vector3.UP), 0.0, "but not to a plate further down the line.")
 
 
 func test_repeated_hits_join_one_scar_and_saturate():

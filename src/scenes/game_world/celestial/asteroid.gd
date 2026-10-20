@@ -46,6 +46,7 @@ func _ready() -> void:
 	_hull_scorch = HullScorch.new()
 	add_child(_hull_scorch)
 	_hull_scorch.setup(_model)
+	CollisionHull.add_hit_surface(self, _model)  # Where shots land: the rock face, not the hull round it
 
 
 func _measure_model_bounds() -> AABB:
@@ -78,7 +79,7 @@ func get_apparent_radius() -> float:
 
 
 # A shot from `from_global` lands on the rock: marks it and returns the world point it hit.
-# The shot line meets the collision hull; failing that, the rock point facing the shooter.
+# The shot line meets the rock's hit surface; failing that, the rock point facing the shooter.
 func register_hit(from_global: Vector3, damage: float) -> Vector3:
 	var aim: Vector3 = global_transform.xform(hull_bounds.position + hull_bounds.size * 0.5)
 	var hit: Dictionary = CollisionHull.ray_onto(self, from_global, aim, get_apparent_radius() * 2.0)

@@ -101,3 +101,39 @@ func test_asteroids_collide_as_their_outline():
 	for point in shape.points:
 		reach = max(reach, point.length())
 	assert_gt(reach, rock.get_apparent_radius() * 0.7, "reaching out to the rock's surface.")
+
+
+func test_shots_land_on_the_plating_inside_the_hull():
+	var target = StaticBody.new()
+	add_child_autofree(target)
+	var visual = Spatial.new()
+	target.add_child(visual)
+	visual.add_child(load(PHOENIX).instance())
+	var hull = CollisionShape.new()
+	hull.shape = CollisionHull.shape_for(visual, Transform.IDENTITY)
+	target.add_child(hull)
+	var surface: StaticBody = CollisionHull.add_hit_surface(target, visual)
+	assert_not_null(surface)
+	assert_eq(surface.collision_layer, Constants.HIT_SURFACE_LAYER, "Its own layer")
+	assert_eq(surface.collision_mask, 0, "and it collides with nothing.")
+	yield(get_tree(), "physics_frame")
+	yield(get_tree(), "physics_frame")
+	var space: PhysicsDirectSpaceState = target.get_world().direct_space_state
+	var on_plating := 0
+	var through_gaps := 0
+	seed(11)
+	for _i in range(60):
+		var aim := Vector3(rand_range(-9, 9), 0, rand_range(-6, 6))
+		var from: Vector3 = aim + Vector3(rand_range(-0.3, 0.3), 1, rand_range(-0.3, 0.3)).normalized() * 200.0
+		var outline: Dictionary = space.intersect_ray(from, aim, [], 1)
+		var hit: Dictionary = CollisionHull.ray_onto(target, from, aim, 20.0)
+		if outline.empty():
+			continue
+		if hit.empty():
+			through_gaps += 1
+			continue
+		on_plating += 1
+		assert_eq(hit.collider, surface)
+		assert_true(from.distance_to(hit.position) >= from.distance_to(outline.position) - 0.01, "The plating is never outside the hull.")
+	assert_gt(on_plating, 20, "Most shots land on the plating")
+	assert_gt(through_gaps, 0, "and some pass between the wings, where the hull is only air.")

@@ -208,8 +208,8 @@ const SCORCH_RADIUS_PER_SQRT_DAMAGE = 0.7  # m; a 6-damage hit marks about 1.7 m
 const SCORCH_CENTRE_MARK = 0.5  # Share of the clean surface a single hit marks at its centre
 const SCORCH_MAX_SCARS = 6  # Char slots per hull; must match the damage_scar_N uniforms in the solid shaders
 const SCORCH_HEAT_SLOTS = 4  # Heat slots per hull; must match the damage_heat_N uniforms in the solid shaders
-const SCORCH_SCAR_REACH_FRONT = 0.5  # m in front of the collision point the char still reaches (lower LODs bulge a little)
-const SCORCH_SCAR_REACH_BACK = 3.0  # m behind it: the collision hull is convex, the visible plating can sit deeper
+const SCORCH_SCAR_REACH_FRONT = 1.0  # m in front of the hit point the char still reaches (other levels of detail than the hit surface bulge out); at least the scar radius
+const SCORCH_SCAR_REACH_BACK = 1.5  # m behind it (other levels sink in); at least the scar radius
 const SCORCH_FACING_MIN = 0.05  # A surface chars only if it faces the shot by more than this (edge-on sides stay clean)
 const SCORCH_SCAR_MERGE_DISTANCE = 0.75  # A hit within this share of both radii joins an existing scar
 const SCORCH_SCAR_MERGE_DOT = 0.7  # ... if it came from about the same direction (cosine)
@@ -225,8 +225,9 @@ const SCORCH_MAX_HEAT = 3.0  # Heat is temperature: this reads white-hot (glow r
 const SCORCH_COOL_TIME = 6.0  # s for heat to fall to ~37%; pushed to the shader so both agree
 const SCORCH_IDLE_HEAT = 0.05  # Below this everywhere the hull counts as cold: its clock stops being pushed
 
-# Collision hulls (CollisionHull): convex, from the lowest level of detail.
+# Collision hulls (CollisionHull): convex, from the lowest level of detail; hit surfaces from the first lower one.
 const COLLISION_HULL_MAX_POINTS = 48  # Points per hull: the extreme vertex in this many directions
+const HIT_SURFACE_LAYER = 1 << 19  # Collision layer 20: hit surfaces (trimeshes only shot rays look at; nothing collides with them)
 const HIT_RAY_PASSES = 4  # A shot's ray skips this many other bodies before giving up on its target
 
 
