@@ -9,8 +9,6 @@ var player_ship_template_id: String = ""
 ## Player hull carried across sector loads; negative means full (new ship).
 var player_hull: float = -1.0
 
-## Damage marks on the player's hull (HullScorch.export_marks()); kept until the hull is repaired.
-var player_hull_marks: Dictionary = {}
 
 ## The run's home port (station location_id): docking there banks cargo and repairs the ship.
 var home_location_id: String = ""
@@ -57,7 +55,6 @@ func reset_state() -> void:
 	player_bank = 0
 	player_fit = {}
 	player_storage = {}
-	player_hull_marks = {}
 	current_zone_instance = null
 	current_sector_id = ""
 	player_docked_at = ""

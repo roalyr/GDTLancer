@@ -1,5 +1,5 @@
 # HomePort: what docking at the run's home station does. Cargo is banked at its commodities'
-# base value, and the ship is repaired (hull restored, damage marks cleared). Banked value is the
+# base value, and the ship is repaired (hull restored). Banked value is the
 # run's score and, later, what fitting is paid with.
 
 extends Reference

@@ -3,7 +3,6 @@
 extends GutTest
 
 const MeshLod = preload("res://src/core/agents/components/mesh_lod.gd")
-const HullScorch = preload("res://src/core/agents/components/hull_scorch.gd")
 const PHOENIX = "res://assets/models/ships/Phoenix_light.glb"
 
 
@@ -28,7 +27,7 @@ func test_finds_generated_lod_files_and_never_for_nebulas():
 	assert_eq(MeshLod.lod_paths_for("res://assets/models/nebulas/nebula_1.glb"), [])
 
 
-func test_attached_levels_show_one_at_a_time_and_share_the_hull_marks():
+func test_attached_levels_show_one_at_a_time():
 	var root = Spatial.new()
 	add_child_autofree(root)
 	var model: Spatial = load(PHOENIX).instance()
@@ -42,13 +41,6 @@ func test_attached_levels_show_one_at_a_time_and_share_the_hull_marks():
 	var lod1_hull: MeshInstance = lod.levels[1].get_node("Hull joined")
 	assert_true(lod1_hull.is_in_group("lod_mesh"))
 	assert_eq(lod1_hull.material_override, material, "Lower levels take the original's material.")
-	var scorch = HullScorch.new()
-	add_child_autofree(scorch)
-	scorch.setup(root)
-	assert_eq(scorch._groups.size(), 1, "Every level sits where the original does: one set of marks")
-	scorch.add_hit(Vector3(0, 60, 0), Vector3(0, 2, 0), 6.0)
-	assert_ne(model.get_node("Hull joined").material_override, material, "A hit gives the hull its own material copy")
-	assert_eq(lod1_hull.material_override, model.get_node("Hull joined").material_override, "and every level shows the same copy.")
 	lod.show_level(2)
 	assert_false(lod.levels[0].visible)
 	assert_true(lod.levels[2].visible)

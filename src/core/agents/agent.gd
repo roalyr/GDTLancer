@@ -29,7 +29,6 @@ var cargo: Dictionary = {}  # Commodity id -> units in the hold
 var cargo_capacity: int = 0  # Units
 var salvage: Dictionary = {}  # Wrecks only: commodity id -> units left to strip
 
-const HullScorch = preload("res://src/core/agents/components/hull_scorch.gd")
 const CollisionHull = preload("res://src/core/agents/components/collision_hull.gd")
 const MeshLod = preload("res://src/core/agents/components/mesh_lod.gd")
 const ShipFit = preload("res://src/core/systems/ship_fit.gd")
@@ -39,7 +38,6 @@ var fit: Dictionary = {}  # ShipFit fit: parts per slot. The player's lives in G
 var fit_stats: Dictionary = {}  # ShipFit.compute_stats(): hull, power, cargo, thrust and mass with the fit
 const FuelLeakScene = preload("res://scenes/prefabs/effects/fuel_leak.tscn")
 const WreckExplosionScene = preload("res://scenes/prefabs/effects/wreck_explosion.tscn")
-var _hull_scorch: Node = null
 var _damage_toward_leak := 0.0
 var _engine_activity := 0.0  # Smoothed engine thrust fraction, 0..1 (signature)
 var _leaks: Array = []
@@ -112,13 +110,7 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 							child.transform = Transform.IDENTITY
 						call_deferred("add_child", child)
 				_measure_hull_bounds(ship_visual)
-				MeshLod.attach(ship_visual, get_apparent_radius())  # Before the marks: every level shares them
-				_hull_scorch = HullScorch.new()
-				add_child(_hull_scorch)
-				_hull_scorch.setup(ship_visual)
-				CollisionHull.add_hit_surface(self, ship_visual)  # Where shots land: the plating, not the hull round it
-				if is_player():
-					_hull_scorch.import_marks(GameState.player_hull_marks)
+				MeshLod.attach(ship_visual, get_apparent_radius())
 			else:
 				printerr("AgentBody Error: 'Model' node not found!")
 		else:
@@ -376,8 +368,8 @@ func get_random_aim_point() -> Vector3:
 	return to_global(centre + offset)
 
 
-# A shot from `from_global` lands on the hull: marks it, may open a fuel leak, and returns the
-# world point it hit. The shot line meets the hit surface (CollisionHull.ray_onto), aimed at
+# A shot from `from_global` lands on the hull: may open a fuel leak, and returns the world point it
+# hit. The shot line meets the collision hull (CollisionHull.ray_onto), aimed at
 # random points (a line can pass between wings), then the centre; failing that, the hull point
 # facing the shooter.
 func register_hit(from_global: Vector3, damage: float) -> Vector3:
@@ -392,13 +384,11 @@ func register_hit(from_global: Vector3, damage: float) -> Vector3:
 			break
 	if point == null:
 		point = get_hull_point_facing(from_global)
-	if is_instance_valid(_hull_scorch) and _hull_scorch.add_hit(from_global, point, damage) and is_player():
-		GameState.player_hull_marks = _hull_scorch.export_marks()
 	_accumulate_leak_damage(point, normal, damage)
 	return point
 
 
-# `normal` is the hull's surface normal at the hit (null without a marked mesh): the leak vents
+# `normal` is the hull's surface normal at the hit (null when the shot missed the hull shape): the leak vents
 # along it. On a long hull that is mostly sideways, so off-centre leaks turn the ship.
 func _accumulate_leak_damage(point: Vector3, normal, damage: float) -> void:
 	if is_wreck or damage <= 0.0 or not is_inside_tree():
@@ -529,15 +519,12 @@ func clear_cargo() -> void:
 	_update_mass()
 
 
-# Restores the hull and clears its damage marks; returns hull points restored.
+# Restores the hull; returns hull points restored.
 func repair_hull() -> float:
 	var restored: float = hull_max - hull
 	hull = hull_max
-	if is_instance_valid(_hull_scorch):
-		_hull_scorch.clear_marks()
 	if is_player():
 		GameState.player_hull = hull
-		GameState.player_hull_marks = {}
 	return restored
 
 

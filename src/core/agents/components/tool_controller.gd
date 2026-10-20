@@ -5,7 +5,7 @@
 #
 # Tool types:
 #   laser   - targets live ships; each cycle deals damage scaled by hit quality. Whatever is in the
-#             line of fire (a rock, another ship) takes the shot instead: rocks are marked, ships damaged.
+#             line of fire (a rock, another ship) takes the shot instead: rocks flash, ships are damaged.
 #   harpoon - targets wrecks; one launch attaches a tether that reels in to a safe towing distance,
 #             then strips salvage into the hold one unit per strip_interval. Off (or the hook tears
 #             free) = the hook lets go and the cable winches in; it cannot fire again until it is in.
@@ -273,7 +273,7 @@ func find_blocker(target: Spatial):
 	return hit.collider
 
 
-# Marks, damages (if it can be damaged) and flashes whatever the shot lands on.
+# Damages (if it can be damaged) and flashes whatever the shot lands on.
 func _hit_body(body: Spatial, from_pos: Vector3, damage: float) -> void:
 	if damage > 0.0:
 		var hit_point: Vector3 = body.register_hit(from_pos, damage) if body.has_method("register_hit") else _find_hit_point(body)
@@ -338,7 +338,7 @@ func _spawn_hit_effect(target: Spatial, hit_point: Vector3, damage: float) -> vo
 	effect.global_transform = Transform(Basis(), hit_point)  # Unscaled even on scaled bodies (asteroids)
 
 
-# Fallback hit point for targets without hull marking: the side of their bounds facing this ship.
+# Fallback hit point for targets without register_hit: the side of their bounds facing this ship.
 func _find_hit_point(target: Spatial) -> Vector3:
 	if target.has_method("get_hull_point_facing"):
 		return target.get_hull_point_facing(_agent_body.global_transform.origin)
