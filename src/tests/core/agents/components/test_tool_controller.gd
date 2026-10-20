@@ -345,7 +345,7 @@ func test_rock_in_the_line_of_fire_takes_the_shot():
 	controller._physics_process(0.016)
 	assert_eq(target.hull, 50.0, "The hidden ship takes nothing.")
 	assert_signal_emitted(controller, "tool_blocked")
-	assert_gt(rock._hull_scorch.get_average_mark(), 0.0, "The rock is marked where the shot landed.")
+	assert_gt(rock._hull_scorch.get_mark_level(), 0.0, "The rock is marked where the shot landed.")
 	assert_almost_eq(shooter.power, 100.0 - laser.power_per_cycle, 0.001, "The shot still cost power.")
 	rock.global_transform.origin = Vector3(500, 0, -200)
 	yield(get_tree(), "physics_frame")

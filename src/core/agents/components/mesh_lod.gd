@@ -5,8 +5,8 @@
 # Levels switch at a number of object radii from the camera (a big rock keeps its detail further
 # out than a small ship): Constants.LOD_DISTANCE_RADII for low-poly models,
 # LOD_DISTANCE_RADII_DENSE for dense ones; with Constants.LOD_HYSTERESIS so they do not flicker.
-# Lower levels take the original's materials and join group "lod_mesh": HullScorch paints the
-# marks found on the full-detail mesh onto them too, so marks and heat show at every level.
+# Lower levels take the original's materials and join group "lod_mesh". Hull marks are shader
+# uniforms in mesh space (HullScorch), so they show on every level as they are.
 
 extends Node
 
@@ -20,7 +20,7 @@ var _timer := 0.0
 
 
 # Adds a MeshLod for every model under `visual_root` that has LOD files. Call before
-# HullScorch.setup, so the levels get marks and the originals' materials are still unshared.
+# HullScorch.setup, so the levels share the hull's marked material copies.
 # Returns the MeshLod nodes.
 static func attach(visual_root: Node, object_radius: float, thresholds: Array = Constants.LOD_DISTANCE_RADII) -> Array:
 	var created: Array = []

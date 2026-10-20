@@ -7,6 +7,7 @@ extends StaticBody
 
 const HullScorch = preload("res://src/core/agents/components/hull_scorch.gd")
 const MeshLod = preload("res://src/core/agents/components/mesh_lod.gd")
+const CollisionHull = preload("res://src/core/agents/components/collision_hull.gd")
 const RockMaterial = preload("res://assets/art/materials_generic/mat_asteroid_rock.tres")
 
 export var model: PackedScene = null  # Rock mesh scene; the prefab's default is used if unset
@@ -32,10 +33,16 @@ func _ready() -> void:
 	for node in _all_nodes(_model):
 		if node is MeshInstance:
 			node.material_override = RockMaterial
-	# Collision sphere fits inside the rock, so ships and shots touch rock, not air.
-	var collision_radius: float = min(hull_bounds.size.x, min(hull_bounds.size.y, hull_bounds.size.z)) * 0.45
-	_collision.transform = Transform(Basis().scaled(Vector3.ONE * collision_radius), hull_bounds.position + hull_bounds.size * 0.5)
-	MeshLod.attach(_model, get_apparent_radius(), Constants.LOD_DISTANCE_RADII_DENSE)  # Before the marks: they stay on LOD0
+	# Collision follows the rock's outline (convex hull of its lowest level of detail, stretch baked
+	# in), so ships and shots touch rock, not air. Failing that, a sphere that fits inside the rock.
+	var hull_shape = CollisionHull.shape_for(_model, _model.transform)
+	if hull_shape != null:
+		_collision.shape = hull_shape
+		_collision.transform = Transform.IDENTITY
+	else:
+		var collision_radius: float = min(hull_bounds.size.x, min(hull_bounds.size.y, hull_bounds.size.z)) * 0.45
+		_collision.transform = Transform(Basis().scaled(Vector3.ONE * collision_radius), hull_bounds.position + hull_bounds.size * 0.5)
+	MeshLod.attach(_model, get_apparent_radius(), Constants.LOD_DISTANCE_RADII_DENSE)  # Before the marks: every level shares them
 	_hull_scorch = HullScorch.new()
 	add_child(_hull_scorch)
 	_hull_scorch.setup(_model)
@@ -71,12 +78,14 @@ func get_apparent_radius() -> float:
 
 
 # A shot from `from_global` lands on the rock: marks it and returns the world point it hit.
+# The shot line meets the collision hull; failing that, the rock point facing the shooter.
 func register_hit(from_global: Vector3, damage: float) -> Vector3:
-	if is_instance_valid(_hull_scorch) and damage > 0.0:
-		_hull_scorch.add_hit(from_global, global_transform.xform(hull_bounds.position + hull_bounds.size * 0.5), damage)
-		if _hull_scorch.last_hit_point != null:
-			return _hull_scorch.last_hit_point
-	return get_hull_point_facing(from_global)
+	var aim: Vector3 = global_transform.xform(hull_bounds.position + hull_bounds.size * 0.5)
+	var hit: Dictionary = CollisionHull.ray_onto(self, from_global, aim, get_apparent_radius() * 2.0)
+	var point: Vector3 = hit.position if not hit.empty() else get_hull_point_facing(from_global)
+	if is_instance_valid(_hull_scorch):
+		_hull_scorch.add_hit(from_global, point, damage)
+	return point
 
 
 func get_hull_point_facing(from_global: Vector3) -> Vector3:

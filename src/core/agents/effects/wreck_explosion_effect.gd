@@ -19,7 +19,7 @@ var _puffs: Array = []  # [puff root, its material, drift direction, size factor
 
 const PuffMaterial = preload("res://assets/art/effects/explosion_puff_material.tres")
 
-onready var _light: OmniLight = $Light
+onready var _light: OmniLight = $Light  # Freed if Constants.EXPLOSION_MAX_LIGHTS explosions light already
 onready var _flash: MeshInstance = $Flash
 onready var _puff_root: Spatial = $Puffs
 onready var _fragments: CPUParticles = $Fragments
@@ -28,8 +28,13 @@ onready var _fragments: CPUParticles = $Fragments
 func _ready() -> void:
 	var size_scale: float = radius / Constants.EXPLOSION_REFERENCE_RADIUS
 	scale = Vector3.ONE * size_scale
-	_light.omni_range *= size_scale
-	_base_energy = _light.light_energy
+	if get_tree().get_nodes_in_group("explosion_light").size() < Constants.EXPLOSION_MAX_LIGHTS:
+		_light.add_to_group("explosion_light")
+		_light.omni_range *= size_scale
+		_base_energy = _light.light_energy
+	else:
+		_light.queue_free()
+		_light = null
 	_flash_material = _flash.material_override.duplicate()
 	_flash.material_override = _flash_material
 	for puff in _puff_root.get_children():
@@ -49,7 +54,13 @@ func _process(delta: float) -> void:
 	velocity *= exp(-Constants.EXPLOSION_DRAG * delta)
 	global_transform.origin += velocity * delta
 	var flash: float = clamp(1.0 - _age / Constants.EXPLOSION_FLASH_DURATION, 0.0, 1.0)
-	_light.light_energy = _base_energy * flash * flash
+	if _light != null:
+		if flash <= 0.0:
+			_light.remove_from_group("explosion_light")  # Done: let another explosion light
+			_light.queue_free()
+			_light = null
+		else:
+			_light.light_energy = _base_energy * flash * flash
 	_flash.visible = flash > 0.0
 	_flash_material.set_shader_param("intensity", flash)
 	_update_puffs()

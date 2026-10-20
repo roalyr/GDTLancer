@@ -30,6 +30,7 @@ var cargo_capacity: int = 0  # Units
 var salvage: Dictionary = {}  # Wrecks only: commodity id -> units left to strip
 
 const HullScorch = preload("res://src/core/agents/components/hull_scorch.gd")
+const CollisionHull = preload("res://src/core/agents/components/collision_hull.gd")
 const MeshLod = preload("res://src/core/agents/components/mesh_lod.gd")
 const ShipFit = preload("res://src/core/systems/ship_fit.gd")
 
@@ -99,13 +100,19 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 				if ship_visual is Spatial:
 					ship_visual.visible = true
 				
-				# If the ship scene has a CollisionShape, reparent it to the RigidBody
+				# If the ship scene has a CollisionShape, reparent it to the RigidBody, shaped as
+				# the convex hull of the ship's lowest level of detail (the scene's shape stays if
+				# no hull can be built).
 				for child in ship_visual.get_children():
 					if child is CollisionShape:
 						ship_visual.remove_child(child)
+						var hull_shape = CollisionHull.shape_for(ship_visual, model_node.transform * ship_visual.transform)
+						if hull_shape != null:
+							child.shape = hull_shape
+							child.transform = Transform.IDENTITY
 						call_deferred("add_child", child)
 				_measure_hull_bounds(ship_visual)
-				MeshLod.attach(ship_visual, get_apparent_radius())  # Before the marks: they stay on LOD0
+				MeshLod.attach(ship_visual, get_apparent_radius())  # Before the marks: every level shares them
 				_hull_scorch = HullScorch.new()
 				add_child(_hull_scorch)
 				_hull_scorch.setup(ship_visual)
@@ -369,22 +376,23 @@ func get_random_aim_point() -> Vector3:
 
 
 # A shot from `from_global` lands on the hull: marks it, may open a fuel leak, and returns the
-# world point it hit. Aims at random points (a line can pass between wings), then the centre.
+# world point it hit. The shot line meets the collision hull (CollisionHull.ray_onto), aimed at
+# random points (a line can pass between wings), then the centre; failing that, the hull point
+# facing the shooter.
 func register_hit(from_global: Vector3, damage: float) -> Vector3:
 	var point = null
 	var normal = null
-	if is_instance_valid(_hull_scorch) and _hull_scorch.is_paintable() and damage > 0.0:
-		for attempt in range(3):
-			var aim: Vector3 = get_random_aim_point() if attempt < 2 else to_global(hull_bounds.position + hull_bounds.size * 0.5)
-			_hull_scorch.add_hit(from_global, aim, damage)
-			point = _hull_scorch.last_hit_point
-			normal = _hull_scorch.last_hit_normal
-			if point != null or _hull_scorch.last_hit_deferred:
-				break  # Marked, or recorded for when someone can see the hull
-		if is_player():
-			GameState.player_hull_marks = _hull_scorch.export_marks()
+	for attempt in range(3):
+		var aim: Vector3 = get_random_aim_point() if attempt < 2 else to_global(hull_bounds.position + hull_bounds.size * 0.5)
+		var hit: Dictionary = CollisionHull.ray_onto(self, from_global, aim, get_apparent_radius() * 2.0)
+		if not hit.empty():
+			point = hit.position
+			normal = hit.normal
+			break
 	if point == null:
 		point = get_hull_point_facing(from_global)
+	if is_instance_valid(_hull_scorch) and _hull_scorch.add_hit(from_global, point, damage) and is_player():
+		GameState.player_hull_marks = _hull_scorch.export_marks()
 	_accumulate_leak_damage(point, normal, damage)
 	return point
 

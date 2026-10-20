@@ -203,19 +203,31 @@ const DIFFICULTY_HARD_ADVANTAGE = 0.3
 # HULL DAMAGE MARKS (HullScorch + solid shaders)
 # ==================================================================================================
 
+# Hits are kept as a few slots per hull and drawn by the solid shaders (HullScorch): no mesh data.
 const SCORCH_RADIUS_PER_SQRT_DAMAGE = 0.7  # m; a 6-damage hit marks about 1.7 m across
 const SCORCH_CENTRE_MARK = 0.5  # Share of the clean surface a single hit marks at its centre
-const SCORCH_SURFACE_DEPTH = 1.0  # m; vertices this far behind the first surface count as it
-const SCORCH_MIN_SURFACE_POINTS = 8  # Fewer distinct vertices near the shot line = a thin detail (antenna); the shot passes it
-const SCORCH_MAX_WIDENINGS = 3  # On coarse meshes the mark radius doubles up to this many times to find surface
-const SCORCH_REBUILD_INTERVAL = 0.2  # s; marks paint at once, the mesh re-uploads at most this often
-const SCORCH_REPLAY_BUDGET_MS = 2.0  # Per frame: hits recorded while a hull was off screen (or a level of detail hidden) are painted when shown, this much at a time
-const SCORCH_MAX_PENDING = 64  # Hits kept per hull (and per hidden level); the oldest (cooled, char only) give way
+const SCORCH_MAX_SCARS = 6  # Char slots per hull; must match the damage_scar_N uniforms in the solid shaders
+const SCORCH_HEAT_SLOTS = 4  # Heat slots per hull; must match the damage_heat_N uniforms in the solid shaders
+const SCORCH_SCAR_REACH_FRONT = 0.5  # m in front of the collision point the char still reaches (lower LODs bulge a little)
+const SCORCH_SCAR_REACH_BACK = 3.0  # m behind it: the collision hull is convex, the visible plating can sit deeper
+const SCORCH_FACING_MIN = 0.05  # A surface chars only if it faces the shot by more than this (edge-on sides stay clean)
+const SCORCH_SCAR_MERGE_DISTANCE = 0.75  # A hit within this share of both radii joins an existing scar
+const SCORCH_SCAR_MERGE_DOT = 0.7  # ... if it came from about the same direction (cosine)
+const SCORCH_SCAR_GROWTH = 0.25  # Share of a joining hit's area the scar grows by
+const SCORCH_SCAR_MAX_RADIUS = 6.0  # m; a scar grows no wider from joining hits
+const SCORCH_MAX_WEAR = 0.6  # Share of the hull old, evicted scars can char overall (never all black)
+const SCORCH_WEAR_CELL = 1.5  # m; size of the blocky wear patches
+const SCORCH_HEAT_MERGE = 0.5  # A hit within this share of a heat spot's radius reheats it instead of taking a slot
 const SCORCH_HEAT_PER_DAMAGE = 0.2  # Heat added at a mark's centre per point of damage (6 damage = red, 30+ = white)
 const SCORCH_HEAT_SPREAD = 1.5  # Heat reaches this many mark radii from the hit (heat outruns the char)
 const SCORCH_GLOW_THRESHOLD = 0.25  # Heat below this does not glow (incandescence), pushed to the shader
 const SCORCH_MAX_HEAT = 3.0  # Heat is temperature: this reads white-hot (glow ramps red, orange, yellow-white)
 const SCORCH_COOL_TIME = 6.0  # s for heat to fall to ~37%; pushed to the shader so both agree
+const SCORCH_IDLE_HEAT = 0.05  # Below this everywhere the hull counts as cold: its clock stops being pushed
+
+# Collision hulls (CollisionHull): convex, from the lowest level of detail.
+const COLLISION_HULL_MAX_POINTS = 48  # Points per hull: the extreme vertex in this many directions
+const HIT_RAY_PASSES = 4  # A shot's ray skips this many other bodies before giving up on its target
 
 
 # ==================================================================================================
@@ -232,10 +244,6 @@ const ENGINE_PLUME_MIN_WIDTH = 0.5
 const ENGINE_PLUME_MAX_WIDTH = 1.0
 const ENGINE_GLOW_IDLE = 0.12  # Exhaust brightness of an idle engine (1 = full burn)
 
-# Hit flashes light their surroundings only near the camera, and only a few at once: in GLES2
-# every light touching an object draws that object once more.
-const HIT_FX_LIGHT_DISTANCE = 800.0  # m from the camera
-const HIT_FX_MAX_LIGHTS = 4
 const HIT_FX_REFERENCE_DAMAGE = 6.0  # A hit of this damage shows at intensity 1
 const HIT_FX_MAX_INTENSITY = 4.0
 const HIT_FX_COOL_COLOR = Color(1.0, 0.45, 0.2)  # Flash colour of a weak hit
@@ -254,6 +262,7 @@ const FUEL_LEAK_THRUST = 400.0  # N at full pressure, opposite the jet, at the l
 const EXPLOSION_REFERENCE_RADIUS = 12.0  # Apparent radius the explosion scene is authored for
 const EXPLOSION_LIFETIME = 30.0  # s
 const EXPLOSION_FLASH_DURATION = 0.6  # s
+const EXPLOSION_MAX_LIGHTS = 1  # Explosions lighting their surroundings at once (GLES2: every light is another pass per object it touches)
 const EXPLOSION_DRAG = 0.8  # Per second; the cloud centre slows a bit faster than a wreck (LINEAR_DRAG)
 # Cloud puffs (spheroids), sizes for the authored ship radius: each grows as it thins out.
 const EXPLOSION_PUFF_START_SIZE = 5.0  # m, radius of the spheroid at the start
