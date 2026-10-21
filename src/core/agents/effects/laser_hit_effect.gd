@@ -66,6 +66,9 @@ func should_light(point: Vector3) -> bool:
 func _start_vapor() -> void:
 	if should_light(global_transform.origin):
 		_light.add_to_group("hit_fx_light")
+		# Lifted off the contact point toward the shooter: hits land on the collision hull, and the
+		# full-detail mesh can bulge out past it (rocks most of all), which would bury the light.
+		_light.global_transform.origin = global_transform.origin + outward.normalized() * Constants.HIT_FX_LIGHT_LIFT
 		_base_energy = _light.light_energy
 		_light.light_energy = _base_energy * _intensity
 		_light.visible = true
