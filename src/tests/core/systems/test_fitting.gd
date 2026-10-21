@@ -132,3 +132,84 @@ func test_fitting_and_unfitting_update_the_live_ship():
 	assert_eq(body.hull_max, 100.0, "Plating removed.")
 	assert_eq(GameState.player_storage.get("m_plate"), 1, "Unfitted parts go back to storage.")
 	assert_ne(Fitting.fit_part(body, "m_engine"), "", "Nothing left in storage to fit.")
+
+
+class SpawnerStub:
+	extends Node
+	var replaced := 0
+	func replace_player():
+		replaced += 1
+
+
+func _with_ships_and_cargo() -> void:
+	_saved["assets_ships"] = TemplateDatabase.assets_ships
+	_saved["assets_commodities"] = TemplateDatabase.assets_commodities
+	var heavy = ShipTemplate.new()
+	heavy.template_id = "s_heavy"
+	heavy.base_value = 4000
+	ship.template_id = "s_light"
+	ship.base_value = 1200
+	TemplateDatabase.assets_ships = {"s_light": ship, "s_heavy": heavy}
+	var fuel = CommodityTemplate.new()
+	fuel.template_id = "c_fuel"
+	fuel.base_value = 25
+	TemplateDatabase.assets_commodities = {"c_fuel": fuel}
+
+
+func test_store_sells_every_ship_part_and_commodity():
+	_with_ships_and_cargo()
+	var drill = _tool("t_drill", "medium", 120, 900.0)
+	drill.tool_type = "drill"
+	TemplateDatabase.utility_tools["t_drill"] = drill
+	assert_has(Fitting.catalog(), "t_drill", "Every tool, working or not")
+	assert_has(Fitting.catalog(), "m_engine", "every module")
+	assert_eq(Fitting.ship_catalog(), ["s_heavy", "s_light"], "every hull")
+	assert_eq(Fitting.cargo_catalog(), ["c_fuel"], "and every commodity.")
+
+
+func test_buying_a_ship_trades_the_old_one_in_and_stores_its_fit():
+	_with_ships_and_cargo()
+	var spawner = SpawnerStub.new()
+	add_child_autofree(spawner)
+	var saved_spawner = GlobalRefs.agent_spawner
+	GlobalRefs.agent_spawner = spawner
+	GameState.player_ship_template_id = "s_light"
+	GameState.player_fit = {"tools": ["t_small", ""], "modules": ["m_plate", ""]}
+	GameState.player_bank = 5000
+	assert_eq(Fitting.ship_cost("s_heavy"), 4000 - 600, "Half the old hull's price comes off")
+	assert_eq(Fitting.buy_ship("s_heavy"), "")
+	assert_eq(GameState.player_bank, 5000 - 3400)
+	assert_eq(GameState.player_ship_template_id, "s_heavy")
+	assert_eq_deep(GameState.player_storage, {"t_small": 1, "m_plate": 1})
+	assert_true(GameState.player_fit.empty(), "the new hull comes with its own")
+	assert_eq(spawner.replaced, 1, "and the player's body is rebuilt.")
+	assert_ne(Fitting.buy_ship("s_heavy"), "", "Already flying it")
+	GameState.player_bank = 0
+	assert_eq(Fitting.buy_ship("s_light"), "", "Trading down pays")
+	assert_eq(GameState.player_bank, 2000 - 1200, "the difference.")
+	GameState.player_bank = 1000
+	assert_ne(Fitting.buy_ship("s_heavy"), "", "Short of WP")
+	GameState.player_docked_at = ""
+	GameState.player_bank = 100000
+	assert_ne(Fitting.buy_ship("s_heavy"), "", "or not docked at home: nothing changes.")
+	assert_eq(spawner.replaced, 2)
+	GlobalRefs.agent_spawner = saved_spawner
+
+
+func test_cargo_is_bought_into_the_hold_and_sold_back_at_base_value():
+	_with_ships_and_cargo()
+	ship.cargo_capacity = 2
+	var body = _player_ship()
+	body.cargo_capacity = 2
+	GameState.player_bank = 100
+	assert_eq(Fitting.buy_cargo(body, "c_fuel"), "")
+	assert_eq(Fitting.buy_cargo(body, "c_fuel"), "")
+	assert_eq(GameState.player_bank, 50)
+	assert_eq_deep(GameState.player_cargo, {"c_fuel": 2})
+	assert_ne(Fitting.buy_cargo(body, "c_fuel"), "", "Hold full")
+	assert_eq(GameState.player_bank, 50, "costs nothing.")
+	assert_eq(Fitting.sell_cargo(body, "c_fuel"), "")
+	assert_eq(GameState.player_bank, 75)
+	assert_eq_deep(body.cargo, {"c_fuel": 1})
+	body.remove_cargo("c_fuel", 1)
+	assert_ne(Fitting.sell_cargo(body, "c_fuel"), "", "None left to sell.")

@@ -123,6 +123,23 @@ func spawn_player():
 		printerr("AgentSpawner Error: Failed to spawn player agent body!")
 
 
+# Swaps the player's body for a fresh one built from GameState (a new hull bought at the home
+# station). The old body goes at once, so nothing it listens for reaches it any more; the new one
+# spawns, and docks, where the player is docked.
+func replace_player() -> void:
+	var old_body = _player_agent_body
+	if is_instance_valid(old_body):
+		EventBus.emit_signal("agent_despawning", old_body)
+		var old_root: Node = old_body.get_parent() if old_body.get_parent() != GlobalRefs.agent_container else old_body
+		old_root.get_parent().remove_child(old_root)
+		old_root.free()
+	_player_agent_body = null
+	GameState.player_position = Vector3.ZERO  # At the dock, not where the old body was
+	spawn_player()
+	if GameState.player_docked_at != "":
+		EventBus.emit_signal("player_docked", GameState.player_docked_at)
+
+
 func _get_dock_position_in_zone(location_id: String):
 	# Prefer the actual station instance position in the current zone.
 	if location_id == "":

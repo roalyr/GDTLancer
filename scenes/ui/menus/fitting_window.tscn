@@ -43,7 +43,7 @@ margin_bottom = 40.0
 margin_right = 1100.0
 margin_bottom = 40.0
 size_flags_horizontal = 3
-text = "FITTING"
+text = "HOME STATION"
 
 [node name="ButtonClose" type="Button" parent="Panel/Layout/Header"]
 margin_left = 1104.0
@@ -91,10 +91,16 @@ margin_right = 408.0
 margin_bottom = 26.0
 text = "STORAGE - fit or sell"
 
-[node name="List" type="VBoxContainer" parent="Panel/Layout/Columns/Storage"]
+[node name="Scroll" type="ScrollContainer" parent="Panel/Layout/Columns/Storage"]
 margin_top = 30.0
 margin_right = 408.0
-margin_bottom = 30.0
+margin_bottom = 626.0
+size_flags_vertical = 3
+scroll_horizontal_enabled = false
+
+[node name="List" type="VBoxContainer" parent="Panel/Layout/Columns/Storage/Scroll"]
+margin_right = 408.0
+size_flags_horizontal = 3
 
 [node name="Store" type="VBoxContainer" parent="Panel/Layout/Columns"]
 margin_left = 864.0
@@ -105,12 +111,18 @@ size_flags_horizontal = 3
 [node name="Title" type="Label" parent="Panel/Layout/Columns/Store"]
 margin_right = 408.0
 margin_bottom = 26.0
-text = "STORE - buy with banked WP"
+text = "STORE - ships, parts, cargo"
 
-[node name="List" type="VBoxContainer" parent="Panel/Layout/Columns/Store"]
+[node name="Scroll" type="ScrollContainer" parent="Panel/Layout/Columns/Store"]
 margin_top = 30.0
 margin_right = 408.0
-margin_bottom = 30.0
+margin_bottom = 626.0
+size_flags_vertical = 3
+scroll_horizontal_enabled = false
+
+[node name="List" type="VBoxContainer" parent="Panel/Layout/Columns/Store/Scroll"]
+margin_right = 408.0
+size_flags_horizontal = 3
 
 [node name="Status" type="Label" parent="Panel/Layout"]
 margin_top = 734.0

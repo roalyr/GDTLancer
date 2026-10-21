@@ -624,6 +624,20 @@ func add_cargo(commodity_id: String, units: int) -> int:
 	return added
 
 
+# Takes up to `units` of a commodity out of the hold; returns how many came out.
+func remove_cargo(commodity_id: String, units: int) -> int:
+	var removed: int = int(min(units, int(cargo.get(commodity_id, 0))))
+	if removed <= 0:
+		return 0
+	cargo[commodity_id] = int(cargo[commodity_id]) - removed
+	if cargo[commodity_id] <= 0:
+		cargo.erase(commodity_id)
+	if is_player():
+		GameState.player_cargo = cargo.duplicate()
+	_update_mass()
+	return removed
+
+
 func clear_cargo() -> void:
 	cargo.clear()
 	if is_player():

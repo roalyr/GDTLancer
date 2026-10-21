@@ -4,6 +4,7 @@ extends AssetTemplate
 class_name ShipTemplate
 
 export var ship_model_name: String = "Default Ship Model" 
+export var base_value: int = 1000  # WP; buy price at the home station (the hull flown is traded in for half)
 export(PackedScene) var ship_scene: PackedScene
 export var hull_integrity: int = 100
 export var cargo_capacity: int = 100

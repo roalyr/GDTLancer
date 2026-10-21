@@ -1,6 +1,7 @@
-# FittingWindow: refit the player's ship at the home port, mouse-only. Opened from the HUD's ship
-# button while docked at home. Slots (click to unfit), storage (fit or sell) and the store (buy
-# with banked WP). The frame is the scene; rows are rebuilt after every change.
+# FittingWindow: the home station's store and refitting, mouse-only. Opened from the HUD's ship
+# button while docked at home. Slots (click to unfit), storage (fit or sell) and the store, which
+# sells every ship (the one flown is traded in), part and commodity (bought into the hold, sold
+# back from it). The frame is the scene; rows are rebuilt after every change.
 
 extends Control
 
@@ -10,8 +11,8 @@ const ShipFit = preload("res://src/core/systems/ship_fit.gd")
 onready var _title: Label = $Panel/Layout/Header/Title
 onready var _stats: Label = $Panel/Layout/Stats
 onready var _slots: VBoxContainer = $Panel/Layout/Columns/Slots/List
-onready var _storage: VBoxContainer = $Panel/Layout/Columns/Storage/List
-onready var _store: VBoxContainer = $Panel/Layout/Columns/Store/List
+onready var _storage: VBoxContainer = $Panel/Layout/Columns/Storage/Scroll/List
+onready var _store: VBoxContainer = $Panel/Layout/Columns/Store/Scroll/List
 onready var _status: Label = $Panel/Layout/Status
 
 
@@ -42,11 +43,11 @@ func refresh() -> void:
 	if not is_instance_valid(ship_body) or ship_body.get("fit") == null:
 		close()
 		return
-	_title.text = "FITTING  -  BANK %d WP" % GameState.player_bank
+	_title.text = "HOME STATION  -  BANK %d WP" % GameState.player_bank
 	_stats.text = describe_stats(ship_body)
 	_rebuild_slots(ship_body)
 	_rebuild_storage(ship_body)
-	_rebuild_store()
+	_rebuild_store(ship_body)
 
 
 static func describe_stats(ship_body) -> String:
@@ -74,7 +75,8 @@ const STAT_LABELS = {
 static func describe_part(part_id: String) -> String:
 	var part = TemplateDatabase.get_template(part_id)
 	if part is UtilityToolTemplate:
-		return "%s  %s, %d m, %.1f t" % [part.tool_name, part.mount_size, part.optimal_range, part.mass / 1000.0]
+		var note: String = "" if part.tool_type in ["laser", "harpoon"] else "  (no use yet)"
+		return "%s  %s, %d m, %.1f t%s" % [part.tool_name, part.mount_size, part.optimal_range, part.mass / 1000.0, note]
 	if part is ModuleTemplate:
 		var effects: Array = []
 		for stat in part.stat_modifiers:
@@ -112,12 +114,48 @@ func _rebuild_storage(_ship_body) -> void:
 		_add_button(row, "Sell %d" % Fitting.sale_price(part_id), false, "_on_sell", [part_id])
 
 
-func _rebuild_store() -> void:
+func _rebuild_store(ship_body) -> void:
 	_clear(_store)
+	_add_heading(_store, "SHIPS - yours is traded in for half")
+	for ship_id in Fitting.ship_catalog():
+		var flying: bool = ship_id == GameState.player_ship_template_id
+		var cost: int = Fitting.ship_cost(ship_id)
+		var label: String = "FLYING" if flying else ("%d WP" % cost if cost >= 0 else "+%d WP" % -cost)
+		var button: Button = _add_button(_store, "%s  %s" % [label, describe_ship(ship_id)], flying or GameState.player_bank < cost, "_on_buy_ship", [ship_id])
+		button.clip_text = true
+	_add_heading(_store, "PARTS - into storage")
 	for part_id in Fitting.catalog():
 		var cost: int = Fitting.price(part_id)
 		var button: Button = _add_button(_store, "%d WP  %s" % [cost, describe_part(part_id)], GameState.player_bank < cost, "_on_buy", [part_id])
 		button.clip_text = true
+	_add_heading(_store, "CARGO - hold %d / %d" % [ship_body.get_cargo_units(), ship_body.cargo_capacity])
+	for commodity_id in Fitting.cargo_catalog():
+		var cost: int = Fitting.price(commodity_id)
+		var held: int = int(ship_body.cargo.get(commodity_id, 0))
+		var row := HBoxContainer.new()
+		_store.add_child(row)
+		var buy: Button = _add_button(row, "%d WP  %s  x%d" % [cost, Fitting.part_name(commodity_id), held], GameState.player_bank < cost or ship_body.get_free_cargo() <= 0, "_on_buy_cargo", [commodity_id])
+		buy.size_flags_horizontal = SIZE_EXPAND_FILL
+		buy.clip_text = true
+		_add_button(row, "Sell", held <= 0, "_on_sell_cargo", [commodity_id])
+
+
+# A hull, compactly: hull points, tool slots by size, module slots, mass.
+static func describe_ship(ship_id: String) -> String:
+	var ship = TemplateDatabase.get_template(ship_id)
+	if not ship is ShipTemplate:
+		return ship_id
+	var tools: Array = []
+	for size in [["small", ship.tool_slots_small], ["medium", ship.tool_slots_medium], ["large", ship.tool_slots_large]]:
+		if size[1] > 0:
+			tools.append("%d %s" % [size[1], size[0]])
+	return "%s  hull %d, tools %s, %d modules, %.1f t" % [ship.ship_model_name, ship.hull_integrity, PoolStringArray(tools).join(" + "), ship.module_slots, ship.mass / 1000.0]
+
+
+func _add_heading(container: Node, text: String) -> void:
+	var heading := Label.new()
+	heading.text = text
+	container.add_child(heading)
 
 
 func _add_button(container: Node, text: String, disabled: bool, method: String, binds: Array) -> Button:
@@ -144,6 +182,18 @@ func _report(error: String, success: String) -> void:
 
 func _on_buy(part_id: String) -> void:
 	_report(Fitting.buy(part_id), "Bought %s" % Fitting.part_name(part_id))
+
+
+func _on_buy_ship(ship_id: String) -> void:
+	_report(Fitting.buy_ship(ship_id), "Now flying %s; the old fit is in storage" % Fitting.part_name(ship_id))
+
+
+func _on_buy_cargo(commodity_id: String) -> void:
+	_report(Fitting.buy_cargo(GlobalRefs.player_agent_body, commodity_id), "Bought 1 %s" % Fitting.part_name(commodity_id))
+
+
+func _on_sell_cargo(commodity_id: String) -> void:
+	_report(Fitting.sell_cargo(GlobalRefs.player_agent_body, commodity_id), "Sold 1 %s for %d WP" % [Fitting.part_name(commodity_id), Fitting.price(commodity_id)])
 
 
 func _on_sell(part_id: String) -> void:

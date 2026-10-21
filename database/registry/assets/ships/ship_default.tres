@@ -6,7 +6,8 @@
 [resource]
 script = ExtResource( 1 )
 template_id = "ship_default"
-ship_model_name = "Default Ship Model"
+ship_model_name = "Phoenix Light"
+base_value = 1200
 ship_scene = ExtResource( 2 )
 hull_integrity = 50
 cargo_capacity = 100

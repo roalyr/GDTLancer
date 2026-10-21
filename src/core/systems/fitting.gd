@@ -1,6 +1,7 @@
-# Fitting: refitting the player's ship at the home port. Parts are bought with banked WP into the
-# home storage, fitted from storage into slots, unfitted back to storage, and sold for half price.
-# Every change is applied to the ship at once (stats, mass, tools) and the ship is repaired.
+# Fitting: the home station's store and refitting. It sells everything there is: every tool and
+# module (bought into the home storage, fitted from there, sold back for half), every ship hull
+# (the current one is traded in for half its price) and every commodity (into the hold, sold back
+# at the same price). Every refit is applied to the ship at once (stats, mass, tools) and repairs it.
 # Returns "" on success or a message saying why not.
 
 extends Reference
@@ -13,14 +14,27 @@ static func is_available() -> bool:
 	return HomePort.is_home(GameState.player_docked_at)
 
 
-# Parts the home station sells: tools that work and every module.
+# Parts the home station sells: every tool and module.
 static func catalog() -> Array:
 	var ids: Array = []
 	for tool_id in TemplateDatabase.utility_tools:
-		if TemplateDatabase.utility_tools[tool_id].tool_type in ["laser", "harpoon"]:
-			ids.append(tool_id)
+		ids.append(tool_id)
 	for module_id in TemplateDatabase.assets_modules:
 		ids.append(module_id)
+	ids.sort()
+	return ids
+
+
+# Ships the home station sells: every hull.
+static func ship_catalog() -> Array:
+	var ids: Array = TemplateDatabase.assets_ships.keys()
+	ids.sort()
+	return ids
+
+
+# Commodities the home station trades: every one.
+static func cargo_catalog() -> Array:
+	var ids: Array = TemplateDatabase.assets_commodities.keys()
 	ids.sort()
 	return ids
 
@@ -40,6 +54,10 @@ static func part_name(part_id: String) -> String:
 		return part.tool_name
 	if part is ModuleTemplate:
 		return part.module_name
+	if part is ShipTemplate:
+		return part.ship_model_name
+	if part is CommodityTemplate:
+		return part.commodity_name if "commodity_name" in part else part_id
 	return part_id
 
 
@@ -53,6 +71,63 @@ static func buy(part_id: String) -> String:
 		return "Not enough banked WP (%d needed)" % cost
 	GameState.player_bank -= cost
 	_add_to_storage(part_id, 1)
+	return ""
+
+
+# What a new hull costs here: its price less half the current hull's (negative: a refund).
+static func ship_cost(ship_id: String) -> int:
+	return price(ship_id) - sale_price(GameState.player_ship_template_id)
+
+
+# Swaps the player's hull for another. The fitted parts go to storage, the new hull comes with its
+# own default fit, repaired and docked here (and, as on any docking at home, its hold is banked).
+static func buy_ship(ship_id: String) -> String:
+	if not is_available():
+		return "Dock at the home station to change ships"
+	if not TemplateDatabase.assets_ships.get(ship_id) is ShipTemplate:
+		return "Not for sale"
+	if ship_id == GameState.player_ship_template_id:
+		return "Already flying it"
+	var cost: int = ship_cost(ship_id)
+	if GameState.player_bank < cost:
+		return "Not enough banked WP (%d needed)" % cost
+	var spawner = GlobalRefs.agent_spawner
+	if not is_instance_valid(spawner) or not spawner.has_method("replace_player"):
+		return "Cannot change ships here"
+	GameState.player_bank -= cost
+	for kind in ["tools", "modules"]:
+		for part_id in GameState.player_fit.get(kind, []):
+			if str(part_id) != "":
+				_add_to_storage(str(part_id), 1)
+	GameState.player_ship_template_id = ship_id
+	GameState.player_fit = {}  # The new hull's default fit
+	GameState.player_hull = -1.0  # Full
+	spawner.replace_player()
+	return ""
+
+
+# One unit of a commodity into the hold, at its base value.
+static func buy_cargo(ship_body: Node, commodity_id: String) -> String:
+	if not is_available():
+		return "Dock at the home station to trade"
+	var cost: int = price(commodity_id)
+	if cost <= 0 or not commodity_id in cargo_catalog():
+		return "Not for sale"
+	if GameState.player_bank < cost:
+		return "Not enough banked WP (%d needed)" % cost
+	if ship_body.add_cargo(commodity_id, 1) <= 0:
+		return "Hold full"
+	GameState.player_bank -= cost
+	return ""
+
+
+# One unit of a commodity from the hold, at its base value.
+static func sell_cargo(ship_body: Node, commodity_id: String) -> String:
+	if not is_available():
+		return "Dock at the home station to trade"
+	if ship_body.remove_cargo(commodity_id, 1) <= 0:
+		return "None in the hold"
+	GameState.player_bank += price(commodity_id)
 	return ""
 
 
