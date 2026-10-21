@@ -14,6 +14,8 @@ export var model: PackedScene = null  # Rock mesh scene; the prefab's default is
 export var stretch: Vector3 = Vector3.ONE  # Per-axis model stretch, for a non-spherical rock
 
 var hull_bounds: AABB = AABB(Vector3(-0.5, -0.5, -0.5), Vector3.ONE)
+var _radius := -1.0  # get_apparent_radius() cache, for _radius_basis
+var _radius_basis := Basis()
 
 onready var _model: Spatial = $Model
 onready var _collision: CollisionShape = $CollisionShape
@@ -68,9 +70,15 @@ func get_obstacle_radius() -> float:
 	return get_apparent_radius()
 
 
+# Cached: rocks do not move, and ships and the HUD ask every frame. Worked out again if the rock's
+# placement changes (it is scaled and placed after the model is in).
 func get_apparent_radius() -> float:
-	var size: Vector3 = hull_bounds.size * global_transform.basis.get_scale()
-	return max(size.x, max(size.y, size.z)) * 0.5
+	var basis: Basis = global_transform.basis
+	if _radius < 0.0 or basis != _radius_basis:
+		var size: Vector3 = hull_bounds.size * basis.get_scale()
+		_radius = max(size.x, max(size.y, size.z)) * 0.5
+		_radius_basis = basis
+	return _radius
 
 
 # A shot from `from_global` lands on the rock: raises a dust puff and returns the world point it

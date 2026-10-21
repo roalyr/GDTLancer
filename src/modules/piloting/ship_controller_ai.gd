@@ -5,6 +5,8 @@
 
 extends Node
 
+const FrameProfiler = preload("res://src/core/utils/frame_profiler.gd")
+
 const CombatAssessment = preload("res://src/core/systems/combat_assessment.gd")
 
 enum AIState { IDLE, PATROL, COMBAT, FLEE, DISABLED, SALVAGE, DEPART }
@@ -78,6 +80,12 @@ func _get_attack_tool_index() -> int:
 
 
 func _physics_process(delta: float) -> void:
+	FrameProfiler.begin(get_tree(), "ai")
+	_think(delta)
+	FrameProfiler.end(get_tree(), "ai")
+
+
+func _think(delta: float) -> void:
 	_repath_timer = max(0.0, _repath_timer - delta)
 	_scan_timer = max(0.0, _scan_timer - delta)
 	_tick_decision(delta)

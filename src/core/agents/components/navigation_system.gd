@@ -2,6 +2,9 @@
 
 extends Node
 
+const FrameProfiler = preload("res://src/core/utils/frame_profiler.gd")
+const OBSTACLES_META = "nav_obstacles"
+
 # --- Enums and Constants ---
 enum CommandType { IDLE, STOPPING, MOVE_TO, MOVE_DIRECTION, APPROACH, ORBIT, FLEE, ALIGN_TO }
 
@@ -127,6 +130,12 @@ func get_current_command_type() -> int:
 
 # --- Main Update Logic (Called from AgentBody._integrate_forces) ---
 func update_navigation(delta: float):
+	FrameProfiler.begin(get_tree(), "nav")
+	_update_navigation(delta)
+	FrameProfiler.end(get_tree(), "nav")
+
+
+func _update_navigation(delta: float):
 	if not is_instance_valid(agent_body) or not is_instance_valid(movement_system):
 		return
 
@@ -153,13 +162,29 @@ func update_navigation(delta: float):
 # own target (e.g. the station being approached).
 func _apply_obstacle_avoidance(target_node) -> void:
 	var obstacles: Array = []
-	for obstacle in get_tree().get_nodes_in_group("obstacle"):
-		if obstacle != target_node and obstacle is Spatial and obstacle.has_method("get_obstacle_radius"):
-			obstacles.append([obstacle.global_transform.origin, obstacle.get_obstacle_radius()])
+	for obstacle in get_obstacles(get_tree()):
+		if obstacle[2] != target_node:
+			obstacles.append(obstacle)
 	var own_radius: float = agent_body.get_apparent_radius() if agent_body.has_method("get_apparent_radius") else 10.0
 	var push: Vector3 = compute_avoidance(agent_body.global_transform.origin, agent_body.linear_velocity, own_radius, obstacles)
 	if push != Vector3.ZERO:
 		movement_system.request_thrust_direction(push, min(1.0, push.length()) * Constants.NAV_AVOID_THRUST)
+
+
+# Every obstacle as [centre, radius, node], gathered once per physics step and shared by every
+# ship that steers that step.
+static func get_obstacles(tree: SceneTree) -> Array:
+	var step: int = Engine.get_physics_frames()
+	if tree.has_meta(OBSTACLES_META):
+		var cached: Array = tree.get_meta(OBSTACLES_META)
+		if cached[0] == step:
+			return cached[1]
+	var obstacles: Array = []
+	for obstacle in tree.get_nodes_in_group("obstacle"):
+		if obstacle is Spatial and obstacle.has_method("get_obstacle_radius"):
+			obstacles.append([obstacle.global_transform.origin, obstacle.get_obstacle_radius(), obstacle])
+	tree.set_meta(OBSTACLES_META, [step, obstacles])
+	return obstacles
 
 
 # Sideways push away from every obstacle ([centre, radius]) whose clearance sphere the straight

@@ -3,6 +3,7 @@ extends Control
 ## MainHUD: Primary gameplay HUD displaying player resources, target info, and combat status.
 ## Manages sub-screens (Station Menu) and docking prompts.
 
+const FrameProfiler = preload("res://src/core/utils/frame_profiler.gd")
 const RouteTargetProviderScript = preload("res://src/core/targeting/route_target_provider.gd")
 const ProjectedTargetBracketScene = preload("res://scenes/ui/hud/projected_target_bracket.tscn")
 const BUTTON_ACTIVE_MODULATE = Color8(255, 230, 89, 255)
@@ -77,7 +78,13 @@ func _init() -> void:
 	_target_projector = HUDTargetProjectorClass.new(self)
 
 # --- Initialization ---
+var _frame_profiler: Node = null
+
+
 func _ready():
+	_frame_profiler = FrameProfiler.new()
+	_frame_profiler.name = "FrameProfiler"
+	add_child(_frame_profiler)
 	GlobalRefs.set_main_hud(self)
 
 	# Get camera reference once
@@ -182,13 +189,19 @@ func _ready():
 
 # --- Process Update ---
 func _process(_delta):
+	FrameProfiler.begin(get_tree(), "hud")
+	_update_hud()
+	FrameProfiler.end(get_tree(), "hud")
+
+
+func _update_hud() -> void:
 	# If the selected target is gone, clear the UI state.
 	if _current_target != null and not _is_target_valid(_current_target):
 		_on_Player_Target_Deselected()
 		return
 
 	_update_route_target_overlay()
-	_update_world_target_overlay()
+	_update_world_target_overlay(false)
 	_refresh_toggle_button_states()
 	_update_combat_readout()
 	_update_tool_buttons()
@@ -637,14 +650,26 @@ func _describe_tool_state(tools: Node, index: int) -> String:
 	return "%s  ON  %d%%" % [tool_name, int(tools.get_cycle_progress(index) * 100.0)]
 
 
-# Frame rate and what the last frame drew (all viewports): objects and vertices.
-static func describe_render_stats() -> String:
+# Frame rate, what the last frame drew (all viewports), and where frame time goes (FrameProfiler,
+# per frame over the last second): physics steps (count and time), the rest of the frame (idle
+# processing, rendering, swap), and the marked sections.
+func describe_render_stats() -> String:
 	var vertices: float = Performance.get_monitor(Performance.RENDER_VERTICES_IN_FRAME)
-	return "FPS %d  OBJECTS %d  VERTICES %.1fk" % [
+	var lines: Array = ["FPS %d  OBJECTS %d  VERTICES %.1fk  DRAWS 3D %d 2D %d" % [
 		Performance.get_monitor(Performance.TIME_FPS),
 		Performance.get_monitor(Performance.RENDER_OBJECTS_IN_FRAME),
 		vertices / 1000.0,
-	]
+		Performance.get_monitor(Performance.RENDER_DRAW_CALLS_IN_FRAME),
+		Performance.get_monitor(Performance.RENDER_2D_DRAW_CALLS_IN_FRAME),
+	]]
+	var report: Dictionary = _frame_profiler.report if is_instance_valid(_frame_profiler) else {}
+	if not report.empty():
+		lines.append("FRAME %.1f ms = PHYSICS %.1f (%.1f steps) + REST %.1f" % [report.frame_ms, report.physics_ms, report.steps, report.idle_ms])
+		var sections: Array = []
+		for name in ["nav", "ai", "hud", "brackets"]:
+			sections.append("%s %.1f" % [name.to_upper(), report.sections.get(name, 0.0)])
+		lines.append("  of which ms: " + PoolStringArray(sections).join("  "))
+	return PoolStringArray(lines).join("\n")
 
 
 func _refresh_player_hull() -> void:
@@ -957,8 +982,11 @@ func _append_world_projected_targets(node: Node, targets: Array) -> void:
 func _is_world_projectable_target(node: Node) -> bool:
 	return _target_projector.is_world_projectable_target(node)
 
-func _update_world_target_overlay() -> void:
-	_target_projector.update_world_target_overlay()
+# `full`: also re-check which brackets show and their cues (else only on the projector's interval).
+func _update_world_target_overlay(full: bool = true) -> void:
+	FrameProfiler.begin(get_tree(), "brackets")
+	_target_projector.update_world_target_overlay(full)
+	FrameProfiler.end(get_tree(), "brackets")
 
 func _get_route_target_selection_key() -> String:
 	return _target_projector.get_route_target_selection_key()

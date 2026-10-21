@@ -16,6 +16,9 @@ var _normal_bracket: TextureRect = null
 var _selected_bracket: TextureRect = null
 var _distance_panel: Control = null
 var _distance_label: Label = null
+var _label_synced := false  # What the label shows now (_sync_label): text, and colour if any
+var _shown_text := ""
+var _shown_color = null
 var _info_panel: Control = null
 var _info_label: Label = null
 var _target_label: String = ""
@@ -158,15 +161,25 @@ func _apply_distance_fade_alpha() -> void:
 	modulate = Color(1, 1, 1, _distance_fade_alpha)
 
 
+# Changes the label only when its text or colour changes: setting a Label's text lays it out again,
+# and brackets are restyled every frame.
 func _sync_label() -> void:
 	if not is_instance_valid(_info_label):
 		return
-	var label_text = _build_label_text()
-	_info_label.text = label_text
+	var label_text: String = _build_label_text()
+	var color = null  # Color, or null for the theme's
 	if _is_route_target(target_ref) or _is_jump_point_target(target_ref):
-		_info_label.add_color_override("font_color", _get_jump_route_color())
+		color = _get_jump_route_color()
 	elif _is_live_ship():
-		_info_label.add_color_override("font_color", _get_ship_color())  # Sides read at a glance
+		color = _get_ship_color()  # Sides read at a glance
+	if _label_synced and label_text == _shown_text and typeof(color) == typeof(_shown_color) and (typeof(color) == TYPE_NIL or color == _shown_color):
+		return
+	_label_synced = true
+	_shown_text = label_text
+	_shown_color = color
+	_info_label.text = label_text
+	if color is Color:
+		_info_label.add_color_override("font_color", color)
 	else:
 		_info_label.remove_color_override("font_color")
 	if is_instance_valid(_info_panel):

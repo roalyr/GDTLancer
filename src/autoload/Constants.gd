@@ -95,6 +95,9 @@ const TARGETING_RAY_LENGTH = 1e7  # m; double-click "fly toward" ray
 const POINTER_DRAG_THRESHOLD_PX = 10.0  # A press that moves further is a camera drag, not a click
 const POINTER_DOUBLE_CLICK_MS = 400
 
+# HUD target brackets.
+const HUD_BRACKET_REFRESH_INTERVAL = 0.25  # s between re-checks of which target brackets show and their cues (positions follow every frame)
+
 
 # ==================================================================================================
 # CAMERA

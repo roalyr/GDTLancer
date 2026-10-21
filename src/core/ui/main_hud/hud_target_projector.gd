@@ -6,6 +6,7 @@ const CombatAssessment = preload("res://src/core/systems/combat_assessment.gd")
 const ScreenSpace = preload("res://src/core/ui/screen_space.gd")
 
 var _hud: Control
+var _last_full_refresh_ms := -1000000  # OS ticks of the last full world-bracket refresh
 
 func _init(hud: Control) -> void:
 	_hud = hud
@@ -232,9 +233,18 @@ func is_world_projectable_target(node: Node) -> bool:
 		return true
 	return false
 
-func update_world_target_overlay() -> void:
+# Brackets follow their targets every frame. Whether one shows at all (detection, overlay toggles)
+# and its cues and colours are worked out only every Constants.HUD_BRACKET_REFRESH_INTERVAL, or at
+# once with `full` (selection changes): they change slowly, and on a phone the per-frame work of
+# ~50 brackets was a large share of the frame.
+func update_world_target_overlay(full: bool = true) -> void:
 	if not is_instance_valid(_hud._main_camera):
 		return
+	var now: int = OS.get_ticks_msec()
+	if not full and now - _last_full_refresh_ms >= Constants.HUD_BRACKET_REFRESH_INTERVAL * 1000.0:
+		full = true
+	if full:
+		_last_full_refresh_ms = now
 	var camera_fwd = -_hud._main_camera.global_transform.basis.z.normalized()
 	var viewport_rect = _hud.get_viewport_rect()
 	for instance_id in _hud._world_target_buttons:
@@ -246,15 +256,9 @@ func update_world_target_overlay() -> void:
 			button.visible = false
 			apply_projected_target_distance_fade(button, 1.0)
 			continue
-		var player = GlobalRefs.player_agent_body
-		if is_instance_valid(player) and player.has_method("detects") and not player.detects(target_node):
-			button.visible = false  # Undetected ships get no bracket (same rule as for AI)
-			continue
-		if button.has_method("set_context_hint") and target_node.has_method("get_signature"):
-			button.set_context_hint(get_projected_target_context_hint(target_node))  # Cues change as the fight does
-			button.refresh_style()  # Colours too: a ship turns hostile, a ship becomes a wreck
-		var overlay_kind = get_projected_target_overlay_kind(target_node)
-		if not is_projected_target_overlay_enabled(overlay_kind):
+		if full:
+			button.set_meta("shown", _refresh_world_bracket(button, target_node))
+		if not button.get_meta("shown", false):
 			button.visible = false
 			apply_projected_target_distance_fade(button, 1.0)
 			continue
@@ -269,6 +273,17 @@ func update_world_target_overlay() -> void:
 			apply_projected_target_distance_fade(button, get_projected_target_distance_fade_alpha(screen_pos, viewport_rect))
 		else:
 			apply_projected_target_distance_fade(button, 1.0)
+
+# The slow part of a world bracket: whether it shows (detected, its overlay on) and its cues and
+# colours. Returns whether it shows.
+func _refresh_world_bracket(button, target_node) -> bool:
+	var player = GlobalRefs.player_agent_body
+	if is_instance_valid(player) and player.has_method("detects") and not player.detects(target_node):
+		return false  # Undetected ships get no bracket (same rule as for AI)
+	if button.has_method("set_context_hint") and target_node.has_method("get_signature"):
+		button.set_context_hint(get_projected_target_context_hint(target_node))  # Cues change as the fight does
+		button.refresh_style()  # Colours too: a ship turns hostile, a ship becomes a wreck
+	return is_projected_target_overlay_enabled(get_projected_target_overlay_kind(target_node))
 
 func get_route_target_selection_key() -> String:
 	if is_route_target(_hud._current_target):
