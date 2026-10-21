@@ -568,7 +568,8 @@ func _is_projected_target_center_fade_enabled() -> bool:
 	return bool(world_rendering.get("projected_target_center_fade_enabled"))
 
 
-# Hull, power, cargo, each fitted tool's state and the selected ship's hull or wreck's salvage.
+# Hull, power, cargo, each fitted tool's state, the selected ship's hull or wreck's salvage, and
+# render monitors (temporary, while performance is being tuned).
 func _update_combat_readout() -> void:
 	if not is_instance_valid(label_combat_readout):
 		return
@@ -597,6 +598,7 @@ func _update_combat_readout() -> void:
 		else:
 			condition = "%d / %d  %s" % [ceil(_current_target.hull), _current_target.hull_max, PoolStringArray(_target_projector.get_ship_cues(_current_target)).join("  ")]
 		lines.append("TARGET %s  %s  %.0f m" % [_resolve_target_display_name(_current_target), condition, distance])
+	lines.append(describe_render_stats())
 	label_combat_readout.text = PoolStringArray(lines).join("\n")
 
 
@@ -633,6 +635,16 @@ func _describe_tool_state(tools: Node, index: int) -> String:
 	if tool_template.tool_type == "harpoon":
 		return "%s  ARMED" % tool_name
 	return "%s  ON  %d%%" % [tool_name, int(tools.get_cycle_progress(index) * 100.0)]
+
+
+# Frame rate and what the last frame drew (all viewports): objects and vertices.
+static func describe_render_stats() -> String:
+	var vertices: float = Performance.get_monitor(Performance.RENDER_VERTICES_IN_FRAME)
+	return "FPS %d  OBJECTS %d  VERTICES %.1fk" % [
+		Performance.get_monitor(Performance.TIME_FPS),
+		Performance.get_monitor(Performance.RENDER_OBJECTS_IN_FRAME),
+		vertices / 1000.0,
+	]
 
 
 func _refresh_player_hull() -> void:

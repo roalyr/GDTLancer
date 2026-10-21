@@ -309,8 +309,8 @@ func test_hits_leave_smoulder_spots_that_reheat_and_are_capped():
 	assert_eq(target.get_smoulder_count(), 1, "a hit on the same spot reheats it")
 	assert_gt(spot.heat, heat, "hotter")
 	var centre: Vector3 = target.global_transform.origin
-	var in_from_hit: float = target.get_hull_point_facing(from).distance_to(centre) - spot.global_transform.origin.distance_to(centre)
-	assert_almost_eq(in_from_hit, Constants.SMOULDER_INSET * spot.size_scale, 0.01, "Spots sit a little in from the hit point.")
+	var hit_point: Vector3 = target.get_hull_point_facing(from)
+	assert_almost_eq(spot.global_transform.origin, hit_point.linear_interpolate(centre, Constants.EMBER_INSET_SHARE), Vector3.ONE * 0.01, "Spots sit part of the way in from the hit point.")
 	for direction in [Vector3.RIGHT, Vector3.LEFT, Vector3.UP, Vector3.DOWN]:
 		target.register_hit(centre + direction * 300.0, 6.0)
 	yield(get_tree(), "idle_frame")
@@ -345,7 +345,7 @@ func test_damage_trails_follow_lost_hull_until_repaired():
 	target.register_hit(from, 10.0)
 	target.apply_damage(10.0)
 	assert_eq(target.get_damage_trail_count(), 1, "a quarter of the hull lost does")
-	assert_almost_eq(target._damage_trails[0].global_transform.origin, target._last_hit[0], Vector3.ONE * 0.01, "where the hit landed.")
+	assert_almost_eq(target._damage_trails[0].global_transform.origin, target._ember_point(target._last_hit[0]), Vector3.ONE * 0.01, "in from where the hit landed.")
 	target.apply_damage(30.0)
 	assert_eq(target.get_damage_trail_count(), Constants.DAMAGE_TRAIL_MAX, "More lost, more trails")
 	assert_almost_eq(target._damage_trails[0].strength, 0.9, 0.001, "and brighter.")

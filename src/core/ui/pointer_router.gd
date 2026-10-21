@@ -23,7 +23,9 @@ var _hud: Control = null
 var _gesture_active: bool = false
 var _is_dragging: bool = false
 var _press_position: Vector2 = Vector2.ZERO
-var _last_click_ms: int = -Constants.POINTER_DOUBLE_CLICK_MS
+var double_click_ms: int = Constants.POINTER_DOUBLE_CLICK_MS  # Second click within this: a double click
+const NO_CLICK_MS = -1000000000  # No click to pair with
+var _last_click_ms: int = NO_CLICK_MS
 
 
 func _init(hud: Control = null) -> void:
@@ -97,15 +99,15 @@ func _handle_captured_input(event: InputEvent) -> void:
 func _handle_world_click(position: Vector2) -> void:
 	var bracket = _hud.find_target_bracket_at(position) if is_instance_valid(_hud) else null
 	if is_instance_valid(bracket):
-		_last_click_ms = -Constants.POINTER_DOUBLE_CLICK_MS
+		_last_click_ms = NO_CLICK_MS
 		bracket.emit_signal("pressed")
 		return
 	var controller = _get_player_controller()
 	if not is_instance_valid(controller):
 		return
 	var now: int = OS.get_ticks_msec()
-	if now - _last_click_ms <= Constants.POINTER_DOUBLE_CLICK_MS:
-		_last_click_ms = -Constants.POINTER_DOUBLE_CLICK_MS
+	if now - _last_click_ms <= double_click_ms:
+		_last_click_ms = NO_CLICK_MS
 		controller.handle_world_double_click(position)
 	else:
 		_last_click_ms = now

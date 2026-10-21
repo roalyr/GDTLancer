@@ -403,16 +403,15 @@ func register_hit(from_global: Vector3, damage: float) -> Vector3:
 	return point
 
 
-# Every hit leaves a smouldering spot (HullSmoulder), or reheats one close by. The spot sits a
-# little in from the hit point, which is on the collision hull rather than the plating.
+# Every hit leaves a smouldering spot (HullSmoulder), or reheats one close by, in from the hit
+# point (_ember_point()).
 func _add_smoulder(point: Vector3, normal, damage: float) -> void:
 	var heat: float = LaserHitEffect.intensity_for_damage(damage)
 	if heat <= 0.0 or not is_inside_tree():
 		return
 	var size_scale: float = clamp(get_apparent_radius() / Constants.SMOULDER_REFERENCE_RADIUS, 0.5, 5.0)
 	var centre: Vector3 = to_global(hull_bounds.position + hull_bounds.size * 0.5)
-	var inward: Vector3 = centre - point
-	var spot_point: Vector3 = point + inward.normalized() * min(Constants.SMOULDER_INSET * size_scale, inward.length() * 0.5)
+	var spot_point: Vector3 = _ember_point(point)
 	var live: Array = []
 	for spot in _smoulders:
 		if is_instance_valid(spot) and not spot.is_queued_for_deletion():
@@ -435,8 +434,8 @@ func _add_smoulder(point: Vector3, normal, damage: float) -> void:
 
 
 # Lasting ember trails, one per Constants.DAMAGE_TRAIL_HULL_STEP of hull lost: the first new one
-# starts where the latest hit landed, any others at random points of the hull. Brighter the more
-# hull is lost; repairs remove them.
+# starts where the latest hit landed, any others at random points of the hull (both in toward the
+# centre, _ember_point()). Brighter the more hull is lost; repairs remove them.
 func _update_damage_trails() -> void:
 	if not is_inside_tree() or hull_max <= 0.0:
 		return
@@ -461,6 +460,7 @@ func _update_damage_trails() -> void:
 		else:
 			outward = Vector3(rand_range(-1, 1), rand_range(-1, 1), rand_range(-1, 1)).normalized()
 			point = get_hull_point_facing(centre + outward * get_apparent_radius() * 10.0)
+		point = _ember_point(point)
 		var trail = DamageTrailScene.instance()
 		trail.outward = outward
 		trail.size_scale = clamp(get_apparent_radius() / Constants.SMOULDER_REFERENCE_RADIUS, 0.5, 5.0)
@@ -469,6 +469,12 @@ func _update_damage_trails() -> void:
 		_damage_trails.append(trail)
 	for trail in _damage_trails:
 		trail.strength = lost
+
+
+# Where an ember emitter for a hit at `point` sits: part of the way in toward the hull centre, since
+# hits land on the collision hull, which can sit well outside the plating.
+func _ember_point(point: Vector3) -> Vector3:
+	return point.linear_interpolate(to_global(hull_bounds.position + hull_bounds.size * 0.5), Constants.EMBER_INSET_SHARE)
 
 
 func get_damage_trail_count() -> int:

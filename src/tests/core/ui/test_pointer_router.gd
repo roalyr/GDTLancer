@@ -65,11 +65,11 @@ func test_click_on_empty_space_reaches_controller():
 
 
 func test_double_click_reaches_controller_as_double_click():
+	# Frames can run slow under a full test run: a wide window keeps the second click inside it
+	# (this tests routing, not timing).
+	hud._pointer_router.double_click_ms = 60000
 	yield(_press(WORLD_POINT), "completed")
 	yield(_release(WORLD_POINT), "completed")
-	# Frames can run slow under a full test run: count the first click as just now, so the
-	# second always lands inside the double-click window (this tests routing, not timing).
-	hud._pointer_router._last_click_ms = OS.get_ticks_msec()
 	yield(_press(WORLD_POINT), "completed")
 	yield(_release(WORLD_POINT), "completed")
 	assert_eq(controller.clicks.size(), 1)
