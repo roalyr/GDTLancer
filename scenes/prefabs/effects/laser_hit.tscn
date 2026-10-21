@@ -8,7 +8,7 @@
 size = Vector2( 5, 5 )
 
 [sub_resource type="QuadMesh" id=2]
-size = Vector2( 2.5, 2.5 )
+size = Vector2( 2, 2 )
 
 [sub_resource type="Curve" id=3]
 _data = [ Vector2( 0, 0.3 ), 0.0, 0.0, 0, 0, Vector2( 1, 1 ), 0.0, 0.0, 0, 0 ]
@@ -32,8 +32,8 @@ mesh = SubResource( 1 )
 [node name="Vapor" type="CPUParticles" parent="."]
 material_override = ExtResource( 3 )
 emitting = false
-amount = 24
-lifetime = 1.6
+amount = 10
+lifetime = 1.1
 one_shot = true
 explosiveness = 0.85
 mesh = SubResource( 2 )

@@ -44,8 +44,8 @@ color_ramp = SubResource( 2 )
 [node name="Embers" type="CPUParticles" parent="."]
 material_override = ExtResource( 3 )
 emitting = false
-amount = 10
-lifetime = 2.5
+amount = 8
+lifetime = 2.0
 local_coords = false
 mesh = SubResource( 3 )
 spread = 25.0

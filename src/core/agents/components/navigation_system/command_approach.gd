@@ -1,4 +1,6 @@
-# Navigation command: close in on a (possibly moving) target and hold at approach distance.
+# Navigation command: close in on a (possibly moving) target and hold at approach distance. The
+# command stays on once there: the ship keeps pace with the target, and closes in again if it
+# drops more than Constants.NAV_APPROACH_RESUME_MARGIN behind (so a pursuit does not end on arrival).
 
 extends Node
 
@@ -44,17 +46,21 @@ func execute(delta: float):
 	var vector_to_target = target_pos - _agent_body.global_transform.origin
 	var distance = vector_to_target.length()
 
-	# Arrival check
 	var current_speed = _movement_system.get_current_speed()
-	if distance < (safe_distance + Constants.NAV_ARRIVAL_DISTANCE_THRESHOLD):
-		if not cmd.get("signaled_stop", false):
-			EventBus.emit_signal("agent_reached_destination", _agent_body)
-			cmd["signaled_stop"] = true
-		_nav_sys.set_command_idle()
-		_movement_system.request_thrust_brake()
-		return
-
 	var direction = vector_to_target.normalized() if distance > 0.01 else Vector3.ZERO
+
+	# Arrived: hold, matching the target's velocity, until it pulls away past the margin.
+	var hold_distance: float = safe_distance + Constants.NAV_ARRIVAL_DISTANCE_THRESHOLD
+	var holding: bool = cmd.get("holding", false)
+	if distance < hold_distance or (holding and distance < hold_distance + Constants.NAV_APPROACH_RESUME_MARGIN):
+		if not holding:
+			EventBus.emit_signal("agent_reached_destination", _agent_body)
+			cmd["holding"] = true
+		if direction != Vector3.ZERO:
+			_movement_system.request_rotation_to_pid(direction, delta)
+		_movement_system.request_velocity_pid(_target_velocity, delta)
+		return
+	cmd["holding"] = false
 	
 	# Use PID for rotation control
 	_movement_system.request_rotation_to_pid(direction, delta)
@@ -67,7 +73,6 @@ func execute(delta: float):
 			_movement_system.request_thrust_backward(0.3)
 		else:
 			_movement_system.request_thrust_brake()
-		cmd["signaled_stop"] = false
 		return
 	
 	# Calculate relative velocity and closing speed
@@ -98,4 +103,3 @@ func execute(delta: float):
 			_movement_system.request_thrust_brake()
 	else:
 		_movement_system.request_thrust_forward()
-		cmd["signaled_stop"] = false

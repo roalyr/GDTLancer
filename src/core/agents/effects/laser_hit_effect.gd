@@ -49,8 +49,9 @@ func _ready() -> void:
 	var vapor_material: ShaderMaterial = _vapor.material_override.duplicate()
 	vapor_material.set_shader_param("intensity", min(_intensity, 1.0))
 	_vapor.material_override = vapor_material
-	_vapor.amount = int(max(2.0, _vapor.amount * _intensity))
-	_vapor.scale_amount *= 0.5 + 0.5 * _intensity
+	# Capped: strong hits add size and speed more than count (blended quads are overdraw).
+	_vapor.amount = int(clamp(_vapor.amount * _intensity, 3.0, _vapor.amount * Constants.HIT_FX_MAX_VAPOR_FACTOR))
+	_vapor.scale_amount *= 0.5 + 0.5 * min(_intensity, Constants.HIT_FX_MAX_VAPOR_FACTOR)
 	_vapor.initial_velocity *= sqrt(_intensity)
 	call_deferred("_start_vapor")  # After the spawner has placed the effect
 

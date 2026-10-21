@@ -1,5 +1,5 @@
 # WreckExplosionEffect (scenes/prefabs/effects/wreck_explosion.tscn): the moment a ship is destroyed.
-# A short, bright flash with hot fragments, then a few glowing puffs of gas (the spheroid model,
+# A short, bright flash with hot fragments, then two glowing puffs of gas (the spheroid model,
 # simple glow shader via explosion_puff_material) that grow as they fade, cooling from orange to
 # dim grey. The cloud centre starts with the ship's
 # velocity and slows under Constants.EXPLOSION_DRAG, a little faster than the wreck, so it
@@ -79,4 +79,5 @@ func _update_puffs() -> void:
 		var heat: float = clamp(1.0 - t / Constants.EXPLOSION_PUFF_COOL_SHARE, 0.0, 1.0)
 		var glow: float = pow(1.0 - t, 1.5) * Constants.EXPLOSION_PUFF_OPACITY
 		puff[1].set_shader_param("albedo", Constants.EXPLOSION_PUFF_SMOKE_COLOR.linear_interpolate(Constants.EXPLOSION_PUFF_HOT_COLOR, heat) * glow)
+		puff[0].visible = glow >= Constants.EXPLOSION_PUFF_MIN_GLOW
 

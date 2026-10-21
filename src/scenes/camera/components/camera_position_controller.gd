@@ -90,17 +90,17 @@ func physics_update(delta: float):
 		_update_orbit_mode(delta, bob_offset)
 
 
-# Orbit (chase) mode: the camera orbits the player. Zoomed in past the default level, it blends
-# toward the tracking framing: raised along its own up so it looks past the ship, which slides
-# down the frame until its top edge sits below centre as in tracking mode, and in the telephoto
-# range it backs off as the FoV narrows so the ship keeps its size.
+# Orbit (chase) mode: the camera orbits the player. Zoomed in past the default level, it is raised
+# along its own up and looks past the ship, which slides down the frame until its top edge sits
+# below centre as in tracking mode. The distance is the zoom's own (no back-off), so the ship
+# keeps growing as the zoom closes in.
 func _update_orbit_mode(delta: float, bob_offset: Vector3):
 	var desired_basis = Basis().rotated(Vector3.UP, _rotation_controller.yaw).rotated(
 		Basis().rotated(Vector3.UP, _rotation_controller.yaw).x, _rotation_controller.pitch
 	)
 
 	var shift: float = _zoom_controller.get_chase_shift()
-	var camera_distance: float = _zoom_controller.get_tracking_distance() if shift > 0.0 else _zoom_controller.current_distance
+	var camera_distance: float = _zoom_controller.current_distance
 	var lift: Vector3 = desired_basis.y * get_chase_lift(get_hull_corners(_target), desired_basis.y, _zoom_controller.get_target_radius(), camera_distance, deg2rad(_camera.fov) * 0.5) * shift
 	var look_point: Vector3 = _smoothed_target_pos + lift
 	var position_offset = -desired_basis.z * camera_distance

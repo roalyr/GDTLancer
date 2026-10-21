@@ -69,6 +69,7 @@ const PID_POSITION_KD = 0.8
 const NAV_APPROACH_DISTANCE_MULTIPLIER = 1.3
 const NAV_APPROACH_MIN_DISTANCE = 50.0  # m
 const NAV_ARRIVAL_DISTANCE_THRESHOLD = 20.0  # m
+const NAV_APPROACH_RESUME_MARGIN = 30.0  # m past the hold distance before a holding approach closes in again
 const NAV_ARRIVAL_SPEED_THRESHOLD = 5.0  # m/s
 const NAV_CLOSE_ORBIT_DISTANCE_FACTOR = 1.5
 
@@ -231,7 +232,8 @@ const HIT_FX_FLASH_DURATION = 0.15  # s
 const HIT_FX_LIGHT_DISTANCE = 800.0  # m from the camera; farther hits flash without lighting their surroundings
 const HIT_FX_LIGHT_LIFT = 6.0  # m the light sits off the contact point toward the shooter, clear of the full-detail mesh
 const HIT_FX_MAX_LIGHTS = 4  # Hits lighting their surroundings at once (GLES2: every light is another pass per object it touches)
-const HIT_FX_LIFETIME = 2.0  # s
+const HIT_FX_LIFETIME = 1.5  # s
+const HIT_FX_MAX_VAPOR_FACTOR = 1.5  # Vapour count and size grow with intensity up to this many times the authored ones
 
 # Fuel leaks: open where hits land.
 const FUEL_LEAK_EVERY_DAMAGE = 20.0  # Hull damage that opens one more leak
@@ -259,17 +261,18 @@ const ROCK_DUST_MAX = 6  # Puffs at once
 
 # Wreck explosion.
 const EXPLOSION_REFERENCE_RADIUS = 12.0  # Apparent radius the explosion scene is authored for
-const EXPLOSION_LIFETIME = 30.0  # s
+const EXPLOSION_LIFETIME = 16.0  # s
 const EXPLOSION_FLASH_DURATION = 0.6  # s
 const EXPLOSION_MAX_LIGHTS = 1  # Explosions lighting their surroundings at once (GLES2: every light is another pass per object it touches)
 const EXPLOSION_DRAG = 0.8  # Per second; the cloud centre slows a bit faster than a wreck (LINEAR_DRAG)
 # Cloud puffs (spheroids), sizes for the authored ship radius: each grows as it thins out.
 const EXPLOSION_PUFF_START_SIZE = 5.0  # m, radius of the spheroid at the start
-const EXPLOSION_PUFF_END_SIZE = 32.0  # m, by the end of EXPLOSION_LIFETIME
-const EXPLOSION_PUFF_SPREAD = 14.0  # m the puffs drift apart from the centre
+const EXPLOSION_PUFF_END_SIZE = 22.0  # m, by the end of EXPLOSION_LIFETIME
+const EXPLOSION_PUFF_SPREAD = 10.0  # m the puffs drift apart from the centre
 const EXPLOSION_PUFF_OPACITY = 0.85  # Glow at the start (additive: brightness)
 const EXPLOSION_PUFF_HOT_COLOR = Color(1.0, 0.45, 0.12)
 const EXPLOSION_PUFF_SMOKE_COLOR = Color(0.32, 0.3, 0.29)
+const EXPLOSION_PUFF_MIN_GLOW = 0.04  # A puff dimmer than this is hidden (additive: it still costs a full blended layer)
 const EXPLOSION_PUFF_COOL_SHARE = 0.15  # Share of the lifetime over which the puffs cool from orange to grey
 
 

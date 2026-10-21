@@ -130,6 +130,31 @@ func test_set_command_approach():
 	assert_called(mock_movement_system, "request_rotation_to_pid")
 
 
+func test_approach_holds_on_arrival_and_closes_in_again():
+	stub(mock_movement_system, "request_velocity_pid").to_return(null)
+	signal_catcher.reset()
+	var target_node = TestAgentBody.new()
+	add_child_autofree(target_node)
+	var safe: float = Constants.NAV_APPROACH_MIN_DISTANCE
+	target_node.global_transform.origin = agent_body.global_transform.origin + Vector3(0, 0, -safe)
+	nav_system.set_command_approach(target_node)
+	nav_system.update_navigation(0.1)
+	assert_eq(nav_system._current_command.type, nav_system.CommandType.APPROACH, "Arriving does not end the command")
+	assert_called(mock_movement_system, "request_velocity_pid")
+	assert_eq(signal_catcher.get_last_args()[0], agent_body, "Arrival is announced")
+	signal_catcher.reset()
+	nav_system.update_navigation(0.1)
+	assert_null(signal_catcher.get_last_args(), "once.")
+	var hold: float = safe + Constants.NAV_ARRIVAL_DISTANCE_THRESHOLD
+	target_node.global_transform.origin = agent_body.global_transform.origin + Vector3(0, 0, -(hold + Constants.NAV_APPROACH_RESUME_MARGIN * 0.5))
+	nav_system.update_navigation(0.1)
+	assert_true(nav_system._current_command.get("holding", false), "A little drift: still holding")
+	target_node.global_transform.origin = agent_body.global_transform.origin + Vector3(0, 0, -(hold + Constants.NAV_APPROACH_RESUME_MARGIN * 2.0))
+	nav_system.update_navigation(0.1)
+	assert_false(nav_system._current_command.get("holding", false), "pulled away: closing in again")
+	assert_called(mock_movement_system, "request_thrust_forward")
+
+
 func test_set_command_orbit():
 	signal_catcher.reset()
 	var target_node = TestAgentBody.new()

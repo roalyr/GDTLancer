@@ -32,11 +32,9 @@ mesh = SubResource( 1 )
 
 [node name="Puff2" parent="Puffs" instance=ExtResource( 7 )]
 
-[node name="Puff3" parent="Puffs" instance=ExtResource( 7 )]
-
 [node name="Fragments" type="CPUParticles" parent="."]
 material_override = ExtResource( 4 )
-amount = 28
+amount = 16
 lifetime = 2.5
 one_shot = true
 explosiveness = 1.0

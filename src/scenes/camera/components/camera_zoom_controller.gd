@@ -2,8 +2,8 @@
 # All distances scale with the target's apparent radius (ShipTemplate.apparent_radius).
 # The inner part of the range (telephoto) holds the camera at its closest safe distance, which
 # keeps the hull outside the near plane, and narrows the FoV instead.
-# Zooming in past the default level (Constants.CAMERA_DEFAULT_ZOOM_LEVEL) blends the orbit view toward the tracking
-# framing (get_chase_shift()): the ship slides down the frame instead of filling it.
+# Zooming in past the default level (Constants.CAMERA_DEFAULT_ZOOM_LEVEL) slides the ship down the
+# orbit view toward the tracking framing (get_chase_shift()).
 # This is a component of the main OrbitCamera.
 
 extends Node
