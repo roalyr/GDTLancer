@@ -802,6 +802,9 @@ func _on_agent_disabled(agent_body) -> void:
 	_show_game_over_overlay()
 
 
+# The run is over: the popup shows, but the game keeps running behind it, with the camera on the
+# player's wreck (orbiting it, not tracking a target) so the player can watch the scene play out.
+# The overlay only takes clicks on its panel; the rest of the screen still turns and zooms the camera.
 func _show_game_over_overlay() -> void:
 	_is_game_over = true
 	var summary = game_over_overlay.get_node_or_null("CenterContainer/PanelContainer/VBoxContainer/LabelGameOver") if is_instance_valid(game_over_overlay) else null
@@ -812,8 +815,12 @@ func _show_game_over_overlay() -> void:
 		game_over_overlay.raise()
 		if is_instance_valid(button_return_to_menu):
 			button_return_to_menu.grab_focus()
-	# Pause gameplay while the overlay is visible.
-	get_tree().paused = true
+	var camera = GlobalRefs.main_camera
+	if is_instance_valid(camera) and is_instance_valid(GlobalRefs.player_agent_body):
+		if camera.has_method("set_camera_mode"):
+			camera.set_camera_mode(0)  # ORBIT
+		camera.set_target_node(GlobalRefs.player_agent_body)
+	_refresh_toggle_button_states()
 
 
 # Starts the next run straight from the run-over screen.

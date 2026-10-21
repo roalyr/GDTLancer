@@ -587,3 +587,29 @@ func test_freed_target_is_not_a_route_and_not_valid():
 	assert_false(hud._target_projector.is_route_target(gone), "A despawned wreck is no longer null, but must not be touched.")
 	assert_false(hud._target_projector.is_target_valid(gone))
 
+
+
+func test_ship_lost_shows_the_popup_without_pausing_and_frames_the_wreck():
+	var player = RigidBody.new()
+	player.set_script(AgentScript)
+	player.agent_type = "player"
+	add_child_autofree(player)
+	GlobalRefs.player_agent_body = player
+	var enemy = Spatial.new()
+	add_child_autofree(enemy)
+	var camera = load("res://scenes/prefabs/camera/orbit_camera.tscn").instance()
+	add_child_autofree(camera)
+	GlobalRefs.main_camera = camera
+	camera.set_target_node(player)
+	camera.set_camera_mode(1)  # Tracking an enemy when the ship is lost
+	camera.set_look_at_target(enemy)
+	var hud = MainHUDScene.instance()
+	add_child_autofree(hud)
+
+	hud._on_agent_disabled(player)
+	assert_true(hud.game_over_overlay.visible, "The run-over popup shows")
+	assert_false(get_tree().paused, "but the game keeps running behind it")
+	assert_eq(camera.get_camera_mode(), 0, "and the camera orbits")
+	assert_eq(camera._position_controller._target, player, "the wreck.")
+	assert_eq(hud.game_over_overlay.mouse_filter, Control.MOUSE_FILTER_IGNORE, "Clicks off the panel still reach the world.")
+	get_tree().paused = false

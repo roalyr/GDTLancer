@@ -930,11 +930,12 @@ pause_mode = 2
 visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
-mouse_filter = 1
+mouse_filter = 2
 
 [node name="CenterContainer" type="CenterContainer" parent="GameOverOverlay (to be made into a dedicated window like main menu)"]
 anchor_right = 1.0
 anchor_bottom = 1.0
+mouse_filter = 2
 
 [node name="PanelContainer" type="PanelContainer" parent="GameOverOverlay (to be made into a dedicated window like main menu)/CenterContainer"]
 margin_left = 953.0
