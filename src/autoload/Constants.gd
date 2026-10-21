@@ -108,7 +108,7 @@ const CAMERA_BOB_AMPLITUDE = 0.2  # m
 const CAMERA_ZOOM_SPEED = 0.5  # Wheel step = this * 0.1 of the zoom range
 const CAMERA_MIN_DISTANCE_MULTIPLIER = 1.0
 const CAMERA_MAX_DISTANCE_MULTIPLIER = 5.0
-const CAMERA_PREFERRED_DISTANCE_MULTIPLIER = 1.0
+const CAMERA_DEFAULT_ZOOM_LEVEL = 0.5  # Middle of the zoom scale: where a new target starts and leaving tracking returns; zooming in past it slides the chase view toward the tracking framing
 const CAMERA_MIN_DISTANCE = 1.0  # m, absolute floor
 const CAMERA_MAX_DISTANCE = 500.0  # m, absolute ceiling
 const CAMERA_NEAR_PLANE_MARGIN = 1.5  # Closest camera distance is radius + near plane * this

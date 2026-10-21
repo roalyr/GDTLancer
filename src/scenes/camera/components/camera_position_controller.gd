@@ -90,15 +90,21 @@ func physics_update(delta: float):
 		_update_orbit_mode(delta, bob_offset)
 
 
+# Orbit (chase) mode: the camera orbits the player. Zoomed in past the default level, it blends
+# toward the tracking framing: raised along its own up so it looks past the ship, which slides
+# down the frame until its top edge sits below centre as in tracking mode, and in the telephoto
+# range it backs off as the FoV narrows so the ship keeps its size.
 func _update_orbit_mode(delta: float, bob_offset: Vector3):
-	"""Standard orbit camera mode - camera orbits around player."""
 	var desired_basis = Basis().rotated(Vector3.UP, _rotation_controller.yaw).rotated(
 		Basis().rotated(Vector3.UP, _rotation_controller.yaw).x, _rotation_controller.pitch
 	)
 
-	# Calculate desired position relative to the SMOOTHED target position
-	var position_offset = -desired_basis.z * _zoom_controller.current_distance
-	var desired_position = _smoothed_target_pos + position_offset + bob_offset
+	var shift: float = _zoom_controller.get_chase_shift()
+	var camera_distance: float = _zoom_controller.get_tracking_distance() if shift > 0.0 else _zoom_controller.current_distance
+	var lift: Vector3 = desired_basis.y * get_chase_lift(get_hull_corners(_target), desired_basis.y, _zoom_controller.get_target_radius(), camera_distance, deg2rad(_camera.fov) * 0.5) * shift
+	var look_point: Vector3 = _smoothed_target_pos + lift
+	var position_offset = -desired_basis.z * camera_distance
+	var desired_position = look_point + position_offset + bob_offset
 
 	# Interpolate Camera's actual position
 	_camera.global_transform.origin = _camera.global_transform.origin.linear_interpolate(
@@ -107,7 +113,7 @@ func _update_orbit_mode(delta: float, bob_offset: Vector3):
 
 	# Interpolate Look At to point towards the SMOOTHED target position
 	var target_look_transform = _camera.global_transform.looking_at(
-		_smoothed_target_pos, Vector3.UP
+		look_point, Vector3.UP
 	)
 	_camera.global_transform.basis = _camera.global_transform.basis.slerp(
 		target_look_transform.basis.orthonormalized(), rotation_smoothing_speed * delta
@@ -192,6 +198,17 @@ static func get_hull_top_angle(corners: Array, to_target: Vector3, offset_dir: V
 		var to_corner: Vector3 = corner - camera_pos
 		top = max(top, atan2(to_corner.dot(sight_up), to_corner.dot(sight)))
 	return top
+
+
+# How far to raise a chase camera (along `up`, looking parallel to its unraised line of sight) for
+# the hull's top edge to sit Constants.CAMERA_TRACKING_TOP_EDGE_SHARE of half the FoV below centre.
+static func get_chase_lift(corners: Array, up: Vector3, hull_radius: float, camera_distance: float, half_fov: float) -> float:
+	var top: float = hull_radius
+	if not corners.empty():
+		top = -INF
+		for corner in corners:
+			top = max(top, corner.dot(up))
+	return max(top, 0.0) + camera_distance * tan(half_fov * Constants.CAMERA_TRACKING_TOP_EDGE_SHARE)
 
 
 # Fallback without model bounds: treat the hull as a sphere of the apparent radius.

@@ -152,3 +152,46 @@ func test_tracking_telephoto_backs_off_to_keep_ship_size_on_screen():
 	assert_gt(zoom.get_tracking_distance(), zoom.current_distance, "Telephoto pulls the tracking camera back.")
 	assert_almost_eq(zoom.get_tracking_distance() * tan(deg2rad(camera.fov) * 0.5), base_size, 0.01, "Frame height at the ship stays the same.")
 
+
+
+func test_zooming_in_past_the_default_slides_the_ship_down_the_chase_view():
+	var camera = OrbitCameraScene.instance()
+	add_child_autofree(camera)
+	camera.set_target_node(_make_zoom_target(12.0))
+	var zoom = camera._zoom_controller
+	var default_level: float = zoom.get_default_level()
+	assert_almost_eq(camera.get_zoom_level(), default_level, 0.0001, "A new target starts at the default zoom")
+	assert_eq(zoom.get_chase_shift(), 0.0, "where the chase view is as before")
+	camera.set_zoom_level(1.0)
+	assert_eq(zoom.get_chase_shift(), 0.0, "and zooming out keeps it so.")
+	camera.set_zoom_level(default_level * 0.5)
+	assert_almost_eq(zoom.get_chase_shift(), 0.5, 0.0001, "Zooming in blends toward the tracking framing")
+	camera.set_zoom_level(0.0)
+	assert_eq(zoom.get_chase_shift(), 1.0, "all the way when fully in.")
+
+
+func test_chase_lift_puts_the_hull_top_below_centre_like_tracking():
+	var PositionController = load("res://src/scenes/camera/components/camera_position_controller.gd")
+	var flat_hull = AABB(Vector3(-10, -2, -8.5), Vector3(20, 4, 17))
+	var corners: Array = []
+	for i in range(8):
+		corners.append(flat_hull.get_endpoint(i))
+	for case in [[27.0, 6.0], [27.0, 25.0], [60.0, 100.0]]:
+		var half_fov: float = deg2rad(case[1]) * 0.5
+		var lift: float = PositionController.get_chase_lift(corners, Vector3.UP, 12.0, case[0], half_fov)
+		var top_below_centre: float = atan2(lift - 2.0, case[0])  # Hull top is 2 m up, the camera looks level
+		assert_almost_eq(top_below_centre, half_fov * Constants.CAMERA_TRACKING_TOP_EDGE_SHARE, 0.002, "%s" % [case])
+
+
+func test_leaving_target_tracking_resets_the_zoom():
+	var camera = OrbitCameraScene.instance()
+	add_child_autofree(camera)
+	camera.set_target_node(_make_zoom_target(12.0))
+	var default_level: float = camera._zoom_controller.get_default_level()
+	camera.set_camera_mode(camera.CameraMode.TARGET_TRACKING)
+	camera.set_zoom_level(0.05)
+	camera.set_camera_mode(camera.CameraMode.ORBIT)
+	assert_almost_eq(camera.get_zoom_level(), default_level, 0.0001)
+	camera.set_zoom_level(0.9)
+	camera.set_camera_mode(camera.CameraMode.ORBIT)
+	assert_almost_eq(camera.get_zoom_level(), 0.9, 0.0001, "Already orbiting: the zoom stays.")

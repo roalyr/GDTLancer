@@ -344,8 +344,12 @@ func is_pointer_input_blocked() -> bool:
 	return _is_jump_transition_active()
 
 
-# Click on empty space clears the selection.
+# Click on empty space clears the selection, except while the camera tracks the target: then a
+# stray click must not drop the view (switch tracking off, or pick another target, instead).
 func handle_world_click(_click_pos: Vector2):
+	var camera = GlobalRefs.main_camera
+	if is_instance_valid(camera) and camera.has_method("get_camera_mode") and camera.get_camera_mode() == 1:  # TARGET_TRACKING
+		return
 	_set_selected_target(null)
 
 

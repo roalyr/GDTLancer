@@ -219,6 +219,27 @@ func test_single_click_clears_selection_without_world_raycast_pick():
 	assert_signal_emitted(EventBus, "player_target_deselected")
 
 
+func test_single_click_keeps_the_target_while_the_camera_tracks_it():
+	var station = StaticBody.new()
+	station.set_script(DockableStationScript)
+	station.location_id = "test_station"
+	station.station_name = "Test Station"
+	add_child_autofree(station)
+	var camera = load("res://scenes/prefabs/camera/orbit_camera.tscn").instance()
+	add_child_autofree(camera)
+	GlobalRefs.main_camera = camera
+
+	var harness = _create_player_controller_harness()
+	var controller = harness["controller"]
+	controller._set_selected_target(station)
+	camera.set_camera_mode(1)  # TARGET_TRACKING
+	controller.handle_world_click(Vector2.ZERO)
+	assert_eq(controller._selected_target, station, "A stray click must not drop the tracked target")
+	camera.set_camera_mode(0)
+	controller.handle_world_click(Vector2.ZERO)
+	assert_eq(controller._selected_target, null, "but does once tracking is off.")
+
+
 func test_jump_interact_ignores_input_while_transition_active():
 	var transition_script = GDScript.new()
 	transition_script.source_code = "extends Node\nfunc is_jump_transition_active():\n\treturn true\n"

@@ -16,7 +16,7 @@ var bob_amplitude: float = Constants.CAMERA_BOB_AMPLITUDE
 var zoom_speed: float = Constants.CAMERA_ZOOM_SPEED
 var min_distance_multiplier: float = Constants.CAMERA_MIN_DISTANCE_MULTIPLIER
 var max_distance_multiplier: float = Constants.CAMERA_MAX_DISTANCE_MULTIPLIER
-var preferred_distance_multiplier: float = Constants.CAMERA_PREFERRED_DISTANCE_MULTIPLIER
+var default_zoom_level: float = Constants.CAMERA_DEFAULT_ZOOM_LEVEL
 var min_fov_deg: float = Constants.CAMERA_MIN_FOV_DEG
 var max_fov_deg: float = Constants.MAX_ORBIT_CAMERA_FOV
 var telephoto_min_fov_deg: float = Constants.CAMERA_TELEPHOTO_MIN_FOV_DEG
@@ -90,7 +90,7 @@ func _ready():
 		"zoom_speed": zoom_speed,
 		"min_distance_multiplier": min_distance_multiplier,
 		"max_distance_multiplier": max_distance_multiplier,
-		"preferred_distance_multiplier": preferred_distance_multiplier,
+		"default_zoom_level": default_zoom_level,
 		"min_fov_deg": min_fov_deg,
 		"max_fov_deg": max_fov_deg,
 		"telephoto_min_fov_deg": telephoto_min_fov_deg,
@@ -285,7 +285,10 @@ func get_camera_mode() -> int:
 	return _camera_mode
 
 
+# Leaving target tracking puts the zoom back to its default.
 func set_camera_mode(mode: int):
+	if mode == CameraMode.ORBIT and _camera_mode == CameraMode.TARGET_TRACKING and is_instance_valid(_zoom_controller):
+		_zoom_controller.reset_zoom()
 	_camera_mode = mode
 	if is_instance_valid(_position_controller):
 		_position_controller.set_camera_mode(mode)

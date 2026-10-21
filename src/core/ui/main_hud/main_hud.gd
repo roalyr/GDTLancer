@@ -282,17 +282,11 @@ func _on_ButtonCamera_pressed() -> void:
 	if not is_instance_valid(camera):
 		return
 	
-	# Toggle camera mode
-	camera.toggle_camera_mode()
-	
-	# If switching to target tracking mode, set the look_at_target
 	if camera.get_camera_mode() == CAMERA_MODE_TARGET_TRACKING:
-		if is_instance_valid(_current_target) and _current_target is Spatial:
-			camera.set_look_at_target(_current_target)
-		else:
-			# No target selected, switch back to orbit mode
-			camera.set_camera_mode(0)  # ORBIT = 0
-			print("Camera: No target selected for tracking mode.")
+		camera.set_camera_mode(0)  # ORBIT; resets the zoom
+	elif is_instance_valid(_current_target) and _current_target is Spatial:
+		camera.set_camera_mode(CAMERA_MODE_TARGET_TRACKING)
+		camera.set_look_at_target(_current_target)
 	_refresh_toggle_button_states()
 
 

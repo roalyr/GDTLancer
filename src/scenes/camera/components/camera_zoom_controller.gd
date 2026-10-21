@@ -2,6 +2,8 @@
 # All distances scale with the target's apparent radius (ShipTemplate.apparent_radius).
 # The inner part of the range (telephoto) holds the camera at its closest safe distance, which
 # keeps the hull outside the near plane, and narrows the FoV instead.
+# Zooming in past the default level (Constants.CAMERA_DEFAULT_ZOOM_LEVEL) blends the orbit view toward the tracking
+# framing (get_chase_shift()): the ship slides down the frame instead of filling it.
 # This is a component of the main OrbitCamera.
 
 extends Node
@@ -14,7 +16,7 @@ var _target: Spatial = null
 # --- From Configuration ---
 var min_distance_multiplier: float = 0.0
 var max_distance_multiplier: float = 0.0
-var preferred_distance_multiplier: float = 0.0
+var default_zoom_level: float = 0.5
 var zoom_speed: float = 0.0
 var _min_fov_deg: float = 0.0
 var _max_fov_deg: float = 0.0
@@ -36,7 +38,7 @@ func initialize(camera_node: Camera, config: Dictionary):
 	_camera = camera_node
 	min_distance_multiplier = config.get("min_distance_multiplier", min_distance_multiplier)
 	max_distance_multiplier = config.get("max_distance_multiplier", max_distance_multiplier)
-	preferred_distance_multiplier = config.get("preferred_distance_multiplier", preferred_distance_multiplier)
+	default_zoom_level = config.get("default_zoom_level", default_zoom_level)
 	zoom_speed = config.get("zoom_speed", zoom_speed)
 	_min_fov_deg = config.get("min_fov_deg", _min_fov_deg)
 	_max_fov_deg = config.get("max_fov_deg", _max_fov_deg)
@@ -70,13 +72,28 @@ func set_target(new_target: Spatial):
 	_target = new_target
 	_target_radius = get_target_radius_of(_target)
 	if is_instance_valid(_target):
-		set_zoom_level(_level_for_distance(_target_radius * preferred_distance_multiplier))
+		set_zoom_level(default_zoom_level)
 	else:
 		_apply_zoom()
 
 
 func get_zoom_level() -> float:
 	return _zoom_level
+
+
+func get_default_level() -> float:
+	return default_zoom_level
+
+
+func reset_zoom() -> void:
+	set_zoom_level(default_zoom_level)
+
+
+# How far the zoom is in past the default level: 0 at or beyond it, 1 fully in.
+func get_chase_shift() -> float:
+	if default_zoom_level <= 0.0:
+		return 0.0
+	return clamp(1.0 - _zoom_level / default_zoom_level, 0.0, 1.0)
 
 
 func get_target_radius() -> float:
@@ -148,15 +165,6 @@ func _apply_zoom() -> void:
 		current_distance = _geometric_lerp(min_distance, max_distance, u)
 		current_fov_deg = lerp(_min_fov_deg, _max_fov_deg, u)
 	_apply_camera_fov(current_fov_deg)
-
-
-func _level_for_distance(distance: float) -> float:
-	var min_distance: float = get_min_distance()
-	var max_distance: float = get_max_distance()
-	if distance <= min_distance:
-		return _telephoto_fraction
-	var u: float = log(distance / min_distance) / log(max_distance / min_distance)
-	return _telephoto_fraction + clamp(u, 0.0, 1.0) * (1.0 - _telephoto_fraction)
 
 
 static func _geometric_lerp(from: float, to: float, t: float) -> float:
