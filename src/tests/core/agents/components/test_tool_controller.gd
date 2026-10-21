@@ -298,6 +298,44 @@ func test_fuel_leaks_open_with_damage_and_are_capped():
 	assert_eq(target.get_leak_count(), Constants.FUEL_LEAK_MAX_PER_SHIP, "The oldest leaks give way.")
 
 
+func test_hits_leave_smoulder_spots_that_reheat_and_are_capped():
+	target.hull_bounds = AABB(Vector3(-20, -20, -20), Vector3(40, 40, 40))
+	var from: Vector3 = shooter.global_transform.origin
+	target.register_hit(from, 6.0)
+	assert_eq(target.get_smoulder_count(), 1, "A hit leaves a smouldering spot")
+	var spot = target._smoulders[0]
+	var heat: float = spot.heat
+	target.register_hit(from, 6.0)
+	assert_eq(target.get_smoulder_count(), 1, "a hit on the same spot reheats it")
+	assert_gt(spot.heat, heat, "hotter")
+	var centre: Vector3 = target.global_transform.origin
+	var in_from_hit: float = target.get_hull_point_facing(from).distance_to(centre) - spot.global_transform.origin.distance_to(centre)
+	assert_almost_eq(in_from_hit, Constants.SMOULDER_INSET * spot.size_scale, 0.01, "Spots sit a little in from the hit point.")
+	for direction in [Vector3.RIGHT, Vector3.LEFT, Vector3.UP, Vector3.DOWN]:
+		target.register_hit(centre + direction * 300.0, 6.0)
+	yield(get_tree(), "idle_frame")
+	assert_eq(target.get_smoulder_count(), Constants.SMOULDER_MAX_PER_SHIP, "and the oldest spots give way.")
+
+
+func test_wrecks_smoulder_longer_and_repairs_put_spots_out():
+	target.register_hit(shooter.global_transform.origin, 6.0)
+	var spot = target._smoulders[0]
+	var duration: float = spot.get_duration()
+	target.become_wreck()
+	assert_almost_eq(spot.get_duration(), duration * Constants.SMOULDER_WRECK_FACTOR, 0.001)
+	shooter.register_hit(target.global_transform.origin, 6.0)
+	assert_eq(shooter.get_smoulder_count(), 1)
+	shooter.repair_hull()
+	assert_eq(shooter.get_smoulder_count(), 0, "Repairs put the spots out.")
+
+
+func test_smoulder_spots_go_out():
+	target.register_hit(shooter.global_transform.origin, 6.0)
+	var spot = target._smoulders[0]
+	spot._process(spot.get_duration() + 10.0)
+	assert_true(spot.is_queued_for_deletion())
+
+
 func test_wreck_explodes_into_cloud_carrying_ship_momentum():
 	target.linear_velocity = Vector3(12, 0, -3)
 	target.become_wreck()
@@ -351,6 +389,24 @@ func test_rock_in_the_line_of_fire_takes_the_shot():
 	yield(get_tree(), "physics_frame")
 	controller._physics_process(1.0)
 	assert_lt(target.hull, 50.0, "With the line clear the ship is hit.")
+
+
+func test_rock_hits_raise_dust_near_the_camera_only():
+	var rock = load("res://scenes/prefabs/celestial/asteroid.tscn").instance()
+	add_child_autofree(rock)
+	rock.global_transform = Transform(Basis().scaled(Vector3.ONE * 30.0), Vector3(0, 0, -200))
+	var camera = Camera.new()
+	add_child_autofree(camera)
+	camera.current = true
+	yield(get_tree(), "physics_frame")
+	rock.register_hit(Vector3.ZERO, 6.0)
+	assert_eq(get_tree().get_nodes_in_group("rock_dust").size(), 1, "A hit raises dust")
+	var dust = get_tree().get_nodes_in_group("rock_dust")[0]
+	assert_almost_eq(dust.global_transform.basis.get_scale(), Vector3.ONE, Vector3.ONE * 0.001, "at its own size, not the rock's")
+	assert_eq(rock.get_smoulder_count() if rock.has_method("get_smoulder_count") else 0, 0, "and rocks never smoulder.")
+	camera.global_transform.origin = Vector3(0, 0, Constants.ROCK_DUST_VISIBLE_DISTANCE + 500.0)
+	rock.register_hit(Vector3.ZERO, 6.0)
+	assert_eq(get_tree().get_nodes_in_group("rock_dust").size(), 1, "Out of sight, none.")
 
 
 # --- Tether cable ---

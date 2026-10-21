@@ -6,6 +6,8 @@ extends StaticBody
 
 const MeshLod = preload("res://src/core/agents/components/mesh_lod.gd")
 const CollisionHull = preload("res://src/core/agents/components/collision_hull.gd")
+const RockDustScene = preload("res://scenes/prefabs/effects/rock_dust.tscn")
+const RockDustEffect = preload("res://src/core/agents/effects/rock_dust_effect.gd")
 const RockMaterial = preload("res://assets/art/materials_generic/mat_asteroid_rock.tres")
 
 export var model: PackedScene = null  # Rock mesh scene; the prefab's default is used if unset
@@ -71,12 +73,18 @@ func get_apparent_radius() -> float:
 	return max(size.x, max(size.y, size.z)) * 0.5
 
 
-# A shot from `from_global` lands on the rock: returns the world point it hit. The shot line meets
-# the rock's collision hull; failing that, the rock point facing the shooter.
+# A shot from `from_global` lands on the rock: raises a dust puff and returns the world point it
+# hit. The shot line meets the rock's collision hull; failing that, the rock point facing the shooter.
 func register_hit(from_global: Vector3, damage: float) -> Vector3:
 	var aim: Vector3 = global_transform.xform(hull_bounds.position + hull_bounds.size * 0.5)
 	var hit: Dictionary = CollisionHull.ray_onto(self, from_global, aim, get_apparent_radius() * 2.0)
-	return hit.position if not hit.empty() else get_hull_point_facing(from_global)
+	var point: Vector3 = hit.position if not hit.empty() else get_hull_point_facing(from_global)
+	if damage > 0.0 and is_inside_tree() and RockDustEffect.is_wanted(get_tree(), get_viewport(), point):
+		var dust = RockDustScene.instance()
+		dust.outward = (from_global - point).normalized()
+		add_child(dust)
+		dust.global_transform = Transform(Basis(), point)  # Unscaled: rocks are scaled up a lot
+	return point
 
 
 func get_hull_point_facing(from_global: Vector3) -> Vector3:

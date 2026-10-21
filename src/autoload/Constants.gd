@@ -234,10 +234,28 @@ const HIT_FX_MAX_LIGHTS = 4  # Hits lighting their surroundings at once (GLES2: 
 const HIT_FX_LIFETIME = 2.0  # s
 
 # Fuel leaks: open where hits land.
-const FUEL_LEAK_EVERY_DAMAGE = 40.0  # Hull damage that opens one more leak
+const FUEL_LEAK_EVERY_DAMAGE = 20.0  # Hull damage that opens one more leak
 const FUEL_LEAK_MAX_PER_SHIP = 3  # The oldest leak gives way beyond this
 const FUEL_LEAK_DURATION = 25.0  # s until a leak has bled out
 const FUEL_LEAK_THRUST = 400.0  # N at full pressure, opposite the jet, at the leak point (mostly turns the ship)
+
+# Smoulder spots (HullSmoulder): every hit on a ship leaves one, sparking at first, then trailing
+# embers until it goes out. Heat is the hit's intensity (sqrt(damage / HIT_FX_REFERENCE_DAMAGE)).
+# Sizes and distances are for a fighter (apparent radius SMOULDER_REFERENCE_RADIUS) and scale with ship size.
+const SMOULDER_REFERENCE_RADIUS = 12.0  # m
+const SMOULDER_DURATION = 8.0  # s of smouldering per unit of heat after the last hit
+const SMOULDER_MAX_HEAT = 2.5  # Reheats add up to this (so at most 20 s, 40 s on a wreck)
+const SMOULDER_SPARK_TIME = 2.5  # s of sparks after each hit
+const SMOULDER_MAX_PER_SHIP = 3  # The oldest spot gives way beyond this
+const SMOULDER_MERGE_DISTANCE = 2.5  # m on a fighter (scaled with ship size); a hit this close to a spot reheats it instead of adding one
+const SMOULDER_INSET = 1.5  # m on a fighter (scaled with ship size) a spot sits in from the hit point toward the hull centre (hits land on the collision hull, outside the plating)
+const SMOULDER_WRECK_FACTOR = 2.0  # Wrecks smoulder this much longer
+const SMOULDER_VISIBLE_DISTANCE = 2500.0  # m from the camera; farther spots do not emit
+const SMOULDER_MAX_SHOWN = 12  # Spots emitting at once
+const SMOULDER_CHECK_INTERVAL = 0.25  # s between camera-distance checks per spot
+# Rocks do not burn: a hit leaves a slow dust puff instead (RockDust).
+const ROCK_DUST_VISIBLE_DISTANCE = 2500.0  # m from the camera
+const ROCK_DUST_MAX = 6  # Puffs at once
 
 # Wreck explosion.
 const EXPLOSION_REFERENCE_RADIUS = 12.0  # Apparent radius the explosion scene is authored for

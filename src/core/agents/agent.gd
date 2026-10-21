@@ -37,10 +37,13 @@ const ShipFit = preload("res://src/core/systems/ship_fit.gd")
 var fit: Dictionary = {}  # ShipFit fit: parts per slot. The player's lives in GameState.player_fit.
 var fit_stats: Dictionary = {}  # ShipFit.compute_stats(): hull, power, cargo, thrust and mass with the fit
 const FuelLeakScene = preload("res://scenes/prefabs/effects/fuel_leak.tscn")
+const HullSmoulderScene = preload("res://scenes/prefabs/effects/hull_smoulder.tscn")
+const LaserHitEffect = preload("res://src/core/agents/effects/laser_hit_effect.gd")
 const WreckExplosionScene = preload("res://scenes/prefabs/effects/wreck_explosion.tscn")
 var _damage_toward_leak := 0.0
 var _engine_activity := 0.0  # Smoothed engine thrust fraction, 0..1 (signature)
 var _leaks: Array = []
+var _smoulders: Array = []  # HullSmoulder spots, oldest first
 
 func is_player() -> bool:
 	return agent_type == "player"
@@ -335,6 +338,9 @@ func become_wreck() -> void:
 		return
 	is_wreck = true
 	wreck_time_ms = OS.get_ticks_msec()
+	for spot in _smoulders:
+		if is_instance_valid(spot):
+			spot.duration_factor = Constants.SMOULDER_WRECK_FACTOR  # Wrecks smoulder on
 	hull = 0.0
 	power = 0.0
 	# What can be stripped from the wreck: the hull's own salvage plus whatever was in its hold.
@@ -368,7 +374,8 @@ func get_random_aim_point() -> Vector3:
 	return to_global(centre + offset)
 
 
-# A shot from `from_global` lands on the hull: may open a fuel leak, and returns the world point it
+# A shot from `from_global` lands on the hull: leaves a smoulder spot, may open a fuel leak, and
+# returns the world point it
 # hit. The shot line meets the collision hull (CollisionHull.ray_onto), aimed at
 # random points (a line can pass between wings), then the centre; failing that, the hull point
 # facing the shooter.
@@ -384,8 +391,55 @@ func register_hit(from_global: Vector3, damage: float) -> Vector3:
 			break
 	if point == null:
 		point = get_hull_point_facing(from_global)
+	_add_smoulder(point, normal, damage)
 	_accumulate_leak_damage(point, normal, damage)
 	return point
+
+
+# Every hit leaves a smouldering spot (HullSmoulder), or reheats one close by. The spot sits a
+# little in from the hit point, which is on the collision hull rather than the plating.
+func _add_smoulder(point: Vector3, normal, damage: float) -> void:
+	var heat: float = LaserHitEffect.intensity_for_damage(damage)
+	if heat <= 0.0 or not is_inside_tree():
+		return
+	var size_scale: float = clamp(get_apparent_radius() / Constants.SMOULDER_REFERENCE_RADIUS, 0.5, 5.0)
+	var centre: Vector3 = to_global(hull_bounds.position + hull_bounds.size * 0.5)
+	var inward: Vector3 = centre - point
+	var spot_point: Vector3 = point + inward.normalized() * min(Constants.SMOULDER_INSET * size_scale, inward.length() * 0.5)
+	var live: Array = []
+	for spot in _smoulders:
+		if is_instance_valid(spot) and not spot.is_queued_for_deletion():
+			live.append(spot)
+	_smoulders = live
+	for spot in _smoulders:
+		if spot.global_transform.origin.distance_to(spot_point) <= Constants.SMOULDER_MERGE_DISTANCE * size_scale:
+			spot.reheat(heat)
+			return
+	if _smoulders.size() >= Constants.SMOULDER_MAX_PER_SHIP:
+		_smoulders.pop_front().queue_free()
+	var spot = HullSmoulderScene.instance()
+	spot.outward = normal if normal != null else (point - centre).normalized()
+	spot.heat = min(heat, Constants.SMOULDER_MAX_HEAT)
+	spot.size_scale = size_scale
+	spot.duration_factor = Constants.SMOULDER_WRECK_FACTOR if is_wreck else 1.0
+	add_child(spot)
+	spot.global_transform.origin = spot_point
+	_smoulders.append(spot)
+
+
+func get_smoulder_count() -> int:
+	var count := 0
+	for spot in _smoulders:
+		if is_instance_valid(spot) and not spot.is_queued_for_deletion():
+			count += 1
+	return count
+
+
+func _clear_smoulders() -> void:
+	for spot in _smoulders:
+		if is_instance_valid(spot):
+			spot.queue_free()
+	_smoulders.clear()
 
 
 # `normal` is the hull's surface normal at the hit (null when the shot missed the hull shape): the leak vents
@@ -519,10 +573,11 @@ func clear_cargo() -> void:
 	_update_mass()
 
 
-# Restores the hull; returns hull points restored.
+# Restores the hull and puts out smoulder spots; returns hull points restored.
 func repair_hull() -> float:
 	var restored: float = hull_max - hull
 	hull = hull_max
+	_clear_smoulders()
 	if is_player():
 		GameState.player_hull = hull
 	return restored
