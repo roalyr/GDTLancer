@@ -336,6 +336,26 @@ func test_smoulder_spots_go_out():
 	assert_true(spot.is_queued_for_deletion())
 
 
+func test_damage_trails_follow_lost_hull_until_repaired():
+	target.hull_bounds = AABB(Vector3(-20, -20, -20), Vector3(40, 40, 40))
+	var from: Vector3 = shooter.global_transform.origin
+	target.register_hit(from, 5.0)
+	target.apply_damage(5.0)
+	assert_eq(target.get_damage_trail_count(), 0, "A scratch leaves no lasting trail")
+	target.register_hit(from, 10.0)
+	target.apply_damage(10.0)
+	assert_eq(target.get_damage_trail_count(), 1, "a quarter of the hull lost does")
+	assert_almost_eq(target._damage_trails[0].global_transform.origin, target._last_hit[0], Vector3.ONE * 0.01, "where the hit landed.")
+	target.apply_damage(30.0)
+	assert_eq(target.get_damage_trail_count(), Constants.DAMAGE_TRAIL_MAX, "More lost, more trails")
+	assert_almost_eq(target._damage_trails[0].strength, 0.9, 0.001, "and brighter.")
+	shooter.apply_damage(30.0)
+	assert_eq(shooter.get_damage_trail_count(), 2)
+	shooter.repair_hull()
+	yield(get_tree(), "idle_frame")
+	assert_eq(shooter.get_damage_trail_count(), 0, "Repairs end them.")
+
+
 func test_wreck_explodes_into_cloud_carrying_ship_momentum():
 	target.linear_velocity = Vector3(12, 0, -3)
 	target.become_wreck()

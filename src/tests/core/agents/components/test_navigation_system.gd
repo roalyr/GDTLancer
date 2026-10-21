@@ -155,6 +155,42 @@ func test_approach_holds_on_arrival_and_closes_in_again():
 	assert_called(mock_movement_system, "request_thrust_forward")
 
 
+func test_orbit_holds_the_distance_it_was_given_around_a_moving_target():
+	var Orbit = load("res://src/core/agents/components/navigation_system/command_orbit.gd")
+	var cmd = {"distance": 2000.0}
+	var radius: float = Orbit.get_orbit_radius(cmd, 2000.0, 30.0)
+	assert_eq(radius, 2000.0, "The distance at the command")
+	assert_eq(Orbit.get_orbit_radius({"distance": 10.0}, 10.0, 30.0), 30.0 * Constants.NAV_CLOSE_ORBIT_DISTANCE_FACTOR, "but never inside the target's safe distance.")
+	# Follow the commanded velocity (as the velocity PID would) around a target flying past.
+	var target := Vector3.ZERO
+	var target_velocity := Vector3(80, 0, -40)
+	var ship := Vector3(2000, 0, 0)
+	var normal: Vector3 = Orbit.pick_orbit_normal(Vector3.RIGHT, Vector3(0, 0, -50), false)
+	var worst := 0.0
+	for step in range(1200):  # 120 s
+		var radial: Vector3 = ship - target
+		var radial_dir: Vector3 = radial.normalized()
+		var tangent: Vector3 = normal.cross(radial_dir).normalized()
+		var velocity: Vector3 = target_velocity + Orbit.get_orbit_velocity(radial_dir, tangent, radial.length(), radius, 200.0, 100.0)
+		ship += velocity * 0.1
+		target += target_velocity * 0.1
+		if step > 100:
+			worst = max(worst, abs((ship - target).length() - radius))
+	assert_lt(worst, 50.0, "The ship stays near 2 km from the target wherever it goes.")
+
+
+func test_orbit_steers_back_to_its_radius_and_keeps_its_plane():
+	var Orbit = load("res://src/core/agents/components/navigation_system/command_orbit.gd")
+	var normal: Vector3 = Orbit.pick_orbit_normal(Vector3.RIGHT, Vector3(0, 0, -50), false)
+	assert_almost_eq(normal.cross(Vector3.RIGHT).normalized(), Vector3(0, 0, -1), Vector3.ONE * 0.001, "The way the ship already moves round the target")
+	var outside: Vector3 = Orbit.get_orbit_velocity(Vector3.RIGHT, Vector3.FORWARD, 3000.0, 2000.0, 200.0, 100.0)
+	assert_lt(outside.x, 0.0, "Too far out: heads back in")
+	var inside: Vector3 = Orbit.get_orbit_velocity(Vector3.RIGHT, Vector3.FORWARD, 1000.0, 2000.0, 200.0, 100.0)
+	assert_gt(inside.x, 0.0, "too close: backs out.")
+	var tight: Vector3 = Orbit.get_orbit_velocity(Vector3.RIGHT, Vector3.FORWARD, 50.0, 50.0, 200.0, 100.0)
+	assert_lt(tight.length(), 200.0 * Constants.NAV_ORBIT_SPEED_SHARE, "Tight orbits go slower.")
+
+
 func test_set_command_orbit():
 	signal_catcher.reset()
 	var target_node = TestAgentBody.new()

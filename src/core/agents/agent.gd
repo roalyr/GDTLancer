@@ -38,12 +38,15 @@ var fit: Dictionary = {}  # ShipFit fit: parts per slot. The player's lives in G
 var fit_stats: Dictionary = {}  # ShipFit.compute_stats(): hull, power, cargo, thrust and mass with the fit
 const FuelLeakScene = preload("res://scenes/prefabs/effects/fuel_leak.tscn")
 const HullSmoulderScene = preload("res://scenes/prefabs/effects/hull_smoulder.tscn")
+const DamageTrailScene = preload("res://scenes/prefabs/effects/damage_trail.tscn")
 const LaserHitEffect = preload("res://src/core/agents/effects/laser_hit_effect.gd")
 const WreckExplosionScene = preload("res://scenes/prefabs/effects/wreck_explosion.tscn")
 var _damage_toward_leak := 0.0
 var _engine_activity := 0.0  # Smoothed engine thrust fraction, 0..1 (signature)
 var _leaks: Array = []
 var _smoulders: Array = []  # HullSmoulder spots, oldest first
+var _damage_trails: Array = []  # DamageTrail nodes: one per Constants.DAMAGE_TRAIL_HULL_STEP of hull lost
+var _last_hit: Array = []  # [world point, outward] of the latest hit: where a new damage trail starts
 
 func is_player() -> bool:
 	return agent_type == "player"
@@ -235,6 +238,7 @@ func _init_hull_and_power() -> void:
 	hull = hull_max
 	if is_player() and GameState.player_hull >= 0.0:
 		hull = min(GameState.player_hull, hull_max)
+		call_deferred("_update_damage_trails")  # A hurt hull from a save trails embers again (once the model is in)
 	power = power_max
 	cargo = GameState.player_cargo.duplicate() if is_player() else {}
 	_update_mass()
@@ -325,6 +329,7 @@ func apply_damage(amount: float, source: Node = null) -> void:
 	if is_wreck or amount <= 0.0:
 		return
 	hull = max(0.0, hull - amount)
+	_update_damage_trails()
 	_hold_grudge(source)
 	if is_player():
 		GameState.player_hull = hull
@@ -391,6 +396,8 @@ func register_hit(from_global: Vector3, damage: float) -> Vector3:
 			break
 	if point == null:
 		point = get_hull_point_facing(from_global)
+	var centre: Vector3 = to_global(hull_bounds.position + hull_bounds.size * 0.5)
+	_last_hit = [point, normal if normal != null else (point - centre).normalized()]
 	_add_smoulder(point, normal, damage)
 	_accumulate_leak_damage(point, normal, damage)
 	return point
@@ -425,6 +432,51 @@ func _add_smoulder(point: Vector3, normal, damage: float) -> void:
 	add_child(spot)
 	spot.global_transform.origin = spot_point
 	_smoulders.append(spot)
+
+
+# Lasting ember trails, one per Constants.DAMAGE_TRAIL_HULL_STEP of hull lost: the first new one
+# starts where the latest hit landed, any others at random points of the hull. Brighter the more
+# hull is lost; repairs remove them.
+func _update_damage_trails() -> void:
+	if not is_inside_tree() or hull_max <= 0.0:
+		return
+	var lost: float = clamp(1.0 - hull / hull_max, 0.0, 1.0)
+	var wanted: int = int(min(floor(lost / Constants.DAMAGE_TRAIL_HULL_STEP + 0.0001), Constants.DAMAGE_TRAIL_MAX))
+	var live: Array = []
+	for trail in _damage_trails:
+		if is_instance_valid(trail) and not trail.is_queued_for_deletion():
+			live.append(trail)
+	_damage_trails = live
+	while _damage_trails.size() > wanted:
+		_damage_trails.pop_back().queue_free()
+	var centre: Vector3 = to_global(hull_bounds.position + hull_bounds.size * 0.5)
+	var at_last_hit: bool = not _last_hit.empty()
+	while _damage_trails.size() < wanted:
+		var point: Vector3
+		var outward: Vector3
+		if at_last_hit:
+			point = _last_hit[0]
+			outward = _last_hit[1]
+			at_last_hit = false
+		else:
+			outward = Vector3(rand_range(-1, 1), rand_range(-1, 1), rand_range(-1, 1)).normalized()
+			point = get_hull_point_facing(centre + outward * get_apparent_radius() * 10.0)
+		var trail = DamageTrailScene.instance()
+		trail.outward = outward
+		trail.size_scale = clamp(get_apparent_radius() / Constants.SMOULDER_REFERENCE_RADIUS, 0.5, 5.0)
+		add_child(trail)
+		trail.global_transform.origin = point
+		_damage_trails.append(trail)
+	for trail in _damage_trails:
+		trail.strength = lost
+
+
+func get_damage_trail_count() -> int:
+	var count := 0
+	for trail in _damage_trails:
+		if is_instance_valid(trail) and not trail.is_queued_for_deletion():
+			count += 1
+	return count
 
 
 func get_smoulder_count() -> int:
@@ -578,6 +630,7 @@ func repair_hull() -> float:
 	var restored: float = hull_max - hull
 	hull = hull_max
 	_clear_smoulders()
+	_update_damage_trails()
 	if is_player():
 		GameState.player_hull = hull
 	return restored

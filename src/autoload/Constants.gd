@@ -71,7 +71,10 @@ const NAV_APPROACH_MIN_DISTANCE = 50.0  # m
 const NAV_ARRIVAL_DISTANCE_THRESHOLD = 20.0  # m
 const NAV_APPROACH_RESUME_MARGIN = 30.0  # m past the hold distance before a holding approach closes in again
 const NAV_ARRIVAL_SPEED_THRESHOLD = 5.0  # m/s
-const NAV_CLOSE_ORBIT_DISTANCE_FACTOR = 1.5
+const NAV_CLOSE_ORBIT_DISTANCE_FACTOR = 1.5  # The orbit radius is at least the target's size times this
+const NAV_ORBIT_SPEED_SHARE = 0.6  # Orbit speed as a share of top speed (less on tight orbits: turning limits it)
+const NAV_ORBIT_RADIAL_GAIN = 0.2  # Per second: radius error (m) -> speed back toward the orbit radius (m/s)
+const NAV_ORBIT_MAX_RADIAL_SHARE = 0.8  # Radial correction speed at most this share of top speed
 
 # Obstacle avoidance (rocks, stations): the autopilot looks ahead along its velocity and pushes
 # sideways off anything whose clearance sphere the path would cross. Manual flight is not steered.
@@ -229,7 +232,7 @@ const HIT_FX_COOL_COLOR = Color(1.0, 0.45, 0.2)  # Flash colour of a weak hit
 const HIT_FX_HOT_COLOR = Color(1.0, 0.95, 0.88)  # Flash colour at HIT_FX_HOT_INTENSITY and above
 const HIT_FX_HOT_INTENSITY = 2.0
 const HIT_FX_FLASH_DURATION = 0.15  # s
-const HIT_FX_LIGHT_DISTANCE = 800.0  # m from the camera; farther hits flash without lighting their surroundings
+const HIT_FX_LIGHT_DISTANCE = 2000.0  # m from the camera; farther hits flash without lighting their surroundings
 const HIT_FX_LIGHT_LIFT = 6.0  # m the light sits off the contact point toward the shooter, clear of the full-detail mesh
 const HIT_FX_MAX_LIGHTS = 4  # Hits lighting their surroundings at once (GLES2: every light is another pass per object it touches)
 const HIT_FX_LIFETIME = 1.5  # s
@@ -255,6 +258,12 @@ const SMOULDER_WRECK_FACTOR = 2.0  # Wrecks smoulder this much longer
 const SMOULDER_VISIBLE_DISTANCE = 2500.0  # m from the camera; farther spots do not emit
 const SMOULDER_MAX_SHOWN = 12  # Spots emitting at once
 const SMOULDER_CHECK_INTERVAL = 0.25  # s between camera-distance checks per spot
+# Damage trails (DamageTrail): lasting, sparse ember trails on a hurt hull, one more per share of
+# hull lost, until repaired. They start where the latest hit landed.
+const DAMAGE_TRAIL_HULL_STEP = 0.25  # One trail per this share of hull lost (so 75% lost = 3)
+const DAMAGE_TRAIL_MAX = 3  # Per ship
+const DAMAGE_TRAIL_VISIBLE_DISTANCE = 3000.0  # m from the camera; farther trails do not emit
+const DAMAGE_TRAIL_MAX_SHOWN = 12  # Trails emitting at once
 # Rocks do not burn: a hit leaves a slow dust puff instead (RockDust).
 const ROCK_DUST_VISIBLE_DISTANCE = 2500.0  # m from the camera
 const ROCK_DUST_MAX = 6  # Puffs at once
