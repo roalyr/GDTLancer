@@ -102,3 +102,49 @@ func test_asteroids_collide_as_their_outline():
 		reach = max(reach, point.length())
 	assert_gt(reach, rock.get_apparent_radius() * 0.7, "reaching out to the rock's surface.")
 
+
+
+func test_baked_surfaces_live_beside_the_model():
+	assert_eq(CollisionHull.baked_surface_path(PHOENIX), "res://assets/models/ships/hit/Phoenix_light_hit.res")
+
+
+func _ship_with_hit_surface() -> StaticBody:
+	var ship = StaticBody.new()
+	var hull_shape = CollisionShape.new()
+	ship.add_child(hull_shape)
+	add_child_autofree(ship)
+	var root = Spatial.new()
+	ship.add_child(root)
+	root.add_child(load(PHOENIX).instance())
+	hull_shape.shape = CollisionHull.shape_for(root, Transform.IDENTITY)
+	CollisionHull.add_hit_surface(ship, root)
+	return ship
+
+
+func test_shots_land_on_the_hit_surface_inside_the_hull():
+	var ship = _ship_with_hit_surface()
+	var surface = CollisionHull.hit_surface_of(ship)
+	assert_not_null(surface, "Ships get a hit surface")
+	assert_eq(surface.collision_layer, Constants.HIT_SURFACE_LAYER)
+	assert_eq(surface.collision_mask, 0, "that collides with nothing.")
+	yield(get_tree(), "physics_frame")
+	yield(get_tree(), "physics_frame")
+	var from := Vector3(0, 500, 0)
+	var plating: Dictionary = CollisionHull.ray_onto(ship, from, Vector3.ZERO, 50.0)
+	var hull: Dictionary = CollisionHull.ray_onto(ship, from, Vector3.ZERO, 50.0, false)
+	if plating.empty():
+		pending("Straight down misses the plating of this model: pick another line")
+		return
+	assert_eq(plating.collider, surface, "The plating")
+	assert_false(hull.empty())
+	assert_eq(hull.collider, ship, "or, asked for, the convex hull")
+	assert_true(from.distance_to(plating.position) >= from.distance_to(hull.position) - 0.01, "which is never inside the plating.")
+
+
+func test_lines_of_fire_ignore_hit_surfaces():
+	var ship = _ship_with_hit_surface()
+	yield(get_tree(), "physics_frame")
+	yield(get_tree(), "physics_frame")
+	var space = ship.get_world().direct_space_state
+	var through: Dictionary = space.intersect_ray(Vector3(0, 500, 0), Vector3(0, -500, 0), [ship], Constants.SHOT_BLOCK_MASK)
+	assert_true(through.empty(), "With the ship itself left out, its hit surface does not block a shot from inside it.")

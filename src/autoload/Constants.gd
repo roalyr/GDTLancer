@@ -210,9 +210,29 @@ const DIFFICULTY_HARD_ADVANTAGE = 0.3
 # COLLISION HULLS (CollisionHull)
 # ==================================================================================================
 
-# Convex, from the lowest level of detail; shots land on them too.
+# Convex, from the lowest level of detail; shots land on them when a ship has no hit surface.
 const COLLISION_HULL_MAX_POINTS = 48  # Points per hull: the extreme vertex in this many directions
 const HIT_RAY_PASSES = 4  # A shot's ray skips this many other bodies before giving up on its target
+# Hit surfaces (ships only): trimeshes of a lower level of detail, baked by tools/bake_hit_shapes.gd.
+# Only shot rays look at them; nothing collides with them.
+const HIT_SURFACE_LAYER = 1 << 19  # Collision layer 20
+const HIT_SURFACE_LOD = 1  # Level of detail the trimesh is made from (0 = the model itself)
+const SHOT_BLOCK_MASK = 0x7FFFFFFF & ~HIT_SURFACE_LAYER  # What blocks a line of fire: every layer but the hit surfaces
+
+# Hull scars (HullScars): every hit on a ship's plating leaves a glowing blob that cools to a dark
+# lump, sunk into the plating. Sizes are in metres, not scaled with the ship (a beam is a beam).
+const HULL_SCAR_MAX_PER_SHIP = 24  # The oldest scar gives way beyond this
+const HULL_SCAR_SIZE_PER_SQRT_DAMAGE = 0.8  # m across; a 6-damage hit leaves about 2 m
+const HULL_SCAR_MIN_SIZE = 0.6  # m
+const HULL_SCAR_MAX_SIZE = 4.0  # m, also the most a reheated scar grows to
+const HULL_SCAR_FLATNESS = 0.35  # Height as a share of the width
+const HULL_SCAR_SINK = 0.25  # Share of the height the blob's centre sits below the plating
+const HULL_SCAR_MIN_FACING = 0.35  # Cosine; glancing hits stretch along the beam up to 1/this
+const HULL_SCAR_ROUND_STRETCH = 1.3  # Below this stretch a scar turns freely about its normal; above, it stays along the beam
+const HULL_SCAR_MERGE_SHARE = 0.5  # A hit within this share of a scar's size reheats it instead of adding one
+const HULL_SCAR_REHEAT_GROWTH = 1.15  # A reheated scar grows by this factor, up to HULL_SCAR_MAX_SIZE
+const HULL_SCAR_COOL_TIME = 8.0  # s from the hit until the scar is cold char
+const HULL_SCAR_VISIBLE_DISTANCE = 1500.0  # m from the camera; farther scars are not drawn
 
 
 # ==================================================================================================

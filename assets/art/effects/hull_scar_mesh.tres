@@ -1,0 +1,8 @@
+[gd_resource type="SphereMesh" format=2]
+
+[resource]
+resource_name = "hull scar blob"
+radius = 0.5
+height = 1.0
+radial_segments = 12
+rings = 6

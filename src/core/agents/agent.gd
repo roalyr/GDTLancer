@@ -38,6 +38,7 @@ var fit: Dictionary = {}  # ShipFit fit: parts per slot. The player's lives in G
 var fit_stats: Dictionary = {}  # ShipFit.compute_stats(): hull, power, cargo, thrust and mass with the fit
 const FuelLeakScene = preload("res://scenes/prefabs/effects/fuel_leak.tscn")
 const HullSmoulderScene = preload("res://scenes/prefabs/effects/hull_smoulder.tscn")
+const HullScars = preload("res://src/core/agents/effects/hull_scars.gd")
 const DamageTrailScene = preload("res://scenes/prefabs/effects/damage_trail.tscn")
 const LaserHitEffect = preload("res://src/core/agents/effects/laser_hit_effect.gd")
 const WreckExplosionScene = preload("res://scenes/prefabs/effects/wreck_explosion.tscn")
@@ -45,6 +46,7 @@ var _damage_toward_leak := 0.0
 var _engine_activity := 0.0  # Smoothed engine thrust fraction, 0..1 (signature)
 var _leaks: Array = []
 var _smoulders: Array = []  # HullSmoulder spots, oldest first
+var _hull_scars = null  # HullScars under the visual root
 var _damage_trails: Array = []  # DamageTrail nodes: one per Constants.DAMAGE_TRAIL_HULL_STEP of hull lost
 var _last_hit: Array = []  # [world point, outward] of the latest hit: where a new damage trail starts
 
@@ -117,6 +119,11 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 						call_deferred("add_child", child)
 				_measure_hull_bounds(ship_visual)
 				MeshLod.attach(ship_visual, get_apparent_radius())
+				CollisionHull.add_hit_surface(self, ship_visual)  # Where shots land: the plating, not the hull round it
+				_hull_scars = HullScars.new()
+				ship_visual.add_child(_hull_scars)
+				if is_player():
+					_hull_scars.import_scars(GameState.player_hull_scars)
 			else:
 				printerr("AgentBody Error: 'Model' node not found!")
 		else:
@@ -379,39 +386,45 @@ func get_random_aim_point() -> Vector3:
 	return to_global(centre + offset)
 
 
-# A shot from `from_global` lands on the hull: leaves a smoulder spot, may open a fuel leak, and
-# returns the world point it
-# hit. The shot line meets the collision hull (CollisionHull.ray_onto), aimed at
-# random points (a line can pass between wings), then the centre; failing that, the hull point
-# facing the shooter.
+# A shot from `from_global` lands on the hull: leaves a scar and a smoulder spot, may open a fuel
+# leak, and returns the world point it hit. The shot line meets the hit surface (the plating;
+# CollisionHull.ray_onto), aimed at random points (a line can pass between wings), then the centre;
+# failing that the convex collision hull at the centre, then the hull point facing the shooter.
+# Only hits on the plating scar it.
 func register_hit(from_global: Vector3, damage: float) -> Vector3:
 	var point = null
 	var normal = null
-	for attempt in range(3):
-		var aim: Vector3 = get_random_aim_point() if attempt < 2 else to_global(hull_bounds.position + hull_bounds.size * 0.5)
-		var hit: Dictionary = CollisionHull.ray_onto(self, from_global, aim, get_apparent_radius() * 2.0)
+	var on_plating := false
+	var centre: Vector3 = to_global(hull_bounds.position + hull_bounds.size * 0.5)
+	for attempt in range(4):
+		var aim: Vector3 = get_random_aim_point() if attempt < 2 else centre
+		var hit: Dictionary = CollisionHull.ray_onto(self, from_global, aim, get_apparent_radius() * 2.0, attempt < 3)
 		if not hit.empty():
 			point = hit.position
 			normal = hit.normal
+			on_plating = hit.collider != self
+			if on_plating and is_instance_valid(_hull_scars) and damage > 0.0:
+				_hull_scars.add_scar(point, normal, aim - from_global, damage, hit.collider)
+				if is_player():
+					GameState.player_hull_scars = _hull_scars.export_scars()
 			break
 	if point == null:
 		point = get_hull_point_facing(from_global)
-	var centre: Vector3 = to_global(hull_bounds.position + hull_bounds.size * 0.5)
 	_last_hit = [point, normal if normal != null else (point - centre).normalized()]
-	_add_smoulder(point, normal, damage)
+	_add_smoulder(point, normal, damage, on_plating)
 	_accumulate_leak_damage(point, normal, damage)
 	return point
 
 
-# Every hit leaves a smouldering spot (HullSmoulder), or reheats one close by, in from the hit
-# point (_ember_point()).
-func _add_smoulder(point: Vector3, normal, damage: float) -> void:
+# Every hit leaves a smouldering spot (HullSmoulder), or reheats one close by: at the hit point
+# if it is `on_plating`, else in from it (_ember_point()).
+func _add_smoulder(point: Vector3, normal, damage: float, on_plating: bool = false) -> void:
 	var heat: float = LaserHitEffect.intensity_for_damage(damage)
 	if heat <= 0.0 or not is_inside_tree():
 		return
 	var size_scale: float = clamp(get_apparent_radius() / Constants.SMOULDER_REFERENCE_RADIUS, 0.5, 5.0)
 	var centre: Vector3 = to_global(hull_bounds.position + hull_bounds.size * 0.5)
-	var spot_point: Vector3 = _ember_point(point)
+	var spot_point: Vector3 = point if on_plating else _ember_point(point)
 	var live: Array = []
 	for spot in _smoulders:
 		if is_instance_valid(spot) and not spot.is_queued_for_deletion():
@@ -491,6 +504,10 @@ func get_smoulder_count() -> int:
 		if is_instance_valid(spot) and not spot.is_queued_for_deletion():
 			count += 1
 	return count
+
+
+func get_hull_scar_count() -> int:
+	return _hull_scars.get_scar_count() if is_instance_valid(_hull_scars) else 0
 
 
 func _clear_smoulders() -> void:
@@ -645,14 +662,17 @@ func clear_cargo() -> void:
 	_update_mass()
 
 
-# Restores the hull and puts out smoulder spots; returns hull points restored.
+# Restores the hull, puts out smoulder spots and clears scars; returns hull points restored.
 func repair_hull() -> float:
 	var restored: float = hull_max - hull
 	hull = hull_max
 	_clear_smoulders()
+	if is_instance_valid(_hull_scars):
+		_hull_scars.clear_scars()
 	_update_damage_trails()
 	if is_player():
 		GameState.player_hull = hull
+		GameState.player_hull_scars = []
 	return restored
 
 

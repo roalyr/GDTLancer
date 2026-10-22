@@ -260,13 +260,14 @@ func _process_laser(index: int, target: Node) -> void:
 	emit_signal("tool_cycled", index, target, quality, damage)
 
 
-# The first body between this ship and the target's aim point, or null for a clear line.
+# The first body between this ship and the target's aim point, or null for a clear line. Hit
+# surfaces never block (Constants.SHOT_BLOCK_MASK): the shooter's own sits round the ray's start.
 func find_blocker(target: Spatial):
 	if not _agent_body.is_inside_tree():
 		return null
 	var aim: Vector3 = target.get_random_aim_point() if target.has_method("get_random_aim_point") else target.global_transform.origin
 	var hit: Dictionary = _agent_body.get_world().direct_space_state.intersect_ray(
-		_agent_body.global_transform.origin, aim, [_agent_body]
+		_agent_body.global_transform.origin, aim, [_agent_body], Constants.SHOT_BLOCK_MASK
 	)
 	if hit.empty() or hit.collider == target:
 		return null
