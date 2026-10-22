@@ -1,7 +1,7 @@
 // Explosion cloud (WreckExplosionEffect puffs, on the spheroid model): a billowing ball of burning
 // gas that cools to smoke. Its own shader, not the shared glow one: front faces only (no
 // cull_front), blended rather than added, so smoke can be darker than space behind it.
-// - The surface billows: lumps (vertex noise) that churn slowly with TIME.
+// - The surface billows: fixed lumps (vertex noise from the puff's seed); the puff only swells.
 // - Thick where it faces the camera, thin at the rim: soft edges without a texture.
 // - `heat` (0..1, set per puff) blends smoke -> flame -> white-hot core; lumps facing the camera
 //   stay hot longest, so the fire breaks up into patches as it cools.
@@ -13,7 +13,6 @@ uniform float heat = 1.0;  // 1 just exploded .. 0 cold smoke
 uniform float opacity = 1.0;
 uniform float seed = 0.0;  // Per puff, so puffs billow differently
 uniform float billow = 0.22;  // Lump height, as a share of the radius
-uniform float churn = 0.35;  // How fast the lumps roll (rad/s)
 uniform vec4 core_color : hint_color = vec4(1.0, 0.92, 0.7, 1.0);
 uniform vec4 flame_color : hint_color = vec4(1.0, 0.42, 0.08, 1.0);
 uniform vec4 smoke_color : hint_color = vec4(0.3, 0.28, 0.27, 1.0);
@@ -50,9 +49,8 @@ float dither_posterize(float value, vec2 fragcoord) {
 
 void vertex() {
 	vec3 p = normalize(VERTEX);
-	float t = TIME * churn + seed;
-	float n = sin(p.x * 5.0 + t) * sin(p.y * 4.0 - t * 0.7 + seed) * sin(p.z * 6.0 + t * 0.5)
-		+ 0.5 * sin(p.x * 11.0 - t * 1.3) * sin(p.z * 9.0 + t + seed * 2.0);
+	float n = sin(p.x * 5.0 + seed) * sin(p.y * 4.0 + seed * 1.3) * sin(p.z * 6.0 + seed * 0.7)
+		+ 0.5 * sin(p.x * 11.0 + seed * 2.1) * sin(p.z * 9.0 + seed * 1.7);
 	lumps = n;
 	VERTEX += NORMAL * n * billow * length(VERTEX);
 }

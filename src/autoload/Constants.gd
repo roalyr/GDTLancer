@@ -309,12 +309,12 @@ const EXPLOSION_DRAG = 0.8  # Per second; the cloud centre slows a bit faster th
 # Cloud puffs (spheroids, explosion_cloud.gdshader; colours in explosion_puff_material.tres), sizes
 # for the authored ship radius: a fireball that swells fast, burns out to smoke, then thins away.
 const EXPLOSION_PUFF_START_SIZE = 4.0  # m, radius of the spheroid at the start
-const EXPLOSION_PUFF_END_SIZE = 22.0  # m, by the end of EXPLOSION_LIFETIME
-const EXPLOSION_PUFF_SPREAD = 8.0  # m the puffs drift apart from the centre
+const EXPLOSION_PUFF_END_SIZE = 36.0  # m, by the end of EXPLOSION_LIFETIME
+const EXPLOSION_PUFF_SPREAD = 12.0  # m the puffs drift apart from the centre
 const EXPLOSION_PUFF_OPACITY = 0.95  # At the start
-const EXPLOSION_PUFF_FADE_START = 0.3  # Share of the lifetime the smoke holds before it thins
-const EXPLOSION_PUFF_MIN_OPACITY = 0.04  # A puff fainter than this is hidden (it still costs a full blended layer)
-const EXPLOSION_PUFF_COOL_SHARE = 0.35  # Share of the lifetime over which the fire burns out to smoke
+const EXPLOSION_PUFF_FADE_START = 0.1  # Share of the lifetime the smoke holds before it thins
+const EXPLOSION_PUFF_MIN_OPACITY = 0.02  # A puff fainter than this is hidden (it still costs a full blended layer)
+const EXPLOSION_PUFF_COOL_SHARE = 0.15  # Share of the lifetime over which the fire burns out to smoke
 
 
 # ==================================================================================================

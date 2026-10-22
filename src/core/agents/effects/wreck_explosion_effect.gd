@@ -72,9 +72,10 @@ func _process(delta: float) -> void:
 # Each puff swells (fast at first, then slowly), burns out to smoke, then thins away.
 func _update_puffs() -> void:
 	var t: float = clamp(_age / Constants.EXPLOSION_LIFETIME, 0.0, 1.0)
-	var grown: float = 1.0 - pow(1.0 - t, 4.0)  # Ease out: a fireball bursts, smoke drifts
+	var grown: float = 1.0 - pow(1.0 - t, 2.5)  # Ease out: a fireball bursts, then the smoke keeps spreading
 	var cooling: float = clamp(1.0 - t / Constants.EXPLOSION_PUFF_COOL_SHARE, 0.0, 1.0)
-	var opacity: float = Constants.EXPLOSION_PUFF_OPACITY * (1.0 - smoothstep(Constants.EXPLOSION_PUFF_FADE_START, 1.0, t))
+	var fade: float = clamp((t - Constants.EXPLOSION_PUFF_FADE_START) / (1.0 - Constants.EXPLOSION_PUFF_FADE_START), 0.0, 1.0)
+	var opacity: float = Constants.EXPLOSION_PUFF_OPACITY * pow(1.0 - fade, 2.0)  # Thins fast at first, then lingers faint
 	for puff in _puffs:
 		var size: float = lerp(Constants.EXPLOSION_PUFF_START_SIZE, Constants.EXPLOSION_PUFF_END_SIZE, grown) * puff[3]
 		puff[0].scale = Vector3.ONE * size
