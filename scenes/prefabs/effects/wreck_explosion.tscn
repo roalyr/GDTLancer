@@ -2,7 +2,6 @@
 
 [ext_resource path="res://src/core/agents/effects/wreck_explosion_effect.gd" type="Script" id=1]
 [ext_resource path="res://assets/art/effects/explosion_flash_material.tres" type="Material" id=2]
-[ext_resource path="res://assets/models/nebulas/spheroid.glb" type="PackedScene" id=7]
 [ext_resource path="res://assets/art/effects/explosion_fragment_material.tres" type="Material" id=4]
 
 [sub_resource type="QuadMesh" id=1]
@@ -10,6 +9,12 @@ size = Vector2( 48, 48 )
 
 [sub_resource type="QuadMesh" id=5]
 size = Vector2( 1.44, 1.44 )
+
+[sub_resource type="SphereMesh" id=7]
+radius = 1.25
+height = 2.5
+radial_segments = 32
+rings = 16
 
 [sub_resource type="Gradient" id=6]
 colors = PoolColorArray( 1, 0.9, 0.6, 1, 1, 0.25, 0.05, 0 )
@@ -28,9 +33,11 @@ mesh = SubResource( 1 )
 
 [node name="Puffs" type="Spatial" parent="."]
 
-[node name="Puff1" parent="Puffs" instance=ExtResource( 7 )]
+[node name="Puff1" type="MeshInstance" parent="Puffs"]
+mesh = SubResource( 7 )
 
-[node name="Puff2" parent="Puffs" instance=ExtResource( 7 )]
+[node name="Puff2" type="MeshInstance" parent="Puffs"]
+mesh = SubResource( 7 )
 
 [node name="Fragments" type="CPUParticles" parent="."]
 material_override = ExtResource( 4 )

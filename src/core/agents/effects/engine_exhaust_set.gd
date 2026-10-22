@@ -2,7 +2,8 @@
 # scenes/prefabs/effects/engine_exhaust.tscn) from its thrust, as the legacy project did: the
 # plume stretches out behind the nozzle and widens up to a cap as thrust rises, and every
 # exhaust shape brightens with it; an idle engine keeps a faint nozzle glow, a wreck none. Speed
-# stretches the plume further and slims it (Constants.ENGINE_PLUME_SPEED_*).
+# scales the plume's length (Constants.ENGINE_PLUME_STANDSTILL_SHARE when still, longer and slimmer
+# at top speed): it grows as the ship speeds up and shrinks as it slows down.
 # Sits on the ship scene's "Engines" node; the ship's engines share one set of material copies,
 # so ships do not change each other's glow.
 
@@ -41,7 +42,7 @@ func _apply(thrust: float, speed: float = 0.0) -> void:
 	_speed = speed
 	var dead: bool = thrust < 0.0
 	var t: float = clamp(thrust, 0.0, 1.0)
-	var length: float = lerp(Constants.ENGINE_PLUME_IDLE_LENGTH, Constants.ENGINE_PLUME_MAX_LENGTH, t) * (1.0 + Constants.ENGINE_PLUME_SPEED_STRETCH * speed)
+	var length: float = lerp(Constants.ENGINE_PLUME_IDLE_LENGTH, Constants.ENGINE_PLUME_MAX_LENGTH, t) * lerp(Constants.ENGINE_PLUME_STANDSTILL_SHARE, 1.0 + Constants.ENGINE_PLUME_SPEED_STRETCH, speed)
 	var width: float = lerp(Constants.ENGINE_PLUME_MIN_WIDTH, Constants.ENGINE_PLUME_MAX_WIDTH, t) * (1.0 - Constants.ENGINE_PLUME_SPEED_SLIM * speed)
 	for engine in get_children():
 		var plume = engine.get_node_or_null("PlumeShapes")

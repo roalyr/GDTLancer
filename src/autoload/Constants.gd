@@ -245,11 +245,13 @@ const HULL_SLAG_MAX_SIZE = 0.9  # m: never larger than this (a fresh hit's scar 
 # ==================================================================================================
 
 # Engine exhausts (EngineExhaustSet): plume size relative to the exhaust cone models, by thrust,
-# then stretched by speed (a share of the ship's top speed): a fast ship trails a longer, slimmer plume.
+# then scaled by speed (a share of the ship's top speed): short when slow, long and slim when fast,
+# so a plume grows as a ship speeds up and shrinks as it slows down, even while braking hard.
 const ENGINE_PLUME_IDLE_LENGTH = 0.15
 const ENGINE_PLUME_MAX_LENGTH = 6.0
 const ENGINE_PLUME_MIN_WIDTH = 0.5
 const ENGINE_PLUME_MAX_WIDTH = 1.0
+const ENGINE_PLUME_STANDSTILL_SHARE = 0.35  # Plume length at no speed, as a share of its length by thrust
 const ENGINE_PLUME_SPEED_STRETCH = 0.8  # At top speed the plume is this much longer (0.8: 1.8x)
 const ENGINE_PLUME_SPEED_SLIM = 0.2  # and this much slimmer
 const ENGINE_PLUME_SPEED_STEP = 0.02  # Speed share change that redraws the plume
@@ -306,10 +308,10 @@ const EXPLOSION_LIFETIME = 16.0  # s
 const EXPLOSION_FLASH_DURATION = 0.6  # s
 const EXPLOSION_MAX_LIGHTS = 1  # Explosions lighting their surroundings at once (GLES2: every light is another pass per object it touches)
 const EXPLOSION_DRAG = 0.8  # Per second; the cloud centre slows a bit faster than a wreck (LINEAR_DRAG)
-# Cloud puffs (spheroids, explosion_cloud.gdshader; colours in explosion_puff_material.tres), sizes
+# Cloud puffs (spheres, explosion_cloud.gdshader; colours in explosion_puff_material.tres), sizes
 # for the authored ship radius: a fireball that swells fast, burns out to smoke, then thins away.
-const EXPLOSION_PUFF_START_SIZE = 4.0  # m, radius of the spheroid at the start
-const EXPLOSION_PUFF_END_SIZE = 36.0  # m, by the end of EXPLOSION_LIFETIME
+const EXPLOSION_PUFF_START_SIZE = 4.0  # Scale of the puff sphere (radius 1.25 m) at the start
+const EXPLOSION_PUFF_END_SIZE = 36.0  # and by the end of EXPLOSION_LIFETIME
 const EXPLOSION_PUFF_SPREAD = 12.0  # m the puffs drift apart from the centre
 const EXPLOSION_PUFF_OPACITY = 0.95  # At the start
 const EXPLOSION_PUFF_FADE_START = 0.1  # Share of the lifetime the smoke holds before it thins

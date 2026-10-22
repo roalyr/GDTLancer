@@ -1,4 +1,4 @@
-// Explosion cloud (WreckExplosionEffect puffs, on the spheroid model): a billowing ball of burning
+// Explosion cloud (WreckExplosionEffect puffs, on a sphere mesh): a billowing ball of burning
 // gas that cools to smoke. Its own shader, not the shared glow one: front faces only (no
 // cull_front), blended rather than added, so smoke can be darker than space behind it.
 // - The surface billows: fixed lumps (vertex noise from the puff's seed); the puff only swells.
@@ -12,7 +12,7 @@ render_mode blend_mix, unshaded, cull_back, depth_draw_never, shadows_disabled;
 uniform float heat = 1.0;  // 1 just exploded .. 0 cold smoke
 uniform float opacity = 1.0;
 uniform float seed = 0.0;  // Per puff, so puffs billow differently
-uniform float billow = 0.22;  // Lump height, as a share of the radius
+uniform float billow = 0.07;  // Lump height, as a share of the radius (small: a round ball)
 uniform vec4 core_color : hint_color = vec4(1.0, 0.92, 0.7, 1.0);
 uniform vec4 flame_color : hint_color = vec4(1.0, 0.42, 0.08, 1.0);
 uniform vec4 smoke_color : hint_color = vec4(0.3, 0.28, 0.27, 1.0);
