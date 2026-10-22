@@ -75,6 +75,7 @@ const NAV_CLOSE_ORBIT_DISTANCE_FACTOR = 1.5  # The orbit radius is at least the 
 const NAV_ORBIT_SPEED_SHARE = 0.6  # Orbit speed as a share of top speed (less on tight orbits: turning limits it)
 const NAV_ORBIT_RADIAL_GAIN = 0.2  # Per second: radius error (m) -> speed back toward the orbit radius (m/s)
 const NAV_ORBIT_MAX_RADIAL_SHARE = 0.8  # Radial correction speed at most this share of top speed
+const NAV_WATCH_BRAKE_SHARE = 0.3  # Watching a target (an NPC hesitating): eases off with this share of its thrust
 
 # Obstacle avoidance (rocks, stations): the autopilot looks ahead along its velocity and pushes
 # sideways off anything whose clearance sphere the path would cross. Manual flight is not steered.

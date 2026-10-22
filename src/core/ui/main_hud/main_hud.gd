@@ -162,6 +162,8 @@ func _ready():
 	if is_instance_valid(button_debug):
 		if not button_debug.is_connected("pressed", self, "_on_ButtonDebug_pressed"):
 			button_debug.connect("pressed", self, "_on_ButtonDebug_pressed")
+	if is_instance_valid(label_combat_readout):
+		label_combat_readout.visible = false  # Until the debug button shows it
 
 	_connect_overlay_toggle_button(button_overlay_structures, "_on_ButtonOverlayStructures_pressed")
 	_connect_overlay_toggle_button(button_overlay_stellar, "_on_ButtonOverlayStellar_pressed")
@@ -283,10 +285,12 @@ func _on_ButtonMenu_pressed() -> void:
 		EventBus.emit_signal("main_menu_requested")
 
 
+# Shows or hides the readout (hull, tools, target, render monitors): off by default.
 func _on_ButtonDebug_pressed() -> void:
-	var debug_window = _get_debug_window()
-	if is_instance_valid(debug_window) and debug_window.has_method("toggle_debug_window"):
-		debug_window.call("toggle_debug_window")
+	if not is_instance_valid(label_combat_readout):
+		return
+	label_combat_readout.visible = not label_combat_readout.visible
+	_update_combat_readout()
 
 
 func _on_ButtonCamera_pressed() -> void:
@@ -582,9 +586,9 @@ func _is_projected_target_center_fade_enabled() -> bool:
 
 
 # Hull, power, cargo, each fitted tool's state, the selected ship's hull or wreck's salvage, and
-# render monitors (temporary, while performance is being tuned).
+# render monitors (temporary, while performance is being tuned). Only while shown (debug button).
 func _update_combat_readout() -> void:
-	if not is_instance_valid(label_combat_readout):
+	if not is_instance_valid(label_combat_readout) or not label_combat_readout.visible:
 		return
 	var player = GlobalRefs.player_agent_body
 	if not is_instance_valid(player) or player.get("hull_max") == null:

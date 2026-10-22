@@ -1,6 +1,10 @@
 # ShipControllerAI: state machine for NPC agents. Patrols, fights enemies (other factions at war
 # with its own, or ships that shot it), flees fights not worth it, strips wrecks, and with a full
 # hold flies back to where it came from and leaves the sector.
+# Decisions take time (skill, how close the call is): meanwhile the ship HESITATES, a state of its
+# own the player can read. It turns its nose on the ship in question and eases off to a drift,
+# holding fire; one wavering over breaking off a fight keeps fighting meanwhile. Being shot while
+# hesitating turns any pending decision into one about the shooter, without starting over.
 # Uses the same commands and ToolController as the player. Child of AgentBody in npc_agent.tscn.
 
 extends Node
@@ -9,13 +13,16 @@ const FrameProfiler = preload("res://src/core/utils/frame_profiler.gd")
 
 const CombatAssessment = preload("res://src/core/systems/combat_assessment.gd")
 
-enum AIState { IDLE, PATROL, COMBAT, FLEE, DISABLED, SALVAGE, DEPART }
+enum AIState { IDLE, PATROL, COMBAT, FLEE, DISABLED, SALVAGE, DEPART, HESITATE }
 
 # What the player reads off a ship's behaviour (see the parity rule in the README).
 const ACTIVITY_LABELS = {
 	AIState.PATROL: "PATROLLING", AIState.COMBAT: "FIGHTING", AIState.FLEE: "FLEEING",
-	AIState.SALVAGE: "SALVAGING", AIState.DEPART: "HAULING",
+	AIState.SALVAGE: "SALVAGING", AIState.DEPART: "HAULING", AIState.HESITATE: "HESITATING",
 }
+
+# Which pending decision gives way to which (higher wins): being shot outranks anything else.
+const DECISION_PRIORITY = {"engage": 0, "disengage": 0, "respond": 1}
 
 
 var agent_script: RigidBody = null
@@ -32,6 +39,8 @@ var _orbiting: bool = false
 var _provoked: bool = false  # Shot at: chase the attacker from any distance
 var skill: float = 0.5  # 0 novice .. 1 veteran: decision speed
 var _pending: Dictionary = {}  # A decision being made: {"kind", "target", "timer"}
+var _resume_state: int = AIState.PATROL  # What it was doing before it started hesitating
+var _resume_target: RigidBody = null  # and on what
 
 
 func _ready() -> void:
@@ -100,6 +109,8 @@ func _think(delta: float) -> void:
 			_process_salvage()
 		AIState.DEPART:
 			_process_depart()
+		AIState.HESITATE:
+			_process_hesitate()
 
 
 func _change_state(new_state: int) -> void:
@@ -108,7 +119,8 @@ func _change_state(new_state: int) -> void:
 	_current_state = new_state
 	_repath_timer = 0.0
 	_orbiting = false
-	if is_instance_valid(_tool_controller):
+	var keeps_fighting: bool = new_state == AIState.HESITATE and _resume_state == AIState.COMBAT
+	if is_instance_valid(_tool_controller) and not keeps_fighting:
 		_tool_controller.deactivate_all("state_change")
 
 	match _current_state:
@@ -132,6 +144,9 @@ func _change_state(new_state: int) -> void:
 			_provoked = false
 			_target_agent = null
 			agent_script.command_move_to(_home_point)
+		AIState.HESITATE:
+			if not keeps_fighting:
+				agent_script.command_watch(_target_agent)
 
 
 func _process_patrol() -> void:
@@ -140,6 +155,7 @@ func _process_patrol() -> void:
 		var target = scan_for_target()
 		if is_instance_valid(target):
 			_consider("engage", target, desire_against(target), Constants.AI_ENGAGE_DESIRE)
+			return
 		elif _pending.empty():
 			if agent_script.get_free_cargo() <= 0:
 				_change_state(AIState.DEPART)
@@ -170,8 +186,7 @@ func _process_combat() -> void:
 		var desire: float = desire_against(_target_agent)
 		if desire < Constants.AI_DISENGAGE_DESIRE:
 			_consider("disengage", _target_agent, desire, Constants.AI_DISENGAGE_DESIRE)
-		elif _pending.get("kind") == "disengage":
-			_pending = {}  # The fight turned back: keep at it
+			return
 
 	var distance: float = agent_script.global_transform.origin.distance_to(_target_agent.global_transform.origin)
 	# Close to optimal range, then orbit there; re-approach if pushed out.
@@ -185,18 +200,23 @@ func _process_combat() -> void:
 		_orbiting = true
 		agent_script.command_orbit(_target_agent)
 
-	# Keep every weapon that works on the target on it; ToolController stops each on its own
-	# when power runs out.
+	_fire_at(_target_agent)
+
+
+# Keeps every weapon that works on `target` and reaches it on it; ToolController stops each on its
+# own when power runs out.
+func _fire_at(target) -> void:
 	if not is_instance_valid(_tool_controller):
 		return
+	var distance: float = agent_script.global_transform.origin.distance_to(target.global_transform.origin)
 	for index in range(_tool_controller.get_tool_count()):
 		var tool_template = _tool_controller.get_tool(index)
-		if not _tool_controller.can_target(tool_template, _target_agent):
+		if not _tool_controller.can_target(tool_template, target):
 			continue
 		var in_reach: bool = distance <= tool_template.get_max_range()
 		var enough_power: bool = agent_script.power >= tool_template.power_per_cycle
 		if in_reach and enough_power and not _tool_controller.is_active(index):
-			_tool_controller.activate(index, _target_agent)
+			_tool_controller.activate(index, target)
 
 
 func _process_flee() -> void:
@@ -224,6 +244,7 @@ func _process_salvage() -> void:
 		var enemy = scan_for_target()
 		if is_instance_valid(enemy):
 			_consider("engage", enemy, desire_against(enemy), Constants.AI_ENGAGE_DESIRE)
+			return
 	var index: int = _tool_controller.find_tool_for(wreck) if is_instance_valid(_tool_controller) else -1
 	if index < 0:
 		if not agent_script.detects(wreck):
@@ -239,6 +260,41 @@ func _process_salvage() -> void:
 	elif distance > harpoon_range and _orbiting:
 		_orbiting = false
 		agent_script.command_approach(wreck)
+
+
+# Making up its mind about _target_agent (the decision in _pending, resolved by _tick_decision).
+# Wavering over breaking off a fight: keeps fighting, and drops the thought if the fight turns back.
+func _process_hesitate() -> void:
+	if _pending.empty() or not _is_live_target(_target_agent):
+		_pending = {}
+		_resume()
+		return
+	if _resume_state != AIState.COMBAT:
+		return  # Watching it (command_watch), holding fire
+	if _is_live_target(_resume_target):
+		_fire_at(_resume_target)
+	if _pending.kind == "disengage" and _scan_timer <= 0.0:
+		_scan_timer = Constants.AI_SCAN_INTERVAL
+		if desire_against(_target_agent) >= Constants.AI_DISENGAGE_DESIRE:
+			_pending = {}
+			_resume()  # The fight turned back: keep at it
+
+
+# Back to what it was doing before it hesitated (patrol, if that is over).
+func _resume() -> void:
+	var state: int = _resume_state
+	var target = _resume_target
+	_resume_target = null
+	if state == AIState.COMBAT and not _is_live_target(target):
+		state = AIState.PATROL
+	if state == AIState.SALVAGE and not (is_instance_valid(target) and target.is_inside_tree() and target.get("is_wreck")):
+		state = AIState.PATROL
+	_target_agent = target
+	var provoked: bool = _provoked
+	_current_state = AIState.IDLE  # Re-enter, so the state's command starts again
+	_change_state(state)
+	if state == AIState.COMBAT:
+		_provoked = provoked
 
 
 # Full hold: fly back to where it came from and leave the sector with the loot.
@@ -328,7 +384,10 @@ func _on_agent_damaged(agent_body, _amount, source) -> void:
 		return
 	if _current_state in [AIState.DISABLED, AIState.FLEE]:
 		return
-	if _current_state == AIState.COMBAT and _target_agent == source:
+	var fighting = _target_agent if _current_state == AIState.COMBAT else null
+	if _current_state == AIState.HESITATE and _resume_state == AIState.COMBAT:
+		fighting = _resume_target
+	if fighting != null and fighting == source:
 		_provoked = true
 		return
 	# Shot at: once it has made up its mind, fight back if the rule says so, otherwise run.
@@ -337,11 +396,28 @@ func _on_agent_damaged(agent_body, _amount, source) -> void:
 
 # --- Decisions take time (see Constants AI block) ---
 
-# Starts making a decision unless the same one is already under way.
+# Starts making a decision, and hesitates while it does. A decision already under way stands, except
+# that being shot (a "respond") takes over: about the same ship it keeps the time already spent
+# thinking, about another it starts over.
 func _consider(kind: String, target, desire: float, threshold: float) -> void:
-	if _pending.get("kind") == kind and _pending.get("target") == target:
-		return
-	_pending = {"kind": kind, "target": target, "timer": decision_delay(desire, threshold)}
+	var delay: float = decision_delay(desire, threshold)
+	if not _pending.empty():
+		if DECISION_PRIORITY.get(kind, 0) <= DECISION_PRIORITY.get(_pending.kind, 0):
+			return
+		if _pending.target == target:
+			_pending.kind = kind
+			_pending.timer = min(_pending.timer, delay)
+			return
+	_pending = {"kind": kind, "target": target, "timer": delay}
+	if _current_state != AIState.HESITATE:
+		_resume_state = _current_state
+		_resume_target = _target_agent
+		_target_agent = target
+		_change_state(AIState.HESITATE)
+	else:
+		_target_agent = target
+		if _resume_state != AIState.COMBAT:
+			agent_script.command_watch(target)  # Already hesitating: now about another ship
 
 
 # Seconds this NPC takes to decide: slower for novices and for close calls, never exactly the same.
@@ -365,20 +441,28 @@ func _tick_decision(delta: float) -> void:
 	var decision: Dictionary = _pending
 	_pending = {}
 	var target = decision.target
-	if not _is_live_target(target) or _current_state == AIState.DISABLED:
+	if _current_state != AIState.HESITATE:
 		return
-	# Re-check: act only if the rule still says so now.
+	if not _is_live_target(target):
+		_resume()
+		return
+	# Re-check: act only if the rule still says so now; otherwise carry on as before.
 	var desire: float = desire_against(target)
 	match decision.kind:
 		"engage":
-			if _current_state in [AIState.PATROL, AIState.SALVAGE] and agent_script.detects(target) and desire >= Constants.AI_ENGAGE_DESIRE:
+			if agent_script.detects(target) and desire >= Constants.AI_ENGAGE_DESIRE:
 				_start_combat(target, false)
+			else:
+				_resume()
 		"disengage":
-			if _current_state == AIState.COMBAT and desire < Constants.AI_DISENGAGE_DESIRE:
+			if desire < Constants.AI_DISENGAGE_DESIRE:
+				_target_agent = target
+				_resume_target = null
 				_change_state(AIState.FLEE)
+			else:
+				_resume()
 		"respond":
-			if _current_state in [AIState.FLEE, AIState.DISABLED]:
-				return
+			_resume_target = null
 			if desire >= Constants.AI_DISENGAGE_DESIRE:
 				_start_combat(target, true)
 			else:

@@ -1,4 +1,4 @@
-# NavigationSystem: runs the active autopilot command (stop, move, approach, orbit, flee, align) for an agent.
+# NavigationSystem: runs the active autopilot command (stop, move, approach, orbit, flee, align, watch) for an agent.
 
 extends Node
 
@@ -6,7 +6,7 @@ const FrameProfiler = preload("res://src/core/utils/frame_profiler.gd")
 const OBSTACLES_META = "nav_obstacles"
 
 # --- Enums and Constants ---
-enum CommandType { IDLE, STOPPING, MOVE_TO, MOVE_DIRECTION, APPROACH, ORBIT, FLEE, ALIGN_TO }
+enum CommandType { IDLE, STOPPING, MOVE_TO, MOVE_DIRECTION, APPROACH, ORBIT, FLEE, ALIGN_TO, WATCH }
 
 # --- References ---
 var agent_body: RigidBody = null
@@ -51,6 +51,7 @@ func _initialize_command_handlers():
 		CommandType.ORBIT: load(command_path + "command_orbit.gd").new(),
 		CommandType.FLEE: load(command_path + "command_flee.gd").new(),
 		CommandType.ALIGN_TO: load(command_path + "command_align_to.gd").new(),
+		CommandType.WATCH: load(command_path + "command_watch.gd").new(),
 	}
 
 	for handler_script in _command_handlers.values():
@@ -106,6 +107,13 @@ func set_command_flee(target: Spatial):
 	_current_command = {"type": CommandType.FLEE, "target_node": target}
 
 
+func set_command_watch(target: Spatial):
+	if not is_instance_valid(target):
+		set_command_stopping()
+		return
+	_current_command = {"type": CommandType.WATCH, "target_node": target}
+
+
 func set_command_align_to(
 	direction: Vector3,
 	apply_forward_thrust: bool = false,
@@ -142,7 +150,7 @@ func _update_navigation(delta: float):
 	var cmd_type = _current_command.get("type", CommandType.IDLE)
 	var target_node = _current_command.get("target_node", null)
 
-	var is_target_cmd = cmd_type in [CommandType.APPROACH, CommandType.ORBIT, CommandType.FLEE]
+	var is_target_cmd = cmd_type in [CommandType.APPROACH, CommandType.ORBIT, CommandType.FLEE, CommandType.WATCH]
 	if is_target_cmd and not is_instance_valid(target_node):
 		set_command_stopping()
 		cmd_type = CommandType.STOPPING

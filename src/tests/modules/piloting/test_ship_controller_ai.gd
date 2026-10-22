@@ -79,10 +79,15 @@ func test_breaks_off_when_the_fight_turns():
 	ai._process_combat()
 	assert_eq(ai.get_state(), AIScript.AIState.COMBAT, "Even fight: keeps fighting.")
 	hostile.hull = 10.0
+	hostile.power_max = 100.0
+	hostile.power = 100.0
 	ai._scan_timer = 0.0
 	ai._process_combat()
-	assert_eq(ai.get_state(), AIScript.AIState.COMBAT, "It takes a moment to decide")
+	assert_eq(ai.get_state(), AIScript.AIState.HESITATE, "It takes a moment to decide")
+	assert_eq(ai.get_activity_label(), "HESITATING", "and the player can read that")
 	assert_true(ai.has_pending_decision())
+	ai._process_hesitate()
+	assert_true(hostile.get_node("ToolController").is_active(0), "while still fighting")
 	ai._tick_decision(100.0)
 	assert_eq(ai.get_state(), AIScript.AIState.FLEE, "then breaks off: the fight is no longer worth it.")
 
@@ -193,11 +198,48 @@ func test_a_decision_is_dropped_if_the_situation_changed_meanwhile():
 	var prey = _make_ship(Vector3(0, 0, -500), "verdant", 20.0)
 	ai._scan_timer = 0.0
 	ai._process_patrol()
-	assert_true(ai.has_pending_decision(), "Spots easy prey and starts deciding.")
-	assert_eq(ai.get_state(), AIScript.AIState.PATROL)
+	assert_true(ai.has_pending_decision(), "Spots easy prey and starts deciding:")
+	assert_eq(ai.get_state(), AIScript.AIState.HESITATE, "hesitates")
+	assert_eq(ai.get_focus(), prey, "about that ship.")
 	prey.hull = 1000.0  # Turns out to be much tougher before it commits
 	ai._tick_decision(100.0)
-	assert_eq(ai.get_state(), AIScript.AIState.PATROL, "Thinks better of it.")
+	assert_eq(ai.get_state(), AIScript.AIState.PATROL, "Thinks better of it and patrols on.")
+
+
+func test_being_shot_while_deciding_turns_the_decision_into_a_response():
+	ai.initialize({"patrol_center": Vector3.ZERO})
+	var shooter = _make_ship(Vector3(0, 0, -500), "player", 50.0)
+	hostile.apply_damage(1.0, shooter)
+	assert_eq(ai.get_state(), AIScript.AIState.HESITATE)
+	var thinking: float = ai._pending.timer
+	ai._consider("engage", shooter, 0.9, Constants.AI_ENGAGE_DESIRE)  # The patrol scan spots it too
+	assert_eq(ai._pending.kind, "respond", "A scan does not replace deciding how to answer fire")
+	var prey = _make_ship(Vector3(0, 0, -300), "verdant", 5.0)
+	ai._consider("engage", prey, 3.0, Constants.AI_ENGAGE_DESIRE)
+	assert_eq(ai._pending.target, shooter, "nor does easier prey.")
+	ai._pending = {}
+	ai._resume()
+	ai._consider("engage", shooter, 0.9, Constants.AI_ENGAGE_DESIRE)
+	hostile.apply_damage(1.0, shooter)
+	assert_eq(ai._pending.kind, "respond", "Shot while weighing an attack: now it is answering fire")
+	assert_true(ai._pending.timer <= thinking * 2.0, "without starting over.")
+	ai._tick_decision(100.0)
+	assert_eq(ai.get_state(), AIScript.AIState.COMBAT, "Answers fire whenever the fight is worth keeping up.")
+
+
+func test_hesitating_salvager_goes_back_to_its_wreck():
+	ai.initialize({"patrol_center": Vector3.ZERO})
+	var wreck = _make_ship(Vector3(0, 0, -200), "verdant", 50.0)
+	wreck.become_wreck()
+	ai._target_agent = wreck
+	ai._change_state(AIScript.AIState.SALVAGE)
+	var prey = _make_ship(Vector3(0, 0, -600), "verdant", 20.0)
+	ai._consider("engage", prey, 1.5, Constants.AI_ENGAGE_DESIRE)
+	assert_eq(ai.get_state(), AIScript.AIState.HESITATE)
+	prey.hull = 1000.0
+	ai._tick_decision(100.0)
+	assert_eq(ai.get_state(), AIScript.AIState.SALVAGE, "Not worth it after all: back to the wreck")
+	assert_eq(ai.get_focus(), wreck)
 
 
 # --- Factions and grudges ---

@@ -1,9 +1,8 @@
-# Tests for the debug window, main menu close and HUD dock button.
+# Tests for the HUD debug button (the readout), main menu close and HUD dock button.
 
 extends "res://addons/gut/test.gd"
 
 var MainHUDScene = load("res://scenes/ui/hud/main_hud.tscn")
-var DebugWindowScene = load("res://scenes/ui/menus/debug_window.tscn")
 var MainMenuScene = load("res://scenes/ui/menus/main_menu.tscn")
 
 
@@ -17,7 +16,7 @@ func after_each() -> void:
 	GameState.player_docked_at = ""
 
 
-func test_button_debug_toggles_debug_window_sibling() -> void:
+func test_button_debug_toggles_the_readout() -> void:
 	var root = Node.new()
 	add_child_autofree(root)
 
@@ -25,23 +24,18 @@ func test_button_debug_toggles_debug_window_sibling() -> void:
 	add_child_autofree(camera)
 	GlobalRefs.main_camera = camera
 
-	var debug_window = DebugWindowScene.instance()
-	root.add_child(debug_window)
-
 	var hud = MainHUDScene.instance()
 	root.add_child(hud)
 	yield(get_tree(), "idle_frame")
 
 	var button_debug: TextureButton = hud.get_node("ScreenControls/CenterLeftZone/ButtonDebug")
-	assert_false(debug_window.visible, "DebugWindow should start hidden.")
+	assert_false(hud.label_combat_readout.visible, "The readout starts hidden.")
 
 	button_debug.emit_signal("pressed")
-	yield(get_tree(), "idle_frame")
-	assert_true(debug_window.visible, "MainHUD ButtonDebug should open the dedicated DebugWindow.")
+	assert_true(hud.label_combat_readout.visible, "The debug button shows it")
 
 	button_debug.emit_signal("pressed")
-	yield(get_tree(), "idle_frame")
-	assert_false(debug_window.visible, "Pressing ButtonDebug again should hide the DebugWindow.")
+	assert_false(hud.label_combat_readout.visible, "and hides it again.")
 
 
 func test_main_menu_close_hides_and_unpauses_live_session() -> void:

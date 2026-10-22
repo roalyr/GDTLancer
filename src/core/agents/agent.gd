@@ -741,9 +741,10 @@ func _physics_process(delta: float) -> void:
 	_engine_activity = lerp(_engine_activity, thrust, 1.0 - exp(-delta / Constants.SIG_ENGINE_SMOOTHING))
 
 
-# Venting gas pushes back on the hull where it leaks; off-centre leaks turn the ship (wrecks too).
+# Venting gas pushes back on the hull where it leaks; off-centre leaks turn the ship. Not on wrecks:
+# they would drift and tumble on for minutes.
 func _apply_leak_thrust() -> void:
-	if _leaks.empty() or is_docked or not is_instance_valid(movement_system):
+	if _leaks.empty() or is_docked or is_wreck or not is_instance_valid(movement_system):
 		return
 	for leak in _leaks:
 		if not is_instance_valid(leak) or not leak.is_inside_tree():
@@ -763,9 +764,12 @@ func _integrate_forces(state: PhysicsDirectBodyState):
 		return
 	if not is_instance_valid(navigation_system) or not is_instance_valid(movement_system):
 		return
-	# Wrecks have no thrust but obey the same drag as everything else, so they come to rest.
+	# Wrecks have no thrust but obey the same drag as everything else, so they come to rest. Their
+	# spin is damped directly at Constants.ANGULAR_DRAG per second: MovementSystem's drag torque
+	# scales with mass, not the moment of inertia, so on a ship's hull it barely slows a spin.
 	if is_wreck:
 		movement_system.integrate_forces(state)
+		state.angular_velocity *= exp(-Constants.ANGULAR_DRAG * state.step)
 		return
 
 	# Update navigation logic (determines what forces/torques to apply)
@@ -834,6 +838,14 @@ func command_orbit(target: Spatial):
 		navigation_system.set_command_orbit(target, captured_orbit_dist, orbit_clockwise)
 	else:
 		printerr("AgentBody: Cannot command_orbit - NavigationSystem invalid.")
+
+
+# Nose on `target`, easing off to a drift (an NPC making up its mind about it).
+func command_watch(target: Spatial):
+	if is_instance_valid(navigation_system):
+		navigation_system.set_command_watch(target)
+	else:
+		printerr("AgentBody: Cannot command_watch - NavigationSystem invalid.")
 
 
 func command_flee(target: Spatial):
