@@ -281,7 +281,8 @@ func _refresh_world_bracket(button, target_node) -> bool:
 	if is_instance_valid(player) and player.has_method("detects") and not player.detects(target_node):
 		return false  # Undetected ships get no bracket (same rule as for AI)
 	if button.has_method("set_context_hint") and target_node.has_method("get_signature"):
-		button.set_context_hint(get_projected_target_context_hint(target_node))  # Cues change as the fight does
+		# Cues change as the fight does; only the selected (labelled) bracket shows them.
+		button.set_context_hint(get_projected_target_context_hint(target_node) if button.get("_is_selected") else "")
 		button.refresh_style()  # Colours too: a ship turns hostile, a ship becomes a wreck
 	return is_projected_target_overlay_enabled(get_projected_target_overlay_kind(target_node))
 

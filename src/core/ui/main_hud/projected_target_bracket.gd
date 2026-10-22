@@ -239,10 +239,10 @@ func _refresh_distance_process_state() -> void:
 
 
 func _build_label_text() -> String:
-	# Unselected ships show only what they are doing; the colour already says whose they are.
-	# Keeps a crowded battlefield readable.
-	if _is_live_ship() and not _is_selected:
-		return _context_hint
+	# Only the selected target is labelled: the rest show the bare bracket (colour says whose), which
+	# keeps a crowded battlefield readable and spares a label's draw calls per bracket.
+	if not _is_selected:
+		return ""
 	var primary_text = _resolve_primary_label()
 	var secondary_text = _resolve_secondary_label()
 	if primary_text == "":

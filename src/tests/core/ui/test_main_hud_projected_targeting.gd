@@ -249,6 +249,8 @@ func test_projected_target_bracket_scene_owns_centered_info_label_for_jump_route
 	)
 	bracket.configure_target(route_target)
 	yield(get_tree(), "idle_frame")
+	assert_false(bracket.get_node("InfoPanel").visible, "Unselected brackets should show no label.")
+	bracket.set_selected_state(true)
 
 	var info_label = bracket.get_node_or_null("InfoPanel/InfoLabel")
 	assert_not_null(info_label, "Projected target bracket scene should own the info label node.")
@@ -259,7 +261,7 @@ func test_projected_target_bracket_scene_owns_centered_info_label_for_jump_route
 	)
 	assert_eq(info_label.text, "Cob System", "Route brackets should show jump context under the bracket.")
 	assert_eq(info_label.get_color("font_color"), Constants.COLOR_UI_JUMP_ROUTE, "Route label should be colored as a jump route.")
-	assert_true(bracket.get_node("InfoPanel").visible, "Configured brackets should reveal their info panel.")
+	assert_true(bracket.get_node("InfoPanel").visible, "The selected bracket should reveal its info panel.")
 
 
 func test_projected_target_bracket_applies_colors_by_jump_type() -> void:
@@ -305,10 +307,11 @@ func test_projected_target_bracket_station_label_shows_dock_context() -> void:
 	station.station_name = "Elace Exchange"
 	add_child_autofree(station)
 	bracket.configure_target(station, station.station_name)
+	bracket.set_selected_state(true)
 	yield(get_tree(), "idle_frame")
 
 	var info_label = bracket.get_node("InfoPanel/InfoLabel")
-	assert_eq(info_label.text, "Elace Exchange\nDock Target", "Dockable stations should show dock context under their brackets.")
+	assert_eq(info_label.text, "Elace Exchange\nDock Target", "Selected dockable stations should show dock context under their brackets.")
 
 
 func test_projected_target_bracket_distance_formatter_matches_requested_magnitudes() -> void:
