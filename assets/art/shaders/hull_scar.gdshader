@@ -17,6 +17,34 @@ uniform vec4 glow_color : hint_color = vec4(0.75, 0.16, 0.03, 1.0);  // Cooling:
 uniform vec4 hot_color : hint_color = vec4(1.0, 0.85, 0.55, 1.0);  // Just hit: white-orange
 uniform float lump = 0.12;  // Bumps on the dome, as a share of the blob's size
 
+// Dither and posterization, as in the other shaders (star halo / sprite values).
+uniform float posterization_levels = 8.0;
+uniform float light_dither_strength = 0.9;
+uniform float dither_pixel_size = 2.0;
+
+float bayer2x2(vec2 p) {
+	return p.x * 2.0 + p.y * (3.0 - 4.0 * p.x);
+}
+
+// Fast GLES2-compatible 8x8 Bayer matrix calculation without stack array allocations
+float bayer8x8(vec2 screen_pos) {
+	vec2 p = mod(floor(screen_pos), 8.0);
+	vec2 p0 = mod(p, 2.0);
+	vec2 p1 = mod(floor(p / 2.0), 2.0);
+	vec2 p2 = floor(p / 4.0);
+	float val = 16.0 * bayer2x2(p0) + 4.0 * bayer2x2(p1) + bayer2x2(p2);
+	return val / 64.0;
+}
+
+// Bi-directional Bayer dithering, then posterization.
+float dither_posterize(float value, vec2 fragcoord) {
+	float threshold = bayer8x8(fragcoord / max(1.0, dither_pixel_size));
+	float levels = max(1.0, posterization_levels);
+	float step_size = 1.0 / levels;
+	float dithered = clamp(value + (threshold - 0.5) * step_size * light_dither_strength, 0.0, 1.0);
+	return floor(dithered * levels) / levels;
+}
+
 varying float heat;
 
 void vertex() {
@@ -39,8 +67,9 @@ void vertex() {
 void fragment() {
 	// Facing the camera: the dome's middle, hottest and lightest; its rim cools and darkens first,
 	// so a blob reads as a lump, not a flat patch.
-	float middle = clamp(dot(NORMAL, VIEW), 0.0, 1.0);
-	float h = heat * mix(0.45, 1.0, middle);
+	// Heat and shading are dithered and posterized, so blobs band like the hull they sit on.
+	float middle = dither_posterize(clamp(dot(NORMAL, VIEW), 0.0, 1.0), FRAGCOORD.xy);
+	float h = dither_posterize(heat * mix(0.45, 1.0, middle), FRAGCOORD.xy);
 	vec3 glow = mix(glow_color.rgb, hot_color.rgb, h * h);
 	vec3 cold = char_color.rgb * mix(0.6, 1.6, middle);
 	ALBEDO = mix(cold, glow, smoothstep(0.0, 0.4, h));

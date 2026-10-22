@@ -153,6 +153,12 @@ func test_main_hud_overlay_classification_and_filtering_track_requested_categori
 	rock.add_to_group("asteroid")
 	add_child_autofree(rock)
 	assert_eq(hud._get_projected_target_overlay_kind(rock), hud.OVERLAY_KIND_STELLAR, "Asteroids are celestial: they toggle with planets, not with ships and stations.")
+	var wreck = RigidBody.new()
+	wreck.set_script(load("res://src/core/agents/agent.gd"))
+	add_child_autofree(wreck)
+	assert_eq(hud._get_projected_target_overlay_kind(wreck), hud.OVERLAY_KIND_STRUCTURES, "A live ship toggles with structures")
+	wreck.is_wreck = true
+	assert_eq(hud._get_projected_target_overlay_kind(wreck), hud.OVERLAY_KIND_STELLAR, "but its wreck with the celestial bodies.")
 	var ship = AgentScript.new()
 	add_child_autofree(ship)
 	assert_eq(hud._get_projected_target_overlay_kind(ship), hud.OVERLAY_KIND_STRUCTURES)

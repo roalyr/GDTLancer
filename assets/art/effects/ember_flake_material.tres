@@ -11,3 +11,6 @@ shader_param/brightness = 1.6
 shader_param/min_screen_height = 0.003
 shader_param/flicker = 0.35
 shader_param/flicker_speed = 9.0
+shader_param/posterization_levels = 12.0
+shader_param/light_dither_strength = 0.6
+shader_param/dither_pixel_size = 2.0

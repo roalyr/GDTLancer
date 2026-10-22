@@ -11,6 +11,34 @@ uniform float min_screen_height = 0.003;  // Fraction of the viewport height.
 uniform float flicker = 0.35;  // Share of the brightness that flickers
 uniform float flicker_speed = 9.0;  // rad/s
 
+// Dither and posterization, as in the other shaders (star halo / sprite values).
+uniform float posterization_levels = 12.0;
+uniform float light_dither_strength = 0.6;
+uniform float dither_pixel_size = 2.0;
+
+float bayer2x2(vec2 p) {
+	return p.x * 2.0 + p.y * (3.0 - 4.0 * p.x);
+}
+
+// Fast GLES2-compatible 8x8 Bayer matrix calculation without stack array allocations
+float bayer8x8(vec2 screen_pos) {
+	vec2 p = mod(floor(screen_pos), 8.0);
+	vec2 p0 = mod(p, 2.0);
+	vec2 p1 = mod(floor(p / 2.0), 2.0);
+	vec2 p2 = floor(p / 4.0);
+	float val = 16.0 * bayer2x2(p0) + 4.0 * bayer2x2(p1) + bayer2x2(p2);
+	return val / 64.0;
+}
+
+// Bi-directional Bayer dithering, then posterization.
+float dither_posterize(float value, vec2 fragcoord) {
+	float threshold = bayer8x8(fragcoord / max(1.0, dither_pixel_size));
+	float levels = max(1.0, posterization_levels);
+	float step_size = 1.0 / levels;
+	float dithered = clamp(value + (threshold - 0.5) * step_size * light_dither_strength, 0.0, 1.0);
+	return floor(dithered * levels) / levels;
+}
+
 varying float flick;
 varying float seed;
 
@@ -35,5 +63,7 @@ void fragment() {
 	float inside = step(d, ragged);  // Additive: black outside adds nothing (no discard, cheaper on mobile)
 	vec4 color = COLOR * tint;
 	float core = mix(0.55, 1.0, 1.0 - smoothstep(0.0, ragged, d));
-	ALBEDO = color.rgb * color.a * core * flick * intensity * brightness * inside;
+	// Additive: the brightness itself is dithered and posterized, as in hit_flash.
+	float value = dither_posterize(clamp(color.a * core * flick * intensity, 0.0, 1.0), FRAGCOORD.xy);
+	ALBEDO = color.rgb * value * brightness * inside;
 }

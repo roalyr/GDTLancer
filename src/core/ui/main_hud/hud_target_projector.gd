@@ -56,9 +56,10 @@ func is_projected_target_overlay_enabled(overlay_kind: String) -> bool:
 		_:
 			return true
 
-# Celestial objects: stars, planets, moons and asteroids (the stellar overlay toggle).
+# Celestial objects: stars, planets, moons, asteroids and wrecks (the stellar overlay toggle). A ship
+# turns into one when it is wrecked: brackets re-check every refresh.
 func is_stellar_target(target_node: Node) -> bool:
-	if target_node.is_in_group("asteroid"):
+	if target_node.is_in_group("asteroid") or target_node.get("is_wreck"):
 		return true
 	if not (target_node is StaticBody):
 		return false
