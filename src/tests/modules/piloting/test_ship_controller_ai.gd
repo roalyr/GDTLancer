@@ -112,6 +112,18 @@ func test_shot_by_a_tougher_ship_it_runs_shot_by_a_weaker_one_it_turns():
 	assert_eq(ai.get_state(), AIScript.AIState.COMBAT, "Provoked: stays on the attacker without seeing it.")
 
 
+func test_fleeing_it_shoots_back_at_its_pursuer():
+	var tough = _make_ship(Vector3(0, 0, -300), "verdant", 1000.0)
+	hostile.power_max = 100.0
+	hostile.power = 100.0
+	ai.initialize({"patrol_center": Vector3.ZERO})
+	ai._target_agent = tough
+	ai._change_state(AIScript.AIState.FLEE)
+	ai._process_flee()
+	assert_eq(ai.get_state(), AIScript.AIState.FLEE)
+	assert_true(hostile.get_node("ToolController").is_active(0), "Running, but firing back.")
+
+
 func test_damage_from_nothing_alive_does_not_provoke():
 	ai.initialize({"patrol_center": Vector3.ZERO})
 	hostile.apply_damage(1.0, null)

@@ -74,6 +74,16 @@ func _player_ship() -> RigidBody:
 	return body
 
 
+func test_random_fit_arms_the_first_slot_and_fills_slots_by_size():
+	for attempt in range(20):
+		var fit: Dictionary = ShipFit.random_fit(ship)
+		assert_eq(fit.tools.size(), ShipFit.tool_slot_sizes(ship).size())
+		assert_eq(fit.modules.size(), ship.module_slots)
+		assert_eq_deep(ShipFit.normalized(ship, fit), fit)  # Every part fits its slot
+		var first = TemplateDatabase.get_template(fit.tools[0])
+		assert_true(first == null or first.tool_type == "laser", "A weapon first, if one fits.")
+
+
 func test_default_fit_places_tools_by_size_and_modules_in_order():
 	var fit: Dictionary = ShipFit.default_fit(ship)
 	assert_eq(fit.tools, ["t_small", ""], "Small tool takes the small slot, the medium slot stays free.")

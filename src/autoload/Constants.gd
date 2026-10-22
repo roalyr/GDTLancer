@@ -222,7 +222,10 @@ const SHOT_BLOCK_MASK = 0x7FFFFFFF & ~HIT_SURFACE_LAYER  # What blocks a line of
 
 # Hull scars (HullScars): every hit on a ship's plating leaves a glowing blob that cools to a dark
 # lump, sunk into the plating. Sizes are in metres, not scaled with the ship (a beam is a beam).
-const HULL_SCAR_MAX_PER_SHIP = 24  # The oldest scar gives way beyond this
+# Scar and slag counts are for a ship of interaction radius HULL_SCAR_REFERENCE_RADIUS (the Phoenix
+# Light) and scale with it: a heavy of twice the radius carries twice as many.
+const HULL_SCAR_REFERENCE_RADIUS = 15.0  # m
+const HULL_SCAR_MAX_PER_SHIP = 36  # The oldest scar gives way beyond this
 const HULL_SCAR_SIZE_PER_SQRT_DAMAGE = 0.6  # m across; a 5-damage hit leaves about 1.3 m
 const HULL_SCAR_MIN_SIZE = 0.6  # m
 const HULL_SCAR_MAX_SIZE = 3.0  # m, also the most a reheated scar grows to
@@ -236,7 +239,7 @@ const HULL_SCAR_COOL_TIME = 20.0  # s from the hit until the scar is cold char
 const HULL_SCAR_VISIBLE_DISTANCE = 1500.0  # m from the camera; farther scars are not drawn
 # Slag (HullScars): lasting damage shows as small slag blobs on the scars that flare up again every
 # few seconds, as if re-igniting (timings in hull_slag_material.tres). More the more hull is lost.
-const HULL_SLAG_MAX = 16  # Per ship, at no hull left: one per 1/16 of the hull lost
+const HULL_SLAG_MAX = 28  # Per ship, at no hull left: one per 1/28 of the hull lost
 const HULL_SLAG_SIZE_SHARE = 0.7  # A slag blob's size as a share of its scar's
 const HULL_SLAG_MAX_SIZE = 0.9  # m: never larger than this (a fresh hit's scar is about 1.3 m)
 
@@ -252,7 +255,8 @@ const ENGINE_PLUME_IDLE_LENGTH = 0.15
 const ENGINE_PLUME_MAX_LENGTH = 6.0
 const ENGINE_PLUME_MIN_WIDTH = 0.5
 const ENGINE_PLUME_MAX_WIDTH = 1.0
-const ENGINE_PLUME_STANDSTILL_SHARE = 0.35  # Plume length at no speed, as a share of its length by thrust
+const ENGINE_PLUME_STANDSTILL_SHARE = 0.2  # Plume length at no speed, as a share of its length by thrust
+const ENGINE_GLOW_STANDSTILL_SHARE = 0.3  # and its brightness above idle: a braking ship's exhaust fades as it stops
 const ENGINE_PLUME_SPEED_STRETCH = 0.8  # At top speed the plume is this much longer (0.8: 1.8x)
 const ENGINE_PLUME_SPEED_SLIM = 0.2  # and this much slimmer
 const ENGINE_PLUME_SPEED_STEP = 0.02  # Speed share change that redraws the plume

@@ -2,8 +2,8 @@
 # cools over Constants.HULL_SCAR_COOL_TIME to a dark lump that stays until the hull is repaired.
 # - One MultiMeshInstance per ship, under its visual root (it moves and stretches with the model):
 #   every scar is an instance of one squashed sphere (hull_scar_mesh.tres), so a ship's scars are
-#   one draw item, unshaded (no light passes). Up to Constants.HULL_SCAR_MAX_PER_SHIP; the oldest
-#   gives way. Hidden beyond Constants.HULL_SCAR_VISIBLE_DISTANCE from the camera (checked every
+#   one draw item, unshaded (no light passes). Up to Constants.HULL_SCAR_MAX_PER_SHIP, scaled by the
+#   ship's size (`size_factor`); the oldest gives way. Hidden beyond Constants.HULL_SCAR_VISIBLE_DISTANCE from the camera (checked every
 #   Constants.LOD_CHECK_INTERVAL while the ship has scars; Godot 3's lod_max_distance does nothing).
 # - Each scar's placement comes from the hit (scar_transform()): up along the plating's normal,
 #   stretched along the beam on glancing hits, sunk part way in so the plating hides the rest.
@@ -73,7 +73,9 @@ static func size_for_damage(damage: float) -> float:
 	return clamp(Constants.HULL_SCAR_SIZE_PER_SQRT_DAMAGE * sqrt(max(damage, 0.0)), Constants.HULL_SCAR_MIN_SIZE, Constants.HULL_SCAR_MAX_SIZE)
 
 
-func _init() -> void:
+# `size_factor`: the ship's interaction radius over Constants.HULL_SCAR_REFERENCE_RADIUS; scar and
+# slag capacity scale with it.
+func _init(size_factor: float = 1.0) -> void:
 	name = "HullScars"
 	cast_shadow = GeometryInstance.SHADOW_CASTING_SETTING_OFF
 	material_override = ScarMaterial
@@ -82,7 +84,7 @@ func _init() -> void:
 	scars.transform_format = MultiMesh.TRANSFORM_3D  # Formats before the count
 	scars.color_format = MultiMesh.COLOR_NONE
 	scars.custom_data_format = MultiMesh.CUSTOM_DATA_FLOAT
-	scars.instance_count = Constants.HULL_SCAR_MAX_PER_SHIP
+	scars.instance_count = int(max(1.0, round(Constants.HULL_SCAR_MAX_PER_SHIP * size_factor)))
 	scars.visible_instance_count = 0
 	scars.mesh = ScarMesh
 	multimesh = scars
@@ -96,7 +98,7 @@ func _init() -> void:
 	slag.transform_format = MultiMesh.TRANSFORM_3D
 	slag.color_format = MultiMesh.COLOR_NONE
 	slag.custom_data_format = MultiMesh.CUSTOM_DATA_FLOAT
-	slag.instance_count = Constants.HULL_SLAG_MAX
+	slag.instance_count = int(max(1.0, round(Constants.HULL_SLAG_MAX * size_factor)))
 	slag.visible_instance_count = 0
 	slag.mesh = ScarMesh
 	_slag.multimesh = slag
@@ -133,11 +135,20 @@ func get_slag_transform(index: int) -> Transform:
 	return _slag.multimesh.get_instance_transform(index)
 
 
-# Shows `count` slag blobs (at most Constants.HULL_SLAG_MAX, and one per scar), each
+func get_scar_capacity() -> int:
+	return multimesh.instance_count
+
+
+# Slag blobs this ship carries at no hull left (Constants.HULL_SLAG_MAX, scaled by its size).
+func get_slag_capacity() -> int:
+	return _slag.multimesh.instance_count
+
+
+# Shows `count` slag blobs (at most get_slag_capacity(), and one per scar), each
 # Constants.HULL_SLAG_SIZE_SHARE of its scar's size, up to HULL_SLAG_MAX_SIZE. New ones go on the
 # newest scars without one, and start hot.
 func set_slag_count(count: int) -> void:
-	count = int(clamp(count, 0, min(Constants.HULL_SLAG_MAX, _count)))
+	count = int(clamp(count, 0, min(get_slag_capacity(), _count)))
 	var now: float = clock()
 	while _slag_count < count:
 		var scar: int = posmod(_next - 1 - _slag_count, multimesh.instance_count)  # Newest first

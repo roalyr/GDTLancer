@@ -36,6 +36,37 @@ static func default_fit(ship) -> Dictionary:
 	return fit
 
 
+# A random fit for an NPC: a laser in its first tool slot (so it can fight), any working tool in
+# the others (lasers, harpoon; not the drill, which has no use yet), and a random module or none in
+# each module slot.
+static func random_fit(ship) -> Dictionary:
+	var fit: Dictionary = empty_fit(ship)
+	var sizes: Array = tool_slot_sizes(ship)
+	var lasers: Array = []
+	var usable: Array = []
+	for tool_id in TemplateDatabase.utility_tools:
+		var tool_template = TemplateDatabase.utility_tools[tool_id]
+		if not tool_template is UtilityToolTemplate:
+			continue
+		if tool_template.tool_type == "laser":
+			lasers.append(tool_id)
+		if tool_template.tool_type in ["laser", "harpoon"]:
+			usable.append(tool_id)
+	for i in range(sizes.size()):
+		var choices: Array = []
+		for tool_id in (lasers if i == 0 else usable):
+			if tool_fits_slot(TemplateDatabase.utility_tools[tool_id], sizes[i]):
+				choices.append(tool_id)
+		if not choices.empty():
+			fit.tools[i] = choices[randi() % choices.size()]
+	var modules: Array = TemplateDatabase.assets_modules.keys()
+	for i in range(fit.modules.size()):
+		var pick: int = randi() % (modules.size() + 1)  # One chance in (modules + 1) of an empty slot
+		if pick < modules.size():
+			fit.modules[i] = modules[pick]
+	return fit
+
+
 static func empty_fit(ship) -> Dictionary:
 	var tools: Array = []
 	tools.resize(tool_slot_sizes(ship).size())

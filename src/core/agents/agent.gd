@@ -120,7 +120,7 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 				_measure_hull_bounds(ship_visual)
 				MeshLod.attach(ship_visual, get_apparent_radius())
 				CollisionHull.add_hit_surface(self, ship_visual)  # Where shots land: the plating, not the hull round it
-				_hull_scars = HullScars.new()
+				_hull_scars = HullScars.new(interaction_radius / Constants.HULL_SCAR_REFERENCE_RADIUS)
 				ship_visual.add_child(_hull_scars)
 				if is_player():
 					_hull_scars.import_scars(GameState.player_hull_scars)
@@ -225,7 +225,7 @@ func get_hull_point_facing(from_global: Vector3) -> Vector3:
 
 
 # The player keeps their fit in GameState (new runs start from the hull's default fit);
-# everyone else flies the hull's default fit.
+# NPCs fly a random fit (ShipFit.random_fit).
 func _init_fit() -> void:
 	if not is_instance_valid(ship_template):
 		fit = {"tools": [], "modules": []}
@@ -233,8 +233,10 @@ func _init_fit() -> void:
 		return
 	if is_player() and not GameState.player_fit.empty():
 		fit = ShipFit.normalized(ship_template, GameState.player_fit)
-	else:
+	elif is_player():
 		fit = ShipFit.default_fit(ship_template)
+	else:
+		fit = ShipFit.random_fit(ship_template)
 	if is_player():
 		GameState.player_fit = fit.duplicate(true)
 	fit_stats = ShipFit.compute_stats(ship_template, fit)
@@ -481,7 +483,7 @@ func _update_damage_trails() -> void:
 	for trail in _damage_trails:
 		trail.strength = lost
 	if is_instance_valid(_hull_scars):
-		_hull_scars.set_slag_count(int(floor(lost * Constants.HULL_SLAG_MAX + 0.0001)))
+		_hull_scars.set_slag_count(int(floor(lost * _hull_scars.get_slag_capacity() + 0.0001)))
 
 
 # Where an ember emitter for a hit at `point` sits: part of the way in toward the hull centre, since

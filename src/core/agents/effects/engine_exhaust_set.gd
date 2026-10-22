@@ -3,7 +3,8 @@
 # plume stretches out behind the nozzle and widens up to a cap as thrust rises, and every
 # exhaust shape brightens with it; an idle engine keeps a faint nozzle glow, a wreck none. Speed
 # scales the plume's length (Constants.ENGINE_PLUME_STANDSTILL_SHARE when still, longer and slimmer
-# at top speed): it grows as the ship speeds up and shrinks as it slows down.
+# at top speed) and brightness (ENGINE_GLOW_STANDSTILL_SHARE): it grows as the ship speeds up, and
+# shrinks and fades as it slows down, even while braking hard.
 # Sits on the ship scene's "Engines" node; the ship's engines share one set of material copies,
 # so ships do not change each other's glow.
 
@@ -52,7 +53,7 @@ func _apply(thrust: float, speed: float = 0.0) -> void:
 		var nozzle = engine.get_node_or_null("NozzleShapes")
 		if nozzle != null:
 			nozzle.visible = not dead
-	var glow: float = 0.0 if dead else lerp(Constants.ENGINE_GLOW_IDLE, 1.0, t)
+	var glow: float = 0.0 if dead else lerp(Constants.ENGINE_GLOW_IDLE, 1.0, t * lerp(Constants.ENGINE_GLOW_STANDSTILL_SHARE, 1.0, speed))
 	for material in _materials.values():
 		material.set_shader_param("intensity", glow)
 

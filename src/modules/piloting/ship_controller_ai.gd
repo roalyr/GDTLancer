@@ -1,5 +1,6 @@
 # ShipControllerAI: state machine for NPC agents. Patrols, fights enemies (other factions at war
-# with its own, or ships that shot it), flees fights not worth it, strips wrecks, and with a full
+# with its own, or ships that shot it), flees fights not worth it (shooting back at its pursuer
+# as it goes), strips wrecks, and with a full
 # hold flies back to where it came from and leaves the sector.
 # Decisions take time (skill, how close the call is): meanwhile the ship HESITATES, a state of its
 # own the player can read. It turns its nose on the ship in question and eases off to a drift,
@@ -230,6 +231,7 @@ func _process_flee() -> void:
 	if _repath_timer <= 0.0:
 		_repath_timer = Constants.AI_REPATH_INTERVAL
 		agent_script.command_flee(_target_agent)
+	_fire_at(_target_agent)  # Running, but shooting back at whatever reaches
 
 
 # Close in on a wreck, harpoon it and strip it until it is empty or the hold is full. Enemies
