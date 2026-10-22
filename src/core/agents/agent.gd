@@ -480,6 +480,8 @@ func _update_damage_trails() -> void:
 		_damage_trails.append(trail)
 	for trail in _damage_trails:
 		trail.strength = lost
+	if is_instance_valid(_hull_scars):
+		_hull_scars.set_slag_count(int(floor(lost * Constants.HULL_SLAG_MAX + 0.0001)))
 
 
 # Where an ember emitter for a hit at `point` sits: part of the way in toward the hull centre, since

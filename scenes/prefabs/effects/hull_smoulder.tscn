@@ -2,7 +2,7 @@
 
 [ext_resource path="res://src/core/agents/effects/hull_smoulder_effect.gd" type="Script" id=1]
 [ext_resource path="res://assets/art/effects/smoulder_spark_material.tres" type="Material" id=2]
-[ext_resource path="res://assets/art/effects/smoulder_ember_material.tres" type="Material" id=3]
+[ext_resource path="res://assets/art/effects/ember_flake_material.tres" type="Material" id=3]
 
 [sub_resource type="QuadMesh" id=1]
 size = Vector2( 0.5, 0.5 )
@@ -12,14 +12,14 @@ offsets = PoolRealArray( 0, 0.08, 0.5, 1 )
 colors = PoolColorArray( 1, 0.9, 0.6, 0, 1, 0.85, 0.55, 1, 1, 0.45, 0.12, 0.8, 0.6, 0.12, 0.02, 0 )
 
 [sub_resource type="QuadMesh" id=3]
-size = Vector2( 1.2, 1.2 )
+size = Vector2( 0.3, 0.3 )
 
 [sub_resource type="Curve" id=4]
-_data = [ Vector2( 0, 0.3 ), 0.0, 0.0, 0, 0, Vector2( 1, 1 ), 0.0, 0.0, 0, 0 ]
+_data = [ Vector2( 0, 1 ), 0.0, 0.0, 0, 0, Vector2( 1, 0.35 ), 0.0, 0.0, 0, 0 ]
 
 [sub_resource type="Gradient" id=5]
-offsets = PoolRealArray( 0, 0.15, 0.4, 1 )
-colors = PoolColorArray( 0.9, 0.3, 0.08, 0, 0.85, 0.28, 0.08, 0.8, 0.3, 0.16, 0.12, 0.5, 0.16, 0.15, 0.15, 0 )
+offsets = PoolRealArray( 0, 0.2, 0.6, 1 )
+colors = PoolColorArray( 1, 0.9, 0.55, 1, 1, 0.6, 0.15, 1, 0.9, 0.25, 0.04, 0.8, 0.4, 0.06, 0.01, 0 )
 
 [sub_resource type="Curve" id=6]
 _data = [ Vector2( 0, 1 ), 0.0, 0.0, 0, 0, Vector2( 1, 0.3 ), 0.0, 0.0, 0, 0 ]
@@ -44,13 +44,13 @@ color_ramp = SubResource( 2 )
 [node name="Embers" type="CPUParticles" parent="."]
 material_override = ExtResource( 3 )
 emitting = false
-amount = 8
-lifetime = 2.0
+amount = 10
+lifetime = 3.5
 local_coords = false
 mesh = SubResource( 3 )
-spread = 25.0
+spread = 35.0
 gravity = Vector3( 0, 0, 0 )
-initial_velocity = 4.0
+initial_velocity = 3.0
 initial_velocity_random = 0.5
 scale_amount_random = 0.4
 scale_amount_curve = SubResource( 4 )

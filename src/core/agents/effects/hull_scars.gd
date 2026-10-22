@@ -12,6 +12,9 @@
 #   x = hit time (clock()), y = random seed (lumps), z = facing (head-on hits glow hotter), w = size (m).
 # - Needs hit points on the plating: add_scar() only for hits on a hit surface (CollisionHull), never
 #   the convex hull (a scar there would float off the ship).
+# - Slag (set_slag_count()): lasting damage. Small blobs on the newest scars that cool and flare up
+#   again every few seconds, as if re-igniting: a second MultiMeshInstance with the same shader
+#   (relight on, hull_slag_material.tres). Not saved: the count follows the hull lost.
 # - export_scars() / import_scars() keep the player's scars in the save (cold).
 # - Scars are kept in script arrays too, the MultiMesh only drawing them: nothing is read back from
 #   the renderer (headless runs have none).
@@ -20,6 +23,7 @@ extends MultiMeshInstance
 
 const ScarMesh = preload("res://assets/art/effects/hull_scar_mesh.tres")
 const ScarMaterial = preload("res://assets/art/effects/hull_scar_material.tres")
+const SlagMaterial = preload("res://assets/art/effects/hull_slag_material.tres")
 
 var _next := 0  # Instance the next new scar takes (round robin)
 var _count := 0  # Scars in use
@@ -27,6 +31,8 @@ var _placed: Array = []  # Per instance: its Transform in this node's space
 var _data: Array = []  # Per instance: its custom data Color (hit time, seed, facing, size)
 var _hot_until := 0.0  # clock() when the latest scar is cold
 var _timer := 0.0  # s to the next camera distance check
+var _slag: MultiMeshInstance = null
+var _slag_count := 0
 
 
 # Seconds on the clock the shader's `now` follows. Not the shader's TIME: that wraps every hour.
@@ -82,6 +88,19 @@ func _init() -> void:
 	multimesh = scars
 	_placed.resize(scars.instance_count)
 	_data.resize(scars.instance_count)
+	_slag = MultiMeshInstance.new()
+	_slag.name = "Slag"
+	_slag.cast_shadow = GeometryInstance.SHADOW_CASTING_SETTING_OFF
+	_slag.material_override = SlagMaterial
+	var slag := MultiMesh.new()
+	slag.transform_format = MultiMesh.TRANSFORM_3D
+	slag.color_format = MultiMesh.COLOR_NONE
+	slag.custom_data_format = MultiMesh.CUSTOM_DATA_FLOAT
+	slag.instance_count = Constants.HULL_SLAG_MAX
+	slag.visible_instance_count = 0
+	slag.mesh = ScarMesh
+	_slag.multimesh = slag
+	add_child(_slag)
 
 
 func _ready() -> void:
@@ -92,6 +111,8 @@ func _process(delta: float) -> void:
 	var now: float = clock()
 	if now <= _hot_until + 0.5:  # A little past cold, so the last frame shows it cold
 		ScarMaterial.set_shader_param("now", now)  # Shared: one value for every ship, so setting it twice is harmless
+	if _slag_count > 0:
+		SlagMaterial.set_shader_param("now", now)  # Slag flares up for as long as it is there
 	_timer -= delta
 	if _timer <= 0.0:
 		_timer = Constants.LOD_CHECK_INTERVAL
@@ -101,6 +122,38 @@ func _process(delta: float) -> void:
 
 func get_scar_count() -> int:
 	return _count
+
+
+func get_slag_count() -> int:
+	return _slag_count
+
+
+# Slag blob `index`'s placement in this node's space.
+func get_slag_transform(index: int) -> Transform:
+	return _slag.multimesh.get_instance_transform(index)
+
+
+# Shows `count` slag blobs (at most Constants.HULL_SLAG_MAX, and one per scar). New ones go on the
+# newest scars without one, and start hot.
+func set_slag_count(count: int) -> void:
+	count = int(clamp(count, 0, min(Constants.HULL_SLAG_MAX, _count)))
+	var now: float = clock()
+	while _slag_count < count:
+		var scar: int = posmod(_next - 1 - _slag_count, multimesh.instance_count)  # Newest first
+		var placed: Transform = _placed[scar]
+		var data: Color = _data[scar]
+		var share: float = Constants.HULL_SLAG_SIZE_SHARE
+		var offset: Vector3 = placed.basis.x * rand_range(-0.15, 0.15) + placed.basis.z * rand_range(-0.15, 0.15)
+		offset += placed.basis.y * (0.5 - 0.25 * share)  # Up on its scar's dome (the mesh is 1 unit across), half sunk in it
+		var basis := Basis(placed.basis.x * share, placed.basis.y * share, placed.basis.z * share)
+		_slag.multimesh.set_instance_transform(_slag_count, Transform(basis, placed.origin + offset))
+		_slag.multimesh.set_instance_custom_data(_slag_count, Color(now, randf(), 1.0, data.a * share))
+		_slag_count += 1
+	_slag_count = count
+	_slag.multimesh.visible_instance_count = _slag_count
+	if _slag_count > 0:
+		SlagMaterial.set_shader_param("now", now)
+		set_process(true)
 
 
 # Scar `index`'s placement in this node's space.
@@ -201,6 +254,8 @@ func clear_scars() -> void:
 	_count = 0
 	_next = 0
 	multimesh.visible_instance_count = 0
+	_slag_count = 0
+	_slag.multimesh.visible_instance_count = 0
 	set_process(false)
 
 

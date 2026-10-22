@@ -1,0 +1,16 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=2]
+
+[ext_resource path="res://assets/art/shaders/hull_scar.gdshader" type="Shader" id=1]
+
+[resource]
+resource_name = "hull slag"
+shader = ExtResource( 1 )
+shader_param/now = 0.0
+shader_param/cool_time = 6.0
+shader_param/relight_min = 5.0
+shader_param/relight_max = 10.0
+shader_param/relight_rise = 0.6
+shader_param/char_color = Color( 0.06, 0.045, 0.035, 1 )
+shader_param/glow_color = Color( 0.85, 0.2, 0.03, 1 )
+shader_param/hot_color = Color( 1, 0.8, 0.4, 1 )
+shader_param/lump = 0.25

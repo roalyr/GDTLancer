@@ -231,8 +231,12 @@ const HULL_SCAR_MIN_FACING = 0.5  # Cosine; glancing hits stretch along the beam
 const HULL_SCAR_ROUND_STRETCH = 1.3  # Below this stretch a scar turns freely about its normal; above, it stays along the beam
 const HULL_SCAR_MERGE_SHARE = 0.5  # A hit within this share of a scar's size reheats it instead of adding one
 const HULL_SCAR_REHEAT_GROWTH = 1.15  # A reheated scar grows by this factor, up to HULL_SCAR_MAX_SIZE
-const HULL_SCAR_COOL_TIME = 8.0  # s from the hit until the scar is cold char
+const HULL_SCAR_COOL_TIME = 20.0  # s from the hit until the scar is cold char
 const HULL_SCAR_VISIBLE_DISTANCE = 1500.0  # m from the camera; farther scars are not drawn
+# Slag (HullScars): lasting damage shows as small slag blobs on the scars that flare up again every
+# few seconds, as if re-igniting (timings in hull_slag_material.tres). More the more hull is lost.
+const HULL_SLAG_MAX = 8  # Per ship, at no hull left: one per 1/8 of the hull lost
+const HULL_SLAG_SIZE_SHARE = 0.7  # A slag blob's size as a share of its scar's
 
 
 # ==================================================================================================
@@ -271,8 +275,8 @@ const FUEL_LEAK_THRUST = 400.0  # N at full pressure, opposite the jet, at the l
 # embers until it goes out. Heat is the hit's intensity (sqrt(damage / HIT_FX_REFERENCE_DAMAGE)).
 # Sizes and distances are for a fighter (apparent radius SMOULDER_REFERENCE_RADIUS) and scale with ship size.
 const SMOULDER_REFERENCE_RADIUS = 12.0  # m
-const SMOULDER_DURATION = 8.0  # s of smouldering per unit of heat after the last hit
-const SMOULDER_MAX_HEAT = 2.5  # Reheats add up to this (so at most 20 s, 40 s on a wreck)
+const SMOULDER_DURATION = 10.0  # s of smouldering per unit of heat after the last hit
+const SMOULDER_MAX_HEAT = 2.5  # Reheats add up to this (so at most 25 s, 50 s on a wreck)
 const SMOULDER_SPARK_TIME = 2.5  # s of sparks after each hit
 const SMOULDER_MAX_PER_SHIP = 3  # The oldest spot gives way beyond this
 const SMOULDER_MERGE_DISTANCE = 2.0  # m on a fighter (scaled with ship size); a hit this close to a spot reheats it instead of adding one

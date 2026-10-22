@@ -1,6 +1,6 @@
 # HullSmoulder (scenes/prefabs/effects/hull_smoulder.tscn): where hits landed, the hull smoulders
-# a while. For the first moments bright sparks spit out; then dull embers and dark wisps drift off
-# until the spot goes out. Both are left in space (world coordinates), so a damaged ship that
+# a while. For the first moments bright sparks spit out; then glowing flakes peel off, like burning
+# paper, until the spot goes out. Both are left in space (world coordinates), so a damaged ship that
 # manoeuvres trails a few ship lengths of embers. A hit near a spot reheats it (reheat()) instead of
 # adding another. Only spots near the camera, and only a few at once, emit (Constants.SMOULDER_*).
 # Looks are authored in the scene and its materials; this script times, scales and aims them.

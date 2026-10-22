@@ -29,7 +29,7 @@ func _ready() -> void:
 func set_strength(value: float) -> void:
 	strength = clamp(value, 0.0, 1.0)
 	if _material != null:
-		_material.set_shader_param("intensity", 0.35 + 0.65 * strength)
+		_material.set_shader_param("intensity", 0.5 + 0.5 * strength)
 
 
 func is_shown() -> bool:

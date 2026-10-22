@@ -1,5 +1,5 @@
 # Tests for HullScars: where a hit's scar blob sits and how it is shaped, the per-ship pool of
-# scars, and keeping them in the save.
+# scars, slag on them, and keeping them in the save.
 
 extends GutTest
 
@@ -106,3 +106,21 @@ func test_clear_removes_every_scar():
 	scars.clear_scars()
 	assert_eq(scars.get_scar_count(), 0)
 	assert_eq(scars.export_scars().size(), 0)
+
+
+func test_slag_sits_on_the_newest_scars_one_each():
+	var scars = _scars()
+	scars.set_slag_count(3)
+	assert_eq(scars.get_slag_count(), 0, "No scars, no slag")
+	for i in range(3):
+		scars.add_scar(Vector3(i * 10.0, 0, 0), Vector3.UP, Vector3.DOWN, 6.0)
+	scars.set_slag_count(Constants.HULL_SLAG_MAX)
+	assert_eq(scars.get_slag_count(), 3, "at most one per scar")
+	var slag: Transform = scars.get_slag_transform(0)
+	var newest: Transform = scars.get_scar_transform(2)
+	assert_lt(slag.origin.distance_to(newest.origin), newest.basis.x.length(), "the first on the newest scar")
+	assert_almost_eq(slag.basis.x.length(), newest.basis.x.length() * Constants.HULL_SLAG_SIZE_SHARE, 0.001, "and smaller.")
+	scars.set_slag_count(1)
+	assert_eq(scars.get_slag_count(), 1)
+	scars.clear_scars()
+	assert_eq(scars.get_slag_count(), 0, "A repair clears it.")
