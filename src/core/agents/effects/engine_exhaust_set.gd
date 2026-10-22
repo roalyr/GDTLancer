@@ -1,7 +1,8 @@
 # EngineExhaustSet: drives a ship's engine exhausts (EngineExhaust children, from
 # scenes/prefabs/effects/engine_exhaust.tscn) from its thrust, as the legacy project did: the
 # plume stretches out behind the nozzle and widens up to a cap as thrust rises, and every
-# exhaust shape brightens with it; an idle engine keeps a faint nozzle glow, a wreck none.
+# exhaust shape brightens with it; an idle engine keeps a faint nozzle glow, a wreck none. Speed
+# stretches the plume further and slims it (Constants.ENGINE_PLUME_SPEED_*).
 # Sits on the ship scene's "Engines" node; the ship's engines share one set of material copies,
 # so ships do not change each other's glow.
 
@@ -10,6 +11,7 @@ extends Spatial
 var _materials: Dictionary = {}  # Original exhaust material -> this ship's copy
 var _agent: Node = null
 var _thrust := -1.0
+var _speed := -1.0  # Share of top speed the plume is drawn for
 
 
 func _ready() -> void:
@@ -25,19 +27,22 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
 	var thrust: float = 0.0
+	var speed: float = 0.0
 	if is_instance_valid(_agent):
 		thrust = -1.0 if _agent.get("is_wreck") else _agent.get_engine_activity()
-	if abs(thrust - _thrust) > 0.005:
-		_apply(thrust)
+		speed = clamp(_agent.linear_velocity.length() / max(_agent.get_top_speed(), 1.0), 0.0, 1.0)
+	if abs(thrust - _thrust) > 0.005 or abs(speed - _speed) > Constants.ENGINE_PLUME_SPEED_STEP:
+		_apply(thrust, speed)
 
 
-# `thrust`: 0 idle .. 1 full burn; below 0 the engines are dead (wreck).
-func _apply(thrust: float) -> void:
+# `thrust`: 0 idle .. 1 full burn; below 0 the engines are dead (wreck). `speed`: share of top speed.
+func _apply(thrust: float, speed: float = 0.0) -> void:
 	_thrust = thrust
+	_speed = speed
 	var dead: bool = thrust < 0.0
 	var t: float = clamp(thrust, 0.0, 1.0)
-	var length: float = lerp(Constants.ENGINE_PLUME_IDLE_LENGTH, Constants.ENGINE_PLUME_MAX_LENGTH, t)
-	var width: float = lerp(Constants.ENGINE_PLUME_MIN_WIDTH, Constants.ENGINE_PLUME_MAX_WIDTH, t)
+	var length: float = lerp(Constants.ENGINE_PLUME_IDLE_LENGTH, Constants.ENGINE_PLUME_MAX_LENGTH, t) * (1.0 + Constants.ENGINE_PLUME_SPEED_STRETCH * speed)
+	var width: float = lerp(Constants.ENGINE_PLUME_MIN_WIDTH, Constants.ENGINE_PLUME_MAX_WIDTH, t) * (1.0 - Constants.ENGINE_PLUME_SPEED_SLIM * speed)
 	for engine in get_children():
 		var plume = engine.get_node_or_null("PlumeShapes")
 		if plume != null:

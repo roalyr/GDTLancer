@@ -1,22 +1,18 @@
 [gd_resource type="ShaderMaterial" load_steps=2 format=2]
 
-[ext_resource path="res://assets/art/shaders/simple_glow_NLP.gdshader" type="Shader" id=1]
+[ext_resource path="res://assets/art/shaders/explosion_cloud.gdshader" type="Shader" id=1]
 
 [resource]
 resource_name = "explosion puff"
 shader = ExtResource( 1 )
-shader_param/albedo = Color( 1, 0.45, 0.12, 1 )
-shader_param/rim_strength = 1.0
-shader_param/rim_exponent = 2.0
-shader_param/rim_power = 1.0
-shader_param/rim_floor = 0.25
-shader_param/rim_outer_strength = 1.0
-shader_param/rim_outer_exponent = 1.0
-shader_param/fade_distance_near = 0.0
-shader_param/fade_distance_far = 100000.0
-shader_param/fade_power = 1.0
-shader_param/dither_threshold = 0.5
-shader_param/scale_start = 100000.0
-shader_param/scale_end_mul = 100.0
-shader_param/scale_power = 1.0
-shader_param/scale_min = 0.5
+shader_param/heat = 1.0
+shader_param/opacity = 1.0
+shader_param/seed = 0.0
+shader_param/billow = 0.22
+shader_param/churn = 0.35
+shader_param/core_color = Color( 1, 0.92, 0.7, 1 )
+shader_param/flame_color = Color( 1, 0.42, 0.08, 1 )
+shader_param/smoke_color = Color( 0.3, 0.28, 0.27, 1 )
+shader_param/posterization_levels = 16.0
+shader_param/light_dither_strength = 0.6
+shader_param/dither_pixel_size = 2.0

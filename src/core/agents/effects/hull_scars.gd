@@ -133,7 +133,8 @@ func get_slag_transform(index: int) -> Transform:
 	return _slag.multimesh.get_instance_transform(index)
 
 
-# Shows `count` slag blobs (at most Constants.HULL_SLAG_MAX, and one per scar). New ones go on the
+# Shows `count` slag blobs (at most Constants.HULL_SLAG_MAX, and one per scar), each
+# Constants.HULL_SLAG_SIZE_SHARE of its scar's size, up to HULL_SLAG_MAX_SIZE. New ones go on the
 # newest scars without one, and start hot.
 func set_slag_count(count: int) -> void:
 	count = int(clamp(count, 0, min(Constants.HULL_SLAG_MAX, _count)))
@@ -142,7 +143,7 @@ func set_slag_count(count: int) -> void:
 		var scar: int = posmod(_next - 1 - _slag_count, multimesh.instance_count)  # Newest first
 		var placed: Transform = _placed[scar]
 		var data: Color = _data[scar]
-		var share: float = Constants.HULL_SLAG_SIZE_SHARE
+		var share: float = min(Constants.HULL_SLAG_SIZE_SHARE, Constants.HULL_SLAG_MAX_SIZE / max(data.a, 0.001))
 		var offset: Vector3 = placed.basis.x * rand_range(-0.15, 0.15) + placed.basis.z * rand_range(-0.15, 0.15)
 		offset += placed.basis.y * (0.5 - 0.25 * share)  # Up on its scar's dome (the mesh is 1 unit across), half sunk in it
 		var basis := Basis(placed.basis.x * share, placed.basis.y * share, placed.basis.z * share)

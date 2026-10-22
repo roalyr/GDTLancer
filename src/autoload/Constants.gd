@@ -235,24 +235,29 @@ const HULL_SCAR_COOL_TIME = 20.0  # s from the hit until the scar is cold char
 const HULL_SCAR_VISIBLE_DISTANCE = 1500.0  # m from the camera; farther scars are not drawn
 # Slag (HullScars): lasting damage shows as small slag blobs on the scars that flare up again every
 # few seconds, as if re-igniting (timings in hull_slag_material.tres). More the more hull is lost.
-const HULL_SLAG_MAX = 8  # Per ship, at no hull left: one per 1/8 of the hull lost
+const HULL_SLAG_MAX = 16  # Per ship, at no hull left: one per 1/16 of the hull lost
 const HULL_SLAG_SIZE_SHARE = 0.7  # A slag blob's size as a share of its scar's
+const HULL_SLAG_MAX_SIZE = 0.9  # m: never larger than this (a fresh hit's scar is about 1.3 m)
 
 
 # ==================================================================================================
 # DAMAGE EFFECTS (looks: scenes/prefabs/effects/, assets/art/effects/)
 # ==================================================================================================
 
-# Laser hit flash and vapour.
-# Every hit effect scales with absolute beam damage: a weak hit barely shows, a powerful one flashes
-# hard and throws a big, fast vapour jet. Intensity = sqrt(damage / HIT_FX_REFERENCE_DAMAGE).
-# Engine exhausts (EngineExhaustSet): plume size relative to the exhaust cone models, by thrust.
+# Engine exhausts (EngineExhaustSet): plume size relative to the exhaust cone models, by thrust,
+# then stretched by speed (a share of the ship's top speed): a fast ship trails a longer, slimmer plume.
 const ENGINE_PLUME_IDLE_LENGTH = 0.15
 const ENGINE_PLUME_MAX_LENGTH = 6.0
 const ENGINE_PLUME_MIN_WIDTH = 0.5
 const ENGINE_PLUME_MAX_WIDTH = 1.0
+const ENGINE_PLUME_SPEED_STRETCH = 0.8  # At top speed the plume is this much longer (0.8: 1.8x)
+const ENGINE_PLUME_SPEED_SLIM = 0.2  # and this much slimmer
+const ENGINE_PLUME_SPEED_STEP = 0.02  # Speed share change that redraws the plume
 const ENGINE_GLOW_IDLE = 0.12  # Exhaust brightness of an idle engine (1 = full burn)
 
+# Laser hit flash and vapour.
+# Every hit effect scales with absolute beam damage: a weak hit barely shows, a powerful one flashes
+# hard and throws a big, fast vapour jet. Intensity = sqrt(damage / HIT_FX_REFERENCE_DAMAGE).
 const HIT_FX_REFERENCE_DAMAGE = 6.0  # A hit of this damage shows at intensity 1
 const HIT_FX_MAX_INTENSITY = 4.0
 const HIT_FX_COOL_COLOR = Color(1.0, 0.45, 0.2)  # Flash colour of a weak hit
@@ -301,15 +306,15 @@ const EXPLOSION_LIFETIME = 16.0  # s
 const EXPLOSION_FLASH_DURATION = 0.6  # s
 const EXPLOSION_MAX_LIGHTS = 1  # Explosions lighting their surroundings at once (GLES2: every light is another pass per object it touches)
 const EXPLOSION_DRAG = 0.8  # Per second; the cloud centre slows a bit faster than a wreck (LINEAR_DRAG)
-# Cloud puffs (spheroids), sizes for the authored ship radius: each grows as it thins out.
-const EXPLOSION_PUFF_START_SIZE = 5.0  # m, radius of the spheroid at the start
+# Cloud puffs (spheroids, explosion_cloud.gdshader; colours in explosion_puff_material.tres), sizes
+# for the authored ship radius: a fireball that swells fast, burns out to smoke, then thins away.
+const EXPLOSION_PUFF_START_SIZE = 4.0  # m, radius of the spheroid at the start
 const EXPLOSION_PUFF_END_SIZE = 22.0  # m, by the end of EXPLOSION_LIFETIME
-const EXPLOSION_PUFF_SPREAD = 10.0  # m the puffs drift apart from the centre
-const EXPLOSION_PUFF_OPACITY = 0.85  # Glow at the start (additive: brightness)
-const EXPLOSION_PUFF_HOT_COLOR = Color(1.0, 0.45, 0.12)
-const EXPLOSION_PUFF_SMOKE_COLOR = Color(0.32, 0.3, 0.29)
-const EXPLOSION_PUFF_MIN_GLOW = 0.04  # A puff dimmer than this is hidden (additive: it still costs a full blended layer)
-const EXPLOSION_PUFF_COOL_SHARE = 0.15  # Share of the lifetime over which the puffs cool from orange to grey
+const EXPLOSION_PUFF_SPREAD = 8.0  # m the puffs drift apart from the centre
+const EXPLOSION_PUFF_OPACITY = 0.95  # At the start
+const EXPLOSION_PUFF_FADE_START = 0.3  # Share of the lifetime the smoke holds before it thins
+const EXPLOSION_PUFF_MIN_OPACITY = 0.04  # A puff fainter than this is hidden (it still costs a full blended layer)
+const EXPLOSION_PUFF_COOL_SHARE = 0.35  # Share of the lifetime over which the fire burns out to smoke
 
 
 # ==================================================================================================

@@ -569,6 +569,13 @@ func get_engine_activity() -> float:
 	return _engine_activity
 
 
+# Speed the engines hold against drag at full thrust (m/s).
+func get_top_speed() -> float:
+	if not is_instance_valid(movement_system):
+		return 0.0
+	return movement_system.linear_thrust / max(mass * Constants.LINEAR_DRAG, 0.001)
+
+
 func get_signature() -> float:
 	var base: float = float(fit_stats.get("signature", ship_template.signature if is_instance_valid(ship_template) else 1500.0))
 	if is_wreck:
