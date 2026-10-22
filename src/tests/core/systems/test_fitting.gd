@@ -176,12 +176,14 @@ func test_buying_a_ship_trades_the_old_one_in_and_stores_its_fit():
 	GameState.player_ship_template_id = "s_light"
 	GameState.player_fit = {"tools": ["t_small", ""], "modules": ["m_plate", ""]}
 	GameState.player_bank = 5000
+	GameState.player_hull_scars = [[1.0]]
 	assert_eq(Fitting.ship_cost("s_heavy"), 4000 - 600, "Half the old hull's price comes off")
 	assert_eq(Fitting.buy_ship("s_heavy"), "")
 	assert_eq(GameState.player_bank, 5000 - 3400)
 	assert_eq(GameState.player_ship_template_id, "s_heavy")
 	assert_eq_deep(GameState.player_storage, {"t_small": 1, "m_plate": 1})
 	assert_true(GameState.player_fit.empty(), "the new hull comes with its own")
+	assert_true(GameState.player_hull_scars.empty(), "unmarked,")
 	assert_eq(spawner.replaced, 1, "and the player's body is rebuilt.")
 	assert_ne(Fitting.buy_ship("s_heavy"), "", "Already flying it")
 	GameState.player_bank = 0

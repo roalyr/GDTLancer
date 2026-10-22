@@ -20,10 +20,15 @@ void vertex() {
 	VERTEX += NORMAL * bump * lump;
 	float age = max(now - INSTANCE_CUSTOM.x, 0.0);
 	float left = clamp(1.0 - age / cool_time, 0.0, 1.0);
-	heat = left * left * mix(0.5, 1.0, INSTANCE_CUSTOM.z);  // Fast fade at first, then a long dull glow
+	heat = left * left * mix(0.8, 1.0, INSTANCE_CUSTOM.z);  // Fast fade at first, then a long dull glow
 }
 
 void fragment() {
-	vec3 glow = mix(glow_color.rgb, hot_color.rgb, heat * heat);
-	ALBEDO = mix(char_color.rgb, glow, smoothstep(0.0, 0.5, heat));
+	// Facing the camera: the dome's middle, hottest and lightest; its rim cools and darkens first,
+	// so a blob reads as a lump, not a flat patch.
+	float middle = clamp(dot(NORMAL, VIEW), 0.0, 1.0);
+	float h = heat * mix(0.45, 1.0, middle);
+	vec3 glow = mix(glow_color.rgb, hot_color.rgb, h * h);
+	vec3 cold = char_color.rgb * mix(0.6, 1.6, middle);
+	ALBEDO = mix(cold, glow, smoothstep(0.0, 0.4, h));
 }

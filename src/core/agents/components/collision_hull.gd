@@ -25,6 +25,7 @@ const MeshLod = preload("res://src/core/agents/components/mesh_lod.gd")
 const _CACHE := {}  # Model file path -> PoolVector3Array of hull points in the model's space
 const _SURFACE_CACHE := {}  # Model file path -> ConcavePolygonShape of its hit surface (or null)
 const HIT_SURFACE_NAME = "HitSurface"
+const HIT_SURFACE_MODELS = "res://assets/models/ships/"  # Only ship models get one (not engine glows and other effects)
 
 
 # A convex shape round the models under `visual_root`, with points in the body's space
@@ -114,8 +115,8 @@ static func reduce(points: PoolVector3Array, count: int) -> PoolVector3Array:
 	return out
 
 
-# Adds `body`'s hit surface under `visual_root`: a StaticBody with the trimesh of every .glb model
-# under it. Returns it, or null if there are no models (or none has a surface).
+# Adds `body`'s hit surface under `visual_root`: a StaticBody with the trimesh of every ship model
+# (.glb in HIT_SURFACE_MODELS) under it. Returns it, or null if there are no models (or none has a surface).
 static func add_hit_surface(body: Node, visual_root: Node) -> StaticBody:
 	var surface := StaticBody.new()
 	surface.name = HIT_SURFACE_NAME
@@ -127,7 +128,7 @@ static func add_hit_surface(body: Node, visual_root: Node) -> StaticBody:
 		var node: Node = item[0]
 		var to_root: Transform = item[1]
 		if node.filename.ends_with(".glb"):
-			if node.filename.find("/lod/") < 0:
+			if node.filename.begins_with(HIT_SURFACE_MODELS) and node.filename.find("/lod/") < 0:
 				var shape: Shape = surface_for_model(node.filename)
 				if shape != null:
 					var holder := CollisionShape.new()

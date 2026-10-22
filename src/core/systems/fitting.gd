@@ -102,6 +102,7 @@ static func buy_ship(ship_id: String) -> String:
 	GameState.player_ship_template_id = ship_id
 	GameState.player_fit = {}  # The new hull's default fit
 	GameState.player_hull = -1.0  # Full
+	GameState.player_hull_scars = []  # A new hull is unmarked
 	spawner.replace_player()
 	return ""
 

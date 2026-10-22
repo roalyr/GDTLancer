@@ -230,7 +230,7 @@ func is_world_projectable_target(node: Node) -> bool:
 			return false
 		return true
 	if node is StaticBody:
-		return true
+		return node.collision_layer != Constants.HIT_SURFACE_LAYER  # A ship's hit surface is part of the ship
 	return false
 
 # Brackets follow their targets every frame. Whether one shows at all (detection, overlay toggles)

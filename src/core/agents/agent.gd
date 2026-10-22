@@ -394,7 +394,6 @@ func get_random_aim_point() -> Vector3:
 func register_hit(from_global: Vector3, damage: float) -> Vector3:
 	var point = null
 	var normal = null
-	var on_plating := false
 	var centre: Vector3 = to_global(hull_bounds.position + hull_bounds.size * 0.5)
 	for attempt in range(4):
 		var aim: Vector3 = get_random_aim_point() if attempt < 2 else centre
@@ -402,8 +401,7 @@ func register_hit(from_global: Vector3, damage: float) -> Vector3:
 		if not hit.empty():
 			point = hit.position
 			normal = hit.normal
-			on_plating = hit.collider != self
-			if on_plating and is_instance_valid(_hull_scars) and damage > 0.0:
+			if hit.collider != self and is_instance_valid(_hull_scars) and damage > 0.0:  # On the plating
 				_hull_scars.add_scar(point, normal, aim - from_global, damage, hit.collider)
 				if is_player():
 					GameState.player_hull_scars = _hull_scars.export_scars()
@@ -411,20 +409,20 @@ func register_hit(from_global: Vector3, damage: float) -> Vector3:
 	if point == null:
 		point = get_hull_point_facing(from_global)
 	_last_hit = [point, normal if normal != null else (point - centre).normalized()]
-	_add_smoulder(point, normal, damage, on_plating)
+	_add_smoulder(point, normal, damage)
 	_accumulate_leak_damage(point, normal, damage)
 	return point
 
 
-# Every hit leaves a smouldering spot (HullSmoulder), or reheats one close by: at the hit point
-# if it is `on_plating`, else in from it (_ember_point()).
-func _add_smoulder(point: Vector3, normal, damage: float, on_plating: bool = false) -> void:
+# Every hit leaves a smouldering spot (HullSmoulder), or reheats one close by, in from the hit
+# point (_ember_point()).
+func _add_smoulder(point: Vector3, normal, damage: float) -> void:
 	var heat: float = LaserHitEffect.intensity_for_damage(damage)
 	if heat <= 0.0 or not is_inside_tree():
 		return
 	var size_scale: float = clamp(get_apparent_radius() / Constants.SMOULDER_REFERENCE_RADIUS, 0.5, 5.0)
 	var centre: Vector3 = to_global(hull_bounds.position + hull_bounds.size * 0.5)
-	var spot_point: Vector3 = point if on_plating else _ember_point(point)
+	var spot_point: Vector3 = _ember_point(point)
 	var live: Array = []
 	for spot in _smoulders:
 		if is_instance_valid(spot) and not spot.is_queued_for_deletion():

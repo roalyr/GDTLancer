@@ -3,7 +3,8 @@
 # - One MultiMeshInstance per ship, under its visual root (it moves and stretches with the model):
 #   every scar is an instance of one squashed sphere (hull_scar_mesh.tres), so a ship's scars are
 #   one draw item, unshaded (no light passes). Up to Constants.HULL_SCAR_MAX_PER_SHIP; the oldest
-#   gives way.
+#   gives way. Hidden beyond Constants.HULL_SCAR_VISIBLE_DISTANCE from the camera (checked every
+#   Constants.LOD_CHECK_INTERVAL while the ship has scars; Godot 3's lod_max_distance does nothing).
 # - Each scar's placement comes from the hit (scar_transform()): up along the plating's normal,
 #   stretched along the beam on glancing hits, sunk part way in so the plating hides the rest.
 # - Cooling runs in the shader (hull_scar.gdshader): each instance's custom data holds its hit
@@ -25,6 +26,7 @@ var _count := 0  # Scars in use
 var _placed: Array = []  # Per instance: its Transform in this node's space
 var _data: Array = []  # Per instance: its custom data Color (hit time, seed, facing, size)
 var _hot_until := 0.0  # clock() when the latest scar is cold
+var _timer := 0.0  # s to the next camera distance check
 
 
 # Seconds on the clock the shader's `now` follows. Not the shader's TIME: that wraps every hour.
@@ -70,7 +72,6 @@ func _init() -> void:
 	cast_shadow = GeometryInstance.SHADOW_CASTING_SETTING_OFF
 	material_override = ScarMaterial
 	ScarMaterial.set_shader_param("cool_time", Constants.HULL_SCAR_COOL_TIME)
-	lod_max_distance = Constants.HULL_SCAR_VISIBLE_DISTANCE
 	var scars := MultiMesh.new()
 	scars.transform_format = MultiMesh.TRANSFORM_3D  # Formats before the count
 	scars.color_format = MultiMesh.COLOR_NONE
@@ -84,14 +85,18 @@ func _init() -> void:
 
 
 func _ready() -> void:
-	set_process(clock() <= _hot_until)  # Godot turns _process on at ready; only hot scars need it
+	set_process(_count > 0)  # Godot turns _process on at ready; only a scarred ship needs it
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	var now: float = clock()
-	ScarMaterial.set_shader_param("now", now)  # Shared: one value for every ship, so setting it twice is harmless
-	if now > _hot_until:
-		set_process(false)
+	if now <= _hot_until + 0.5:  # A little past cold, so the last frame shows it cold
+		ScarMaterial.set_shader_param("now", now)  # Shared: one value for every ship, so setting it twice is harmless
+	_timer -= delta
+	if _timer <= 0.0:
+		_timer = Constants.LOD_CHECK_INTERVAL
+		var camera = get_viewport().get_camera()
+		visible = camera == null or camera.global_transform.origin.distance_to(global_transform.origin) <= Constants.HULL_SCAR_VISIBLE_DISTANCE
 
 
 func get_scar_count() -> int:
@@ -188,6 +193,7 @@ func _reheat(index: int, data: Color, now: float) -> void:
 func _warm(now: float) -> void:
 	_hot_until = now + Constants.HULL_SCAR_COOL_TIME
 	ScarMaterial.set_shader_param("now", now)
+	_timer = 0.0
 	set_process(true)
 
 
@@ -195,6 +201,7 @@ func clear_scars() -> void:
 	_count = 0
 	_next = 0
 	multimesh.visible_instance_count = 0
+	set_process(false)
 
 
 # The scars, oldest first, for the save: per scar the 12 numbers of its transform (basis x, y, z
@@ -226,3 +233,4 @@ func import_scars(scars: Array) -> void:
 			continue
 		var basis := Basis(Vector3(v[0], v[1], v[2]), Vector3(v[3], v[4], v[5]), Vector3(v[6], v[7], v[8]))
 		_push(Transform(basis, Vector3(v[9], v[10], v[11])), Color(cold, float(v[12]), float(v[13]), float(v[14])))
+	set_process(_count > 0)
