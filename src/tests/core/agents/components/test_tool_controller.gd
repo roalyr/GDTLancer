@@ -145,6 +145,39 @@ func test_zero_damage_cycle_spawns_no_hit_effect():
 	assert_eq(effects, 0, "Zero-damage hits are invisible.")
 
 
+func _beams() -> Array:
+	var found: Array = []
+	for child in shooter.get_children():
+		if child.get_script() == load("res://src/core/agents/effects/laser_beam.gd"):
+			found.append(child)
+	return found
+
+
+func test_each_shot_leaves_a_faint_beam_that_fades():
+	controller.activate(0, target)
+	controller._physics_process(0.016)
+	var beams := _beams()
+	assert_eq(beams.size(), 1, "A shot draws one beam")
+	var beam = beams[0]
+	var ends: Array = beam.get_end_points()
+	assert_almost_eq(ends[0], shooter.global_transform.origin, Vector3.ONE * 0.01, "from the shooter")
+	assert_lt(ends[1].distance_to(target.global_transform.origin), 50.0, "to the target,")
+	assert_almost_eq(beam.get_brightness(), Constants.LASER_BEAM_BRIGHTNESS, 0.001, "barely visible.")
+	target.global_transform.origin += Vector3(30, 0, 0)
+	beam._process(Constants.LASER_BEAM_DURATION * 0.5)
+	assert_lt(beam.get_end_points()[1].distance_to(target.global_transform.origin), 50.0, "Its end follows the target")
+	assert_almost_eq(beam.get_brightness(), Constants.LASER_BEAM_BRIGHTNESS * 0.5, 0.001, "as it fades,")
+	beam._process(Constants.LASER_BEAM_DURATION)
+	assert_true(beam.is_queued_for_deletion(), "and then it is gone.")
+
+
+func test_a_missed_shot_still_shows_its_beam():
+	laser.damage = 0.0
+	controller.activate(0, target)
+	controller._physics_process(0.016)
+	assert_eq(_beams().size(), 1)
+
+
 # --- Harpoon, tether and salvage ---
 
 func _make_harpoon() -> UtilityToolTemplate:

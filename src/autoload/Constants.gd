@@ -276,6 +276,10 @@ const HIT_FX_LIGHT_LIFT = 6.0  # m the light sits off the contact point toward t
 const HIT_FX_MAX_LIGHTS = 10  # Hits lighting their surroundings at once (GLES2: every light is another pass per object it touches)
 const HIT_FX_LIFETIME = 1.5  # s
 const HIT_FX_MAX_VAPOR_FACTOR = 1.5  # Vapour count and size grow with intensity up to this many times the authored ones
+# Laser beams (LaserBeam): a faint line per shot from the shooter to where it landed, so it reads
+# who is firing at whom (gameplay; lasers are otherwise invisible in vacuum). Hit-flash colour.
+const LASER_BEAM_BRIGHTNESS = 0.2  # 0..1: barely visible
+const LASER_BEAM_DURATION = 0.5  # s to fade out (a laser cycles about once a second)
 
 # Fuel leaks: open where hits land.
 const FUEL_LEAK_EVERY_DAMAGE = 20.0  # Hull damage that opens one more leak

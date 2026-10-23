@@ -14,6 +14,7 @@ extends Node
 
 const LaserHitEffect = preload("res://src/core/agents/effects/laser_hit_effect.gd")
 const LaserHitScene = preload("res://scenes/prefabs/effects/laser_hit.tscn")
+const LaserBeam = preload("res://src/core/agents/effects/laser_beam.gd")
 const Tether = preload("res://src/core/agents/components/tether.gd")
 
 signal tool_activated(tool_index, target)
@@ -274,11 +275,16 @@ func find_blocker(target: Spatial):
 	return hit.collider
 
 
-# Damages (if it can be damaged) and flashes whatever the shot lands on.
+# Damages (if it can be damaged) and flashes whatever the shot lands on; a faint beam shows the
+# shot either way (a miss too: it ends on the near side of what it was fired at).
 func _hit_body(body: Spatial, from_pos: Vector3, damage: float) -> void:
+	var hit_point: Vector3
 	if damage > 0.0:
-		var hit_point: Vector3 = body.register_hit(from_pos, damage) if body.has_method("register_hit") else _find_hit_point(body)
+		hit_point = body.register_hit(from_pos, damage) if body.has_method("register_hit") else _find_hit_point(body)
 		_spawn_hit_effect(body, hit_point, damage)
+	else:
+		hit_point = _find_hit_point(body)
+	_spawn_beam(body, hit_point, damage)
 	if body.has_method("apply_damage"):
 		body.apply_damage(damage, _agent_body)
 
@@ -328,7 +334,8 @@ func _launch_harpoon(index: int, target: Node, tool_template) -> void:
 	emit_signal("tool_cycled", index, target, 1.0, 0.0)
 
 
-# Lasers are invisible in vacuum: only the hit shows, as a flash and vaporized hull material.
+# Lasers are invisible in vacuum: the hit shows as a flash and vaporized hull material (and a faint
+# beam, _spawn_beam(), as a gameplay cue).
 func _spawn_hit_effect(target: Spatial, hit_point: Vector3, damage: float) -> void:
 	if LaserHitEffect.intensity_for_damage(damage) <= 0.0 or not target.is_inside_tree():
 		return
@@ -337,6 +344,15 @@ func _spawn_hit_effect(target: Spatial, hit_point: Vector3, damage: float) -> vo
 	effect.outward = (_agent_body.global_transform.origin - hit_point).normalized()
 	target.add_child(effect)
 	effect.global_transform = Transform(Basis(), hit_point)  # Unscaled even on scaled bodies (asteroids)
+
+
+func _spawn_beam(body: Spatial, hit_point: Vector3, damage: float) -> void:
+	if not body.is_inside_tree() or not _agent_body.is_inside_tree():
+		return
+	var heat: float = clamp(LaserHitEffect.intensity_for_damage(damage) / Constants.HIT_FX_HOT_INTENSITY, 0.0, 1.0)
+	var beam = LaserBeam.new()
+	beam.setup(_agent_body, body, hit_point, Constants.HIT_FX_COOL_COLOR.linear_interpolate(Constants.HIT_FX_HOT_COLOR, heat))
+	_agent_body.add_child(beam)
 
 
 # Fallback hit point for targets without register_hit: the side of their bounds facing this ship.
