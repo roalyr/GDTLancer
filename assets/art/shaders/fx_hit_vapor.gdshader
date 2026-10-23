@@ -6,7 +6,7 @@ uniform vec4 tint : hint_color = vec4(1.0);
 uniform float intensity = 1.0;
 uniform float min_screen_height = 0.012;  // Fraction of the viewport height.
 
-// Dither and posterization, as in the other translucent shaders (star halo / sprite values).
+// Dither and posterization (the dither block).
 uniform float posterization_levels = 20.0;
 uniform float dither_strength = 0.5;
 

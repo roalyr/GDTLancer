@@ -1,3 +1,6 @@
+// Star surface: the unshaded disc of a star. Flowing noise detail (major_detail_noise, moving with
+// TIME) over surface_color, a bright rim, and toward detail_decay_distance the detail gives way to
+// fade_color. The final colour is dithered and posterized.
 shader_type spatial;
 render_mode blend_mix, cull_back, depth_draw_opaque, unshaded;
 
@@ -23,10 +26,9 @@ uniform float rim_strength = 1.0;
 uniform float rim_exponent = 0.03;
 uniform float rim_intensity = 10;
 
-// Dither and posterization constants
+// Dither and posterization (the dither block).
 uniform float dither_strength = 0.5;
 uniform float posterization_levels = 5.0;
-
 
 const float pi = 3.1415926535;
 const vec3 WHITE = vec3(1.0, 1.0, 1.0);

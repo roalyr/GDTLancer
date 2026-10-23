@@ -1,18 +1,14 @@
-// Ember flake sprite: a small, crisp, additive flake of burning hull, like burning paper flaking
-// off. Billboarded, never smaller than min_screen_height on screen; each flake flickers on its own.
+// Hit flash sprite: additive soft disc, billboarded, never smaller than min_screen_height on screen.
 shader_type spatial;
 render_mode blend_add, cull_disabled, depth_draw_never, unshaded, shadows_disabled;
 
 uniform vec4 tint : hint_color = vec4(1.0);
 uniform float intensity = 1.0;
-uniform float brightness = 1.6;  // Over the colour ramp: embers glow, they are not lit
-uniform float min_screen_height = 0.003;  // Fraction of the viewport height.
-uniform float flicker = 0.35;  // Share of the brightness that flickers
-uniform float flicker_speed = 9.0;  // rad/s
+uniform float min_screen_height = 0.012;  // Fraction of the viewport height.
 
-// Dither and posterization, as in the other shaders (star halo / sprite values).
-uniform float posterization_levels = 12.0;
-uniform float dither_strength = 0.6;
+// Dither and posterization (the dither block).
+uniform float posterization_levels = 20.0;
+uniform float dither_strength = 0.5;
 
 // @common dither
 // Bayer dithering and posterization, the look every shader shares. The shader declares
@@ -76,26 +72,15 @@ float billboard_scale(vec3 vertex, mat4 modelview, mat4 world, mat4 projection) 
 }
 // @end
 
-varying float flick;
-varying float seed;
-
 void vertex() {
 	MODELVIEW_MATRIX = billboard(INV_CAMERA_MATRIX, CAMERA_MATRIX, WORLD_MATRIX);
 	VERTEX *= billboard_scale(VERTEX, MODELVIEW_MATRIX, WORLD_MATRIX, PROJECTION_MATRIX);
-	seed = dot(WORLD_MATRIX[3].xyz, vec3(0.731, 1.37, 0.913));  // Each flake its own phase and outline
-	flick = 1.0 - flicker * (0.5 + 0.5 * sin(TIME * flicker_speed + seed) * sin(TIME * flicker_speed * 0.63 + seed * 2.1));
 }
 
 void fragment() {
-	// A hard-edged, ragged flake of its own outline: a bright core, no soft halo.
-	vec2 p = UV - vec2(0.5);
-	float a = atan(p.y, p.x);
-	float ragged = 0.38 + 0.06 * sin(a * 2.0 + seed) + 0.04 * sin(a * 3.0 + seed * 1.9);
-	float d = length(p);
-	float inside = step(d, ragged);  // Additive: black outside adds nothing (no discard, cheaper on mobile)
+	float falloff = clamp(1.0 - length(UV - vec2(0.5)) * 2.0, 0.0, 1.0);
 	vec4 color = COLOR * tint;
-	float core = mix(0.55, 1.0, 1.0 - smoothstep(0.0, ragged, d));
-	// Additive: the brightness itself is dithered and posterized, as in hit_flash.
-	float value = dither_posterize(clamp(color.a * core * flick * intensity, 0.0, 1.0), FRAGCOORD.xy);
-	ALBEDO = color.rgb * value * brightness * inside;
+	// Additive: the brightness itself is dithered and posterized, as in the star halo.
+	float value = dither_posterize(clamp(color.a * smoothstep(0.0, 1.0, falloff) * intensity, 0.0, 1.0), FRAGCOORD.xy);
+	ALBEDO = color.rgb * value;
 }

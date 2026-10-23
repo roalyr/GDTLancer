@@ -17,7 +17,7 @@ uniform vec4 core_color : hint_color = vec4(1.0, 0.92, 0.7, 1.0);
 uniform vec4 flame_color : hint_color = vec4(1.0, 0.42, 0.08, 1.0);
 uniform vec4 smoke_color : hint_color = vec4(0.3, 0.28, 0.27, 1.0);
 
-// Dither and posterization, as in the other translucent shaders (star halo / sprite values).
+// Dither and posterization (the dither block).
 uniform float posterization_levels = 16.0;
 uniform float dither_strength = 0.6;
 

@@ -1,6 +1,6 @@
 [gd_resource type="ShaderMaterial" load_steps=2 format=2]
 
-[ext_resource path="res://assets/art/shaders/engine_exhaust.gdshader" type="Shader" id=1]
+[ext_resource path="res://assets/art/shaders/fx_engine_exhaust.gdshader" type="Shader" id=1]
 
 [resource]
 resource_name = "engine_exhaust_nozzle"

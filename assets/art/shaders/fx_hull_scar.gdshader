@@ -18,7 +18,7 @@ uniform vec4 char_color : hint_color = vec4(0.05, 0.045, 0.04, 1.0);
 uniform vec4 glow_color : hint_color = vec4(0.75, 0.16, 0.03, 1.0);  // Cooling: dull red
 uniform vec4 hot_color : hint_color = vec4(1.0, 0.85, 0.55, 1.0);  // Just hit: white-orange
 
-// Dither and posterization, as in the other shaders (star halo / sprite values).
+// Dither and posterization (the dither block).
 uniform float posterization_levels = 8.0;
 uniform float dither_strength = 0.9;
 

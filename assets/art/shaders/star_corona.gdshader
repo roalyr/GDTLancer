@@ -1,25 +1,30 @@
+// Star corona: an additive shell round a star, on its back faces (cull_front). Its vertices swell
+// with moving noise (displacement_texture); the glow is strongest next to the star and fades
+// outward, broken up by that noise, and grows with distance up to fade_distance_far.
 shader_type spatial;
 render_mode blend_add, cull_front, depth_draw_opaque, unshaded;
 
-uniform vec4 albedo : hint_color;
-uniform float rim_strength = 5.0;
-uniform float rim_exponent = 30.0;
-uniform float rim_power  = 1.0;
+uniform vec4 corona_color : hint_color = vec4(1.0, 0.9, 0.4, 1.0);
+uniform float strength_corona : hint_range(0.0, 1e2, 5e-4) = 40;
+uniform float exponent_corona = 2;
+uniform float exponent_corona_rim = 2;
+uniform float corona_floor_power = 5.0;
+uniform float corona_floor : hint_range(0.0, 2, 5e-4) = 1.3;
 
-uniform float rim_floor  = 0.1;
-uniform float rim_outer_strength = 3.0;
-uniform float rim_outer_exponent = 3.0;
+uniform float fade_distance_far = 15000;
+uniform float fade_power = 6.0;
 
-uniform float fade_distance_near = 100;
-uniform float fade_distance_far = 1000;
-uniform float fade_power = 1.0;
-
-// Dither and posterization constants
+// Dither and posterization (the dither block).
 uniform float dither_strength = 0.5;
-uniform float posterization_levels = 24.0;
+uniform float posterization_levels = 20.0;
 
+uniform sampler2D displacement_texture;
+uniform float displacement_power : hint_range(-0.4, 0.4, 5e-4) = 0.05;
+uniform float displacement_scale_xz : hint_range(0.0, 2.0, 5e-4) = 0.95;
+uniform float displacement_scale_y : hint_range(0.0, 2.0, 5e-4) = 0.9;
+uniform float displacement_velocity : hint_range(0.0, 2.0, 5e-4) = 0.1;
 
-// --- Helper Functions ---
+varying float noise_val;
 
 // @common dither
 // Bayer dithering and posterization, the look every shader shares. The shader declares
@@ -80,29 +85,43 @@ vec3 nlp_scale(vec3 vertex, mat4 modelview) {
 // @end
 
 void vertex() {
+	vec2 tex_position_x = VERTEX.yz - TIME * displacement_velocity * 0.1;
+	vec2 tex_position_y = VERTEX.xz + TIME * displacement_velocity * 0.1;
+	vec2 tex_position_z = VERTEX.xy - TIME * displacement_velocity * 0.1;
+
+	float displacement_x = 2.0 * texture(displacement_texture, tex_position_x).r;
+	float displacement_y = 2.0 * texture(displacement_texture, tex_position_y).r;
+	float displacement_z = 2.0 * texture(displacement_texture, tex_position_z).r;
+
+	noise_val = pow(displacement_z * displacement_x * displacement_y, displacement_power);
+	VERTEX *= noise_val;
+	VERTEX.xz *= displacement_scale_xz;
+	VERTEX.y *= displacement_scale_y;
+
 	// Non-linear perspective
 	VERTEX = nlp_scale(VERTEX, MODELVIEW_MATRIX);
 }
 
 void fragment()
 {
-	float dt = clamp(abs(dot(NORMAL, VIEW)), 1e-6, 1.0);
-	float rim = clamp(pow(dt, rim_exponent)*rim_strength, 1e-6, 1.0);
-	float rim_outer = clamp(pow(dt, rim_outer_exponent)*rim_outer_strength, 1e-6, 1.0);
+	float dt = clamp(abs(dot(NORMAL, VIEW)), 1e-9, 0.99999);
+	float corona = pow(dt, exp(exponent_corona)) * pow(1.1, strength_corona);
 
-	// Fade near and far.
+	// Noise mask: corona_floor controls how much of the noise suppresses the rim
+	float noise_mask = clamp(corona_floor - pow(noise_val, corona_floor_power), 0.0, 1.0);
+	float corona_val = pow(corona, exponent_corona_rim) * noise_mask;
+
+	// Fade by vertex distance (smoothstep in → bright when close, fades out far away)
 	float dist = length(VERTEX);
-	float fade_out = clamp(smoothstep(fade_distance_far, 0.0, dist), 1e-6, 1.0); // fades out
-	float fade_in = clamp(smoothstep(0.0, fade_distance_near, dist), 1e-6, 1.0); // fades in
-	float fade = pow(fade_in*fade_out, fade_power);
+	float fade = pow(clamp(smoothstep(0.0, fade_distance_far, dist), 1e-6, 1.0), fade_power);
 
-	// Clamp glow to [0,1] before dithering — rim_strength/rim_outer_strength can push
-	// the raw value above 1.0, causing clipping with no dither benefit in bright regions.
-	// Bake fade in before posterizing so bands stay crisp through the fade zone.
-	float glow_intensity = clamp(rim_floor * rim_outer + pow(rim, rim_power), 0.0, 1.0) * fade;
+	// Clamp corona to [0,1] BEFORE fade and dithering so the dither offset
+	// has full headroom across the whole range (avoids clipping bright regions to 1.0
+	// with no dither benefit there, and preserves gradient detail in mid-tones).
+	float final_val = clamp(corona_val, 0.0, 1.0) * fade;
 
 	// Bi-directional Bayer dithering and posterization on the fully composed value
-	float quantized_glow = dither_posterize(glow_intensity, FRAGCOORD.xy);
+	float quantized_val = dither_posterize(final_val, FRAGCOORD.xy);
 
-	ALBEDO = albedo.rgb * quantized_glow;
+	ALBEDO = corona_color.rgb * quantized_val;
 }

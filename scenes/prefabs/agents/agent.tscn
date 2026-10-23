@@ -4,7 +4,7 @@
 [ext_resource path="res://assets/models/ships/cargo-ship-1.glb" type="PackedScene" id=2]
 [ext_resource path="res://src/core/agents/components/movement_system.gd" type="Script" id=3]
 [ext_resource path="res://src/core/agents/components/navigation_system.gd" type="Script" id=4]
-[ext_resource path="res://assets/art/shaders/simple_glow_NLP.gdshader" type="Shader" id=5]
+[ext_resource path="res://assets/art/shaders/glow.gdshader" type="Shader" id=5]
 
 [sub_resource type="CapsuleShape" id=6]
 

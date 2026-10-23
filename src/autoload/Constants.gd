@@ -160,7 +160,7 @@ const TETHER_PERIOD = 2.0  # s; cable stiffness for the pair's combined mass
 const TETHER_DAMPING_RATIO = 0.9
 const TETHER_SNAP_STRETCH = 500.0  # m beyond the cable's length: it snaps
 const TETHER_SLACK_TAKEUP_SPEED = 20.0  # m/s the winch takes up slack when the ships close in (on top of reeling); closing faster shows a loose cable
-# Cable looks (TetherRope, tether_cable.gdshader): shape, strain cue.
+# Cable looks (TetherRope, fx_tether_cable.gdshader): shape, strain cue.
 # Simulated points follow the cable's length: one per TETHER_ROPE_SEGMENT_LENGTH, within the
 # min/max below. Cost grows with points (~0.75 ms per cable per physics frame at 32, ~0.2 at 8);
 # a short towing cable needs few. Drawn smoother still (TETHER_RENDER_SUBDIVISIONS).
@@ -310,7 +310,7 @@ const EXPLOSION_LIFETIME = 16.0  # s
 const EXPLOSION_FLASH_DURATION = 0.6  # s
 const EXPLOSION_MAX_LIGHTS = 1  # Explosions lighting their surroundings at once (GLES2: every light is another pass per object it touches)
 const EXPLOSION_DRAG = 0.8  # Per second; the cloud centre slows a bit faster than a wreck (LINEAR_DRAG)
-# Cloud puffs (spheres, explosion_cloud.gdshader; colours in explosion_puff_material.tres), sizes
+# Cloud puffs (spheres, fx_explosion_cloud.gdshader; colours in explosion_puff_material.tres), sizes
 # for the authored ship radius: a fireball that swells fast, burns out to smoke, then thins away.
 const EXPLOSION_PUFF_START_SIZE = 4.0  # Scale of the puff sphere (radius 1.25 m) at the start
 const EXPLOSION_PUFF_END_SIZE = 36.0  # and by the end of EXPLOSION_LIFETIME

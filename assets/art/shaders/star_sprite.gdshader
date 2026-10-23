@@ -1,3 +1,6 @@
+// Star sprite: the camera-facing flare of a star. Its size follows the camera distance
+// (scale_near up to peak_distance, then down to scale_far by peak_distance * fade_ratio), and it fades
+// in past fade_distance_near and out toward fade_distance_far. Vertex colour red shapes the flare.
 shader_type spatial;
 render_mode blend_add, cull_back, depth_draw_opaque, unshaded;
 
@@ -18,11 +21,9 @@ uniform float fade_power = 5;
 uniform float intensity : hint_range(0.0, 1.0) = 1.0;
 uniform float exponent : hint_range(0.0, 50.0, 0.1) = 3.0;
 
-// Dither and posterization constants
+// Dither and posterization (the dither block).
 uniform float dither_strength = 0.5;
 uniform float posterization_levels = 24.0;
-
-// --- Helper Functions ---
 
 // @common dither
 // Bayer dithering and posterization, the look every shader shares. The shader declares
@@ -67,45 +68,45 @@ vec3 dither_posterize3(vec3 value, vec2 fragcoord) {
 // @end
 
 void vertex() {
-    float center_distance = max(-NODE_POSITION_VIEW.z, 0.0001);
-    float fade_distance = peak_distance * fade_ratio;
+	float center_distance = max(-NODE_POSITION_VIEW.z, 0.0001);
+	float fade_distance = peak_distance * fade_ratio;
 
-    float sprite_scale;
-    if (center_distance < peak_distance) {
-        float t = pow(clamp(center_distance / peak_distance, 0.0, 1.0), distance_power);
-        sprite_scale = mix(scale_near, scale_peak, t);
-    } else if (center_distance < fade_distance) {
-        float t = pow(
-            clamp(
-                (center_distance - peak_distance) / max(fade_distance - peak_distance, 0.0001),
-                0.0,
-                1.0
-            ),
-            distance_power
-        );
-        sprite_scale = mix(scale_peak, scale_far, t);
-    } else {
-        sprite_scale = scale_far;
-    }
+	float sprite_scale;
+	if (center_distance < peak_distance) {
+		float t = pow(clamp(center_distance / peak_distance, 0.0, 1.0), distance_power);
+		sprite_scale = mix(scale_near, scale_peak, t);
+	} else if (center_distance < fade_distance) {
+		float t = pow(
+			clamp(
+				(center_distance - peak_distance) / max(fade_distance - peak_distance, 0.0001),
+				0.0,
+				1.0
+			),
+			distance_power
+		);
+		sprite_scale = mix(scale_peak, scale_far, t);
+	} else {
+		sprite_scale = scale_far;
+	}
 
-    MODELVIEW_MATRIX = INV_CAMERA_MATRIX * mat4(
-        CAMERA_MATRIX[0],
-        CAMERA_MATRIX[1],
-        CAMERA_MATRIX[2],
-        vec4(NODE_POSITION_WORLD, 1.0)
-    );
+	MODELVIEW_MATRIX = INV_CAMERA_MATRIX * mat4(
+		CAMERA_MATRIX[0],
+		CAMERA_MATRIX[1],
+		CAMERA_MATRIX[2],
+		vec4(NODE_POSITION_WORLD, 1.0)
+	);
 
-    if (PROJECTION_MATRIX[3][3] != 0.0) {
-        float sc = abs(1.0 / PROJECTION_MATRIX[1][1]) * sprite_scale;
-        MODELVIEW_MATRIX[0] *= sc;
-        MODELVIEW_MATRIX[1] *= sc;
-        MODELVIEW_MATRIX[2] *= sc;
-    } else {
-        float sc = center_distance * sprite_scale;
-        MODELVIEW_MATRIX[0] *= sc;
-        MODELVIEW_MATRIX[1] *= sc;
-        MODELVIEW_MATRIX[2] *= sc;
-    }
+	if (PROJECTION_MATRIX[3][3] != 0.0) {
+		float sc = abs(1.0 / PROJECTION_MATRIX[1][1]) * sprite_scale;
+		MODELVIEW_MATRIX[0] *= sc;
+		MODELVIEW_MATRIX[1] *= sc;
+		MODELVIEW_MATRIX[2] *= sc;
+	} else {
+		float sc = center_distance * sprite_scale;
+		MODELVIEW_MATRIX[0] *= sc;
+		MODELVIEW_MATRIX[1] *= sc;
+		MODELVIEW_MATRIX[2] *= sc;
+	}
 }
 
 void fragment() {
@@ -122,5 +123,5 @@ void fragment() {
 	// Bi-directional Bayer dithering and posterization on the fully composed value
 	float quantized_val = dither_posterize(sprite_val, FRAGCOORD.xy);
 
-    ALBEDO = albedo.rgb * quantized_val;
+	ALBEDO = albedo.rgb * quantized_val;
 }

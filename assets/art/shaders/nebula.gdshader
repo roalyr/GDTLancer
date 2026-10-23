@@ -1,5 +1,7 @@
+// Nebula: an additive cloud shell seen from inside (cull_front). Triplanar normal noise
+// (normal_noise) fakes relief in the colour, with rim and ambient colours on top; fades in past
+// fade_distance_near and out toward fade_distance_far, and dithers away where faint.
 shader_type spatial;
-
 render_mode blend_add, cull_front, depth_draw_opaque, unshaded;
 
 uniform vec4 albedo : hint_color;
@@ -21,7 +23,7 @@ uniform float fade_distance_near = 1e5;
 uniform float fade_distance_far = 1e6;
 uniform float fade_power = .2;
 
-// Dither and posterization constants
+// Dither and posterization (the dither block).
 uniform float dither_strength = 0.50;
 uniform float posterization_levels = 80.0;
 
@@ -30,15 +32,12 @@ uniform float uv1_blend_sharpness = 10.0;
 uniform float normal_detail_uv1_scale = 1.0;
 uniform vec3 normal_detail_uv1_offset = vec3(0.0);
 
-
 uniform sampler2D normal_noise;
 
 const float pi = 3.1415926535;
 
 varying vec3 normal_detail_uv1_triplanar_pos;
 varying vec3 uv1_power_normal;
-
-// --- Helper Functions ---
 
 // @common dither
 // Bayer dithering and posterization, the look every shader shares. The shader declares

@@ -15,7 +15,7 @@
 #   Constants.HULL_SCAR_MAX_BAND (slag: HULL_SLAG_MAX_BAND): zooming in on a far ship shows its scars.
 # - Each scar's placement comes from the hit (scar_transform()): up along the plating's normal,
 #   stretched along the beam on glancing hits, sunk part way in so the plating hides the rest.
-# - Cooling runs in the shader (hull_scar.gdshader): each blob's vertices carry its hit time, and
+# - Cooling runs in the shader (fx_hull_scar.gdshader): each blob's vertices carry its hit time, and
 #   every ship shares one material whose `now` is set while any scar is hot. Per vertex:
 #   UV2 = (hit time (clock()), random seed), COLOR.r = facing (head-on hits glow hotter).
 #   Per scar data (get_scar_data()): hit time, seed, facing, size (m).

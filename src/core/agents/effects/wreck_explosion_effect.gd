@@ -1,6 +1,6 @@
 # WreckExplosionEffect (scenes/prefabs/effects/wreck_explosion.tscn): the moment a ship is destroyed.
 # A short, bright flash with hot fragments, then two round fireballs (sphere meshes with
-# explosion_cloud.gdshader via explosion_puff_material) that swell, burn out to grey smoke and thin
+# fx_explosion_cloud.gdshader via explosion_puff_material) that swell, burn out to grey smoke and thin
 # away. The cloud centre starts with the ship's
 # velocity and slows under Constants.EXPLOSION_DRAG, a little faster than the wreck, so it
 # settles around it.
