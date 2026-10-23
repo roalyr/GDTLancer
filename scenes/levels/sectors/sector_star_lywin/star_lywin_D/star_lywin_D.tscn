@@ -1,11 +1,11 @@
 [gd_scene load_steps=18 format=2]
 
-[ext_resource path="res://assets/art/shaders/star_corona_NLP.gdshader" type="Shader" id=1]
+[ext_resource path="res://assets/art/shaders/star_corona_v2.gdshader" type="Shader" id=1]
 [ext_resource path="res://assets/models/sprites/Star_sprite_square_wide.glb" type="PackedScene" id=2]
 [ext_resource path="res://assets/art/shaders/star_sprite.gdshader" type="Shader" id=3]
 [ext_resource path="res://src/core/utils/rotating_object.gd" type="Script" id=4]
 [ext_resource path="res://assets/art/textures/sbs-noise_texture_pack-512x512/normal_maps/Craters 14 - 512x512.png" type="Texture" id=5]
-[ext_resource path="res://assets/art/shaders/star_surface_NLP.gdshader" type="Shader" id=6]
+[ext_resource path="res://assets/art/shaders/star_surface_v2.gdshader" type="Shader" id=6]
 [ext_resource path="res://assets/art/shaders/simple_glow_NLP.gdshader" type="Shader" id=7]
 
 [sub_resource type="SphereShape" id=1]
