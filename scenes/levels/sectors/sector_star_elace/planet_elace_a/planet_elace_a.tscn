@@ -13,27 +13,16 @@ radius = 1000.0
 shader = ExtResource( 1 )
 shader_param/albedo = Color( 0.0588235, 0.0588235, 0.0588235, 1 )
 shader_param/emission = Color( 0, 0, 0, 1 )
-shader_param/normal_strength = -0.448
-shader_param/albedo_detail_strength = 0.038
-shader_param/albedo_detail_power = 1.0
 shader_param/rim_strength = 1.0
 shader_param/rim_exponent = 3.0
 shader_param/rim_intensity = 0.3
 shader_param/fade_start = 300000.0
 shader_param/fade_end_mul = 5.0
 shader_param/fade_power = 2.0
-shader_param/dither_threshold = 0.5
-shader_param/uv_triplanar_sharpness = 100.0
-shader_param/uv_scale = Vector3( 1, 1, 1 )
-shader_param/uv_offset = Vector3( 0.636, 0.795, -0.423 )
 shader_param/scale_start = 100000.0
 shader_param/scale_end_mul = 100.0
 shader_param/scale_power = 1.0
 shader_param/scale_min = 0.5
-shader_param/normal_scale = 2.187
-shader_param/albedo_detail_scale = 2.631
-shader_param/texture_normal = ExtResource( 4 )
-shader_param/texture_albedo = ExtResource( 2 )
 
 [sub_resource type="SphereMesh" id=2]
 

@@ -15,7 +15,6 @@ shader_param/rim_outer_exponent = 3.846
 shader_param/fade_distance_near = 0.0
 shader_param/fade_distance_far = 1000.0
 shader_param/fade_power = 1.0
-shader_param/dither_threshold = 0.5
 shader_param/scale_start = 100000.0
 shader_param/scale_end_mul = 100.0
 shader_param/scale_power = 1.0

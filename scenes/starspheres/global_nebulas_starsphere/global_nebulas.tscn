@@ -35,7 +35,6 @@ shader_param/fade_distance_far = 1e+06
 shader_param/fade_power = 0.4
 shader_param/intensity = 0.643
 shader_param/exponent = 3.0
-shader_param/dither_threshold = 0.5
 
 [sub_resource type="ShaderMaterial" id=17]
 shader = ExtResource( 9 )
@@ -51,7 +50,6 @@ shader_param/fade_distance_far = 1e+06
 shader_param/fade_power = 0.4
 shader_param/intensity = 0.752
 shader_param/exponent = 3.0
-shader_param/dither_threshold = 0.5
 
 [sub_resource type="ShaderMaterial" id=1]
 shader = ExtResource( 2 )

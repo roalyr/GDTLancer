@@ -13,5 +13,4 @@ shader_param/core_color = Color( 1, 0.92, 0.7, 1 )
 shader_param/flame_color = Color( 1, 0.42, 0.08, 1 )
 shader_param/smoke_color = Color( 0.3, 0.28, 0.27, 1 )
 shader_param/posterization_levels = 16.0
-shader_param/light_dither_strength = 0.6
-shader_param/dither_pixel_size = 2.0
+shader_param/dither_strength = 0.6

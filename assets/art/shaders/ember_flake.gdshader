@@ -1,6 +1,5 @@
 // Ember flake sprite: a small, crisp, additive flake of burning hull, like burning paper flaking
 // off. Billboarded, never smaller than min_screen_height on screen; each flake flickers on its own.
-// Vertex code as in hit_flash.gdshader; keep them in sync.
 shader_type spatial;
 render_mode blend_add, unshaded, depth_draw_never, cull_disabled, shadows_disabled;
 
@@ -13,14 +12,19 @@ uniform float flicker_speed = 9.0;  // rad/s
 
 // Dither and posterization, as in the other shaders (star halo / sprite values).
 uniform float posterization_levels = 12.0;
-uniform float light_dither_strength = 0.6;
-uniform float dither_pixel_size = 2.0;
+uniform float dither_strength = 0.6;
+
+// @common dither
+// Bayer dithering and posterization, the look every shader shares. The shader declares
+// `uniform float posterization_levels` (bands over 0..1) and `uniform float dither_strength`
+// (0: hard bands, 1: dithered a whole band either way).
+const float DITHER_PIXEL_SIZE = 2.0;  // Screen pixels per dither cell
 
 float bayer2x2(vec2 p) {
 	return p.x * 2.0 + p.y * (3.0 - 4.0 * p.x);
 }
 
-// Fast GLES2-compatible 8x8 Bayer matrix calculation without stack array allocations
+// 8x8 Bayer threshold (0..1) without arrays (GLES2).
 float bayer8x8(vec2 screen_pos) {
 	vec2 p = mod(floor(screen_pos), 8.0);
 	vec2 p0 = mod(p, 2.0);
@@ -30,26 +34,54 @@ float bayer8x8(vec2 screen_pos) {
 	return val / 64.0;
 }
 
-// Bi-directional Bayer dithering, then posterization.
+// The dither threshold (0..1) at a fragment (FRAGCOORD.xy).
+float bayer_at(vec2 fragcoord) {
+	return bayer8x8(fragcoord / DITHER_PIXEL_SIZE);
+}
+
+// `value` (0..1) dithered both ways, then cut to posterization_levels bands.
 float dither_posterize(float value, vec2 fragcoord) {
-	float threshold = bayer8x8(fragcoord / max(1.0, dither_pixel_size));
 	float levels = max(1.0, posterization_levels);
 	float step_size = 1.0 / levels;
-	float dithered = clamp(value + (threshold - 0.5) * step_size * light_dither_strength, 0.0, 1.0);
+	float dithered = clamp(value + (bayer_at(fragcoord) - 0.5) * step_size * dither_strength, 0.0, 1.0);
 	return floor(dithered * levels) / levels;
 }
+
+// dither_posterize() per channel, one threshold for all three.
+vec3 dither_posterize3(vec3 value, vec2 fragcoord) {
+	float levels = max(1.0, posterization_levels);
+	float step_size = 1.0 / levels;
+	vec3 dithered = clamp(value + vec3((bayer_at(fragcoord) - 0.5) * step_size * dither_strength), 0.0, 1.0);
+	return floor(dithered * levels) / levels;
+}
+// @end
+
+// @common billboard
+// Camera-facing quads that never shrink below `uniform float min_screen_height` (a share of the
+// viewport height). In vertex():
+//     MODELVIEW_MATRIX = billboard(INV_CAMERA_MATRIX, CAMERA_MATRIX, WORLD_MATRIX);
+//     VERTEX *= billboard_scale(VERTEX, MODELVIEW_MATRIX, WORLD_MATRIX, PROJECTION_MATRIX);
+mat4 billboard(mat4 inv_camera, mat4 camera, mat4 world) {
+	return inv_camera * mat4(camera[0], camera[1], camera[2], world[3]);
+}
+
+// The node's scale, raised so the quad covers at least min_screen_height of the screen.
+float billboard_scale(vec3 vertex, mat4 modelview, mat4 world, mat4 projection) {
+	float world_scale = length(world[0].xyz);
+	float view_distance = max(-(modelview * vec4(0.0, 0.0, 0.0, 1.0)).z, 0.001);
+	float half_size = max(length(vertex.xy) * world_scale, 0.0001);
+	// A world length L at distance d covers L * P[1][1] / d of the 2-unit NDC height.
+	float min_half_size = min_screen_height * view_distance / projection[1][1];
+	return world_scale * max(1.0, min_half_size / half_size);
+}
+// @end
 
 varying float flick;
 varying float seed;
 
 void vertex() {
-	MODELVIEW_MATRIX = INV_CAMERA_MATRIX * mat4(CAMERA_MATRIX[0], CAMERA_MATRIX[1], CAMERA_MATRIX[2], WORLD_MATRIX[3]);
-	float world_scale = length(WORLD_MATRIX[0].xyz);
-	float view_distance = max(-(MODELVIEW_MATRIX * vec4(0.0, 0.0, 0.0, 1.0)).z, 0.001);
-	float half_size = max(length(VERTEX.xy) * world_scale, 0.0001);
-	// A world length L at distance d covers L * P[1][1] / d of the 2-unit NDC height.
-	float min_half_size = min_screen_height * view_distance / PROJECTION_MATRIX[1][1];
-	VERTEX *= world_scale * max(1.0, min_half_size / half_size);
+	MODELVIEW_MATRIX = billboard(INV_CAMERA_MATRIX, CAMERA_MATRIX, WORLD_MATRIX);
+	VERTEX *= billboard_scale(VERTEX, MODELVIEW_MATRIX, WORLD_MATRIX, PROJECTION_MATRIX);
 	seed = dot(WORLD_MATRIX[3].xyz, vec3(0.731, 1.37, 0.913));  // Each flake its own phase and outline
 	flick = 1.0 - flicker * (0.5 + 0.5 * sin(TIME * flicker_speed + seed) * sin(TIME * flicker_speed * 0.63 + seed * 2.1));
 }

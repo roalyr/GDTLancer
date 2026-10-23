@@ -17,7 +17,6 @@ shader_param/fade_distance_far = 2e+06
 shader_param/fade_power = 5.0
 shader_param/intensity = 1.0
 shader_param/exponent = 3.0
-shader_param/dither_threshold = 0.5
 
 [sub_resource type="ShaderMaterial" id=2]
 shader = ExtResource( 2 )
@@ -33,7 +32,6 @@ shader_param/fade_distance_far = 2e+06
 shader_param/fade_power = 5.0
 shader_param/intensity = 1.0
 shader_param/exponent = 5.4
-shader_param/dither_threshold = 0.5
 
 [node name="Star Elace Sprite" type="Spatial"]
 
