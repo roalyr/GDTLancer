@@ -40,7 +40,6 @@ var fit_stats: Dictionary = {}  # ShipFit.compute_stats(): hull, power, cargo, t
 const FuelLeakScene = preload("res://scenes/prefabs/effects/fuel_leak.tscn")
 const HullSmoulderScene = preload("res://scenes/prefabs/effects/hull_smoulder.tscn")
 const HullScars = preload("res://src/core/agents/effects/hull_scars.gd")
-const HullWear = preload("res://src/core/agents/effects/hull_wear.gd")
 const DamageTrailScene = preload("res://scenes/prefabs/effects/damage_trail.tscn")
 const LaserHitEffect = preload("res://src/core/agents/effects/laser_hit_effect.gd")
 const WreckExplosionScene = preload("res://scenes/prefabs/effects/wreck_explosion.tscn")
@@ -49,7 +48,6 @@ var _engine_activity := 0.0  # Smoothed engine thrust fraction, 0..1 (signature)
 var _leaks: Array = []
 var _smoulders: Array = []  # HullSmoulder spots, oldest first
 var _hull_scars = null  # HullScars under the visual root
-var _hull_wear = null  # HullWear: soot on the paint with hull lost
 var _damage_trails: Array = []  # DamageTrail nodes: one per Constants.DAMAGE_TRAIL_HULL_STEP of hull lost
 var _last_hit: Array = []  # [world point, outward] of the latest hit: where a new damage trail starts
 
@@ -125,7 +123,6 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 				CollisionHull.add_hit_surface(self, ship_visual)  # Where shots land: the plating, not the hull round it
 				_hull_scars = HullScars.new(interaction_radius / Constants.HULL_SCAR_REFERENCE_RADIUS)
 				ship_visual.add_child(_hull_scars)
-				_hull_wear = HullWear.new(ship_visual)
 				if is_player():
 					_hull_scars.import_scars(GameState.player_hull_scars)
 			else:
@@ -452,8 +449,7 @@ func _add_smoulder(point: Vector3, normal, damage: float) -> void:
 
 # Lasting ember trails, one per Constants.DAMAGE_TRAIL_HULL_STEP of hull lost: the first new one
 # starts where the latest hit landed, any others at random points of the hull (both in toward the
-# centre, _ember_point()). Brighter the more hull is lost; repairs remove them. Slag and soot on the
-# paint (HullWear) follow the hull lost too.
+# centre, _ember_point()). Brighter the more hull is lost; repairs remove them.
 func _update_damage_trails() -> void:
 	if not is_inside_tree() or hull_max <= 0.0:
 		return
@@ -489,8 +485,6 @@ func _update_damage_trails() -> void:
 		trail.strength = lost
 	if is_instance_valid(_hull_scars):
 		_hull_scars.set_slag_count(int(floor(lost * _hull_scars.get_slag_capacity() + 0.0001)))
-	if _hull_wear != null:
-		_hull_wear.set_damage(lost)
 
 
 # Where an ember emitter for a hit at `point` sits: part of the way in toward the hull centre, since
