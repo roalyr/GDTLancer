@@ -13,7 +13,6 @@ shader_param/relight_rise = 0.6
 shader_param/char_color = Color( 0.06, 0.045, 0.035, 1 )
 shader_param/glow_color = Color( 0.85, 0.2, 0.03, 1 )
 shader_param/hot_color = Color( 1, 0.8, 0.4, 1 )
-shader_param/lump = 0.25
 shader_param/posterization_levels = 8.0
 shader_param/light_dither_strength = 0.9
 shader_param/dither_pixel_size = 2.0

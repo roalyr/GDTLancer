@@ -6,7 +6,7 @@ extends GutTest
 const HullScars = preload("res://src/core/agents/effects/hull_scars.gd")
 
 
-func _scars() -> MultiMeshInstance:
+func _scars() -> MeshInstance:
 	var scars = HullScars.new()
 	add_child_autofree(scars)
 	return scars
@@ -108,23 +108,70 @@ func test_clear_removes_every_scar():
 	assert_eq(scars.export_scars().size(), 0)
 
 
-func test_slag_sits_on_the_newest_scars_one_each():
+func test_slag_sits_on_the_newest_scars_fewest_first():
 	var scars = _scars()
 	scars.set_slag_count(3)
 	assert_eq(scars.get_slag_count(), 0, "No scars, no slag")
 	for i in range(3):
 		scars.add_scar(Vector3(i * 10.0, 0, 0), Vector3.UP, Vector3.DOWN, 6.0)
 	scars.set_slag_count(Constants.HULL_SLAG_MAX)
-	assert_eq(scars.get_slag_count(), 3, "at most one per scar")
+	assert_eq(scars.get_slag_count(), int(min(3 * Constants.HULL_SLAG_PER_SCAR, scars.get_slag_capacity())), "at most HULL_SLAG_PER_SCAR on a scar")
+	assert_eq(scars.get_slag_scar(0), 2, "the first on the newest scar,")
+	assert_eq(scars.get_slag_scar(1), 1, "then one on each older scar")
+	assert_eq(scars.get_slag_scar(3), 2, "before any scar gets a second.")
 	var slag: Transform = scars.get_slag_transform(0)
 	var newest: Transform = scars.get_scar_transform(2)
-	assert_lt(slag.origin.distance_to(newest.origin), newest.basis.x.length(), "the first on the newest scar")
+	assert_lt(slag.origin.distance_to(newest.origin), newest.basis.x.length(), "On its scar")
 	assert_almost_eq(slag.basis.x.length(), min(newest.basis.x.length() * Constants.HULL_SLAG_SIZE_SHARE, Constants.HULL_SLAG_MAX_SIZE), 0.001, "and smaller,")
+	scars.set_slag_count(0)
 	scars.add_scar(Vector3(100, 0, 0), Vector3.UP, Vector3.DOWN, 10000.0)
-	scars.set_slag_count(4)
-	assert_almost_eq(scars.get_slag_transform(3).basis.x.length(), Constants.HULL_SLAG_MAX_SIZE, 0.001, "never larger than the cap.")
-	scars.set_slag_count(3)
 	scars.set_slag_count(1)
-	assert_eq(scars.get_slag_count(), 1)
+	assert_eq(scars.get_slag_scar(0), 3)
+	assert_almost_eq(scars.get_slag_transform(0).basis.x.length(), Constants.HULL_SLAG_MAX_SIZE, 0.001, "never larger than the cap.")
 	scars.clear_scars()
 	assert_eq(scars.get_slag_count(), 0, "A repair clears it.")
+
+
+func test_slag_moves_with_its_scar_when_the_scar_gives_way():
+	var scars = _scars()
+	for i in range(scars.get_scar_capacity()):
+		scars.add_scar(Vector3(i * 10.0, 0, 0), Vector3.UP, Vector3.DOWN, 6.0)
+	scars.set_slag_count(scars.get_slag_capacity())
+	var oldest_slot := 0
+	var slag_on_oldest := -1
+	for k in range(scars.get_slag_count()):
+		if scars.get_slag_scar(k) == oldest_slot:
+			slag_on_oldest = k
+	if slag_on_oldest < 0:
+		pending("No slag on the oldest scar at this capacity")
+		return
+	scars.add_scar(Vector3(0, 0, 500), Vector3.UP, Vector3.DOWN, 6.0)  # Takes the oldest scar's slot
+	var moved: Transform = scars.get_slag_transform(slag_on_oldest)
+	assert_lt(moved.origin.distance_to(scars.get_scar_transform(oldest_slot).origin), 2.0, "The slag sits on the new scar, not on bare plating.")
+
+
+func test_scars_and_slag_are_one_mesh_each():
+	var scars = _scars()
+	for i in range(5):
+		scars.add_scar(Vector3(i * 10.0, 0, 0), Vector3.UP, Vector3.DOWN, 6.0)
+	scars.set_slag_count(3)
+	scars.flush()
+	assert_eq(scars.mesh.get_surface_count(), 1, "Every scar in one surface: one draw call")
+	var slag: MeshInstance = scars.get_node("Slag")
+	assert_eq(slag.mesh.get_surface_count(), 1, "and every slag blob in another.")
+	var template: int = HullScars.ScarMesh.get_mesh_arrays()[Mesh.ARRAY_VERTEX].size()
+	assert_eq(scars.get_vertex_count(), (5 + 3) * template)
+	scars.clear_scars()
+	assert_eq(scars.mesh.get_surface_count(), 0, "Nothing left to draw after a repair.")
+	assert_eq(slag.mesh.get_surface_count(), 0)
+
+
+func test_blob_vertices_carry_hit_time_seed_and_facing():
+	var data := Color(123.5, 0.25, 0.75, 2.0)
+	var blob: Array = HullScars._blob_arrays(Transform(Basis().scaled(Vector3(2, 0.7, 2)), Vector3(0, 5, 0)), data, 0.0)
+	assert_eq(blob[0].size(), blob[2].size())
+	for k in range(blob[0].size()):
+		assert_eq(blob[2][k], Vector2(123.5, 0.25))
+		assert_almost_eq(blob[3][k].r, 0.75, 0.0001)
+		assert_lt(abs(blob[0][k].y - 5.0), 0.36, "Placed: squashed to 0.7 high, at y 5")
+		assert_almost_eq(blob[1][k].length(), 1.0, 0.001, "with unit normals.")

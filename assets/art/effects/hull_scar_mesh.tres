@@ -4,5 +4,5 @@
 resource_name = "hull scar blob"
 radius = 0.5
 height = 1.0
-radial_segments = 12
-rings = 6
+radial_segments = 10
+rings = 4

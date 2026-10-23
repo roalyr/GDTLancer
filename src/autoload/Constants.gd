@@ -237,9 +237,13 @@ const HULL_SCAR_MERGE_SHARE = 0.5  # A hit within this share of a scar's size re
 const HULL_SCAR_REHEAT_GROWTH = 1.15  # A reheated scar grows by this factor, up to HULL_SCAR_MAX_SIZE
 const HULL_SCAR_COOL_TIME = 20.0  # s from the hit until the scar is cold char
 const HULL_SCAR_VISIBLE_DISTANCE = 1500.0  # m from the camera; farther scars are not drawn
+const HULL_SCAR_LUMP = 0.12  # Bumps on a scar's dome, as a share of its size
+const HULL_SCAR_REBUILD_INTERVAL = 0.1  # s; a ship's merged scar mesh is rebuilt at most this often
 # Slag (HullScars): lasting damage shows as small slag blobs on the scars that flare up again every
 # few seconds, as if re-igniting (timings in hull_slag_material.tres). More the more hull is lost.
-const HULL_SLAG_MAX = 28  # Per ship, at no hull left: one per 1/28 of the hull lost
+const HULL_SLAG_MAX = 56  # Per ship, at no hull left: one per 1/56 of the hull lost
+const HULL_SLAG_PER_SCAR = 2  # At most this many slag blobs on one scar
+const HULL_SLAG_LUMP = 0.25  # Bumps on a slag blob, as a share of its size
 const HULL_SLAG_SIZE_SHARE = 0.7  # A slag blob's size as a share of its scar's
 const HULL_SLAG_MAX_SIZE = 0.9  # m: never larger than this (a fresh hit's scar is about 1.3 m)
 
