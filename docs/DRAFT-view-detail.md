@@ -1,6 +1,6 @@
 # DRAFT: one view-detail rule for models, scars and effects
 
-This was written on mobile without Godot. Nothing has been parsed, run or looked at. Delete this note once the work is finished.
+This was written on mobile without Godot, then parsed and tested on PC (see the checklist); what is left needs a look in play. Delete this note once the work is finished.
 
 ## The problem
 Detail dropped off by a mix of unrelated rules:
@@ -41,7 +41,7 @@ Everything goes by **apparent size**, in five bands. An object's *screen share* 
 | Slag | 700 m | up to `VIEW_MID` (host) |
 | Smoulder spots | 2500 m | up to `VIEW_FAR` (host) |
 | Damage trails | 3000 m | up to `VIEW_FAR` (host) |
-| Hit light | 2000 m | up to `VIEW_FAR` (the body hit) |
+| Hit light | 2000 m | up to `VIEW_FAR` (the body hit, and the light's own 40 m reach) |
 | Tether rope simulation | 1500 m | up to `VIEW_FAR` (the holding ship) |
 | Rock dust | 2500 m | up to `VIEW_FAR` (its own size, 8 m) |
 
@@ -90,14 +90,13 @@ Everything goes by **apparent size**, in five bands. An object's *screen share* 
   - `test_screen_space.gd` removed.
 
 ## PC checklist
-- [ ] Everything parses. `grep` for any leftover use of the removed constants in scenes and tools.
-- [ ] Tests pass.
-- [ ] **LODs at normal zoom feel as before:** ships and rocks switch about where they did. Check the polygon count by a rock field.
+- [x] Everything parses. No leftover use of the removed constants in scenes, tools or shaders.
+- [x] Tests pass (276).
+- [ ] **LODs at normal zoom feel as before:** ships and rocks switch about where they did.
+  - Measured by the home station (`perf_ablation.gd`): ships draw fewer vertices than on `73f8516` (232k against 257k with rocks hidden), but **rocks draw about half again as many (414k against 273k)**, since they reach LOD3 at 36 radii instead of 25. Frame time did not suffer on the PC. If it shows on phones, `LOD_LEVEL_BY_BAND_DENSE` cannot move LOD3 nearer than 12 radii, so the MID threshold (`VIEW_BAND_SHARES[2]`, 0.04 → about 0.057) is the knob; that also brings ship LOD2 and slag in to about 300 m.
 - [ ] **Full zoom on a ship 10–20 km out:** scars, slag (if close enough), embers and trails appear together with the higher LOD, and go together when you zoom back out. No visible delay while zooming.
 - [ ] **No band flicker** while orbiting at a threshold distance. If there is, raise `VIEW_BAND_HYSTERESIS`.
-- [ ] **Hit lights:** big rocks reach `VIEW_FAR` out to about 33 km, so hits on far rocks may take light slots (`HIT_FX_MAX_LIGHTS` = 4, first come) from hits nearby. If that happens:
-  - give rocks a separate light band (for example `VIEW_MID`); or
-  - let near hits take a slot from far ones.
+- [x] **Hit lights:** big rocks reach `VIEW_FAR` out to about 33 km, so hits on far rocks would take light slots from hits nearby. Fixed: a hit lights only while its light's own reach (40 m) is within `HIT_FX_LIGHT_MAX_BAND` too, about 4.4 km unzoomed.
 - [ ] **Light ships losing scars and embers from about 1.3 km** (was 1.5–3 km): judge in play. If it's too soon, move the four FAR thresholds down (`VIEW_BAND_SHARES[3]`) or set those consumers to `VIEW_DOT` with their shown budgets as the limit.
 - [ ] **Rock dust from 880 m** (was 2.5 km): if it's missed, raise `ROCK_DUST_RADIUS` or allow `VIEW_DOT`.
 - [ ] **Perf:** one ViewDetail per ship and rock replaces the per-part camera checks (MeshLod, HullScars, each smoulder spot and trail). `ViewDetail._process` still runs each frame to compare the camera FOV: check its cost in a full sector. If it shows up, move the FOV check to a single place, for example the camera emitting a signal that all ViewDetails share.

@@ -1,6 +1,6 @@
 # DRAFT: chunked scar and slag meshes, zoom-aware detail
 
-This covers two drafts written on mobile without Godot: `c139b93` (merged meshes, more slag) and `0bd0ec5` (chunks, deferred builds, lighter slag). The zoom handling from `0bd0ec5` was replaced by view bands: see `docs/DRAFT-view-detail.md`. Nothing has been parsed, run or looked at. Delete this note once the work is finished.
+This covers two drafts written on mobile without Godot: `c139b93` (merged meshes, more slag) and `0bd0ec5` (chunks, deferred builds, lighter slag). The zoom handling from `0bd0ec5` was replaced by view bands: see `docs/DRAFT-view-detail.md`. Parsed and tested on PC (see the checklist); what is left needs a look in play. Delete this note once the work is finished.
 
 ## Why
 - **MultiMesh draw calls.** As far as we know, Godot 3's GLES2 renderer draws a MultiMesh **one instance per draw call**. A battered heavy ship would cost about 128 draw calls.
@@ -38,11 +38,10 @@ Replaced by view bands in the next draft: see `docs/DRAFT-view-detail.md`. `Scre
   Surfaces are added uncompressed (`compress_flags = 0`) so hit times keep full precision. The lumps are baked on the CPU, and the shader's `lump` uniform is gone.
 
 ## PC checklist
-- [ ] Everything parses, and the tests pass, including the new ones:
+- [x] Everything parses, and the tests pass, including the new ones (one fix: `seed` is a GDScript builtin):
   - `test_hull_scars.gd`: chunks, only-its-chunk rebuild, hidden ships, slag placement, vertex data;
-  - `test_screen_space.gd`.
-- [ ] `SphereMesh.get_mesh_arrays()` works where the tests run. If the tests run headless with a dummy renderer and it returns nothing, ship both templates as ArrayMesh `.tres` files.
-- [ ] **Draw calls:** with several battered ships close by, check the render monitor on `73f8516` against this. Expect 2–12 per scarred ship in view.
+- [x] `SphereMesh.get_mesh_arrays()` works where the tests run (headless, GLES2). If the tests run headless with a dummy renderer and it returns nothing, ship both templates as ArrayMesh `.tres` files.
+- [x] **Draw calls:** `tools/perf_ablation.gd mode=base` (battle by the home station): 42 draw calls against 127 on `73f8516`, frame median 9.3 ms against 10.0 ms. With rocks hidden: 35 against 87.
 - [ ] **Rebuild cost during sustained fire on a heavy:** check the FrameProfiler. Expect at most about 50 KB per rebuild, 10 times a second.
 - [ ] **Looks unchanged:** lumps, cooling over 20 s, slag flaring every 5–10 s (each blob on its own period, from `UV2.y`), dither and posterize.
 - [ ] **Mobile GPU:** `UV2` and `COLOR` arrive as full floats. If cooling looks stepped after long sessions, something is compressing them or lowering their precision.

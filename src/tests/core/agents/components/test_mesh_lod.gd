@@ -75,7 +75,7 @@ func test_lod_surfaces_take_the_material_of_the_same_name():
 		var material := SpatialMaterial.new()
 		hull.set_surface_material(surface, material)
 		assigned[MeshLod.material_key(hull.mesh.surface_get_material(surface))] = material
-	var lod = MeshLod.attach(root, 12.0)[0]
+	var lod = MeshLod.attach(root, null)[0]
 	var lod2_hull: MeshInstance = lod.levels[2].get_node("Hull joined")
 	assert_lt(lod2_hull.mesh.get_surface_count(), hull.mesh.get_surface_count(), "This level lost a material (the small glow strips)")
 	for surface in range(lod2_hull.mesh.get_surface_count()):

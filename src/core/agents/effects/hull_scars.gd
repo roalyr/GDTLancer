@@ -264,7 +264,7 @@ static func _template(template_mesh: Mesh) -> Dictionary:
 static func _blob_arrays(template_mesh: Mesh, placed: Transform, data: Color, lump: float) -> Array:
 	var template: Dictionary = _template(template_mesh)
 	var normal_basis: Basis = placed.basis.inverse().transposed()  # Normals under a stretched basis
-	var seed: float = data.g * 100.0
+	var phase: float = data.g * 100.0
 	var vertices := PoolVector3Array()
 	var normals := PoolVector3Array()
 	var uv2 := PoolVector2Array()
@@ -279,7 +279,7 @@ static func _blob_arrays(template_mesh: Mesh, placed: Transform, data: Color, lu
 	for k in range(count):
 		var point: Vector3 = template.vertices[k]
 		var normal: Vector3 = template.normals[k]
-		var bump: float = sin(point.x * 9.0 + seed) * sin(point.z * 7.0 + seed * 1.7) * sin(point.y * 5.0 + seed * 2.3)
+		var bump: float = sin(point.x * 9.0 + phase) * sin(point.z * 7.0 + phase * 1.7) * sin(point.y * 5.0 + phase * 2.3)
 		vertices[k] = placed.xform(point + normal * bump * lump)
 		normals[k] = normal_basis.xform(normal).normalized()
 		uv2[k] = time_seed

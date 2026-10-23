@@ -8,6 +8,7 @@
 extends Spatial
 
 const ViewDetail = preload("res://src/core/agents/components/view_detail.gd")
+const ViewBand = preload("res://src/core/utils/view_band.gd")
 
 
 var damage: float = 0.0
@@ -58,11 +59,15 @@ func _ready() -> void:
 	call_deferred("_start_vapor")  # After the spawner has placed the effect
 
 
-# A hit lights its surroundings only while the body it is on shows in detail
-# (Constants.HIT_FX_LIGHT_MAX_BAND) and few other hits do.
-func should_light(_point: Vector3) -> bool:
+# A hit lights its surroundings only while both the body it is on and the light's own reach show in
+# detail (Constants.HIT_FX_LIGHT_MAX_BAND; the reach keeps hits on far, huge rocks from taking the
+# lights) and few other hits do.
+func should_light(point: Vector3) -> bool:
 	var camera = get_viewport().get_camera() if is_inside_tree() else null
 	if camera == null or ViewDetail.band_of_host(self) > Constants.HIT_FX_LIGHT_MAX_BAND:
+		return false
+	var reach: float = _light.omni_range if _light != null else 0.0
+	if ViewBand.band_of(camera, point, reach) > Constants.HIT_FX_LIGHT_MAX_BAND:
 		return false
 	return get_tree().get_nodes_in_group("hit_fx_light").size() < Constants.HIT_FX_MAX_LIGHTS
 

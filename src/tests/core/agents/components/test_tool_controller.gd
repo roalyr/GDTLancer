@@ -4,6 +4,7 @@ extends GutTest
 
 const AgentScript = preload("res://src/core/agents/agent.gd")
 const ViewBand = preload("res://src/core/utils/view_band.gd")
+const ViewDetail = preload("res://src/core/agents/components/view_detail.gd")
 const ToolControllerScript = preload("res://src/core/agents/components/tool_controller.gd")
 
 var shooter: RigidBody = null
@@ -429,6 +430,22 @@ func test_rock_hits_raise_dust_near_the_camera_only():
 	camera.global_transform.origin = Vector3(0, 0, gone * 1.5)
 	rock.register_hit(Vector3.ZERO, 6.0)
 	assert_eq(get_tree().get_nodes_in_group("rock_dust").size(), 1, "Out of sight, none.")
+
+
+func test_hits_on_far_huge_bodies_do_not_light_up():
+	var body = Spatial.new()
+	add_child_autofree(body)
+	var detail = ViewDetail.attach(body, 3000.0)  # A rock this big stays CLOSE from far away
+	var camera = Camera.new()
+	add_child_autofree(camera)
+	camera.current = true
+	var hit = load("res://scenes/prefabs/effects/laser_hit.tscn").instance()
+	hit.damage = 10.0
+	body.add_child(hit)
+	assert_eq(detail.band, Constants.VIEW_CLOSE)
+	assert_true(hit.should_light(Vector3(0, 0, -100)), "A hit near the camera lights its surroundings,")
+	var gone: float = ViewBand.distance_leaving(Constants.HIT_FX_LIGHT_MAX_BAND, hit.get_node("Light").omni_range, camera.fov)
+	assert_false(hit.should_light(Vector3(0, 0, -gone * 1.5)), "but not where its light would be too small to see, however big the body.")
 
 
 # --- Tether cable ---
