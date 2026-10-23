@@ -1,9 +1,5 @@
 shader_type spatial;
-render_mode
-    blend_add,
-    cull_back,
-    unshaded,
-    depth_draw_opaque;
+render_mode blend_add, cull_back, depth_draw_opaque, unshaded;
 
 uniform vec4 albedo : hint_color = vec4(1.0);
 

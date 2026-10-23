@@ -7,7 +7,7 @@
 // Per vertex (the same for a whole blob): UV2.x = hit time (on the `now` clock), UV2.y = random
 // seed, COLOR.r = facing (1 head-on).
 shader_type spatial;
-render_mode unshaded, cull_back, shadows_disabled;
+render_mode cull_back, unshaded, shadows_disabled;
 
 uniform float now = 0.0;  // HullScars.clock(), set by HullScars while any scar is hot or slag is on
 uniform float cool_time = 20.0;  // s; Constants.HULL_SCAR_COOL_TIME / HULL_SLAG_COOL_TIME

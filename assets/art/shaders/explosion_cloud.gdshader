@@ -7,7 +7,7 @@
 //   stay hot longest, so the fire breaks up into patches as it cools.
 // - Opacity is dithered and posterized, so it bands like the nebulae and hit vapour.
 shader_type spatial;
-render_mode blend_mix, unshaded, cull_back, depth_draw_never, shadows_disabled;
+render_mode blend_mix, cull_back, depth_draw_never, unshaded, shadows_disabled;
 
 uniform float heat = 1.0;  // 1 just exploded .. 0 cold smoke
 uniform float opacity = 1.0;

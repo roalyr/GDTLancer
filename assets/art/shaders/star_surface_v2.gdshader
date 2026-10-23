@@ -1,12 +1,5 @@
 shader_type spatial;
-render_mode
-	vertex_lighting,
-	blend_mix,
-	cull_back,
-	unshaded,
-	specular_disabled,
-	ambient_light_disabled,
-	depth_draw_opaque;
+render_mode blend_mix, cull_back, depth_draw_opaque, unshaded;
 
 uniform vec4 rim_color : hint_color = vec4(1.0, 0.9, 0.4, 1.0);
 uniform vec4 overlay_color : hint_color = vec4(0.0, 0.0, 0.0, 1.0);

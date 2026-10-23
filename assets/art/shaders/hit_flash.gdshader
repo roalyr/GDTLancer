@@ -1,6 +1,6 @@
 // Hit flash sprite: additive soft disc, billboarded, never smaller than min_screen_height on screen.
 shader_type spatial;
-render_mode blend_add, unshaded, depth_draw_never, cull_disabled, shadows_disabled;
+render_mode blend_add, cull_disabled, depth_draw_never, unshaded, shadows_disabled;
 
 uniform vec4 tint : hint_color = vec4(1.0);
 uniform float intensity = 1.0;

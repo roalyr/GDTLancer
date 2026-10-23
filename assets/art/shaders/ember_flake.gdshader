@@ -1,7 +1,7 @@
 // Ember flake sprite: a small, crisp, additive flake of burning hull, like burning paper flaking
 // off. Billboarded, never smaller than min_screen_height on screen; each flake flickers on its own.
 shader_type spatial;
-render_mode blend_add, unshaded, depth_draw_never, cull_disabled, shadows_disabled;
+render_mode blend_add, cull_disabled, depth_draw_never, unshaded, shadows_disabled;
 
 uniform vec4 tint : hint_color = vec4(1.0);
 uniform float intensity = 1.0;

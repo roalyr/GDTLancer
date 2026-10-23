@@ -1,12 +1,5 @@
 shader_type spatial;
-render_mode
-	vertex_lighting,
-	blend_add,
-	cull_front,
-	unshaded,
-	specular_disabled,
-	ambient_light_disabled,
-	depth_draw_opaque;
+render_mode blend_add, cull_front, depth_draw_opaque, unshaded;
 
 uniform vec4 albedo : hint_color;
 uniform float rim_strength = 5.0;

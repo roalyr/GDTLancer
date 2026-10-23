@@ -1,12 +1,5 @@
 shader_type spatial;
-render_mode
-	vertex_lighting,
-	blend_add,
-	cull_front,
-	unshaded,
-	specular_disabled,
-	ambient_light_disabled,
-	depth_draw_opaque;
+render_mode blend_add, cull_front, depth_draw_opaque, unshaded;
 
 uniform vec4 corona_color : hint_color = vec4(1.0, 0.9, 0.4, 1.0);
 uniform float strength_corona : hint_range(0.0, 1e2, 5e-4) = 40;

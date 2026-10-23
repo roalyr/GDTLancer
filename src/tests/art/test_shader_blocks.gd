@@ -61,3 +61,10 @@ func test_no_shader_keeps_its_own_copy_of_shared_code():
 		var own: String = re.sub(_read(path), "", true)
 		for helper in ["float bayer8x8(", "float dither_posterize(", "scale_factor = pow(", "uniform float scale_start"]:
 			assert_false(helper in own, "%s: %s comes from a common block" % [path, helper])
+
+
+func test_every_shader_dithers_and_posterizes():
+	for path in _shaders():
+		var text := _read(path)
+		assert_true(_blocks(text).has("dither"), "%s carries the dither block" % path)
+		assert_true("dither_posterize" in text.split("// @end")[-1], "%s uses it" % path)
