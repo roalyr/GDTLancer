@@ -24,6 +24,18 @@ Patterns (main options in brackets; all take --seed, --size, --invert):
     hex        hexagon cells, filled in --tones or outlined (--count, --outline)
     triangles  triangle tiling in --tones (--count)
     grid       grid lines (--count, --duty: line width)
+    brush      brushstroke camo: long, ragged strokes along x, or y with --dir 0,1 (--scale, --stretch)
+    flecktarn  clustered dots of several tones (--cells: clusters, --count: dots per cluster, --duty)
+    lozenge    irregular polygons, each one tone (--cells)
+    rain       short dashes on a ground, rain camo (--cells: dashes, --stretch: length, --duty: width)
+    halftone   dots that swell and shrink over a smooth field (--count, --scale, --duty)
+    truchet    random quarter-arc tiles: meandering bands (--count, --duty: band width)
+    scales     overlapping fish scales, outlined (--count, --duty: outline)
+    herringbone  columns of diagonal stripes, alternating (--count: stripes, --zigzags: columns)
+    plaid      crossing bands in several tones, tartan-like (--count: bands per repeat)
+    waves      wavy stripes (--count, --zigzags: waves across, --depth, --duty)
+    rings      concentric rings on a grid (--count, --rings, --duty)
+    crosses    plus signs on a staggered grid (--count, --duty: arm width)
 
 --tones: the gray levels used, e.g. "0,1" (black and white) or "0,0.35,0.7,1". Noise patterns
 split their area evenly between the tones. --dir "a,b": stripe direction as whole numbers of
@@ -61,6 +73,19 @@ def value_noise(x, y, freq, rng):
     tx, ty = tx * tx * (3 - 2 * tx), ty * ty * (3 - 2 * ty)
     x0, y0 = ix % freq, iy % freq
     x1, y1 = (ix + 1) % freq, (iy + 1) % freq
+    a = lattice[y0, x0] * (1 - tx) + lattice[y0, x1] * tx
+    b = lattice[y1, x0] * (1 - tx) + lattice[y1, x1] * tx
+    return a * (1 - ty) + b * ty
+
+
+def value_noise2(x, y, fx, fy, rng):
+    """Periodic value noise with fx by fy lattice cells: stretched when they differ."""
+    lattice = rng.random((fy, fx))
+    gx, gy = x * fx, y * fy
+    ix, iy = np.floor(gx).astype(int), np.floor(gy).astype(int)
+    tx, ty = gx - ix, gy - iy
+    tx, ty = tx * tx * (3 - 2 * tx), ty * ty * (3 - 2 * ty)
+    x0, y0, x1, y1 = ix % fx, iy % fy, (ix + 1) % fx, (iy + 1) % fy
     a = lattice[y0, x0] * (1 - tx) + lattice[y0, x1] * tx
     b = lattice[y1, x0] * (1 - tx) + lattice[y1, x1] * tx
     return a * (1 - ty) + b * ty
@@ -267,17 +292,158 @@ def p_grid(o, rng):
     return np.where(line, o.tones[-1], o.tones[0])
 
 
+def p_brush(o, rng):
+    x, y = grid(o.size)
+    a, b = parse_dir(o.dir)
+    if abs(b) > abs(a):  # Strokes along y: swap the axes
+        x, y = y, x
+    fx, fy = max(1, o.scale), max(1, int(round(o.scale * o.stretch)))
+    total, amp, norm = 0.0, 1.0, 0.0
+    for k in range(o.detail):
+        total = total + amp * value_noise2(x, y, fx * 2 ** k, fy * 2 ** k, rng)
+        norm += amp
+        amp *= 0.5
+    ragged = (fbm(x, y, 8, rng, 3) - 0.5) * o.warp  # Frayed stroke edges
+    return even_tones(total / norm + ragged, o.tones)
+
+
+def p_flecktarn(o, rng):
+    x, y = grid(o.size)
+    out = np.full(x.shape, o.tones[0], dtype=float)
+    radius = 0.02 * o.duty * 2
+    for _ in range(o.cells):
+        cx, cy = rng.random(2)
+        tone = o.tones[1 + rng.integers(len(o.tones) - 1)] if len(o.tones) > 1 else o.tones[0]
+        for _ in range(o.count):
+            px = (cx + rng.normal(0, 0.04)) % 1.0
+            py = (cy + rng.normal(0, 0.04)) % 1.0
+            r = radius * rng.uniform(0.6, 1.4)
+            dx = np.abs(x - px)
+            dy = np.abs(y - py)
+            dx, dy = np.minimum(dx, 1 - dx), np.minimum(dy, 1 - dy)
+            out = np.where(dx * dx + dy * dy < r * r, tone, out)
+    return out
+
+
+def p_lozenge(o, rng):
+    x, y = grid(o.size)
+    _, _, idx = voronoi(x, y, rng.random((o.cells, 2)))
+    return np.array(o.tones)[rng.integers(len(o.tones), size=o.cells)][idx]
+
+
+def p_rain(o, rng):
+    x, y = grid(o.size)
+    out = np.full(x.shape, o.tones[0], dtype=float)
+    length = 0.03 * o.stretch
+    width = 0.012 * o.duty * 2
+    for _ in range(o.cells):
+        px, py = rng.random(2)
+        dx = np.abs(x - px)
+        dy = np.abs(y - py)
+        dx, dy = np.minimum(dx, 1 - dx), np.minimum(dy, 1 - dy)
+        out = np.where((dx < width * 0.5) & (dy < length * rng.uniform(0.5, 1.0)), o.tones[-1], out)
+    return out
+
+
+def p_halftone(o, rng):
+    x, y = grid(o.size)
+    field = fbm(x, y, o.scale, rng, 3)
+    field = (field - field.min()) / max(field.max() - field.min(), 1e-6)
+    row = np.floor(y * o.count)
+    fx = np.mod(x * o.count + 0.5 * (row % 2), 1.0) - 0.5
+    fy = np.mod(y * o.count, 1.0) - 0.5
+    # Each dot's size from the field at its own centre, so dots stay round.
+    cx = (np.floor(x * o.count + 0.5 * (row % 2)) + 0.5 - 0.5 * (row % 2)) / o.count % 1.0
+    cy = (row + 0.5) / o.count
+    n = field.shape[0]
+    centre = field[(cy * n).astype(int) % n, (cx * n).astype(int) % n]
+    return np.where(np.sqrt(fx * fx + fy * fy) < 0.5 * o.duty * 1.4 * centre, o.tones[-1], o.tones[0])
+
+
+def p_truchet(o, rng):
+    x, y = grid(o.size)
+    flips = rng.integers(2, size=(o.count, o.count))
+    i, j = (np.floor(x * o.count).astype(int)) % o.count, (np.floor(y * o.count).astype(int)) % o.count
+    fx, fy = np.mod(x * o.count, 1.0), np.mod(y * o.count, 1.0)
+    fx = np.where(flips[j, i] == 1, 1 - fx, fx)  # Mirrored tiles turn the arcs the other way
+    d = np.minimum(np.abs(np.hypot(fx, fy) - 0.5), np.abs(np.hypot(1 - fx, 1 - fy) - 0.5))
+    return np.where(d < o.duty * 0.5, o.tones[-1], o.tones[0])
+
+
+def p_scales(o, rng):
+    x, y = grid(o.size)
+    u, v = x * o.count, y * o.count  # Rows every half unit: 2 * count rows wrap
+    out = np.full(x.shape, -1.0)
+    base = np.floor(v * 2).astype(int)
+    for k in (1, 0, -1):  # Higher rows lie over lower ones
+        j = base + k
+        shift = 0.5 * (j % 2)
+        cx = np.floor(u - shift) + 0.5 + shift
+        d = np.hypot(u - cx, v - j * 0.5)
+        inside = (out < 0) & (d < 0.5) & (v <= j * 0.5 + 0.02)
+        tone = np.where(d > 0.5 - o.duty * 0.5, o.tones[-1], o.tones[0])
+        out = np.where(inside, tone, out)
+    return np.where(out < 0, o.tones[0], out)
+
+
+def p_herringbone(o, rng):
+    x, y = grid(o.size)
+    cols = max(2, o.zigzags // 2 * 2)  # Even, so the alternation wraps
+    sign = np.where(np.floor(x * cols) % 2 == 0, 1, -1)
+    return np.where(np.mod(o.count * (x + sign * y), 1.0) < o.duty, o.tones[-1], o.tones[0])
+
+
+def p_plaid(o, rng):
+    x, y = grid(o.size)
+    widths = rng.uniform(0.3, 1.0, o.count)
+    edges = np.concatenate([[0.0], np.cumsum(widths) / widths.sum()])
+    tones = np.array(o.tones)[rng.integers(len(o.tones), size=o.count)]
+
+    def bands(t):
+        k = np.clip(np.searchsorted(edges, t, side="right") - 1, 0, o.count - 1)
+        return tones[k]
+    return (bands(x) + bands(y)) * 0.5
+
+
+def p_waves(o, rng):
+    x, y = grid(o.size)
+    v = o.count * y + o.depth * 0.5 * np.sin(2 * np.pi * o.zigzags * x)
+    return np.where(np.mod(v, 1.0) < o.duty, o.tones[-1], o.tones[0])
+
+
+def p_rings(o, rng):
+    x, y = grid(o.size)
+    fx = np.mod(x * o.count, 1.0) - 0.5
+    fy = np.mod(y * o.count, 1.0) - 0.5
+    d = np.hypot(fx, fy) * 2  # 0 at the centre, 1 at the cell's edge midpoints
+    ring = np.mod(d * o.rings, 1.0) < o.duty
+    return np.where(ring & (d < 1.0), o.tones[-1], o.tones[0])
+
+
+def p_crosses(o, rng):
+    x, y = grid(o.size)
+    row = np.floor(y * o.count)
+    fx = np.abs(np.mod(x * o.count + 0.5 * (row % 2), 1.0) - 0.5)
+    fy = np.abs(np.mod(y * o.count, 1.0) - 0.5)
+    arm, reach = o.duty * 0.25, 0.32
+    cross = ((fx < arm) & (fy < reach)) | ((fy < arm) & (fx < reach))
+    return np.where(cross, o.tones[-1], o.tones[0])
+
+
 PATTERNS = {
     "camo": p_camo, "digital": p_digital, "splinter": p_splinter, "tiger": p_tiger,
     "dazzle": p_dazzle, "stripes": p_stripes, "chevrons": p_chevrons, "checker": p_checker,
     "diamonds": p_diamonds, "dots": p_dots, "hex": p_hex, "triangles": p_triangles, "grid": p_grid,
+    "brush": p_brush, "flecktarn": p_flecktarn, "lozenge": p_lozenge, "rain": p_rain,
+    "halftone": p_halftone, "truchet": p_truchet, "scales": p_scales, "herringbone": p_herringbone,
+    "plaid": p_plaid, "waves": p_waves, "rings": p_rings, "crosses": p_crosses,
 }
 
 DEFAULTS = dict(
     seed=1, size=512, tones="0,1", invert=False,
     scale=3, warp=0.35, detail=4, pixels=64,
     cells=24, stretch=3.0, angle=30.0,
-    count=6, dir="1,1", duty=0.5, zigzags=4, depth=1.0, outline=0.0,
+    count=6, dir="1,1", duty=0.5, zigzags=4, depth=1.0, outline=0.0, rings=3,
 )
 
 # The library: name -> (pattern, overrides). Names say what the pattern is; edit freely.
@@ -306,6 +472,38 @@ LIBRARY = {
     "hex_outline": ("hex", dict(count=8, outline=0.08)),
     "triangles_4tone": ("triangles", dict(count=6, tones="0,0.33,0.66,1")),
     "grid": ("grid", dict(count=8, duty=0.08)),
+    # Camouflage
+    "camo_woodland_soft_3tone": ("camo", dict(tones="0.15,0.5,0.85", scale=4, warp=0.5, seed=21)),
+    "camo_desert_2tone": ("camo", dict(tones="0.35,0.8", scale=3, warp=0.6, detail=5, seed=33)),
+    "camo_arctic_3tone": ("camo", dict(tones="0.6,0.85,1", scale=2, warp=0.4, seed=14)),
+    "camo_digital_fine_3tone": ("digital", dict(tones="0,0.5,1", scale=4, pixels=96, seed=17)),
+    "camo_digital_urban_4tone": ("digital", dict(tones="0.1,0.4,0.7,0.95", scale=5, pixels=64, warp=0.2, seed=23)),
+    "camo_splinter_fine_4tone": ("splinter", dict(tones="0,0.33,0.66,1", cells=48, stretch=2.5, angle=40, seed=19)),
+    "camo_brush_3tone": ("brush", dict(tones="0,0.5,1", scale=2, stretch=4.0, warp=0.25, seed=5)),
+    "camo_brush_vertical_2tone": ("brush", dict(tones="0,1", scale=3, stretch=5.0, dir="0,1", warp=0.3, seed=9)),
+    "camo_flecktarn_4tone": ("flecktarn", dict(tones="0.55,0,0.3,0.85", cells=70, count=14, duty=0.5, seed=8)),
+    "camo_flecktarn_sparse_3tone": ("flecktarn", dict(tones="1,0,0.5", cells=35, count=10, duty=0.7, seed=31)),
+    "camo_lozenge_4tone": ("lozenge", dict(tones="0,0.33,0.66,1", cells=40, seed=2)),
+    "camo_lozenge_large_3tone": ("lozenge", dict(tones="0,0.5,1", cells=14, seed=6)),
+    "camo_rain_2tone": ("rain", dict(tones="0.7,0.1", cells=420, stretch=1.0, duty=0.4, seed=4)),
+    "tiger_zebra": ("tiger", dict(count=9, dir="1,1", warp=0.4, duty=0.45, seed=15)),
+    "dazzle_bold": ("dazzle", dict(cells=6, count=4, seed=27)),
+    # Geometric
+    "halftone_dots": ("halftone", dict(count=20, scale=2, duty=0.9, seed=3)),
+    "halftone_coarse": ("halftone", dict(count=10, scale=3, duty=0.95, seed=13)),
+    "truchet_bands": ("truchet", dict(count=8, duty=0.3, seed=1)),
+    "truchet_thin": ("truchet", dict(count=12, duty=0.12, seed=2)),
+    "scales": ("scales", dict(count=6, duty=0.12)),
+    "herringbone": ("herringbone", dict(count=10, zigzags=8, duty=0.5)),
+    "plaid_4tone": ("plaid", dict(count=7, tones="0,0.33,0.66,1", seed=4)),
+    "plaid_2tone": ("plaid", dict(count=5, tones="0,1", seed=10)),
+    "waves": ("waves", dict(count=8, zigzags=3, depth=1.0, duty=0.5)),
+    "waves_ripple": ("waves", dict(count=14, zigzags=6, depth=0.5, duty=0.3)),
+    "rings_target": ("rings", dict(count=4, rings=3, duty=0.5)),
+    "crosses": ("crosses", dict(count=8, duty=0.5)),
+    "stripes_wide_bands": ("stripes", dict(count=3, dir="1,2", duty=0.35)),
+    "chevrons_bold": ("chevrons", dict(count=3, zigzags=2, depth=1.0, duty=0.5)),
+    "hex_large_outline": ("hex", dict(count=4, outline=0.05)),
 }
 
 
