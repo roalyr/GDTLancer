@@ -10,7 +10,7 @@ radial_segments = 8
 rings = 1
 
 [sub_resource type="CubeMesh" id=2]
-size = Vector3( 2.0, 0.18, 0.35 )
+size = Vector3( 2, 0.18, 0.35 )
 
 [node name="HarpoonHook" type="Spatial"]
 

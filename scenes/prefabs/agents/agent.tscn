@@ -1,48 +1,8 @@
-[gd_scene load_steps=10 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://src/core/agents/agent.gd" type="Script" id=1]
-[ext_resource path="res://assets/models/ships/cargo-ship-1.glb" type="PackedScene" id=2]
 [ext_resource path="res://src/core/agents/components/movement_system.gd" type="Script" id=3]
 [ext_resource path="res://src/core/agents/components/navigation_system.gd" type="Script" id=4]
-[ext_resource path="res://assets/art/shaders/glow.gdshader" type="Shader" id=5]
-
-[sub_resource type="CapsuleShape" id=6]
-
-[sub_resource type="ShaderMaterial" id=7]
-shader = ExtResource( 5 )
-shader_param/albedo = null
-shader_param/rim_strength = 5.0
-shader_param/rim_exponent = 30.0
-shader_param/rim_power = 1.0
-shader_param/rim_floor = 0.1
-shader_param/rim_outer_strength = 3.0
-shader_param/rim_outer_exponent = 3.0
-shader_param/fade_distance_near = 100.0
-shader_param/fade_distance_far = 1000.0
-shader_param/fade_power = 0.2
-shader_param/scale_start = 100000.0
-shader_param/scale_end_mul = 100.0
-shader_param/scale_power = 1.0
-shader_param/scale_min = 0.5
-
-[sub_resource type="SphereMesh" id=4]
-
-[sub_resource type="ShaderMaterial" id=5]
-shader = ExtResource( 5 )
-shader_param/albedo = null
-shader_param/rim_strength = 5.0
-shader_param/rim_exponent = 30.0
-shader_param/rim_power = 1.0
-shader_param/rim_floor = 0.1
-shader_param/rim_outer_strength = 3.0
-shader_param/rim_outer_exponent = 3.0
-shader_param/fade_distance_near = 100.0
-shader_param/fade_distance_far = 1000.0
-shader_param/fade_power = 0.2
-shader_param/scale_start = 100000.0
-shader_param/scale_end_mul = 100.0
-shader_param/scale_power = 1.0
-shader_param/scale_min = 0.5
 
 [node name="AgentBody" type="RigidBody"]
 gravity_scale = 0.0
@@ -50,8 +10,6 @@ script = ExtResource( 1 )
 __meta__ = {
 "_edit_lock_": true
 }
-
-
 
 [node name="Model" type="Spatial" parent="."]
 __meta__ = {
@@ -68,4 +26,3 @@ script = ExtResource( 4 )
 transform = Transform( 0.94983, -0.0541661, 0.30804, -0.312766, -0.164495, 0.935478, 0, -0.984889, -0.173184, 0, 0, 0 )
 light_energy = 0.5
 editor_only = true
-

@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=2]
+[gd_scene load_steps=17 format=2]
 
 [ext_resource path="res://src/core/utils/editor_object.gd" type="Script" id=1]
 [ext_resource path="res://src/scenes/game_world/starsphere_slot.gd" type="Script" id=2]
@@ -7,16 +7,12 @@
 [ext_resource path="res://scenes/levels/sectors/sector_star_elace/station_elace_home.tscn" type="PackedScene" id=5]
 [ext_resource path="res://scenes/prefabs/celestial/asteroid.tscn" type="PackedScene" id=6]
 [ext_resource path="res://assets/models/rocks/rock_01_6k.glb" type="PackedScene" id=7]
-[ext_resource path="res://assets/models/rocks/rock_02_3k.glb" type="PackedScene" id=8]
 [ext_resource path="res://assets/models/rocks/rock_03_4k.glb" type="PackedScene" id=9]
 [ext_resource path="res://assets/models/rocks/rock_04_3k.glb" type="PackedScene" id=10]
 [ext_resource path="res://assets/models/rocks/rock_05_4k.glb" type="PackedScene" id=11]
 [ext_resource path="res://assets/models/rocks/rock_06_73k.glb" type="PackedScene" id=12]
 [ext_resource path="res://assets/models/rocks/rock_07_49k.glb" type="PackedScene" id=13]
-[ext_resource path="res://assets/models/rocks/rock_08_45k.glb" type="PackedScene" id=14]
-[ext_resource path="res://assets/models/rocks/rock_09_49k.glb" type="PackedScene" id=15]
 [ext_resource path="res://assets/models/rocks/rock_10_61k.glb" type="PackedScene" id=16]
-[ext_resource path="res://assets/models/rocks/rock_11_73k.glb" type="PackedScene" id=17]
 [ext_resource path="res://assets/models/rocks/rock_12_61k.glb" type="PackedScene" id=18]
 
 [sub_resource type="SpatialMaterial" id=1]
@@ -93,7 +89,6 @@ model = ExtResource( 11 )
 
 [node name="Asteroid08" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
 transform = Transform( 3.55609, -32.9328, 15.4884, 34.8323, -1.42866, -11.0351, 10.5437, 15.8271, 31.232, -366.543, 1578.86, 22212.3 )
-model = ExtResource( 8 )
 
 [node name="Asteroid09" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
 transform = Transform( 27.3465, 32.3746, -9.10047, -33.6293, 26.2962, -7.50655, -0.0856819, 11.7966, 41.7085, -596.993, 2353.16, 19750.7 )
@@ -101,11 +96,9 @@ model = ExtResource( 11 )
 
 [node name="Asteroid10" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
 transform = Transform( 15.7701, -13.4895, -25.8735, 5.84537, 30.2749, -12.2214, 28.5873, 1.25097, 16.7719, 696.677, 1340.72, 20935.7 )
-model = ExtResource( 8 )
 
 [node name="Asteroid11" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
 transform = Transform( 6.15088, 6.99733, 28.5723, 23.5696, -18.6383, -0.509423, 17.6015, 22.5128, -9.3025, 583.143, 1753.38, 21972.6 )
-model = ExtResource( 8 )
 
 [node name="Asteroid12" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
 transform = Transform( 79.3845, -138.672, -9.58842, -136.284, -79.8196, 26.0624, -27.359, -4.76153, -157.647, 431.326, 1519.48, 19846.2 )
@@ -129,7 +122,6 @@ model = ExtResource( 18 )
 
 [node name="Asteroid17" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
 transform = Transform( 32.9194, 1.12434, 2.05399, -1.11981, 32.9834, -0.107633, -2.05646, 0.0376678, 32.9384, 172.537, 2052.5, 18758.8 )
-model = ExtResource( 8 )
 
 [node name="Asteroid18" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
 transform = Transform( -9.62327, 5.93078, -33.4637, 26.729, 22.8006, -3.64561, 20.9893, -26.3165, -10.7, 326.591, 1925.35, 22223.4 )
@@ -177,7 +169,6 @@ model = ExtResource( 10 )
 
 [node name="Asteroid29" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
 transform = Transform( 6.1461, 5.02665, 34.5051, -19.631, 29.4556, -0.794353, -28.8182, -18.9931, 7.90004, 1139.08, 1210.81, 19834.7 )
-model = ExtResource( 8 )
 
 [node name="Asteroid30" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
 transform = Transform( 3.1527, 14.5639, -35.5558, 32.7383, 17.6563, 10.135, 20.1128, -31.0227, -10.9238, -1024.54, 1590.77, 19065.3 )

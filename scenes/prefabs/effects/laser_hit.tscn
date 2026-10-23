@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://src/core/agents/effects/laser_hit_effect.gd" type="Script" id=1]
 [ext_resource path="res://assets/art/effects/laser_hit_flash_material.tres" type="Material" id=2]

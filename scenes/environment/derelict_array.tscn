@@ -1,21 +1,21 @@
 [gd_scene load_steps=5 format=2]
 
 [sub_resource type="SpatialMaterial" id=1]
-albedo_color = Color( 0.25, 0.22, 0.2, 1.0 )
+albedo_color = Color( 0.25, 0.22, 0.2, 1 )
 metallic = 0.8
 roughness = 0.9
 
 [sub_resource type="CubeMesh" id=2]
 
+[sub_resource type="SpatialMaterial" id=4]
+albedo_color = Color( 0.15, 0.15, 0.18, 1 )
+metallic = 0.9
+roughness = 0.7
+
 [sub_resource type="CylinderMesh" id=3]
 top_radius = 0.5
 bottom_radius = 1.2
 height = 6.0
-
-[sub_resource type="SpatialMaterial" id=4]
-albedo_color = Color( 0.15, 0.15, 0.18, 1.0 )
-metallic = 0.9
-roughness = 0.7
 
 [node name="DerelictArray" type="Spatial"]
 

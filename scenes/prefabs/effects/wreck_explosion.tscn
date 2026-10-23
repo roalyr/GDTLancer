@@ -7,14 +7,14 @@
 [sub_resource type="QuadMesh" id=1]
 size = Vector2( 48, 48 )
 
-[sub_resource type="QuadMesh" id=5]
-size = Vector2( 1.44, 1.44 )
-
 [sub_resource type="SphereMesh" id=7]
 radius = 1.25
 height = 2.5
 radial_segments = 32
 rings = 16
+
+[sub_resource type="QuadMesh" id=5]
+size = Vector2( 1.44, 1.44 )
 
 [sub_resource type="Gradient" id=6]
 colors = PoolColorArray( 1, 0.9, 0.6, 1, 1, 0.25, 0.05, 0 )
@@ -41,6 +41,7 @@ mesh = SubResource( 7 )
 
 [node name="Fragments" type="CPUParticles" parent="."]
 material_override = ExtResource( 4 )
+emitting = false
 amount = 16
 lifetime = 2.5
 one_shot = true

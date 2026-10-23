@@ -27,6 +27,8 @@ shader_param/major_detail_flow = 0.01
 shader_param/rim_strength = 1.0
 shader_param/rim_exponent = 0.03
 shader_param/rim_intensity = 10.0
+shader_param/dither_strength = 0.5
+shader_param/posterization_levels = 5.0
 shader_param/scale_start = 3000.0
 shader_param/scale_end_mul = 25.0
 shader_param/scale_power = 1.0
@@ -53,6 +55,8 @@ shader_param/corona_floor_power = 5.0
 shader_param/corona_floor = 1.3
 shader_param/fade_distance_far = 50000.0
 shader_param/fade_power = 1.0
+shader_param/dither_strength = 0.5
+shader_param/posterization_levels = 20.0
 shader_param/displacement_power = 0.05
 shader_param/displacement_scale_xz = 0.95
 shader_param/displacement_scale_y = 0.9
@@ -80,6 +84,8 @@ shader_param/fade_distance_far = 2e+06
 shader_param/fade_power = 5.0
 shader_param/intensity = 1.0
 shader_param/exponent = 3.0
+shader_param/dither_strength = 0.5
+shader_param/posterization_levels = 24.0
 
 [sub_resource type="ShaderMaterial" id=28]
 shader = ExtResource( 7 )
@@ -90,6 +96,15 @@ shader_param/rim_power = 0.556
 shader_param/rim_floor = 0.357
 shader_param/rim_outer_strength = 2.49
 shader_param/rim_outer_exponent = 6.108
+shader_param/fade_distance_near = 100.0
+shader_param/fade_distance_far = 1000.0
+shader_param/fade_power = 1.0
+shader_param/dither_strength = 0.5
+shader_param/posterization_levels = 24.0
+shader_param/scale_start = 100000.0
+shader_param/scale_end_mul = 100.0
+shader_param/scale_power = 1.0
+shader_param/scale_min = 0.5
 
 [sub_resource type="SphereMesh" id=6]
 radial_segments = 16
