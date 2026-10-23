@@ -91,3 +91,18 @@ func test_each_tool_button_toggles_only_its_own_tool_on_a_valid_target():
 	controller._on_tool_button_pressed(0)
 	assert_false(tools.is_active(0), "Pressed again: ceases.")
 	controller.free()
+
+
+func test_double_click_on_a_target_issues_approach():
+	var Agent = load("res://src/core/agents/agent.gd")
+	var ship = Agent.new()
+	add_child_autofree(ship)
+	var controller = PlayerControllerScript.new()
+	controller.agent_body = ship
+	controller.agent_script = ship
+	watch_signals(EventBus)
+
+	controller.handle_target_double_click()
+
+	assert_signal_emitted(EventBus, "player_approach_pressed", "As the Approach button does.")
+	controller.free()

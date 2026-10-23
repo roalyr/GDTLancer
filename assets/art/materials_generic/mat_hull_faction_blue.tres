@@ -1,7 +1,7 @@
 [gd_resource type="ShaderMaterial" load_steps=3 format=2]
 
 [ext_resource path="res://assets/art/shaders/solid.gdshader" type="Shader" id=1]
-[ext_resource path="res://assets/art/textures/paint_patterns/hex_outline.png" type="Texture" id=2]
+[ext_resource path="res://assets/art/textures/paint_patterns/camo_desert_2tone.png" type="Texture" id=2]
 
 [resource]
 shader = ExtResource( 1 )
@@ -9,7 +9,7 @@ shader_param/albedo = Color( 0.117647, 0.117647, 0.231373, 1 )
 shader_param/emission = Color( 0, 0, 0, 1 )
 shader_param/emission_strength = 0.0
 shader_param/detail_paint_scale = 1.0
-shader_param/detail_paint_strength = -0.019
+shader_param/detail_paint_strength = 0.215
 shader_param/detail_paint_contrast = 1.0
 shader_param/detail_normal_scale = 1.0
 shader_param/detail_normal_strength = 0.0

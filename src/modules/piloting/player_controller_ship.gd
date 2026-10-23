@@ -358,6 +358,12 @@ func set_free_flight(active: bool) -> void:
 		_change_state("free_flight" if active else "default")
 
 
+# Double click on a target's bracket (PointerRouter has just selected it): approach it, as the
+# Approach button does.
+func handle_target_double_click():
+	_issue_approach_command()
+
+
 # Double click on empty space flies toward that point.
 func handle_world_double_click(click_pos: Vector2):
 	_clear_queued_jump()

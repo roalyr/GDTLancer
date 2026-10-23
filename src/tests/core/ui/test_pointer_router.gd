@@ -30,6 +30,7 @@ func apply_rotation_input(event):
 	controller = _make_mock("""extends Node
 var clicks = []
 var double_clicks = []
+var target_double_clicks = 0
 var free_flight_calls = []
 var blocked = false
 func is_pointer_input_blocked():
@@ -38,6 +39,8 @@ func handle_world_click(position):
 	clicks.append(position)
 func handle_world_double_click(position):
 	double_clicks.append(position)
+func handle_target_double_click():
+	target_double_clicks += 1
 func set_free_flight(active):
 	free_flight_calls.append(active)
 """, false)
@@ -119,6 +122,34 @@ func test_click_on_target_bracket_presses_nearest_bracket():
 	assert_signal_emitted(near, "pressed")
 	assert_signal_not_emitted(far, "pressed")
 	assert_eq(controller.clicks, [], "Clicking a bracket selects it instead of clearing the selection.")
+
+
+func test_double_click_on_target_bracket_approaches_it():
+	hud._pointer_router.double_click_ms = 60000  # Routing, not timing (see above)
+	var bracket = _add_bracket(WORLD_POINT, 1)
+	watch_signals(bracket)
+	for _i in range(2):
+		yield(_press(WORLD_POINT), "completed")
+		yield(_release(WORLD_POINT), "completed")
+	assert_signal_emit_count(bracket, "pressed", 2, "Both clicks select the target")
+	assert_eq(controller.target_double_clicks, 1, "and the second approaches it,")
+	assert_eq(controller.double_clicks, [], "not the point behind it.")
+
+
+func test_clicks_on_two_brackets_or_too_slow_do_not_approach():
+	hud._pointer_router.double_click_ms = 60000
+	var first = _add_bracket(WORLD_POINT, 1)
+	var second = _add_bracket(WORLD_POINT + Vector2(300, 0), 2)
+	yield(_press(WORLD_POINT), "completed")
+	yield(_release(WORLD_POINT), "completed")
+	yield(_press(WORLD_POINT + Vector2(300, 0)), "completed")
+	yield(_release(WORLD_POINT + Vector2(300, 0)), "completed")
+	assert_eq(controller.target_double_clicks, 0, "One click on each of two targets selects, nothing more.")
+	hud._pointer_router.double_click_ms = -1  # Every second click comes too late
+	for _i in range(2):
+		yield(_press(WORLD_POINT), "completed")
+		yield(_release(WORLD_POINT), "completed")
+	assert_eq(controller.target_double_clicks, 0, "Two slow clicks are two selections.")
 
 
 func test_drag_starting_on_target_bracket_rotates_camera():

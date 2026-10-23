@@ -11,7 +11,7 @@
 #    pointer crosses cannot steal or end the gesture.
 # 4. A world gesture that moves past Constants.POINTER_DRAG_THRESHOLD_PX rotates the camera. Otherwise it is a click:
 #    the target bracket nearest the pointer is selected, or the selection is cleared;
-#    a double click flies toward the point.
+#    a double click on a bracket also approaches its target; on empty space it flies toward the point.
 # 5. Free flight captures the mouse: all motion steers the camera, and a click leaves free flight
 #    so mouse-only and touch players are never stuck in it.
 # 6. Pause, focus loss or a release that never arrives (mouse mode change) cancels the gesture.
@@ -26,6 +26,8 @@ var _press_position: Vector2 = Vector2.ZERO
 var double_click_ms: int = Constants.POINTER_DOUBLE_CLICK_MS  # Second click within this: a double click
 const NO_CLICK_MS = -1000000000  # No click to pair with
 var _last_click_ms: int = NO_CLICK_MS
+var _last_bracket: Control = null  # Bracket of the last click, for a double click on it
+var _last_bracket_ms: int = NO_CLICK_MS
 
 
 func _init(hud: Control = null) -> void:
@@ -98,14 +100,24 @@ func _handle_captured_input(event: InputEvent) -> void:
 
 func _handle_world_click(position: Vector2) -> void:
 	var bracket = _hud.find_target_bracket_at(position) if is_instance_valid(_hud) else null
+	var now: int = OS.get_ticks_msec()
 	if is_instance_valid(bracket):
 		_last_click_ms = NO_CLICK_MS
-		bracket.emit_signal("pressed")
+		var is_double: bool = bracket == _last_bracket and now - _last_bracket_ms <= double_click_ms
+		bracket.emit_signal("pressed")  # Selects its target first, so the approach goes to it
+		if is_double:
+			_last_bracket = null
+			var target_controller = _get_player_controller()
+			if is_instance_valid(target_controller) and target_controller.has_method("handle_target_double_click"):
+				target_controller.handle_target_double_click()
+		else:
+			_last_bracket = bracket
+			_last_bracket_ms = now
 		return
+	_last_bracket = null
 	var controller = _get_player_controller()
 	if not is_instance_valid(controller):
 		return
-	var now: int = OS.get_ticks_msec()
 	if now - _last_click_ms <= double_click_ms:
 		_last_click_ms = NO_CLICK_MS
 		controller.handle_world_double_click(position)
