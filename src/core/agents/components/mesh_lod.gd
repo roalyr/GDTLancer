@@ -5,9 +5,12 @@
 # Levels switch at a number of object radii from the camera (a big rock keeps its detail further
 # out than a small ship): Constants.LOD_DISTANCE_RADII for low-poly models,
 # LOD_DISTANCE_RADII_DENSE for dense ones; with Constants.LOD_HYSTERESIS so they do not flicker.
+# Distances are view distances (ScreenSpace.view_distance): zooming in on a far model shows it in detail.
 # Lower levels take the original's materials and join group "lod_mesh".
 
 extends Node
+
+const ScreenSpace = preload("res://src/core/ui/screen_space.gd")
 
 var levels: Array = []  # Spatial roots, LOD0 (the original) first
 var radius: float = 10.0  # World radius of the object
@@ -118,7 +121,7 @@ func _process(delta: float) -> void:
 	var camera = get_viewport().get_camera()
 	if camera == null or not is_instance_valid(levels[0]):
 		return
-	show_level(level_for(camera.global_transform.origin.distance_to(levels[0].global_transform.origin), radius, level, levels.size(), distance_radii))
+	show_level(level_for(ScreenSpace.view_distance(camera, levels[0].global_transform.origin), radius, level, levels.size(), distance_radii))
 
 
 func show_level(new_level: int) -> void:

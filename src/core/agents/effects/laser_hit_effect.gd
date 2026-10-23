@@ -7,6 +7,8 @@
 
 extends Spatial
 
+const ScreenSpace = preload("res://src/core/ui/screen_space.gd")
+
 
 var damage: float = 0.0
 var outward: Vector3 = Vector3.UP  # World direction the vapour plume leaves the hull (toward the shooter).
@@ -59,7 +61,7 @@ func _ready() -> void:
 # A hit lights its surroundings only near the camera and while few other hits do.
 func should_light(point: Vector3) -> bool:
 	var camera = get_viewport().get_camera() if is_inside_tree() else null
-	if camera == null or camera.global_transform.origin.distance_to(point) > Constants.HIT_FX_LIGHT_DISTANCE:
+	if camera == null or ScreenSpace.view_distance(camera, point) > Constants.HIT_FX_LIGHT_DISTANCE:
 		return false
 	return get_tree().get_nodes_in_group("hit_fx_light").size() < Constants.HIT_FX_MAX_LIGHTS
 

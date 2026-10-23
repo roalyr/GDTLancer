@@ -1,16 +1,20 @@
 # HullScars: where hits landed on a ship's plating, a blob of molten hull glows white-orange, then
 # cools over Constants.HULL_SCAR_COOL_TIME to a dark lump that stays until the hull is repaired.
-# - One MeshInstance per ship, under its visual root (it moves and stretches with the model). All
-#   of a ship's scars are merged into one ArrayMesh, so they are one draw call however many there
-#   are (GLES2 draws a MultiMesh one instance per draw call). Every blob is a copy of one squashed
-#   sphere (hull_scar_mesh.tres, used only as a template), placed and lumped on the CPU. Unshaded
-#   (no light passes). Up to Constants.HULL_SCAR_MAX_PER_SHIP, scaled by the ship's size
-#   (`size_factor`); the oldest gives way. Hidden beyond Constants.HULL_SCAR_VISIBLE_DISTANCE from
-#   the camera (checked every Constants.LOD_CHECK_INTERVAL while the ship has scars; Godot 3's
+# - One HullScars per ship, under its visual root (it moves and stretches with the model). Blobs
+#   are merged into chunk meshes of Constants.HULL_SCAR_CHUNK_BLOBS each (child MeshInstances,
+#   made as needed), so a ship costs a draw call per chunk in use, not per blob (GLES2 draws a
+#   MultiMesh one instance per draw call), and a change rebuilds only its chunk. Slots fill chunks
+#   in order, so new scars touch only the newest chunk. Unshaded (no light passes). Up to
+#   Constants.HULL_SCAR_MAX_PER_SHIP scars, scaled by the ship's size (`size_factor`); the oldest
+#   gives way.
+# - Every blob is a copy of a template sphere (hull_scar_mesh.tres; slag the lighter
+#   hull_slag_mesh.tres), placed and lumped on the CPU. A blob's vertices are worked out only when
+#   its chunk is rebuilt, and chunks are rebuilt only while shown, at most every
+#   Constants.HULL_SCAR_REBUILD_INTERVAL: hits on ships nobody sees cost only their placement.
+# - Shown within Constants.HULL_SCAR_VISIBLE_DISTANCE (slag: HULL_SLAG_VISIBLE_DISTANCE) of the
+#   camera, as view distances (ScreenSpace.view_distance): zooming in on a far ship shows its
+#   scars. Checked every Constants.LOD_CHECK_INTERVAL while the ship has scars (Godot 3's
 #   lod_max_distance does nothing).
-# - The mesh is rebuilt after changes, at most every Constants.HULL_SCAR_REBUILD_INTERVAL: each
-#   blob's vertices are worked out once (when it is placed, grown or reheated) and kept, so a
-#   rebuild only joins them and uploads.
 # - Each scar's placement comes from the hit (scar_transform()): up along the plating's normal,
 #   stretched along the beam on glancing hits, sunk part way in so the plating hides the rest.
 # - Cooling runs in the shader (hull_scar.gdshader): each blob's vertices carry its hit time, and
@@ -20,44 +24,46 @@
 # - Needs hit points on the plating: add_scar() only for hits on a hit surface (CollisionHull), never
 #   the convex hull (a scar there would float off the ship).
 # - Slag (set_slag_count()): lasting damage. Small blobs on the scars (up to
-#   Constants.HULL_SLAG_PER_SCAR each, newest scars first) that cool and flare up again every few
-#   seconds, as if re-igniting: a second merged mesh, child "Slag", with the same shader (relight
-#   on, hull_slag_material.tres). A slag blob belongs to its scar: when the scar gives way to a new
-#   one, or grows, the slag moves with it. Not saved: the count follows the hull lost.
+#   Constants.HULL_SLAG_PER_SCAR each, on the scars with the fewest, newest first) that cool and
+#   flare up again every few seconds, as if re-igniting: chunks under the child "Slag", same shader
+#   (relight on, hull_slag_material.tres). A slag blob belongs to its scar: when the scar gives way
+#   to a new one, or grows, the slag moves with it. Not saved: the count follows the hull lost.
 # - export_scars() / import_scars() keep the player's scars in the save (cold).
 # - Scars are kept in script arrays; nothing is read back from the renderer (headless runs have none).
 
-extends MeshInstance
+extends Spatial
 
+const ScreenSpace = preload("res://src/core/ui/screen_space.gd")
 const ScarMesh = preload("res://assets/art/effects/hull_scar_mesh.tres")
+const SlagMesh = preload("res://assets/art/effects/hull_slag_mesh.tres")
 const ScarMaterial = preload("res://assets/art/effects/hull_scar_material.tres")
 const SlagMaterial = preload("res://assets/art/effects/hull_slag_material.tres")
 
-const _TEMPLATE := {}  # "vertices", "normals", "indices" of the blob template (filled once)
-const _INDEX_CACHE := {}  # Blob count -> _indices_for(count), shared by every ship of a capacity
+const _TEMPLATES := {}  # Template mesh path -> {"vertices", "normals", "indices"} (filled once each)
+const _INDEX_CACHE := {}  # Template mesh path -> indices of a full chunk of its blobs
 
 var _capacity := 1  # Scars at most
 var _next := 0  # Slot the next new scar takes (round robin)
 var _count := 0  # Scars in use (slots 0.._count-1)
 var _placed: Array = []  # Per scar slot: its Transform in this node's space
 var _data: Array = []  # Per scar slot: Color(hit time, seed, facing, size)
-var _blobs: Array = []  # Per scar slot: its vertex arrays (_blob_arrays())
-var _indices := PoolIntArray()  # Triangles of _capacity blobs, one after another
+var _blobs: Array = []  # Per scar slot: its vertex arrays (_blob_arrays()), or null until its chunk is rebuilt
+var _chunks: Array = []  # Per scar chunk: its MeshInstance, or null until first needed
+var _dirty := {}  # Scar chunks to rebuild -> true
 var _hot_until := 0.0  # clock() when the latest scar is cold
 var _timer := 0.0  # s to the next camera distance check
-var _rebuild_timer := 0.0  # s until the meshes may be rebuilt again
-var _scars_dirty := false
-var _slag_dirty := false
+var _rebuild_timer := 0.0  # s until chunks may be rebuilt again
 
-var _slag: MeshInstance = null
+var _slag_root: Spatial = null  # "Slag": parent of the slag chunks, shown nearer than scars
 var _slag_capacity := 1
 var _slag_count := 0  # Slag blobs in use (slots 0.._slag_count-1)
 var _slag_scar: Array = []  # Per slag slot: the scar slot it sits on
 var _slag_jitter: Array = []  # Per slag slot: Vector2 offset across its scar (share of the scar's size)
 var _slag_data: Array = []  # Per slag slot: Color(start time, seed, facing, size)
 var _slag_placed: Array = []  # Per slag slot: its Transform in this node's space
-var _slag_blobs: Array = []  # Per slag slot: its vertex arrays
-var _slag_indices := PoolIntArray()
+var _slag_blobs: Array = []  # Per slag slot: its vertex arrays, or null until its chunk is rebuilt
+var _slag_chunks: Array = []
+var _slag_dirty := {}
 
 
 # Seconds on the clock the shader's `now` follows. Not the shader's TIME: that wraps every hour.
@@ -102,23 +108,22 @@ static func size_for_damage(damage: float) -> float:
 # slag capacity scale with it.
 func _init(size_factor: float = 1.0) -> void:
 	name = "HullScars"
-	cast_shadow = GeometryInstance.SHADOW_CASTING_SETTING_OFF
 	ScarMaterial.set_shader_param("cool_time", Constants.HULL_SCAR_COOL_TIME)
 	_capacity = int(max(1.0, round(Constants.HULL_SCAR_MAX_PER_SHIP * size_factor)))
-	_placed.resize(_capacity)
-	_data.resize(_capacity)
-	_blobs.resize(_capacity)
-	_indices = _indices_for(_capacity)
-	mesh = ArrayMesh.new()
-	_slag = MeshInstance.new()
-	_slag.name = "Slag"
-	_slag.cast_shadow = GeometryInstance.SHADOW_CASTING_SETTING_OFF
-	_slag.mesh = ArrayMesh.new()
+	for list in [_placed, _data, _blobs]:
+		list.resize(_capacity)
+	_chunks.resize(_chunk_count(_capacity))
 	_slag_capacity = int(max(1.0, round(Constants.HULL_SLAG_MAX * size_factor)))
 	for list in [_slag_scar, _slag_jitter, _slag_data, _slag_placed, _slag_blobs]:
 		list.resize(_slag_capacity)
-	_slag_indices = _indices_for(_slag_capacity)
-	add_child(_slag)
+	_slag_chunks.resize(_chunk_count(_slag_capacity))
+	_slag_root = Spatial.new()
+	_slag_root.name = "Slag"
+	add_child(_slag_root)
+
+
+static func _chunk_count(blobs: int) -> int:
+	return int(ceil(float(blobs) / Constants.HULL_SCAR_CHUNK_BLOBS))
 
 
 func _ready() -> void:
@@ -131,45 +136,95 @@ func _process(delta: float) -> void:
 		ScarMaterial.set_shader_param("now", now)  # Shared: one value for every ship, so setting it twice is harmless
 	if _slag_count > 0:
 		SlagMaterial.set_shader_param("now", now)  # Slag flares up for as long as it is there
-	_rebuild_timer -= delta
-	if _rebuild_timer <= 0.0 and (_scars_dirty or _slag_dirty):
-		flush()
 	_timer -= delta
 	if _timer <= 0.0:
 		_timer = Constants.LOD_CHECK_INTERVAL
-		var camera = get_viewport().get_camera()
-		visible = camera == null or camera.global_transform.origin.distance_to(global_transform.origin) <= Constants.HULL_SCAR_VISIBLE_DISTANCE
+		_update_shown()
+	_rebuild_timer -= delta
+	if _rebuild_timer <= 0.0 and visible:
+		_flush(true, _slag_root.visible)
 
 
-# Rebuilds the merged meshes now if anything changed (normally _process does, throttled).
+# Shows scars and slag by their view distance from the camera. Coming into view rebuilds what
+# changed while out of it at once.
+func _update_shown() -> void:
+	var camera = get_viewport().get_camera() if is_inside_tree() else null
+	var distance: float = ScreenSpace.view_distance(camera, global_transform.origin) if camera != null else 0.0
+	var was_shown: bool = visible
+	var slag_was_shown: bool = _slag_root.visible
+	visible = distance <= Constants.HULL_SCAR_VISIBLE_DISTANCE
+	_slag_root.visible = distance <= Constants.HULL_SLAG_VISIBLE_DISTANCE
+	if (visible and not was_shown) or (_slag_root.visible and not slag_was_shown):
+		_rebuild_timer = 0.0
+
+
+# Rebuilds every changed chunk now, shown or not (normally _process does, throttled and only while shown).
 func flush() -> void:
-	if _scars_dirty:
-		_build(mesh, _blobs, _indices, _count, ScarMaterial)
-		_scars_dirty = false
-	if _slag_dirty:
-		_build(_slag.mesh, _slag_blobs, _slag_indices, _slag_count, SlagMaterial)
-		_slag_dirty = false
-	_rebuild_timer = Constants.HULL_SCAR_REBUILD_INTERVAL
+	_flush(true, true)
 
 
-# Joins the first `count` blobs' vertex arrays into `target`'s one surface (none if count is 0).
-# `all_indices`: _indices_for() at least `count` blobs.
-static func _build(target: ArrayMesh, blobs: Array, all_indices: PoolIntArray, count: int, material: Material) -> void:
+func _flush(scars: bool, slag: bool) -> void:
+	if scars and not _dirty.empty():
+		for chunk in _dirty:
+			_build_chunk(chunk, false)
+		_dirty.clear()
+		_rebuild_timer = Constants.HULL_SCAR_REBUILD_INTERVAL
+	if slag and not _slag_dirty.empty():
+		for chunk in _slag_dirty:
+			_build_chunk(chunk, true)
+		_slag_dirty.clear()
+		_rebuild_timer = Constants.HULL_SCAR_REBUILD_INTERVAL
+
+
+# Rebuilds scar (or `slag`) chunk `chunk` from its blobs in use, working out the vertices of any
+# blob that changed since.
+func _build_chunk(chunk: int, slag: bool) -> void:
+	var size: int = Constants.HULL_SCAR_CHUNK_BLOBS
+	var start: int = chunk * size
+	var used: int = int(clamp((_slag_count if slag else _count) - start, 0, size))
+	var blobs: Array = _slag_blobs if slag else _blobs
+	if used == 0 and (_slag_chunks if slag else _chunks)[chunk] == null:
+		return  # Nothing there, nothing drawn yet
+	for i in range(start, start + used):
+		if blobs[i] == null:
+			if slag:
+				blobs[i] = _blob_arrays(SlagMesh, _slag_placed[i], _slag_data[i], Constants.HULL_SLAG_LUMP)
+			else:
+				blobs[i] = _blob_arrays(ScarMesh, _placed[i], _data[i], Constants.HULL_SCAR_LUMP)
+	var node: MeshInstance = _chunk_node(chunk, slag)
+	_build(node.mesh, blobs, start, used, SlagMesh if slag else ScarMesh, SlagMaterial if slag else ScarMaterial)
+
+
+# Scar (or `slag`) chunk `chunk`'s MeshInstance, made on first use.
+func _chunk_node(chunk: int, slag: bool) -> MeshInstance:
+	var chunks: Array = _slag_chunks if slag else _chunks
+	if chunks[chunk] == null:
+		var node := MeshInstance.new()
+		node.name = ("Slag%d" if slag else "Scars%d") % chunk
+		node.cast_shadow = GeometryInstance.SHADOW_CASTING_SETTING_OFF
+		node.mesh = ArrayMesh.new()
+		(_slag_root if slag else self).add_child(node)
+		chunks[chunk] = node
+	return chunks[chunk]
+
+
+# Joins blobs start..start+used-1's vertex arrays into `target`'s one surface (none if used is 0).
+static func _build(target: ArrayMesh, blobs: Array, start: int, used: int, template_mesh: Mesh, material: Material) -> void:
 	target.clear_surfaces()
-	if count <= 0:
+	if used <= 0:
 		return
 	var vertices := PoolVector3Array()
 	var normals := PoolVector3Array()
 	var uv2 := PoolVector2Array()
 	var colors := PoolColorArray()
-	for i in range(count):
+	for i in range(start, start + used):
 		var blob: Array = blobs[i]
 		vertices.append_array(blob[0])
 		normals.append_array(blob[1])
 		uv2.append_array(blob[2])
 		colors.append_array(blob[3])
-	var indices: PoolIntArray = all_indices
-	indices.resize(count * _template().indices.size())  # A copy, cut to the blobs in use
+	var indices: PoolIntArray = _chunk_indices(template_mesh)
+	indices.resize(used * _template(template_mesh).indices.size())  # A copy, cut to the blobs in use
 	var arrays := []
 	arrays.resize(Mesh.ARRAY_MAX)
 	arrays[Mesh.ARRAY_VERTEX] = vertices
@@ -181,36 +236,38 @@ static func _build(target: ArrayMesh, blobs: Array, all_indices: PoolIntArray, c
 	target.surface_set_material(0, material)
 
 
-# Triangle indices for `count` blobs one after another. Cached: slow in script.
-static func _indices_for(count: int) -> PoolIntArray:
-	if _INDEX_CACHE.has(count):
-		return _INDEX_CACHE[count]
-	var template: Dictionary = _template()
+# Triangle indices for a full chunk of `template_mesh` blobs, one after another. Cached.
+static func _chunk_indices(template_mesh: Mesh) -> PoolIntArray:
+	if _INDEX_CACHE.has(template_mesh.resource_path):
+		return _INDEX_CACHE[template_mesh.resource_path]
+	var template: Dictionary = _template(template_mesh)
 	var stride: int = template.vertices.size()
 	var indices := PoolIntArray()
-	for i in range(count):
+	for i in range(Constants.HULL_SCAR_CHUNK_BLOBS):
 		var base: int = i * stride
 		for index in template.indices:
 			indices.append(base + index)
-	_INDEX_CACHE[count] = indices
+	_INDEX_CACHE[template_mesh.resource_path] = indices
 	return indices
 
 
-# The blob template's vertices, normals and indices (hull_scar_mesh.tres: a unit-wide sphere).
-static func _template() -> Dictionary:
-	if _TEMPLATE.empty():
-		var arrays: Array = ScarMesh.get_mesh_arrays()
-		_TEMPLATE["vertices"] = arrays[Mesh.ARRAY_VERTEX]
-		_TEMPLATE["normals"] = arrays[Mesh.ARRAY_NORMAL]
-		_TEMPLATE["indices"] = arrays[Mesh.ARRAY_INDEX]
-	return _TEMPLATE
+# A template's vertices, normals and indices (a unit-wide sphere).
+static func _template(template_mesh: Mesh) -> Dictionary:
+	if not _TEMPLATES.has(template_mesh.resource_path):
+		var arrays: Array = template_mesh.get_mesh_arrays()
+		_TEMPLATES[template_mesh.resource_path] = {
+			"vertices": arrays[Mesh.ARRAY_VERTEX],
+			"normals": arrays[Mesh.ARRAY_NORMAL],
+			"indices": arrays[Mesh.ARRAY_INDEX],
+		}
+	return _TEMPLATES[template_mesh.resource_path]
 
 
-# One blob's vertex arrays [vertices, normals, uv2, colors] in this node's space: the template
+# One blob's vertex arrays [vertices, normals, uv2, colors] in this node's space: `template_mesh`
 # placed by `placed`, its dome lumped by `lump` (share of its size) from the seed in `data`
 # (Color(hit time, seed, facing, size)).
-static func _blob_arrays(placed: Transform, data: Color, lump: float) -> Array:
-	var template: Dictionary = _template()
+static func _blob_arrays(template_mesh: Mesh, placed: Transform, data: Color, lump: float) -> Array:
+	var template: Dictionary = _template(template_mesh)
 	var normal_basis: Basis = placed.basis.inverse().transposed()  # Normals under a stretched basis
 	var seed: float = data.g * 100.0
 	var vertices := PoolVector3Array()
@@ -262,9 +319,18 @@ func get_slag_capacity() -> int:
 	return _slag_capacity
 
 
-# Vertices in the merged scar and slag meshes once rebuilt (flush()).
+# Vertices of the scars and slag in use (what the chunk meshes hold once rebuilt).
 func get_vertex_count() -> int:
-	return (_count + _slag_count) * _template().vertices.size()
+	return _count * _template(ScarMesh).vertices.size() + _slag_count * _template(SlagMesh).vertices.size()
+
+
+# Chunk meshes with something to draw: the ship's draw calls for scars and slag.
+func get_draw_count() -> int:
+	var count := 0
+	for node in _chunks + _slag_chunks:
+		if node != null and node.mesh.get_surface_count() > 0:
+			count += 1
+	return count
 
 
 # Shows `count` slag blobs: at most get_slag_capacity() and Constants.HULL_SLAG_PER_SCAR per scar,
@@ -275,15 +341,15 @@ func set_slag_count(count: int) -> void:
 	if count == _slag_count:
 		return
 	var now: float = clock()
+	for k in range(count, _slag_count):  # Fewer: their chunks lose them
+		_slag_dirty[k / Constants.HULL_SCAR_CHUNK_BLOBS] = true
+	_slag_count = int(min(_slag_count, count))
 	while _slag_count < count:
-		var on_scar: int = _scar_with_fewest_slag()
-		_slag_scar[_slag_count] = on_scar
+		_slag_scar[_slag_count] = _scar_with_fewest_slag()
 		_slag_jitter[_slag_count] = Vector2(rand_range(-0.15, 0.15), rand_range(-0.15, 0.15))
 		_slag_data[_slag_count] = Color(now, randf(), 1.0, 0.0)
-		_seat_slag(_slag_count)
 		_slag_count += 1
-	_slag_count = count
-	_slag_dirty = true
+		_seat_slag(_slag_count - 1)
 	if _slag_count > 0:
 		SlagMaterial.set_shader_param("now", now)
 		set_process(true)
@@ -316,13 +382,12 @@ func _seat_slag(index: int) -> void:
 	var jitter: Vector2 = _slag_jitter[index]
 	var offset: Vector3 = placed.basis.x * jitter.x + placed.basis.z * jitter.y
 	offset += placed.basis.y * (0.5 - 0.25 * share)  # Up on its scar's dome (the mesh is 1 unit across), half sunk in it
-	var slag_placed := Transform(Basis(placed.basis.x * share, placed.basis.y * share, placed.basis.z * share), placed.origin + offset)
 	var data: Color = _slag_data[index]
 	data.a = scar_size * share
 	_slag_data[index] = data
-	_slag_placed[index] = slag_placed
-	_slag_blobs[index] = _blob_arrays(slag_placed, data, Constants.HULL_SLAG_LUMP)
-	_slag_dirty = true
+	_slag_placed[index] = Transform(Basis(placed.basis.x * share, placed.basis.y * share, placed.basis.z * share), placed.origin + offset)
+	_slag_blobs[index] = null
+	_slag_dirty[index / Constants.HULL_SCAR_CHUNK_BLOBS] = true
 
 
 # Moves the slag on scar slot `scar` with it (it was replaced or grew).
@@ -384,8 +449,8 @@ func _push(placed: Transform, data: Color) -> int:
 func _put(index: int, placed: Transform, data: Color) -> void:
 	_placed[index] = placed
 	_data[index] = data
-	_blobs[index] = _blob_arrays(placed, data, Constants.HULL_SCAR_LUMP)
-	_scars_dirty = true
+	_blobs[index] = null
+	_dirty[index / Constants.HULL_SCAR_CHUNK_BLOBS] = true
 	_reseat_slag_on(index)
 
 
@@ -427,11 +492,13 @@ func _warm(now: float) -> void:
 
 
 func clear_scars() -> void:
+	for chunk in range(_chunks.size()):
+		_dirty[chunk] = true
+	for chunk in range(_slag_chunks.size()):
+		_slag_dirty[chunk] = true
 	_count = 0
 	_next = 0
 	_slag_count = 0
-	_scars_dirty = true
-	_slag_dirty = true
 	flush()
 	set_process(false)
 

@@ -7,6 +7,8 @@
 
 extends Spatial
 
+const ScreenSpace = preload("res://src/core/ui/screen_space.gd")
+
 
 var outward: Vector3 = Vector3.UP
 var size_scale: float = 1.0
@@ -42,7 +44,7 @@ func _process(delta: float) -> void:
 		return
 	_check_timer = Constants.SMOULDER_CHECK_INTERVAL
 	var camera = get_viewport().get_camera()
-	var near: bool = camera != null and camera.global_transform.origin.distance_to(global_transform.origin) <= Constants.DAMAGE_TRAIL_VISIBLE_DISTANCE
+	var near: bool = camera != null and ScreenSpace.view_distance(camera, global_transform.origin) <= Constants.DAMAGE_TRAIL_VISIBLE_DISTANCE
 	if near and not is_shown() and get_tree().get_nodes_in_group("damage_trail_shown").size() < Constants.DAMAGE_TRAIL_MAX_SHOWN:
 		add_to_group("damage_trail_shown")
 	elif not near and is_shown():

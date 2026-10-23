@@ -6,7 +6,7 @@ extends GutTest
 const HullScars = preload("res://src/core/agents/effects/hull_scars.gd")
 
 
-func _scars() -> MeshInstance:
+func _scars() -> Spatial:
 	var scars = HullScars.new()
 	add_child_autofree(scars)
 	return scars
@@ -150,25 +150,52 @@ func test_slag_moves_with_its_scar_when_the_scar_gives_way():
 	assert_lt(moved.origin.distance_to(scars.get_scar_transform(oldest_slot).origin), 2.0, "The slag sits on the new scar, not on bare plating.")
 
 
-func test_scars_and_slag_are_one_mesh_each():
+func test_blobs_merge_into_chunks_one_draw_call_each():
 	var scars = _scars()
 	for i in range(5):
 		scars.add_scar(Vector3(i * 10.0, 0, 0), Vector3.UP, Vector3.DOWN, 6.0)
 	scars.set_slag_count(3)
 	scars.flush()
-	assert_eq(scars.mesh.get_surface_count(), 1, "Every scar in one surface: one draw call")
-	var slag: MeshInstance = scars.get_node("Slag")
-	assert_eq(slag.mesh.get_surface_count(), 1, "and every slag blob in another.")
+	assert_eq(scars.get_draw_count(), 2, "A few scars and slag: one chunk each")
 	var template: int = HullScars.ScarMesh.get_mesh_arrays()[Mesh.ARRAY_VERTEX].size()
-	assert_eq(scars.get_vertex_count(), (5 + 3) * template)
+	var slag_template: int = HullScars.SlagMesh.get_mesh_arrays()[Mesh.ARRAY_VERTEX].size()
+	assert_lt(slag_template, template, "Slag uses the lighter template")
+	assert_eq(scars.get_vertex_count(), 5 * template + 3 * slag_template)
+	for i in range(5, Constants.HULL_SCAR_CHUNK_BLOBS + 1):
+		scars.add_scar(Vector3(i * 10.0, 0, 0), Vector3.UP, Vector3.DOWN, 6.0)
+	scars.flush()
+	assert_eq(scars.get_draw_count(), 3, "One more scar than a chunk holds: a second scar chunk")
 	scars.clear_scars()
-	assert_eq(scars.mesh.get_surface_count(), 0, "Nothing left to draw after a repair.")
-	assert_eq(slag.mesh.get_surface_count(), 0)
+	assert_eq(scars.get_draw_count(), 0, "Nothing left to draw after a repair.")
+
+
+func test_a_new_scar_rebuilds_only_its_chunk():
+	var scars = _scars()
+	for i in range(Constants.HULL_SCAR_CHUNK_BLOBS + 1):
+		scars.add_scar(Vector3(i * 10.0, 0, 0), Vector3.UP, Vector3.DOWN, 6.0)
+	scars.flush()
+	var before: Array = scars._blobs[0]
+	scars.add_scar(Vector3(0, 0, 500), Vector3.UP, Vector3.DOWN, 6.0)  # Slot 17: the second chunk
+	assert_eq(scars._dirty.keys(), [1], "Only the newest chunk is marked")
+	scars.flush()
+	assert_eq(scars._blobs[0], before, "and the first chunk's blobs were not worked out again.")
+
+
+func test_hidden_ships_only_keep_placements():
+	var scars = _scars()
+	scars.visible = false  # As if beyond the view distance
+	scars.add_scar(Vector3.ZERO, Vector3.UP, Vector3.DOWN, 6.0)
+	scars._timer = 100.0  # No camera check this frame: stay hidden
+	scars._process(1.0)
+	assert_null(scars._blobs[0], "No vertices worked out for a ship nobody sees")
+	assert_eq(scars.get_scar_count(), 1, "but the scar is kept")
+	scars.flush()
+	assert_not_null(scars._blobs[0], "and built once asked for.")
 
 
 func test_blob_vertices_carry_hit_time_seed_and_facing():
 	var data := Color(123.5, 0.25, 0.75, 2.0)
-	var blob: Array = HullScars._blob_arrays(Transform(Basis().scaled(Vector3(2, 0.7, 2)), Vector3(0, 5, 0)), data, 0.0)
+	var blob: Array = HullScars._blob_arrays(HullScars.ScarMesh, Transform(Basis().scaled(Vector3(2, 0.7, 2)), Vector3(0, 5, 0)), data, 0.0)
 	assert_eq(blob[0].size(), blob[2].size())
 	for k in range(blob[0].size()):
 		assert_eq(blob[2][k], Vector2(123.5, 0.25))

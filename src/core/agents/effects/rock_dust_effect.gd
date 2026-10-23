@@ -5,6 +5,8 @@
 
 extends Spatial
 
+const ScreenSpace = preload("res://src/core/ui/screen_space.gd")
+
 
 var outward: Vector3 = Vector3.UP
 
@@ -14,7 +16,7 @@ onready var _dust: CPUParticles = $Dust
 # Whether a puff at `point` would be seen and fits the budget.
 static func is_wanted(tree: SceneTree, viewport: Viewport, point: Vector3) -> bool:
 	var camera = viewport.get_camera()
-	if camera == null or camera.global_transform.origin.distance_to(point) > Constants.ROCK_DUST_VISIBLE_DISTANCE:
+	if camera == null or ScreenSpace.view_distance(camera, point) > Constants.ROCK_DUST_VISIBLE_DISTANCE:
 		return false
 	return tree.get_nodes_in_group("rock_dust").size() < Constants.ROCK_DUST_MAX
 

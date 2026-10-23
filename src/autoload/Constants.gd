@@ -236,14 +236,16 @@ const HULL_SCAR_ROUND_STRETCH = 1.3  # Below this stretch a scar turns freely ab
 const HULL_SCAR_MERGE_SHARE = 0.5  # A hit within this share of a scar's size reheats it instead of adding one
 const HULL_SCAR_REHEAT_GROWTH = 1.15  # A reheated scar grows by this factor, up to HULL_SCAR_MAX_SIZE
 const HULL_SCAR_COOL_TIME = 20.0  # s from the hit until the scar is cold char
-const HULL_SCAR_VISIBLE_DISTANCE = 1500.0  # m from the camera; farther scars are not drawn
+const HULL_SCAR_VISIBLE_DISTANCE = 1500.0  # m view distance (ScreenSpace.view_distance: zoom counts); farther scars are not drawn
 const HULL_SCAR_LUMP = 0.12  # Bumps on a scar's dome, as a share of its size
-const HULL_SCAR_REBUILD_INTERVAL = 0.1  # s; a ship's merged scar mesh is rebuilt at most this often
+const HULL_SCAR_REBUILD_INTERVAL = 0.1  # s; a ship's changed scar and slag chunks are rebuilt at most this often
+const HULL_SCAR_CHUNK_BLOBS = 16  # Blobs merged into one chunk mesh (one draw call; a change rebuilds only its chunk)
 # Slag (HullScars): lasting damage shows as small slag blobs on the scars that flare up again every
 # few seconds, as if re-igniting (timings in hull_slag_material.tres). More the more hull is lost.
 const HULL_SLAG_MAX = 56  # Per ship, at no hull left: one per 1/56 of the hull lost
 const HULL_SLAG_PER_SCAR = 2  # At most this many slag blobs on one scar
 const HULL_SLAG_LUMP = 0.25  # Bumps on a slag blob, as a share of its size
+const HULL_SLAG_VISIBLE_DISTANCE = 700.0  # m view distance; slag is at most 0.9 m, so it goes before the scars
 const HULL_SLAG_SIZE_SHARE = 0.7  # A slag blob's size as a share of its scar's
 const HULL_SLAG_MAX_SIZE = 0.9  # m: never larger than this (a fresh hit's scar is about 1.3 m)
 
@@ -275,7 +277,7 @@ const HIT_FX_COOL_COLOR = Color(1.0, 0.45, 0.2)  # Flash colour of a weak hit
 const HIT_FX_HOT_COLOR = Color(1.0, 0.95, 0.88)  # Flash colour at HIT_FX_HOT_INTENSITY and above
 const HIT_FX_HOT_INTENSITY = 2.0
 const HIT_FX_FLASH_DURATION = 0.15  # s
-const HIT_FX_LIGHT_DISTANCE = 2000.0  # m from the camera; farther hits flash without lighting their surroundings
+const HIT_FX_LIGHT_DISTANCE = 2000.0  # m view distance (zoom counts); farther hits flash without lighting their surroundings
 const HIT_FX_LIGHT_LIFT = 6.0  # m the light sits off the contact point toward the shooter, clear of the full-detail mesh
 const HIT_FX_MAX_LIGHTS = 4  # Hits lighting their surroundings at once (GLES2: every light is another pass per object it touches)
 const HIT_FX_LIFETIME = 1.5  # s
@@ -298,17 +300,17 @@ const SMOULDER_MAX_PER_SHIP = 3  # The oldest spot gives way beyond this
 const SMOULDER_MERGE_DISTANCE = 2.0  # m on a fighter (scaled with ship size); a hit this close to a spot reheats it instead of adding one
 const EMBER_INSET_SHARE = 0.4  # Ember emitters (smoulder spots, damage trails) sit this share of the way from the hit point to the hull centre (hits land on the collision hull, outside the plating)
 const SMOULDER_WRECK_FACTOR = 2.0  # Wrecks smoulder this much longer
-const SMOULDER_VISIBLE_DISTANCE = 2500.0  # m from the camera; farther spots do not emit
+const SMOULDER_VISIBLE_DISTANCE = 2500.0  # m view distance (zoom counts); farther spots do not emit
 const SMOULDER_MAX_SHOWN = 12  # Spots emitting at once
 const SMOULDER_CHECK_INTERVAL = 0.25  # s between camera-distance checks per spot
 # Damage trails (DamageTrail): lasting, sparse ember trails on a hurt hull, one more per share of
 # hull lost, until repaired. They start where the latest hit landed.
 const DAMAGE_TRAIL_HULL_STEP = 0.25  # One trail per this share of hull lost (so 75% lost = 3)
 const DAMAGE_TRAIL_MAX = 3  # Per ship
-const DAMAGE_TRAIL_VISIBLE_DISTANCE = 3000.0  # m from the camera; farther trails do not emit
+const DAMAGE_TRAIL_VISIBLE_DISTANCE = 3000.0  # m view distance (zoom counts); farther trails do not emit
 const DAMAGE_TRAIL_MAX_SHOWN = 12  # Trails emitting at once
 # Rocks do not burn: a hit leaves a slow dust puff instead (RockDust).
-const ROCK_DUST_VISIBLE_DISTANCE = 2500.0  # m from the camera
+const ROCK_DUST_VISIBLE_DISTANCE = 2500.0  # m view distance (zoom counts)
 const ROCK_DUST_MAX = 6  # Puffs at once
 
 # Wreck explosion.
@@ -334,6 +336,11 @@ const EXPLOSION_PUFF_COOL_SHARE = 0.15  # Share of the lifetime over which the f
 
 # A model switches to LOD n+1 beyond LOD_DISTANCE_RADII[n] of its own radii from the camera:
 # at 15 radii it is ~70 px tall on a 743 px screen (70 degree view), at 40 ~25 px, at 100 ~10 px.
+# Every camera-distance threshold for detail (these, and the *_VISIBLE_DISTANCE and
+# HIT_FX_LIGHT_DISTANCE of effects and scars) is a view distance (ScreenSpace.view_distance): the
+# distance at a VIEW_REFERENCE_FOV_DEG field of view. Zoomed in (narrower), far objects count as
+# near and keep their detail; zoomed out (wider), near ones count as farther.
+const VIEW_REFERENCE_FOV_DEG = 70.0
 const LOD_DISTANCE_RADII = [15.0, 40.0, 100.0]  # Low-poly models (ships): keep detail long
 const LOD_DISTANCE_RADII_DENSE = [4.0, 10.0, 25.0]  # Dense meshes (rocks, tens of thousands of triangles): drop it early
 const LOD_HYSTERESIS = 0.1  # Share of a threshold to pass beyond before switching back, so levels do not flicker

@@ -8,6 +8,8 @@
 
 extends Spatial
 
+const ScreenSpace = preload("res://src/core/ui/screen_space.gd")
+
 
 var outward: Vector3 = Vector3.UP  # World direction the embers leave the hull, at spawn
 var heat: float = 1.0  # Hit intensity put into the spot (LaserHitEffect.intensity_for_damage)
@@ -52,7 +54,7 @@ func is_shown() -> bool:
 # Emits only near the camera, and while few other spots do.
 func _update_shown() -> void:
 	var camera = get_viewport().get_camera()
-	var near: bool = camera != null and camera.global_transform.origin.distance_to(global_transform.origin) <= Constants.SMOULDER_VISIBLE_DISTANCE
+	var near: bool = camera != null and ScreenSpace.view_distance(camera, global_transform.origin) <= Constants.SMOULDER_VISIBLE_DISTANCE
 	if near and not is_shown() and get_tree().get_nodes_in_group("hull_smoulder_shown").size() < Constants.SMOULDER_MAX_SHOWN:
 		add_to_group("hull_smoulder_shown")
 	elif not near and is_shown():
