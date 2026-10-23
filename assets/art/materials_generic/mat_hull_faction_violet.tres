@@ -1,9 +1,13 @@
-[gd_resource type="ShaderMaterial" load_steps=2 format=2]
+[gd_resource type="ShaderMaterial" load_steps=4 format=2]
 
-[ext_resource path="res://assets/art/shaders/solid_dither_no_alpha_no_texture_8x8.gdshader" type="Shader" id=1]
+[ext_resource path="res://assets/art/shaders/solid_dither_no_alpha_8x8.gdshader" type="Shader" id=1]
+[ext_resource path="res://assets/art/textures/sbs-noise_texture_pack-512x512/bw_noise/Cracks 2 - 512x512.png" type="Texture" id=2]
+[ext_resource path="res://assets/art/textures/sbs-noise_texture_pack-512x512/bw_noise/Super Perlin 9 - 512x512.png" type="Texture" id=3]
 
 [resource]
 shader = ExtResource( 1 )
+shader_param/damage_texture = ExtResource( 2 )
+shader_param/damage_noise = ExtResource( 3 )
 shader_param/albedo = Color( 0.64, 0.54, 0.86, 1 )
 shader_param/albedo_specular = Color( 0.84, 0.78, 0.97, 1 )
 shader_param/albedo_gloss = Color( 0.96, 0.93, 1, 1 )

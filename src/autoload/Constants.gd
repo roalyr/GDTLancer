@@ -273,7 +273,7 @@ const HIT_FX_HOT_COLOR = Color(1.0, 0.95, 0.88)  # Flash colour at HIT_FX_HOT_IN
 const HIT_FX_HOT_INTENSITY = 2.0
 const HIT_FX_FLASH_DURATION = 0.15  # s
 const HIT_FX_LIGHT_LIFT = 6.0  # m the light sits off the contact point toward the shooter, clear of the full-detail mesh
-const HIT_FX_MAX_LIGHTS = 4  # Hits lighting their surroundings at once (GLES2: every light is another pass per object it touches)
+const HIT_FX_MAX_LIGHTS = 10  # Hits lighting their surroundings at once (GLES2: every light is another pass per object it touches)
 const HIT_FX_LIFETIME = 1.5  # s
 const HIT_FX_MAX_VAPOR_FACTOR = 1.5  # Vapour count and size grow with intensity up to this many times the authored ones
 
