@@ -25,7 +25,7 @@
 #   Constants.HULL_SLAG_PER_SCAR each, on the scars with the fewest, newest first) that cool and
 #   flare up again every few seconds, as if re-igniting: chunks under the child "Slag", same shader
 #   (relight on, hull_slag_material.tres). A slag blob belongs to its scar: when the scar gives way
-#   to a new one, or grows, the slag moves with it. Not saved: the count follows the hull lost.
+#   to a new one, the slag moves with it. Not saved: the count follows the hull lost.
 # - export_scars() / import_scars() keep the player's scars in the save (cold).
 # - Scars are kept in script arrays; nothing is read back from the renderer (headless runs have none).
 
@@ -385,7 +385,7 @@ func _seat_slag(index: int) -> void:
 	_slag_dirty[index / Constants.HULL_SCAR_CHUNK_BLOBS] = true
 
 
-# Moves the slag on scar slot `scar` with it (it was replaced or grew).
+# Moves the slag on scar slot `scar` with it (it was replaced).
 func _reseat_slag_on(scar: int) -> void:
 	for k in range(_slag_count):
 		if _slag_scar[k] == scar:
@@ -403,22 +403,14 @@ func get_scar_data(index: int) -> Color:
 
 
 # A scar where a shot along `shot_dir` hit the plating at `hit_pos` (world), with the plating's
-# `hit_normal` there. A hit close to a scar reheats and grows it instead. `surface` is the hit
-# surface that was hit: two short rays check the scar's ends against it, and a scar that would
-# hang over an edge shrinks to a small round one. Returns the scar's index.
+# `hit_normal` there. Every hit is a new scar, even on an old one: many small blobs, never one that
+# swells. `surface` is the hit surface that was hit: two short rays check the scar's ends against
+# it, and a scar that would hang over an edge shrinks to a small round one. Returns the scar's index.
 func add_scar(hit_pos: Vector3, hit_normal: Vector3, shot_dir: Vector3, damage: float, surface: CollisionObject = null) -> int:
 	var now: float = clock()
 	shot_dir = shot_dir.normalized()
 	var size: float = size_for_damage(damage)
 	var to_local: Transform = global_transform.affine_inverse()
-	var local_hit: Vector3 = to_local.xform(hit_pos)
-	var to_world_scale: float = global_transform.basis.get_scale().x  # Local units -> m (uniform scale)
-	for i in range(_count):
-		var data: Color = _data[i]
-		var scar_pos: Vector3 = _placed[i].origin
-		if scar_pos.distance_to(local_hit) * to_world_scale <= data.a * Constants.HULL_SCAR_MERGE_SHARE:
-			_reheat(i, data, now)
-			return i
 	var facing: float = clamp(abs(hit_normal.normalized().dot(shot_dir.normalized())), 0.0, 1.0)
 	var stretch: float = stretch_for(hit_normal, shot_dir)
 	if surface != null and not _fits(hit_pos, hit_normal, shot_dir, size * stretch, surface):
@@ -466,17 +458,6 @@ func _fits(hit_pos: Vector3, hit_normal: Vector3, shot_dir: Vector3, length: flo
 		if hit.empty() or hit.collider != surface:
 			return false
 	return true
-
-
-func _reheat(index: int, data: Color, now: float) -> void:
-	var growth: float = min(Constants.HULL_SCAR_REHEAT_GROWTH, Constants.HULL_SCAR_MAX_SIZE / max(data.a, 0.001))
-	var placed: Transform = _placed[index]
-	if growth > 1.0:
-		placed.basis = Basis(placed.basis.x * growth, placed.basis.y * growth, placed.basis.z * growth)
-		data.a *= growth
-	data.r = now
-	_put(index, placed, data)
-	_warm(now)
 
 
 func _warm(now: float) -> void:

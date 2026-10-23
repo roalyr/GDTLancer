@@ -75,15 +75,13 @@ func test_pool_keeps_the_newest_scars():
 	assert_almost_eq(float(kept.back()[9]), (Constants.HULL_SCAR_MAX_PER_SHIP + 4) * 10.0, 0.01, "newest last.")
 
 
-func test_a_hit_on_a_scar_reheats_and_grows_it():
+func test_a_hit_on_a_scar_adds_a_new_one_and_never_grows_the_old():
 	var scars = _scars()
 	scars.add_scar(Vector3.ZERO, Vector3.UP, Vector3.DOWN, 6.0)
 	var before: Color = scars.get_scar_data(0)
 	scars.add_scar(Vector3(0.1, 0, 0), Vector3.UP, Vector3.DOWN, 6.0)
-	assert_eq(scars.get_scar_count(), 1, "No second scar")
-	var after: Color = scars.get_scar_data(0)
-	assert_almost_eq(after.a, before.a * Constants.HULL_SCAR_REHEAT_GROWTH, 0.001, "it grew")
-	assert_true(after.r >= before.r, "and was hit again.")
+	assert_eq(scars.get_scar_count(), 2, "A second scar")
+	assert_eq(scars.get_scar_data(0), before, "and the first is as it was.")
 
 
 func test_export_import_round_trip_comes_back_cold():

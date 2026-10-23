@@ -15,7 +15,7 @@ Replaced by view bands in the next draft: see `docs/DRAFT-view-detail.md`. `Scre
 - **Spatial with chunk MeshInstances.** Scar chunks are `Scars0`, `Scars1`, …; slag chunks sit under the child `Slag` as `Slag0`, `Slag1`, ….
   - Each chunk merges up to `HULL_SCAR_CHUNK_BLOBS` (16) blobs and is one draw call.
   - Chunk nodes are made on first use.
-  - Slots fill chunks in order, so a new scar only rebuilds the newest chunk. A reheat or grow rebuilds that scar's chunk; a replaced scar also rebuilds its slag's chunk(s).
+  - Slots fill chunks in order, so a new scar only rebuilds the newest chunk. A replaced scar also rebuilds its slag's chunk(s). (Hits no longer reheat or grow a scar: every hit adds one.)
 - **Draw calls at full damage:**
 
   | Ship | Scar chunks | Slag chunks | Total |
@@ -29,7 +29,7 @@ Replaced by view bands in the next draft: see `docs/DRAFT-view-detail.md`. `Scre
   - lighter template `hull_slag_mesh.tres` (6×3 segments, 35 vertices; scars stay 10×4, 66 vertices);
   - shown up to `HULL_SLAG_MAX_BAND` (scars up to `HULL_SCAR_MAX_BAND`; see the view-detail note);
   - up to 56 per ship (112 on the heavy), at most 2 per scar, on the scars with the fewest, newest first;
-  - follows its scar when the scar is replaced or grows.
+  - follows its scar when the scar is replaced.
 - **Per-blob data moves to vertex attributes:**
   - **Hit time:** `UV2.x`.
   - **Seed:** `UV2.y`.
