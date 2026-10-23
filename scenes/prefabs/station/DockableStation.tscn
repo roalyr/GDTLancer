@@ -1,13 +1,13 @@
 [gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://src/scenes/game_world/station/dockable_station.gd" type="Script" id=1]
-[ext_resource path="res://assets/art/shaders/simple_solid_NLP.gdshader" type="Shader" id=2]
+[ext_resource path="res://assets/art/shaders/solid.gdshader" type="Shader" id=2]
 
 [sub_resource type="BoxShape" id=4]
 
 [sub_resource type="ShaderMaterial" id=5]
 shader = ExtResource( 2 )
-shader_param/paint_color = Color( 1, 1, 1, 1 )
+shader_param/albedo = Color( 1, 1, 1, 1 )
 shader_param/detail_paint_scale = 1.0
 shader_param/detail_paint_strength = 0.0
 shader_param/detail_paint_contrast = 1.0
@@ -20,6 +20,8 @@ shader_param/scale_start = 3000.0
 shader_param/scale_end_mul = 30.0
 shader_param/scale_power = 1.0
 shader_param/scale_min = 0.25
+shader_param/posterization_levels = 5.0
+shader_param/dither_strength = 0.5
 
 [sub_resource type="CubeMesh" id=2]
 size = Vector3( 10, 10, 10 )

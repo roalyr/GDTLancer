@@ -52,3 +52,12 @@ func test_every_copy_matches_the_common_block():
 			assert_true(common.has(name), "%s: a block named %s exists" % [path, name])
 			if common.has(name):
 				assert_eq(copies[name], common[name], "%s: its %s block is current (tools/sync_shader_blocks.py)" % [path, name])
+
+
+func test_no_shader_keeps_its_own_copy_of_shared_code():
+	var re := RegEx.new()
+	re.compile("(?ms)^// @common (\\w+)\\n.*?^// @end\\n")
+	for path in _shaders():
+		var own: String = re.sub(_read(path), "", true)
+		for helper in ["float bayer8x8(", "float dither_posterize(", "scale_factor = pow(", "uniform float scale_start"]:
+			assert_false(helper in own, "%s: %s comes from a common block" % [path, helper])
