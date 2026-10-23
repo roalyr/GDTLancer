@@ -1,11 +1,11 @@
 # RockDust (scenes/prefabs/effects/rock_dust.tscn): rocks do not burn, so a hit on one leaves only
-# a slow grey dust puff that hangs a few seconds. Only near the camera, and only a few at once
-# (Constants.ROCK_DUST_*). Looks are authored in the scene and its material.
+# a slow grey dust puff that hangs a few seconds. Only where it is large enough on screen to
+# see (its own view band), and only a few at once (Constants.ROCK_DUST_*). Looks are authored in the scene and its material.
 # Parent it to the rock, set `outward` (world), then its global transform (unscaled: rocks are scaled).
 
 extends Spatial
 
-const ScreenSpace = preload("res://src/core/ui/screen_space.gd")
+const ViewBand = preload("res://src/core/utils/view_band.gd")
 
 
 var outward: Vector3 = Vector3.UP
@@ -13,10 +13,11 @@ var outward: Vector3 = Vector3.UP
 onready var _dust: CPUParticles = $Dust
 
 
-# Whether a puff at `point` would be seen and fits the budget.
+# Whether a puff at `point` would be seen (its own apparent size: Constants.ROCK_DUST_MAX_BAND) and
+# fits the budget.
 static func is_wanted(tree: SceneTree, viewport: Viewport, point: Vector3) -> bool:
 	var camera = viewport.get_camera()
-	if camera == null or ScreenSpace.view_distance(camera, point) > Constants.ROCK_DUST_VISIBLE_DISTANCE:
+	if camera == null or ViewBand.band_of(camera, point, Constants.ROCK_DUST_RADIUS) > Constants.ROCK_DUST_MAX_BAND:
 		return false
 	return tree.get_nodes_in_group("rock_dust").size() < Constants.ROCK_DUST_MAX
 

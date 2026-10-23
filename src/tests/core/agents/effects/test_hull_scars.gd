@@ -4,6 +4,7 @@
 extends GutTest
 
 const HullScars = preload("res://src/core/agents/effects/hull_scars.gd")
+const ViewDetail = preload("res://src/core/agents/components/view_detail.gd")
 
 
 func _scars() -> Spatial:
@@ -183,14 +184,29 @@ func test_a_new_scar_rebuilds_only_its_chunk():
 
 func test_hidden_ships_only_keep_placements():
 	var scars = _scars()
-	scars.visible = false  # As if beyond the view distance
+	scars.show_band(Constants.VIEW_DOT)  # As if too small on screen
+	assert_false(scars.visible)
 	scars.add_scar(Vector3.ZERO, Vector3.UP, Vector3.DOWN, 6.0)
-	scars._timer = 100.0  # No camera check this frame: stay hidden
 	scars._process(1.0)
 	assert_null(scars._blobs[0], "No vertices worked out for a ship nobody sees")
 	assert_eq(scars.get_scar_count(), 1, "but the scar is kept")
 	scars.flush()
 	assert_not_null(scars._blobs[0], "and built once asked for.")
+
+
+func test_scars_and_slag_follow_the_ships_view_band():
+	var ship = Spatial.new()
+	add_child_autofree(ship)
+	var detail = ViewDetail.attach(ship, 15.0)
+	var scars = HullScars.new()
+	ship.add_child(scars)
+	assert_true(scars.visible, "A new ship shows everything until judged")
+	detail.band = Constants.HULL_SLAG_MAX_BAND + 1
+	detail.emit_signal("band_changed", detail.band)
+	assert_eq(scars.visible, Constants.HULL_SLAG_MAX_BAND + 1 <= Constants.HULL_SCAR_MAX_BAND, "Past the slag's band: scars as their band says")
+	assert_false(scars.get_node("Slag").visible, "and no slag.")
+	detail.emit_signal("band_changed", Constants.VIEW_DOT)
+	assert_false(scars.visible, "A dot shows no scars.")
 
 
 func test_blob_vertices_carry_hit_time_seed_and_facing():

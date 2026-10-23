@@ -3,6 +3,7 @@
 extends GutTest
 
 const AgentScript = preload("res://src/core/agents/agent.gd")
+const ViewBand = preload("res://src/core/utils/view_band.gd")
 const ToolControllerScript = preload("res://src/core/agents/components/tool_controller.gd")
 
 var shooter: RigidBody = null
@@ -424,7 +425,8 @@ func test_rock_hits_raise_dust_near_the_camera_only():
 	var dust = get_tree().get_nodes_in_group("rock_dust")[0]
 	assert_almost_eq(dust.global_transform.basis.get_scale(), Vector3.ONE, Vector3.ONE * 0.001, "at its own size, not the rock's")
 	assert_eq(rock.get_smoulder_count() if rock.has_method("get_smoulder_count") else 0, 0, "and rocks never smoulder.")
-	camera.global_transform.origin = Vector3(0, 0, Constants.ROCK_DUST_VISIBLE_DISTANCE + 500.0)
+	var gone: float = ViewBand.distance_leaving(Constants.ROCK_DUST_MAX_BAND, Constants.ROCK_DUST_RADIUS, camera.fov)
+	camera.global_transform.origin = Vector3(0, 0, gone * 1.5)
 	rock.register_hit(Vector3.ZERO, 6.0)
 	assert_eq(get_tree().get_nodes_in_group("rock_dust").size(), 1, "Out of sight, none.")
 

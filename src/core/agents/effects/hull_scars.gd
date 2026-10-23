@@ -11,10 +11,8 @@
 #   hull_slag_mesh.tres), placed and lumped on the CPU. A blob's vertices are worked out only when
 #   its chunk is rebuilt, and chunks are rebuilt only while shown, at most every
 #   Constants.HULL_SCAR_REBUILD_INTERVAL: hits on ships nobody sees cost only their placement.
-# - Shown within Constants.HULL_SCAR_VISIBLE_DISTANCE (slag: HULL_SLAG_VISIBLE_DISTANCE) of the
-#   camera, as view distances (ScreenSpace.view_distance): zooming in on a far ship shows its
-#   scars. Checked every Constants.LOD_CHECK_INTERVAL while the ship has scars (Godot 3's
-#   lod_max_distance does nothing).
+# - Shown while the ship's view band (ViewDetail, the same that picks its level of detail) is within
+#   Constants.HULL_SCAR_MAX_BAND (slag: HULL_SLAG_MAX_BAND): zooming in on a far ship shows its scars.
 # - Each scar's placement comes from the hit (scar_transform()): up along the plating's normal,
 #   stretched along the beam on glancing hits, sunk part way in so the plating hides the rest.
 # - Cooling runs in the shader (hull_scar.gdshader): each blob's vertices carry its hit time, and
@@ -33,7 +31,7 @@
 
 extends Spatial
 
-const ScreenSpace = preload("res://src/core/ui/screen_space.gd")
+const ViewDetail = preload("res://src/core/agents/components/view_detail.gd")
 const ScarMesh = preload("res://assets/art/effects/hull_scar_mesh.tres")
 const SlagMesh = preload("res://assets/art/effects/hull_slag_mesh.tres")
 const ScarMaterial = preload("res://assets/art/effects/hull_scar_material.tres")
@@ -51,7 +49,6 @@ var _blobs: Array = []  # Per scar slot: its vertex arrays (_blob_arrays()), or 
 var _chunks: Array = []  # Per scar chunk: its MeshInstance, or null until first needed
 var _dirty := {}  # Scar chunks to rebuild -> true
 var _hot_until := 0.0  # clock() when the latest scar is cold
-var _timer := 0.0  # s to the next camera distance check
 var _rebuild_timer := 0.0  # s until chunks may be rebuilt again
 
 var _slag_root: Spatial = null  # "Slag": parent of the slag chunks, shown nearer than scars
@@ -128,6 +125,10 @@ static func _chunk_count(blobs: int) -> int:
 
 func _ready() -> void:
 	set_process(_count > 0)  # Godot turns _process on at ready; only a scarred ship needs it
+	var detail = ViewDetail.of(get_parent())
+	if detail != null:
+		detail.connect("band_changed", self, "show_band")
+		show_band(detail.band)
 
 
 func _process(delta: float) -> void:
@@ -136,24 +137,18 @@ func _process(delta: float) -> void:
 		ScarMaterial.set_shader_param("now", now)  # Shared: one value for every ship, so setting it twice is harmless
 	if _slag_count > 0:
 		SlagMaterial.set_shader_param("now", now)  # Slag flares up for as long as it is there
-	_timer -= delta
-	if _timer <= 0.0:
-		_timer = Constants.LOD_CHECK_INTERVAL
-		_update_shown()
 	_rebuild_timer -= delta
 	if _rebuild_timer <= 0.0 and visible:
 		_flush(true, _slag_root.visible)
 
 
-# Shows scars and slag by their view distance from the camera. Coming into view rebuilds what
-# changed while out of it at once.
-func _update_shown() -> void:
-	var camera = get_viewport().get_camera() if is_inside_tree() else null
-	var distance: float = ScreenSpace.view_distance(camera, global_transform.origin) if camera != null else 0.0
+# Shows scars and slag for the ship's view band. Coming into view rebuilds what changed while out
+# of it at once.
+func show_band(band: int) -> void:
 	var was_shown: bool = visible
 	var slag_was_shown: bool = _slag_root.visible
-	visible = distance <= Constants.HULL_SCAR_VISIBLE_DISTANCE
-	_slag_root.visible = distance <= Constants.HULL_SLAG_VISIBLE_DISTANCE
+	visible = band <= Constants.HULL_SCAR_MAX_BAND
+	_slag_root.visible = band <= Constants.HULL_SLAG_MAX_BAND
 	if (visible and not was_shown) or (_slag_root.visible and not slag_was_shown):
 		_rebuild_timer = 0.0
 
@@ -487,7 +482,6 @@ func _reheat(index: int, data: Color, now: float) -> void:
 func _warm(now: float) -> void:
 	_hot_until = now + Constants.HULL_SCAR_COOL_TIME
 	ScarMaterial.set_shader_param("now", now)
-	_timer = 0.0
 	set_process(true)
 
 

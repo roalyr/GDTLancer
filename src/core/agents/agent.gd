@@ -31,6 +31,7 @@ var salvage: Dictionary = {}  # Wrecks only: commodity id -> units left to strip
 
 const CollisionHull = preload("res://src/core/agents/components/collision_hull.gd")
 const MeshLod = preload("res://src/core/agents/components/mesh_lod.gd")
+const ViewDetail = preload("res://src/core/agents/components/view_detail.gd")
 const ShipFit = preload("res://src/core/systems/ship_fit.gd")
 
 # --- Fit ---
@@ -118,7 +119,7 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 							child.transform = Transform.IDENTITY
 						call_deferred("add_child", child)
 				_measure_hull_bounds(ship_visual)
-				MeshLod.attach(ship_visual, get_apparent_radius())
+				MeshLod.attach(ship_visual, ViewDetail.attach(self, get_apparent_radius()))  # One view band for the model, scars and effects
 				CollisionHull.add_hit_surface(self, ship_visual)  # Where shots land: the plating, not the hull round it
 				_hull_scars = HullScars.new(interaction_radius / Constants.HULL_SCAR_REFERENCE_RADIUS)
 				ship_visual.add_child(_hull_scars)

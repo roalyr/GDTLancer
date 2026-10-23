@@ -19,16 +19,6 @@ static func ray_normal(camera: Camera, screen_point: Vector2) -> Vector3:
 	return camera.project_ray_normal(screen_point / _scale(camera))
 
 
-# How far `point` would be from `camera` at Constants.VIEW_REFERENCE_FOV_DEG to look the size it
-# looks now: the camera distance scaled by the zoom (field of view). Distance-gated detail (levels
-# of detail, scars, effects) uses this, so zooming in on a far object shows it in full detail.
-static func view_distance(camera: Camera, point: Vector3) -> float:
-	var distance: float = camera.global_transform.origin.distance_to(point)
-	if camera.projection != Camera.PROJECTION_PERSPECTIVE:
-		return distance
-	return distance * tan(deg2rad(camera.fov) * 0.5) / tan(deg2rad(Constants.VIEW_REFERENCE_FOV_DEG) * 0.5)
-
-
 # Screen units per camera-viewport pixel.
 static func _scale(camera: Camera) -> Vector2:
 	var viewport: Viewport = camera.get_viewport()

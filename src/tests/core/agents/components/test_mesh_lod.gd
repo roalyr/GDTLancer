@@ -1,23 +1,33 @@
-# Tests for MeshLod (levels of detail by camera distance; every level shares the hull's marks).
+# Tests for MeshLod (levels of detail by the host's view band).
 
 extends GutTest
 
 const MeshLod = preload("res://src/core/agents/components/mesh_lod.gd")
+const ViewDetail = preload("res://src/core/agents/components/view_detail.gd")
 const PHOENIX = "res://assets/models/ships/Phoenix_light.glb"
 
 
-func test_levels_follow_distance_in_object_radii_with_hysteresis():
-	var radius := 10.0
-	var first: float = Constants.LOD_DISTANCE_RADII[0] * radius
-	assert_eq(MeshLod.level_for(first * 0.5, radius, 0, 4), 0, "Close: full detail.")
-	assert_eq(MeshLod.level_for(first * 1.05, radius, 0, 4), 0, "Just past the threshold: holds until clearly past")
-	assert_eq(MeshLod.level_for(first * 1.2, radius, 0, 4), 1, "then drops a level.")
-	assert_eq(MeshLod.level_for(first * 0.95, radius, 1, 4), 1, "Coming back: holds until clearly inside")
-	assert_eq(MeshLod.level_for(first * 0.8, radius, 1, 4), 0, "then returns to full detail.")
-	assert_eq(MeshLod.level_for(1.0e9, radius, 0, 4), 3, "Far: the last level")
-	assert_eq(MeshLod.level_for(1.0e9, radius, 0, 2), 1, "never past the levels there are.")
-	assert_gt(MeshLod.level_for(first * 1.2, radius * 10.0, 0, 4), -1)
-	assert_eq(MeshLod.level_for(first * 1.2, radius * 10.0, 0, 4), 0, "A bigger object keeps its detail further out.")
+func test_levels_follow_the_view_band():
+	assert_eq(MeshLod.level_for_band(Constants.VIEW_CLOSE, 4), 0, "Close: full detail")
+	assert_eq(MeshLod.level_for_band(Constants.VIEW_DOT, 4), 3, "a dot: the last level,")
+	assert_eq(MeshLod.level_for_band(Constants.VIEW_DOT, 2), 1, "never past the levels there are.")
+	for band in range(Constants.VIEW_DOT):
+		assert_true(MeshLod.level_for_band(band + 1, 4) >= MeshLod.level_for_band(band, 4), "Smaller on screen never means more detail.")
+
+
+func test_levels_change_with_the_hosts_band():
+	var host = Spatial.new()
+	add_child_autofree(host)
+	var detail = ViewDetail.attach(host, 12.0)
+	var root = Spatial.new()
+	host.add_child(root)
+	root.add_child(load(PHOENIX).instance())
+	var lod = MeshLod.attach(root, detail)[0]
+	assert_eq(lod.level, 0, "Shown in full until judged")
+	detail.band = Constants.VIEW_FAR
+	detail.emit_signal("band_changed", detail.band)
+	assert_eq(lod.level, MeshLod.level_for_band(Constants.VIEW_FAR, 4))
+	assert_true(lod.levels[lod.level].visible)
 
 
 func test_finds_generated_lod_files_and_never_for_nebulas():
@@ -34,7 +44,7 @@ func test_attached_levels_show_one_at_a_time():
 	root.add_child(model)
 	var material: ShaderMaterial = load("res://assets/art/materials_generic/mat_engine_dark_alloy.tres")
 	model.get_node("Hull joined").material_override = material
-	var lods: Array = MeshLod.attach(root, 12.0)
+	var lods: Array = MeshLod.attach(root, null)
 	assert_eq(lods.size(), 1)
 	var lod = lods[0]
 	assert_eq(lod.levels.size(), 4, "LOD0 plus three.")
@@ -48,11 +58,10 @@ func test_attached_levels_show_one_at_a_time():
 
 
 func test_dense_meshes_never_keep_more_detail_than_low_poly_ones():
-	for radii in range(1, 300, 3):
-		var distance: float = radii * 100.0
-		var dense: int = MeshLod.level_for(distance, 100.0, 0, 4, Constants.LOD_DISTANCE_RADII_DENSE)
-		var low_poly: int = MeshLod.level_for(distance, 100.0, 0, 4)
-		assert_true(dense >= low_poly, "At %d radii: dense LOD%d, low-poly LOD%d" % [radii, dense, low_poly])
+	for band in range(Constants.VIEW_DOT + 1):
+		var dense: int = MeshLod.level_for_band(band, 4, Constants.LOD_LEVEL_BY_BAND_DENSE)
+		var low_poly: int = MeshLod.level_for_band(band, 4)
+		assert_true(dense >= low_poly, "Band %d: dense LOD%d, low-poly LOD%d" % [band, dense, low_poly])
 
 
 func test_lod_surfaces_take_the_material_of_the_same_name():

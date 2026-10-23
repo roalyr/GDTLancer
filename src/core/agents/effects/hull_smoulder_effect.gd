@@ -2,13 +2,14 @@
 # a while. For the first moments bright sparks spit out; then glowing flakes peel off, like burning
 # paper, until the spot goes out. Both are left in space (world coordinates), so a damaged ship that
 # manoeuvres trails a few ship lengths of embers. A hit near a spot reheats it (reheat()) instead of
-# adding another. Only spots near the camera, and only a few at once, emit (Constants.SMOULDER_*).
+# adding another. Only spots on ships shown in detail (their view band), and only a few at once, emit
+# (Constants.SMOULDER_*).
 # Looks are authored in the scene and its materials; this script times, scales and aims them.
 # Parent it to the ship body, set `outward` (world) and `heat`, then set its global position.
 
 extends Spatial
 
-const ScreenSpace = preload("res://src/core/ui/screen_space.gd")
+const ViewDetail = preload("res://src/core/agents/components/view_detail.gd")
 
 
 var outward: Vector3 = Vector3.UP  # World direction the embers leave the hull, at spawn
@@ -51,10 +52,10 @@ func is_shown() -> bool:
 	return is_in_group("hull_smoulder_shown")
 
 
-# Emits only near the camera, and while few other spots do.
+# Emits only while its ship's view band is within Constants.SMOULDER_MAX_BAND, and while few other spots do.
 func _update_shown() -> void:
 	var camera = get_viewport().get_camera()
-	var near: bool = camera != null and ScreenSpace.view_distance(camera, global_transform.origin) <= Constants.SMOULDER_VISIBLE_DISTANCE
+	var near: bool = camera != null and ViewDetail.band_of_host(self) <= Constants.SMOULDER_MAX_BAND  # Its ship's band
 	if near and not is_shown() and get_tree().get_nodes_in_group("hull_smoulder_shown").size() < Constants.SMOULDER_MAX_SHOWN:
 		add_to_group("hull_smoulder_shown")
 	elif not near and is_shown():

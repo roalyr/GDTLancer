@@ -1,13 +1,13 @@
 # LaserHitEffect (scenes/prefabs/effects/laser_hit.tscn): what a laser hit looks like in vacuum.
 # The beam itself is invisible, so only the hit point shows: a brief glowing flash and a puff of
-# vaporized hull material. The flash also lights its surroundings, but only near the camera and only
-# a few at a time (Constants.HIT_FX_LIGHT_*): GLES2 draws every lit object once more per light. Size, brightness and amount follow the damage dealt (never the size of
+# vaporized hull material. The flash also lights its surroundings, but only on bodies shown in detail
+# (their view band: Constants.HIT_FX_LIGHT_MAX_BAND) and only a few at a time (Constants.HIT_FX_*): GLES2 draws every lit object once more per light. Size, brightness and amount follow the damage dealt (never the size of
 # what was hit), so hits can be judged by eye; no damage shows nothing. Looks are authored in the scene and its materials; this script only
 # scales, fades and aims them. Parent it to the target body, then set its global position.
 
 extends Spatial
 
-const ScreenSpace = preload("res://src/core/ui/screen_space.gd")
+const ViewDetail = preload("res://src/core/agents/components/view_detail.gd")
 
 
 var damage: float = 0.0
@@ -58,10 +58,11 @@ func _ready() -> void:
 	call_deferred("_start_vapor")  # After the spawner has placed the effect
 
 
-# A hit lights its surroundings only near the camera and while few other hits do.
-func should_light(point: Vector3) -> bool:
+# A hit lights its surroundings only while the body it is on shows in detail
+# (Constants.HIT_FX_LIGHT_MAX_BAND) and few other hits do.
+func should_light(_point: Vector3) -> bool:
 	var camera = get_viewport().get_camera() if is_inside_tree() else null
-	if camera == null or ScreenSpace.view_distance(camera, point) > Constants.HIT_FX_LIGHT_DISTANCE:
+	if camera == null or ViewDetail.band_of_host(self) > Constants.HIT_FX_LIGHT_MAX_BAND:
 		return false
 	return get_tree().get_nodes_in_group("hit_fx_light").size() < Constants.HIT_FX_MAX_LIGHTS
 

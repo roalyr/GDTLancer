@@ -172,7 +172,6 @@ const TETHER_ROPE_HULL_PASSES = 3  # Of those, the last this many also keep the 
 const TETHER_ROPE_DAMPING = 0.97  # Share of a point's own motion (relative to the ships) kept per step
 const TETHER_ROPE_BUCKLE_NUDGE = 0.05  # m of random nudge per step on a fully slack cable, so it buckles
 const TETHER_RENDER_SUBDIVISIONS = 4  # Drawn segments per simulated one (a smooth curve through the points)
-const TETHER_ROPE_SIM_DISTANCE = 1500.0  # m from the camera; further cables are not simulated, just drawn straight
 const TETHER_LAUNCH_REACH_FACTOR = 1.25  # A hook still flying this far past the harpoon's max range has missed: winched back
 const TETHER_RETRACT_SPEED = 40.0  # m/s the winch pulls in a cable that has let go; the harpoon fires again once it is in
 const TETHER_CABLE_WIDTH = 0.35  # m
@@ -236,7 +235,6 @@ const HULL_SCAR_ROUND_STRETCH = 1.3  # Below this stretch a scar turns freely ab
 const HULL_SCAR_MERGE_SHARE = 0.5  # A hit within this share of a scar's size reheats it instead of adding one
 const HULL_SCAR_REHEAT_GROWTH = 1.15  # A reheated scar grows by this factor, up to HULL_SCAR_MAX_SIZE
 const HULL_SCAR_COOL_TIME = 20.0  # s from the hit until the scar is cold char
-const HULL_SCAR_VISIBLE_DISTANCE = 1500.0  # m view distance (ScreenSpace.view_distance: zoom counts); farther scars are not drawn
 const HULL_SCAR_LUMP = 0.12  # Bumps on a scar's dome, as a share of its size
 const HULL_SCAR_REBUILD_INTERVAL = 0.1  # s; a ship's changed scar and slag chunks are rebuilt at most this often
 const HULL_SCAR_CHUNK_BLOBS = 16  # Blobs merged into one chunk mesh (one draw call; a change rebuilds only its chunk)
@@ -245,7 +243,6 @@ const HULL_SCAR_CHUNK_BLOBS = 16  # Blobs merged into one chunk mesh (one draw c
 const HULL_SLAG_MAX = 56  # Per ship, at no hull left: one per 1/56 of the hull lost
 const HULL_SLAG_PER_SCAR = 2  # At most this many slag blobs on one scar
 const HULL_SLAG_LUMP = 0.25  # Bumps on a slag blob, as a share of its size
-const HULL_SLAG_VISIBLE_DISTANCE = 700.0  # m view distance; slag is at most 0.9 m, so it goes before the scars
 const HULL_SLAG_SIZE_SHARE = 0.7  # A slag blob's size as a share of its scar's
 const HULL_SLAG_MAX_SIZE = 0.9  # m: never larger than this (a fresh hit's scar is about 1.3 m)
 
@@ -277,7 +274,6 @@ const HIT_FX_COOL_COLOR = Color(1.0, 0.45, 0.2)  # Flash colour of a weak hit
 const HIT_FX_HOT_COLOR = Color(1.0, 0.95, 0.88)  # Flash colour at HIT_FX_HOT_INTENSITY and above
 const HIT_FX_HOT_INTENSITY = 2.0
 const HIT_FX_FLASH_DURATION = 0.15  # s
-const HIT_FX_LIGHT_DISTANCE = 2000.0  # m view distance (zoom counts); farther hits flash without lighting their surroundings
 const HIT_FX_LIGHT_LIFT = 6.0  # m the light sits off the contact point toward the shooter, clear of the full-detail mesh
 const HIT_FX_MAX_LIGHTS = 4  # Hits lighting their surroundings at once (GLES2: every light is another pass per object it touches)
 const HIT_FX_LIFETIME = 1.5  # s
@@ -300,17 +296,14 @@ const SMOULDER_MAX_PER_SHIP = 3  # The oldest spot gives way beyond this
 const SMOULDER_MERGE_DISTANCE = 2.0  # m on a fighter (scaled with ship size); a hit this close to a spot reheats it instead of adding one
 const EMBER_INSET_SHARE = 0.4  # Ember emitters (smoulder spots, damage trails) sit this share of the way from the hit point to the hull centre (hits land on the collision hull, outside the plating)
 const SMOULDER_WRECK_FACTOR = 2.0  # Wrecks smoulder this much longer
-const SMOULDER_VISIBLE_DISTANCE = 2500.0  # m view distance (zoom counts); farther spots do not emit
 const SMOULDER_MAX_SHOWN = 12  # Spots emitting at once
-const SMOULDER_CHECK_INTERVAL = 0.25  # s between camera-distance checks per spot
+const SMOULDER_CHECK_INTERVAL = 0.25  # s between checks per spot (its ship's view band, the shown budget)
 # Damage trails (DamageTrail): lasting, sparse ember trails on a hurt hull, one more per share of
 # hull lost, until repaired. They start where the latest hit landed.
 const DAMAGE_TRAIL_HULL_STEP = 0.25  # One trail per this share of hull lost (so 75% lost = 3)
 const DAMAGE_TRAIL_MAX = 3  # Per ship
-const DAMAGE_TRAIL_VISIBLE_DISTANCE = 3000.0  # m view distance (zoom counts); farther trails do not emit
 const DAMAGE_TRAIL_MAX_SHOWN = 12  # Trails emitting at once
 # Rocks do not burn: a hit leaves a slow dust puff instead (RockDust).
-const ROCK_DUST_VISIBLE_DISTANCE = 2500.0  # m view distance (zoom counts)
 const ROCK_DUST_MAX = 6  # Puffs at once
 
 # Wreck explosion.
@@ -331,20 +324,39 @@ const EXPLOSION_PUFF_COOL_SHARE = 0.15  # Share of the lifetime over which the f
 
 
 # ==================================================================================================
-# LEVELS OF DETAIL (MeshLod, tools/generate_lods.py)
+# VIEW DETAIL (ViewBand, ViewDetail; levels of detail: MeshLod, tools/generate_lods.py)
 # ==================================================================================================
 
-# A model switches to LOD n+1 beyond LOD_DISTANCE_RADII[n] of its own radii from the camera:
-# at 15 radii it is ~70 px tall on a 743 px screen (70 degree view), at 40 ~25 px, at 100 ~10 px.
-# Every camera-distance threshold for detail (these, and the *_VISIBLE_DISTANCE and
-# HIT_FX_LIGHT_DISTANCE of effects and scars) is a view distance (ScreenSpace.view_distance): the
-# distance at a VIEW_REFERENCE_FOV_DEG field of view. Zoomed in (narrower), far objects count as
-# near and keep their detail; zoomed out (wider), near ones count as farther.
-const VIEW_REFERENCE_FOV_DEG = 70.0
-const LOD_DISTANCE_RADII = [15.0, 40.0, 100.0]  # Low-poly models (ships): keep detail long
-const LOD_DISTANCE_RADII_DENSE = [4.0, 10.0, 25.0]  # Dense meshes (rocks, tens of thousands of triangles): drop it early
-const LOD_HYSTERESIS = 0.1  # Share of a threshold to pass beyond before switching back, so levels do not flicker
-const LOD_CHECK_INTERVAL = 0.25  # s between distance checks per model
+# One rule for everything that drops detail with distance: apparent size, in bands. An object's
+# screen share is the part of the screen height its diameter covers, zoom included (a narrow field
+# of view makes far objects large). Its band is the first whose share it reaches:
+#   CLOSE >= 0.33, NEAR >= 0.12, MID >= 0.04, FAR >= 0.013, else DOT
+# (about 245, 90, 30 and 10 px tall on a 743 px screen), with VIEW_BAND_HYSTERESIS so a band does
+# not flicker at a threshold.
+# - Hosts (ships, rocks) carry a ViewDetail that keeps their band. Everything on a host follows the
+#   host's band: its levels of detail, scars, slag, smoulder, damage trails, hit lights, cables. So a
+#   ship's model, scars and embers always change together.
+# - Loose effects with no host to follow (rock dust) take a band from their own size (ViewBand.band_of).
+# - Each *_MAX_BAND below is the last (most distant) band the thing still shows in.
+const VIEW_CLOSE = 0
+const VIEW_NEAR = 1
+const VIEW_MID = 2
+const VIEW_FAR = 3
+const VIEW_DOT = 4
+const VIEW_BAND_SHARES = [0.33, 0.12, 0.04, 0.013]  # Screen share to reach CLOSE, NEAR, MID, FAR
+const VIEW_BAND_HYSTERESIS = 0.1  # Share of a threshold to pass beyond before switching back
+const VIEW_CHECK_INTERVAL = 0.25  # s between band checks per host (and at once when the field of view changes)
+# Levels of detail by band (CLOSE, NEAR, MID, FAR, DOT), clamped to the levels a model has.
+const LOD_LEVEL_BY_BAND = [0, 0, 1, 2, 3]  # Low-poly models (ships): keep detail long
+const LOD_LEVEL_BY_BAND_DENSE = [0, 1, 2, 3, 3]  # Dense meshes (rocks, tens of thousands of triangles): drop it early
+const HULL_SCAR_MAX_BAND = VIEW_FAR  # Scars (1-3 m)
+const HULL_SLAG_MAX_BAND = VIEW_MID  # Slag (under 1 m) goes a band before the scars
+const SMOULDER_MAX_BAND = VIEW_FAR  # Smoulder spots emit
+const DAMAGE_TRAIL_MAX_BAND = VIEW_FAR  # Damage trails emit
+const HIT_FX_LIGHT_MAX_BAND = VIEW_FAR  # A hit lights its surroundings (band of the body hit; still capped by HIT_FX_MAX_LIGHTS)
+const TETHER_ROPE_SIM_MAX_BAND = VIEW_FAR  # A cable is simulated (band of the ship holding it); farther, drawn straight
+const ROCK_DUST_MAX_BAND = VIEW_FAR  # A dust puff shows (its own size, ROCK_DUST_RADIUS)
+const ROCK_DUST_RADIUS = 8.0  # m: a dust puff's rough extent, for its band
 
 
 # ==================================================================================================

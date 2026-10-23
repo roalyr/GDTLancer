@@ -2,27 +2,22 @@
 # Godot 3's own GeometryInstance LOD distances do nothing, so this does it by visibility.
 # LOD files come from tools/generate_lods.py: <model folder>/lod/<model>_LOD<n>.glb, with the
 # same node names as the original. attach() finds every such model under a visual root.
-# Levels switch at a number of object radii from the camera (a big rock keeps its detail further
-# out than a small ship): Constants.LOD_DISTANCE_RADII for low-poly models,
-# LOD_DISTANCE_RADII_DENSE for dense ones; with Constants.LOD_HYSTERESIS so they do not flicker.
-# Distances are view distances (ScreenSpace.view_distance): zooming in on a far model shows it in detail.
+# Levels follow the host's view band (ViewDetail: apparent size, zoom included, with hysteresis),
+# through Constants.LOD_LEVEL_BY_BAND for low-poly models and LOD_LEVEL_BY_BAND_DENSE for dense
+# ones; so a model changes level together with its scars and effects.
 # Lower levels take the original's materials and join group "lod_mesh".
 
 extends Node
 
-const ScreenSpace = preload("res://src/core/ui/screen_space.gd")
-
 var levels: Array = []  # Spatial roots, LOD0 (the original) first
-var radius: float = 10.0  # World radius of the object
-var distance_radii: Array = Constants.LOD_DISTANCE_RADII
+var levels_by_band: Array = Constants.LOD_LEVEL_BY_BAND
 var level: int = 0
 
-var _timer := 0.0
 
 
-
-# Adds a MeshLod for every model under `visual_root` that has LOD files. Returns the MeshLod nodes.
-static func attach(visual_root: Node, object_radius: float, thresholds: Array = Constants.LOD_DISTANCE_RADII) -> Array:
+# Adds a MeshLod for every model under `visual_root` that has LOD files, following `view_detail`
+# (the host's ViewDetail; null: stays at full detail). Returns the MeshLod nodes.
+static func attach(visual_root: Node, view_detail: Node, by_band: Array = Constants.LOD_LEVEL_BY_BAND) -> Array:
 	var created: Array = []
 	var stack: Array = [visual_root]
 	while not stack.empty():
@@ -34,8 +29,11 @@ static func attach(visual_root: Node, object_radius: float, thresholds: Array = 
 		var lod = load("res://src/core/agents/components/mesh_lod.gd").new()
 		lod.name = "MeshLod"
 		node.get_parent().add_child(lod)
-		lod.distance_radii = thresholds
-		lod.setup(node, paths, object_radius)
+		lod.levels_by_band = by_band
+		lod.setup(node, paths)
+		if view_detail != null:
+			view_detail.connect("band_changed", lod, "show_band")
+			lod.show_band(view_detail.band)
 		created.append(lod)
 	return created
 
@@ -54,8 +52,7 @@ static func lod_paths_for(model_path: String) -> Array:
 	return paths
 
 
-func setup(original: Spatial, paths: Array, object_radius: float) -> void:
-	radius = max(object_radius, 0.1)
+func setup(original: Spatial, paths: Array) -> void:
 	levels = [original]
 	for path in paths:
 		var copy: Spatial = load(path).instance()
@@ -64,7 +61,6 @@ func setup(original: Spatial, paths: Array, object_radius: float) -> void:
 		original.get_parent().add_child(copy)
 		_match_materials(original, copy)
 		levels.append(copy)
-	_timer = randf() * Constants.LOD_CHECK_INTERVAL  # Spread the checks over frames
 
 
 # Each LOD mesh takes the materials of the original node of the same name.
@@ -101,27 +97,13 @@ static func material_key(material: Material) -> String:
 	return key
 
 
-# Level for a camera `distance` away, given the level shown now (hysteresis keeps it from
-# flickering at a threshold).
-static func level_for(distance: float, object_radius: float, current: int, count: int, thresholds: Array = Constants.LOD_DISTANCE_RADII) -> int:
-	var result := 0
-	for i in range(min(thresholds.size(), count - 1)):
-		var threshold: float = thresholds[i] * object_radius
-		threshold *= (1.0 - Constants.LOD_HYSTERESIS) if current > i else (1.0 + Constants.LOD_HYSTERESIS)
-		if distance > threshold:
-			result = i + 1
-	return result
+# Level for view band `band` (clamped to the `count` levels there are).
+static func level_for_band(band: int, count: int, by_band: Array = Constants.LOD_LEVEL_BY_BAND) -> int:
+	return int(clamp(by_band[int(clamp(band, 0, by_band.size() - 1))], 0, count - 1))
 
 
-func _process(delta: float) -> void:
-	_timer -= delta
-	if _timer > 0.0 or levels.empty():
-		return
-	_timer = Constants.LOD_CHECK_INTERVAL
-	var camera = get_viewport().get_camera()
-	if camera == null or not is_instance_valid(levels[0]):
-		return
-	show_level(level_for(ScreenSpace.view_distance(camera, levels[0].global_transform.origin), radius, level, levels.size(), distance_radii))
+func show_band(band: int) -> void:
+	show_level(level_for_band(band, levels.size(), levels_by_band))
 
 
 func show_level(new_level: int) -> void:

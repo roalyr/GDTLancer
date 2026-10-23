@@ -22,6 +22,7 @@ signal retracted
 const CableMaterial = preload("res://assets/art/effects/tether_cable_material.tres")
 const HookScene = preload("res://scenes/prefabs/effects/harpoon_hook.tscn")
 const TetherRope = preload("res://src/core/agents/components/tether_rope.gd")
+const ViewDetail = preload("res://src/core/agents/components/view_detail.gd")
 
 var holder: RigidBody = null
 var towed: RigidBody = null
@@ -237,7 +238,7 @@ func _is_near_camera() -> bool:
 	var camera = get_viewport().get_camera() if is_inside_tree() else null
 	if camera == null or not is_instance_valid(holder):
 		return true  # Nothing to judge by (tests): simulate
-	return camera.global_transform.origin.distance_to(holder.global_transform.origin) <= Constants.TETHER_ROPE_SIM_DISTANCE
+	return ViewDetail.band_of_host(holder) <= Constants.TETHER_ROPE_SIM_MAX_BAND  # The holding ship's band
 
 
 func _apply_force(body: RigidBody, force: Vector3) -> void:

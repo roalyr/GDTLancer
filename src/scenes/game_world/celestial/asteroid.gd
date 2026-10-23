@@ -5,6 +5,7 @@
 extends StaticBody
 
 const MeshLod = preload("res://src/core/agents/components/mesh_lod.gd")
+const ViewDetail = preload("res://src/core/agents/components/view_detail.gd")
 const CollisionHull = preload("res://src/core/agents/components/collision_hull.gd")
 const RockDustScene = preload("res://scenes/prefabs/effects/rock_dust.tscn")
 const RockDustEffect = preload("res://src/core/agents/effects/rock_dust_effect.gd")
@@ -43,7 +44,7 @@ func _ready() -> void:
 	else:
 		var collision_radius: float = min(hull_bounds.size.x, min(hull_bounds.size.y, hull_bounds.size.z)) * 0.45
 		_collision.transform = Transform(Basis().scaled(Vector3.ONE * collision_radius), hull_bounds.position + hull_bounds.size * 0.5)
-	MeshLod.attach(_model, get_apparent_radius(), Constants.LOD_DISTANCE_RADII_DENSE)
+	MeshLod.attach(_model, ViewDetail.attach(self, get_apparent_radius()), Constants.LOD_LEVEL_BY_BAND_DENSE)
 
 
 func _measure_model_bounds() -> AABB:
