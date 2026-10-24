@@ -1,5 +1,5 @@
-# FittingWindow: the home station's store and refitting, mouse-only. Shown for as long as the
-# player is docked at home, between the HUD's button rows so they stay usable. Slots (click to unfit), storage (fit or sell) and the store, which
+# FittingWindow: the home station's store and refitting, mouse-only. Covers the screen for as
+# long as the player is docked at home (the docked ship is out of the world); UNDOCK leaves. Slots (click to unfit), storage (fit or sell) and the store, which
 # sells every ship (the one flown is traded in), part and commodity (bought into the hold, sold
 # back from it). The frame is the scene; rows are rebuilt after every change.
 
@@ -9,14 +9,15 @@ const Fitting = preload("res://src/core/systems/fitting.gd")
 const ShipFit = preload("res://src/core/systems/ship_fit.gd")
 
 onready var _title: Label = $Panel/Layout/Header/Title
-onready var _stats: Label = $Panel/Layout/Stats
-onready var _slots: VBoxContainer = $Panel/Layout/Columns/Slots/List
-onready var _storage: VBoxContainer = $Panel/Layout/Columns/Storage/Scroll/List
-onready var _store: VBoxContainer = $Panel/Layout/Columns/Store/Scroll/List
-onready var _status: Label = $Panel/Layout/Status
+onready var _stats: Label = $Panel/Layout/Body/Content/Stats
+onready var _slots: VBoxContainer = $Panel/Layout/Body/Content/Columns/Slots/List
+onready var _storage: VBoxContainer = $Panel/Layout/Body/Content/Columns/Storage/Scroll/List
+onready var _store: VBoxContainer = $Panel/Layout/Body/Content/Columns/Store/Scroll/List
+onready var _status: Label = $Panel/Layout/Body/Content/Status
 
 
 func _ready() -> void:
+	$Panel/Layout/Header/ButtonUndock.connect("pressed", EventBus, "emit_signal", ["player_undocked"])
 	EventBus.connect("player_docked", self, "_on_player_docked")
 	EventBus.connect("player_undocked", self, "_on_player_undocked")
 

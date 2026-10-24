@@ -1,4 +1,5 @@
-# Tests for player docking and jump queueing through the player controller.
+# Tests for player docking (a docked ship is out of the world) and jump queueing through the
+# player controller.
 
 extends "res://addons/gut/test.gd"
 
@@ -304,3 +305,27 @@ func _create_player_controller_harness(aligned: bool = true, rotation_stopped: b
 		"controller": controller,
 		"movement_system": movement_system,
 	}
+
+
+func test_docked_ship_is_out_of_the_world():
+	var AgentScript = load("res://src/core/agents/agent.gd")
+	var ship = AgentScript.new()
+	ship.ship_template = ShipTemplate.new()
+	add_child_autofree(ship)
+	var observer = AgentScript.new()
+	observer.ship_template = ShipTemplate.new()
+	add_child_autofree(observer)
+	ship.global_transform.origin = Vector3(10, 0, 0)  # Well inside its signature
+	var layer: int = ship.collision_layer
+	var mask: int = ship.collision_mask
+	assert_true(observer.detects(ship))
+
+	ship.dock_at(null)
+	assert_false(ship.visible, "A docked ship is inside the station: unseen,")
+	assert_eq([ship.collision_layer, ship.collision_mask], [0, 0], "nothing hits it")
+	assert_false(observer.detects(ship), "and no sensor finds it.")
+
+	ship.undock()
+	assert_true(ship.visible, "Undocking puts it back:")
+	assert_eq([ship.collision_layer, ship.collision_mask], [layer, mask], "its collision restored")
+	assert_true(observer.detects(ship), "and on the sensors again.")

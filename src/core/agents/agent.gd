@@ -17,7 +17,8 @@ var hull_max: float = 0.0
 var power: float = 0.0
 var power_max: float = 0.0
 var power_regen: float = 0.0
-var is_docked: bool = false  # Held at a station: no motion, no leak thrust
+var is_docked: bool = false  # Inside a station: out of the world (unseen, no collision, undetected)
+var _undocked_collision: Array = []  # [layer, mask] to restore on undocking
 var is_wreck: bool = false  # Hull reached zero: no thrust or AI; drifts until stripped and cleared away (Constants WRECK_*).
 var wreck_time_ms: int = 0  # When it became a wreck
 
@@ -293,8 +294,15 @@ func get_fitted_tool_ids() -> Array:
 # --- Docking ---
 
 # Held at the station's dock point until undock(); `station` may be null (stays where it is).
+# A docked ship is inside the station: hidden, without collision and undetectable (see detects),
+# so nothing can see, hit or target it until it undocks.
 func dock_at(station: Spatial) -> void:
+	if not is_docked:
+		_undocked_collision = [collision_layer, collision_mask]
 	is_docked = true
+	visible = false
+	collision_layer = 0
+	collision_mask = 0
 	linear_velocity = Vector3.ZERO
 	angular_velocity = Vector3.ZERO
 	if is_instance_valid(station) and station.has_method("get_undock_position"):
@@ -302,7 +310,11 @@ func dock_at(station: Spatial) -> void:
 
 
 func undock() -> void:
+	if is_docked and _undocked_collision.size() == 2:
+		collision_layer = _undocked_collision[0]
+		collision_mask = _undocked_collision[1]
 	is_docked = false
+	visible = true
 
 
 # --- Factions ---
@@ -602,6 +614,8 @@ func get_sensor_strength() -> float:
 func detects(other) -> bool:
 	if not is_instance_valid(other) or other == self or not other.has_method("get_signature"):
 		return true
+	if other.get("is_docked"):
+		return false
 	return global_transform.origin.distance_to(other.global_transform.origin) <= other.get_signature() * get_sensor_strength()
 
 

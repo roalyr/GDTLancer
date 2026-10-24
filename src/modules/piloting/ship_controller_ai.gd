@@ -366,7 +366,7 @@ static func compute_desire(own_hull: float, own_dps: float, target_hull: float, 
 
 
 func _is_live_target(body) -> bool:
-	return is_instance_valid(body) and body.is_inside_tree() and not body.get("is_wreck")
+	return is_instance_valid(body) and body.is_inside_tree() and not body.get("is_wreck") and not body.get("is_docked")
 
 
 func _pick_patrol_destination() -> Vector3:
