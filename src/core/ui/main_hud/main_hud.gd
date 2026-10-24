@@ -39,7 +39,13 @@ onready var button_dock: TextureButton = $ScreenControls/BottomCenterZone/Button
 onready var label_button_dock: Label = $ScreenControls/BottomCenterZone/ButtonDock/LabelButtonDock
 onready var button_interact: TextureButton = $ScreenControls/BottomCenterZone/ButtonInteract
 onready var label_button_interact: Label = $ScreenControls/BottomCenterZone/ButtonInteract/LabelButtonInteract
-onready var label_combat_readout: Label = $ScreenControls/TopLeftZone/LabelCombatReadout
+onready var debug_overlay: Control = $ScreenControls/DebugOverlay
+onready var _debug_label_ship: Label = $ScreenControls/DebugOverlay/LeftColumn/LabelShip
+onready var _debug_label_tools: Label = $ScreenControls/DebugOverlay/LeftColumn/LabelTools
+onready var _debug_label_target: Label = $ScreenControls/DebugOverlay/RightColumn/LabelTarget
+onready var _debug_label_world: Label = $ScreenControls/DebugOverlay/RightColumn/LabelWorld
+onready var _debug_label_render: Label = $ScreenControls/DebugOverlay/LabelRender
+onready var _debug_label_frame: Label = $ScreenControls/DebugOverlay/LabelFrame
 onready var label_docked_banner: Label = $ScreenControls/LabelDockedBanner
 onready var button_ship: TextureButton = $ScreenControls/CenterRightZone/ButtonShip
 onready var button_render_scale: TextureButton = $ScreenControls/CenterRightZone/ButtonRenderScale
@@ -162,8 +168,8 @@ func _ready():
 	if is_instance_valid(button_debug):
 		if not button_debug.is_connected("pressed", self, "_on_ButtonDebug_pressed"):
 			button_debug.connect("pressed", self, "_on_ButtonDebug_pressed")
-	if is_instance_valid(label_combat_readout):
-		label_combat_readout.visible = false  # Until the debug button shows it
+	if is_instance_valid(debug_overlay):
+		debug_overlay.visible = false  # Until the debug button shows it
 
 	_connect_overlay_toggle_button(button_overlay_structures, "_on_ButtonOverlayStructures_pressed")
 	_connect_overlay_toggle_button(button_overlay_stellar, "_on_ButtonOverlayStellar_pressed")
@@ -205,7 +211,7 @@ func _update_hud() -> void:
 	_update_route_target_overlay()
 	_update_world_target_overlay(false)
 	_refresh_toggle_button_states()
-	_update_combat_readout()
+	_update_debug_overlay()
 	_update_tool_buttons()
 	_update_docked_banner()
 	_update_dock_button_label()
@@ -285,12 +291,12 @@ func _on_ButtonMenu_pressed() -> void:
 		EventBus.emit_signal("main_menu_requested")
 
 
-# Shows or hides the readout (hull, tools, target, render monitors): off by default.
+# Shows or hides the debug overlay (ship, tools, target, world, render, frame time): off by default.
 func _on_ButtonDebug_pressed() -> void:
-	if not is_instance_valid(label_combat_readout):
+	if not is_instance_valid(debug_overlay):
 		return
-	label_combat_readout.visible = not label_combat_readout.visible
-	_update_combat_readout()
+	debug_overlay.visible = not debug_overlay.visible
+	_update_debug_overlay()
 
 
 func _on_ButtonCamera_pressed() -> void:
@@ -585,38 +591,110 @@ func _is_projected_target_center_fade_enabled() -> bool:
 	return bool(world_rendering.get("projected_target_center_fade_enabled"))
 
 
-# Hull, power, cargo, each fitted tool's state, the selected ship's hull or wreck's salvage, and
-# render monitors (temporary, while performance is being tuned). Only while shown (debug button).
-func _update_combat_readout() -> void:
-	if not is_instance_valid(label_combat_readout) or not label_combat_readout.visible:
+# The debug overlay fills the gaps between the HUD's button rows, one block per category: ship and
+# tools in the left column, target and world in the right, render and frame time along the top.
+# Only worked out while shown (debug button).
+func _update_debug_overlay() -> void:
+	if not is_instance_valid(debug_overlay) or not debug_overlay.visible:
 		return
 	var player = GlobalRefs.player_agent_body
-	if not is_instance_valid(player) or player.get("hull_max") == null:
-		label_combat_readout.text = ""
-		return
-	var lines: Array = [
+	var has_player: bool = is_instance_valid(player) and player.get("hull_max") != null
+	_debug_label_ship.text = describe_ship_stats(player) if has_player else "SHIP\nno ship"
+	_debug_label_tools.text = describe_tool_stats(player) if has_player else "TOOLS\nno ship"
+	_debug_label_target.text = describe_target_stats(player) if has_player else "TARGET\nno ship"
+	_debug_label_world.text = describe_world_stats(player) if has_player else "WORLD\nno ship"
+	_debug_label_render.text = describe_render_stats()
+	_debug_label_frame.text = describe_frame_stats()
+
+
+static func describe_ship_stats(player) -> String:
+	return PoolStringArray([
+		"SHIP",
 		"HULL  %d / %d" % [ceil(player.hull), player.hull_max],
-		"POWER %d / %d" % [floor(player.power), player.power_max],
+		"POWER %d / %d  +%.1f/s" % [floor(player.power), player.power_max, player.power_regen],
 		"CARGO %d / %d" % [player.get_cargo_units(), player.cargo_capacity],
 		"BANK  %d WP" % GameState.player_bank,
+		"SPEED %d / %d m/s" % [player.linear_velocity.length(), player.get_top_speed()],
+		"MASS  %.1f t" % (player.mass / 1000.0),
 		describe_signature(player),
-	]
+		"SIG %s  SENSORS x%.2f" % [_format_distance(player.get_signature()), player.get_sensor_strength()],
+	]).join("\n")
+
+
+func describe_tool_stats(player) -> String:
+	var lines: Array = ["TOOLS"]
 	var tools = player.get_node_or_null("ToolController")
 	if is_instance_valid(tools):
 		for index in range(tools.get_tool_count()):
 			lines.append(_describe_tool_state(tools, index))
-	if is_instance_valid(_current_target) and _current_target is Spatial and (_current_target.get("hull_max") or _current_target.is_in_group("asteroid")):
-		var distance: float = player.global_transform.origin.distance_to(_current_target.global_transform.origin)
-		var condition: String
-		if _current_target.is_in_group("asteroid"):
-			condition = "%.0f m across" % (_current_target.get_apparent_radius() * 2.0)
-		elif _current_target.get("is_wreck"):
-			condition = "SALVAGE %d" % _current_target.get_salvage_units()
-		else:
-			condition = "%d / %d  %s" % [ceil(_current_target.hull), _current_target.hull_max, PoolStringArray(_target_projector.get_ship_cues(_current_target)).join("  ")]
-		lines.append("TARGET %s  %s  %.0f m" % [_resolve_target_display_name(_current_target), condition, distance])
-	lines.append(describe_render_stats())
-	label_combat_readout.text = PoolStringArray(lines).join("\n")
+	if lines.size() == 1:
+		lines.append("none fitted")
+	return PoolStringArray(lines).join("\n")
+
+
+# The selected target: what it is, how far, its signature and who sees whom.
+func describe_target_stats(player) -> String:
+	var lines: Array = ["TARGET"]
+	if _current_target == null or not _is_target_valid(_current_target):
+		lines.append("none")
+		return PoolStringArray(lines).join("\n")
+	lines.append(_resolve_target_display_name(_current_target))
+	if _is_route_target(_current_target):
+		lines.append("JUMP ROUTE  %s" % TemplateDatabase.get_sector_type(_current_target.target_sector_id).to_upper())
+		return PoolStringArray(lines).join("\n")
+	if not (_current_target is Spatial):
+		return PoolStringArray(lines).join("\n")
+	if _current_target.get("is_wreck"):
+		lines.append("WRECK  SALVAGE %d" % _current_target.get_salvage_units())
+	elif _current_target.get("hull_max"):
+		lines.append("HULL %d / %d" % [ceil(_current_target.hull), _current_target.hull_max])
+		var cues: Array = _target_projector.get_ship_cues(_current_target)
+		if not cues.empty():
+			lines.append(PoolStringArray(cues).join("  "))
+	if _current_target.has_method("get_apparent_radius"):
+		lines.append("%s across" % _format_distance(_current_target.get_apparent_radius() * 2.0))
+	lines.append("DIST %s" % _format_distance(player.global_transform.origin.distance_to(_current_target.global_transform.origin)))
+	if _current_target.has_method("get_signature"):
+		lines.append("SIG %s  %s" % [_format_distance(_current_target.get_signature()), "DETECTED" if player.detects(_current_target) else "LOST"])
+	return PoolStringArray(lines).join("\n")
+
+
+# Where the player is, what the autopilot is doing, and how much of the sector is on the sensors.
+func describe_world_stats(player) -> String:
+	var template = TemplateDatabase.locations.get(GameState.current_sector_id)
+	var sector_name: String = template.location_name if template != null and template.location_name != "" else GameState.current_sector_id
+	var position: Vector3 = player.global_transform.origin / 1000.0
+	var lines: Array = [
+		"WORLD",
+		"SECTOR %s" % sector_name,
+		"POS %.1f, %.1f, %.1f km" % [position.x, position.y, position.z],
+		"FROM ORIGIN %.1f km" % position.length(),
+	]
+	var nav = player.get("navigation_system")
+	if is_instance_valid(nav) and nav.has_method("get_current_command_type"):
+		lines.append("AUTOPILOT %s" % nav.CommandType.keys()[nav.get_current_command_type()])
+	var ships_seen := 0
+	var ships := 0
+	for body in get_tree().get_nodes_in_group("agent_body"):
+		if is_instance_valid(body) and body != player:
+			ships += 1
+			ships_seen += 1 if player.detects(body) else 0
+	lines.append("SHIPS SEEN %d / %d" % [ships_seen, ships])
+	var brackets_shown := 0
+	for instance_id in _world_target_buttons:
+		var button = _world_target_buttons[instance_id]
+		if is_instance_valid(button) and button.get_meta("shown", false):
+			brackets_shown += 1
+	lines.append("BRACKETS %d / %d" % [brackets_shown, _world_target_buttons.size()])
+	return PoolStringArray(lines).join("\n")
+
+
+static func _format_distance(metres: float) -> String:
+	if is_inf(metres):
+		return "INF"
+	if metres >= 1000.0:
+		return "%.1f km" % (metres / 1000.0)
+	return "%.0f m" % metres
 
 
 # Own signature as a cue, not a number: a bar from the hull's quiet base upward, and a word.
@@ -654,26 +732,30 @@ func _describe_tool_state(tools: Node, index: int) -> String:
 	return "%s  ON  %d%%" % [tool_name, int(tools.get_cycle_progress(index) * 100.0)]
 
 
-# Frame rate, what the last frame drew (all viewports), and where frame time goes (FrameProfiler,
-# per frame over the last second): physics steps (count and time), the rest of the frame (idle
-# processing, rendering, swap), and the marked sections.
+# Frame rate and what the last frame drew (all viewports).
 func describe_render_stats() -> String:
-	var vertices: float = Performance.get_monitor(Performance.RENDER_VERTICES_IN_FRAME)
-	var lines: Array = ["FPS %d  OBJECTS %d  VERTICES %.1fk  DRAWS 3D %d 2D %d" % [
-		Performance.get_monitor(Performance.TIME_FPS),
-		Performance.get_monitor(Performance.RENDER_OBJECTS_IN_FRAME),
-		vertices / 1000.0,
-		Performance.get_monitor(Performance.RENDER_DRAW_CALLS_IN_FRAME),
-		Performance.get_monitor(Performance.RENDER_2D_DRAW_CALLS_IN_FRAME),
-	]]
+	return PoolStringArray([
+		"RENDER",
+		"FPS %d" % Performance.get_monitor(Performance.TIME_FPS),
+		"OBJECTS %d  VERTICES %.1fk" % [Performance.get_monitor(Performance.RENDER_OBJECTS_IN_FRAME), Performance.get_monitor(Performance.RENDER_VERTICES_IN_FRAME) / 1000.0],
+		"DRAWS 3D %d  2D %d" % [Performance.get_monitor(Performance.RENDER_DRAW_CALLS_IN_FRAME), Performance.get_monitor(Performance.RENDER_2D_DRAW_CALLS_IN_FRAME)],
+	]).join("\n")
+
+
+# Where frame time goes (FrameProfiler, per frame over the last second): physics steps (count and
+# time), the rest of the frame (idle processing, rendering, swap), and the marked sections.
+func describe_frame_stats() -> String:
 	var report: Dictionary = _frame_profiler.report if is_instance_valid(_frame_profiler) else {}
-	if not report.empty():
-		lines.append("FRAME %.1f ms = PHYSICS %.1f (%.1f steps) + REST %.1f" % [report.frame_ms, report.physics_ms, report.steps, report.idle_ms])
-		var sections: Array = []
-		for name in ["nav", "ai", "hud", "brackets"]:
-			sections.append("%s %.1f" % [name.to_upper(), report.sections.get(name, 0.0)])
-		lines.append("  of which ms: " + PoolStringArray(sections).join("  "))
-	return PoolStringArray(lines).join("\n")
+	if report.empty():
+		return "FRAME\nmeasuring"
+	var sections: Array = []
+	for name in ["nav", "ai", "hud", "brackets"]:
+		sections.append("%s %.1f" % [name.to_upper(), report.sections.get(name, 0.0)])
+	return PoolStringArray([
+		"FRAME %.1f ms" % report.frame_ms,
+		"PHYSICS %.1f (%.1f steps)  REST %.1f" % [report.physics_ms, report.steps, report.idle_ms],
+		"of which ms: " + PoolStringArray(sections).join("  "),
+	]).join("\n")
 
 
 func _refresh_player_hull() -> void:

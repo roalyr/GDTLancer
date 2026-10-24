@@ -29,13 +29,15 @@ func test_button_debug_toggles_the_readout() -> void:
 	yield(get_tree(), "idle_frame")
 
 	var button_debug: TextureButton = hud.get_node("ScreenControls/CenterLeftZone/ButtonDebug")
-	assert_false(hud.label_combat_readout.visible, "The readout starts hidden.")
+	assert_false(hud.debug_overlay.visible, "The debug overlay starts hidden.")
 
 	button_debug.emit_signal("pressed")
-	assert_true(hud.label_combat_readout.visible, "The debug button shows it")
+	assert_true(hud.debug_overlay.visible, "The debug button shows it")
+	for block in ["LeftColumn/LabelShip", "LeftColumn/LabelTools", "RightColumn/LabelTarget", "RightColumn/LabelWorld", "LabelRender", "LabelFrame"]:
+		assert_ne(hud.debug_overlay.get_node(block).text, "", "Every block is filled: " + block)
 
 	button_debug.emit_signal("pressed")
-	assert_false(hud.label_combat_readout.visible, "and hides it again.")
+	assert_false(hud.debug_overlay.visible, "and hides it again.")
 
 
 func test_main_menu_close_hides_and_unpauses_live_session() -> void:

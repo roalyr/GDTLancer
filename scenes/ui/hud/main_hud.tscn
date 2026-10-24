@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=2]
+[gd_scene load_steps=23 format=2]
 
 [ext_resource path="res://src/core/ui/main_hud/main_hud.gd" type="Script" id=1]
 [ext_resource path="res://assets/art/ui/controls/button_approach.png" type="Texture" id=2]
@@ -20,6 +20,11 @@
 [ext_resource path="res://assets/art/ui/controls/button_character.png" type="Texture" id=18]
 [ext_resource path="res://assets/art/ui/controls/button_ship.png" type="Texture" id=19]
 [ext_resource path="res://assets/art/ui/controls/button_structure.png" type="Texture" id=20]
+[ext_resource path="res://assets/fonts/Roboto_Condensed/static/RobotoCondensed-Regular.ttf" type="DynamicFontData" id=21]
+
+[sub_resource type="DynamicFont" id=1]
+size = 18
+font_data = ExtResource( 21 )
 
 [node name="MainHUD" type="Control"]
 anchor_right = 1.0
@@ -872,14 +877,6 @@ margin_bottom = 1.0
 mouse_filter = 2
 color = Color( 1, 1, 1, 0.12549 )
 
-[node name="LabelCombatReadout" type="Label" parent="ScreenControls/TopLeftZone"]
-anchor_right = 1.0
-margin_left = 8.0
-margin_top = 8.0
-margin_right = -8.0
-margin_bottom = 120.0
-theme = ExtResource( 9 )
-
 [node name="TopRightZone" type="Control" parent="ScreenControls"]
 anchor_left = 1.0
 anchor_right = 1.0
@@ -924,6 +921,76 @@ margin_right = 960.0
 margin_bottom = 1.0
 mouse_filter = 2
 color = Color( 1, 1, 1, 0.12549 )
+
+[node name="DebugOverlay" type="Control" parent="ScreenControls"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="LeftColumn" type="VBoxContainer" parent="ScreenControls/DebugOverlay"]
+anchor_bottom = 1.0
+margin_left = 120.0
+margin_top = 120.0
+margin_right = 375.0
+margin_bottom = -120.0
+mouse_filter = 2
+custom_constants/separation = 16
+
+[node name="LabelShip" type="Label" parent="ScreenControls/DebugOverlay/LeftColumn"]
+theme = ExtResource( 9 )
+custom_fonts/font = SubResource( 1 )
+autowrap = true
+
+[node name="LabelTools" type="Label" parent="ScreenControls/DebugOverlay/LeftColumn"]
+theme = ExtResource( 9 )
+custom_fonts/font = SubResource( 1 )
+autowrap = true
+
+[node name="RightColumn" type="VBoxContainer" parent="ScreenControls/DebugOverlay"]
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -375.0
+margin_top = 120.0
+margin_right = -120.0
+margin_bottom = -120.0
+mouse_filter = 2
+custom_constants/separation = 16
+
+[node name="LabelTarget" type="Label" parent="ScreenControls/DebugOverlay/RightColumn"]
+theme = ExtResource( 9 )
+custom_fonts/font = SubResource( 1 )
+align = 2
+autowrap = true
+
+[node name="LabelWorld" type="Label" parent="ScreenControls/DebugOverlay/RightColumn"]
+theme = ExtResource( 9 )
+custom_fonts/font = SubResource( 1 )
+align = 2
+autowrap = true
+
+[node name="LabelRender" type="Label" parent="ScreenControls/DebugOverlay"]
+anchor_right = 0.5
+margin_left = 375.0
+margin_top = 64.0
+margin_right = -10.0
+margin_bottom = 195.0
+theme = ExtResource( 9 )
+custom_fonts/font = SubResource( 1 )
+autowrap = true
+
+[node name="LabelFrame" type="Label" parent="ScreenControls/DebugOverlay"]
+anchor_left = 0.5
+anchor_right = 1.0
+margin_left = 10.0
+margin_top = 64.0
+margin_right = -375.0
+margin_bottom = 195.0
+theme = ExtResource( 9 )
+custom_fonts/font = SubResource( 1 )
+align = 2
+autowrap = true
 
 [node name="GameOverOverlay (to be made into a dedicated window like main menu)" type="Control" parent="."]
 pause_mode = 2
