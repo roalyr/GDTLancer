@@ -937,6 +937,12 @@ margin_bottom = -120.0
 mouse_filter = 2
 custom_constants/separation = 16
 
+[node name="ButtonDebugMap" type="Button" parent="ScreenControls/DebugOverlay/LeftColumn"]
+rect_min_size = Vector2( 0, 64 )
+focus_mode = 0
+theme = ExtResource( 9 )
+text = "DEBUG MAP"
+
 [node name="LabelShip" type="Label" parent="ScreenControls/DebugOverlay/LeftColumn"]
 theme = ExtResource( 9 )
 custom_fonts/font = SubResource( 1 )

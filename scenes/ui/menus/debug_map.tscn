@@ -1,0 +1,127 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://src/core/ui/debug_map/debug_map.gd" type="Script" id=1]
+[ext_resource path="res://assets/themes/main_theme.tres" type="Theme" id=2]
+[ext_resource path="res://assets/art/environments/global_environment.tres" type="Environment" id=3]
+
+[node name="DebugMap" type="Control"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 2 )
+script = ExtResource( 1 )
+
+[node name="Panel" type="Panel" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 20.0
+margin_top = 20.0
+margin_right = -20.0
+margin_bottom = -20.0
+
+[node name="Layout" type="VBoxContainer" parent="Panel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 16.0
+margin_top = 16.0
+margin_right = -16.0
+margin_bottom = -16.0
+custom_constants/separation = 12
+
+[node name="Header" type="HBoxContainer" parent="Panel/Layout"]
+custom_constants/separation = 8
+
+[node name="Title" type="Label" parent="Panel/Layout/Header"]
+size_flags_horizontal = 3
+size_flags_vertical = 5
+text = "DEBUG MAP"
+valign = 1
+
+[node name="ButtonRotLeft" type="Button" parent="Panel/Layout/Header"]
+rect_min_size = Vector2( 100, 64 )
+focus_mode = 0
+text = "Rot L"
+
+[node name="ButtonRotRight" type="Button" parent="Panel/Layout/Header"]
+rect_min_size = Vector2( 100, 64 )
+focus_mode = 0
+text = "Rot R"
+
+[node name="ButtonRotUp" type="Button" parent="Panel/Layout/Header"]
+rect_min_size = Vector2( 100, 64 )
+focus_mode = 0
+text = "Rot U"
+
+[node name="ButtonRotDown" type="Button" parent="Panel/Layout/Header"]
+rect_min_size = Vector2( 100, 64 )
+focus_mode = 0
+text = "Rot D"
+
+[node name="ButtonZoomIn" type="Button" parent="Panel/Layout/Header"]
+rect_min_size = Vector2( 100, 64 )
+focus_mode = 0
+text = "Zoom +"
+
+[node name="ButtonZoomOut" type="Button" parent="Panel/Layout/Header"]
+rect_min_size = Vector2( 100, 64 )
+focus_mode = 0
+text = "Zoom -"
+
+[node name="ButtonPanLeft" type="Button" parent="Panel/Layout/Header"]
+rect_min_size = Vector2( 100, 64 )
+focus_mode = 0
+text = "Pan L"
+
+[node name="ButtonPanRight" type="Button" parent="Panel/Layout/Header"]
+rect_min_size = Vector2( 100, 64 )
+focus_mode = 0
+text = "Pan R"
+
+[node name="ButtonPanUp" type="Button" parent="Panel/Layout/Header"]
+rect_min_size = Vector2( 100, 64 )
+focus_mode = 0
+text = "Pan U"
+
+[node name="ButtonPanDown" type="Button" parent="Panel/Layout/Header"]
+rect_min_size = Vector2( 100, 64 )
+focus_mode = 0
+text = "Pan D"
+
+[node name="ButtonReset" type="Button" parent="Panel/Layout/Header"]
+rect_min_size = Vector2( 100, 64 )
+focus_mode = 0
+text = "Reset"
+
+[node name="ButtonClose" type="Button" parent="Panel/Layout/Header"]
+rect_min_size = Vector2( 160, 64 )
+focus_mode = 0
+text = "Close"
+
+[node name="MapArea" type="Control" parent="Panel/Layout"]
+size_flags_vertical = 3
+rect_clip_content = true
+
+[node name="ViewportContainer" type="ViewportContainer" parent="Panel/Layout/MapArea"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+stretch = true
+
+[node name="Viewport" type="Viewport" parent="Panel/Layout/MapArea/ViewportContainer"]
+size = Vector2( 1800, 900 )
+handle_input_locally = false
+render_target_update_mode = 3
+
+[node name="MapCamera" type="Camera" parent="Panel/Layout/MapArea/ViewportContainer/Viewport"]
+fov = 60.0
+near = 100.0
+far = 10000000.0
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Panel/Layout/MapArea/ViewportContainer/Viewport"]
+environment = ExtResource( 3 )
+
+[node name="MapContent" type="Spatial" parent="Panel/Layout/MapArea/ViewportContainer/Viewport"]
+
+[node name="LabelOverlay" type="Control" parent="Panel/Layout/MapArea"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2

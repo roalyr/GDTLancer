@@ -1,4 +1,4 @@
-# Tests for the HUD debug button (the readout), main menu close and HUD dock button.
+# Tests for the HUD debug button (the readout and its map), main menu close and HUD dock button.
 
 extends "res://addons/gut/test.gd"
 
@@ -38,6 +38,28 @@ func test_button_debug_toggles_the_readout() -> void:
 
 	button_debug.emit_signal("pressed")
 	assert_false(hud.debug_overlay.visible, "and hides it again.")
+
+
+func test_debug_overlay_opens_the_debug_map() -> void:
+	var hud = MainHUDScene.instance()
+	add_child_autofree(hud)
+	yield(get_tree(), "idle_frame")
+	GameState.current_sector_id = Constants.INITIAL_SECTOR_ID
+
+	assert_false(hud.debug_map.visible, "The debug map starts closed.")
+	hud.get_node("ScreenControls/DebugOverlay/LeftColumn/ButtonDebugMap").emit_signal("pressed")
+	assert_true(hud.debug_map.visible, "The overlay's map button opens it")
+	var content: Spatial = hud.debug_map.get_node("Panel/Layout/MapArea/ViewportContainer/Viewport/MapContent")
+	for sector_id in TemplateDatabase.locations:
+		var marker: Spatial = content.get_node("Sector_" + sector_id)
+		assert_eq(marker.translation, TemplateDatabase.locations[sector_id].global_position - TemplateDatabase.locations[Constants.INITIAL_SECTOR_ID].global_position,
+			"Each sector sits at its global position, centred on the current one: " + sector_id)
+	assert_not_null(content.get_node_or_null("Routes"), "with the jump routes between them.")
+
+	hud.debug_map.get_node("Panel/Layout/Header/ButtonClose").emit_signal("pressed")
+	assert_false(hud.debug_map.visible, "Close shuts it")
+	yield(get_tree(), "idle_frame")
+	assert_eq(content.get_child_count(), 0, "and clears the map.")
 
 
 func test_main_menu_close_hides_and_unpauses_live_session() -> void:

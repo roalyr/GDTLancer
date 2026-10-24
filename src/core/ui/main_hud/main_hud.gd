@@ -20,6 +20,7 @@ const OVERLAY_KIND_STELLAR = "stellar"
 const OVERLAY_KIND_JUMP = "jump"
 const PointerRouterClass = preload("res://src/core/ui/pointer_router.gd")
 const FittingWindowScene = preload("res://scenes/ui/menus/fitting_window.tscn")
+const DebugMapScene = preload("res://scenes/ui/menus/debug_map.tscn")
 const HUDTargetProjectorClass = preload("res://src/core/ui/main_hud/hud_target_projector.gd")
 
 
@@ -52,6 +53,7 @@ onready var button_render_scale: TextureButton = $ScreenControls/CenterRightZone
 onready var label_render_scale: Label = $ScreenControls/CenterRightZone/ButtonRenderScale/LabelButtonScale
 onready var tool_buttons: Array = $ScreenControls/TemporaryToolZone.get_children()
 var fitting_window: Control = null
+var debug_map: Control = null
 var _banner_location_id: String = ""
 
 # --- Game Over UI ---
@@ -152,7 +154,6 @@ func _ready():
 	else:
 		printerr("MainHUD Error: EventBus not available!")
 
-	call_deferred("_deferred_refresh_player_hull")
 	set_process_input(true)
 
 	# Connect ButtonMenu to open main menu
@@ -185,6 +186,9 @@ func _ready():
 	add_child(fitting_window)
 	if is_instance_valid(button_ship):
 		button_ship.connect("pressed", fitting_window, "open")
+	debug_map = DebugMapScene.instance()
+	add_child(debug_map)
+	$ScreenControls/DebugOverlay/LeftColumn/ButtonDebugMap.connect("pressed", debug_map, "open")
 	_refresh_toggle_button_states()
 
 	pause_mode = PAUSE_MODE_PROCESS
@@ -240,7 +244,6 @@ func _on_Player_Target_Deselected():
 	_update_route_target_selection_state()
 	_update_world_target_selection_state()
 	_refresh_process_state()
-	_refresh_player_hull()
 	_update_dock_button_label()
 
 	# If camera is in target tracking mode, switch back to orbit mode
@@ -268,13 +271,11 @@ func _on_agent_spawned(_agent_body, _init_data) -> void:
 func _on_new_game_requested() -> void:
 	# World is about to be reset; clear any stale targeting UI.
 	_on_Player_Target_Deselected()
-	call_deferred("_deferred_refresh_player_hull")
 
 
 func _on_game_state_loaded() -> void:
-	# After load, clear stale UI and refresh player hull label/bar.
+	# After load, clear stale targeting UI.
 	_on_Player_Target_Deselected()
-	call_deferred("_deferred_refresh_player_hull")
 
 
 
@@ -519,13 +520,6 @@ func _on_SliderControlRight_value_changed(value):
 		EventBus.emit_signal("player_ship_speed_changed", value)
 
 
-func _get_debug_window() -> Node:
-	var parent_node = get_parent()
-	if not is_instance_valid(parent_node):
-		return null
-	return parent_node.get_node_or_null("DebugWindow")
-
-
 func _get_player_controller() -> Node:
 	var player_agent = GlobalRefs.player_agent_body
 	if not is_instance_valid(player_agent):
@@ -758,20 +752,6 @@ func describe_frame_stats() -> String:
 	]).join("\n")
 
 
-func _refresh_player_hull() -> void:
-	var debug_window = _get_debug_window()
-	if is_instance_valid(debug_window) and debug_window.has_method("refresh_debug_window_player_hull"):
-		debug_window.call("refresh_debug_window_player_hull")
-
-
-func _deferred_refresh_player_hull() -> void:
-	_refresh_player_hull()
-
-
-func _on_any_damage_dealt_refresh_player(_target_uid: int, _amount: float, _source_uid: int) -> void:
-	_refresh_player_hull()
-
-
 # Cycles the render resolution (WorldRendering.viewport_downscale_factor): x1.0, x0.5, x0.25.
 func _on_ButtonRenderScale_pressed() -> void:
 	var world_rendering = _get_world_rendering()
@@ -909,7 +889,6 @@ func _on_combat_ended(result_dict: Dictionary) -> void:
 func _on_agent_damaged(agent_body, damage_amount: float, _source_agent) -> void:
 	if agent_body == GlobalRefs.player_agent_body:
 		print("[HUD] Player took ", damage_amount, " damage")
-		_refresh_player_hull()
 
 
 func _on_agent_disabled(agent_body) -> void:

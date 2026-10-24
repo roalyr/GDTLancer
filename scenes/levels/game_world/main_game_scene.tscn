@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=2]
+[gd_scene load_steps=11 format=2]
 
 [ext_resource path="res://src/scenes/game_world/world_manager.gd" type="Script" id=1]
 [ext_resource path="res://scenes/ui/hud/main_hud.tscn" type="PackedScene" id=2]
@@ -7,7 +7,6 @@
 [ext_resource path="res://src/core/systems/asset_system.gd" type="Script" id=7]
 [ext_resource path="res://src/scenes/game_world/world_rendering.gd" type="Script" id=16]
 [ext_resource path="res://scenes/ui/menus/main_menu.tscn" type="PackedScene" id=17]
-[ext_resource path="res://scenes/ui/menus/debug_window.tscn" type="PackedScene" id=18]
 [ext_resource path="res://scenes/prefabs/navigation/jump_transition_rig.tscn" type="PackedScene" id=29]
 [ext_resource path="res://assets/audio/music/ambient/GDTLancer ambient 1.mp3" type="AudioStream" id=30]
 [ext_resource path="res://src/scenes/game_world/ambient_music.gd" type="Script" id=31]
@@ -50,8 +49,6 @@ __meta__ = {
 [node name="JumpTransitionRig" parent="WorldViewContainer/WorldViewport" instance=ExtResource( 29 )]
 
 [node name="MainHUD" parent="." instance=ExtResource( 2 )]
-
-[node name="DebugWindow" parent="." instance=ExtResource( 18 )]
 
 [node name="MainMenu" parent="." instance=ExtResource( 17 )]
 
