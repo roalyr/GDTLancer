@@ -397,7 +397,7 @@ func _on_ButtonInteract_pressed():
 
 # One button per fitted tool (placeholders in TemporaryToolZone), two states each: the tool's
 # action while off (FIRE, LAUNCH), CEASE / RELEASE while on, highlighted then. Buttons past the
-# fitted tools are hidden.
+# fitted tools are hidden; the row is centred, so it stays centred whatever the tool count.
 const TOOL_ACTIONS = {"laser": ["FIRE", "CEASE"], "harpoon": ["LAUNCH", "RELEASE"]}
 
 
