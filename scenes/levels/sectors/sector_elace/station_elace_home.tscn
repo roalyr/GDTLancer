@@ -12,6 +12,7 @@ location_id = "station_elace_home"
 station_name = "Elace Home Station"
 obstacle_radius = 110.0
 undock_offset = Vector3( 0, 70, 0 )
+has_beacon = true
 
 [node name="CollisionShape" type="CollisionShape" parent="."]
 shape = SubResource( 1 )

@@ -7,6 +7,7 @@ export var location_id: String = "station_elace_home"
 export var station_name: String = "Elace System"
 export var obstacle_radius: float = 120.0  # m the autopilot keeps clear of
 export var undock_offset: Vector3 = Vector3(0, 60, 0)  # Where a ship appears when it spawns docked, in station space
+export var has_beacon: bool = false  # A beacon is detected anywhere, like a star; without one, by size
 
 
 func _ready():
@@ -18,9 +19,10 @@ func get_obstacle_radius() -> float:
 	return obstacle_radius
 
 
-# Detected like anything else (see Constants SIGNATURE block): by its size.
+# Detected like anything else (see Constants SIGNATURE block): by its size, or anywhere if it
+# runs a beacon.
 func get_signature() -> float:
-	return obstacle_radius * Constants.SIG_PER_METRE_OF_SIZE
+	return INF if has_beacon else obstacle_radius * Constants.SIG_PER_METRE_OF_SIZE
 
 
 func get_undock_position() -> Vector3:

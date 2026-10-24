@@ -1,5 +1,6 @@
 # Tests for celestial and station signatures: stars are detected anywhere; planets, moons, asteroids
-# and stations within their radius times Constants.SIG_PER_METRE_OF_SIZE, by the ships' rule.
+# and stations within their radius times Constants.SIG_PER_METRE_OF_SIZE, by the ships' rule; a
+# station with a beacon anywhere.
 
 extends GutTest
 
@@ -71,3 +72,13 @@ func test_station_signature_is_its_size_times_the_constant():
 	_place(station, Vector3(0, 0, -110.0 * Constants.SIG_PER_METRE_OF_SIZE * 1.1))
 	assert_almost_eq(station.get_signature(), 110.0 * Constants.SIG_PER_METRE_OF_SIZE, 0.01)
 	assert_false(ship.detects(station), "A station out past its signature is off the sensors.")
+	station.has_beacon = true
+	station.global_transform.origin = Vector3(0, 0, -1e7)
+	assert_true(ship.detects(station), "One running a beacon is detected anywhere.")
+
+
+func test_home_station_runs_a_beacon():
+	var home = load("res://scenes/levels/sectors/sector_elace/station_elace_home.tscn").instance()
+	_place(home, Vector3(0, 0, -1e6))
+	assert_true(home.has_beacon)
+	assert_true(ship.detects(home), "The way home is always on the sensors.")

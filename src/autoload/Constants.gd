@@ -188,7 +188,8 @@ const TETHER_SHIVER_FREQUENCY = 40.0  # rad/s
 # A ship's signature is a distance: the hull's base (ShipTemplate.signature, plus modules) plus what
 # it is doing. Another ship detects it within signature * its own sensor strength. Celestials follow
 # the same rule: a star is detected anywhere; planets, moons, asteroids and stations within their
-# radius times SIG_PER_METRE_OF_SIZE (a 1 km planet: 100 km, a 20 m rock: 2 km).
+# radius times SIG_PER_METRE_OF_SIZE (a 1 km planet: 100 km, a 20 m rock: 2 km). A station with a
+# beacon (the home station) is detected anywhere, like a star.
 const SIG_ENGINE_FULL = 2500.0  # m added at full thrust
 const SIG_ENGINE_SMOOTHING = 0.5  # s; engine signature follows thrust this quickly
 const SIG_TOOL_FIRING = 3000.0  # m added right after a tool cycle
