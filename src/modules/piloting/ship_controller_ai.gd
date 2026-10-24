@@ -42,6 +42,8 @@ var skill: float = 0.5  # 0 novice .. 1 veteran: decision speed
 var _pending: Dictionary = {}  # A decision being made: {"kind", "target", "timer"}
 var _resume_state: int = AIState.PATROL  # What it was doing before it started hesitating
 var _resume_target: RigidBody = null  # and on what
+var _think_elapsed: float = 0.0  # s since it last thought
+var _think_due: float = randf() * Constants.AI_THINK_INTERVAL  # First think staggered across ships
 
 
 func _ready() -> void:
@@ -89,10 +91,18 @@ func _get_attack_tool_index() -> int:
 	return _tool_controller.find_tool_for(_target_agent)
 
 
+# Thinks every Constants.AI_THINK_INTERVAL (ships staggered), on the time gone since: the commands
+# and tool cycles it sets run on by themselves in between, and thinking every step was the second
+# costliest part of a physics step.
 func _physics_process(delta: float) -> void:
+	_think_elapsed += delta
+	if _think_elapsed < _think_due:
+		return
+	_think_due = Constants.AI_THINK_INTERVAL
 	FrameProfiler.begin(get_tree(), "ai")
-	_think(delta)
+	_think(_think_elapsed)
 	FrameProfiler.end(get_tree(), "ai")
+	_think_elapsed = 0.0
 
 
 func _think(delta: float) -> void:

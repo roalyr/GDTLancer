@@ -14,6 +14,8 @@ var movement_system: Node = null
 
 # --- State ---
 var _current_command = {}
+var _avoid_timer: float = randf() * Constants.NAV_AVOID_INTERVAL  # Staggers ships' avoidance checks
+var _avoid_push := Vector3.ZERO  # Last avoidance push, applied every step until the next check
 
 # --- Child Components ---
 var _command_handlers = {}
@@ -163,20 +165,29 @@ func _update_navigation(delta: float):
 		_command_handlers[CommandType.IDLE].execute(delta)
 
 	if not cmd_type in [CommandType.IDLE, CommandType.MOVE_DIRECTION]:
-		_apply_obstacle_avoidance(target_node)
+		_apply_obstacle_avoidance(target_node, delta)
 
 
 # Sidesteps obstacles (group "obstacle") in the way of the current velocity, except the command's
-# own target (e.g. the station being approached).
-func _apply_obstacle_avoidance(target_node) -> void:
+# own target (e.g. the station being approached). The push is worked out every
+# Constants.NAV_AVOID_INTERVAL (ships staggered) and applied every step in between: it looks seconds
+# ahead, so a fresher one would barely differ, and it was the costliest part of a physics step.
+func _apply_obstacle_avoidance(target_node, delta: float) -> void:
+	_avoid_timer -= delta
+	if _avoid_timer <= 0.0:
+		_avoid_timer += Constants.NAV_AVOID_INTERVAL
+		_avoid_push = _compute_obstacle_push(target_node)
+	if _avoid_push != Vector3.ZERO:
+		movement_system.request_thrust_direction(_avoid_push, min(1.0, _avoid_push.length()) * Constants.NAV_AVOID_THRUST)
+
+
+func _compute_obstacle_push(target_node) -> Vector3:
 	var obstacles: Array = []
 	for obstacle in get_obstacles(get_tree()):
 		if obstacle[2] != target_node:
 			obstacles.append(obstacle)
 	var own_radius: float = agent_body.get_apparent_radius() if agent_body.has_method("get_apparent_radius") else 10.0
-	var push: Vector3 = compute_avoidance(agent_body.global_transform.origin, agent_body.linear_velocity, own_radius, obstacles)
-	if push != Vector3.ZERO:
-		movement_system.request_thrust_direction(push, min(1.0, push.length()) * Constants.NAV_AVOID_THRUST)
+	return compute_avoidance(agent_body.global_transform.origin, agent_body.linear_velocity, own_radius, obstacles)
 
 
 # Every obstacle as [centre, radius, node], gathered once per physics step and shared by every

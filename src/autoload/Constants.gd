@@ -83,6 +83,7 @@ const NAV_AVOID_LOOKAHEAD_TIME = 8.0  # s of travel checked ahead
 const NAV_AVOID_CLEARANCE = 1.6  # Keep (obstacle radius + own radius) * this between path and centre
 const NAV_AVOID_THRUST = 1.0  # Share of linear thrust used to sidestep at full urgency
 const NAV_AVOID_MIN_SPEED = 2.0  # m/s; slower than this, nothing to avoid
+const NAV_AVOID_INTERVAL = 0.1  # s between a ship's avoidance checks (the push holds in between)
 
 
 # ==================================================================================================
@@ -394,6 +395,7 @@ const AI_DECISION_AMBIGUITY_WEIGHT = 1.0  # A coin-flip situation takes up to th
 const AI_DECISION_RANDOMNESS = 0.4
 const AI_REPATH_INTERVAL = 0.5  # s
 const AI_SCAN_INTERVAL = 1.0  # s
+const AI_THINK_INTERVAL = 0.1  # s between an NPC's thinks (its commands and tools run on in between)
 
 # Factions: who is at war with whom. "player" is the player's faction; NPCs are neutral to the
 # player unless at war with it, or holding a grudge (the player shot them).
