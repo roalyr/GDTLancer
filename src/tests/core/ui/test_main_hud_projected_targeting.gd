@@ -132,8 +132,8 @@ func test_main_hud_overlay_classification_and_filtering_track_requested_categori
 	yield(get_tree(), "idle_frame")
 
 	var route_target = RouteTargetScript.new().configure(
-		"sector_star_elace",
-		"sector_star_cob",
+		"sector_elace",
+		"sector_cob",
 		"Cob System",
 		Vector3(0, 0, -100)
 	)
@@ -248,8 +248,8 @@ func test_main_hud_projected_target_distance_fade_alpha_matches_center_and_edge_
 func test_projected_target_bracket_scene_owns_centered_info_label_for_jump_routes() -> void:
 	var bracket = _create_projected_target_bracket()
 	var route_target = RouteTargetScript.new().configure(
-		"sector_star_elace",
-		"sector_star_cob",
+		"sector_elace",
+		"sector_cob",
 		"Cob System",
 		Vector3(1, 0, 0)
 	)
@@ -272,12 +272,9 @@ func test_projected_target_bracket_scene_owns_centered_info_label_for_jump_route
 
 func test_projected_target_bracket_applies_colors_by_jump_type() -> void:
 	var bracket = _create_projected_target_bracket()
-	var types = ["star", "star_companion", "planet", "moon", "deep_space"]
+	var types = ["system", "deep_space"]
 	var colors = [
-		Constants.COLOR_UI_JUMP_STAR,
-		Constants.COLOR_UI_JUMP_STAR_COMPANION,
-		Constants.COLOR_UI_JUMP_PLANET,
-		Constants.COLOR_UI_JUMP_MOON,
+		Constants.COLOR_UI_JUMP_SYSTEM,
 		Constants.COLOR_UI_JUMP_DEEP_SPACE
 	]
 	
@@ -291,7 +288,7 @@ func test_projected_target_bracket_applies_colors_by_jump_type() -> void:
 		}
 		
 		var route_target = RouteTargetScript.new().configure(
-			"sector_star_elace",
+			"sector_elace",
 			sector_id,
 			"Test System " + type,
 			Vector3(1, 0, 0)
@@ -337,8 +334,8 @@ func test_projected_target_bracket_distance_formatter_matches_requested_magnitud
 func test_projected_target_bracket_selected_jump_route_shows_far_distance_label() -> void:
 	var bracket = _create_projected_target_bracket()
 	var route_target = RouteTargetScript.new().configure(
-		"sector_star_elace",
-		"sector_star_cob",
+		"sector_elace",
+		"sector_cob",
 		"Cob System",
 		Vector3(1, 0, 0)
 	)
@@ -497,8 +494,8 @@ func test_main_hud_dock_button_label_toggles_between_dock_and_travel() -> void:
 
 	# Select a route target (jump target)
 	var route_target = RouteTargetScript.new().configure(
-		"sector_star_elace",
-		"sector_star_cob",
+		"sector_elace",
+		"sector_cob",
 		"Cob System",
 		Vector3(1, 0, 0)
 	)

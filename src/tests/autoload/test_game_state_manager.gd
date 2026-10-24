@@ -18,11 +18,11 @@ func after_each():
 
 func _populate_game_state() -> void:
 	GameState.player_ship_template_id = "ship_default"
-	GameState.current_sector_id = "sector_star_cob"
-	GameState.player_docked_at = "sector_star_cob"
+	GameState.current_sector_id = "sector_cob"
+	GameState.player_docked_at = "sector_cob"
 	GameState.player_position = Vector3(10, 20, 30)
 	GameState.player_rotation = Vector3(0, 90, 0)
-	GameState.player_arrived_from_sector = "sector_star_elace"
+	GameState.player_arrived_from_sector = "sector_elace"
 	GameState.player_arrival_direction = Vector3(0, 0, -1)
 
 
@@ -33,11 +33,11 @@ func test_save_and_load_restores_all_fields():
 
 	assert_true(GameStateManager.load_game(TEST_SLOT), "Game should load successfully.")
 	assert_eq(GameState.player_ship_template_id, "ship_default")
-	assert_eq(GameState.current_sector_id, "sector_star_cob")
-	assert_eq(GameState.player_docked_at, "sector_star_cob")
+	assert_eq(GameState.current_sector_id, "sector_cob")
+	assert_eq(GameState.player_docked_at, "sector_cob")
 	assert_eq(GameState.player_position, Vector3(10, 20, 30))
 	assert_eq(GameState.player_rotation, Vector3(0, 90, 0))
-	assert_eq(GameState.player_arrived_from_sector, "sector_star_elace")
+	assert_eq(GameState.player_arrived_from_sector, "sector_elace")
 	assert_eq(GameState.player_arrival_direction, Vector3(0, 0, -1))
 
 

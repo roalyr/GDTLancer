@@ -73,11 +73,15 @@ func spawn_player():
 			if entry_node and entry_node is Spatial:
 				anchor_pos = entry_node.global_transform.origin
 		
-		# Generate a random offset around the anchor based on jump_in_distance (+/- 10% variation)
+		# Arrive jump_in_distance (+/- 10%) from the anchor, on the side facing the system the jump
+		# came from (scattered a little), or anywhere around it on a new game.
 		var base_dist = _get_jump_in_distance_for_sector(GameState.current_sector_id)
 		var random_dir = Vector3(rand_range(-1, 1), rand_range(-1, 1), rand_range(-1, 1)).normalized()
+		var spawn_dir = random_dir
+		if GameState.player_arrival_direction != Vector3.ZERO:
+			spawn_dir = (GameState.player_arrival_direction.normalized() + random_dir * Constants.JUMP_ARRIVAL_SCATTER).normalized()
 		var random_dist = rand_range(base_dist * 0.9, base_dist * 1.1)
-		player_spawn_pos = anchor_pos + (random_dir * random_dist)
+		player_spawn_pos = anchor_pos + (spawn_dir * random_dist)
 		
 		is_jump_in = true
 		jump_in_anchor = anchor_pos
@@ -182,12 +186,8 @@ func _get_jump_in_distance_for_sector(sector_id: String) -> float:
 		
 	# Fallback based on sector type
 	match sector_type.to_lower():
-		"star", "star_companion":
+		"system":
 			return 20000.0
-		"planet":
-			return 5000.0
-		"moon":
-			return 2000.0
 		_:
 			return 5000.0
 

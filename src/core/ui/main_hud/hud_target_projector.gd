@@ -29,14 +29,7 @@ func apply_projected_target_distance_fade(button: Control, fade_alpha: float) ->
 
 func get_projected_target_overlay_kind(target_ref) -> String:
 	if is_route_target(target_ref):
-		var dest_id = target_ref.get("target_sector_id")
-		var sector_type = "star"
-		if dest_id != null and dest_id != "":
-			sector_type = TemplateDatabase.get_sector_type(str(dest_id))
-		if sector_type == "star":
-			return _hud.OVERLAY_KIND_JUMP
-		else:
-			return _hud.OVERLAY_KIND_STELLAR
+		return _hud.OVERLAY_KIND_JUMP
 	if not (is_instance_valid(target_ref) and target_ref is Node):
 		return ""
 	if target_ref.is_in_group("jump_point"):

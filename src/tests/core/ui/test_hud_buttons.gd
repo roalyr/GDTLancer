@@ -39,7 +39,7 @@ func test_button_debug_toggles_the_readout() -> void:
 
 
 func test_main_menu_close_hides_and_unpauses_live_session() -> void:
-	GameState.current_sector_id = "sector_star_elace"
+	GameState.current_sector_id = "sector_elace"
 
 	var main_menu = MainMenuScene.instance()
 	add_child_autofree(main_menu)

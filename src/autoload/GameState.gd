@@ -31,7 +31,7 @@ var player_cargo: Dictionary = {}
 ## Currently loaded zone node.
 var current_zone_instance: Node = null
 
-## ID of the currently loaded sector (e.g. "sector_star_elace").
+## ID of the currently loaded sector (e.g. "sector_elace").
 var current_sector_id: String = ""
 
 ## Location ID the player is docked at, or empty string if in space.

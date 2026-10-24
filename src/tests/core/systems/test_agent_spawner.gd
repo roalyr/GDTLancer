@@ -23,7 +23,7 @@ func before_each():
 	TemplateDatabase.locations = {
 		Constants.INITIAL_SECTOR_ID: {
 			"jump_in_distance": 2000.0,
-			"sector_type": "moon"
+			"sector_type": "system"
 		}
 	}
 	GameState.current_sector_id = Constants.INITIAL_SECTOR_ID
@@ -137,4 +137,8 @@ func test_spawn_player_on_route_arrival_preserves_saved_rotation():
 	assert_true(
 		distance_from_origin >= 1799.0 and distance_from_origin <= 2201.0,
 		"Route-arrival spawns should apply a varied offset near the anchor position (+/- 10%)."
+	)
+	assert_true(
+		spawned_body.global_transform.origin.normalized().dot(Vector3(0, 0, -1)) > 0.8,
+		"Route arrivals should land on the side facing the system the jump came from."
 	)

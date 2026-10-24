@@ -17,6 +17,6 @@ func test_core_node_names_exist():
 
 
 func test_jump_travel_duration_is_symmetric_by_sector_type():
-	assert_eq(Constants.get_jump_travel_duration("star", "planet"), Constants.JUMP_DURATION_STAR_PLANET)
-	assert_eq(Constants.get_jump_travel_duration("planet", "star"), Constants.JUMP_DURATION_STAR_PLANET)
-	assert_eq(Constants.get_jump_travel_duration("moon", "deep_space"), Constants.JUMP_DURATION_ANY_DEEP_SPACE)
+	assert_eq(Constants.get_jump_travel_duration("system", "system"), Constants.JUMP_DURATION_SYSTEM_SYSTEM)
+	assert_eq(Constants.get_jump_travel_duration("system", "deep_space"), Constants.JUMP_DURATION_ANY_DEEP_SPACE)
+	assert_eq(Constants.get_jump_travel_duration("deep_space", "system"), Constants.JUMP_DURATION_ANY_DEEP_SPACE)

@@ -30,14 +30,14 @@ func after_each():
 # =============================================================================
 
 func test_load_sector_returns_spatial():
-	var zone = sector_loader.load_sector("sector_star_elace")
+	var zone = sector_loader.load_sector("sector_elace")
 	assert_not_null(zone, "load_sector should return a non-null value.")
 	assert_is(zone, Spatial, "load_sector should return a Spatial node.")
 	zone.free()
 
 
 func test_zone_has_agent_container():
-	var zone = sector_loader.load_sector("sector_star_elace")
+	var zone = sector_loader.load_sector("sector_elace")
 	assert_not_null(zone)
 	var agent_container = zone.find_node("AgentContainer", true, false)
 	assert_not_null(agent_container, "Zone should have an AgentContainer node.")
@@ -46,27 +46,39 @@ func test_zone_has_agent_container():
 
 
 #func test_zone_has_jump_points_for_connections():
-#	var zone = sector_loader.load_sector("sector_star_elace")
+#	var zone = sector_loader.load_sector("sector_elace")
 #	assert_not_null(zone)
 #	add_child(zone)
 #	var jump_points = get_tree().get_nodes_in_group("jump_point")
-#	# sector_star_elace connects to 
+#	# sector_elace connects to 
 	# Errors here
 #	assert_gt(jump_points.size(), 0,
-#		"Zone should have at least 1 JumpPoints for sector_star_elace connections.")
+#		"Zone should have at least 1 JumpPoints for sector_elace connections.")
 #	var target_ids = []
 #	for jp in jump_points:
 #		target_ids.append(jp.target_sector_id)
-#	assert_has(target_ids, "sector_star_lywin",
+#	assert_has(target_ids, "sector_lywin",
 #		"One JumpPoint should target station_beta.")
 #	zone.queue_free()
 
 
 func test_zone_has_starsphere():
-	var zone = sector_loader.load_sector("sector_star_elace")
+	var zone = sector_loader.load_sector("sector_elace")
 	assert_not_null(zone)
 	var starsphere = zone.find_node("StarsphereSlot", true, false)
 	assert_not_null(starsphere, "Zone should have a StarsphereSlot node.")
+	zone.free()
+
+
+func test_own_system_star_sprites_are_hidden():
+	var zone = sector_loader.load_sector("sector_lywin")
+	assert_not_null(zone)
+	var stars = zone.find_node("SectorStars*", true, false)
+	assert_not_null(stars, "The starsphere should hold the star sprites.")
+	for sprite_name in ["Star Lywin Sprite", "Star Lywin B Sprite", "Star Lywin C Sprite", "Star Lywin D Sprite"]:
+		assert_false(stars.get_node(sprite_name).visible, "Lywin's own stars are in the sector, not on the starsphere: " + sprite_name)
+	assert_true(stars.get_node("Star Cob Sprite").visible, "Other systems' stars stay on the starsphere.")
+	assert_true(stars.get_node("Star Elace Sprite").visible, "Other systems' stars stay on the starsphere.")
 	zone.free()
 
 
@@ -76,12 +88,12 @@ func test_load_invalid_sector_returns_null():
 
 
 func test_load_sector_with_invalid_scene_path_uses_procedural_fallback():
-	var original_template = TemplateDatabase.locations["sector_star_elace"]
+	var original_template = TemplateDatabase.locations["sector_elace"]
 	var mutated_template = original_template.duplicate(true)
 	mutated_template.sector_scene_path = "res://scenes/levels/sectors/missing_sector/missing_sector.tscn"
-	TemplateDatabase.locations["sector_star_elace"] = mutated_template
+	TemplateDatabase.locations["sector_elace"] = mutated_template
 
-	var zone = sector_loader.load_sector("sector_star_elace")
+	var zone = sector_loader.load_sector("sector_elace")
 	assert_not_null(zone, "Missing handcrafted scene paths should fall back to a procedural zone.")
 	assert_is(zone, Spatial, "Fallback sector should still return a Spatial node.")
 	assert_not_null(
@@ -101,9 +113,9 @@ func test_load_sector_without_scene_path_uses_procedural_fallback():
 
 
 #func test_nebula_offset_differs_between_sectors():
-#	var zone_alpha = sector_loader.load_sector("sector_star_elace")
-	# Error, returns Null for sector_star_lywin
-#	var zone_beta = sector_loader.load_sector("sector_star_lywin")
+#	var zone_alpha = sector_loader.load_sector("sector_elace")
+	# Error, returns Null for sector_lywin
+#	var zone_beta = sector_loader.load_sector("sector_lywin")
 #	assert_not_null(zone_alpha)
 #	assert_not_null(zone_beta)
 #
@@ -126,9 +138,9 @@ func test_load_sector_without_scene_path_uses_procedural_fallback():
 
 func _seed_template_database() -> void:
 	var location_paths: Array = [
-		"res://database/registry/locations/sector_star_elace.tres",
-		"res://database/registry/locations/sector_star_cob.tres",
-		"res://database/registry/locations/sector_star_lywin.tres",
+		"res://database/registry/locations/sector_elace.tres",
+		"res://database/registry/locations/sector_cob.tres",
+		"res://database/registry/locations/sector_lywin.tres",
 	]
 	for path in location_paths:
 		var res = load(path)

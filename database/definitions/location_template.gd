@@ -27,8 +27,8 @@ export var sector_description: String = ""
 # --- Sector Graph ---
 ## IDs of connected sectors. These define the sector graph and jump routes.
 export var connections: PoolStringArray = PoolStringArray()
-## Celestial geographic classification: star / star_companion / planet / moon / deep_space / hazard_zone
-export var sector_type: String = "star"
+## system (a whole star system: star, planets, moons, companions) / deep_space / hazard_zone
+export var sector_type: String = "system"
 
 # --- Hazards ---
 ## Environmental radiation (0.0 = safe, 1.0 = lethal).

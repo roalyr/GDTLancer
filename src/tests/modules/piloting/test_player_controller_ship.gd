@@ -15,7 +15,7 @@ func after_each():
 
 func test_dock_without_a_station_never_docks_at_the_sector():
 	var controller = PlayerControllerScript.new()
-	GameState.current_sector_id = "sector_star_elace"
+	GameState.current_sector_id = "sector_elace"
 	watch_signals(EventBus)
 
 	controller._on_dock_button_pressed()

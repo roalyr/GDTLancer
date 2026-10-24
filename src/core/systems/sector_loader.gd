@@ -72,6 +72,19 @@ func _offset_nebula(zone_root: Spatial, template) -> void:
 		return
 	var offset = Constants.get_reference_origin_offset(template.global_position)
 	nebulas.transform.origin = offset
+	_hide_own_system_star_sprites(nebulas, offset)
+
+
+# The starsphere draws every star as a distant sprite. The current system's own stars are in the
+# sector scene itself, so their sprites would double them (and drift, since the starsphere follows
+# the camera).
+func _hide_own_system_star_sprites(nebulas: Spatial, offset: Vector3) -> void:
+	for group in nebulas.get_children():
+		if not str(group.name).begins_with("SectorStars"):
+			continue
+		for star in group.get_children():
+			if star is Spatial and (star.transform.origin + offset).length() < Constants.STARSPHERE_OWN_SYSTEM_RADIUS:
+				star.visible = false
 
 
 func _build_procedural_fallback(sector_id: String) -> Spatial:

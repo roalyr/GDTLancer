@@ -32,7 +32,7 @@ const AGENT_BODY_NODE_NAME = "AgentBody"
 const AI_CONTROLLER_NODE_NAME = "AIController"
 const PLAYER_INPUT_HANDLER_NAME = "PlayerInputHandler"
 
-const INITIAL_SECTOR_ID: String = "sector_star_elace"  # Starting sector for a new game
+const INITIAL_SECTOR_ID: String = "sector_elace"  # Starting sector for a new game
 const RUN_PERMADEATH = true  # Losing the ship ends the run: its saves are deleted
 const DEFAULT_GAME_START_ID = "start_default"
 const FALLBACK_SHIP_TEMPLATE_ID = "ship_default"  # If the game start names no ship
@@ -420,6 +420,7 @@ const WRECK_MAX: int = 16  # Past this, the oldest are removed even with salvage
 const DOCKING_PROMPT_RADIUS: float = 500.0  # m; the dock prompt appears
 const DOCKING_ACTION_RADIUS: float = 300.0  # m; dock / jump works
 const SECTOR_JUMP_ARRIVAL_RADIUS: float = 50000.0  # m; arrival shell for route jumps
+const JUMP_ARRIVAL_SCATTER: float = 0.3  # Arrivals land on the side facing the source system, scattered this much
 const REFERENCE_ORIGIN: Vector3 = Vector3(0, 0, 0)  # Elace system global_position (nebula reference)
 
 const JUMP_ALIGNMENT_MAX_DEVIATION_DEG = 5.0  # Heading error allowed before jumping
@@ -432,13 +433,15 @@ const JUMP_TRANSITION_RIG_NODE_NAME: String = "JumpTransitionRig"
 const JUMP_TRANSITION_DEFAULT_DIRECTION: Vector3 = Vector3(0, 0, -1)
 const JUMP_TRANSITION_LOAD_TIMEOUT_SEC: float = 1.5
 
-# Travel time by the pair of sector types.
+# Travel time by the pair of sector types. A sector is a whole star system (star, planets, moons,
+# companion stars) or a patch of deep space; bodies inside a system are flown to, not jumped to.
 const JUMP_TRAVEL_DURATION: float = 20.0  # Any other pair
-const JUMP_DURATION_STAR_STAR: float = 30.0
-const JUMP_DURATION_STAR_STAR_COMPANION: float = 15.0
-const JUMP_DURATION_STAR_PLANET: float = 10.0
-const JUMP_DURATION_PLANET_MOON: float = 5.0
+const JUMP_DURATION_SYSTEM_SYSTEM: float = 30.0
 const JUMP_DURATION_ANY_DEEP_SPACE: float = 15.0
+
+# Starsphere sprites of stars this close (galactic units) to the current system's global_position
+# are hidden: those stars are in the sector itself (Lywin's companions).
+const STARSPHERE_OWN_SYSTEM_RADIUS: float = 100000.0
 
 
 func get_jump_travel_duration(type_a: String, type_b: String) -> float:
@@ -446,16 +449,8 @@ func get_jump_travel_duration(type_a: String, type_b: String) -> float:
 	var b = type_b.to_lower()
 	if a == "deep_space" or b == "deep_space":
 		return JUMP_DURATION_ANY_DEEP_SPACE
-	var pair = [a, b]
-	pair.sort()
-	if pair == ["star", "star"]:
-		return JUMP_DURATION_STAR_STAR
-	elif pair == ["star", "star_companion"]:
-		return JUMP_DURATION_STAR_STAR_COMPANION
-	elif pair == ["planet", "star"]:
-		return JUMP_DURATION_STAR_PLANET
-	elif pair == ["moon", "planet"]:
-		return JUMP_DURATION_PLANET_MOON
+	if a == "system" and b == "system":
+		return JUMP_DURATION_SYSTEM_SYSTEM
 	return JUMP_TRAVEL_DURATION
 
 
@@ -481,23 +476,14 @@ const COLOR_UI_WRECK = Color(0.6, 0.6, 0.6, 0.9)  # Grey: wreck brackets
 
 # Jump route brackets, by sector type.
 const COLOR_UI_JUMP_ROUTE = Color(0.0, 0.7, 1.0, 1.0)  # Fallback
-const COLOR_UI_JUMP_STAR = Color(0.95, 0.65, 0.15, 1.0)  # Warm gold
-const COLOR_UI_JUMP_STAR_COMPANION = Color(0.85, 0.45, 0.85, 1.0)  # Violet
-const COLOR_UI_JUMP_PLANET = Color(0.15, 0.85, 0.45, 1.0)  # Emerald
-const COLOR_UI_JUMP_MOON = Color(0.65, 0.8, 0.95, 1.0)  # Ice blue
+const COLOR_UI_JUMP_SYSTEM = Color(0.95, 0.65, 0.15, 1.0)  # Warm gold
 const COLOR_UI_JUMP_DEEP_SPACE = Color(0.5, 0.5, 0.9, 1.0)  # Slate blue
 
 
 func get_jump_type_color(sector_type: String) -> Color:
 	match sector_type.to_lower():
-		"star":
-			return COLOR_UI_JUMP_STAR
-		"star_companion":
-			return COLOR_UI_JUMP_STAR_COMPANION
-		"planet":
-			return COLOR_UI_JUMP_PLANET
-		"moon":
-			return COLOR_UI_JUMP_MOON
+		"system":
+			return COLOR_UI_JUMP_SYSTEM
 		"deep_space", "hazard_zone":
 			return COLOR_UI_JUMP_DEEP_SPACE
 		_:

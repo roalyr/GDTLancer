@@ -11,8 +11,8 @@ var _saved_locations: Dictionary = {}
 func before_each():
 	_saved_locations = TemplateDatabase.locations
 	TemplateDatabase.locations = {
-		Constants.INITIAL_SECTOR_ID: {"global_position": Vector3(0, 0, 0), "connections": ["sector_star_cob"]},
-		"sector_star_cob": {"global_position": Vector3(100, 0, 0), "connections": [Constants.INITIAL_SECTOR_ID]},
+		Constants.INITIAL_SECTOR_ID: {"global_position": Vector3(0, 0, 0), "connections": ["sector_cob"]},
+		"sector_cob": {"global_position": Vector3(100, 0, 0), "connections": [Constants.INITIAL_SECTOR_ID]},
 	}
 	world_manager = WorldManagerScript.new()
 
@@ -31,8 +31,8 @@ func after_each():
 
 func test_resolve_known_sector_id_returns_requested_sector_when_present():
 	assert_eq(
-		world_manager._resolve_known_sector_id("sector_star_cob", "test"),
-		"sector_star_cob",
+		world_manager._resolve_known_sector_id("sector_cob", "test"),
+		"sector_cob",
 		"Known sectors should pass through unchanged."
 	)
 
@@ -47,16 +47,16 @@ func test_resolve_known_sector_id_falls_back_to_initial_sector_for_missing_ids()
 
 func test_get_arrival_direction_for_route_points_back_to_source_sector():
 	assert_eq(
-		world_manager._get_arrival_direction_for_route(Constants.INITIAL_SECTOR_ID, "sector_star_cob"),
+		world_manager._get_arrival_direction_for_route(Constants.INITIAL_SECTOR_ID, "sector_cob"),
 		Vector3(-1, 0, 0),
 		"Arrival direction should point from destination back toward the source sector."
 	)
 
 
 func test_get_arrival_direction_for_route_returns_zero_when_positions_match():
-	TemplateDatabase.locations["sector_star_cob"] = {"global_position": Vector3(0, 0, 0)}
+	TemplateDatabase.locations["sector_cob"] = {"global_position": Vector3(0, 0, 0)}
 	assert_eq(
-		world_manager._get_arrival_direction_for_route(Constants.INITIAL_SECTOR_ID, "sector_star_cob"),
+		world_manager._get_arrival_direction_for_route(Constants.INITIAL_SECTOR_ID, "sector_cob"),
 		Vector3.ZERO,
 		"Identical sector positions should not fabricate an arrival direction."
 	)
@@ -92,10 +92,10 @@ func test_jump_transition_active_defaults_false():
 
 func test_begin_jump_transition_foundation_uses_rig_when_enabled():
 	var harness = _create_jump_transition_harness(true)
-	world_manager._begin_jump_transition_foundation(Constants.INITIAL_SECTOR_ID, "sector_star_cob")
+	world_manager._begin_jump_transition_foundation(Constants.INITIAL_SECTOR_ID, "sector_cob")
 	var expected_direction = _compute_expected_departure_direction(
 		Constants.INITIAL_SECTOR_ID,
-		"sector_star_cob"
+		"sector_cob"
 	)
 
 	assert_true(
@@ -117,7 +117,7 @@ func test_begin_jump_transition_foundation_uses_rig_when_enabled():
 
 func test_begin_jump_transition_foundation_resets_when_disabled():
 	var harness = _create_jump_transition_harness(false)
-	world_manager._begin_jump_transition_foundation(Constants.INITIAL_SECTOR_ID, "sector_star_cob")
+	world_manager._begin_jump_transition_foundation(Constants.INITIAL_SECTOR_ID, "sector_cob")
 
 	assert_false(
 		world_manager.is_jump_transition_active(),
@@ -137,7 +137,7 @@ func test_begin_jump_transition_foundation_resets_when_disabled():
 
 func test_reset_jump_transition_foundation_clears_active_state_and_resets_rig():
 	var harness = _create_jump_transition_harness(true)
-	world_manager._begin_jump_transition_foundation(Constants.INITIAL_SECTOR_ID, "sector_star_cob")
+	world_manager._begin_jump_transition_foundation(Constants.INITIAL_SECTOR_ID, "sector_cob")
 	world_manager._reset_jump_transition_foundation()
 
 	assert_false(

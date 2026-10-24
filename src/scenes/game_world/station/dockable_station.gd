@@ -3,7 +3,7 @@
 
 extends StaticBody
 
-export var location_id: String = "sector_star_elace"
+export var location_id: String = "station_elace_home"
 export var station_name: String = "Elace System"
 export var obstacle_radius: float = 120.0  # m the autopilot keeps clear of
 export var undock_offset: Vector3 = Vector3(0, 60, 0)  # Where a ship appears when it spawns docked, in station space

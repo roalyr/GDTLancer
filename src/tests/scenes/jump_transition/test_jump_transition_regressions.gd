@@ -13,8 +13,8 @@ func before_each():
 	_original_mouse_mode = Input.get_mouse_mode()
 	_saved_locations = TemplateDatabase.locations
 	TemplateDatabase.locations = {
-		Constants.INITIAL_SECTOR_ID: {"global_position": Vector3(1200, 50, -300), "connections": ["sector_star_cob"]},
-		"sector_star_cob": {"global_position": Vector3(2200, 50, -300), "connections": [Constants.INITIAL_SECTOR_ID]},
+		Constants.INITIAL_SECTOR_ID: {"global_position": Vector3(1200, 50, -300), "connections": ["sector_cob"]},
+		"sector_cob": {"global_position": Vector3(2200, 50, -300), "connections": [Constants.INITIAL_SECTOR_ID]},
 	}
 
 
@@ -177,7 +177,7 @@ func test_jump_transition_rig_preserves_camera_pose_and_keeps_nebula_anchor_stat
 	source_camera.global_transform = Transform(source_basis, Vector3(75, 20, -40))
 
 	rig.capture_from_camera(source_camera)
-	rig.begin_departure(Constants.INITIAL_SECTOR_ID, "sector_star_cob", Vector3(1, 0, 0))
+	rig.begin_departure(Constants.INITIAL_SECTOR_ID, "sector_cob", Vector3(1, 0, 0))
 
 	var transition_camera = rig.get_node("TransitionCamera")
 	var nebula_holder = rig.get_node("NebulaHolder")
@@ -330,7 +330,7 @@ func test_run_jump_transition_sequence_simplified_flow():
 	add_child_autofree(rig)
 	world_manager.rig_ref = rig
 
-	var sequence_state = world_manager._run_jump_transition_sequence("sector_star_cob")
+	var sequence_state = world_manager._run_jump_transition_sequence("sector_cob")
 	if sequence_state is GDScriptFunctionState:
 		yield(sequence_state, "completed")
 	assert_true(event_order.find("prepare_visuals") != -1, "Should prepare visuals.")
@@ -357,7 +357,7 @@ func test_jump_transition_rig_completes_route_when_destination_is_reached():
 	source_camera.global_transform = Transform(Basis(), Vector3.ZERO)
 
 	rig.capture_from_camera(source_camera)
-	rig.begin_departure(Constants.INITIAL_SECTOR_ID, "sector_star_cob", Vector3(1, 0, 0))
+	rig.begin_departure(Constants.INITIAL_SECTOR_ID, "sector_cob", Vector3(1, 0, 0))
 	rig.begin_cruise(4000.0)
 
 	for _step in range(60):
@@ -371,31 +371,22 @@ func test_jump_transition_rig_completes_route_when_destination_is_reached():
 	)
 	assert_eq(
 		rig.get_route_world_position(),
-		TemplateDatabase.locations["sector_star_cob"]["global_position"],
+		TemplateDatabase.locations["sector_cob"]["global_position"],
 		"Completed jump transitions should clamp the internal route position to the destination coordinate for deterministic arrival handoff."
 	)
 	assert_eq(
 		rig.get_node("TransitionCamera").global_transform.origin,
-		TemplateDatabase.locations["sector_star_cob"]["global_position"] - TemplateDatabase.locations[Constants.INITIAL_SECTOR_ID]["global_position"],
+		TemplateDatabase.locations["sector_cob"]["global_position"] - TemplateDatabase.locations[Constants.INITIAL_SECTOR_ID]["global_position"],
 		"Completed jump transitions should end at the destination in current-sector-local space so the starsphere matches local-scene and map coordinates."
 	)
 
 
 func test_dynamic_travel_durations_for_pairs():
-	# star-star
-	assert_eq(Constants.get_jump_travel_duration("star", "star"), 30.0, "star-star travel should take 30 seconds.")
-	# star-star_companion (order-independent)
-	assert_eq(Constants.get_jump_travel_duration("star", "star_companion"), 15.0, "star-star_companion travel should take 15 seconds.")
-	assert_eq(Constants.get_jump_travel_duration("star_companion", "star"), 15.0, "star_companion-star travel should take 15 seconds.")
-	# star-planet
-	assert_eq(Constants.get_jump_travel_duration("star", "planet"), 10.0, "star-planet travel should take 10 seconds.")
-	assert_eq(Constants.get_jump_travel_duration("planet", "star"), 10.0, "planet-star travel should take 10 seconds.")
-	# planet-moon
-	assert_eq(Constants.get_jump_travel_duration("planet", "moon"), 5.0, "planet-moon travel should take 5 seconds.")
-	assert_eq(Constants.get_jump_travel_duration("moon", "planet"), 5.0, "moon-planet travel should take 5 seconds.")
-	# any-deep_space
-	assert_eq(Constants.get_jump_travel_duration("star", "deep_space"), 15.0, "star-deep_space travel should take 15 seconds.")
-	assert_eq(Constants.get_jump_travel_duration("deep_space", "planet"), 15.0, "deep_space-planet travel should take 15 seconds.")
+	# system-system
+	assert_eq(Constants.get_jump_travel_duration("system", "system"), 30.0, "system-system travel should take 30 seconds.")
+	# any-deep_space (order-independent)
+	assert_eq(Constants.get_jump_travel_duration("system", "deep_space"), 15.0, "system-deep_space travel should take 15 seconds.")
+	assert_eq(Constants.get_jump_travel_duration("deep_space", "system"), 15.0, "deep_space-system travel should take 15 seconds.")
 	assert_eq(Constants.get_jump_travel_duration("deep_space", "deep_space"), 15.0, "deep_space-deep_space travel should take 15 seconds.")
 	# fallback/unknown defaults to JUMP_TRAVEL_DURATION (20.0)
 	assert_eq(Constants.get_jump_travel_duration("unknown_a", "unknown_b"), 20.0, "Fallback duration should be 20 seconds.")

@@ -37,7 +37,7 @@ func get_sector_connections(sector_id: String) -> Array:
 	return connections
 
 
-func get_sector_type(sector_id: String, fallback: String = "star") -> String:
+func get_sector_type(sector_id: String, fallback: String = "system") -> String:
 	var template = locations.get(sector_id)
 	if template != null and template.get("sector_type") != null and str(template.get("sector_type")) != "":
 		return str(template.get("sector_type"))

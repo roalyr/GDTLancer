@@ -24,13 +24,13 @@ func test_applies_game_start_template():
 	var game_start = GameStartTemplate.new()
 	game_start.template_id = TEST_START_ID
 	game_start.player_ship_template = "ship_hostile_default"
-	game_start.player_starting_location = "sector_star_cob"
+	game_start.player_starting_location = "sector_cob"
 	TemplateDatabase.game_starts[TEST_START_ID] = game_start
 
 	generator_instance.generate_new_world(TEST_START_ID)
 
 	assert_eq(GameState.player_ship_template_id, "ship_hostile_default")
-	assert_eq(GameState.player_docked_at, "sector_star_cob")
+	assert_eq(GameState.player_docked_at, "sector_cob")
 
 
 func test_missing_game_start_falls_back_to_default_ship():
