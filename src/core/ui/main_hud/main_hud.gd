@@ -47,14 +47,11 @@ onready var _debug_label_target: Label = $ScreenControls/DebugOverlay/RightColum
 onready var _debug_label_world: Label = $ScreenControls/DebugOverlay/RightColumn/LabelWorld
 onready var _debug_label_render: Label = $ScreenControls/DebugOverlay/LabelRender
 onready var _debug_label_frame: Label = $ScreenControls/DebugOverlay/LabelFrame
-onready var label_docked_banner: Label = $ScreenControls/LabelDockedBanner
-onready var button_ship: TextureButton = $ScreenControls/CenterRightZone/ButtonShip
 onready var button_render_scale: TextureButton = $ScreenControls/CenterRightZone/ButtonRenderScale
 onready var label_render_scale: Label = $ScreenControls/CenterRightZone/ButtonRenderScale/LabelButtonScale
 onready var tool_buttons: Array = $ScreenControls/TemporaryToolZone.get_children()
 var fitting_window: Control = null
 var debug_map: Control = null
-var _banner_location_id: String = ""
 
 # --- Game Over UI ---
 onready var game_over_overlay: Control = $"GameOverOverlay (to be made into a dedicated window like main menu)"
@@ -184,8 +181,6 @@ func _ready():
 	_update_render_scale_label()
 	fitting_window = FittingWindowScene.instance()
 	add_child(fitting_window)
-	if is_instance_valid(button_ship):
-		button_ship.connect("pressed", fitting_window, "open")
 	debug_map = DebugMapScene.instance()
 	add_child(debug_map)
 	$ScreenControls/DebugOverlay/LeftColumn/ButtonDebugMap.connect("pressed", debug_map, "open")
@@ -217,7 +212,6 @@ func _update_hud() -> void:
 	_refresh_toggle_button_states()
 	_update_debug_overlay()
 	_update_tool_buttons()
-	_update_docked_banner()
 	_update_dock_button_label()
 
 
@@ -447,30 +441,11 @@ func _on_player_docked(_location_id):
 	_jump_target_id = ""
 	_refresh_projected_target_info_hints()
 	_update_dock_button_label()
-	_banner_location_id = ""
-	_update_docked_banner()
 
 
 # Deferred: the player controller clears GameState.player_docked_at in its own handler.
 func _on_player_undocked():
 	call_deferred("_update_dock_button_label")
-	call_deferred("_update_docked_banner")
-
-
-# "DOCKED AT <station>" while docked; follows GameState, so it can never disagree with it.
-func _update_docked_banner() -> void:
-	if not is_instance_valid(label_docked_banner):
-		return
-	var location_id: String = GameState.player_docked_at
-	label_docked_banner.visible = location_id != ""
-	if location_id == "" or location_id == _banner_location_id:
-		return
-	_banner_location_id = location_id
-	var station_name: String = location_id
-	for station in get_tree().get_nodes_in_group("dockable_station"):
-		if station.get("location_id") == location_id:
-			station_name = station.station_name
-	label_docked_banner.text = "DOCKED AT %s" % station_name.to_upper()
 
 
 # --- Jump UI Handlers ---

@@ -1,5 +1,5 @@
-# FittingWindow: the home station's store and refitting, mouse-only. Opened from the HUD's ship
-# button while docked at home. Slots (click to unfit), storage (fit or sell) and the store, which
+# FittingWindow: the home station's store and refitting, mouse-only. Shown for as long as the
+# player is docked at home, between the HUD's button rows so they stay usable. Slots (click to unfit), storage (fit or sell) and the store, which
 # sells every ship (the one flown is traded in), part and commodity (bought into the hold, sold
 # back from it). The frame is the scene; rows are rebuilt after every change.
 
@@ -17,13 +17,12 @@ onready var _status: Label = $Panel/Layout/Status
 
 
 func _ready() -> void:
-	$Panel/Layout/Header/ButtonClose.connect("pressed", self, "close")
+	EventBus.connect("player_docked", self, "_on_player_docked")
 	EventBus.connect("player_undocked", self, "_on_player_undocked")
 
 
 func open() -> void:
 	if not Fitting.is_available():
-		EventBus.emit_signal("dock_action_feedback", false, "Dock at the home station to refit")
 		return
 	_status.text = ""
 	visible = true
@@ -32,6 +31,10 @@ func open() -> void:
 
 func close() -> void:
 	visible = false
+
+
+func _on_player_docked(_location_id: String) -> void:
+	open()
 
 
 func _on_player_undocked() -> void:
@@ -43,11 +46,18 @@ func refresh() -> void:
 	if not is_instance_valid(ship_body) or ship_body.get("fit") == null:
 		close()
 		return
-	_title.text = "HOME STATION  -  BANK %d WP" % GameState.player_bank
+	_title.text = "DOCKED AT %s  -  BANK %d WP" % [_station_name(GameState.player_docked_at).to_upper(), GameState.player_bank]
 	_stats.text = describe_stats(ship_body)
 	_rebuild_slots(ship_body)
 	_rebuild_storage(ship_body)
 	_rebuild_store(ship_body)
+
+
+func _station_name(location_id: String) -> String:
+	for station in get_tree().get_nodes_in_group("dockable_station"):
+		if station.get("location_id") == location_id:
+			return station.station_name
+	return location_id
 
 
 static func describe_stats(ship_body) -> String:

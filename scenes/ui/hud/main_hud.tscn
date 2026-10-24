@@ -821,18 +821,6 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="LabelDockedBanner" type="Label" parent="ScreenControls"]
-visible = false
-anchor_left = 0.5
-anchor_right = 0.5
-margin_left = -300.0
-margin_top = 24.0
-margin_right = 300.0
-margin_bottom = 60.0
-theme = ExtResource( 9 )
-text = "DOCKED"
-align = 1
-
 [node name="TopLeftZone" type="Control" parent="ScreenControls"]
 margin_left = 375.0
 margin_right = 940.0

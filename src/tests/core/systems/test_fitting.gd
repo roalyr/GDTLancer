@@ -1,4 +1,5 @@
-# Tests for ShipFit (slots, default fit, stats) and Fitting (buying, selling, refitting at home).
+# Tests for ShipFit (slots, default fit, stats), Fitting (buying, selling, refitting at home) and the
+# station window shown while docked there.
 
 extends GutTest
 
@@ -225,3 +226,18 @@ func test_cargo_is_bought_into_the_hold_and_sold_back_at_base_value():
 	assert_eq_deep(body.cargo, {"c_fuel": 1})
 	body.remove_cargo("c_fuel", 1)
 	assert_ne(Fitting.sell_cargo(body, "c_fuel"), "", "None left to sell.")
+
+
+func test_station_window_is_shown_while_docked_at_home():
+	GlobalRefs.player_agent_body = _player_ship()
+	var window = load("res://scenes/ui/menus/fitting_window.tscn").instance()
+	add_child_autofree(window)
+	EventBus.emit_signal("player_docked", "home")
+	assert_true(window.visible, "Docking at home shows the station window")
+	assert_string_starts_with(window.get_node("Panel/Layout/Header/Title").text, "DOCKED AT", "and says where the ship is docked.")
+	EventBus.emit_signal("player_undocked")
+	assert_false(window.visible, "Undocking hides it.")
+	GameState.player_docked_at = "elsewhere"
+	EventBus.emit_signal("player_docked", "elsewhere")
+	assert_false(window.visible, "Other stations have no store.")
+	GlobalRefs.player_agent_body = null
