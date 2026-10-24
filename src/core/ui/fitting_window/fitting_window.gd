@@ -160,7 +160,7 @@ func _add_heading(container: Node, text: String) -> void:
 
 func _add_button(container: Node, text: String, disabled: bool, method: String, binds: Array) -> Button:
 	var button := Button.new()
-	button.text = text
+	button.text = text.to_upper()  # Like the HUD buttons
 	button.disabled = disabled
 	button.align = Button.ALIGN_LEFT
 	button.rect_min_size = Vector2(0, 40)

@@ -1032,14 +1032,14 @@ align = 1
 
 [node name="ButtonNewRun" type="Button" parent="GameOverOverlay (to be made into a dedicated window like main menu)/CenterContainer/PanelContainer/VBoxContainer"]
 theme = ExtResource( 9 )
-text = "New Run"
+text = "NEW RUN"
 
 [node name="ButtonReturnToMenu" type="Button" parent="GameOverOverlay (to be made into a dedicated window like main menu)/CenterContainer/PanelContainer/VBoxContainer"]
 margin_top = 31.0
 margin_right = 139.0
 margin_bottom = 62.0
 theme = ExtResource( 9 )
-text = "Return to Menu"
+text = "RETURN TO MENU"
 
 [connection signal="pressed" from="ScreenControls/CenterLeftZone/ButtonMenu" to="." method="_on_ButtonMenu_pressed"]
 [connection signal="pressed" from="ScreenControls/CenterLeftZone/ButtonDebug" to="." method="_on_ButtonDebug_pressed"]

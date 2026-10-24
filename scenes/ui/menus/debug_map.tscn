@@ -40,62 +40,62 @@ valign = 1
 [node name="ButtonRotLeft" type="Button" parent="Panel/Layout/Header"]
 rect_min_size = Vector2( 100, 64 )
 focus_mode = 0
-text = "Rot L"
+text = "ROT L"
 
 [node name="ButtonRotRight" type="Button" parent="Panel/Layout/Header"]
 rect_min_size = Vector2( 100, 64 )
 focus_mode = 0
-text = "Rot R"
+text = "ROT R"
 
 [node name="ButtonRotUp" type="Button" parent="Panel/Layout/Header"]
 rect_min_size = Vector2( 100, 64 )
 focus_mode = 0
-text = "Rot U"
+text = "ROT U"
 
 [node name="ButtonRotDown" type="Button" parent="Panel/Layout/Header"]
 rect_min_size = Vector2( 100, 64 )
 focus_mode = 0
-text = "Rot D"
+text = "ROT D"
 
 [node name="ButtonZoomIn" type="Button" parent="Panel/Layout/Header"]
 rect_min_size = Vector2( 100, 64 )
 focus_mode = 0
-text = "Zoom +"
+text = "ZOOM +"
 
 [node name="ButtonZoomOut" type="Button" parent="Panel/Layout/Header"]
 rect_min_size = Vector2( 100, 64 )
 focus_mode = 0
-text = "Zoom -"
+text = "ZOOM -"
 
 [node name="ButtonPanLeft" type="Button" parent="Panel/Layout/Header"]
 rect_min_size = Vector2( 100, 64 )
 focus_mode = 0
-text = "Pan L"
+text = "PAN L"
 
 [node name="ButtonPanRight" type="Button" parent="Panel/Layout/Header"]
 rect_min_size = Vector2( 100, 64 )
 focus_mode = 0
-text = "Pan R"
+text = "PAN R"
 
 [node name="ButtonPanUp" type="Button" parent="Panel/Layout/Header"]
 rect_min_size = Vector2( 100, 64 )
 focus_mode = 0
-text = "Pan U"
+text = "PAN U"
 
 [node name="ButtonPanDown" type="Button" parent="Panel/Layout/Header"]
 rect_min_size = Vector2( 100, 64 )
 focus_mode = 0
-text = "Pan D"
+text = "PAN D"
 
 [node name="ButtonReset" type="Button" parent="Panel/Layout/Header"]
 rect_min_size = Vector2( 100, 64 )
 focus_mode = 0
-text = "Reset"
+text = "RESET"
 
 [node name="ButtonClose" type="Button" parent="Panel/Layout/Header"]
 rect_min_size = Vector2( 160, 64 )
 focus_mode = 0
-text = "Close"
+text = "CLOSE"
 
 [node name="MapArea" type="Control" parent="Panel/Layout"]
 size_flags_vertical = 3

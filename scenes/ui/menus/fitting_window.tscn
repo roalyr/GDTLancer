@@ -50,7 +50,7 @@ margin_left = 1104.0
 margin_right = 1272.0
 margin_bottom = 40.0
 rect_min_size = Vector2( 160, 40 )
-text = "Close"
+text = "CLOSE"
 
 [node name="Stats" type="Label" parent="Panel/Layout"]
 margin_top = 54.0
