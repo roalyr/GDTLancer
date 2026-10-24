@@ -2,6 +2,8 @@
 
 extends Spatial
 
+const WorldRendering = preload("res://src/scenes/game_world/world_rendering.gd")
+
 enum OverlayEnvelopeState { INACTIVE, RISING, HOLDING, DECAYING }
 
 var _transition_camera: Camera = null
@@ -242,7 +244,7 @@ func set_transition_particles_active(is_active: bool, clear_existing: bool = fal
 	for emitter in _transition_particle_emitters:
 		if not is_instance_valid(emitter):
 			continue
-		emitter.visible = is_active
+		emitter.visible = is_active and WorldRendering.particles_allowed(get_tree())
 		emitter.emitting = false
 		if clear_existing and emitter.has_method("restart"):
 			emitter.restart()

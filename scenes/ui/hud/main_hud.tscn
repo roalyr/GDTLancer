@@ -170,7 +170,7 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="ButtonPlaceholder" type="TextureButton" parent="ScreenControls/CenterLeftZone"]
+[node name="ButtonParticlesToggle" type="TextureButton" parent="ScreenControls/CenterLeftZone"]
 anchor_top = 1.0
 anchor_bottom = 1.0
 margin_left = 240.0
@@ -178,6 +178,25 @@ margin_top = -100.0
 margin_right = 340.0
 texture_normal = ExtResource( 4 )
 expand = true
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="LabelButtonParticles" type="Label" parent="ScreenControls/CenterLeftZone/ButtonParticlesToggle"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -35.0
+margin_top = -13.5
+margin_right = 35.0
+margin_bottom = 13.5
+grow_horizontal = 2
+theme = ExtResource( 9 )
+text = "PARTICLES
+ON"
+align = 1
+script = ExtResource( 14 )
 __meta__ = {
 "_edit_lock_": true
 }
@@ -532,6 +551,9 @@ custom_constants/separation = 20
 alignment = 1
 
 [node name="ButtonTool1" type="TextureButton" parent="ScreenControls/TemporaryToolZone"]
+margin_left = 170.0
+margin_right = 270.0
+margin_bottom = 100.0
 rect_min_size = Vector2( 100, 100 )
 texture_normal = ExtResource( 4 )
 expand = true
@@ -539,7 +561,6 @@ expand = true
 [node name="Label" type="Label" parent="ScreenControls/TemporaryToolZone/ButtonTool1"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-mouse_filter = 2
 theme = ExtResource( 9 )
 text = "TOOL 1"
 align = 1
@@ -547,6 +568,9 @@ valign = 1
 autowrap = true
 
 [node name="ButtonTool2" type="TextureButton" parent="ScreenControls/TemporaryToolZone"]
+margin_left = 290.0
+margin_right = 390.0
+margin_bottom = 100.0
 rect_min_size = Vector2( 100, 100 )
 texture_normal = ExtResource( 4 )
 expand = true
@@ -554,7 +578,6 @@ expand = true
 [node name="Label" type="Label" parent="ScreenControls/TemporaryToolZone/ButtonTool2"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-mouse_filter = 2
 theme = ExtResource( 9 )
 text = "TOOL 2"
 align = 1
@@ -562,6 +585,9 @@ valign = 1
 autowrap = true
 
 [node name="ButtonTool3" type="TextureButton" parent="ScreenControls/TemporaryToolZone"]
+margin_left = 410.0
+margin_right = 510.0
+margin_bottom = 100.0
 rect_min_size = Vector2( 100, 100 )
 texture_normal = ExtResource( 4 )
 expand = true
@@ -569,7 +595,6 @@ expand = true
 [node name="Label" type="Label" parent="ScreenControls/TemporaryToolZone/ButtonTool3"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-mouse_filter = 2
 theme = ExtResource( 9 )
 text = "TOOL 3"
 align = 1
@@ -577,6 +602,9 @@ valign = 1
 autowrap = true
 
 [node name="ButtonTool4" type="TextureButton" parent="ScreenControls/TemporaryToolZone"]
+margin_left = 530.0
+margin_right = 630.0
+margin_bottom = 100.0
 rect_min_size = Vector2( 100, 100 )
 texture_normal = ExtResource( 4 )
 expand = true
@@ -584,7 +612,6 @@ expand = true
 [node name="Label" type="Label" parent="ScreenControls/TemporaryToolZone/ButtonTool4"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-mouse_filter = 2
 theme = ExtResource( 9 )
 text = "TOOL 4"
 align = 1

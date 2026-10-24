@@ -18,6 +18,13 @@ var viewport_keep_3d_linear = false
 var viewport_filter_upscaled = false  # Smooth the reduced picture when stretching it (false: crisp pixels)
 var projected_target_center_fade_enabled = true
 var jump_transition_enabled = true
+# CPUParticles on or off, all at once (the HUD's particles button), to spare a slow CPU their
+# simulation. Off hides them: a hidden CPUParticles is not simulated, whatever its emitting flag,
+# so effects need not know. Particles added while off are hidden as they come; code that shows
+# particles itself asks particles_allowed() first.
+var particles_enabled = true
+
+const PARTICLES_OFF_META = "particles_off"
 
 var _world_viewport: Viewport = null
 
@@ -57,6 +64,50 @@ func cycle_downscale_factor() -> float:
 	var index: int = steps.find(viewport_downscale_factor)
 	set_downscale_factor(steps[(index + 1) % steps.size()])
 	return viewport_downscale_factor
+
+
+func set_particles_enabled(enabled: bool) -> void:
+	particles_enabled = enabled
+	var tree := get_tree()
+	if enabled:
+		tree.remove_meta(PARTICLES_OFF_META)
+		if tree.is_connected("node_added", self, "_on_node_added"):
+			tree.disconnect("node_added", self, "_on_node_added")
+	else:
+		tree.set_meta(PARTICLES_OFF_META, true)
+		if not tree.is_connected("node_added", self, "_on_node_added"):
+			tree.connect("node_added", self, "_on_node_added")
+	# Switching on shows every emitter again: ones kept out of sight on purpose (camera dust during
+	# a jump, the jump rig's when idle) sit under a hidden container, which keeps them hidden.
+	var stack: Array = [tree.root]
+	while not stack.empty():
+		var node: Node = stack.pop_back()
+		if node is CPUParticles:
+			node.visible = enabled
+		stack.append_array(node.get_children())
+
+
+func toggle_particles() -> bool:
+	set_particles_enabled(not particles_enabled)
+	return particles_enabled
+
+
+# False while particles are switched off: code that shows particles itself checks this first.
+static func particles_allowed(tree: SceneTree) -> bool:
+	return not tree.has_meta(PARTICLES_OFF_META)
+
+
+func _on_node_added(node: Node) -> void:
+	if node is CPUParticles:
+		node.visible = false
+
+
+# The switch lives on the tree: do not leave it off without its keeper (a new game starts with it on).
+func _exit_tree() -> void:
+	var tree := get_tree()
+	tree.remove_meta(PARTICLES_OFF_META)
+	if tree.is_connected("node_added", self, "_on_node_added"):
+		tree.disconnect("node_added", self, "_on_node_added")
 
 
 func get_world_render_size_for_window() -> Vector2:

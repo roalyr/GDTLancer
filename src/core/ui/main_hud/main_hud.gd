@@ -49,6 +49,8 @@ onready var _debug_label_render: Label = $ScreenControls/DebugOverlay/LabelRende
 onready var _debug_label_frame: Label = $ScreenControls/DebugOverlay/LabelFrame
 onready var button_render_scale: TextureButton = $ScreenControls/CenterRightZone/ButtonRenderScale
 onready var label_render_scale: Label = $ScreenControls/CenterRightZone/ButtonRenderScale/LabelButtonScale
+onready var button_particles: TextureButton = $ScreenControls/CenterLeftZone/ButtonParticlesToggle
+onready var label_particles: Label = $ScreenControls/CenterLeftZone/ButtonParticlesToggle/LabelButtonParticles
 onready var tool_buttons: Array = $ScreenControls/TemporaryToolZone.get_children()
 var fitting_window: Control = null
 var debug_map: Control = null
@@ -179,6 +181,8 @@ func _ready():
 		tool_buttons[index].connect("pressed", self, "_on_tool_button_pressed", [index])
 	button_render_scale.connect("pressed", self, "_on_ButtonRenderScale_pressed")
 	_update_render_scale_label()
+	button_particles.connect("pressed", self, "_on_ButtonParticlesToggle_pressed")
+	_update_particles_label()
 	fitting_window = FittingWindowScene.instance()
 	add_child(fitting_window)
 	debug_map = DebugMapScene.instance()
@@ -739,6 +743,20 @@ func _update_render_scale_label() -> void:
 	var world_rendering = _get_world_rendering()
 	var factor: float = float(world_rendering.viewport_downscale_factor) if is_instance_valid(world_rendering) else 1.0
 	label_render_scale.text = "x%s" % str(factor) if str(factor).find(".") >= 0 else "x%s.0" % str(factor)
+
+
+# Switches every particle effect on or off (WorldRendering.particles_enabled): they cost a slow CPU.
+func _on_ButtonParticlesToggle_pressed() -> void:
+	var world_rendering = _get_world_rendering()
+	if is_instance_valid(world_rendering):
+		world_rendering.toggle_particles()
+	_update_particles_label()
+
+
+func _update_particles_label() -> void:
+	var world_rendering = _get_world_rendering()
+	var enabled: bool = world_rendering.particles_enabled if is_instance_valid(world_rendering) else true
+	label_particles.text = "PARTICLES\n%s" % ("ON" if enabled else "OFF")
 
 
 func _get_world_rendering() -> Node:

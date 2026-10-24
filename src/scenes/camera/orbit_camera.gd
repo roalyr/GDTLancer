@@ -2,6 +2,8 @@
 
 extends Camera
 
+const WorldRendering = preload("res://src/scenes/game_world/world_rendering.gd")
+
 # --- Configuration (tuning values live in Constants, CAMERA block) ---
 
 # --- General ---
@@ -212,7 +214,7 @@ func set_local_scene_particles_active(is_active: bool, clear_existing: bool = fa
 	for emitter in _local_scene_particle_emitters:
 		if not is_instance_valid(emitter):
 			continue
-		emitter.visible = is_active
+		emitter.visible = is_active and WorldRendering.particles_allowed(get_tree())
 		if emitter.has_method("set_effect_active"):
 			emitter.call("set_effect_active", is_active, clear_existing)
 		else:

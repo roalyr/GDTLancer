@@ -3,6 +3,8 @@
 
 extends CPUParticles  # Use CPUParticles for GLES2
 
+const WorldRendering = preload("res://src/scenes/game_world/world_rendering.gd")
+
 # --- Tunable Parameters ---
 # Camera speed threshold below which particles stop emitting strongly
 export var min_camera_speed_threshold: float = 0.5
@@ -50,7 +52,7 @@ func _initialize_position():
 
 func set_effect_active(is_active: bool, clear_existing: bool = false) -> void:
 	_effect_active = is_active
-	visible = is_active
+	visible = is_active and WorldRendering.particles_allowed(get_tree())
 	_apply_idle_state(true)
 	if clear_existing and has_method("restart"):
 		restart()
