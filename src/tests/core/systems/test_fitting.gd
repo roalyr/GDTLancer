@@ -233,11 +233,21 @@ func test_station_window_is_shown_while_docked_at_home():
 	var window = load("res://scenes/ui/menus/fitting_window.tscn").instance()
 	add_child_autofree(window)
 	EventBus.emit_signal("player_docked", "home")
+	yield(get_tree(), "idle_frame")
 	assert_true(window.visible, "Docking at home shows the station window")
 	assert_string_starts_with(window.get_node("Panel/Layout/Header/Title").text, "DOCKED AT", "and says where the ship is docked.")
 	EventBus.emit_signal("player_undocked")
+	GameState.player_docked_at = ""
 	assert_false(window.visible, "Undocking hides it.")
+	# Docking again in flight: in the game the window can hear the signal before the player
+	# controller has set player_docked_at (signal handler order is not fixed).
+	window._on_player_docked("home")
+	GameState.player_docked_at = "home"
+	yield(get_tree(), "idle_frame")
+	assert_true(window.visible, "Docking again shows it again.")
+	EventBus.emit_signal("player_undocked")
 	GameState.player_docked_at = "elsewhere"
 	EventBus.emit_signal("player_docked", "elsewhere")
+	yield(get_tree(), "idle_frame")
 	assert_false(window.visible, "Other stations have no store.")
 	GlobalRefs.player_agent_body = null

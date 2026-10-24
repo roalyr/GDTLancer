@@ -34,8 +34,9 @@ func close() -> void:
 	visible = false
 
 
+# Deferred: the player controller sets GameState.player_docked_at in its own handler.
 func _on_player_docked(_location_id: String) -> void:
-	open()
+	call_deferred("open")
 
 
 func _on_player_undocked() -> void:
