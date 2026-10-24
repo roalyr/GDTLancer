@@ -923,7 +923,6 @@ mouse_filter = 2
 color = Color( 1, 1, 1, 0.12549 )
 
 [node name="DebugOverlay" type="Control" parent="ScreenControls"]
-visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
@@ -938,17 +937,25 @@ mouse_filter = 2
 custom_constants/separation = 16
 
 [node name="ButtonDebugMap" type="Button" parent="ScreenControls/DebugOverlay/LeftColumn"]
+margin_right = 255.0
+margin_bottom = 64.0
 rect_min_size = Vector2( 0, 64 )
 focus_mode = 0
 theme = ExtResource( 9 )
 text = "DEBUG MAP"
 
 [node name="LabelShip" type="Label" parent="ScreenControls/DebugOverlay/LeftColumn"]
+margin_top = 80.0
+margin_right = 255.0
+margin_bottom = 102.0
 theme = ExtResource( 9 )
 custom_fonts/font = SubResource( 1 )
 autowrap = true
 
 [node name="LabelTools" type="Label" parent="ScreenControls/DebugOverlay/LeftColumn"]
+margin_top = 118.0
+margin_right = 255.0
+margin_bottom = 140.0
 theme = ExtResource( 9 )
 custom_fonts/font = SubResource( 1 )
 autowrap = true
@@ -965,12 +972,17 @@ mouse_filter = 2
 custom_constants/separation = 16
 
 [node name="LabelTarget" type="Label" parent="ScreenControls/DebugOverlay/RightColumn"]
+margin_right = 255.0
+margin_bottom = 22.0
 theme = ExtResource( 9 )
 custom_fonts/font = SubResource( 1 )
 align = 2
 autowrap = true
 
 [node name="LabelWorld" type="Label" parent="ScreenControls/DebugOverlay/RightColumn"]
+margin_top = 38.0
+margin_right = 255.0
+margin_bottom = 60.0
 theme = ExtResource( 9 )
 custom_fonts/font = SubResource( 1 )
 align = 2
@@ -978,7 +990,7 @@ autowrap = true
 
 [node name="LabelRender" type="Label" parent="ScreenControls/DebugOverlay"]
 anchor_right = 0.5
-margin_left = 375.0
+margin_left = 395.0
 margin_top = 64.0
 margin_right = -10.0
 margin_bottom = 195.0
@@ -991,7 +1003,7 @@ anchor_left = 0.5
 anchor_right = 1.0
 margin_left = 10.0
 margin_top = 64.0
-margin_right = -375.0
+margin_right = -395.0
 margin_bottom = 195.0
 theme = ExtResource( 9 )
 custom_fonts/font = SubResource( 1 )
