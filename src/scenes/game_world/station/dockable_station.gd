@@ -18,5 +18,10 @@ func get_obstacle_radius() -> float:
 	return obstacle_radius
 
 
+# Detected like anything else (see Constants SIGNATURE block): by its size.
+func get_signature() -> float:
+	return obstacle_radius * Constants.SIG_PER_METRE_OF_SIZE
+
+
 func get_undock_position() -> Vector3:
 	return global_transform.xform(undock_offset)

@@ -597,8 +597,8 @@ func get_sensor_strength() -> float:
 	return float(fit_stats.get("sensor_strength", ship_template.sensor_strength if is_instance_valid(ship_template) else 1.0))
 
 
-# Whether this ship's sensors see `other`. Things without a signature (stations, rocks, stars)
-# are always known.
+# Whether this ship's sensors see `other`: ships, wrecks, celestials and stations all have a
+# signature. Anything without one is always known.
 func detects(other) -> bool:
 	if not is_instance_valid(other) or other == self or not other.has_method("get_signature"):
 		return true

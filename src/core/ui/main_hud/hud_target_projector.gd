@@ -52,7 +52,7 @@ func is_projected_target_overlay_enabled(overlay_kind: String) -> bool:
 # Celestial objects: stars, planets, moons, asteroids and wrecks (the stellar overlay toggle). A ship
 # turns into one when it is wrecked: brackets re-check every refresh.
 func is_stellar_target(target_node: Node) -> bool:
-	if target_node.is_in_group("asteroid") or target_node.get("is_wreck"):
+	if target_node.is_in_group("asteroid") or target_node.is_in_group("celestial") or target_node.get("is_wreck"):
 		return true
 	if not (target_node is StaticBody):
 		return false
@@ -274,7 +274,7 @@ func _refresh_world_bracket(button, target_node) -> bool:
 	var player = GlobalRefs.player_agent_body
 	if is_instance_valid(player) and player.has_method("detects") and not player.detects(target_node):
 		return false  # Undetected ships get no bracket (same rule as for AI)
-	if button.has_method("set_context_hint") and target_node.has_method("get_signature"):
+	if button.has_method("set_context_hint") and target_node.has_method("is_enemy_of"):
 		# Cues change as the fight does; only the selected (labelled) bracket shows them.
 		button.set_context_hint(get_projected_target_context_hint(target_node) if button.get("_is_selected") else "")
 		button.refresh_style()  # Colours too: a ship turns hostile, a ship becomes a wreck
@@ -317,7 +317,7 @@ func get_projected_target_context_hint(target_ref) -> String:
 func get_ship_cues(target_ref, detailed: bool = true) -> Array:
 	var cues: Array = []
 	var player = GlobalRefs.player_agent_body
-	if not (is_instance_valid(target_ref) and target_ref is Node and target_ref.has_method("get_signature") and not target_ref.get("is_wreck")):
+	if not (is_instance_valid(target_ref) and target_ref is Node and target_ref.has_method("is_enemy_of") and not target_ref.get("is_wreck")):
 		return cues
 	if not (is_instance_valid(player) and player.has_method("get_damage_per_second")):
 		return cues

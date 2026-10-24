@@ -1,9 +1,10 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=9 format=2]
 
 [ext_resource path="res://src/core/utils/rotating_object.gd" type="Script" id=1]
 [ext_resource path="res://assets/art/shaders/solid.gdshader" type="Shader" id=2]
 [ext_resource path="res://assets/art/textures/sbs-noise_texture_pack-512x512/bw_noise/Grainy 11 - 512x512.png" type="Texture" id=3]
 [ext_resource path="res://assets/art/textures/sbs-noise_texture_pack-512x512/normal_maps/Milky 11 - 512x512.png" type="Texture" id=4]
+[ext_resource path="res://src/scenes/game_world/celestial/celestial_body.gd" type="Script" id=5]
 
 [sub_resource type="SphereShape" id=1]
 radius = 3000.0
@@ -31,6 +32,7 @@ shader_param/dither_strength = 0.5
 [sub_resource type="SphereMesh" id=2]
 
 [node name="Planet Cob a" type="StaticBody"]
+script = ExtResource( 5 )
 
 [node name="CollisionShape" type="CollisionShape" parent="."]
 shape = SubResource( 1 )

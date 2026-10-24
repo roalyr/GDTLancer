@@ -71,6 +71,11 @@ func get_obstacle_radius() -> float:
 	return get_apparent_radius()
 
 
+# Detected like anything else (see Constants SIGNATURE block): by its size.
+func get_signature() -> float:
+	return get_apparent_radius() * Constants.SIG_PER_METRE_OF_SIZE
+
+
 # Cached: rocks do not move, and ships and the HUD ask every frame. Worked out again if the rock's
 # placement changes (it is scaled and placed after the model is in).
 func get_apparent_radius() -> float:

@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=2]
+[gd_scene load_steps=19 format=2]
 
 [ext_resource path="res://assets/art/shaders/star_corona.gdshader" type="Shader" id=1]
 [ext_resource path="res://assets/models/sprites/Star_sprite_square_wide.glb" type="PackedScene" id=2]
@@ -7,6 +7,7 @@
 [ext_resource path="res://assets/art/textures/sbs-noise_texture_pack-512x512/normal_maps/Craters 14 - 512x512.png" type="Texture" id=5]
 [ext_resource path="res://assets/art/shaders/star_surface.gdshader" type="Shader" id=6]
 [ext_resource path="res://assets/art/shaders/glow.gdshader" type="Shader" id=7]
+[ext_resource path="res://src/scenes/game_world/celestial/celestial_body.gd" type="Script" id=8]
 
 [sub_resource type="SphereShape" id=1]
 radius = 3000.0
@@ -111,6 +112,8 @@ radial_segments = 16
 rings = 16
 
 [node name="Star Lywin C" type="StaticBody"]
+script = ExtResource( 8 )
+is_star = true
 
 [node name="CollisionShape" type="CollisionShape" parent="."]
 shape = SubResource( 1 )

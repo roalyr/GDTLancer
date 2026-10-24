@@ -186,7 +186,9 @@ const TETHER_SHIVER_FREQUENCY = 40.0  # rad/s
 # ==================================================================================================
 
 # A ship's signature is a distance: the hull's base (ShipTemplate.signature, plus modules) plus what
-# it is doing. Another ship detects it within signature * its own sensor strength.
+# it is doing. Another ship detects it within signature * its own sensor strength. Celestials follow
+# the same rule: a star is detected anywhere; planets, moons, asteroids and stations within their
+# radius times SIG_PER_METRE_OF_SIZE (a 1 km planet: 100 km, a 20 m rock: 2 km).
 const SIG_ENGINE_FULL = 2500.0  # m added at full thrust
 const SIG_ENGINE_SMOOTHING = 0.5  # s; engine signature follows thrust this quickly
 const SIG_TOOL_FIRING = 3000.0  # m added right after a tool cycle
@@ -194,6 +196,7 @@ const SIG_TOOL_DECAY = 4.0  # s for the firing signature to fade
 const SIG_PER_LEAK = 800.0  # m per fuel leak at full pressure
 const SIG_WRECK_FACTOR = 0.6  # A wreck's signature is this share of its hull's base (cold, but a big lump of metal)
 const SIG_MIN = 200.0  # m; nothing is quieter than this
+const SIG_PER_METRE_OF_SIZE = 100.0  # m of signature per metre of a celestial's or station's radius
 
 # The player reads these as cues, not numbers (NPCs use the numbers directly).
 # Own signature meter: signature / hull base.
