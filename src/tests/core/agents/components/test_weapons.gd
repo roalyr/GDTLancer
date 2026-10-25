@@ -134,3 +134,26 @@ func test_aim_command_points_the_nose_at_the_lead():
 	assert_true(controller.find_cannon_for(target) >= 0)
 	controller._ammo[0] = 0
 	assert_eq(controller.find_cannon_for(target), -1, "Empty: no cannon to aim")
+
+
+func test_lasers_shoot_down_missiles_coming_at_their_ship():
+	controller = _arm(shooter, "missile", Constants.PART_TYPE_SEEDS.missile[2])
+	var laser: UtilityToolTemplate = ShipLaws.build_laser_template(Constants.PART_TYPE_SEEDS.laser[1], 1, "test_pd")
+	for field in ShipLaws.laser_stats(Constants.PART_TYPE_SEEDS.laser[1]):
+		laser.set(field, ShipLaws.laser_stats(Constants.PART_TYPE_SEEDS.laser[1])[field])
+	var defence = ToolControllerScript.new()
+	defence.name = "ToolController"
+	target.add_child(defence)
+	defence.set_tools([laser])
+	target.global_transform.origin = Vector3(0, 0, -3000)
+	controller.activate(0, target)
+	controller._physics_process(0.016)
+	var missile = controller._in_flight[0]
+	watch_signals(defence)
+	var t := 0.0
+	while t < 15.0 and is_instance_valid(missile) and not missile.done:
+		defence._physics_process(1.0 / 60.0)
+		_fly(1.0 / 60.0)
+		t += 1.0 / 60.0
+	assert_signal_emitted(defence, "missile_intercepted", "Its laser (switched off) fired at the missile")
+	assert_eq(target.hull, 300.0, "and shot it down before it got there")

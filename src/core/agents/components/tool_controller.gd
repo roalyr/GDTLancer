@@ -6,6 +6,9 @@
 # Tool types:
 #   laser   - targets live ships; each cycle deals damage scaled by hit quality. Whatever is in the
 #             line of fire (a rock, another ship) takes the shot instead: rocks flash, ships are damaged.
+#           - point defence: a laser free to fire shoots instead at a missile coming at its own ship
+#             within its optimal range (hit quality as for a ship: a fast crossing missile is hard
+#             to track, a head-on one easy), switched on or not.
 #   missile - targets live ships; each cycle launches a guided Missile (Projectile) from the rack's
 #             magazine, unless the ones already on their way would finish the target. One use each.
 #   cannon  - targets live ships; fixed forward, so it fires only when the nose points where the
@@ -35,6 +38,7 @@ signal lance_recovered(tool_index)
 signal ammo_recovered(tool_index, rounds)
 signal ammo_changed(tool_index, ammo)
 signal projectile_fired(tool_index, projectile)
+signal missile_intercepted(tool_index, missile, destroyed)
 signal tool_blocked(tool_index, target, blocker)  # Something in the line of fire took the shot
 
 # Tethered bodies stop this far apart: the sum of both apparent radii times this factor.
@@ -369,10 +373,12 @@ func cannon_aim_direction(index: int, target: Spatial) -> Vector3:
 func _physics_process(delta: float) -> void:
 	for index in _cycle_timers.keys():
 		_cycle_timers[index] = max(0.0, _cycle_timers[index] - delta)
-	if _targets.empty():
-		return
 	if _agent_body.get("is_wreck"):
-		deactivate_all("wrecked")
+		if not _targets.empty():
+			deactivate_all("wrecked")
+		return
+	_point_defence()
+	if _targets.empty():
 		return
 	for index in _targets.keys():
 		var target = _targets[index]
@@ -388,6 +394,39 @@ func _physics_process(delta: float) -> void:
 				_process_cannon(index, target)
 			"harpoon":
 				_process_harpoon(index, target)
+
+
+# Each laser free to fire (cycle done) shoots the nearest missile coming at this ship within its
+# optimal range, if there is one.
+func _point_defence() -> void:
+	var missiles: Array = get_tree().get_nodes_in_group(MissileScript.GROUP) if is_inside_tree() else []
+	if missiles.empty():
+		return
+	var from_pos: Vector3 = _agent_body.global_transform.origin
+	for index in range(_tools.size()):
+		var tool_template = _tools[index]
+		if tool_template.tool_type != "laser" or _cycle_timers.get(index, 0.0) > 0.0:
+			continue
+		var best = null
+		var best_distance: float = tool_template.optimal_range * Constants.POINT_DEFENCE_RANGE_SHARE
+		for missile in missiles:
+			if not is_instance_valid(missile) or missile.done or missile.target != _agent_body:
+				continue
+			var distance: float = from_pos.distance_to(missile.global_transform.origin)
+			if distance < best_distance:
+				best = missile
+				best_distance = distance
+		if best == null or not _agent_body.try_spend_power(tool_template.power_per_cycle):
+			continue
+		var angular: float = compute_angular_velocity(from_pos, _agent_body.linear_velocity, best.global_transform.origin, best.velocity)
+		var damage: float = tool_template.damage * tool_template.get_hit_quality(best_distance, angular)
+		_cycle_timers[index] = tool_template.cycle_time
+		_last_cycle_ms = OS.get_ticks_msec()
+		_spawn_beam(best, best.global_transform.origin, damage)
+		var destroyed: bool = best.take_hit(damage)
+		emit_signal("missile_intercepted", index, best, destroyed)
+		if destroyed:
+			missiles.erase(best)
 
 
 func _process_missile(index: int, target: Node) -> void:

@@ -3,17 +3,21 @@
 # pursuit) but turning at most turn_rate rad/s: a ship crossing fast enough, near enough, makes it
 # overshoot, and it has to come round again before its fuel (flight_time) runs out. The warhead
 # bursts as a small explosion. The plume is the ships' own engine exhaust (EngineExhaustSet).
+# Lasers can shoot it down (ToolController point defence): `hp` of laser damage destroys it.
 
 extends "res://src/core/agents/components/projectile.gd"
 
 const EngineExhaustScene = preload("res://scenes/prefabs/effects/engine_exhaust.tscn")
 const EngineExhaustSet = preload("res://src/core/agents/effects/engine_exhaust_set.gd")
 const WreckExplosionScene = preload("res://scenes/prefabs/effects/wreck_explosion.tscn")
+const ShipLaws = preload("res://src/core/systems/ship_laws.gd")
+const GROUP = "missile"
 
 var top_speed: float = 300.0  # m/s (relative to where it was launched from)
 var accel: float = 150.0  # m/s^2
 var turn_rate: float = 1.5  # rad/s
 var size: float = 1.0  # Model scale: 1 for a missile of Constants.LAW_MISSILE_REF_MASS
+var hp: float = 6.0  # Laser damage that destroys it
 var linear_velocity: Vector3 = Vector3.ZERO  # What the exhaust reads (it draws ships' engines)
 var is_wreck: bool = false
 var _launch_velocity: Vector3 = Vector3.ZERO  # The launcher's: speeds count from it
@@ -24,9 +28,11 @@ func setup(stats: Dictionary) -> void:
 	accel = float(stats.get("projectile_accel", accel))
 	turn_rate = float(stats.get("turn_rate", turn_rate))
 	size = pow(float(stats.get("round_mass", Constants.LAW_MISSILE_REF_MASS)) / Constants.LAW_MISSILE_REF_MASS, 1.0 / 3.0)
+	hp = ShipLaws.apply_law(Constants.LAW_MISSILE_HP, float(stats.get("round_mass", Constants.LAW_MISSILE_REF_MASS)))
 
 
 func _ready() -> void:
+	add_to_group(GROUP)
 	_launch_velocity = shooter.linear_velocity if is_instance_valid(shooter) and shooter is RigidBody else Vector3.ZERO
 	linear_velocity = velocity
 	var body := MeshInstance.new()
@@ -99,11 +105,31 @@ static func intercept_direction(from: Vector3, own_velocity: Vector3, target_pos
 	return direction.normalized() if direction.length_squared() > 0.0001 else offset.normalized()
 
 
+# A laser hit for `amount`: true if that destroyed it (it bursts where it is, harmlessly).
+func take_hit(amount: float) -> bool:
+	if done:
+		return false
+	hp -= amount
+	if hp > 0.0:
+		return false
+	done = true
+	_explode(Vector3.ZERO)
+	queue_free()
+	emit_signal("expired", self)
+	return true
+
+
 func _burst_effect(body) -> void:
 	if body == null or not is_inside_tree():
 		return  # Burnt out: it just goes dark
+	_explode(body.linear_velocity if body is RigidBody else Vector3.ZERO)
+
+
+func _explode(drift: Vector3) -> void:
+	if not is_inside_tree():
+		return
 	var explosion = WreckExplosionScene.instance()
 	explosion.radius = Constants.MISSILE_BLAST_RADIUS * size
-	explosion.velocity = body.linear_velocity if body is RigidBody else Vector3.ZERO
+	explosion.velocity = drift
 	get_parent().add_child(explosion)
 	explosion.global_transform.origin = global_transform.origin
