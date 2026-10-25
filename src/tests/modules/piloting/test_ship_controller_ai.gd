@@ -34,6 +34,7 @@ func _make_ship(position: Vector3, faction: String, hull: float) -> RigidBody:
 	ship.signature = 1500.0
 	ship.salvage_yield = {"test_scrap": 20}
 	body.ship_template = ship
+	body.wallet = 1e6  # Comfortable: not desperate
 	add_child_autofree(body)
 	body.global_transform.origin = position
 	body.faction = faction
@@ -116,7 +117,7 @@ func test_fleeing_it_shoots_back_at_its_pursuer():
 	var tough = _make_ship(Vector3(0, 0, -300), "verdant", 1000.0)
 	hostile.power_max = 100.0
 	hostile.power = 100.0
-	ai.initialize({"patrol_center": Vector3.ZERO})
+	ai.initialize({"patrol_center": Vector3.ZERO, "behavior": {"return_fire": 1.0}})
 	ai._target_agent = tough
 	ai._change_state(AIScript.AIState.FLEE)
 	ai._process_flee()
@@ -458,3 +459,19 @@ func test_waits_docked_while_an_enemy_watches_its_station():
 	camper.global_transform.origin = Vector3(0, 0, 3000 + Constants.ARENA_UNDOCK_CLEAR_RADIUS + 200.0)
 	ai._process_docked(Constants.ARENA_DOCK_TIME + 1.0)
 	assert_eq(ai.get_state(), AIScript.AIState.PATROL, "Clear outside: undocks on time")
+
+
+# --- Desperation ---
+
+func test_a_broke_pilot_takes_worse_odds_and_spares_less():
+	ai.initialize({"patrol_center": Vector3.ZERO, "behavior": {"mercy": 0.8, "pursuit": 1.0, "return_fire": 0.2}})
+	hostile.wallet = hostile.get_value() * Constants.AI_DESPERATION_COMFORT * 2.0
+	assert_eq(hostile.get_desperation(), 0.0, "Rich: not desperate")
+	assert_almost_eq(ai._engage_level(), Constants.AI_ENGAGE_DESIRE, 0.001)
+	assert_almost_eq(ai._mercy_level(), 0.8, 0.001)
+	hostile.wallet = 0.0
+	assert_eq(hostile.get_desperation(), 1.0, "Broke")
+	assert_almost_eq(ai._engage_level(), Constants.AI_ENGAGE_DESIRE * (1.0 - Constants.AI_DESPERATION_NERVE), 0.001, "fights at worse odds")
+	assert_eq(ai._mercy_level(), 0.0, "spares nobody")
+	assert_almost_eq(ai._pursuit_level(), 2.0, 0.001, "chases harder")
+	assert_almost_eq(ai._return_fire_level(), 1.0, 0.001, "always shoots back")

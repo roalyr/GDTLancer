@@ -378,13 +378,21 @@ const AI_FLEE_DISTANCE = 6000.0  # m from the threat at which a fleeing ship res
 # to get the runner in reach) * PURSUIT >= 1, and lets one go that has not hit it for
 # RETURN_FIRE_WINDOW s with chance MERCY; a ship let go is left alone for SPARE_TIME s unless it
 # shoots. A runner shoots back with chance RETURN_FIRE (rolled per flight). Defaults for NPCs
-# without behaviour genes: the old ways (chase anything catchable, never spare, always shoot back).
+# without behaviour genes (the arena genes start from the same).
 const AI_PURSUIT = 1.0
-const AI_MERCY = 0.0
-const AI_RETURN_FIRE = 1.0
+const AI_MERCY = 0.5
+const AI_RETURN_FIRE = 0.5
 const AI_RUNNER_SPEED_SHARE = 0.5
 const AI_RETURN_FIRE_WINDOW = 4.0  # s
 const AI_SPARE_TIME = 60.0  # s
+# Desperation (Agent.get_desperation): 1 - wallet / (the ship's value * DESPERATION_COMFORT), 0..1.
+# A broke pilot takes worse odds: engage and break-off levels * (1 - DESPERATION_NERVE * d); it
+# spares less (mercy * (1 - d)), chases harder (pursuit * (1 + d)), shoots back more (return fire
+# toward 1 by d) and runs home later (retreat hull * (1 - d)). NPCs outside the arenas start with a
+# random wallet of up to WALLET_MAX_SHARE of their ship's value; arena pilots, see EVO_PILOT_STAKE_SHARE.
+const AI_DESPERATION_COMFORT = 1.0
+const AI_DESPERATION_NERVE = 0.5
+const AI_WALLET_MAX_SHARE = 2.0
 const AI_ENEMY_DESIRE_FACTOR = 1.5  # Ships at war (or holding a grudge) want the fight this much more
 const AI_SALVAGE_SEARCH_RANGE = 6000.0  # m; wrecks further than this are not worth the trip
 const AI_DEPART_ARRIVAL_DISTANCE = 300.0  # m from its spawn point at which a hauler leaves the sector
@@ -545,6 +553,7 @@ const EVO_MUTATION_SIGMA = 0.08  # Log-normal step on each mutated gene
 const EVO_GENE_MUTATION_CHANCE = 0.4  # Per gene
 const EVO_MACRO_MUTATION_CHANCE = 0.03  # A mutation with 5x the step
 const EVO_PART_SWAP_CHANCE = 0.08  # Per slot: a different part (another kind or type, or empty)
+const EVO_PILOT_STAKE_SHARE = 0.5  # An arena pilot's wallet: this share of its ship's cost, plus its life's net takings
 const EVO_EMPTY_SLOT_CHANCE = 0.15  # When a slot's part is picked anew, the chance it is left empty
 const EVO_BEHAVIOR_START_LIVES = 150  # Behaviour genes start mutating once a faction has logged this many lives
 const EVO_BEHAVIOR_RANGES = {  # Gene -> [min, max, default]

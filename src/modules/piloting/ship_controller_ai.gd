@@ -9,7 +9,9 @@
 # Runners: a ship running from its target's fight shoots back or not (a roll on its return_fire gene,
 # per flight). The pursuer chases only while it reckons it can catch the runner before it is safe
 # (pursuit gene), and may let a runner go that is not shooting back (mercy gene): careful ships lose
-# gracefully, reckless ones fight to the death. Every NPC has them (defaults in the Constants AI block).
+# gracefully, reckless ones fight to the death. Every NPC has them (defaults in the Constants AI block),
+# and every gene bends with desperation: a broke pilot (little WP for its ship's worth) fights at
+# worse odds, chases harder, spares less, shoots back more and runs later.
 # Decisions take time (skill, how close the call is): meanwhile the ship HESITATES, a state of its
 # own the player can read. It turns its nose on the ship in question and eases off to a drift,
 # holding fire; one wavering over breaking off a fight keeps fighting meanwhile. Being shot while
@@ -192,7 +194,7 @@ func _change_state(new_state: int) -> void:
 		AIState.COMBAT:
 			agent_script.command_approach(_target_agent)
 		AIState.FLEE:
-			_shooting_back = randf() < _return_fire
+			_shooting_back = randf() < _return_fire_level()
 			_note("fled")
 			if not _shooting_back:
 				_note("held_fire")
@@ -228,7 +230,7 @@ func _process_patrol() -> void:
 		_scan_timer = Constants.AI_SCAN_INTERVAL
 		var target = scan_for_target()
 		if is_instance_valid(target):
-			_consider("engage", target, desire_against(target), _engage_desire)
+			_consider("engage", target, desire_against(target), _engage_level())
 			return
 		elif _pending.empty():
 			if agent_script.get_free_cargo() <= 0 or _due_home():
@@ -264,11 +266,11 @@ func _process_combat() -> void:
 	if _scan_timer <= 0.0:
 		_scan_timer = Constants.AI_SCAN_INTERVAL
 		var desire: float = desire_against(_target_agent)
-		if desire < _disengage_desire:
-			_consider("disengage", _target_agent, desire, _disengage_desire)
+		if desire < _disengage_level():
+			_consider("disengage", _target_agent, desire, _disengage_level())
 			return
 		if _should_let_go(_target_agent):
-			_consider("let_go", _target_agent, chase_margin(_target_agent) * _pursuit, 1.0)
+			_consider("let_go", _target_agent, chase_margin(_target_agent) * _pursuit_level(), 1.0)
 			return
 
 	var distance: float = agent_script.global_transform.origin.distance_to(_target_agent.global_transform.origin)
@@ -333,7 +335,7 @@ func _process_salvage() -> void:
 		_scan_timer = Constants.AI_SCAN_INTERVAL
 		var enemy = scan_for_target()
 		if is_instance_valid(enemy):
-			_consider("engage", enemy, desire_against(enemy), _engage_desire)
+			_consider("engage", enemy, desire_against(enemy), _engage_level())
 			return
 	var index: int = _tool_controller.find_tool_for(wreck) if is_instance_valid(_tool_controller) else -1
 	if index < 0:
@@ -365,7 +367,7 @@ func _process_hesitate() -> void:
 		_fire_at(_resume_target)
 	if _pending.kind == "disengage" and _scan_timer <= 0.0:
 		_scan_timer = Constants.AI_SCAN_INTERVAL
-		if desire_against(_target_agent) >= _disengage_desire:
+		if desire_against(_target_agent) >= _disengage_level():
 			_pending = {}
 			_resume()  # The fight turned back: keep at it
 	elif _pending.kind == "let_go" and _scan_timer <= 0.0:
@@ -450,10 +452,10 @@ func _should_let_go(body) -> bool:
 	var shooting_back: bool = _since_hit < Constants.AI_RETURN_FIRE_WINDOW
 	if not _runner_judged:
 		_runner_judged = true
-		_letting_go = randf() < _mercy
+		_letting_go = randf() < _mercy_level()
 	if _letting_go and not shooting_back:
 		return true
-	return chase_margin(body) * _pursuit < 1.0
+	return chase_margin(body) * _pursuit_level() < 1.0
 
 
 func is_sparing(body) -> bool:
@@ -537,9 +539,43 @@ func _in_arena(point: Vector3, slack: float = 1.0) -> bool:
 	return _arena.empty() or point.distance_to(_arena.beacon) <= Constants.ARENA_RADIUS * slack
 
 
+# --- Behaviour genes, as desperation bends them (Constants AI block: desperation) ---
+
+func desperation() -> float:
+	return agent_script.get_desperation() if agent_script.has_method("get_desperation") else 0.0
+
+
+func _nerve() -> float:
+	return 1.0 - Constants.AI_DESPERATION_NERVE * desperation()
+
+
+func _engage_level() -> float:
+	return _engage_desire * _nerve()
+
+
+func _disengage_level() -> float:
+	return _disengage_desire * _nerve()
+
+
+func _mercy_level() -> float:
+	return _mercy * (1.0 - desperation())
+
+
+func _pursuit_level() -> float:
+	return _pursuit * (1.0 + desperation())
+
+
+func _return_fire_level() -> float:
+	return lerp(_return_fire, 1.0, desperation())
+
+
+func _retreat_level() -> float:
+	return _retreat_hull * (1.0 - desperation())
+
+
 # Hull under its retreat gene: run home whatever the odds.
 func _should_retreat() -> bool:
-	return not _arena.empty() and _retreat_hull > 0.0 and agent_script.get_hull_fraction() < _retreat_hull
+	return _retreat_level() > 0.0 and agent_script.get_hull_fraction() < _retreat_level()
 
 
 # Counts a run-and-chase event in an arena NPC's life (Evolution.note).
@@ -582,7 +618,7 @@ func _is_claimed(wreck) -> bool:
 # The detected enemy most worth attacking, if any is worth it at all.
 func scan_for_target() -> RigidBody:
 	var best: RigidBody = null
-	var best_desire: float = _engage_desire
+	var best_desire: float = _engage_level()
 	for body in get_tree().get_nodes_in_group("agent_body"):
 		if body == agent_script or not _is_live_target(body) or not agent_script.is_enemy_of(body):
 			continue
@@ -641,7 +677,7 @@ func _on_agent_damaged(agent_body, _amount, source) -> void:
 		_since_hit = 0.0
 		return
 	# Shot at: once it has made up its mind, fight back if the rule says so, otherwise run.
-	_consider("respond", source, desire_against(source), _disengage_desire)
+	_consider("respond", source, desire_against(source), _disengage_level())
 
 
 # --- Decisions take time (see Constants AI block) ---
@@ -700,12 +736,12 @@ func _tick_decision(delta: float) -> void:
 	var desire: float = desire_against(target)
 	match decision.kind:
 		"engage":
-			if agent_script.detects(target) and desire >= _engage_desire:
+			if agent_script.detects(target) and desire >= _engage_level():
 				_start_combat(target, false)
 			else:
 				_resume()
 		"disengage":
-			if desire < _disengage_desire:
+			if desire < _disengage_level():
 				_target_agent = target
 				_resume_target = null
 				_change_state(AIState.FLEE)
@@ -724,7 +760,7 @@ func _tick_decision(delta: float) -> void:
 				_resume()
 		"respond":
 			_resume_target = null
-			if desire >= _disengage_desire and not _should_retreat():
+			if desire >= _disengage_level() and not _should_retreat():
 				_start_combat(target, true)
 			else:
 				_target_agent = target

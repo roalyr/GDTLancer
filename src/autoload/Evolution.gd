@@ -252,10 +252,21 @@ func _on_agent_despawning(body) -> void:
 
 # Fitness: return on cost, (earned + bounties - repairs - upkeep) / cost, less 1 if the ship was lost.
 static func fitness_of(record: Dictionary, died: bool, age: float) -> float:
-	var cost: float = max(float(record.cost), 1.0)
-	var upkeep: float = Constants.EVO_UPKEEP_PER_HOUR * cost * age / 3600.0
-	var net: float = float(record.earned) + float(record.bounty) - float(record.get("spent", 0.0)) - upkeep
-	return net / cost - (1.0 if died else 0.0)
+	return net_of(record, age) / max(float(record.cost), 1.0) - (1.0 if died else 0.0)
+
+
+# A life's takings so far (WP): earned + bounties - repairs - upkeep.
+static func net_of(record: Dictionary, age: float) -> float:
+	var upkeep: float = Constants.EVO_UPKEEP_PER_HOUR * max(float(record.cost), 1.0) * age / 3600.0
+	return float(record.earned) + float(record.bounty) - float(record.get("spent", 0.0)) - upkeep
+
+
+# What a live arena pilot has (WP): its stake (Constants EVO_PILOT_STAKE_SHARE) plus its takings.
+func wallet_of(uid: String) -> float:
+	if not live.has(uid):
+		return 0.0
+	var record: Dictionary = live[uid]
+	return Constants.EVO_PILOT_STAKE_SHARE * float(record.cost) + net_of(record, game_time - float(record.born))
 
 
 func _end_life(uid: String, died: bool, killer: String) -> void:

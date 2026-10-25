@@ -11,6 +11,7 @@ var faction: String = ""  # Constants.FACTIONS id; the player's is "player"
 var _grudges: Dictionary = {}  # Instance ids of ships that shot this one: enemies whatever their faction
 var ship_template = null  # ShipTemplate this agent flies
 var evo_uid: String = ""  # Arena NPCs: their life in Evolution
+var wallet: float = 0.0  # WP an NPC outside the arenas has (random at spawn; see get_wallet)
 var _fit_override: Dictionary = {}  # A fit given at spawn (arena NPCs' genomes); otherwise random
 
 # --- Hull & Power ---
@@ -96,6 +97,8 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 	}
 
 	_init_fit()
+	if not is_player():
+		wallet = float(overrides.get("wallet", randf() * Constants.AI_WALLET_MAX_SHARE * get_value()))
 	_init_hull_and_power()
 
 	movement_system.initialize_movement_params(move_params)
@@ -641,6 +644,33 @@ func detects(other) -> bool:
 	if other.get("is_docked"):
 		return false
 	return global_transform.origin.distance_to(other.global_transform.origin) <= other.get_signature() * get_sensor_strength()
+
+
+# --- Wealth (desperation; Constants AI block) ---
+
+# WP the pilot has: the player's bank, an arena pilot's stake and takings (Evolution), or `wallet`.
+func get_wallet() -> float:
+	if is_player():
+		return float(GameState.player_bank)
+	if evo_uid != "":
+		return Evolution.wallet_of(evo_uid)
+	return wallet
+
+
+# What the ship and its fitted parts are worth (WP).
+func get_value() -> float:
+	var value: float = float(ship_template.base_value) if is_instance_valid(ship_template) else 0.0
+	for part_id in fit.get("tools", []) + fit.get("modules", []):
+		var part = TemplateDatabase.get_template(str(part_id)) if str(part_id) != "" else null
+		if part != null and part.get("base_value") != null:
+			value += float(part.base_value)
+	return value
+
+
+# 0 comfortable .. 1 broke: how recklessly it flies (ShipControllerAI).
+func get_desperation() -> float:
+	var comfort: float = max(1.0, get_value() * Constants.AI_DESPERATION_COMFORT)
+	return clamp(1.0 - get_wallet() / comfort, 0.0, 1.0)
 
 
 func get_damage_per_second() -> float:
