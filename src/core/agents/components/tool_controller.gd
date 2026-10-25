@@ -425,6 +425,8 @@ func _point_defence() -> void:
 		_spawn_beam(best, best.global_transform.origin, damage)
 		var destroyed: bool = best.take_hit(damage)
 		emit_signal("missile_intercepted", index, best, destroyed)
+		if destroyed and _agent_body.has_method("is_player") and _agent_body.is_player():
+			EventBus.emit_signal("attack_action_feedback", true, "Missile shot down")
 		if destroyed:
 			missiles.erase(best)
 
@@ -451,6 +453,8 @@ func _process_missile(index: int, target: Node) -> void:
 	missile.launch(_agent_body, target, start, _agent_body.linear_velocity + direction * Constants.MISSILE_LAUNCH_SPEED, tool_template.damage, tool_template.flight_time)
 	_in_flight.append(missile)
 	_after_shot(index, tool_template, missile)
+	if target.has_method("is_player") and target.is_player():
+		EventBus.emit_signal("attack_action_feedback", false, "Missile inbound! Lasers shoot it down; a sharp turn near it makes it overshoot")
 
 
 # Damage of this ship's missiles still on their way to `target`.

@@ -819,8 +819,13 @@ func _on_player_docked(location_id):
 		agent_body.dock_at(_find_station(location_id))
 	if HomePort.is_home(location_id):
 		var result: Dictionary = HomePort.service(agent_body)
-		if result.units > 0 or result.repaired > 0.0:
-			EventBus.emit_signal("dock_action_feedback", true, "Home port: banked %d WP from %d units, repaired %d hull" % [result.banked, result.units, result.repaired])
+		if result.units > 0 or result.repaired > 0.0 or result.lances > 0 or result.rounds > 0:
+			var message: String = "Home port: banked %d WP from %d units, repaired %d hull" % [result.banked, result.units, result.repaired]
+			if result.lances > 0:
+				message += ", %d lances for %d WP" % [result.lances, result.lance_cost]
+			if result.rounds > 0:
+				message += ", %d rounds for %d WP" % [result.rounds, result.ammo_cost]
+			EventBus.emit_signal("dock_action_feedback", true, message)
 	set_process_unhandled_input(false)
 	set_physics_process(false)
 	# Stop the ship
