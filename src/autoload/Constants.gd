@@ -516,6 +516,8 @@ const ARENA_STATION_SPREAD = 1500.0  # m between a faction's two stations, eithe
 const ARENA_RADIUS = 7000.0  # m from the beacon: NPCs do not chase, salvage or patrol beyond it
 const ARENA_RESPAWN_DELAY = 8.0  # s between a loss and its replacement undocking
 const ARENA_DOCK_TIME = 10.0  # s an NPC stays docked (selling, repairs) before undocking
+const ARENA_UNDOCK_CLEAR_RADIUS = 2000.0  # m: with an enemy this near its station, a docked NPC waits
+const ARENA_DOCK_MAX_WAIT = 90.0  # s, at most, past its dock time (upkeep runs on meanwhile)
 const ARENA_DOCK_DISTANCE = 250.0  # m from a station's undock point at which an NPC docks
 const ARENA_MAX_LIFETIME = 900.0  # s; after this an NPC retires at its next dock (its record is kept)
 const ARENA_FACTION_MATERIALS = {  # Station paint by faction
@@ -544,7 +546,7 @@ const EVO_GENE_MUTATION_CHANCE = 0.4  # Per gene
 const EVO_MACRO_MUTATION_CHANCE = 0.03  # A mutation with 5x the step
 const EVO_PART_SWAP_CHANCE = 0.08  # Per slot: a different part (another kind or type, or empty)
 const EVO_EMPTY_SLOT_CHANCE = 0.15  # When a slot's part is picked anew, the chance it is left empty
-const EVO_BEHAVIOR_START_LIVES = 300  # Behaviour genes start mutating once a faction has logged this many lives
+const EVO_BEHAVIOR_START_LIVES = 150  # Behaviour genes start mutating once a faction has logged this many lives
 const EVO_BEHAVIOR_RANGES = {  # Gene -> [min, max, default]
 	"engage": [0.3, 4.0, 1.0],  # Desire at which it starts a fight (AI_ENGAGE_DESIRE)
 	"disengage": [0.1, 3.0, 0.8],  # below which it breaks off (AI_DISENGAGE_DESIRE)

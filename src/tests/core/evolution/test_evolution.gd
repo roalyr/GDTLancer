@@ -64,6 +64,15 @@ func test_fitness_is_return_on_cost_less_a_lost_ship():
 	assert_almost_eq(Evolution.fitness_of(record, false, 3600.0), 0.5 - upkeep, 0.0001, "Upkeep: a share of the cost per hour")
 
 
+func test_run_and_chase_events_are_counted_per_life():
+	var life: Dictionary = Evolution.begin_life("verdant", "1v1")
+	Evolution.note(life.uid, "fled")
+	Evolution.note(life.uid, "fled")
+	Evolution.note(life.uid, "let_go")
+	Evolution.note("nobody", "fled")
+	assert_eq_deep(Evolution.live[life.uid].events, {"fled": 2, "let_go": 1})
+
+
 func test_a_kill_pays_a_bounty_and_ends_the_victims_life_in_the_archive():
 	var hunter: Dictionary = Evolution.begin_life("verdant", "1v1")
 	var prey: Dictionary = Evolution.begin_life("violet", "1v1")

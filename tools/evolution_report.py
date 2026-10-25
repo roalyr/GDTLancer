@@ -90,6 +90,15 @@ def main():
             for p in l["genome"]["tools"] + l["genome"]["modules"]:
                 parts[part_label(p)] += 1
         print("\nParts flown: " + ", ".join("%s %d" % kv for kv in parts.most_common()))
+        events = Counter()
+        for l in own:
+            events.update(l.get("events", {}))
+        print("Run and chase: " + ", ".join("%s %d" % kv for kv in sorted(events.items())) + " (fled: broke off or ran; escaped: docked while running)")
+        genes = defaultdict(list)
+        for l in own:
+            for gene, value in l["genome"].get("behavior", {}).items():
+                genes[gene].append(value)
+        print("Behaviour genes (median, quartiles): " + ", ".join("%s %.2f (%.2f-%.2f)" % (g, statistics.median(v), *statistics.quantiles(v, n=4)[0::2]) for g, v in sorted(genes.items()) if len(v) > 3))
         sizes = [l["genome"]["ship"]["size"] for l in own]
         print("Ship size: median %.2f, quartiles %.2f-%.2f" % (statistics.median(sizes), *statistics.quantiles(sizes, n=4)[0::2]) if len(sizes) > 3 else "")
     print("\n==== Who kills whom (killer role|size -> victim role|size) ====")

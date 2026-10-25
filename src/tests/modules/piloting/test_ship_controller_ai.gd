@@ -442,3 +442,18 @@ func test_mercy_lets_go_only_a_runner_that_holds_fire():
 	ai._tick_decision(100.0)
 	assert_eq(ai.get_state(), AIScript.AIState.COMBAT, "until it shoots again")
 	assert_false(ai.is_sparing(prey))
+
+
+func test_waits_docked_while_an_enemy_watches_its_station():
+	var station = _arena_station(Vector3(0, 0, 3000))
+	var camper = _make_ship(Vector3(0, 0, 3000 + Constants.ARENA_UNDOCK_CLEAR_RADIUS - 200.0), "verdant", 50.0)
+	ai.initialize({"patrol_center": Vector3.ZERO, "docked_at": station, "arena": {"zone_id": "t", "beacon": Vector3.ZERO, "stations": [station]}})
+	assert_eq(ai.get_state(), AIScript.AIState.DOCKED)
+	ai._process_docked(Constants.ARENA_DOCK_TIME + 1.0)
+	assert_eq(ai.get_state(), AIScript.AIState.DOCKED, "An enemy outside: stays in")
+	ai._process_docked(Constants.ARENA_DOCK_MAX_WAIT)
+	assert_eq(ai.get_state(), AIScript.AIState.PATROL, "but not for ever")
+	ai._dock(station, false)
+	camper.global_transform.origin = Vector3(0, 0, 3000 + Constants.ARENA_UNDOCK_CLEAR_RADIUS + 200.0)
+	ai._process_docked(Constants.ARENA_DOCK_TIME + 1.0)
+	assert_eq(ai.get_state(), AIScript.AIState.PATROL, "Clear outside: undocks on time")

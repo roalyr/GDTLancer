@@ -194,6 +194,19 @@ func on_docked(body: Node) -> bool:
 	return false
 
 
+# A run-and-chase event in a life, counted in its record and log: "fled" (broke off or ran),
+# "held_fire" (ran without shooting back), "escaped" (docked while running), "let_go" (let a
+# runner go), "spared" (was let go).
+func note(uid: String, event: String) -> void:
+	if not live.has(uid):
+		return
+	var record: Dictionary = live[uid]
+	var events: Dictionary = record.get("events", {})
+	events[event] = int(events.get(event, 0)) + 1
+	record.events = events
+	_log(2, "EVO %s %s" % [event.to_upper().replace("_", " "), uid])
+
+
 func is_old(uid: String) -> bool:
 	return live.has(uid) and game_time - float(live[uid].born) >= Constants.ARENA_MAX_LIFETIME
 
@@ -263,9 +276,9 @@ func _end_life(uid: String, died: bool, killer: String) -> void:
 		verdict = _place_in_archive(record.genome_id)
 	var pool: Dictionary = pools[record.faction]
 	pool.lives = int(pool.lives) + 1
-	_log(1, "EVO %s %s %s zone=%s age=%.0fs kills=%d earned=%d bounty=%.0f spent=%.0f dealt=%.0f taken=%.0f docks=%d cost=%.0f fitness=%+.2f genome_mean=%+.2f (n=%d) %s%s" % [
+	_log(1, "EVO %s %s %s zone=%s age=%.0fs kills=%d earned=%d bounty=%.0f spent=%.0f dealt=%.0f taken=%.0f docks=%d %s cost=%.0f fitness=%+.2f genome_mean=%+.2f (n=%d) %s%s" % [
 		"DEATH" if died else "RETIRE", uid, record.genome_id, record.zone, age, record.kills, record.earned, record.bounty,
-		record.get("spent", 0.0), record.damage_dealt, record.damage_taken, record.docks, record.cost, fitness, shrunk_fitness(record.genome_id),
+		record.get("spent", 0.0), record.damage_dealt, record.damage_taken, record.docks, to_json(record.get("events", {})), record.cost, fitness, shrunk_fitness(record.genome_id),
 		int(entry.get("lives", 0)), verdict, (" killer=" + killer) if killer != "" else ""])
 	_write_life(record, died, killer, fitness, age)
 	_prune_genomes()
@@ -379,7 +392,7 @@ func _write_life(record: Dictionary, died: bool, killer: String, fitness: float,
 		"t": game_time, "uid": record.uid, "faction": record.faction, "zone": record.zone, "genome_id": record.genome_id,
 		"parent": record.parent, "how": record.get("how", ""), "died": died, "killer": killer, "age": age,
 		"kills": record.kills, "victims": record.victims, "earned": record.earned, "bounty": record.bounty, "spent": record.get("spent", 0.0),
-		"damage_dealt": record.damage_dealt, "damage_taken": record.damage_taken, "docks": record.docks,
+		"damage_dealt": record.damage_dealt, "damage_taken": record.damage_taken, "docks": record.docks, "events": record.get("events", {}),
 		"cost": record.cost, "skill": record.skill, "fitness": fitness,
 		"niche": Genome.niche(entry.genome) if not entry.empty() else "", "genome": entry.get("genome", {}),
 	}

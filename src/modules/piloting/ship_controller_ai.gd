@@ -193,6 +193,9 @@ func _change_state(new_state: int) -> void:
 			agent_script.command_approach(_target_agent)
 		AIState.FLEE:
 			_shooting_back = randf() < _return_fire
+			_note("fled")
+			if not _shooting_back:
+				_note("held_fire")
 			if not _arena.empty():
 				_station = _pick_refuge(_target_agent)
 			if is_instance_valid(_station) and not _arena.empty():
@@ -468,6 +471,8 @@ func _process_run_home() -> void:
 		return
 	var dock_point: Vector3 = _station.get_undock_position()
 	if agent_script.global_transform.origin.distance_to(dock_point) <= Constants.ARENA_DOCK_DISTANCE:
+		if _current_state == AIState.FLEE:
+			_note("escaped")
 		_dock(_station, true)
 		return
 	if _repath_timer <= 0.0:
@@ -486,12 +491,28 @@ func _dock(station: Spatial, service: bool) -> void:
 		agent_script.despawn()  # Retired: its record is in the log
 
 
+# Undocks once its dock time is up and no enemy waits outside (Constants ARENA_UNDOCK_CLEAR_RADIUS),
+# or once it has waited ARENA_DOCK_MAX_WAIT s more for one to leave.
 func _process_docked(delta: float) -> void:
 	_dock_timer -= delta
 	if _dock_timer > 0.0:
 		return
+	if _dock_timer > -Constants.ARENA_DOCK_MAX_WAIT and is_station_watched():
+		return
 	agent_script.undock()
 	_change_state(AIState.PATROL)
+
+
+# An enemy waits near its station: undocking would only send it running back in.
+func is_station_watched() -> bool:
+	if not is_instance_valid(_station):
+		return false
+	var station_pos: Vector3 = _station.global_transform.origin
+	for body in get_tree().get_nodes_in_group("agent_body"):
+		if body != agent_script and _is_live_target(body) and agent_script.is_enemy_of(body) \
+				and body.global_transform.origin.distance_to(station_pos) <= Constants.ARENA_UNDOCK_CLEAR_RADIUS:
+			return true
+	return false
 
 
 # Its own station to run to: near itself and away from the threat (if any).
@@ -519,6 +540,12 @@ func _in_arena(point: Vector3, slack: float = 1.0) -> bool:
 # Hull under its retreat gene: run home whatever the odds.
 func _should_retreat() -> bool:
 	return not _arena.empty() and _retreat_hull > 0.0 and agent_script.get_hull_fraction() < _retreat_hull
+
+
+# Counts a run-and-chase event in an arena NPC's life (Evolution.note).
+func _note(event: String) -> void:
+	if not _arena.empty():
+		Evolution.note(str(agent_script.evo_uid), event)
 
 
 # An old arena NPC goes home to retire (Evolution, Constants ARENA_MAX_LIFETIME).
@@ -687,6 +714,10 @@ func _tick_decision(delta: float) -> void:
 		"let_go":
 			if _should_let_go(target):
 				_spared[target.get_instance_id()] = Constants.AI_SPARE_TIME
+				_note("let_go")
+				var spared_uid = target.get("evo_uid")
+				if spared_uid is String and spared_uid != "":
+					Evolution.note(spared_uid, "spared")
 				_resume_target = null
 				_change_state(AIState.PATROL)
 			else:
