@@ -8,7 +8,7 @@
 #   --new          start a new evolution even if a save exists (otherwise the save is loaded)
 #   --save-every=M simulated minutes between saves (default 15)
 #   --save-dir=D   save folder (default the game's); use another to keep a run apart
-# Monitor asleep or a compositor stalling? Add an override.cfg with vsync off.
+# Vsync is switched off: with it, a monitor gone to sleep (DPMS) stalls every frame and the run with it.
 extends SceneTree
 
 var hours := 1.0
@@ -30,6 +30,7 @@ func _initialize():
 			save_every = max(1.0, float(arg.split("=")[1]))
 		elif arg.begins_with("--save-dir="):
 			save_dir = arg.split("=")[1]
+	OS.vsync_enabled = false
 	call_deferred("_run")
 
 
