@@ -1,8 +1,12 @@
-# Navigation command: ram a (possibly moving) target with a kinetic lance. Charges at where the
-# target will be (a lead point), at full thrust, never braking. When the ship could not reach
-# Constants.LAW_LANCE_MIN_SPEED of closing speed before it gets there (too close, too slow, or
-# just past it after a strike or a miss) it runs up: peels off away and to one side until it has
-# the room to build that speed (plus Constants NAV_RAM_TURN_ROOM to turn in), then charges again.
+# Navigation command: ram a (possibly moving) target with a kinetic lance. Charges on a collision
+# course at full thrust, never braking: it thrusts against its sideways drift relative to the
+# target (NAV_RAM_STEER_GAIN), so the line to the target stops turning and the lance meets it
+# however the target moves (proportional navigation). From afar it comes in at an angle
+# (NAV_RAM_WEAVE: a straight charge is the easiest thing for a laser to track) and turns square in
+# for the last NAV_RAM_WEAVE_END m. Once past the target (a strike, a glance or a miss), or when its
+# own speed is short of Constants.LAW_LANCE_MIN_SPEED with too little room left to build it, it
+# runs up: peels off away and to one side until it has the room to build that speed (plus
+# NAV_RAM_TURN_ROOM to turn in), then charges again.
 
 extends Node
 
@@ -43,21 +47,24 @@ func execute(delta: float):
 	var distance: float = offset.length()
 	var direction: Vector3 = offset / distance if distance > 0.01 else _movement_system.get_forward()
 	var closing: float = (_movement_system.get_velocity() - _target_velocity).dot(direction)
+	var own_speed: float = _movement_system.get_velocity().length()
 	var room: float = run_up_distance(_agent_body.get_top_speed(), max(0.0, closing), _target_velocity.dot(direction))
+	var side: Vector3 = (cmd.side - direction * cmd.side.dot(direction)).normalized()
 	if cmd.running_up:
 		if distance >= room + Constants.NAV_RAM_TURN_ROOM:
 			cmd.running_up = false
 			cmd.side = Vector3(rand_range(-1, 1), rand_range(-1, 1), rand_range(-1, 1)).normalized()
-	elif closing < Constants.LAW_LANCE_MIN_SPEED and distance < room:
-		cmd.running_up = true
+	elif closing < 0.0 or (own_speed < Constants.LAW_LANCE_MIN_SPEED and distance < room):
+		cmd.running_up = true  # Past it, or too slow with too little room
 
 	var heading: Vector3
 	if cmd.running_up:
-		var side: Vector3 = (cmd.side - direction * cmd.side.dot(direction)).normalized()
 		heading = (-direction + side * Constants.NAV_RAM_RUN_UP_SIDE).normalized()
 	else:
-		var lead_time: float = distance / max(closing, Constants.NAV_RAM_MIN_LEAD_SPEED)
-		heading = (target_pos + _target_velocity * min(lead_time, Constants.NAV_RAM_MAX_LEAD_TIME) - _agent_body.global_transform.origin).normalized()
+		var relative: Vector3 = _movement_system.get_velocity() - _target_velocity
+		var drift: Vector3 = relative - direction * relative.dot(direction)
+		var weave: float = Constants.NAV_RAM_WEAVE * clamp((distance - Constants.NAV_RAM_WEAVE_END) / Constants.NAV_RAM_WEAVE_END, 0.0, 1.0)
+		heading = (direction + side * weave - drift / max(own_speed, Constants.NAV_RAM_MIN_LEAD_SPEED) * Constants.NAV_RAM_STEER_GAIN).normalized()
 	_movement_system.request_rotation_to_pid(heading, delta)
 	if _movement_system.get_forward().dot(heading) > Constants.NAV_RAM_THRUST_ALIGNMENT:
 		_movement_system.request_thrust_forward()

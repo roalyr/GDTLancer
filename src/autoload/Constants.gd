@@ -61,15 +61,17 @@ const NAV_APPROACH_DISTANCE_MULTIPLIER = 1.3
 const NAV_APPROACH_MIN_DISTANCE = 50.0  # m
 const NAV_ARRIVAL_DISTANCE_THRESHOLD = 20.0  # m
 const NAV_APPROACH_RESUME_MARGIN = 30.0  # m past the hold distance before a holding approach closes in again
-# Ramming (command_ram): charges at the target's lead point (lead time distance / closing speed, at
-# least MIN_LEAD_SPEED, at most MAX_LEAD_TIME s), thrusting while the nose is within
+# Ramming (command_ram): charges on a collision course (from afar off to one side: WEAVE), thrusting
+# while the nose is within
 # acos(THRUST_ALIGNMENT) of the heading; runs up away and SIDE to one side until it has the room to
 # reach LAW_LANCE_MIN_SPEED plus TURN_ROOM m to turn in.
 const NAV_RAM_TURN_ROOM = 800.0  # m
 const NAV_RAM_RUN_UP_SIDE = 0.6
-const NAV_RAM_MIN_LEAD_SPEED = 50.0  # m/s
-const NAV_RAM_MAX_LEAD_TIME = 10.0  # s
+const NAV_RAM_MIN_LEAD_SPEED = 50.0  # m/s: the drift correction is scaled by the ship's speed, at least this
+const NAV_RAM_STEER_GAIN = 2.0  # How hard it thrusts against its sideways drift relative to the target
 const NAV_RAM_THRUST_ALIGNMENT = 0.9
+const NAV_RAM_WEAVE = 0.6  # From afar it aims this many times the distance off to one side (about 30 degrees)
+const NAV_RAM_WEAVE_END = 500.0  # m: square in from here (the weave fades out over the next as many m)
 const NAV_ARRIVAL_SPEED_THRESHOLD = 5.0  # m/s
 const NAV_CLOSE_ORBIT_DISTANCE_FACTOR = 1.5  # The orbit radius is at least the target's size times this
 const NAV_ORBIT_SPEED_SHARE = 0.6  # Orbit speed as a share of top speed (less on tight orbits: turning limits it)
@@ -591,7 +593,7 @@ const EVO_MUTATION_SIGMA = 0.08  # Log-normal step on each mutated gene
 const EVO_GENE_MUTATION_CHANCE = 0.4  # Per gene
 const EVO_MACRO_MUTATION_CHANCE = 0.03  # A mutation with 5x the step
 const EVO_PART_SWAP_CHANCE = 0.08  # Per slot: a different part (another kind or type, or empty)
-const EVO_PILOT_STAKE_SHARE = 0.5  # An arena pilot's wallet: this share of its ship's cost, plus its life's net takings
+const EVO_PILOT_STAKE_SHARE = 1.0  # An arena pilot's wallet: this share of its ship's cost, plus its life's net takings (comfortable at first; losses make it desperate)
 const EVO_EMPTY_SLOT_CHANCE = 0.15  # When a slot's part is picked anew, the chance it is left empty
 const EVO_BEHAVIOR_START_LIVES = 150  # Behaviour genes start mutating once a faction has logged this many lives
 const EVO_BEHAVIOR_RANGES = {  # Gene -> [min, max, default]
