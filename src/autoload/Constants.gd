@@ -438,14 +438,14 @@ const LAW_TECH_PER_KG = 1.0 / 600.0  # and of tech, per kg of engines and reacto
 
 # Lasers: shot energy E (power spent per cycle) and mass m (aperture, cooling).
 #   damage = DAMAGE * (E/E0)^a, optimal = RANGE * (m/m0)^b * (E/E0)^c, tracking = TRACKING * (m/m0)^d,
-#   cycle = CYCLE * (E/E0) / (m/m0)^(2/3) (the heat of a shot leaves through the surface).
+#   cycle = CYCLE * (E/E0) / (m/m0)^k (the heat of a shot leaves through the cooling train).
 const LAW_LASER_REF_MASS = 300.0  # kg
 const LAW_LASER_REF_ENERGY = 5.0
 const LAW_LASER_DAMAGE = [6.0, 0.8]  # [at E0, exponent of E]
 const LAW_LASER_RANGE = [1000.0, 1.0 / 3.0, 0.25]  # [m at m0 and E0, exponent of m, of E]
 const LAW_LASER_FALLOFF_SHARE = 0.25  # Falloff as a share of optimal range
-const LAW_LASER_TRACKING = [0.2, -1.0 / 3.0]  # [rad/s at m0, exponent of m]: heavier turrets swing slower
-const LAW_LASER_CYCLE = [1.0, 2.0 / 3.0]  # [s at m0 and E0, exponent of m the cooling grows with]
+const LAW_LASER_TRACKING = [0.2, -0.5]  # [rad/s at m0, exponent of m]: heavier turrets swing slower
+const LAW_LASER_CYCLE = [1.0, 0.5]  # [s at m0 and E0, exponent k of m the cooling grows with]
 const LAW_LASER_CYCLE_RANGE = [0.25, 8.0]  # s
 const LAW_LASER_MEDIUM_MASS = 800.0  # kg from which a laser needs a medium hardpoint
 const LAW_LASER_LARGE_MASS = 2500.0  # and a large one
@@ -520,7 +520,7 @@ const ARENA_BEACON_SCENE = "res://scenes/prefabs/station/arena_beacon.tscn"
 # The pool is an archive of niches (MAP-Elites): size class x role x laser range. Each niche keeps its
 # best genome; a spawn picks a niche (softly by fitness, so near-equal ones all carry on), then
 # re-flies its genome or a mutant. Fitness is noisy, so it is shrunk toward 0 by EVO_PRIOR_LIVES.
-const EVO_KILL_BOUNTY_SHARE = 0.5  # Share of a victim's value paid to its killer
+const EVO_KILL_BOUNTY_SHARE = 0.2  # Share of a victim's value paid to its killer
 const EVO_REPAIR_COST_SHARE = 0.5  # A full repair costs this share of the hull's value (less for less)
 const EVO_UPKEEP_PER_HOUR = 1.0  # Running costs: this share of the ship's value per hour alive
 const EVO_PRIOR_LIVES = 2.0  # Fitness mean = sum / (lives + this)
