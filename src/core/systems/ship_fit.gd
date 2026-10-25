@@ -5,6 +5,7 @@
 
 extends Reference
 
+const ShipLaws = preload("res://src/core/systems/ship_laws.gd")
 const SIZES = ["small", "medium", "large"]
 const STATS = ["hull", "power_capacity", "power_regen", "cargo_capacity", "linear_thrust", "angular_thrust", "signature", "sensor_strength"]
 
@@ -157,4 +158,15 @@ static func compute_stats(ship, fit: Dictionary) -> Dictionary:
 			for stat in module.stat_modifiers:
 				if stats.has(stat):
 					stats[stat] += float(module.stat_modifiers[stat])
+	stats.signature *= reactor_signature_factor(float(ship.mass), float(ship.power_regen), stats.power_regen)
 	return stats
+
+
+# A reactor runs hot: SIG_REACTOR_SHARE of a hull's signature scales with its power output (power
+# cells included) against a Phoenix Light's share of reactor for that mass. A lancer's small reactor
+# makes it hard to see; a laser boat's big one, easy. 1 for ships without a reactor law (hand-made).
+static func reactor_signature_factor(ship_mass: float, hull_regen: float, total_regen: float) -> float:
+	var reference: float = ShipLaws.apply_law(Constants.LAW_REGEN, ship_mass * Constants.LAW_SHIP_SHARES.reactor)
+	if reference <= 0.0 or hull_regen <= 0.0:
+		return 1.0
+	return max(Constants.SIG_REACTOR_MIN_FACTOR, 1.0 - Constants.SIG_REACTOR_SHARE + Constants.SIG_REACTOR_SHARE * total_regen / reference)

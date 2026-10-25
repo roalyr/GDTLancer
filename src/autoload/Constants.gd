@@ -208,6 +208,8 @@ const SIG_TOOL_DECAY = 4.0  # s for the firing signature to fade
 const SIG_PER_LEAK = 800.0  # m per fuel leak at full pressure
 const SIG_WRECK_FACTOR = 0.6  # A wreck's signature is this share of its hull's base (cold, but a big lump of metal)
 const SIG_MIN = 200.0  # m; nothing is quieter than this
+const SIG_REACTOR_SHARE = 0.4  # Share of a hull's signature that is its reactor's heat (ShipFit.reactor_signature_factor)
+const SIG_REACTOR_MIN_FACTOR = 0.6
 const SIG_PER_METRE_OF_SIZE = 100.0  # m of signature per metre of a celestial's or station's radius
 
 # The player reads these as cues, not numbers (NPCs use the numbers directly).
