@@ -100,6 +100,13 @@ func test_a_lance_adds_to_damage_per_second_while_it_has_lances():
 	assert_eq(rammer.get_damage_per_second(), 0.0, "No lasers, no lances left")
 
 
+func test_aim_stiffens_as_the_charge_closes():
+	assert_eq(CommandRam.aim_gain(Constants.NAV_RAM_PID_GAIN_RANGE * 2.0), 1.0, "Usual aim from afar")
+	assert_almost_eq(CommandRam.aim_gain(0.0), Constants.NAV_RAM_PID_GAIN, 0.001)
+	var middle: float = CommandRam.aim_gain(Constants.NAV_RAM_PID_GAIN_RANGE * 0.5)
+	assert_lt(middle, (1.0 + Constants.NAV_RAM_PID_GAIN) * 0.5, "Most of the rise is near the end")
+
+
 func test_run_up_distance():
 	assert_eq(CommandRam.run_up_distance(150.0, Constants.LAW_LANCE_MIN_SPEED + 1.0, 0.0), 0.0, "Fast enough already")
 	assert_eq(CommandRam.run_up_distance(Constants.LAW_LANCE_MIN_SPEED - 1.0, 0.0, 0.0), INF, "Never fast enough")

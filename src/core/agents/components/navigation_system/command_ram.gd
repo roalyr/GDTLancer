@@ -1,8 +1,9 @@
 # Navigation command: ram a (possibly moving) target with a kinetic lance. Charges straight at where
 # the target will be (a lead point), at full thrust, never braking: an approach that does not slow
 # down; it leans a little against its sideways slip relative to the target (NAV_RAM_DRIFT_GAIN), so
-# it does not pass beside a target that moves. It aims with a stiffer rotation PID
-# (NAV_RAM_PID_GAIN): a near miss is a few degrees, where the usual autopilot eases in. A ram picks up from how the ship moves now, from any distance; only when it is too close to
+# it does not pass beside a target that moves. Closing in, it aims with a stiffer rotation PID
+# (aim_gain): a near miss is a few degrees, where the usual autopilot eases in; from afar the usual
+# one, so it settles onto its course without overshooting. A ram picks up from how the ship moves now, from any distance; only when it is too close to
 # reach Constants.LAW_LANCE_MIN_SPEED of closing speed before it gets there (just past the target
 # after a strike, a glance or a miss, or slow and near) does it run up: straight away, as a flee,
 # until it has that room plus NAV_RAM_TURN_ROOM to turn in, then charges again.
@@ -61,9 +62,16 @@ func execute(delta: float):
 		var relative: Vector3 = _movement_system.get_velocity() - _target_velocity
 		var drift: Vector3 = relative - direction * relative.dot(direction)  # Sideways slip relative to the target: it would miss by this
 		heading = (lead - drift / max(relative.length(), Constants.NAV_RAM_MIN_LEAD_SPEED) * Constants.NAV_RAM_DRIFT_GAIN).normalized()
-	_movement_system.request_rotation_to_pid(heading, delta, Constants.NAV_RAM_PID_GAIN if not cmd.running_up else 1.0)
+	_movement_system.request_rotation_to_pid(heading, delta, 1.0 if cmd.running_up else aim_gain(distance))
 	if _movement_system.get_forward().dot(heading) > Constants.NAV_RAM_THRUST_ALIGNMENT:
 		_movement_system.request_thrust_forward()
+
+
+# Rotation PID gain at `distance` m from the target: 1 from NAV_RAM_PID_GAIN_RANGE out, rising
+# toward NAV_RAM_PID_GAIN as it closes, most of it in the last stretch (NAV_RAM_PID_GAIN_EXP).
+static func aim_gain(distance: float) -> float:
+	var near: float = 1.0 - clamp(distance / Constants.NAV_RAM_PID_GAIN_RANGE, 0.0, 1.0)
+	return 1.0 + (Constants.NAV_RAM_PID_GAIN - 1.0) * pow(near, Constants.NAV_RAM_PID_GAIN_EXP)
 
 
 # m a ship of `top_speed` needs to reach LAW_LANCE_MIN_SPEED of closing speed on a target moving
