@@ -1,7 +1,7 @@
 # Genome: what an arena NPC is made of, as plain data (saved as is), and how it varies.
 #   {"ship": ShipLaws ship genes, "tools": [part per hardpoint], "modules": [part per bay],
 #    "behavior": {gene: value} (Constants EVO_BEHAVIOR_RANGES)}
-#   part: {} (empty slot) or {"kind", "type", "genes"}; kinds "laser", "harpoon" (tools) and
+#   part: {} (empty slot) or {"kind", "type", "genes"}; kinds "laser", "missile", "cannon", "harpoon" (tools) and
 #   ShipLaws.MODULE_KINDS (modules). The harpoon has no genes: it is the registry one.
 # Every stat comes from the genes through ShipLaws, so a mutant is as lawful as its parent.
 
@@ -9,7 +9,8 @@ extends Reference
 
 const ShipLaws = preload("res://src/core/systems/ship_laws.gd")
 
-const TOOL_KINDS = ["laser", "harpoon"]
+const TOOL_KINDS = ["laser", "missile", "cannon", "harpoon"]
+const WEAPON_KINDS = ["laser", "missile", "cannon"]
 
 
 # --- Making genomes ---
@@ -26,7 +27,7 @@ static func random_genome() -> Dictionary:
 	_mutate_ship(genome.ship, 3.0)
 	_fit_slots(genome)
 	for i in range(genome.tools.size()):
-		genome.tools[i] = random_part("laser" if i == 0 else _random_tool_kind(), slot_mass_limit(genome))
+		genome.tools[i] = random_part(_random_weapon_kind() if i == 0 else _random_tool_kind(), slot_mass_limit(genome))
 	for i in range(genome.modules.size()):
 		genome.modules[i] = {} if randf() < Constants.EVO_EMPTY_SLOT_CHANCE else random_part(ShipLaws.MODULE_KINDS[randi() % ShipLaws.MODULE_KINDS.size()])
 	_one_lance(genome)
@@ -44,7 +45,20 @@ static func _random_tool_kind() -> String:
 	var roll: float = randf()
 	if roll < Constants.EVO_EMPTY_SLOT_CHANCE:
 		return ""
-	return "harpoon" if roll < 0.5 else "laser"
+	return "harpoon" if roll < 0.5 else _random_weapon_kind()
+
+
+# A weapon, by Constants EVO_WEAPON_ODDS.
+static func _random_weapon_kind() -> String:
+	var total := 0.0
+	for kind in Constants.EVO_WEAPON_ODDS:
+		total += float(Constants.EVO_WEAPON_ODDS[kind])
+	var roll: float = randf() * total
+	for kind in Constants.EVO_WEAPON_ODDS:
+		roll -= float(Constants.EVO_WEAPON_ODDS[kind])
+		if roll <= 0.0:
+			return kind
+	return "laser"
 
 
 # A part of `kind` ("" for an empty slot) of a random type, from that type's seed genes, varied.
@@ -165,6 +179,17 @@ static func _clamp_part(part: Dictionary, max_mass: float = INF) -> void:
 	if part.kind == "laser":
 		part.genes = ShipLaws.clamp_laser_genes(part.genes)
 		part.genes.mass = min(part.genes.mass, max_mass)
+	elif part.kind == "missile":
+		part.genes = ShipLaws.clamp_missile_genes(part.genes)
+		var rack_rounds: float = part.genes.count + Constants.LAW_MISSILE_RACK_ROUNDS
+		if part.genes.round_mass * rack_rounds > max_mass:  # Too heavy for the hardpoint: fewer missiles, then lighter ones
+			part.genes.count = max(Constants.LAW_MISSILE_COUNT_RANGE[0], floor(max_mass / part.genes.round_mass - Constants.LAW_MISSILE_RACK_ROUNDS))
+			part.genes.round_mass = max(Constants.LAW_MISSILE_MASS_RANGE[0], min(part.genes.round_mass, max_mass / (part.genes.count + Constants.LAW_MISSILE_RACK_ROUNDS)))
+	elif part.kind == "cannon":
+		part.genes = ShipLaws.clamp_cannon_genes(part.genes)
+		if part.genes.mass + part.genes.round_mass * part.genes.count > max_mass:  # Too heavy: a smaller magazine, then a lighter gun
+			part.genes.count = max(Constants.LAW_CANNON_COUNT_RANGE[0], floor((max_mass - part.genes.mass) / part.genes.round_mass))
+			part.genes.mass = max(Constants.LAW_CANNON_MASS_RANGE[0], min(part.genes.mass, max_mass - part.genes.round_mass * part.genes.count))
 	else:
 		part.genes = ShipLaws.clamp_module_genes(part.genes, part.kind)
 
@@ -178,9 +203,9 @@ static func part_template_id(part: Dictionary) -> String:
 	if part.kind == "harpoon":
 		return Constants.HARPOON_TEMPLATE_ID
 	var key: String = "%s_%d" % [part.kind, int(part.type)]
-	for gene in ["mass", "energy", "nail_mass", "count"]:
+	for gene in ["mass", "energy", "nail_mass", "round_mass", "count"]:
 		if part.genes.has(gene):
-			key += "_%d" % int(round(float(part.genes[gene]) * (10.0 if gene == "energy" else 1.0)))
+			key += "_%d" % int(round(float(part.genes[gene]) * (10.0 if gene in ["energy", "round_mass"] else 1.0)))
 	return "evo_" + key
 
 
@@ -191,6 +216,8 @@ static func ensure_part_template(part: Dictionary) -> String:
 		return template_id
 	if part.kind == "laser":
 		TemplateDatabase.register_evolved(ShipLaws.build_laser_template(part.genes, int(part.type), template_id))
+	elif part.kind in ["missile", "cannon"]:
+		TemplateDatabase.register_evolved(ShipLaws.build_weapon_template(part.kind, part.genes, int(part.type), template_id))
 	else:
 		TemplateDatabase.register_evolved(ShipLaws.build_module_template(part.kind, part.genes, int(part.type), template_id))
 	return template_id
@@ -218,6 +245,10 @@ static func cost(genome: Dictionary) -> float:
 			continue
 		if part.kind == "laser":
 			total += ShipLaws.laser_stats(part.genes).base_value
+		elif part.kind == "missile":
+			total += ShipLaws.missile_stats(part.genes).base_value
+		elif part.kind == "cannon":
+			total += ShipLaws.cannon_stats(part.genes).base_value
 		elif part.kind == "harpoon":
 			var harpoon = TemplateDatabase.get_template(Constants.HARPOON_TEMPLATE_ID)
 			total += harpoon.base_value if harpoon != null else 80
@@ -233,27 +264,36 @@ static func hull_value(genome: Dictionary) -> float:
 
 # --- Niches and descriptions ---
 
-# The niche a genome belongs to: size class (half-octaves of size), role, laser range class.
+# The niche a genome belongs to: size class (half-octaves of size), role, laser range class. The role
+# is fighter / raider (with a harpoon) / scavenger / drifter, after its weapons; missiles, cannons
+# and a lance each prefix it ("missile-fighter", "lance-cannon-raider"), so a new archetype grows on
+# its own branch instead of competing head-on with lasers. A lance with no other weapon: "lancer".
 static func niche(genome: Dictionary) -> String:
 	var lasers := 0
 	var harpoons := 0
+	var kinds := {}
 	var range_sum := 0.0
 	for part in genome.tools:
 		if part.empty():
 			continue
+		kinds[part.kind] = true
 		if part.kind == "laser":
 			lasers += 1
 			range_sum += ShipLaws.laser_stats(part.genes).optimal_range
 		elif part.kind == "harpoon":
 			harpoons += 1
+	var armed: bool = lasers > 0 or kinds.has("missile") or kinds.has("cannon")
 	var role: String = "drifter"
-	if lasers > 0:
+	if armed:
 		role = "raider" if harpoons > 0 else "fighter"
 	elif harpoons > 0:
 		role = "scavenger"
+	for kind in ["cannon", "missile"]:
+		if kinds.has(kind):
+			role = kind + "-" + role
 	for part in genome.modules:
 		if not part.empty() and part.kind == "lance":
-			role = "lancer" if lasers == 0 else "lance-" + role  # Its own branch, so lances do not compete head-on with lasers
+			role = "lancer" if not armed else "lance-" + role
 			break
 	var range_class: String = "-"
 	if lasers > 0:
@@ -274,6 +314,12 @@ static func describe_part(part: Dictionary) -> String:
 	if part.kind == "laser":
 		var stats: Dictionary = ShipLaws.laser_stats(part.genes)
 		return "%s(%.0fkg %.1fE dmg%.1f/%.2fs %.0fm trk%.2f)" % [label, part.genes.mass, part.genes.energy, stats.damage, stats.cycle_time, stats.optimal_range, stats.tracking]
+	if part.kind == "missile":
+		var rack: Dictionary = ShipLaws.missile_stats(part.genes)
+		return "%s(%dx%.0fkg dmg%.0f %.0fm/s trn%.2f %.0fm)" % [label, rack.ammo, rack.round_mass, rack.damage, rack.projectile_speed, rack.turn_rate, rack.optimal_range]
+	if part.kind == "cannon":
+		var gun: Dictionary = ShipLaws.cannon_stats(part.genes)
+		return "%s(%.0fkg %dx%.1fkg dmg%.1f/%.2fs %.0fm/s)" % [label, part.genes.mass, gun.ammo, gun.round_mass, gun.damage, gun.cycle_time, gun.projectile_speed]
 	if part.kind == "lance":
 		var lance: Dictionary = ShipLaws.lance_stats(part.genes)
 		return "%s(%dx%.0fkg dmg%.0f@%.0f)" % [label, lance.count, lance.nail_mass, lance.damage, Constants.LAW_LANCE_REF_SPEED]

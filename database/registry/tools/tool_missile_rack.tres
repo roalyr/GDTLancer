@@ -1,0 +1,35 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/utility_tool_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "tool_missile_rack"
+tool_name = "Missile Rack"
+hud_label = "MISSILES"
+description = "Four guided missiles. Heavy hitters, one use each: more only at a base or from a missile ship's wreck."
+tool_type = "missile"
+mount_size = "small"
+base_value = 180
+mass = 400.0
+damage = 65.4442
+optimal_range = 3129.38
+falloff = 0.0
+tracking = 0.0
+cycle_time = 2.80575
+power_per_cycle = 2.0
+reel_speed = 15.0
+launch_speed = 0.0
+strip_interval = 1.0
+ammo = 4
+round_mass = 80.0
+round_value = 40
+projectile_speed = 327.221
+projectile_accel = 125.477
+turn_rate = 1.26885
+flight_time = 19.1271
+variant_type = 2
+law_genes = {
+"count": 4.0,
+"round_mass": 80.0
+}

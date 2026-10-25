@@ -230,6 +230,7 @@ func test_a_decision_is_dropped_if_the_situation_changed_meanwhile():
 
 
 func test_being_shot_while_deciding_turns_the_decision_into_a_response():
+	seed(11)  # Decision times are jittered: two can differ by more than the margin below
 	ai.initialize({"patrol_center": Vector3.ZERO})
 	var shooter = _make_ship(Vector3(0, 0, -500), "player", 50.0)
 	hostile.apply_damage(1.0, shooter)

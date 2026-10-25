@@ -27,6 +27,7 @@ var player_storage: Dictionary = {}
 
 ## Lances left in the player's lance quiver; negative means full.
 var player_lance_nails: int = -1
+var player_tool_ammo: Array = []  # [[tool id, rounds left] per tool slot] (ToolController)
 
 ## Player hold: commodity id -> units.
 var player_cargo: Dictionary = {}
@@ -61,6 +62,7 @@ func reset_state() -> void:
 	player_ship_template_id = ""
 	player_hull = -1.0
 	player_lance_nails = -1
+	player_tool_ammo = []
 	player_cargo = {}
 	home_location_id = ""
 	player_bank = 0

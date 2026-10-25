@@ -1,8 +1,8 @@
-# Lance duels: ships of two designs fight one on one, well away from the arenas, sped up; prints
+# Duels: ships of two designs fight one on one, well away from the arenas, sped up; prints
 # who won, how long it took and what the lance did (strikes, glances, damage, closing speeds).
 # A throwaway save folder; never the real save. DUEL_TRACE=1 in the environment prints the first
 # ship's state every second (distance, speed, activity, lance, run-up).
-#     godot --no-window -s tools/lance_duel.gd -- --duels=8 --speed=6
+#     godot --no-window -s tools/lance_duel.gd -- --duels=8 --speed=6 [--weapons: missile and cannon designs]
 # Designs (Genome genomes, see DESIGNS): "lancer" (small and fast: lance and harpoon), "lance_laser"
 # (Phoenix Light sized, engine-heavy: lance and a laser), "laser" (the Phoenix Light, two lasers),
 # "laser_heavy" (a big slow three-laser ship), "hauler" (an unarmed Phoenix Light), "lancer_fast"
@@ -23,12 +23,18 @@ const DESIGNS = {
 		"modules": [{"kind": "plating", "type": 2, "genes": {"mass": 1000.0}}, {}, {}]},
 	"hauler": {"ship": {"type": 2, "size": 1.0, "shares": {"structure": 0.55, "engine": 0.2, "reactor": 0.1, "capacitor": 0.05, "hold": 0.1}},
 		"tools": [{}, {}], "modules": [{}, {}]},
+	"missileer": {"ship": {"type": 2, "size": 1.0, "shares": {"structure": 0.55, "engine": 0.2, "reactor": 0.1, "capacitor": 0.05, "hold": 0.1}},
+		"tools": [{"kind": "missile", "type": 2, "genes": {"round_mass": 100.0, "count": 4.0}}, {"kind": "laser", "type": 1, "genes": {"mass": 150.0, "energy": 2.5}}], "modules": [{}, {}]},
+	"gunner": {"ship": {"type": 2, "size": 1.0, "shares": {"structure": 0.5, "engine": 0.25, "reactor": 0.1, "capacitor": 0.05, "hold": 0.1}},
+		"tools": [{"kind": "cannon", "type": 2, "genes": {"mass": 300.0, "round_mass": 5.0, "count": 60.0}}, {"kind": "cannon", "type": 2, "genes": {"mass": 300.0, "round_mass": 5.0, "count": 60.0}}], "modules": [{}, {}]},
 }
+const MATCHES_WEAPONS = [["missileer", "laser"], ["gunner", "laser"], ["missileer", "gunner"], ["gunner", "lancer_fast"], ["missileer", "lancer_fast"]]
 const MATCHES = [["lancer", "hauler"], ["lancer", "laser"], ["lancer_fast", "laser"], ["lancer_fast", "laser_heavy"], ["lance_laser", "laser"], ["lance_laser", "laser_heavy"]]
 const DUEL_TIME = 180.0  # s of game time before a duel is called a draw
 const ARENA_OFFSET = Vector3(0, 15000, 0)  # From the home station (in the 3v3 arena): well above every arena
 
 var duels := 6
+var matches: Array = MATCHES
 var speed := 6.0
 var _shown: Dictionary = {}
 
@@ -37,6 +43,8 @@ func _initialize():
 	for arg in OS.get_cmdline_args():
 		if arg.begins_with("--duels="):
 			duels = int(arg.split("=")[1])
+		elif arg == "--weapons":
+			matches = MATCHES_WEAPONS
 		elif arg.begins_with("--speed="):
 			speed = max(1.0, float(arg.split("=")[1]))
 	OS.vsync_enabled = false
@@ -63,7 +71,7 @@ func _run():
 	for design in DESIGNS:
 		built[design] = genome_script.build(DESIGNS[design], "duel_" + design, "verdant")
 	var centre: Vector3 = refs.player_agent_body.global_transform.origin + ARENA_OFFSET
-	for pairing in MATCHES:
+	for pairing in matches:
 		print("DESIGNS %s vs %s" % [pairing[0], pairing[1]])
 		var tally := {"wins": {}, "draws": 0, "times": [], "strikes": 0, "glances": 0, "damage": 0.0, "speeds": []}
 		for i in range(duels):

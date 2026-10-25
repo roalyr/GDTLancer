@@ -378,6 +378,10 @@ func _on_player_lance_glanced(_target, reason) -> void:
 	EventBus.emit_signal("attack_action_feedback", false, "Lance glanced off: %s" % reason)
 
 
+func _on_tool_ammo_changed(_index: int, _ammo: int) -> void:
+	_update_mass()
+
+
 func _on_lance_nails_changed(nails: int) -> void:
 	if is_player():
 		GameState.player_lance_nails = nails
@@ -749,7 +753,7 @@ func get_desperation() -> float:
 	return clamp(1.0 - get_wallet() / comfort, 0.0, 1.0)
 
 
-# Lasers' damage per second, plus a lance with lances left at this ship's top speed, over
+# Weapons' damage per second (ToolController: lasers, missiles, cannons), plus a lance with lances left at this ship's top speed, over
 # Constants AI_RAM_PASS_TIME between strikes (or its reload, if longer).
 func get_damage_per_second() -> float:
 	var tools = get_node_or_null("ToolController")
@@ -907,7 +911,10 @@ func _update_mass() -> void:
 	var lance = get_lance()
 	if lance != null:
 		base_mass -= lance.spent_mass()
-	mass = base_mass + get_cargo_mass()
+	var tools = get_node_or_null("ToolController")
+	if tools != null and tools.has_method("spent_ammo_mass"):
+		base_mass -= tools.spent_ammo_mass()
+	mass = max(1.0, base_mass + get_cargo_mass())
 
 
 # --- Godot Lifecycle ---
@@ -1043,6 +1050,14 @@ func command_ram(target: Spatial):
 		navigation_system.set_command_ram(target)
 	else:
 		printerr("AgentBody: Cannot command_ram - NavigationSystem invalid.")
+
+
+# Point the nose where a cannon round will meet `target`, holding `keep_range` from it (command_aim).
+func command_aim(target: Spatial, keep_range: float):
+	if is_instance_valid(navigation_system):
+		navigation_system.set_command_aim(target, keep_range)
+	else:
+		printerr("AgentBody: Cannot command_aim - NavigationSystem invalid.")
 
 
 func command_flee(target: Spatial):

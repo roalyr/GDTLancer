@@ -18,6 +18,10 @@ func _assert_lawful(genome: Dictionary) -> void:
 	for part in genome.tools:
 		if not part.empty() and part.kind == "laser":
 			assert_true(part.genes.mass <= Genome.slot_mass_limit(genome), "The laser fits the hardpoints")
+		elif not part.empty() and part.kind == "missile":
+			assert_true(ShipLaws.missile_stats(part.genes).mass <= Genome.slot_mass_limit(genome) + 0.01, "The rack fits the hardpoints")
+		elif not part.empty() and part.kind == "cannon":
+			assert_true(ShipLaws.cannon_stats(part.genes).mass <= Genome.slot_mass_limit(genome) + 0.01, "The cannon fits the hardpoints")
 	for gene in genome.behavior:
 		var bounds: Array = Constants.EVO_BEHAVIOR_RANGES[gene]
 		assert_between(float(genome.behavior[gene]), float(bounds[0]), float(bounds[1]))
@@ -93,3 +97,23 @@ func test_lances_are_lawful_parts_with_their_own_niche():
 	for module in child.modules:
 		lances += 1 if not module.empty() and module.kind == "lance" else 0
 	assert_true(lances <= 1, "One lance per ship")
+
+
+func test_missiles_and_cannons_are_lawful_weapons_on_their_own_branches():
+	var genome: Dictionary = Genome.random_genome()
+	for i in range(genome.tools.size()):
+		genome.tools[i] = {}
+	for i in range(genome.modules.size()):
+		genome.modules[i] = {}
+	genome.tools[0] = Genome.random_part("missile", Genome.slot_mass_limit(genome))
+	assert_eq(Genome.niche(genome).split("|")[1], "missile-fighter")
+	var rack = TemplateDatabase.get_template(Genome.ensure_part_template(genome.tools[0]))
+	assert_true(rack is UtilityToolTemplate and rack.tool_type == "missile" and rack.ammo == int(round(genome.tools[0].genes.count)))
+	genome.tools[0] = Genome.random_part("cannon", Genome.slot_mass_limit(genome))
+	assert_eq(Genome.niche(genome).split("|")[1], "cannon-fighter")
+	var gun = TemplateDatabase.get_template(Genome.ensure_part_template(genome.tools[0]))
+	assert_true(gun is UtilityToolTemplate and gun.tool_type == "cannon" and gun.ammo > 0 and gun.projectile_speed > 0.0)
+	assert_gt(Genome.cost(genome), ShipLaws.ship_stats(genome.ship).base_value, "Priced with its rounds")
+	var heavy: Dictionary = {"kind": "missile", "type": 3, "genes": {"round_mass": 900.0, "count": 16.0}}
+	Genome._clamp_part(heavy, 799.0)
+	assert_true(ShipLaws.missile_stats(heavy.genes).mass <= 799.0 + 0.01, "Cut down to the hardpoint: fewer, lighter missiles")

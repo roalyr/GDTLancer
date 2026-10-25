@@ -190,6 +190,13 @@ func on_docked(body: Node) -> bool:
 		repair_cost += lances * float(lance.lance.nail_value)  # Lances used are bought anew
 		if lances > 0:
 			note(uid, "rearmed")
+	var tools = body.get_node_or_null("ToolController")
+	if tools != null and tools.has_method("restock_ammo"):
+		var added: Dictionary = tools.restock_ammo()
+		for index in added:
+			repair_cost += int(added[index]) * float(tools.get_tool(index).round_value)  # Rounds fired are bought anew
+		if not added.empty():
+			note(uid, "reloaded")
 	record.earned = int(record.earned) + value
 	record.spent = float(record.get("spent", 0.0)) + repair_cost
 	record.docks = int(record.docks) + 1

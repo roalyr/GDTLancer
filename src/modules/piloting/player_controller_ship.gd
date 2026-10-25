@@ -53,6 +53,8 @@ func _ready():
 		return
 
 	_tool_controller = agent_body.get_node_or_null("ToolController")
+	if is_instance_valid(_tool_controller) and not _tool_controller.is_connected("tool_deactivated", self, "_on_tool_deactivated"):
+		_tool_controller.connect("tool_deactivated", self, "_on_tool_deactivated")
 
 	_states = {
 		"default": _register_input_state("StateDefault", StateDefault.new()),
@@ -246,9 +248,38 @@ func _on_tool_button_pressed(index: int) -> void:
 		var needs: String = "a wreck" if tool_template.tool_type == "harpoon" else "a ship or rock"
 		EventBus.emit_signal("attack_action_feedback", false, "%s needs %s selected" % [tool_template.tool_name, needs])
 		return
+	if _tool_controller.has_magazine(index) and _tool_controller.get_ammo(index) <= 0:
+		EventBus.emit_signal("attack_action_feedback", false, _empty_message(tool_template))
+		return
 	var result: Dictionary = _tool_controller.activate(index, target)
 	if not result.get("success", false):
 		EventBus.emit_signal("attack_action_feedback", false, _describe_tool_failure(result.get("reason", "")))
+	elif tool_template.tool_type == "cannon":
+		agent_script.command_aim(target, tool_template.optimal_range)  # A cannon fires where the nose points: the autopilot aims it
+
+
+# A magazine ran dry, or a cannon stopped: the aim it held goes with it.
+func _on_tool_deactivated(index: int, reason: String) -> void:
+	var tool_template = _tool_controller.get_tool(index) if is_instance_valid(_tool_controller) else null
+	if tool_template == null:
+		return
+	if reason == "empty":
+		EventBus.emit_signal("attack_action_feedback", false, _empty_message(tool_template))
+	if tool_template.tool_type == "cannon" and _tool_controller.find_cannon_for(_tool_controller.get_target(index)) < 0:
+		var nav = agent_body.get_node_or_null("NavigationSystem")
+		if is_instance_valid(nav) and nav.get_current_command_type() == NavigationSystem.CommandType.AIM and not _cannon_on():
+			agent_script.command_stop()
+
+
+func _cannon_on() -> bool:
+	for index in range(_tool_controller.get_tool_count()):
+		if _tool_controller.get_tool(index).tool_type == "cannon" and _tool_controller.is_active(index):
+			return true
+	return false
+
+
+func _empty_message(tool_template) -> String:
+	return "%s empty: refill at a base, or salvage a wreck that carried the same" % tool_template.tool_name
 
 
 func _is_tool_target(target) -> bool:

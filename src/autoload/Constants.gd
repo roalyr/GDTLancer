@@ -65,6 +65,9 @@ const NAV_APPROACH_RESUME_MARGIN = 30.0  # m past the hold distance before a hol
 # speed, at least MIN_LEAD_SPEED, at most MAX_LEAD_TIME s), thrusting while the nose is within
 # acos(THRUST_ALIGNMENT) of the heading; too close to reach LAW_LANCE_MIN_SPEED, it runs straight
 # away until it has the room for that plus TURN_ROOM m to turn in.
+const NAV_AIM_PID_GAIN = 2.0  # Rotation PID gain while aiming a cannon
+const NAV_AIM_RANGE_TIME = 5.0  # s to make up a range error: closing speed = error / this
+const NAV_AIM_MAX_CLOSING = 80.0  # m/s at most, closing or opening
 const NAV_RAM_TURN_ROOM = 150.0  # m
 const NAV_RAM_MIN_LEAD_SPEED = 50.0  # m/s
 const NAV_RAM_MAX_LEAD_TIME = 5.0  # s
@@ -519,6 +522,61 @@ const LAW_LANCE_SEAT_NAILS = 2.0
 const LAW_LANCE_PROW_SHARE = 1.0  # The module armours the bow: hull as plating of this share of its mass (a lancer must live through its approach)
 const LAW_LANCE_NAIL_MASS_RANGE = [30.0, 1500.0]
 const LAW_LANCE_COUNT_RANGE = [1.0, 12.0]
+
+# Weapon archetypes. Lasers: turrets, no ammunition, drain power (sustained fire needs a big reactor,
+# power cells or capacitors). Lances: melee, recoverable, no power. Missiles: guided heavy hitters,
+# one use each; more only from a base or a missile ship's wreck. Cannons (rail drives): fixed
+# forward, the ship aims; rounds fly at a finite speed (lead the target), a magazine of them, little
+# power. Laws below are [reference, value there, exponent], as LAW_HULL.
+const LAW_LASER_POWER_PER_ENERGY = 1.5  # Power drawn per unit of shot energy: two reference lasers outdraw a Phoenix Light's reactor
+
+# Missiles (genes: round_mass kg, count). The rack holds count missiles, plus RACK_ROUNDS' mass of frame.
+const LAW_MISSILE_REF_MASS = 100.0  # kg
+const LAW_MISSILE_DAMAGE = [100.0, 80.0, 0.9]  # Round mass -> warhead damage: two reference missiles kill a Phoenix Light
+const LAW_MISSILE_SPEED = [100.0, 320.0, -0.1]  # -> top speed, m/s past the launcher's
+const LAW_MISSILE_ACCEL = [100.0, 120.0, -0.2]  # -> m/s^2
+const LAW_MISSILE_TURN = [100.0, 1.2, -0.25]  # -> rad/s: heavy missiles turn wide, so an agile ship can make them overshoot
+const LAW_MISSILE_FLIGHT = [100.0, 20.0, 0.2]  # -> s of fuel
+const LAW_MISSILE_CYCLE = [100.0, 3.0, 0.3]  # -> s between launches
+const LAW_MISSILE_RANGE_SHARE = 0.5  # Launch range: this share of top speed times flight time
+const LAW_MISSILE_RACK_ROUNDS = 1.0
+const LAW_MISSILE_POWER = 2.0  # Per launch
+const LAW_MISSILE_VALUE_PER_KG = 0.5  # WP per kg of missile (restock and salvage)
+const LAW_MISSILE_MASS_RANGE = [10.0, 1000.0]
+const LAW_MISSILE_COUNT_RANGE = [1.0, 16.0]
+# Cannons (genes: mass kg of the gun, round_mass kg, count rounds). Muzzle speed grows with the gun
+# and falls with the round; damage with the round's mass and speed.
+const LAW_CANNON_REF_MASS = 300.0  # kg of gun
+const LAW_CANNON_REF_ROUND = 5.0  # kg
+const LAW_CANNON_SPEED = [300.0, 900.0, 0.3]  # Gun mass -> muzzle speed m/s for the reference round, times (round/REF_ROUND)^ROUND_SPEED_EXP
+const LAW_CANNON_ROUND_SPEED_EXP = -0.2
+const LAW_CANNON_DAMAGE = [5.0, 12.0, 0.9]  # Round mass -> damage at the reference muzzle speed (times speed / 900)
+const LAW_CANNON_CYCLE = [5.0, 1.2, 0.5]  # Round mass -> s between shots
+const LAW_CANNON_POWER = [5.0, 1.0, 1.0]  # Round mass -> power per shot: a fifth of a laser's
+const LAW_CANNON_FLIGHT = 4.0  # s a round flies
+const LAW_CANNON_AIM_TIME = 1.5  # Optimal range: this many seconds of round flight
+const LAW_CANNON_VALUE = [0.2, 0.4]  # WP per kg of gun, per kg of rounds
+const LAW_CANNON_MASS_RANGE = [50.0, 4000.0]
+const LAW_CANNON_ROUND_RANGE = [0.5, 100.0]
+const LAW_CANNON_COUNT_RANGE = [5.0, 300.0]
+
+# Projectiles in flight (Projectile, Missile, cannon shells).
+const PROJECTILE_FUSE_MARGIN = 1.0  # m past a hull box at which a round meets it
+const MISSILE_MODEL_LENGTH = 3.0  # m, for a reference missile (scaled by mass^(1/3))
+const MISSILE_MODEL_RADIUS = 0.25
+const MISSILE_MODEL_COLOR = Color(0.55, 0.57, 0.6)
+const MISSILE_EXHAUST_SCALE = 0.35  # Of a ship's engine exhaust, for a reference missile
+const MISSILE_LAUNCH_SPEED = 30.0  # m/s the rack throws a missile toward its target, before it burns
+const MISSILE_BLAST_RADIUS = 3.0  # m: the warhead's explosion, as a ship's of this radius
+const SHELL_MODEL_LENGTH = 2.0  # m: the streak a cannon round draws
+const SHELL_MODEL_RADIUS = 0.12
+const SHELL_COLOR = Color(1.0, 0.85, 0.5)
+const CANNON_AIM_SHARE = 0.6  # Fires when the round, aimed as the nose points, would pass within this share of the target's size
+const AMMO_RECOVER_SHARE = 0.1  # Cannon rounds a harpoon strip takes out of a wreck: this share of a magazine (missiles: one)
+const AMMO_RECOVER_MASS_TOLERANCE = 0.15  # A wreck's rounds fit a launcher whose round mass is within this share of theirs
+const AI_MISSILE_FIGHT_TIME = 30.0  # s: missiles' damage counts as spread over this in a fight's odds
+const AI_MISSILE_HIT_SHARE = 0.7  # Expected share of missiles that hit
+const AI_CANNON_HIT_SHARE = 0.4  # and of cannon rounds
 const LANCE_RADIUS = 0.15  # m at the lance's base, for a 200 kg lance (grows as mass^(1/3))
 const LANCE_TIP_MARGIN = 0.5  # m: the tip strikes a ship it comes this close to (its hull box, LanceController._sweep)
 const LANCE_STUCK_CENTERING = 0.7  # A stuck lance turns this share of the way from its line toward the target's centre
@@ -559,8 +617,10 @@ const PART_TYPE_SEEDS = {  # Part kind -> type -> genes
 	"power_cell": {1: {"mass": 150.0}, 2: {"mass": 300.0}, 3: {"mass": 600.0}},
 	"capacitor": {1: {"mass": 100.0}, 2: {"mass": 200.0}, 3: {"mass": 400.0}},
 	"lance": {1: {"nail_mass": 100.0, "count": 3.0}, 2: {"nail_mass": 200.0, "count": 3.0}, 3: {"nail_mass": 350.0, "count": 4.0}},
+	"missile": {1: {"round_mass": 40.0, "count": 4.0}, 2: {"round_mass": 100.0, "count": 4.0}, 3: {"round_mass": 250.0, "count": 4.0}},
+	"cannon": {1: {"mass": 150.0, "round_mass": 2.0, "count": 80.0}, 2: {"mass": 300.0, "round_mass": 5.0, "count": 60.0}, 3: {"mass": 700.0, "round_mass": 15.0, "count": 40.0}},
 }
-const PART_NAMES = {"laser": "Laser", "plating": "Hull Plating", "thruster": "Thruster", "power_cell": "Power Cell", "capacitor": "Capacitor", "harpoon": "Harpoon", "lance": "Kinetic Lance"}
+const PART_NAMES = {"laser": "Laser", "plating": "Hull Plating", "thruster": "Thruster", "power_cell": "Power Cell", "capacitor": "Capacitor", "harpoon": "Harpoon", "lance": "Kinetic Lance", "missile": "Missile Rack", "cannon": "Rail Cannon"}
 const PART_TYPE_NAMES = {1: "I", 2: "II", 3: "III"}
 const HARPOON_TEMPLATE_ID = "tool_harpoon"  # Not evolved: the same harpoon for everyone
 
@@ -602,6 +662,7 @@ const ARENA_BEACON_SCENE = "res://scenes/prefabs/station/arena_beacon.tscn"
 # The pool is an archive of niches (MAP-Elites): size class x role x laser range. Each niche keeps its
 # best genome; a spawn picks a niche (softly by fitness, so near-equal ones all carry on), then
 # re-flies its genome or a mutant. Fitness is noisy, so it is shrunk toward 0 by EVO_PRIOR_LIVES.
+const EVO_WEAPON_ODDS = {"laser": 0.5, "missile": 0.25, "cannon": 0.25}  # A new weapon is of this kind this often
 const EVO_KILL_BOUNTY_SHARE = 0.2  # Share of a victim's value paid to its killer
 const EVO_REPAIR_COST_SHARE = 0.5  # A full repair costs this share of the hull's value (less for less)
 const EVO_UPKEEP_PER_HOUR = 0.5  # Running costs: this share of the ship's value per hour alive

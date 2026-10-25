@@ -7,7 +7,7 @@ class_name UtilityToolTemplate
 export var tool_name: String = "Unknown Tool"
 export var hud_label: String = ""  # Short name on the tool's HUD button; tool_name if empty
 export var description: String = ""
-export var tool_type: String = "laser"  # Behaviour: "laser" (damages live ships), "harpoon" (tethers wrecks); "drill" is a placeholder.
+export var tool_type: String = "laser"  # Behaviour: "laser" (damages live ships), "missile" (guided rounds), "cannon" (fixed forward, the ship aims), "harpoon" (tethers wrecks); "drill" is a placeholder.
 export var mount_size: String = "small"  # "small", "medium", "large"; fits slots of its size or larger
 export var base_value: int = 100  # WP; buy price at the home station (sells back for half)
 export var mass: float = 300.0  # kg, added to the ship
@@ -23,6 +23,15 @@ export var power_per_cycle: float = 12.0  # Power spent at the start of each cyc
 export var reel_speed: float = 15.0  # Tether reel-in speed (m/s) after the harpoon hits.
 export var launch_speed: float = 0.0  # Harpoon hook flight speed (m/s); 0 = hits at once.
 export var strip_interval: float = 1.0  # Seconds per salvage unit stripped once the wreck is reeled in.
+
+# Missile racks and cannons: a magazine of rounds (restocked at a base, salvaged from wrecks).
+export var ammo: int = 0  # Rounds a full magazine holds; 0 for tools that need none
+export var round_mass: float = 0.0  # kg per round (counted in the tool's mass while loaded)
+export var round_value: int = 0  # WP per round
+export var projectile_speed: float = 0.0  # m/s: a missile's top speed, a cannon's muzzle speed
+export var projectile_accel: float = 0.0  # m/s^2 (missiles)
+export var turn_rate: float = 0.0  # rad/s (missiles)
+export var flight_time: float = 0.0  # s a round flies
 
 # Lineage 1-3 and genes of a tool built by ShipLaws (0 and empty for a hand-made one).
 export var variant_type: int = 0

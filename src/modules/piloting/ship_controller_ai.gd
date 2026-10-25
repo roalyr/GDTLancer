@@ -50,6 +50,7 @@ var _has_patrol_destination: bool = false
 var _repath_timer: float = 0.0
 var _scan_timer: float = 0.0
 var _orbiting: bool = false
+var _aiming: bool = false  # On command_aim (a cannon on the target)
 var _provoked: bool = false  # Shot at: chase the attacker from any distance
 var skill: float = 0.5  # 0 novice .. 1 veteran: decision speed
 var _pending: Dictionary = {}  # A decision being made: {"kind", "target", "timer"}
@@ -130,10 +131,20 @@ func get_focus() -> Node:
 	return _target_agent if is_instance_valid(_target_agent) else null
 
 
-# Distance the AI tries to fight at: the optimal range of the tool that works on the target.
+# Distance the AI tries to fight at: the shortest optimal range among the weapons that work on the
+# target (and have rounds left), so all of them reach; times its range gene.
 func get_engagement_range() -> float:
-	var index: int = _get_attack_tool_index()
-	return _tool_controller.get_tool(index).optimal_range * _range_factor if index >= 0 else 0.0
+	if not is_instance_valid(_tool_controller) or not is_instance_valid(_target_agent):
+		return 0.0
+	var best: float = INF
+	for index in range(_tool_controller.get_tool_count()):
+		var tool_template = _tool_controller.get_tool(index)
+		if tool_template.tool_type == "harpoon" or not _tool_controller.can_target(tool_template, _target_agent):
+			continue
+		if _tool_controller.has_magazine(index) and _tool_controller.get_ammo(index) <= 0:
+			continue
+		best = min(best, tool_template.optimal_range)
+	return best * _range_factor if best < INF else 0.0
 
 
 func _get_attack_tool_index() -> int:
@@ -188,6 +199,7 @@ func _change_state(new_state: int) -> void:
 	_current_state = new_state
 	_repath_timer = 0.0
 	_orbiting = false
+	_aiming = false
 	var keeps_fighting: bool = new_state == AIState.HESITATE and _resume_state == AIState.COMBAT
 	if not keeps_fighting:
 		_stop_ramming()
@@ -294,15 +306,23 @@ func _process_combat() -> void:
 		return
 
 	var distance: float = agent_script.global_transform.origin.distance_to(_target_agent.global_transform.origin)
-	# Close to optimal range, then orbit there; re-approach if pushed out.
+	# Close to optimal range, then orbit there (a cannon: aim, holding the range); re-approach if pushed out.
 	var engagement_range: float = get_engagement_range()
-	if distance > engagement_range * 1.2:
+	var gunner: bool = is_instance_valid(_tool_controller) and _tool_controller.find_cannon_for(_target_agent) >= 0
+	if gunner and distance <= engagement_range * 1.2:
+		if not _aiming:
+			_aiming = true
+			_orbiting = false
+			agent_script.command_aim(_target_agent, engagement_range)
+	elif distance > engagement_range * 1.2:
+		_aiming = false
 		if _orbiting or _repath_timer <= 0.0:
 			_orbiting = false
 			_repath_timer = Constants.AI_REPATH_INTERVAL
 			agent_script.command_approach(_target_agent)
 	elif not _orbiting:
 		_orbiting = true
+		_aiming = false
 		agent_script.command_orbit(_target_agent)
 
 	_fire_at(_target_agent)
@@ -443,6 +463,7 @@ func _ram(target) -> bool:
 		if _ramming:
 			_stop_ramming()
 			_orbiting = false
+			_aiming = false
 			_repath_timer = 0.0
 		return false
 	if not _ramming:

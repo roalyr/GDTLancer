@@ -75,11 +75,11 @@ func test_damage_scales_with_hit_quality():
 	assert_almost_eq(target.hull, 45.0, 0.01, "Half quality deals half damage.")
 
 
-func test_out_of_power_stops_tool_without_effect():
+func test_out_of_power_waits_without_effect():
 	shooter.power = 5.0
 	controller.activate(0, target)
 	controller._physics_process(0.016)
-	assert_false(controller.is_active(0), "Tool switches off when a cycle cannot be paid for.")
+	assert_true(controller.is_active(0), "Stays on when a cycle cannot be paid for: it fires once the capacitor has the charge.")
 	assert_eq(target.hull, 50.0)
 	assert_eq(shooter.power, 5.0)
 

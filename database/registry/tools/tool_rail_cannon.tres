@@ -1,0 +1,36 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/utility_tool_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "tool_rail_cannon"
+tool_name = "Rail Cannon"
+hud_label = "CANNON"
+description = "A fixed-forward rail drive: the autopilot aims the ship, leading the target. A magazine of rounds, light on power."
+tool_type = "cannon"
+mount_size = "small"
+base_value = 170
+mass = 490.0
+damage = 9.71829
+optimal_range = 1336.48
+falloff = 1113.73
+tracking = 0.0
+cycle_time = 1.07331
+power_per_cycle = 0.8
+reel_speed = 15.0
+launch_speed = 0.0
+strip_interval = 1.0
+ammo = 60
+round_mass = 4.0
+round_value = 2
+projectile_speed = 890.984
+projectile_accel = 0.0
+turn_rate = 0.0
+flight_time = 4.0
+variant_type = 2
+law_genes = {
+"count": 60.0,
+"mass": 250.0,
+"round_mass": 4.0
+}

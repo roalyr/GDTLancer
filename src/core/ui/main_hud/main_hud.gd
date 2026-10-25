@@ -400,7 +400,7 @@ func _on_ButtonInteract_pressed():
 # One button per fitted tool (placeholders in TemporaryToolZone), two states each: the tool's
 # action while off (FIRE, LAUNCH), CEASE / RELEASE while on, highlighted then. Buttons past the
 # fitted tools are hidden; the row is centred, so it stays centred whatever the tool count.
-const TOOL_ACTIONS = {"laser": ["FIRE", "CEASE"], "harpoon": ["LAUNCH", "RELEASE"]}
+const TOOL_ACTIONS = {"laser": ["FIRE", "CEASE"], "missile": ["LAUNCH", "HOLD"], "cannon": ["AIM+FIRE", "CEASE"], "harpoon": ["LAUNCH", "RELEASE"]}
 
 
 func _update_tool_buttons() -> void:
@@ -419,6 +419,10 @@ func _update_tool_buttons() -> void:
 		var action: String = actions[1] if active else actions[0]
 		if tools.has_method("is_retracting") and tools.is_retracting(index):
 			action = "WINCHING"
+		if tools.has_method("has_magazine") and tools.has_magazine(index):
+			name += " %d" % tools.get_ammo(index)  # Rounds left
+			if tools.get_ammo(index) <= 0:
+				action = "EMPTY"
 		button.get_node("Label").text = "%s\n%s" % [name, action]
 		_apply_button_toggle_state(button, active)
 

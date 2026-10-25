@@ -29,7 +29,7 @@ func test_reference_laser_is_the_ablative_laser():
 	assert_almost_eq(stats.falloff, 250.0, 0.01)
 	assert_almost_eq(stats.tracking, Constants.LAW_LASER_TRACKING[0], 0.0001)
 	assert_almost_eq(stats.cycle_time, 1.0, 0.0001)
-	assert_eq(stats.power_per_cycle, 5.0)
+	assert_eq(stats.power_per_cycle, 5.0 * Constants.LAW_LASER_POWER_PER_ENERGY)
 	assert_eq(stats.mount_size, "small")
 	assert_eq(stats.base_value, 100)
 

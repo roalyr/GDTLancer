@@ -144,7 +144,7 @@ static func laser_stats(genes: Dictionary) -> Dictionary:
 	var cycle: float = Constants.LAW_LASER_CYCLE[0] * e / pow(m, Constants.LAW_LASER_CYCLE[1])
 	return {
 		"mass": g.mass,
-		"power_per_cycle": g.energy,
+		"power_per_cycle": g.energy * Constants.LAW_LASER_POWER_PER_ENERGY,
 		"damage": Constants.LAW_LASER_DAMAGE[0] * pow(e, Constants.LAW_LASER_DAMAGE[1]),
 		"optimal_range": optimal,
 		"falloff": optimal * Constants.LAW_LASER_FALLOFF_SHARE,
@@ -167,6 +167,102 @@ static func build_laser_template(genes: Dictionary, part_type: int, template_id:
 	tool_template.description = "%.0f kg, %.1f per shot." % [stats.mass, stats.power_per_cycle]
 	tool_template.variant_type = part_type
 	tool_template.law_genes = clamp_laser_genes(genes)
+	return tool_template
+
+
+# --- Missile racks ---
+
+static func clamp_missile_genes(genes: Dictionary) -> Dictionary:
+	return {
+		"round_mass": clamp(float(genes.get("round_mass", Constants.LAW_MISSILE_REF_MASS)), Constants.LAW_MISSILE_MASS_RANGE[0], Constants.LAW_MISSILE_MASS_RANGE[1]),
+		"count": clamp(float(genes.get("count", 4.0)), Constants.LAW_MISSILE_COUNT_RANGE[0], Constants.LAW_MISSILE_COUNT_RANGE[1]),
+	}
+
+
+# Every UtilityToolTemplate field that follows from a rack's genes (mass: loaded).
+static func missile_stats(genes: Dictionary) -> Dictionary:
+	var g: Dictionary = clamp_missile_genes(genes)
+	var count: int = int(round(g.count))
+	var speed: float = apply_law(Constants.LAW_MISSILE_SPEED, g.round_mass)
+	var flight: float = apply_law(Constants.LAW_MISSILE_FLIGHT, g.round_mass)
+	var reach: float = Constants.LAW_MISSILE_RANGE_SHARE * speed * flight
+	var mass: float = g.round_mass * (count + Constants.LAW_MISSILE_RACK_ROUNDS)
+	var round_value: int = int(round(Constants.LAW_MISSILE_VALUE_PER_KG * g.round_mass))
+	return {
+		"mass": mass,
+		"ammo": count,
+		"round_mass": g.round_mass,
+		"round_value": round_value,
+		"damage": apply_law(Constants.LAW_MISSILE_DAMAGE, g.round_mass),
+		"projectile_speed": speed,
+		"projectile_accel": apply_law(Constants.LAW_MISSILE_ACCEL, g.round_mass),
+		"turn_rate": apply_law(Constants.LAW_MISSILE_TURN, g.round_mass),
+		"flight_time": flight,
+		"optimal_range": reach,
+		"falloff": 0.0,
+		"tracking": 0.0,
+		"cycle_time": apply_law(Constants.LAW_MISSILE_CYCLE, g.round_mass),
+		"power_per_cycle": Constants.LAW_MISSILE_POWER,
+		"mount_size": laser_mount_size(mass),
+		"base_value": int(round(Constants.LAW_PART_VALUE_PER_KG * g.round_mass * Constants.LAW_MISSILE_RACK_ROUNDS)) + round_value * count,
+	}
+
+
+# --- Cannons ---
+
+static func clamp_cannon_genes(genes: Dictionary) -> Dictionary:
+	return {
+		"mass": clamp(float(genes.get("mass", Constants.LAW_CANNON_REF_MASS)), Constants.LAW_CANNON_MASS_RANGE[0], Constants.LAW_CANNON_MASS_RANGE[1]),
+		"round_mass": clamp(float(genes.get("round_mass", Constants.LAW_CANNON_REF_ROUND)), Constants.LAW_CANNON_ROUND_RANGE[0], Constants.LAW_CANNON_ROUND_RANGE[1]),
+		"count": clamp(float(genes.get("count", 60.0)), Constants.LAW_CANNON_COUNT_RANGE[0], Constants.LAW_CANNON_COUNT_RANGE[1]),
+	}
+
+
+# Every UtilityToolTemplate field that follows from a cannon's genes (mass: gun and full magazine).
+static func cannon_stats(genes: Dictionary) -> Dictionary:
+	var g: Dictionary = clamp_cannon_genes(genes)
+	var count: int = int(round(g.count))
+	var speed: float = apply_law(Constants.LAW_CANNON_SPEED, g.mass) * pow(g.round_mass / Constants.LAW_CANNON_REF_ROUND, Constants.LAW_CANNON_ROUND_SPEED_EXP)
+	var optimal: float = speed * Constants.LAW_CANNON_AIM_TIME
+	var mass: float = g.mass + g.round_mass * count
+	var round_value: int = int(max(1, round(Constants.LAW_CANNON_VALUE[1] * g.round_mass)))
+	return {
+		"mass": mass,
+		"ammo": count,
+		"round_mass": g.round_mass,
+		"round_value": round_value,
+		"damage": apply_law(Constants.LAW_CANNON_DAMAGE, g.round_mass) * speed / Constants.LAW_CANNON_SPEED[1],
+		"projectile_speed": speed,
+		"flight_time": Constants.LAW_CANNON_FLIGHT,
+		"optimal_range": optimal,
+		"falloff": (speed * Constants.LAW_CANNON_FLIGHT - optimal) / Constants.TOOL_MAX_RANGE_FALLOFFS,  # Max range: as far as a round flies
+		"tracking": 0.0,
+		"cycle_time": apply_law(Constants.LAW_CANNON_CYCLE, g.round_mass),
+		"power_per_cycle": apply_law(Constants.LAW_CANNON_POWER, g.round_mass),
+		"mount_size": laser_mount_size(mass),
+		"base_value": int(round(Constants.LAW_CANNON_VALUE[0] * g.mass)) + round_value * count,
+	}
+
+
+# A missile rack or a cannon (`kind`) from its genes.
+static func build_weapon_template(kind: String, genes: Dictionary, part_type: int, template_id: String) -> UtilityToolTemplate:
+	var tool_template := UtilityToolTemplate.new()
+	var stats: Dictionary = missile_stats(genes) if kind == "missile" else cannon_stats(genes)
+	for field in stats:
+		tool_template.set(field, stats[field])
+	tool_template.template_id = template_id
+	tool_template.tool_type = kind
+	tool_template.tool_name = "%s %s" % [Constants.PART_NAMES[kind], Constants.PART_TYPE_NAMES.get(part_type, "")]
+	tool_template.hud_label = "%s %s" % ["MISSILE" if kind == "missile" else "CANNON", Constants.PART_TYPE_NAMES.get(part_type, "")]
+	if kind == "missile":
+		tool_template.description = "%.0f kg: %d missiles of %.0f kg, %.0f damage, %.0f m/s, %.0f m reach. Guided; more only at a base or from a missile ship's wreck." % [
+			stats.mass, stats.ammo, stats.round_mass, stats.damage, stats.projectile_speed, stats.optimal_range]
+		tool_template.law_genes = clamp_missile_genes(genes)
+	else:
+		tool_template.description = "%.0f kg: %d rounds of %.1f kg, %.0f damage each at %.0f m/s. Fixed forward: the ship aims, leading the target." % [
+			stats.mass, stats.ammo, stats.round_mass, stats.damage, stats.projectile_speed]
+		tool_template.law_genes = clamp_cannon_genes(genes)
+	tool_template.variant_type = part_type
 	return tool_template
 
 
@@ -263,6 +359,10 @@ static func reapply(template: Resource) -> Dictionary:
 		stats = module_stats(template.module_kind, template.law_genes)
 	elif template is UtilityToolTemplate and template.tool_type == "laser":
 		stats = laser_stats(template.law_genes)
+	elif template is UtilityToolTemplate and template.tool_type == "missile":
+		stats = missile_stats(template.law_genes)
+	elif template is UtilityToolTemplate and template.tool_type == "cannon":
+		stats = cannon_stats(template.law_genes)
 	for field in stats:
 		template.set(field, stats[field])
 	return stats
