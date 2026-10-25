@@ -344,6 +344,7 @@ func test_arena_npc_flees_to_its_station_and_docks_there_then_undocks():
 	ai._process_flee()
 	assert_eq(ai.get_state(), AIScript.AIState.DOCKED)
 	assert_true(hostile.is_docked)
+	threat.global_transform.origin = Vector3(0, 0, -6000)  # Gone: clear to undock
 	ai._process_docked(Constants.ARENA_DOCK_TIME + 0.1)
 	assert_eq(ai.get_state(), AIScript.AIState.PATROL)
 	assert_false(hostile.is_docked)
@@ -446,7 +447,7 @@ func test_mercy_lets_go_only_a_runner_that_holds_fire():
 
 func test_waits_docked_while_an_enemy_watches_its_station():
 	var station = _arena_station(Vector3(0, 0, 3000))
-	var camper = _make_ship(Vector3(0, 0, 3000 + Constants.ARENA_UNDOCK_CLEAR_RADIUS - 200.0), "verdant", 50.0)
+	var camper = _make_ship(Vector3(0, 0, 3000 + Constants.ARENA_UNDOCK_CLEAR_RADIUS - 200.0), "verdant", 50.0)  # Undock offset 0 in tests
 	ai.initialize({"patrol_center": Vector3.ZERO, "docked_at": station, "arena": {"zone_id": "t", "beacon": Vector3.ZERO, "stations": [station]}})
 	assert_eq(ai.get_state(), AIScript.AIState.DOCKED)
 	ai._process_docked(Constants.ARENA_DOCK_TIME + 1.0)

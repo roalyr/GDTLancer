@@ -503,11 +503,11 @@ func _process_docked(delta: float) -> void:
 	_change_state(AIState.PATROL)
 
 
-# An enemy waits near its station: undocking would only send it running back in.
+# An enemy waits near its station's undock point: undocking would only send it running back in.
 func is_station_watched() -> bool:
 	if not is_instance_valid(_station):
 		return false
-	var station_pos: Vector3 = _station.global_transform.origin
+	var station_pos: Vector3 = _station.get_undock_position()
 	for body in get_tree().get_nodes_in_group("agent_body"):
 		if body != agent_script and _is_live_target(body) and agent_script.is_enemy_of(body) \
 				and body.global_transform.origin.distance_to(station_pos) <= Constants.ARENA_UNDOCK_CLEAR_RADIUS:
