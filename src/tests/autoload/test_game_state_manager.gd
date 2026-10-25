@@ -117,3 +117,45 @@ func test_losing_another_ship_keeps_saves():
 	GameStateManager._on_agent_disabled(other)
 	assert_true(GameStateManager.has_save_file(TEST_SLOT))
 
+
+
+func test_save_carries_the_evolution_and_a_summary():
+	_populate_game_state()
+	Evolution.new_run()
+	var life: Dictionary = Evolution.begin_life("verdant", "1v1")
+	Evolution.game_time = 1234.0
+	GameState.play_time = 7200.0
+	assert_true(GameStateManager.save_game(TEST_SLOT))
+	var summary: Dictionary = GameStateManager.get_save_summary(TEST_SLOT)
+	assert_almost_eq(float(summary.play_time), 7200.0, 0.01)
+	assert_almost_eq(float(summary.game_time), 1234.0, 0.01)
+	Evolution.new_run()
+	assert_true(GameStateManager.load_game(TEST_SLOT))
+	assert_almost_eq(Evolution.game_time, 1234.0, 0.01)
+	assert_almost_eq(GameState.play_time, 7200.0, 0.01)
+	assert_eq(Evolution.begin_life("verdant", "1v1").uid, life.uid, "The ship flying at the save flies again")
+	Evolution.new_run()
+	TemplateDatabase.evolved = {}
+
+
+func test_outdated_saves_are_removed():
+	_populate_game_state()
+	GameStateManager.save_game(TEST_SLOT)
+	var path: String = GameStateManager._get_save_path(TEST_SLOT)
+	var file := File.new()
+	file.open(path, File.WRITE)
+	file.store_var({"player_ship_template_id": "ship_default", "current_sector_id": "sector_cob"}, true)  # No format version
+	file.close()
+	assert_false(GameStateManager.has_save_file(TEST_SLOT))
+	GameStateManager.delete_outdated_saves()
+	assert_false(file.file_exists(path))
+
+
+func test_reset_keeps_the_evolution_only_when_asked():
+	Evolution.new_run()
+	Evolution.game_time = 50.0
+	GameStateManager.keep_evolution = true
+	GameStateManager.reset_to_defaults()
+	assert_almost_eq(Evolution.game_time, 50.0, 0.01)
+	GameStateManager.reset_to_defaults()
+	assert_almost_eq(Evolution.game_time, 0.0, 0.01, "The next reset starts it over")

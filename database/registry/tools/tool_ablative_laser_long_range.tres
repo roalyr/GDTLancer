@@ -6,15 +6,23 @@
 script = ExtResource( 1 )
 template_id = "tool_ablative_laser_long_range"
 tool_name = "Long-Range Ablative Laser"
-description = "An ablative laser with a longer focusing train: reaches twice as far, at a higher price."
 hud_label = "LR LASER"
+description = "An ablative laser with a wider aperture and a hotter shot: reaches further and hits harder, but cycles slower and swings slowly."
 tool_type = "laser"
 mount_size = "small"
-damage = 5.0
-optimal_range = 1600.0
-falloff = 400.0
-tracking = 0.1
-cycle_time = 1.0
-power_per_cycle = 7.0
-base_value = 400
-mass = 500.0
+base_value = 216
+mass = 600.0
+damage = 12.087
+optimal_range = 1568.18
+falloff = 392.045
+tracking = 0.15874
+cycle_time = 1.51191
+power_per_cycle = 12.0
+reel_speed = 15.0
+launch_speed = 0.0
+strip_interval = 1.0
+variant_type = 3
+law_genes = {
+"energy": 12.0,
+"mass": 600.0
+}

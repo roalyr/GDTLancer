@@ -10,6 +10,8 @@ var interaction_radius: float = 150.0
 var faction: String = ""  # Constants.FACTIONS id; the player's is "player"
 var _grudges: Dictionary = {}  # Instance ids of ships that shot this one: enemies whatever their faction
 var ship_template = null  # ShipTemplate this agent flies
+var evo_uid: String = ""  # Arena NPCs: their life in Evolution
+var _fit_override: Dictionary = {}  # A fit given at spawn (arena NPCs' genomes); otherwise random
 
 # --- Hull & Power ---
 var hull: float = 0.0
@@ -72,6 +74,8 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 	self.agent_uid = p_agent_uid
 	self.faction = "player" if is_player() else str(overrides.get("faction", template.faction))
 	var ship_template_id: String = str(overrides.get("ship_template_id", template.ship_template_id))
+	self.evo_uid = str(overrides.get("evo_uid", ""))
+	_fit_override = overrides.get("fit", {})
 
 	movement_system = get_node_or_null("MovementSystem")
 	navigation_system = get_node_or_null("NavigationSystem")
@@ -104,6 +108,8 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 			var ship_visual = ship_template.ship_scene.instance()
 			var model_node = get_node_or_null("Model")
 			if model_node:
+				model_node.scale = Vector3.ONE * ship_template.model_scale  # Before the collision hull, which takes the scale
+				_apply_panel_material(ship_visual, ship_template.panel_material)  # Before MeshLod, whose levels copy it
 				model_node.add_child(ship_visual)
 				if ship_visual is Spatial:
 					ship_visual.visible = true
@@ -138,7 +144,10 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 		ai_controller.initialize({
 			"patrol_center": overrides.get("patrol_center", global_transform.origin),
 			"home_point": overrides.get("home_point", global_transform.origin),
-			"skill": template.skill,
+			"skill": float(overrides.get("skill", template.skill)),
+			"arena": overrides.get("arena", {}),
+			"behavior": overrides.get("behavior", {}),
+			"docked_at": overrides.get("docked_at", null),
 		})
 
 	if Constants.VERBOSE_RUNTIME_LOGS:
@@ -151,6 +160,19 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 			self.template_id,
 			"'."
 		)
+
+
+# Paints surface 1 (the hull panels) of every Phoenix hull mesh under `visual_root` (ship types).
+func _apply_panel_material(visual_root: Node, material_path: String) -> void:
+	if material_path == "":
+		return
+	var material = load(material_path)
+	var stack: Array = [visual_root]
+	while not stack.empty():
+		var node = stack.pop_back()
+		stack += node.get_children()
+		if node is MeshInstance and node.name.begins_with("Hull") and node.mesh != null and node.mesh.get_surface_count() > 1:
+			node.set_surface_material(1, material)
 
 
 # Resolves and caches the ship template, returning its movement parameters.
@@ -227,7 +249,7 @@ func get_hull_point_facing(from_global: Vector3) -> Vector3:
 
 
 # The player keeps their fit in GameState (new runs start from the hull's default fit);
-# NPCs fly a random fit (ShipFit.random_fit).
+# NPCs fly the fit they spawn with (arena genomes) or a random one (ShipFit.random_fit).
 func _init_fit() -> void:
 	if not is_instance_valid(ship_template):
 		fit = {"tools": [], "modules": []}
@@ -237,6 +259,8 @@ func _init_fit() -> void:
 		fit = ShipFit.normalized(ship_template, GameState.player_fit)
 	elif is_player():
 		fit = ShipFit.default_fit(ship_template)
+	elif not _fit_override.empty():
+		fit = ShipFit.normalized(ship_template, _fit_override)
 	else:
 		fit = ShipFit.random_fit(ship_template)
 	if is_player():

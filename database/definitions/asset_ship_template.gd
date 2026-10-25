@@ -33,4 +33,8 @@ export var linear_thrust: float = Constants.DEFAULT_LINEAR_THRUST  # Forward/bac
 export var angular_thrust: float = Constants.DEFAULT_ANGULAR_THRUST  # Rotational torque
 export var alignment_threshold_angle_deg: float = Constants.DEFAULT_ALIGNMENT_ANGLE_THRESHOLD
 
-# TODO: add fields which link to specific scenes that define each ship model?
+# --- Laws and lineage (ShipLaws) ---
+export var model_scale: float = 1.0  # The model is drawn this much larger (a ship's length grows with its size)
+export var panel_material: String = ""  # Material path for the hull panels (by ship type); the scene's own if empty
+export var variant_type: int = 0  # Lineage 1-3 of a ship built from genes; 0 for a hand-made hull
+export var law_genes: Dictionary = {}  # The genes it was built from (ShipLaws)

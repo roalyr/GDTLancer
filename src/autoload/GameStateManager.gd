@@ -1,4 +1,6 @@
-# GameStateManager: new game reset and save/load of GameState.
+# GameStateManager: new game reset and save/load of GameState and the arenas' evolution.
+# Saves carry SAVE_FORMAT_VERSION; older ones are deleted at start (they lack the evolution data),
+# and a summary for the load prompt (get_save_summary).
 
 extends Node
 
@@ -7,10 +9,42 @@ const SAVE_DIR = "user://savegames/"
 var save_dir: String = SAVE_DIR  # Tests point this at their own folder so real saves are never touched
 const SAVE_FILE_PREFIX = "save_"
 const SAVE_FILE_EXT = ".sav"
+const SAVE_FORMAT_VERSION = 2  # 2: evolution, play time and a summary
+
+var keep_evolution: bool = false  # The next reset keeps the evolution running (a new run in the same world)
 
 
 func _ready() -> void:
 	EventBus.connect("agent_disabled", self, "_on_agent_disabled")
+	delete_outdated_saves()
+
+
+func _process(delta: float) -> void:
+	if GameState.current_sector_id != "":
+		GameState.play_time += delta / max(Engine.time_scale, 0.001)
+
+
+# Saves of an older format (or unreadable ones) are of no use any more: removes them.
+func delete_outdated_saves() -> void:
+	var dir := Directory.new()
+	if dir.open(save_dir) != OK:
+		return
+	var outdated: Array = []
+	dir.list_dir_begin(true, true)
+	var file_name: String = dir.get_next()
+	while file_name != "":
+		if file_name.begins_with(SAVE_FILE_PREFIX) and file_name.ends_with(SAVE_FILE_EXT):
+			var file := File.new()
+			var data = null
+			if file.open(save_dir.plus_file(file_name), File.READ) == OK:
+				data = file.get_var(true)
+				file.close()
+			if not (data is Dictionary and _is_save_data_valid(data)):
+				outdated.append(file_name)
+		file_name = dir.get_next()
+	for name in outdated:
+		dir.remove(save_dir.plus_file(name))
+		print("GameStateManager: removed outdated save ", name)
 
 
 # --- Public API ---
@@ -43,6 +77,10 @@ func _on_agent_disabled(agent_body) -> void:
 
 func reset_to_defaults() -> void:
 	GameState.reset_state()
+	if keep_evolution:
+		keep_evolution = false
+	else:
+		Evolution.new_run()
 
 
 func save_game(slot_id: int = 0) -> bool:
@@ -110,7 +148,8 @@ func _read_save_data(slot_id: int):
 
 func _is_save_data_valid(save_data: Dictionary) -> bool:
 	return (
-		str(save_data.get("player_ship_template_id", "")) != ""
+		int(save_data.get("format_version", 0)) == SAVE_FORMAT_VERSION
+		and str(save_data.get("player_ship_template_id", "")) != ""
 		and str(save_data.get("current_sector_id", "")) != ""
 	)
 
@@ -146,7 +185,29 @@ func _serialize_game_state() -> Dictionary:
 		"player_rotation": _serialize_vector3(GameState.player_rotation),
 		"player_arrived_from_sector": GameState.player_arrived_from_sector,
 		"player_arrival_direction": _serialize_vector3(GameState.player_arrival_direction),
+		"play_time": GameState.play_time,
+		"format_version": SAVE_FORMAT_VERSION,
+		"evolution": Evolution.serialize(),
+		"summary": _make_summary(),
 	}
+
+
+func _make_summary() -> Dictionary:
+	var summary: Dictionary = Evolution.summary()
+	var now: Dictionary = OS.get_datetime()
+	summary["saved_at"] = "%04d-%02d-%02d %02d:%02d" % [now.year, now.month, now.day, now.hour, now.minute]
+	summary["play_time"] = GameState.play_time
+	summary["bank"] = GameState.player_bank
+	summary["sector"] = GameState.current_sector_id
+	return summary
+
+
+# The saved game's summary (see _make_summary), or {} if there is no valid save.
+func get_save_summary(slot_id: int = 0) -> Dictionary:
+	var save_data = _read_save_data(slot_id)
+	if not (save_data is Dictionary and _is_save_data_valid(save_data)):
+		return {}
+	return save_data.get("summary", {})
 
 
 func _deserialize_and_apply_game_state(save_data: Dictionary) -> void:
@@ -172,6 +233,10 @@ func _deserialize_and_apply_game_state(save_data: Dictionary) -> void:
 	GameState.player_rotation = _deserialize_vector3(save_data.get("player_rotation", {}))
 	GameState.player_arrived_from_sector = str(save_data.get("player_arrived_from_sector", ""))
 	GameState.player_arrival_direction = _deserialize_vector3(save_data.get("player_arrival_direction", {}))
+	GameState.play_time = float(save_data.get("play_time", 0.0))
+	var evolution = save_data.get("evolution", {})
+	if evolution is Dictionary:
+		Evolution.deserialize(evolution)
 
 
 # --- Vector3 Serialization Helpers ---

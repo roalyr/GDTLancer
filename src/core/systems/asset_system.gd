@@ -11,7 +11,10 @@ func _ready():
 func get_ship_template(ship_template_id: String) -> ShipTemplate:
 	if ship_template_id == "":
 		return null
-	return TemplateDatabase.assets_ships.get(ship_template_id)
+	if TemplateDatabase.assets_ships.has(ship_template_id):
+		return TemplateDatabase.assets_ships[ship_template_id]
+	var evolved = TemplateDatabase.evolved.get(ship_template_id)
+	return evolved if evolved is ShipTemplate else null
 
 
 func get_player_ship_template() -> ShipTemplate:

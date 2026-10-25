@@ -6,15 +6,23 @@
 script = ExtResource( 1 )
 template_id = "tool_ablative_laser"
 tool_name = "Ablative Laser"
-description = "A mining laser repurposed for combat. Vaporizes hull plating where it lands."
 hud_label = "LASER"
+description = "A mining laser repurposed for combat. Vaporizes hull plating where it lands."
 tool_type = "laser"
 mount_size = "small"
+base_value = 100
+mass = 300.0
 damage = 6.0
 optimal_range = 1000.0
 falloff = 250.0
 tracking = 0.2
 cycle_time = 1.0
 power_per_cycle = 5.0
-base_value = 100
-mass = 300.0
+reel_speed = 15.0
+launch_speed = 0.0
+strip_interval = 1.0
+variant_type = 2
+law_genes = {
+"energy": 5.0,
+"mass": 300.0
+}

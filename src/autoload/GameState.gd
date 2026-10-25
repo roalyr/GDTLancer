@@ -49,8 +49,12 @@ var player_arrived_from_sector: String = ""
 ## Direction from sector center toward the jump arrival shell spawn point.
 var player_arrival_direction: Vector3 = Vector3.ZERO
 
+# Wall-clock seconds played in this game (saved; shown when offering to load it).
+var play_time: float = 0.0
+
 
 func reset_state() -> void:
+	play_time = 0.0
 	player_ship_template_id = ""
 	player_hull = -1.0
 	player_cargo = {}

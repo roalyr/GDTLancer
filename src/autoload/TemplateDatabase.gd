@@ -10,11 +10,16 @@ var assets_commodities: Dictionary = {}  # Salvage cargo
 var locations: Dictionary = {}
 var utility_tools: Dictionary = {}  # Weapons and other utility tools
 var game_starts: Dictionary = {}
+var evolved: Dictionary = {}  # Ships and parts built from genes at runtime (Evolution); not sold at stations
+
+
+func register_evolved(template: Resource) -> void:
+	evolved[template.template_id] = template
 
 
 # Generic getter that searches all template categories
 func get_template(template_id: String) -> Resource:
-	for category in [assets_ships, assets_modules, assets_commodities, locations, utility_tools, agents, game_starts]:
+	for category in [assets_ships, assets_modules, assets_commodities, locations, utility_tools, agents, game_starts, evolved]:
 		if category.has(template_id):
 			return category[template_id]
 	return null

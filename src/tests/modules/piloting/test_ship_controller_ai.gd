@@ -312,3 +312,50 @@ func test_fires_every_weapon_that_reaches():
 	ai._start_combat(prey, false)
 	ai._process_combat()
 	assert_true(tools.is_active(0) and tools.is_active(1), "Both lasers on the target.")
+
+
+# --- Arena NPCs ---
+
+func _arena_station(position: Vector3) -> Spatial:
+	var station = load("res://src/scenes/game_world/station/dockable_station.gd").new()
+	add_child_autofree(station)
+	station.global_transform.origin = position
+	station.undock_offset = Vector3.ZERO
+	return station
+
+
+func test_arena_npcs_ignore_ships_outside_their_arena():
+	ai.initialize({"patrol_center": Vector3.ZERO, "arena": {"zone_id": "t", "beacon": Vector3(0, 0, Constants.ARENA_RADIUS + 500.0), "stations": []}})
+	var weak = _make_ship(Vector3(0, 0, -1200), "verdant", 25.0)
+	assert_null(ai.scan_for_target(), "The weak ship is out of the arena")
+	ai._arena.beacon = Vector3.ZERO
+	assert_eq(ai.scan_for_target(), weak)
+
+
+func test_arena_npc_flees_to_its_station_and_docks_there_then_undocks():
+	var near = _arena_station(Vector3(0, 0, 2000))
+	var far = _arena_station(Vector3(0, 0, -6000))
+	var threat = _make_ship(Vector3(0, 0, -800), "verdant", 500.0)
+	ai.initialize({"patrol_center": Vector3.ZERO, "arena": {"zone_id": "t", "beacon": Vector3.ZERO, "stations": [near, far]}})
+	ai._target_agent = threat
+	ai._change_state(AIScript.AIState.FLEE)
+	assert_eq(ai._station, near, "Runs to the station away from the threat")
+	hostile.global_transform.origin = near.get_undock_position()
+	ai._process_flee()
+	assert_eq(ai.get_state(), AIScript.AIState.DOCKED)
+	assert_true(hostile.is_docked)
+	ai._process_docked(Constants.ARENA_DOCK_TIME + 0.1)
+	assert_eq(ai.get_state(), AIScript.AIState.PATROL)
+	assert_false(hostile.is_docked)
+
+
+func test_retreat_gene_runs_home_whatever_the_odds():
+	var station = _arena_station(Vector3(0, 0, 3000))
+	var prey = _make_ship(Vector3(0, 0, -500), "verdant", 5.0)
+	ai.initialize({"patrol_center": Vector3.ZERO, "behavior": {"retreat_hull": 0.5}, "arena": {"zone_id": "t", "beacon": Vector3.ZERO, "stations": [station]}})
+	ai._target_agent = prey
+	ai._current_state = AIScript.AIState.IDLE
+	ai._change_state(AIScript.AIState.COMBAT)
+	hostile.hull = hostile.hull_max * 0.4
+	ai._process_combat()
+	assert_eq(ai.get_state(), AIScript.AIState.FLEE, "Under half hull: runs, though the prey is easy")

@@ -5,10 +5,15 @@
 [resource]
 script = ExtResource( 1 )
 template_id = "module_capacitor"
-module_name = "Capacitor Booster"
-description = "Faster recharge for the capacitor bank."
-base_value = 100
+module_name = "Capacitor"
+description = "Extra storage for the capacitor bank. Longer bursts before the tools go quiet."
+base_value = 50
 mass = 200.0
 stat_modifiers = {
-"power_regen": 8
+"power_capacity": 66.6667
+}
+module_kind = "capacitor"
+variant_type = 2
+law_genes = {
+"mass": 200.0
 }

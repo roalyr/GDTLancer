@@ -15,16 +15,7 @@ const PLAYER_AGENT_SCENE_PATH = "res://scenes/prefabs/agents/player_agent.tscn"
 const NPC_AGENT_SCENE_PATH = "res://scenes/prefabs/agents/npc_agent.tscn"
 const PLAYER_DEFAULT_TEMPLATE_PATH = "res://database/registry/agents/player_default.tres"
 const NPC_HOSTILE_TEMPLATE_PATH = "res://database/registry/agents/npc_hostile_default.tres"
-const NPC_FACTION_TEMPLATE_PATHS = {  # Faction id -> {AgentTemplate spawned on the battlefield: chance}
-	"verdant": {
-		"res://database/registry/agents/npc_verdant_fighter.tres": 0.7,
-		"res://database/registry/agents/npc_verdant_heavy.tres": 0.3,
-	},
-	"violet": {
-		"res://database/registry/agents/npc_violet_fighter.tres": 0.7,
-		"res://database/registry/agents/npc_violet_heavy.tres": 0.3,
-	},
-}
+const NPC_BASE_TEMPLATE_PATH = "res://database/registry/agents/npc_default.tres"  # Arena NPCs: their ship and fit come from their genome
 
 const CURRENT_ZONE_CONTAINER_NAME = "CurrentZoneContainer"
 const AGENT_CONTAINER_NAME = "AgentContainer"
@@ -405,18 +396,153 @@ const FACTIONS = {
 	"raiders": {"name": "Raiders", "color": Color(1.0, 0.55, 0.3, 1.0), "enemies": ["player", "verdant", "violet"]},
 }
 
-# The battlefield: each faction arrives from its own side of a point near the home station,
-# patrols around that point and fights whoever it meets there. Losses are topped up one ship per
-# faction per interval. Haulers with a full hold fly back to their side and leave.
-const BATTLE_OFFSET_FROM_HOME = 2500.0  # m from the home station to the middle of the battlefield
-const BATTLE_FACTION_SPAWN_DISTANCE = 6000.0  # m from the middle to each faction's arrival point
-const BATTLE_SPAWN_SPREAD = 800.0  # m of scatter around the arrival point
-const NPC_POPULATION_PER_FACTION: int = 4
-const NPC_RESPAWN_INTERVAL: float = 15.0  # s between top-ups
-
 # Wrecks pile up in a long fight: past this many, the oldest stripped ones are removed.
 const WRECK_LOOTED_CAP: int = 6
 const WRECK_MAX: int = 16  # Past this, the oldest are removed even with salvage left
+
+
+# ==================================================================================================
+# SHIP AND PART LAWS (ShipLaws)
+# ==================================================================================================
+
+# Every ship and part stat follows from a few physical quantities (masses, a laser's shot energy)
+# by power laws: amount = REF_AMOUNT * (quantity / REF_QUANTITY) ^ EXPONENT. Exponents under 1:
+# returns diminish, so piling up one stat never pays and the best designs sit somewhere in the
+# middle. The reference points are the Phoenix Light and the Ablative Laser: their genes give
+# their old numbers. A ship's own subsystems follow the same laws as the modules that add to them.
+# Laws as [reference mass kg, amount at that mass, exponent].
+const LAW_HULL = [3300.0, 50.0, 0.8]  # Structure or plating mass -> hull points
+const LAW_THRUST = [1200.0, 450000.0, 0.9]  # Engine or thruster mass -> N
+const LAW_REGEN = [600.0, 10.0, 0.9]  # Reactor or power cell mass -> power per second
+const LAW_CAPACITY = [300.0, 100.0, 1.0]  # Capacitor mass -> power stored
+const LAW_HOLD = [600.0, 20.0, 1.0]  # Hold mass -> cargo units
+
+# Ships: size factor s = mass / LAW_SHIP_REF_MASS; length grows as s^(1/3), surface as s^(2/3).
+# The mass splits into structure, engines, reactor, capacitor and hold by the ship's shares.
+const LAW_SHIP_REF_MASS = 6000.0  # kg (the Phoenix Light)
+const LAW_SHIP_SIZE_MIN = 0.2
+const LAW_SHIP_SIZE_MAX = 8.0
+const LAW_SHIP_SHARES = {"structure": 0.55, "engine": 0.2, "reactor": 0.1, "capacitor": 0.05, "hold": 0.1}  # The Phoenix Light's
+const LAW_SHIP_SHARE_MIN = {"structure": 0.2, "engine": 0.03, "reactor": 0.02, "capacitor": 0.01, "hold": 0.0}
+const LAW_SHIP_RADIUS = 12.0  # m apparent radius at s = 1, times length
+const LAW_SHIP_INTERACTION_RADIUS = 15.0  # m at s = 1, times length
+const LAW_SHIP_SIGNATURE = 1500.0  # m at s = 1, times length (cross-section seen edge-on)
+const LAW_TORQUE_PER_THRUST = 1.11  # N*m of turning torque per N of engine thrust at s = 1, times length (lever)
+const LAW_TOOL_SLOTS = 2.0  # Hardpoints at s = 1, times surface (rounded, at least 1)
+const LAW_MODULE_SLOTS = 2.0  # Module bays at s = 1, times s^(1/2) (rounded)
+const LAW_SLOT_MEDIUM_SIZE = 2.0  # s from which hardpoints take medium tools
+const LAW_SLOT_LARGE_SIZE = 5.0  # and large ones
+const LAW_SHIP_VALUE_PER_KG = 1.0 / 6.0  # WP
+const LAW_SCRAP_PER_KG = 1.0 / 300.0  # Salvage units of scrap in a wreck, per kg of ship
+const LAW_TECH_PER_KG = 1.0 / 600.0  # and of tech, per kg of engines and reactor
+
+# Lasers: shot energy E (power spent per cycle) and mass m (aperture, cooling).
+#   damage = DAMAGE * (E/E0)^a, optimal = RANGE * (m/m0)^b * (E/E0)^c, tracking = TRACKING * (m/m0)^d,
+#   cycle = CYCLE * (E/E0) / (m/m0)^(2/3) (the heat of a shot leaves through the surface).
+const LAW_LASER_REF_MASS = 300.0  # kg
+const LAW_LASER_REF_ENERGY = 5.0
+const LAW_LASER_DAMAGE = [6.0, 0.8]  # [at E0, exponent of E]
+const LAW_LASER_RANGE = [1000.0, 1.0 / 3.0, 0.25]  # [m at m0 and E0, exponent of m, of E]
+const LAW_LASER_FALLOFF_SHARE = 0.25  # Falloff as a share of optimal range
+const LAW_LASER_TRACKING = [0.2, -1.0 / 3.0]  # [rad/s at m0, exponent of m]: heavier turrets swing slower
+const LAW_LASER_CYCLE = [1.0, 2.0 / 3.0]  # [s at m0 and E0, exponent of m the cooling grows with]
+const LAW_LASER_CYCLE_RANGE = [0.25, 8.0]  # s
+const LAW_LASER_MEDIUM_MASS = 800.0  # kg from which a laser needs a medium hardpoint
+const LAW_LASER_LARGE_MASS = 2500.0  # and a large one
+const LAW_LASER_VALUE = [0.2, 8.0]  # WP per kg, per unit of shot energy
+const LAW_PART_VALUE_PER_KG = 0.25  # WP for modules
+
+# Gene bounds (the laws hold anywhere; these keep the search in sensible ranges).
+const LAW_LASER_MASS_RANGE = [50.0, 4000.0]
+const LAW_LASER_ENERGY_RANGE = [0.5, 60.0]
+const LAW_MODULE_MASS_RANGE = [50.0, 5000.0]
+
+# Ship types and part types (lineages 1-3): seeds evolution starts from, and how they look.
+const SHIP_TYPE_SEEDS = {
+	1: {"size": 0.5, "shares": {"structure": 0.45, "engine": 0.3, "reactor": 0.1, "capacitor": 0.05, "hold": 0.1}},
+	2: {"size": 1.0, "shares": {"structure": 0.55, "engine": 0.2, "reactor": 0.1, "capacitor": 0.05, "hold": 0.1}},
+	3: {"size": 2.5, "shares": {"structure": 0.65, "engine": 0.15, "reactor": 0.1, "capacitor": 0.04, "hold": 0.06}},
+}
+const SHIP_TYPE_PANEL_MATERIALS = {  # Hull panel material (surface 1 of the Phoenix hull) by ship type
+	1: "res://assets/art/materials_generic/mat_hull_panel_offwhite.tres",
+	2: "res://assets/art/materials_generic/mat_hull_panel_dark.tres",
+	3: "res://assets/art/materials_generic/mat_hull_accent_orange.tres",
+}
+const SHIP_FACTION_SCENES = {  # Hull model by faction (scaled to the ship's size)
+	"verdant": "res://scenes/prefabs/ships/phoenix_light_verdant.tscn",
+	"violet": "res://scenes/prefabs/ships/phoenix_light_violet.tscn",
+}
+const SHIP_DEFAULT_SCENE = "res://scenes/prefabs/ships/phoenix_light.tscn"
+const PART_TYPE_SEEDS = {  # Part kind -> type -> genes
+	"laser": {1: {"mass": 150.0, "energy": 2.5}, 2: {"mass": 300.0, "energy": 5.0}, 3: {"mass": 600.0, "energy": 12.0}},
+	"plating": {1: {"mass": 500.0}, 2: {"mass": 1000.0}, 3: {"mass": 2000.0}},
+	"thruster": {1: {"mass": 200.0}, 2: {"mass": 400.0}, 3: {"mass": 800.0}},
+	"power_cell": {1: {"mass": 150.0}, 2: {"mass": 300.0}, 3: {"mass": 600.0}},
+	"capacitor": {1: {"mass": 100.0}, 2: {"mass": 200.0}, 3: {"mass": 400.0}},
+}
+const PART_NAMES = {"laser": "Laser", "plating": "Hull Plating", "thruster": "Thruster", "power_cell": "Power Cell", "capacitor": "Capacitor", "harpoon": "Harpoon"}
+const PART_TYPE_NAMES = {1: "I", 2: "II", 3: "III"}
+const HARPOON_TEMPLATE_ID = "tool_harpoon"  # Not evolved: the same harpoon for everyone
+
+
+# ==================================================================================================
+# ARENA AND EVOLUTION (Arena, Evolution)
+# ==================================================================================================
+
+# Three arenas in the Elace system, far enough apart that nothing in one notices another: a beacon
+# in the middle, each faction's two stations on its own side. NPCs spawn docked at their stations,
+# patrol round the beacon, dock to sell loot and to escape, and never leave their arena.
+const ARENA_SECTOR_ID = "sector_elace"
+const ARENA_ZONES = [  # Offset from the home station, ships per faction
+	{"id": "1v1", "offset": Vector3(20000, 0, 0), "per_faction": 1},
+	{"id": "2v2", "offset": Vector3(-10000, 0, 17320), "per_faction": 2},
+	{"id": "3v3", "offset": Vector3(-10000, 0, -17320), "per_faction": 3},
+]
+const ARENA_FACTIONS = ["verdant", "violet"]
+const ARENA_STATION_DISTANCE = 4000.0  # m from the beacon to a faction's side
+const ARENA_STATION_SPREAD = 1500.0  # m between a faction's two stations, either side of its line
+const ARENA_RADIUS = 7000.0  # m from the beacon: NPCs do not chase, salvage or patrol beyond it
+const ARENA_RESPAWN_DELAY = 8.0  # s between a loss and its replacement undocking
+const ARENA_DOCK_TIME = 10.0  # s an NPC stays docked (selling, repairs) before undocking
+const ARENA_DOCK_DISTANCE = 250.0  # m from a station's undock point at which an NPC docks
+const ARENA_MAX_LIFETIME = 900.0  # s; after this an NPC retires at its next dock (its record is kept)
+const ARENA_FACTION_MATERIALS = {  # Station paint by faction
+	"verdant": "res://assets/art/materials_generic/mat_hull_faction_verdant.tres",
+	"violet": "res://assets/art/materials_generic/mat_hull_faction_violet.tres",
+}
+const ARENA_STATION_SCENE = "res://scenes/prefabs/station/arena_station.tscn"
+const ARENA_BEACON_SCENE = "res://scenes/prefabs/station/arena_beacon.tscn"
+
+# Evolution: each faction keeps its own gene pool, so the two drift apart. A genome is a ship
+# (type, size, mass shares), its parts per slot, and (later) behaviour. Fitness is return on cost:
+# (WP banked from salvage + kill bounties - repairs - upkeep) / (ship and parts value), minus 1 if
+# the ship died. Repairs and upkeep make sitting docked a slow loss, not a free pass.
+# The pool is an archive of niches (MAP-Elites): size class x role x laser range. Each niche keeps its
+# best genome; a spawn picks a niche (softly by fitness, so near-equal ones all carry on), then
+# re-flies its genome or a mutant. Fitness is noisy, so it is shrunk toward 0 by EVO_PRIOR_LIVES.
+const EVO_KILL_BOUNTY_SHARE = 0.5  # Share of a victim's value paid to its killer
+const EVO_REPAIR_COST_SHARE = 0.5  # A full repair costs this share of the hull's value (less for less)
+const EVO_UPKEEP_PER_HOUR = 1.0  # Running costs: this share of the ship's value per hour alive
+const EVO_PRIOR_LIVES = 2.0  # Fitness mean = sum / (lives + this)
+const EVO_SELECTION_TEMPERATURE = 0.5  # Niche pick weight = exp(fitness / this)
+const EVO_REFLY_CHANCE = 0.25  # A spawn flies a niche's genome unchanged (to measure it again)
+const EVO_IMMIGRANT_CHANCE = 0.05  # A spawn is a fresh random genome
+const EVO_MUTATION_SIGMA = 0.08  # Log-normal step on each mutated gene
+const EVO_GENE_MUTATION_CHANCE = 0.4  # Per gene
+const EVO_MACRO_MUTATION_CHANCE = 0.03  # A mutation with 5x the step
+const EVO_PART_SWAP_CHANCE = 0.08  # Per slot: a different part (another kind or type, or empty)
+const EVO_EMPTY_SLOT_CHANCE = 0.15  # When a slot's part is picked anew, the chance it is left empty
+const EVO_BEHAVIOR_START_LIVES = 300  # Behaviour genes start mutating once a faction has logged this many lives
+const EVO_BEHAVIOR_RANGES = {  # Gene -> [min, max, default]
+	"engage": [0.3, 4.0, 1.0],  # Desire at which it starts a fight (AI_ENGAGE_DESIRE)
+	"disengage": [0.1, 3.0, 0.8],  # below which it breaks off (AI_DISENGAGE_DESIRE)
+	"range": [0.3, 1.5, 1.0],  # Orbit distance as a share of its laser's optimal range
+	"retreat_hull": [0.0, 0.8, 0.0],  # Hull share at which it runs home whatever the odds
+}
+const EVO_GENOME_MEMORY = 3000  # Genomes whose records are kept (elites and live ones always are)
+const EVO_REPORT_INTERVAL = 300.0  # s of game time between console reports
+const EVO_LOG_LEVEL = 2  # Console: 0 nothing, 1 deaths and reports, 2 every birth, dock, sale and kill
+const EVO_LOG_DIR = "user://evolution_logs/"  # One .jsonl per evolution run: every life, in full
 
 
 # ==================================================================================================

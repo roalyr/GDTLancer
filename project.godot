@@ -135,6 +135,7 @@ Constants="*res://src/autoload/Constants.gd"
 EventBus="*res://src/autoload/EventBus.gd"
 GlobalRefs="*res://src/autoload/GlobalRefs.gd"
 TemplateDatabase="*res://src/autoload/TemplateDatabase.gd"
+Evolution="*res://src/autoload/Evolution.gd"
 GameState="*res://src/autoload/GameState.gd"
 GameStateManager="*res://src/autoload/GameStateManager.gd"
 

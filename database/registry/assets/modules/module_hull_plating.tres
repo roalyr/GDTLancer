@@ -7,8 +7,13 @@ script = ExtResource( 1 )
 template_id = "module_hull_plating"
 module_name = "Hull Plating"
 description = "Bolt-on plates over the frame. More hull to burn through; heavier."
-base_value = 120
-mass = 1500.0
+base_value = 250
+mass = 1000.0
 stat_modifiers = {
-"hull": 300
+"hull": 19
+}
+module_kind = "plating"
+variant_type = 2
+law_genes = {
+"mass": 1000.0
 }

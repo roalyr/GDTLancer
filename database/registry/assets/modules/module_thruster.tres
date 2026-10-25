@@ -7,8 +7,13 @@ script = ExtResource( 1 )
 template_id = "module_thruster"
 module_name = "Auxiliary Thruster"
 description = "An extra main engine. Higher top speed and acceleration."
-base_value = 150
+base_value = 100
 mass = 400.0
 stat_modifiers = {
-"linear_thrust": 150000
+"linear_thrust": 167418.0
+}
+module_kind = "thruster"
+variant_type = 2
+law_genes = {
+"mass": 400.0
 }

@@ -11,3 +11,8 @@ export var mass: float = 0.0  # kg, added to the ship
 # Stat -> amount added: hull, power_capacity, power_regen, cargo_capacity, linear_thrust,
 # angular_thrust, signature (m), sensor_strength.
 export var stat_modifiers: Dictionary = {}
+# Built by ShipLaws: the module's law ("plating", "thruster", "power_cell", "capacitor"), lineage 1-3
+# and genes (empty and 0 for a hand-made one).
+export var module_kind: String = ""
+export var variant_type: int = 0
+export var law_genes: Dictionary = {}

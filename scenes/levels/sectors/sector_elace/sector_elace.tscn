@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=2]
+[gd_scene load_steps=24 format=2]
 
 [ext_resource path="res://src/core/utils/editor_object.gd" type="Script" id=1]
 [ext_resource path="res://src/scenes/game_world/starsphere_slot.gd" type="Script" id=2]
@@ -20,6 +20,7 @@
 [ext_resource path="res://scenes/levels/sectors/sector_elace/planet_elace_b/planet_elace_b.tscn" type="PackedScene" id=22]
 [ext_resource path="res://scenes/levels/sectors/sector_elace/planet_elace_c/planet_elace_c.tscn" type="PackedScene" id=23]
 [ext_resource path="res://scenes/levels/sectors/sector_elace/moon_elace_c1/moon_elace_c1.tscn" type="PackedScene" id=24]
+[ext_resource path="res://src/scenes/game_world/arena/arena.gd" type="Script" id=25]
 
 [sub_resource type="SpatialMaterial" id=1]
 flags_unshaded = true
@@ -80,6 +81,10 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 92000, 0, -80000 )
 
 [node name="ElaceHomeStation" parent="SceneAssets" instance=ExtResource( 5 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1500, 20000 )
+
+[node name="Arena" type="Spatial" parent="SceneAssets"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1500, 20000 )
+script = ExtResource( 25 )
 
 [node name="Asteroids" type="Spatial" parent="SceneAssets"]
 

@@ -6,9 +6,14 @@
 script = ExtResource( 1 )
 template_id = "module_power_cell"
 module_name = "Power Cell"
-description = "Extra storage for the capacitor bank. Longer bursts before the tools go quiet."
-base_value = 80
+description = "A small reactor. Faster recharge for the capacitor bank."
+base_value = 75
 mass = 300.0
 stat_modifiers = {
-"power_capacity": 80
+"power_regen": 5.35887
+}
+module_kind = "power_cell"
+variant_type = 2
+law_genes = {
+"mass": 300.0
 }

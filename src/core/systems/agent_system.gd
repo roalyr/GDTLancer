@@ -8,7 +8,7 @@ var _player_agent_body: RigidBody = null
 var _next_agent_uid: int = 0  # Counter for generating unique agent UIDs
 var _npc_bodies: Array = []  # Live NPCs in the current sector
 var _respawn_timer: Timer = null
-var _battlefield: Dictionary = {}  # get_battlefield(), reset per sector
+var _arena_slots: Array = []  # [{"zone", "faction", "body", "ready_at"}], reset per sector
 
 
 func _ready():
@@ -18,7 +18,7 @@ func _ready():
 	EventBus.connect("zone_loaded", self, "_on_Zone_Loaded")
 
 	_respawn_timer = Timer.new()
-	_respawn_timer.wait_time = Constants.NPC_RESPAWN_INTERVAL
+	_respawn_timer.wait_time = 1.0
 	_respawn_timer.connect("timeout", self, "_top_up_population")
 	add_child(_respawn_timer)
 
@@ -28,7 +28,8 @@ func _on_Zone_Loaded(_zone_instance, _zone_path, agent_container_node):
 		if not is_instance_valid(_player_agent_body):
 			spawn_player()
 		_npc_bodies.clear()
-		_battlefield = {}
+		_arena_slots = []
+		Evolution.suspend_all()  # Ships left behind with the last sector fly again when it is back
 		if populate_sectors:
 			_top_up_population(true)
 			_respawn_timer.start()
@@ -192,92 +193,66 @@ func _get_jump_in_distance_for_sector(sector_id: String) -> float:
 			return 5000.0
 
 
-# --- NPC Population: the battlefield (see Constants AI AND NPC POPULATION) ---
+# --- NPC Population: the arenas (see Arena, Evolution, Constants ARENA AND EVOLUTION) ---
 
-# Tops up each faction to NPC_POPULATION_PER_FACTION live ships: all at once when the sector
-# loads, then one ship per faction per call, so reinforcements trickle in. Also clears old wrecks.
-func _top_up_population(fill: bool = false) -> void:
+# Every arena slot (zone, faction, index) keeps one NPC flying from Evolution's gene pool: when
+# its NPC dies or retires, a replacement undocks ARENA_RESPAWN_DELAY later. Called every second
+# by the respawn timer; also clears old wrecks.
+func _top_up_population(_fill: bool = false) -> void:
 	if not is_instance_valid(GlobalRefs.agent_container) or not is_instance_valid(_player_agent_body):
 		return
-	var live: Array = []
-	for npc in _npc_bodies:
-		if is_instance_valid(npc) and not npc.is_wreck:
-			live.append(npc)
-	_npc_bodies = live
-	var battle: Dictionary = get_battlefield()
-	for faction in Constants.NPC_FACTION_TEMPLATE_PATHS:
-		var count := 0
-		for npc in live:
-			if npc.faction == faction:
-				count += 1
-		var missing: int = Constants.NPC_POPULATION_PER_FACTION - count
-		for _i in range(missing if fill else min(missing, 1)):
-			var home_point: Vector3 = battle.arrivals[faction]
-			var npc = spawn_npc_from_template(
-				pick_template(Constants.NPC_FACTION_TEMPLATE_PATHS[faction]), _scatter(home_point),
-				{"faction": faction, "patrol_center": battle.center, "home_point": home_point}
-			)
-			if is_instance_valid(npc):
-				_npc_bodies.append(npc)
+	var arena = _find_arena()
+	Evolution.active = arena != null
+	if arena == null:
+		return
+	if _arena_slots.empty():
+		for zone in arena.zones:
+			for faction in Constants.ARENA_FACTIONS:
+				for _i in range(zone.per_faction):
+					_arena_slots.append({"zone": zone, "faction": faction, "body": null, "ready_at": 0.0})
+	var now: float = Evolution.game_time
+	for slot in _arena_slots:
+		var body = slot.body
+		if is_instance_valid(body) and body.is_inside_tree() and not body.is_wreck:
+			continue
+		if body != null:  # Lost or retired: the replacement waits a little
+			slot.body = null
+			slot.ready_at = now + Constants.ARENA_RESPAWN_DELAY
+		if now >= slot.ready_at:
+			slot.body = _spawn_arena_npc(slot.zone, slot.faction)
 	clear_old_wrecks()
 
 
-# One AgentTemplate path from {path: chance}, at random by chance.
-static func pick_template(chances: Dictionary) -> String:
-	var total := 0.0
-	for path in chances:
-		total += float(chances[path])
-	var roll: float = randf() * total
-	for path in chances:
-		roll -= float(chances[path])
-		if roll <= 0.0:
-			return path
-	return chances.keys().back()
+# A new life for an arena slot, spawned docked at one of its faction's stations in the zone.
+func _spawn_arena_npc(zone: Dictionary, faction: String) -> RigidBody:
+	var life: Dictionary = Evolution.begin_life(faction, zone.id)
+	if life.empty():
+		return null
+	var stations: Array = zone.stations[faction]
+	var station: Spatial = stations[randi() % stations.size()]
+	var npc = spawn_npc_from_template(Constants.NPC_BASE_TEMPLATE_PATH, station.get_undock_position(), {
+		"faction": faction,
+		"ship_template_id": life.ship_template_id,
+		"fit": life.fit,
+		"evo_uid": life.uid,
+		"skill": life.skill,
+		"behavior": life.behavior,
+		"patrol_center": zone.beacon.global_transform.origin,
+		"home_point": station.global_transform.origin,
+		"arena": {"zone_id": zone.id, "beacon": zone.beacon.global_transform.origin, "stations": stations},
+		"docked_at": station,
+	})
+	if is_instance_valid(npc):
+		Evolution.attach_body(life.uid, npc)
+		_npc_bodies.append(npc)
+	return npc
 
 
-# The middle of the battlefield, off the home station, and each faction's arrival point, on
-# opposite sides of it. Fixed per sector load.
-func get_battlefield() -> Dictionary:
-	if not _battlefield.empty():
-		return _battlefield
-	var anchor: Vector3 = _player_agent_body.global_transform.origin if is_instance_valid(_player_agent_body) else Vector3.ZERO
-	var station = _find_home_station()
-	if is_instance_valid(station):
-		anchor = station.global_transform.origin
-	var offset_dir: Vector3 = _random_direction()
-	var side: Vector3 = offset_dir.cross(Vector3.UP)
-	if side.length_squared() < 0.01:
-		side = offset_dir.cross(Vector3.RIGHT)
-	side = side.normalized()
-	var center: Vector3 = anchor + offset_dir * Constants.BATTLE_OFFSET_FROM_HOME
-	var arrivals := {}
-	var sign_ := 1.0
-	for faction in Constants.NPC_FACTION_TEMPLATE_PATHS:
-		arrivals[faction] = center + side * sign_ * Constants.BATTLE_FACTION_SPAWN_DISTANCE
-		sign_ = -sign_
-	_battlefield = {"center": center, "arrivals": arrivals}
-	return _battlefield
-
-
-func _find_home_station() -> Node:
-	var fallback: Node = null
-	for station in get_tree().get_nodes_in_group("dockable_station"):
-		if not (station is Spatial and is_instance_valid(GlobalRefs.current_zone) and GlobalRefs.current_zone.is_a_parent_of(station)):
-			continue
-		if station.get("location_id") == GameState.home_location_id:
-			return station
-		if fallback == null:
-			fallback = station
-	return fallback
-
-
-func _scatter(point: Vector3) -> Vector3:
-	return point + _random_direction() * randf() * Constants.BATTLE_SPAWN_SPREAD
-
-
-static func _random_direction() -> Vector3:
-	var direction = Vector3(rand_range(-1, 1), rand_range(-1, 1), rand_range(-1, 1))
-	return direction.normalized() if direction.length_squared() > 0.0001 else Vector3.FORWARD
+func _find_arena() -> Node:
+	for arena in get_tree().get_nodes_in_group("arena"):
+		if is_instance_valid(GlobalRefs.current_zone) and GlobalRefs.current_zone.is_a_parent_of(arena):
+			return arena
+	return null
 
 
 # Past WRECK_LOOTED_CAP wrecks, removes the oldest stripped ones; past WRECK_MAX, the oldest of

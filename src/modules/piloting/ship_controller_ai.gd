@@ -2,6 +2,10 @@
 # with its own, or ships that shot it), flees fights not worth it (shooting back at its pursuer
 # as it goes), strips wrecks, and with a full
 # hold flies back to where it came from and leaves the sector.
+# Arena NPCs (see Arena, Evolution) instead live round their arena's beacon and never leave it: they
+# spawn DOCKED at one of their faction's stations, flee to one (and dock: safe, repaired) and haul
+# their salvage to one to sell it; old ones retire there. Their behaviour genes set when they
+# start and break off a fight, how close they fight, and at what hull they run whatever the odds.
 # Decisions take time (skill, how close the call is): meanwhile the ship HESITATES, a state of its
 # own the player can read. It turns its nose on the ship in question and eases off to a drift,
 # holding fire; one wavering over breaking off a fight keeps fighting meanwhile. Being shot while
@@ -14,12 +18,13 @@ const FrameProfiler = preload("res://src/core/utils/frame_profiler.gd")
 
 const CombatAssessment = preload("res://src/core/systems/combat_assessment.gd")
 
-enum AIState { IDLE, PATROL, COMBAT, FLEE, DISABLED, SALVAGE, DEPART, HESITATE }
+enum AIState { IDLE, PATROL, COMBAT, FLEE, DISABLED, SALVAGE, DEPART, HESITATE, DOCKED }
 
 # What the player reads off a ship's behaviour (see the parity rule in the README).
 const ACTIVITY_LABELS = {
 	AIState.PATROL: "PATROLLING", AIState.COMBAT: "FIGHTING", AIState.FLEE: "FLEEING",
 	AIState.SALVAGE: "SALVAGING", AIState.DEPART: "HAULING", AIState.HESITATE: "HESITATING",
+	AIState.DOCKED: "DOCKED",
 }
 
 # Which pending decision gives way to which (higher wins): being shot outranks anything else.
@@ -44,6 +49,13 @@ var _resume_state: int = AIState.PATROL  # What it was doing before it started h
 var _resume_target: RigidBody = null  # and on what
 var _think_elapsed: float = 0.0  # s since it last thought
 var _think_due: float = randf() * Constants.AI_THINK_INTERVAL  # First think staggered across ships
+var _arena: Dictionary = {}  # Arena NPCs: {"zone_id", "beacon" (Vector3), "stations" (its faction's)}
+var _station: Spatial = null  # The station it is heading for or docked at
+var _dock_timer: float = 0.0  # s left docked
+var _engage_desire: float = Constants.AI_ENGAGE_DESIRE  # Behaviour genes (Constants EVO_BEHAVIOR_RANGES)
+var _disengage_desire: float = Constants.AI_DISENGAGE_DESIRE
+var _range_factor: float = 1.0
+var _retreat_hull: float = 0.0
 
 
 func _ready() -> void:
@@ -63,7 +75,17 @@ func initialize(config: Dictionary) -> void:
 	_home_position = config.get("patrol_center", agent_script.global_transform.origin)
 	_home_point = config.get("home_point", agent_script.global_transform.origin)
 	skill = clamp(float(config.get("skill", skill)), 0.0, 1.0)
-	_change_state(AIState.PATROL)
+	_arena = config.get("arena", {})
+	var behavior: Dictionary = config.get("behavior", {})
+	_engage_desire = float(behavior.get("engage", Constants.AI_ENGAGE_DESIRE))
+	_disengage_desire = float(behavior.get("disengage", Constants.AI_DISENGAGE_DESIRE))
+	_range_factor = float(behavior.get("range", 1.0))
+	_retreat_hull = float(behavior.get("retreat_hull", 0.0))
+	var docked_at = config.get("docked_at")
+	if docked_at is Spatial:
+		_dock(docked_at, false)
+	else:
+		_change_state(AIState.PATROL)
 
 
 func get_state() -> int:
@@ -82,7 +104,7 @@ func get_focus() -> Node:
 # Distance the AI tries to fight at: the optimal range of the tool that works on the target.
 func get_engagement_range() -> float:
 	var index: int = _get_attack_tool_index()
-	return _tool_controller.get_tool(index).optimal_range if index >= 0 else 0.0
+	return _tool_controller.get_tool(index).optimal_range * _range_factor if index >= 0 else 0.0
 
 
 func _get_attack_tool_index() -> int:
@@ -122,6 +144,8 @@ func _think(delta: float) -> void:
 			_process_depart()
 		AIState.HESITATE:
 			_process_hesitate()
+		AIState.DOCKED:
+			_process_docked(delta)
 
 
 func _change_state(new_state: int) -> void:
@@ -148,13 +172,28 @@ func _change_state(new_state: int) -> void:
 		AIState.COMBAT:
 			agent_script.command_approach(_target_agent)
 		AIState.FLEE:
-			agent_script.command_flee(_target_agent)
+			if not _arena.empty():
+				_station = _pick_refuge(_target_agent)
+			if is_instance_valid(_station) and not _arena.empty():
+				agent_script.command_move_to(_station.get_undock_position())
+			else:
+				agent_script.command_flee(_target_agent)
 		AIState.SALVAGE:
 			agent_script.command_approach(_target_agent)
 		AIState.DEPART:
 			_provoked = false
 			_target_agent = null
-			agent_script.command_move_to(_home_point)
+			if not _arena.empty():
+				_station = _pick_refuge(null)
+			if is_instance_valid(_station) and not _arena.empty():
+				agent_script.command_move_to(_station.get_undock_position())
+			else:
+				agent_script.command_move_to(_home_point)
+		AIState.DOCKED:
+			_pending = {}
+			_provoked = false
+			_target_agent = null
+			agent_script.command_stop()
 		AIState.HESITATE:
 			if not keeps_fighting:
 				agent_script.command_watch(_target_agent)
@@ -165,10 +204,10 @@ func _process_patrol() -> void:
 		_scan_timer = Constants.AI_SCAN_INTERVAL
 		var target = scan_for_target()
 		if is_instance_valid(target):
-			_consider("engage", target, desire_against(target), Constants.AI_ENGAGE_DESIRE)
+			_consider("engage", target, desire_against(target), _engage_desire)
 			return
 		elif _pending.empty():
-			if agent_script.get_free_cargo() <= 0:
+			if agent_script.get_free_cargo() <= 0 or _due_home():
 				_change_state(AIState.DEPART)
 				return
 			var wreck = scan_for_wreck()
@@ -191,12 +230,18 @@ func _process_combat() -> void:
 	if not _provoked and not agent_script.detects(_target_agent):
 		_change_state(AIState.PATROL)  # Lost contact
 		return
+	if not _in_arena(agent_script.global_transform.origin, 1.3):
+		_change_state(AIState.PATROL)  # Chased out of its arena: back to the beacon
+		return
+	if _should_retreat():
+		_change_state(AIState.FLEE)
+		return
 	# Keep weighing the fight: break off once it stops being worth it.
 	if _scan_timer <= 0.0:
 		_scan_timer = Constants.AI_SCAN_INTERVAL
 		var desire: float = desire_against(_target_agent)
-		if desire < Constants.AI_DISENGAGE_DESIRE:
-			_consider("disengage", _target_agent, desire, Constants.AI_DISENGAGE_DESIRE)
+		if desire < _disengage_desire:
+			_consider("disengage", _target_agent, desire, _disengage_desire)
 			return
 
 	var distance: float = agent_script.global_transform.origin.distance_to(_target_agent.global_transform.origin)
@@ -231,6 +276,11 @@ func _fire_at(target) -> void:
 
 
 func _process_flee() -> void:
+	if not _arena.empty():
+		_process_run_home()
+		if is_instance_valid(_target_agent) and _is_live_target(_target_agent):
+			_fire_at(_target_agent)  # Running, but shooting back at whatever reaches
+		return
 	if not _is_live_target(_target_agent):
 		_change_state(AIState.PATROL)
 		return
@@ -255,7 +305,7 @@ func _process_salvage() -> void:
 		_scan_timer = Constants.AI_SCAN_INTERVAL
 		var enemy = scan_for_target()
 		if is_instance_valid(enemy):
-			_consider("engage", enemy, desire_against(enemy), Constants.AI_ENGAGE_DESIRE)
+			_consider("engage", enemy, desire_against(enemy), _engage_desire)
 			return
 	var index: int = _tool_controller.find_tool_for(wreck) if is_instance_valid(_tool_controller) else -1
 	if index < 0:
@@ -287,7 +337,7 @@ func _process_hesitate() -> void:
 		_fire_at(_resume_target)
 	if _pending.kind == "disengage" and _scan_timer <= 0.0:
 		_scan_timer = Constants.AI_SCAN_INTERVAL
-		if desire_against(_target_agent) >= Constants.AI_DISENGAGE_DESIRE:
+		if desire_against(_target_agent) >= _disengage_desire:
 			_pending = {}
 			_resume()  # The fight turned back: keep at it
 
@@ -311,6 +361,9 @@ func _resume() -> void:
 
 # Full hold: fly back to where it came from and leave the sector with the loot.
 func _process_depart() -> void:
+	if not _arena.empty():
+		_process_run_home()
+		return
 	if agent_script.global_transform.origin.distance_to(_home_point) <= Constants.AI_DEPART_ARRIVAL_DISTANCE:
 		_change_state(AIState.IDLE)
 		agent_script.despawn()
@@ -320,13 +373,82 @@ func _process_depart() -> void:
 		agent_script.command_move_to(_home_point)
 
 
+# --- Arena: stations, docking, staying in the arena ---
+
+# Heading for _station (fleeing or hauling): docks on arrival.
+func _process_run_home() -> void:
+	if not is_instance_valid(_station):
+		_station = _pick_refuge(_target_agent)
+	if not is_instance_valid(_station):
+		_change_state(AIState.PATROL)
+		return
+	var dock_point: Vector3 = _station.get_undock_position()
+	if agent_script.global_transform.origin.distance_to(dock_point) <= Constants.ARENA_DOCK_DISTANCE:
+		_dock(_station, true)
+		return
+	if _repath_timer <= 0.0:
+		_repath_timer = Constants.AI_REPATH_INTERVAL * 4.0
+		agent_script.command_move_to(dock_point)
+
+
+# Into the station: out of the world until it undocks. `service`: sells the hold and repairs (it
+# arrived; a ship spawned docked has nothing to sell). An old ship retires there instead.
+func _dock(station: Spatial, service: bool) -> void:
+	_station = station
+	agent_script.dock_at(station)
+	_change_state(AIState.DOCKED)
+	_dock_timer = Constants.ARENA_DOCK_TIME
+	if service and Evolution.on_docked(agent_script):
+		agent_script.despawn()  # Retired: its record is in the log
+
+
+func _process_docked(delta: float) -> void:
+	_dock_timer -= delta
+	if _dock_timer > 0.0:
+		return
+	agent_script.undock()
+	_change_state(AIState.PATROL)
+
+
+# Its own station to run to: near itself and away from the threat (if any).
+func _pick_refuge(threat) -> Spatial:
+	var best: Spatial = null
+	var best_score: float = INF
+	var own_pos: Vector3 = agent_script.global_transform.origin
+	for station in _arena.get("stations", []):
+		if not is_instance_valid(station):
+			continue
+		var score: float = own_pos.distance_to(station.global_transform.origin)
+		if is_instance_valid(threat):
+			score -= 0.5 * threat.global_transform.origin.distance_to(station.global_transform.origin)
+		if score < best_score:
+			best = station
+			best_score = score
+	return best
+
+
+# Within the arena (Constants ARENA_RADIUS, times `slack`) or not an arena NPC.
+func _in_arena(point: Vector3, slack: float = 1.0) -> bool:
+	return _arena.empty() or point.distance_to(_arena.beacon) <= Constants.ARENA_RADIUS * slack
+
+
+# Hull under its retreat gene: run home whatever the odds.
+func _should_retreat() -> bool:
+	return not _arena.empty() and _retreat_hull > 0.0 and agent_script.get_hull_fraction() < _retreat_hull
+
+
+# An old arena NPC goes home to retire (Evolution, Constants ARENA_MAX_LIFETIME).
+func _due_home() -> bool:
+	return not _arena.empty() and Evolution.is_old(agent_script.evo_uid)
+
+
 # The nearest detected wreck with something left on it that nobody else has harpooned.
 func scan_for_wreck() -> RigidBody:
 	var best: RigidBody = null
 	var best_distance: float = Constants.AI_SALVAGE_SEARCH_RANGE
 	var own_pos: Vector3 = agent_script.global_transform.origin
 	for body in get_tree().get_nodes_in_group("agent_body"):
-		if not (body.get("is_wreck") and body.get_salvage_units() > 0 and agent_script.detects(body)):
+		if not (body.get("is_wreck") and body.get_salvage_units() > 0 and agent_script.detects(body) and _in_arena(body.global_transform.origin)):
 			continue
 		var distance: float = own_pos.distance_to(body.global_transform.origin)
 		if distance < best_distance and not _is_claimed(body):
@@ -349,9 +471,11 @@ func _is_claimed(wreck) -> bool:
 # The detected enemy most worth attacking, if any is worth it at all.
 func scan_for_target() -> RigidBody:
 	var best: RigidBody = null
-	var best_desire: float = Constants.AI_ENGAGE_DESIRE
+	var best_desire: float = _engage_desire
 	for body in get_tree().get_nodes_in_group("agent_body"):
 		if body == agent_script or not _is_live_target(body) or not agent_script.is_enemy_of(body):
+			continue
+		if not _in_arena(body.global_transform.origin):
 			continue
 		if not agent_script.detects(body):
 			continue
@@ -394,7 +518,7 @@ func _on_agent_disabled(agent_body) -> void:
 func _on_agent_damaged(agent_body, _amount, source) -> void:
 	if agent_body != agent_script or not _is_live_target(source) or source == agent_script:
 		return
-	if _current_state in [AIState.DISABLED, AIState.FLEE]:
+	if _current_state in [AIState.DISABLED, AIState.FLEE, AIState.DOCKED]:
 		return
 	var fighting = _target_agent if _current_state == AIState.COMBAT else null
 	if _current_state == AIState.HESITATE and _resume_state == AIState.COMBAT:
@@ -403,7 +527,7 @@ func _on_agent_damaged(agent_body, _amount, source) -> void:
 		_provoked = true
 		return
 	# Shot at: once it has made up its mind, fight back if the rule says so, otherwise run.
-	_consider("respond", source, desire_against(source), Constants.AI_DISENGAGE_DESIRE)
+	_consider("respond", source, desire_against(source), _disengage_desire)
 
 
 # --- Decisions take time (see Constants AI block) ---
@@ -462,12 +586,12 @@ func _tick_decision(delta: float) -> void:
 	var desire: float = desire_against(target)
 	match decision.kind:
 		"engage":
-			if agent_script.detects(target) and desire >= Constants.AI_ENGAGE_DESIRE:
+			if agent_script.detects(target) and desire >= _engage_desire:
 				_start_combat(target, false)
 			else:
 				_resume()
 		"disengage":
-			if desire < Constants.AI_DISENGAGE_DESIRE:
+			if desire < _disengage_desire:
 				_target_agent = target
 				_resume_target = null
 				_change_state(AIState.FLEE)
@@ -475,7 +599,7 @@ func _tick_decision(delta: float) -> void:
 				_resume()
 		"respond":
 			_resume_target = null
-			if desire >= Constants.AI_DISENGAGE_DESIRE:
+			if desire >= _disengage_desire and not _should_retreat():
 				_start_combat(target, true)
 			else:
 				_target_agent = target

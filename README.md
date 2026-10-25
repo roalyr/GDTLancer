@@ -27,7 +27,9 @@ The project is pruned back to its flight core. What works now:
 - Docking, and jumping between handcrafted sectors with a jump transition
 - New game, save and load
 - Laser combat without manual aim: damage depends on range and the target's angular velocity; hull, power and wrecks
-- A battlefield near the home station: two factions at war (Verdant and Violet), flying Phoenix fighters and heavies, keep arriving, fight, strip each other's wrecks and fly home with full holds. They leave the player alone unless the player shoots one. Brackets show each side in its colour, and what each ship is doing
+- Three arenas in the Elace system (1v1, 2v2, 3v3), each with a beacon and two stations per faction: Verdant and Violet NPCs spawn docked there, fight round the beacon, strip wrecks, and dock to sell salvage, repair or escape. They leave the player alone unless the player shoots one. Brackets show each side in its colour, and what each ship is doing
+- Ships and parts follow governing laws (`ShipLaws`, Constants SHIP AND PART LAWS): every stat is a power law of mass (and, for lasers, shot energy), with the Phoenix Light and Ablative Laser as reference points. Bigger hulls are the Phoenix Light scaled up, with more hardpoints and bays
+- Evolution (`Evolution`, Constants ARENA AND EVOLUTION): each arena NPC is a genome (hull size and mass split, a part per slot, later behaviour), scored by return on cost. Each faction keeps an archive of niches (size, role, laser range) with the best genome in each, so different builds survive side by side. Saved with the game; every life is logged
 - Hits leave lasting marks on the hull (vertex-painted, proportional to damage)
 - Salvage: harpoon a wreck, it reels in to a safe towing distance and is stripped into the hold; cargo adds mass
 - Fuel leaks vent along the hull and push the ship; destroyed ships explode into a drifting cloud
@@ -95,6 +97,16 @@ Complete the engine, then freeze it. After the freeze, work is content, tuning a
 | `database/registry/` | Template data (`.tres`); new content goes here |
 | `scenes/` | Levels, sectors, prefabs and UI scenes |
 | `docs/godot/` | Godot 3.6 shader reference |
+
+## Evolution Runs
+
+The arenas evolve while you play (watch from the home station or fly to a beacon), or headless and sped up:
+
+```sh
+godot --no-window -s tools/evolution_sim.gd -- --hours=4 --speed=6
+```
+
+It loads the saved game (or starts one with `--new`), saves to it as it goes, and prints `EVO` lines and a report every few simulated minutes. Every finished life is also written in full to `user://evolution_logs/run_<id>.jsonl`. After changing a law, run `godot --no-window -s tools/apply_laws.gd` to bring the registry parts in line.
 
 ## Running Tests
 

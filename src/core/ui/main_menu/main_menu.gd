@@ -1,4 +1,6 @@
-# MainMenu: new game, save, load and exit.
+# MainMenu: new game, save, load and exit. At start it offers to load the saved game (with a summary
+# of it); exiting a game in progress (the button or closing the window) asks whether to save first;
+# a new game while the arenas' evolution is running asks whether to keep it.
 
 extends Control
 
@@ -8,8 +10,11 @@ onready var btn_save_game = $ScreenControls/MainButtonsHBoxContainer/ButtonSaveG
 onready var btn_exit_game = $ScreenControls/MainButtonsHBoxContainer/ButtonExitgame
 onready var btn_close = $ScreenControls/ButtonClose
 
+const PromptDialog = preload("res://src/core/ui/helpers/prompt_dialog.gd")
+
 # Save notification popup (created dynamically)
 var _save_popup: AcceptDialog = null
+var _offered_load: bool = false  # The load prompt shows once, at start
 
 
 func _ready() -> void:
@@ -32,11 +37,82 @@ func _ready() -> void:
 
 	_update_load_button_state()
 	_refresh_close_button_state()
+	get_tree().set_auto_accept_quit(false)  # Closing the window asks first (_notification)
 	# If nothing else requests it, show menu on boot.
 	call_deferred("_show_menu")
+	call_deferred("_offer_load")
+
+
+func _notification(what: int) -> void:
+	if what == MainLoop.NOTIFICATION_WM_QUIT_REQUEST:
+		_request_exit()
+
+
+# --- Prompts ---
+
+func _offer_load() -> void:
+	if _offered_load:
+		return
+	_offered_load = true
+	var summary: Dictionary = GameStateManager.get_save_summary() if is_instance_valid(GameStateManager) else {}
+	if summary.empty():
+		return
+	var prompt = PromptDialog.ask(self, "Continue the saved game?", describe_save(summary), [["load", "LOAD GAME"], ["no", "NOT NOW"]])
+	prompt.connect("chosen", self, "_on_load_offer_chosen")
+
+
+func _on_load_offer_chosen(choice) -> void:
+	if choice == "load":
+		_on_load_game_pressed()
+
+
+static func describe_save(summary: Dictionary) -> String:
+	return PoolStringArray([
+		"SAVED %s" % summary.get("saved_at", "?"),
+		"PLAYED %.1f H" % (float(summary.get("play_time", 0.0)) / 3600.0),
+		"ARENAS %.1f H SIMULATED (%.1f H WATCHED)" % [float(summary.get("game_time", 0.0)) / 3600.0, float(summary.get("real_time", 0.0)) / 3600.0],
+		"EVOLUTION %d LIVES ENDED, %d BORN, %d NICHES, %d GENOMES" % [int(summary.get("lives", 0)), int(summary.get("births", 0)), int(summary.get("niches", 0)), int(summary.get("genomes", 0))],
+		"BANK %d WP" % int(summary.get("bank", 0)),
+	]).join("\n")
+
+
+func _request_exit() -> void:
+	if not _has_active_game_session():
+		get_tree().quit()
+		return
+	_show_menu()
+	var prompt = PromptDialog.ask(self, "Save before exiting?", "UNSAVED PLAY AND EVOLUTION ARE LOST ON EXIT.", [["save", "SAVE AND EXIT"], ["exit", "EXIT"], ["cancel", "CANCEL"]])
+	prompt.connect("chosen", self, "_on_exit_chosen")
+
+
+func _on_exit_chosen(choice) -> void:
+	match choice:
+		"save":
+			if GameStateManager.save_game(0):
+				get_tree().quit()
+			else:
+				_show_save_notification(false)
+		"exit":
+			get_tree().quit()
 
 
 func _on_new_game_pressed() -> void:
+	if Evolution.lives_ended() > 0 or not Evolution.live.empty():
+		var text: String = "THE ARENAS HAVE RUN %.1f H: %d LIVES ENDED." % [Evolution.game_time / 3600.0, Evolution.lives_ended()]
+		var prompt = PromptDialog.ask(self, "Keep the evolution?", text, [["keep", "KEEP EVOLUTION"], ["over", "START OVER"], ["cancel", "CANCEL"]])
+		prompt.connect("chosen", self, "_on_new_game_chosen")
+		return
+	_start_new_game()
+
+
+func _on_new_game_chosen(choice) -> void:
+	if choice == "cancel":
+		return
+	GameStateManager.keep_evolution = choice == "keep"
+	_start_new_game()
+
+
+func _start_new_game() -> void:
 	visible = false
 	if is_instance_valid(EventBus) and EventBus.has_signal("new_game_requested"):
 		EventBus.emit_signal("new_game_requested")
@@ -85,7 +161,7 @@ func _show_save_notification(success: bool) -> void:
 
 
 func _on_exit_game_pressed() -> void:
-	get_tree().quit()
+	_request_exit()
 
 
 func _on_close_pressed() -> void:
