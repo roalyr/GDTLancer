@@ -1,0 +1,47 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/phoenix_light_verdant.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_verdant_v358"
+ship_model_name = "Phoenix II V358"
+base_value = 853
+ship_scene = ExtResource( 2 )
+hull_integrity = 41
+cargo_capacity = 16
+interaction_radius = 14.2262
+apparent_radius = 11.381
+signature = 1422.62
+sensor_strength = 1.0
+tool_slots_small = 2
+tool_slots_medium = 0
+tool_slots_large = 0
+module_slots = 2
+equipped_tools = [ "preset_laser_3_674_112", "tool_harpoon" ]
+equipped_modules = [ "preset_thruster_3_755", "preset_thruster_2_408" ]
+salvage_yield = {
+"commodity_scrap": 17,
+"commodity_tech": 3
+}
+power_capacity = 73.3576
+power_regen = 8.57681
+mass = 5118.54
+linear_thrust = 507973.0
+angular_thrust = 534763.0
+alignment_threshold_angle_deg = 45.0
+model_scale = 0.948415
+panel_material = "res://assets/art/materials_generic/mat_hull_panel_dark.tres"
+variant_type = 2
+law_genes = {
+"shares": {
+"capacitor": 0.0429952,
+"engine": 0.268232,
+"hold": 0.0918235,
+"reactor": 0.0988377,
+"structure": 0.498112
+},
+"size": 0.85309,
+"type": 2
+}

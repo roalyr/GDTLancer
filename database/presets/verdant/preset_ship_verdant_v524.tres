@@ -1,0 +1,47 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/phoenix_light_verdant.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_verdant_v524"
+ship_model_name = "Phoenix III V524"
+base_value = 2919
+ship_scene = ExtResource( 2 )
+hull_integrity = 128
+cargo_capacity = 30
+interaction_radius = 21.4378
+apparent_radius = 17.1502
+signature = 2143.78
+sensor_strength = 1.0
+tool_slots_small = 0
+tool_slots_medium = 4
+tool_slots_large = 0
+module_slots = 3
+equipped_tools = [ "tool_harpoon", "tool_harpoon", "tool_harpoon" ]
+equipped_modules = [ "preset_capacitor_3_573", "preset_capacitor_2_200", "preset_plating_1_566" ]
+salvage_yield = {
+"commodity_scrap": 58,
+"commodity_tech": 9
+}
+power_capacity = 165.922
+power_regen = 27.2787
+mass = 17515.3
+linear_thrust = 1.20106e+06
+angular_thrust = 1.90536e+06
+alignment_threshold_angle_deg = 45.0
+model_scale = 1.42919
+panel_material = "res://assets/art/materials_generic/mat_hull_accent_orange.tres"
+variant_type = 3
+law_genes = {
+"shares": {
+"capacitor": 0.0284189,
+"engine": 0.203933,
+"hold": 0.0507239,
+"reactor": 0.104468,
+"structure": 0.612456
+},
+"size": 2.91922,
+"type": 3
+}

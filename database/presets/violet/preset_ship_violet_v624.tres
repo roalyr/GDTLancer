@@ -1,0 +1,47 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/phoenix_light_violet.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_violet_v624"
+ship_model_name = "Phoenix II V624"
+base_value = 1142
+ship_scene = ExtResource( 2 )
+hull_integrity = 47
+cargo_capacity = 24
+interaction_radius = 15.6777
+apparent_radius = 12.5422
+signature = 1567.77
+sensor_strength = 1.0
+tool_slots_small = 2
+tool_slots_medium = 0
+tool_slots_large = 0
+module_slots = 2
+equipped_tools = [ "preset_laser_1_170_25", "preset_laser_1_174_24" ]
+equipped_modules = [ "preset_plating_3_2197", "preset_capacitor_3_382" ]
+salvage_yield = {
+"commodity_scrap": 23,
+"commodity_tech": 4
+}
+power_capacity = 219.357
+power_regen = 11.3286
+mass = 6850.54
+linear_thrust = 622055.0
+angular_thrust = 721677.0
+alignment_threshold_angle_deg = 45.0
+model_scale = 1.04518
+panel_material = "res://assets/art/materials_generic/mat_hull_panel_dark.tres"
+variant_type = 2
+law_genes = {
+"shares": {
+"capacitor": 0.0960611,
+"engine": 0.251013,
+"hold": 0.10444,
+"reactor": 0.100606,
+"structure": 0.44788
+},
+"size": 1.14176,
+"type": 2
+}

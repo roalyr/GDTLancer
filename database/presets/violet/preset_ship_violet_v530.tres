@@ -1,0 +1,47 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/phoenix_light_violet.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_violet_v530"
+ship_model_name = "Phoenix I V530"
+base_value = 356
+ship_scene = ExtResource( 2 )
+hull_integrity = 19
+cargo_capacity = 6
+interaction_radius = 10.6321
+apparent_radius = 8.5057
+signature = 1063.21
+sensor_strength = 1.0
+tool_slots_small = 1
+tool_slots_medium = 0
+tool_slots_large = 0
+module_slots = 1
+equipped_tools = [ "preset_laser_1_150_21" ]
+equipped_modules = [ "preset_capacitor_3_384" ]
+salvage_yield = {
+"commodity_scrap": 7,
+"commodity_tech": 1
+}
+power_capacity = 34.4968
+power_regen = 3.92039
+mass = 2136.67
+linear_thrust = 260191.0
+angular_thrust = 204712.0
+alignment_threshold_angle_deg = 45.0
+model_scale = 0.708808
+panel_material = "res://assets/art/materials_generic/mat_hull_panel_offwhite.tres"
+variant_type = 1
+law_genes = {
+"shares": {
+"capacitor": 0.0484354,
+"engine": 0.305553,
+"hold": 0.0829761,
+"reactor": 0.0992104,
+"structure": 0.463825
+},
+"size": 0.356112,
+"type": 1
+}

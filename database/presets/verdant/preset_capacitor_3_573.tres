@@ -1,0 +1,19 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/asset_module_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_capacitor_3_573"
+module_name = "Capacitor III"
+description = "573 kg."
+base_value = 143
+mass = 573.341
+stat_modifiers = {
+"power_capacity": 191.114
+}
+module_kind = "capacitor"
+variant_type = 3
+law_genes = {
+"mass": 573.341
+}
