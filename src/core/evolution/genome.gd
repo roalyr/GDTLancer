@@ -188,7 +188,7 @@ static func ensure_part_template(part: Dictionary) -> String:
 static func build(genome: Dictionary, genome_id: String, faction: String) -> Dictionary:
 	var ship_id: String = "evo_ship_%s" % genome_id
 	if not TemplateDatabase.evolved.has(ship_id):
-		var name: String = "Phoenix %s" % Constants.PART_TYPE_NAMES.get(int(genome.ship.type), "")
+		var name: String = "Phoenix %s %s" % [Constants.PART_TYPE_NAMES.get(int(genome.ship.type), ""), genome_id]  # The genome shows on the HUD
 		TemplateDatabase.register_evolved(ShipLaws.build_ship_template(genome.ship, ship_id, name, faction))
 	var fit := {"tools": [], "modules": []}
 	for part in genome.tools:
