@@ -2,8 +2,8 @@
 # LAW_LANCE_*). Hammer and nail: a lance sits in the seat on the ship's axis, its tip past the nose;
 # spares wait in a quiver on the hull (salvaging a wreck with a harpoon recovers the lances stuck in
 # it that fit this seat: Agent.recoverable_lances_for). Only while armed (the player's LANCE button; an NPC while it
-# rams) does the tip strike: each physics step a ray runs from the seat to the tip and on by the
-# step's travel, so a fast ship cannot pass through. On a ship, a strike at a closing speed along
+# rams) does the tip strike: each physics step it checks the lance and the tip's path relative to
+# each ship near it against that ship's hull box (_sweep), so a fast ship cannot pass through. On a ship, a strike at a closing speed along
 # the lance of at least LAW_LANCE_MIN_SPEED goes in with a chance that falls with the angle off
 # square-on (ShipLaws.lance_hit_chance: sure square-on, unlikely past LAW_LANCE_GLANCE_ANGLE, where
 # only a long lance may slip between parts) and does ShipLaws.lance_damage; otherwise it glances off
@@ -31,7 +31,6 @@ var nails: int = 0  # Lances left, the seated one included
 var reload_left: float = 0.0  # s until the next lance is seated
 var _agent: RigidBody = null
 var _nose: float = 0.0  # m from the ship's origin to its nose, along -Z
-var _excluded: Array = []  # Own body and hit surface: the ray ignores them
 var _glanced: Dictionary = {}  # Instance id -> s before it can glance off that ship again (one event per pass)
 var _seat_mesh: MeshInstance = null
 var _quiver: Spatial = null
@@ -112,20 +111,63 @@ func _physics_process(delta: float) -> void:
 		_sweep(delta)
 
 
+# The tip meets a ship when it comes within LANCE_TIP_MARGIN of the ship's hull box (its model's
+# bounds), checked by proximity rather than the physics' collision: along the lance from the seat to
+# the tip, and along the tip's path this step relative to that ship (closing speeds of a few hundred
+# m/s cover metres per step, more than a thin hull is deep).
 func _sweep(delta: float) -> void:
 	if not _agent.is_inside_tree():
 		return
-	var axis: Vector3 = _axis()
-	var travel: float = max(0.0, _agent.linear_velocity.dot(axis)) * delta
-	var from: Vector3 = _agent.global_transform.xform(Vector3(0, 0, -_nose * 0.5))
-	var to: Vector3 = get_tip() + axis * travel
-	var hit: Dictionary = _agent.get_world().direct_space_state.intersect_ray(from, to, _excluded, Constants.SHOT_BLOCK_MASK)
-	if hit.empty():
-		return
-	var target = _agent_of(hit.collider)
-	if target == null or target == _agent or target.is_wreck or _glanced.has(target.get_instance_id()):
-		return  # Wrecks are not worth a lance
-	strike(target, hit.position, hit.normal)
+	var tip: Vector3 = get_tip()
+	var seat: Vector3 = _agent.global_transform.xform(Vector3(0, 0, -_seat()))
+	for body in get_tree().get_nodes_in_group("agent_body"):
+		if body == _agent or not body is RigidBody or body.get("is_wreck") != false or _glanced.has(body.get_instance_id()):
+			continue  # Wrecks are not worth a lance
+		var relative: Vector3 = (_agent.linear_velocity - body.linear_velocity) * delta
+		var radius: float = body.get_apparent_radius() if body.has_method("get_apparent_radius") else 10.0
+		if tip.distance_to(body.global_transform.origin) > radius + relative.length() + float(lance.length) + Constants.LANCE_TIP_MARGIN:
+			continue
+		var bounds: AABB = body.hull_bounds.grow(Constants.LANCE_TIP_MARGIN)
+		var to_local: Transform = body.global_transform.affine_inverse()
+		var hit: Dictionary = _segment_into_box(to_local.xform(seat), to_local.xform(tip), bounds)
+		if hit.empty():
+			hit = _segment_into_box(to_local.xform(tip - relative), to_local.xform(tip), bounds)
+		if not hit.empty():
+			strike(body, body.global_transform.xform(hit.point), body.global_transform.basis.xform(hit.normal).normalized())
+			return
+
+
+# Where the segment `from` -> `to` first enters `box` (slab method): {"point", "normal"} (the face's
+# outward normal; a start inside counts as a square hit), or {} if it misses.
+static func _segment_into_box(from: Vector3, to: Vector3, box: AABB) -> Dictionary:
+	var direction: Vector3 = to - from
+	var t_enter := 0.0
+	var t_exit := 1.0
+	var normal := Vector3.ZERO
+	for axis in range(3):
+		var low: float = box.position[axis]
+		var high: float = box.end[axis]
+		if abs(direction[axis]) < 0.000001:
+			if from[axis] < low or from[axis] > high:
+				return {}
+			continue
+		var t1: float = (low - from[axis]) / direction[axis]
+		var t2: float = (high - from[axis]) / direction[axis]
+		var face := Vector3.ZERO
+		face[axis] = -1.0 if t1 < t2 else 1.0
+		if t1 > t2:
+			var swap: float = t1
+			t1 = t2
+			t2 = swap
+		if t1 > t_enter:
+			t_enter = t1
+			normal = face
+		t_exit = min(t_exit, t2)
+		if t_enter > t_exit:
+			return {}
+	if normal == Vector3.ZERO:
+		normal = -direction.normalized() if direction.length_squared() > 0.0 else Vector3.BACK
+	return {"point": from + direction * t_enter, "normal": normal}
 
 
 # The tip meets `target` at `point` (surface `normal`): strikes or glances off. Returns the damage.
@@ -166,10 +208,15 @@ func _knock(target: RigidBody, axis: Vector3) -> void:
 	target.linear_velocity += axis * (common - target_along)
 
 
-# The struck lance stays in the hull, a third of it in (Constants LANCE_STUCK_MAX per ship).
+# The struck lance stays in the hull, a third of it in (Constants LANCE_STUCK_MAX per ship), turned
+# LANCE_STUCK_CENTERING of the way from the lance's line toward the target's centre.
 func _leave_lance(target: Spatial, point: Vector3, axis: Vector3) -> void:
 	if not target.is_inside_tree():
 		return
+	var bounds = target.get("hull_bounds")
+	if bounds is AABB:  # In toward the target's centre, not left standing off a glancing face
+		var inward: Vector3 = (target.to_global(bounds.position + bounds.size * 0.5) - point).normalized()
+		axis = axis.linear_interpolate(inward, Constants.LANCE_STUCK_CENTERING).normalized()
 	var stuck: Array = []
 	for child in target.get_children():
 		if child.is_in_group(LANCE_GROUP):
@@ -189,15 +236,6 @@ func _axis() -> Vector3:
 	return -_agent.global_transform.basis.z.normalized()
 
 
-static func _agent_of(collider: Object):
-	var node = collider
-	while node != null and node is Node:
-		if node is RigidBody and node.has_method("apply_damage") and node.get("is_wreck") != null:
-			return node
-		node = node.get_parent()
-	return null
-
-
 # --- Looks: the seated lance on the axis, the spares round the stern ---
 
 func _measure_nose() -> float:
@@ -210,10 +248,6 @@ func _measure_nose() -> float:
 func _build_visuals() -> void:
 	for child in get_children():
 		child.queue_free()
-	_excluded = [_agent]
-	var surface = _agent.find_node("HitSurface", true, false)
-	if surface != null:
-		_excluded.append(surface)
 	var length: float = float(lance.length)
 	_seat_mesh = _lance_mesh(length)
 	add_child(_seat_mesh)

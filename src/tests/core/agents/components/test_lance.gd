@@ -141,3 +141,31 @@ func test_salvage_recovers_lances_that_fit_the_seat():
 	assert_eq(lance.nails, 3, "Back in the quiver")
 	assert_eq(target.recoverable_lances_for(rammer), 0)
 	assert_false(target.recover_lance_into(rammer), "Nothing left to recover (and the quiver is full)")
+
+
+func test_the_tip_strikes_by_proximity_to_the_hull_box_and_the_lance_points_inward():
+	rammer.linear_velocity = Vector3(0, 0, -200)
+	lance.armed = true
+	target.global_transform.origin = Vector3(3, 0, -40)  # Box (+-5 m) reaches z -35: out of reach
+	lance._sweep(1.0 / 60.0)
+	assert_eq(target.hull, 200.0, "Out of reach")
+	target.global_transform.origin = Vector3(3, 0, -lance.get_reach() - 5.0 - Constants.LANCE_TIP_MARGIN + 0.2)
+	lance._sweep(1.0 / 60.0)
+	assert_lt(target.hull, 200.0, "The tip came within the margin of its hull box: a strike")
+	var stuck: Spatial = null
+	for child in target.get_children():
+		if child.is_in_group(LanceScript.LANCE_GROUP):
+			stuck = child
+	var tip_direction: Vector3 = stuck.global_transform.basis.y.normalized()
+	assert_gt(tip_direction.dot(Vector3(1, 0, 0)), 0.0, "Turned toward the target's centre (off to the side)")
+
+
+func test_a_thin_ship_crossing_fast_cannot_slip_past_the_tip_within_a_step():
+	rammer.linear_velocity = Vector3(0, 0, -150)
+	target.linear_velocity = Vector3(300, 0, 0)  # Across the lance: 5 m a step
+	target.hull_bounds = AABB(Vector3(-1, -5, -5), Vector3(2, 10, 10))  # 2 m thick
+	lance.armed = true
+	target.global_transform.origin = Vector3(2.5 + Constants.LANCE_TIP_MARGIN, 0, -lance.get_reach())  # Just past the lance's line now
+	watch_signals(lance)
+	lance._sweep(1.0 / 60.0)
+	assert_signal_emitted(lance, "glanced", "The tip's path this step crossed it (side-on: a glance)")
