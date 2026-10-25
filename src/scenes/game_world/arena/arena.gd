@@ -1,5 +1,5 @@
-# Arena: the three evolution arenas of the Elace system (Constants ARENA_ZONES). Sits at the home
-# station and builds, for each zone, a beacon at its middle and each faction's two stations on its
+# Arena: the three evolution arenas of the Elace system (Constants ARENA_ZONES). Sits where the home
+# station used to be (it now stands in the 3v3 arena, on the side away from both factions) and builds, for each zone, a beacon at its middle and each faction's two stations on its
 # own side, across the line from the home station so both sides are as far from home.
 # AgentSystem keeps each zone's NPCs topped up from Evolution.
 

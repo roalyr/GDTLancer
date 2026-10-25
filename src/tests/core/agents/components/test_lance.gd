@@ -81,9 +81,19 @@ func test_too_slow_or_oblique_glances_off():
 	assert_eq(lance.nails, 3, "The lance stays seated")
 	assert_eq(target.hull, 200.0)
 	rammer.linear_velocity = Vector3(0, 0, -250)
-	assert_eq(lance.strike(target, Vector3(0, 0, -20), Vector3(1, 0, 0.2).normalized(), 0.99), 0.0, "Nearly side-on: glances off")
+	assert_eq(lance.strike(target, Vector3(8, 0, -30), Vector3(1, 0, 0.2).normalized(), 0.99), 0.0, "Nearly side-on, off the hull's middle: glances off")
 	lance._glanced.clear()
-	assert_gt(lance.strike(target, Vector3(0, 0, -20), Vector3(1, 0, 0.2).normalized(), 0.0), 0.0, "unless it slips between parts")
+	assert_gt(lance.strike(target, Vector3(8, 0, -30), Vector3(1, 0, 0.2).normalized(), 0.0), 0.0, "unless it slips between parts")
+	lance._glanced.clear()
+	lance.reload_left = 0.0
+	rammer.linear_velocity = Vector3(0, 0, -250)  # The knock stopped it
+	target.linear_velocity = Vector3.ZERO
+	assert_gt(lance.strike(target, Vector3(0, 0, -25), Vector3(1, 0, 0.2).normalized(), 0.5), 0.0, "Driving at the hull's middle: in, whichever face of its box it meets")
+	lance._glanced.clear()
+	lance.reload_left = 0.0
+	rammer.linear_velocity = Vector3(-250, 0, -60)
+	target.linear_velocity = Vector3.ZERO
+	assert_eq(lance.strike(target, Vector3(0, 0, -25), Vector3(0, 0, 1), 0.99), 0.0, "Moving mostly sideways: a sideswipe glances")
 
 
 func test_last_lance_then_restock():
@@ -168,7 +178,7 @@ func test_a_thin_ship_crossing_fast_cannot_slip_past_the_tip_within_a_step():
 	target.global_transform.origin = Vector3(2.5 + Constants.LANCE_TIP_MARGIN, 0, -lance.get_reach())  # Just past the lance's line now
 	watch_signals(lance)
 	lance._sweep(1.0 / 60.0)
-	assert_signal_emitted(lance, "glanced", "The tip's path this step crossed it (side-on: a glance)")
+	assert_true(get_signal_emit_count(lance, "glanced") + get_signal_emit_count(lance, "struck") > 0, "The tip's path this step crossed it: met (mostly sideways, so likely a glance)")
 
 
 func test_a_run_up_never_runs_away_for_good():

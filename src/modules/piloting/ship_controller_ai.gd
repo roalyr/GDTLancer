@@ -475,7 +475,7 @@ func _on_lance_struck(_target, _damage) -> void:
 	_note("lance_hit")
 
 
-func _on_lance_glanced(_target) -> void:
+func _on_lance_glanced(_target, _reason) -> void:
 	_note("glance")
 
 

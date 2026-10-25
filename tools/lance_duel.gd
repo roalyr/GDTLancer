@@ -26,7 +26,7 @@ const DESIGNS = {
 }
 const MATCHES = [["lancer", "hauler"], ["lancer", "laser"], ["lancer_fast", "laser"], ["lancer_fast", "laser_heavy"], ["lance_laser", "laser"], ["lance_laser", "laser_heavy"]]
 const DUEL_TIME = 180.0  # s of game time before a duel is called a draw
-const ARENA_OFFSET = Vector3(0, 6000, 0)  # From the home station: far from the arenas' zones
+const ARENA_OFFSET = Vector3(0, 15000, 0)  # From the home station (in the 3v3 arena): well above every arena
 
 var duels := 6
 var speed := 6.0
@@ -139,7 +139,7 @@ func _on_struck(_target, damage, result, rammer):
 	result.speeds.append(int(damage / float(lance.lance.damage) * root.get_node("Constants").LAW_LANCE_REF_SPEED))  # Damage is linear in speed
 
 
-func _on_glanced(target, result, rammer):
+func _on_glanced(target, _reason, result, rammer):
 	result.glances += 1
 	var lance = rammer.get_lance()
 	result.speeds.append(-int(lance.closing_speed_on(target)) if lance != null else 0)

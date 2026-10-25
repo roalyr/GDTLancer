@@ -527,7 +527,7 @@ const LANCE_SEAT_DEPTH = 0.3  # Share of the nose's distance from the origin tha
 const LANCE_RECOVER_MASS_TOLERANCE = 0.15  # A salvaged lance fits a seat for lances within this share of its mass
 const AI_LANCE_SALVAGE_PRIORITY = 3.0  # A wreck with lances that fit its seat looks this many times nearer to a salvager short of lances
 const LANCE_STUCK_MAX = 6  # Lances left in one hull; past this the oldest goes
-const LANCE_STUCK_DEPTH = 0.3  # Share of a struck lance's length inside the hull
+const LANCE_STUCK_DEPTH = 0.5  # Share of a struck lance's length inside the hull
 const LANCE_QUIVER_RING = 0.25  # Spares sit round the stern this share of the nose distance off the axis
 const LANCE_QUIVER_SCALE = 0.6  # and are drawn this much shorter (stowed)
 
@@ -568,7 +568,7 @@ const HARPOON_TEMPLATE_ID = "tool_harpoon"  # Not evolved: the same harpoon for 
 # in the middle, each faction's two stations on its own side. NPCs spawn docked at their stations,
 # patrol round the beacon, dock to sell loot and to escape, and never leave their arena.
 const ARENA_SECTOR_ID = "sector_elace"
-const ARENA_ZONES = [  # Offset from the home station, ships per faction
+const ARENA_ZONES = [  # Offset from the Arena node, ships per faction
 	{"id": "1v1", "offset": Vector3(20000, 0, 0), "per_faction": 1},
 	{"id": "2v2", "offset": Vector3(-10000, 0, 17320), "per_faction": 2},
 	{"id": "3v3", "offset": Vector3(-10000, 0, -17320), "per_faction": 3},

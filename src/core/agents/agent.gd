@@ -352,8 +352,19 @@ func _refresh_lance() -> void:
 		controller = LanceController.new()
 		add_child(controller)
 		controller.connect("nails_changed", self, "_on_lance_nails_changed")
+		if is_player():  # A glance leaves no mark: say what the tip met
+			controller.connect("struck", self, "_on_player_lance_struck")
+			controller.connect("glanced", self, "_on_player_lance_glanced")
 	controller.setup(self, lance_id, stats, nails)
 	_update_mass()
+
+
+func _on_player_lance_struck(_target, damage) -> void:
+	EventBus.emit_signal("attack_action_feedback", true, "Lance in: %d damage" % int(damage))
+
+
+func _on_player_lance_glanced(_target, reason) -> void:
+	EventBus.emit_signal("attack_action_feedback", false, "Lance glanced off: %s" % reason)
 
 
 func _on_lance_nails_changed(nails: int) -> void:

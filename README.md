@@ -35,9 +35,9 @@ The project is pruned back to its flight core. What works now:
 - Hits leave lasting marks on the hull (vertex-painted, proportional to damage)
 - Salvage: harpoon a wreck, it reels in to a safe towing distance and is stripped into the hold; cargo adds mass
 - Fuel leaks vent along the hull and push the ship; destroyed ships explode into a drifting cloud
-- Run loop: start docked at the home station, bank cargo and repair there, lose the ship and the run is over (permadeath), start a new run
+- Run loop: start docked at the home station (in the 3v3 arena, off to the side of both factions), bank cargo and repair there, lose the ship and the run is over (permadeath), start a new run
 - Engine exhausts that stretch and brighten with thrust; a space ambient soundtrack
-- Hand-placed asteroids around the Elace home station block laser fire; the autopilot steers around them
+- Hand-placed asteroids (round the arenas' centre, where the home station used to be) block laser fire; the autopilot steers around them
 - Signatures and detection (one rule for all), predators that weigh gain against risk and hesitate by skill; target difficulty and "sees you" cues for the player
 - Fitting at the home station: tool and module slots, data-driven modules, part mass, buy / sell with banked value
 
@@ -102,7 +102,7 @@ Complete the engine, then freeze it. After the freeze, work is content, tuning a
 
 ## Evolution Runs
 
-The arenas evolve while you play (watch from the home station or fly to a beacon), or headless and sped up:
+The arenas evolve while you play (the home station is in the 3v3 arena; fly to a beacon for the others), or headless and sped up:
 
 ```sh
 godot --no-window -s tools/evolution_sim.gd -- --hours=4 --speed=6

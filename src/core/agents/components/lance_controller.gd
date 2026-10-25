@@ -17,7 +17,7 @@
 extends Spatial
 
 signal struck(target, damage)
-signal glanced(target)
+signal glanced(target, reason)  # reason: "too slow" or "at an angle"
 signal nails_changed(nails)
 
 const LANCE_GROUP = "stuck_lance"  # Lances left in a hull (cleared on repair)
@@ -175,13 +175,21 @@ static func _segment_into_box(from: Vector3, to: Vector3, box: AABB) -> Dictiona
 func strike(target: RigidBody, point: Vector3, normal: Vector3, roll: float = -1.0) -> float:
 	var axis: Vector3 = _axis()
 	var closing: float = closing_speed_on(target)
-	var angle: float = rad2deg(acos(clamp(abs(normal.normalized().dot(axis)), 0.0, 1.0)))
+	var angle: float = rad2deg(acos(clamp(abs(normal.normalized().dot(axis)), 0.0, 1.0)))  # Off the face it meets
+	var bounds = target.get("hull_bounds")
+	if bounds is AABB:  # A lance driving at the hull's middle goes in, whichever face of its box it meets first
+		var inward: Vector3 = target.to_global(bounds.position + bounds.size * 0.5) - point
+		if inward.length_squared() > 0.01:
+			angle = min(angle, rad2deg(acos(clamp(inward.normalized().dot(axis), -1.0, 1.0))))
+	var motion: Vector3 = _agent.linear_velocity - target.linear_velocity
+	if motion.length_squared() > 1.0:  # But only motion along the lance drives it in: a sideswipe glances
+		angle = max(angle, rad2deg(acos(clamp(motion.normalized().dot(axis), -1.0, 1.0))))
 	var damage: float = ShipLaws.lance_damage(lance, closing)
 	if roll < 0.0:
 		roll = randf()
 	if damage <= 0.0 or roll >= ShipLaws.lance_hit_chance(lance, angle):
 		_glanced[target.get_instance_id()] = 1.0
-		emit_signal("glanced", target)
+		emit_signal("glanced", target, "too slow, %d of %d m/s" % [int(closing), int(Constants.LAW_LANCE_MIN_SPEED)] if damage <= 0.0 else "at %d degrees" % int(angle))
 		return 0.0
 	_knock(target, axis)
 	if target.has_method("register_hit"):
