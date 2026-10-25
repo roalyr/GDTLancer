@@ -475,8 +475,8 @@ func _on_lance_struck(_target, _damage) -> void:
 	_note("lance_hit")
 
 
-func _on_lance_glanced(_target, _reason) -> void:
-	_note("glance")
+func _on_lance_glanced(_target, reason) -> void:
+	_note("glance_slow" if str(reason).begins_with("too slow") else "glance_angle")
 
 
 # --- Runners: chase or let go ---
