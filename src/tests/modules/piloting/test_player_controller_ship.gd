@@ -106,3 +106,84 @@ func test_double_click_on_a_target_issues_approach():
 
 	assert_signal_emitted(EventBus, "player_approach_pressed", "As the Approach button does.")
 	controller.free()
+
+
+class CommandRecorder:
+	extends Node
+	var last := ""
+	func command_ram(_target):
+		last = "ram"
+	func command_approach(_target):
+		last = "approach"
+	func command_stop():
+		last = "stop"
+
+
+class NavStub:
+	extends Node
+	var type := 0
+	var _current_command := {}
+	func get_current_command_type() -> int:
+		return type
+
+
+func test_approach_rams_while_the_lance_is_armed():
+	var Agent = load("res://src/core/agents/agent.gd")
+	var ShipLaws = load("res://src/core/systems/ship_laws.gd")
+	var Nav = load("res://src/core/agents/components/navigation_system.gd")
+	var ship = Agent.new()
+	add_child_autofree(ship)
+	var lance = load("res://src/core/agents/components/lance_controller.gd").new()
+	ship.add_child(lance)
+	lance.setup(ship, "lance", ShipLaws.lance_stats({"nail_mass": 200.0, "count": 3.0}))
+	var nav = NavStub.new()
+	nav.name = "NavigationSystem"
+	ship.add_child(nav)
+	var enemy = Agent.new()
+	add_child_autofree(enemy)
+	var controller = PlayerControllerScript.new()
+	var recorder = CommandRecorder.new()
+	controller.agent_body = ship
+	controller.agent_script = recorder
+	controller._selected_target = enemy
+
+	controller._on_Player_Approach_Pressed()
+	assert_eq(recorder.last, "approach", "Safe lance: approach")
+	lance.armed = true
+	controller._on_Player_Approach_Pressed()
+	assert_eq(recorder.last, "ram", "Armed: the button rams")
+
+	nav._current_command = {"target_node": enemy}
+	nav.type = Nav.CommandType.RAM
+	lance.armed = false
+	controller._sync_ram_command()
+	assert_eq(recorder.last, "approach", "Made safe while ramming: back to approaching")
+	nav.type = Nav.CommandType.APPROACH
+	lance.armed = true
+	controller._sync_ram_command()
+	assert_eq(recorder.last, "ram", "Armed while approaching: ramming")
+	lance.nails = 0
+	assert_false(controller.is_ram_ready(enemy), "No lances left: no ramming")
+	controller.free()
+	recorder.free()
+
+
+func test_a_lost_target_stops_the_commands_on_it():
+	var Agent = load("res://src/core/agents/agent.gd")
+	var ship = Agent.new()
+	add_child_autofree(ship)
+	var nav = NavStub.new()
+	nav.name = "NavigationSystem"
+	ship.add_child(nav)
+	var enemy = Agent.new()
+	add_child_autofree(enemy)
+	var controller = PlayerControllerScript.new()
+	var recorder = CommandRecorder.new()
+	controller.agent_body = ship
+	controller.agent_script = recorder
+	controller._set_selected_target(enemy)
+	nav._current_command = {"target_node": enemy}
+	controller._set_selected_target(null)
+	assert_eq(recorder.last, "stop", "Lost: no more following it")
+	controller.free()
+	recorder.free()

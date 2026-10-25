@@ -10,6 +10,7 @@ description = "A seat on the ship's axis and a quiver of three lances. Arm it, t
 base_value = 250
 mass = 1000.0
 stat_modifiers = {
+"hull": 37
 }
 lance = {
 "count": 3,

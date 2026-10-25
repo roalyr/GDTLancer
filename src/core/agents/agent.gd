@@ -319,8 +319,9 @@ func apply_fit(new_fit: Dictionary) -> void:
 
 # --- Kinetic lance (LanceController) ---
 
-# The fit's first lance module gets a LanceController (the player's keeps its lances left across
-# sectors and saves: GameState.player_lance_nails); no lance, none.
+# The fit's lance module (one per ship) gets a LanceController (the player's keeps its lances left
+# across sectors and saves: GameState.player_lance_nails); no lance, none. Spent lances lighten the
+# ship.
 func _refresh_lance() -> void:
 	var lance_id := ""
 	var stats: Dictionary = {}
@@ -335,6 +336,7 @@ func _refresh_lance() -> void:
 		if controller != null:
 			remove_child(controller)
 			controller.queue_free()
+			_update_mass()
 		if is_player():
 			GameState.player_lance_nails = -1
 		return
@@ -349,15 +351,15 @@ func _refresh_lance() -> void:
 	if controller == null:
 		controller = LanceController.new()
 		add_child(controller)
+		controller.connect("nails_changed", self, "_on_lance_nails_changed")
 	controller.setup(self, lance_id, stats, nails)
+	_update_mass()
+
+
+func _on_lance_nails_changed(nails: int) -> void:
 	if is_player():
-		controller.connect("struck", self, "_on_player_lance_used")
-
-
-func _on_player_lance_used(_target, _damage) -> void:
-	var controller = get_lance()
-	if controller != null:
-		GameState.player_lance_nails = controller.nails
+		GameState.player_lance_nails = nails
+	_update_mass()
 
 
 func get_lance() -> Node:
@@ -847,10 +849,13 @@ func get_cargo_mass() -> float:
 	return total
 
 
-# Hull mass plus cargo; drag scales with mass, so a loaded ship is slower and heavier to turn.
-# Hull and parts (the fit) plus cargo; drag scales with mass, so a loaded ship is slower and heavier to turn.
+# Hull and parts (the fit, less lances spent) plus cargo; drag scales with mass, so a loaded ship is
+# slower and heavier to turn.
 func _update_mass() -> void:
 	var base_mass: float = float(fit_stats.get("mass", ship_template.mass if is_instance_valid(ship_template) else Constants.DEFAULT_SHIP_MASS))
+	var lance = get_lance()
+	if lance != null:
+		base_mass -= lance.spent_mass()
 	mass = base_mass + get_cargo_mass()
 
 

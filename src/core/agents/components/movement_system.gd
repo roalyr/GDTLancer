@@ -179,7 +179,9 @@ func request_thrust_brake():
 
 
 # Request PID-controlled rotation torque to align ship's forward (-Z) to target direction
-func request_rotation_to_pid(target_direction: Vector3, delta: float):
+# `gain` scales the proportional term: above 1 the ship swings harder at small errors (fine aim,
+# as when ramming), at the cost of some overshoot.
+func request_rotation_to_pid(target_direction: Vector3, delta: float, gain: float = 1.0):
 	if not is_instance_valid(agent_body):
 		return
 	if target_direction.length_squared() < 0.001:
@@ -225,7 +227,7 @@ func request_rotation_to_pid(target_direction: Vector3, delta: float):
 	var angular_vel_error = -agent_body.angular_velocity
 	
 	var pid_output = (
-		Constants.PID_ROTATION_KP * error +
+		Constants.PID_ROTATION_KP * gain * error +
 		Constants.PID_ROTATION_KI * _rotation_error_integral +
 		Constants.PID_ROTATION_KD * (error_derivative + angular_vel_error * 0.5)
 	)

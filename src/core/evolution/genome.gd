@@ -29,6 +29,7 @@ static func random_genome() -> Dictionary:
 		genome.tools[i] = random_part("laser" if i == 0 else _random_tool_kind(), slot_mass_limit(genome))
 	for i in range(genome.modules.size()):
 		genome.modules[i] = {} if randf() < Constants.EVO_EMPTY_SLOT_CHANCE else random_part(ShipLaws.MODULE_KINDS[randi() % ShipLaws.MODULE_KINDS.size()])
+	_one_lance(genome)
 	return genome
 
 
@@ -82,9 +83,20 @@ static func mutate(genome: Dictionary, behavior_on: bool) -> Dictionary:
 		elif not child.modules[i].empty():
 			_mutate_genes(child.modules[i].genes, scale)
 		_clamp_part(child.modules[i])
+	_one_lance(child)
 	if behavior_on:
 		_mutate_behavior(child, scale)
 	return child
+
+
+# A ship takes one lance (ShipFit): later ones are emptied.
+static func _one_lance(genome: Dictionary) -> void:
+	var seen := false
+	for i in range(genome.modules.size()):
+		if not genome.modules[i].empty() and genome.modules[i].kind == "lance":
+			if seen:
+				genome.modules[i] = {}
+			seen = true
 
 
 static func _step(scale: float) -> float:

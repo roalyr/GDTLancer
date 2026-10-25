@@ -5,12 +5,15 @@
 #     godot --no-window -s tools/lance_duel.gd -- --duels=8 --speed=6
 # Designs (Genome genomes, see DESIGNS): "lancer" (small and fast: lance and harpoon), "lance_laser"
 # (Phoenix Light sized, engine-heavy: lance and a laser), "laser" (the Phoenix Light, two lasers),
-# "laser_heavy" (a big slow three-laser ship), "hauler" (an unarmed Phoenix Light). See MATCHES.
+# "laser_heavy" (a big slow three-laser ship), "hauler" (an unarmed Phoenix Light), "lancer_fast"
+# (engine-heavy, a 200 kg lance and a light laser). See MATCHES.
 extends SceneTree
 
 const DESIGNS = {
 	"lancer": {"ship": {"type": 1, "size": 0.5, "shares": {"structure": 0.4, "engine": 0.38, "reactor": 0.08, "capacitor": 0.04, "hold": 0.1}},
 		"tools": [{"kind": "harpoon", "type": 0, "genes": {}}], "modules": [{"kind": "lance", "type": 1, "genes": {"nail_mass": 100.0, "count": 3.0}}]},
+	"lancer_fast": {"ship": {"type": 1, "size": 0.6, "shares": {"structure": 0.3, "engine": 0.5, "reactor": 0.08, "capacitor": 0.04, "hold": 0.08}},
+		"tools": [{"kind": "laser", "type": 1, "genes": {"mass": 100.0, "energy": 1.5}}], "modules": [{"kind": "lance", "type": 2, "genes": {"nail_mass": 200.0, "count": 3.0}}]},
 	"lance_laser": {"ship": {"type": 2, "size": 1.0, "shares": {"structure": 0.45, "engine": 0.32, "reactor": 0.1, "capacitor": 0.05, "hold": 0.08}},
 		"tools": [{"kind": "laser", "type": 1, "genes": {"mass": 150.0, "energy": 2.5}}, {}], "modules": [{"kind": "lance", "type": 2, "genes": {"nail_mass": 200.0, "count": 3.0}}, {}]},
 	"laser": {"ship": {"type": 2, "size": 1.0, "shares": {"structure": 0.55, "engine": 0.2, "reactor": 0.1, "capacitor": 0.05, "hold": 0.1}},
@@ -21,13 +24,13 @@ const DESIGNS = {
 	"hauler": {"ship": {"type": 2, "size": 1.0, "shares": {"structure": 0.55, "engine": 0.2, "reactor": 0.1, "capacitor": 0.05, "hold": 0.1}},
 		"tools": [{}, {}], "modules": [{}, {}]},
 }
-const MATCHES = [["lancer", "hauler"], ["lancer", "laser"], ["lancer", "laser_heavy"], ["lance_laser", "laser"], ["lance_laser", "laser_heavy"], ["laser", "laser"]]
+const MATCHES = [["lancer", "hauler"], ["lancer", "laser"], ["lancer_fast", "laser"], ["lancer_fast", "laser_heavy"], ["lance_laser", "laser"], ["lance_laser", "laser_heavy"]]
 const DUEL_TIME = 180.0  # s of game time before a duel is called a draw
 const ARENA_OFFSET = Vector3(0, 6000, 0)  # From the home station: far from the arenas' zones
 
 var duels := 6
 var speed := 6.0
-var _events: Array = []
+var _shown: Dictionary = {}
 
 
 func _initialize():
@@ -61,6 +64,7 @@ func _run():
 		built[design] = genome_script.build(DESIGNS[design], "duel_" + design, "verdant")
 	var centre: Vector3 = refs.player_agent_body.global_transform.origin + ARENA_OFFSET
 	for pairing in MATCHES:
+		print("DESIGNS %s vs %s" % [pairing[0], pairing[1]])
 		var tally := {"wins": {}, "draws": 0, "times": [], "strikes": 0, "glances": 0, "damage": 0.0, "speeds": []}
 		for i in range(duels):
 			var result = yield(_duel(built[pairing[0]], built[pairing[1]], centre), "completed")
@@ -87,6 +91,10 @@ func _duel(a_build: Dictionary, b_build: Dictionary, centre: Vector3):
 		"faction": "verdant", "ship_template_id": a_build.ship_template_id, "fit": a_build.fit, "wallet": 1e6, "skill": 0.8})
 	var b = spawner.spawn_npc_from_template(Constants_path("NPC_BASE_TEMPLATE_PATH"), centre + Vector3(1500, 0, 0), {
 		"faction": "violet", "ship_template_id": b_build.ship_template_id, "fit": b_build.fit, "wallet": 1e6, "skill": 0.8})
+	if not _shown.has(a_build.ship_template_id + b_build.ship_template_id):
+		_shown[a_build.ship_template_id + b_build.ship_template_id] = true
+		for body in [a, b]:
+			print("  %s: top speed %.0f m/s, hull %.0f, %.0f kg" % [body.ship_template.template_id, body.get_top_speed(), body.hull_max, body.mass])
 	var result := {"winner": "", "time": 0.0, "strikes": 0, "glances": 0, "damage": 0.0, "speeds": []}
 	for pair in [[a, b], [b, a]]:
 		var lance = pair[0].get_lance()

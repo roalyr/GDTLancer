@@ -7,13 +7,15 @@
 # ShipLaws.lance_damage; otherwise it glances off (no damage, the lance stays seated). A strike stops
 # the two ships against each other along the lance (an inelastic knock: the target is shoved, the
 # rammer stopped) and leaves the lance in the target's hull until it is repaired; the next slides
-# into the seat after the reload time. Docking restocks the quiver (restock()).
-# Child of AgentBody, made by it when the fit has a lance (only the first lance module counts).
+# into the seat after the reload time. Docking restocks the quiver (restock()). Spent lances are
+# gone from the ship's mass (spent_mass()). The module's mass also armours the bow (ShipLaws).
+# Child of AgentBody, made by it when the fit has a lance (one per ship: ShipFit).
 
 extends Spatial
 
 signal struck(target, damage)
 signal glanced(target)
+signal nails_changed(nails)
 
 const LANCE_GROUP = "stuck_lance"  # Lances left in a hull (cleared on repair)
 const LanceMaterial = preload("res://assets/art/materials_generic/mat_engine_dark_alloy.tres")
@@ -67,6 +69,11 @@ func damage_at(closing_speed: float) -> float:
 	return ShipLaws.lance_damage(lance, closing_speed, 0.0)
 
 
+# kg of lances spent (left in targets) since the quiver was full.
+func spent_mass() -> float:
+	return float(lance.nail_mass) * max(0, int(lance.count) - nails) if not lance.empty() else 0.0
+
+
 # Fills the quiver, with at most `limit` lances if given; returns how many it took.
 func restock(limit: int = -1) -> int:
 	var taken: int = int(lance.count) - nails
@@ -75,6 +82,7 @@ func restock(limit: int = -1) -> int:
 	nails += taken
 	reload_left = 0.0
 	_update_visuals()
+	emit_signal("nails_changed", nails)
 	return taken
 
 
@@ -124,6 +132,7 @@ func strike(target: RigidBody, point: Vector3, normal: Vector3) -> float:
 	nails -= 1
 	reload_left = float(lance.reload) if nails > 0 else 0.0
 	_update_visuals()
+	emit_signal("nails_changed", nails)
 	emit_signal("struck", target, damage)
 	if target.has_method("apply_damage"):
 		target.apply_damage(damage, _agent)

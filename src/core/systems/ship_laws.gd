@@ -209,7 +209,8 @@ static func lance_damage(lance: Dictionary, closing_speed: float, angle: float) 
 static func module_stats(kind: String, genes: Dictionary) -> Dictionary:
 	if kind == "lance":
 		var lance: Dictionary = lance_stats(genes)
-		return {"mass": lance.mass, "stat_modifiers": {}, "base_value": int(round(Constants.LAW_PART_VALUE_PER_KG * lance.mass)), "lance": lance}
+		var prow: int = int(round(apply_law(Constants.LAW_HULL, lance.mass * Constants.LAW_LANCE_PROW_SHARE)))  # The seat armours the bow
+		return {"mass": lance.mass, "stat_modifiers": {"hull": prow}, "base_value": int(round(Constants.LAW_PART_VALUE_PER_KG * lance.mass)), "lance": lance}
 	var mass: float = clamp_module_genes(genes).mass
 	var stat: String = MODULE_LAWS.get(kind, "hull")
 	var amount: float = apply_law(_law_for_stat(stat), mass)
@@ -231,8 +232,8 @@ static func build_module_template(kind: String, genes: Dictionary, part_type: in
 	module.description = "%.0f kg." % stats.mass
 	if kind == "lance":
 		module.lance = stats.lance
-		module.description = "%.0f kg: %d lances of %.0f kg, %.0f damage at %.0f m/s (none under %.0f m/s)." % [
-			stats.mass, stats.lance.count, stats.lance.nail_mass, stats.lance.damage, Constants.LAW_LANCE_REF_SPEED, Constants.LAW_LANCE_MIN_SPEED]
+		module.description = "%.0f kg: %d lances of %.0f kg, %.0f damage at %.0f m/s (none under %.0f m/s); an armoured prow, +%d hull. One per ship." % [
+			stats.mass, stats.lance.count, stats.lance.nail_mass, stats.lance.damage, Constants.LAW_LANCE_REF_SPEED, Constants.LAW_LANCE_MIN_SPEED, stats.stat_modifiers.hull]
 	module.module_kind = kind
 	module.variant_type = part_type
 	module.law_genes = clamp_module_genes(genes, kind)

@@ -68,7 +68,7 @@ func test_a_strike_damages_knocks_and_leaves_the_lance_in():
 
 
 func test_too_slow_or_oblique_glances_off():
-	rammer.linear_velocity = Vector3(0, 0, -100)
+	rammer.linear_velocity = Vector3(0, 0, -(Constants.LAW_LANCE_MIN_SPEED - 10.0))
 	assert_eq(lance.strike(target, Vector3(0, 0, -20), Vector3(0, 0, 1)), 0.0)
 	assert_eq(lance.nails, 3, "The lance stays seated")
 	assert_eq(target.hull, 200.0)
@@ -104,5 +104,6 @@ func test_run_up_distance():
 	assert_eq(CommandRam.run_up_distance(150.0, Constants.LAW_LANCE_MIN_SPEED + 1.0, 0.0), 0.0, "Fast enough already")
 	assert_eq(CommandRam.run_up_distance(Constants.LAW_LANCE_MIN_SPEED - 1.0, 0.0, 0.0), INF, "Never fast enough")
 	var from_rest: float = CommandRam.run_up_distance(150.0, 0.0, 0.0)
-	assert_almost_eq(from_rest, 240.0, 5.0, "150 m/s top speed: about 240 m to reach 120 m/s")
+	var t: float = -log((150.0 - Constants.LAW_LANCE_MIN_SPEED) / 150.0) / Constants.LINEAR_DRAG
+	assert_almost_eq(from_rest, 150.0 * t - 150.0 * (1.0 - exp(-Constants.LINEAR_DRAG * t)) / Constants.LINEAR_DRAG, 1.0, "Thrust against drag from rest")
 	assert_gt(CommandRam.run_up_distance(150.0, 0.0, 10.0), from_rest, "A target pulling away needs more")

@@ -15,6 +15,7 @@ const NAV_COMMAND_IDLE = 0
 const NAV_COMMAND_APPROACH = 4
 const NAV_COMMAND_ORBIT = 5
 const NAV_COMMAND_FLEE = 6
+const NAV_COMMAND_RAM = 9
 const OVERLAY_KIND_STRUCTURES = "structures"
 const OVERLAY_KIND_STELLAR = "stellar"
 const OVERLAY_KIND_JUMP = "jump"
@@ -441,6 +442,9 @@ func _update_lance_button() -> void:
 	var player = GlobalRefs.player_agent_body
 	var lance = player.get_lance() if is_instance_valid(player) and player.has_method("get_lance") else null
 	button_lance.visible = lance != null
+	var controller = _get_player_controller()
+	var ram: bool = is_instance_valid(controller) and controller.has_method("is_ram_ready") and controller.is_ram_ready()
+	button_approach.get_node("LabelButtonApproach").text = "RAM" if ram else "APPROACH"  # Approach rams while the lance is armed
 	if lance == null:
 		return
 	var state: String = "ARM"
@@ -577,7 +581,7 @@ func _refresh_toggle_button_states() -> void:
 	var active_navigation_command_type = _get_player_navigation_command_type()
 	_apply_button_toggle_state(button_manual_flight, is_free_flight_active)
 	_apply_button_toggle_state(button_orbit, not is_free_flight_active and active_navigation_command_type == NAV_COMMAND_ORBIT)
-	_apply_button_toggle_state(button_approach, not is_free_flight_active and active_navigation_command_type == NAV_COMMAND_APPROACH)
+	_apply_button_toggle_state(button_approach, not is_free_flight_active and active_navigation_command_type in [NAV_COMMAND_APPROACH, NAV_COMMAND_RAM])
 	_apply_button_toggle_state(button_flee, not is_free_flight_active and active_navigation_command_type == NAV_COMMAND_FLEE)
 	_apply_button_toggle_state(button_camera, _is_camera_target_follow_active())
 

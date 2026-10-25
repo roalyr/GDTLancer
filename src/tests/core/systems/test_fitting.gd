@@ -7,6 +7,7 @@ const ShipFit = preload("res://src/core/systems/ship_fit.gd")
 const Fitting = preload("res://src/core/systems/fitting.gd")
 const AgentScript = preload("res://src/core/agents/agent.gd")
 const ToolControllerScript = preload("res://src/core/agents/components/tool_controller.gd")
+const ShipLaws = preload("res://src/core/systems/ship_laws.gd")
 
 var ship: ShipTemplate = null
 var _saved: Dictionary = {}
@@ -143,6 +144,29 @@ func test_fitting_and_unfitting_update_the_live_ship():
 	assert_eq(body.hull_max, 100.0, "Plating removed.")
 	assert_eq(GameState.player_storage.get("m_plate"), 1, "Unfitted parts go back to storage.")
 	assert_ne(Fitting.fit_part(body, "m_engine"), "", "Nothing left in storage to fit.")
+
+
+func test_one_lance_per_ship_and_spent_lances_lighten_it():
+	var lance_genes := {"nail_mass": 200.0, "count": 3.0}
+	TemplateDatabase.assets_modules["m_lance"] = ShipLaws.build_module_template("lance", lance_genes, 2, "m_lance")
+	TemplateDatabase.assets_modules["m_lance_2"] = ShipLaws.build_module_template("lance", lance_genes, 2, "m_lance_2")
+	var body = _player_ship()
+	GameState.player_storage = {"m_lance": 1, "m_lance_2": 1}
+	assert_eq(Fitting.unfit(body, "modules", 0), "")
+	var base_mass: float = body.mass
+	assert_eq(Fitting.fit_part(body, "m_lance"), "")
+	assert_almost_eq(body.hull_max, 100.0 + ShipLaws.module_stats("lance", lance_genes).stat_modifiers.hull, 0.01, "The prow armours the bow")
+	assert_gt(ShipLaws.module_stats("lance", lance_genes).stat_modifiers.hull, 0)
+	assert_eq(Fitting.fit_part(body, "m_lance_2"), "One lance per ship")
+	assert_eq(ShipFit.normalized(ship, {"tools": [], "modules": ["m_lance", "m_lance_2"]}).modules, ["m_lance", ""], "A second lance is dropped")
+	var lance = body.get_lance()
+	assert_almost_eq(body.mass, base_mass + 1000.0, 0.01)
+	lance.nails -= 1
+	lance.emit_signal("nails_changed", lance.nails)
+	assert_almost_eq(body.mass, base_mass + 800.0, 0.01, "A spent lance is gone from the ship")
+	assert_eq(GameState.player_lance_nails, 2, "Saved")
+	lance.restock()
+	assert_almost_eq(body.mass, base_mass + 1000.0, 0.01, "Restocked")
 
 
 class SpawnerStub:

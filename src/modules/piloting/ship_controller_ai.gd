@@ -270,11 +270,12 @@ func _process_combat() -> void:
 	if not _in_arena(agent_script.global_transform.origin, 1.3):
 		_change_state(AIState.PATROL)  # Chased out of its arena: back to the beacon
 		return
-	if _should_retreat():
+	var committed: bool = is_ram_committed()
+	if not committed and _should_retreat():
 		_change_state(AIState.FLEE)
 		return
 	# Keep weighing the fight: break off once it stops being worth it.
-	if _scan_timer <= 0.0:
+	if not committed and _scan_timer <= 0.0:
 		_scan_timer = Constants.AI_SCAN_INTERVAL
 		var desire: float = desire_against(_target_agent)
 		if desire < _disengage_level():
@@ -445,6 +446,15 @@ func _ram(target) -> bool:
 		agent_script.get_lance().armed = true
 		agent_script.command_ram(target)
 	return true
+
+
+# Charging (not running up): a charge once begun is seen through, since breaking off would only give
+# the target a free shot at its back; it reconsiders while it runs up for the next.
+func is_ram_committed() -> bool:
+	if not _ramming or not _is_live_target(_target_agent):
+		return false
+	var nav = agent_script.navigation_system
+	return is_instance_valid(nav) and not nav._current_command.get("running_up", true)
 
 
 func _stop_ramming() -> void:

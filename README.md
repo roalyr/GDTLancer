@@ -31,7 +31,7 @@ The project is pruned back to its flight core. What works now:
 - Ships and parts follow governing laws (`ShipLaws`, Constants SHIP AND PART LAWS): every stat is a power law of mass (and, for lasers, shot energy), with the Phoenix Light and Ablative Laser as reference points. Bigger hulls are the Phoenix Light scaled up, with more hardpoints and bays
 - Evolution (`Evolution`, Constants ARENA AND EVOLUTION): each arena NPC is a genome (hull size and mass split, a part per slot, later behaviour), scored by return on cost. Each faction keeps an archive of niches (size, role, laser range) with the best genome in each, so different builds survive side by side. Saved with the game; every life is logged
 - Runners and pursuers: a ship running from a fight shoots back or not; its pursuer chases only while it reckons it can catch it before it docks or gets clear, and may let one go that holds fire. All three are behaviour genes (every NPC has them, not only the arenas'), so careful sides that disengage and reckless fights to the death can both evolve. Desperation bends them: a pilot with little WP for its ship's worth fights at worse odds, chases harder and spares less. Each life's flights, escapes, holds of fire and let-goes are logged. A docked ship waits while an enemy hangs about its station
-- Kinetic lance (a module): a seat on the ship's axis and a quiver of lances. Armed (the LANCE button; NPCs while they ram), a lance strikes a ship its tip meets at 120 m/s or more of closing speed, square-on, for damage that grows with speed and the lance's mass; the lance stays in the target and the next slides into the seat. Slower or oblique, it glances off. NPCs with one ram (a run-up, then a charge at the target's lead point) while their lasers fire. Lances are restocked when docking
+- Kinetic lance (a module, one per ship): a seat on the ship's axis and a quiver of lances; the seat armours the bow. Armed (the LANCE button; NPCs while they ram), a lance strikes a ship its tip meets at 60 m/s or more of closing speed, square-on, for damage that grows with speed and the lance's mass; the lance stays in the target (the ship is lighter by it) and the next slides into the seat. Slower or oblique, it glances off. Ramming is an approach that never brakes: straight at the target's lead point, and straight away to build speed when too close. With the lance armed the APPROACH button becomes RAM. NPCs ram while their lasers fire, and see a charge through once begun. Lances are restocked when docking
 - Hits leave lasting marks on the hull (vertex-painted, proportional to damage)
 - Salvage: harpoon a wreck, it reels in to a safe towing distance and is stripped into the hold; cargo adds mass
 - Fuel leaks vent along the hull and push the ship; destroyed ships explode into a drifting cloud
@@ -72,12 +72,12 @@ Complete the engine, then freeze it. After the freeze, work is content, tuning a
 
 | Input | Action |
 |---|---|
-| Left mouse | Select target |
+| Left mouse | Select target (a click on empty space keeps it; a target out of sensor range is lost, and commands on it stop) |
 | Tool buttons (one per fitted tool) | That tool on the selected target, or off (laser: FIRE / CEASE, harpoon: LAUNCH / RELEASE) |
 | Dock button | DOCK at a selected station, UNDOCK, or TRAVEL along a selected route |
 | Ship button (docked at home) | Fitting: buy, sell, fit and unfit parts |
 | Space | Shortcut: the tool that fits the selected target on or off; otherwise dock or jump |
-| A | Approach target |
+| A | Approach target (ram it while the lance is armed) |
 | O | Orbit target |
 | F | Flee from target |
 | S | Stop |

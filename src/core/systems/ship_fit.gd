@@ -90,9 +90,22 @@ static func normalized(ship, fit: Dictionary) -> Dictionary:
 			result.tools[i] = str(tools[i])
 	var modules: Array = fit.get("modules", [])
 	for i in range(min(modules.size(), result.modules.size())):
-		if TemplateDatabase.get_template(str(modules[i])) is ModuleTemplate:
+		var module = TemplateDatabase.get_template(str(modules[i]))
+		if module is ModuleTemplate and not (is_lance(module) and has_lance(result)):  # One lance per ship
 			result.modules[i] = str(modules[i])
 	return result
+
+
+# A kinetic lance module. A ship takes one: its seat sits on the ship's axis.
+static func is_lance(module) -> bool:
+	return module is ModuleTemplate and not module.lance.empty()
+
+
+static func has_lance(fit: Dictionary) -> bool:
+	for module_id in fit.get("modules", []):
+		if str(module_id) != "" and is_lance(TemplateDatabase.get_template(str(module_id))):
+			return true
+	return false
 
 
 # Smallest empty tool slot that takes this tool, or -1.

@@ -4,6 +4,7 @@ extends Node
 
 # --- References ---
 const ScreenSpace = preload("res://src/core/ui/screen_space.gd")
+const NavigationSystem = preload("res://src/core/agents/components/navigation_system.gd")
 var agent_script: Node = null
 var agent_body: RigidBody = null
 var movement_system: Node = null
@@ -128,6 +129,7 @@ func _physics_process(delta: float):
 		_set_selected_target(null)
 	_poll_docking_proximity()
 	_process_queued_jump()
+	_sync_ram_command()
 
 
 func _unhandled_input(event: InputEvent):
@@ -343,11 +345,27 @@ func _set_selected_target(new_target):
 	if _selected_target == new_target:
 		return
 	_clear_queued_jump()
+	var previous = _selected_target
 	_selected_target = new_target
 	if _is_selected_target_valid():
 		EventBus.emit_signal("player_target_selected", _selected_target)
 	else:
 		EventBus.emit_signal("player_target_deselected")
+		_drop_commands_on(previous)
+
+
+# The target is lost (out of sensor range, gone): whatever the ship was doing to it stops, its
+# course (approach, orbit, ram, flee...) and the tools on it.
+func _drop_commands_on(target) -> void:
+	if target == null or not is_instance_valid(agent_body):
+		return
+	var nav = agent_body.get_node_or_null("NavigationSystem")
+	if is_instance_valid(nav) and nav._current_command.get("target_node", null) == target and is_instance_valid(agent_script):
+		agent_script.command_stop()
+	if is_instance_valid(_tool_controller):
+		for index in range(_tool_controller.get_tool_count()):
+			if _tool_controller.is_active(index) and _tool_controller.get_target(index) == target:
+				_tool_controller.deactivate(index, "target_lost")
 
 
 # --- Pointer entry points (called by PointerRouter) ---
@@ -356,13 +374,10 @@ func is_pointer_input_blocked() -> bool:
 	return _is_jump_transition_active()
 
 
-# Click on empty space clears the selection, except while the camera tracks the target: then a
-# stray click must not drop the view (switch tracking off, or pick another target, instead).
+# Click on empty space keeps the selection: only picking another target changes it (a target is
+# dropped only when lost: out of sensor range or gone).
 func handle_world_click(_click_pos: Vector2):
-	var camera = GlobalRefs.main_camera
-	if is_instance_valid(camera) and camera.has_method("get_camera_mode") and camera.get_camera_mode() == 1:  # TARGET_TRACKING
-		return
-	_set_selected_target(null)
+	pass
 
 
 func set_free_flight(active: bool) -> void:
@@ -614,9 +629,37 @@ func _on_Player_Orbit_Pressed():
 		agent_script.command_orbit(_selected_target)
 
 
+# APPROACH, or with the lance armed (and a ship selected) RAM: the button is contextual.
 func _on_Player_Approach_Pressed():
 	if is_instance_valid(_selected_target) and _selected_target is Spatial:
-		agent_script.command_approach(_selected_target)
+		if is_ram_ready(_selected_target):
+			agent_script.command_ram(_selected_target)
+		else:
+			agent_script.command_approach(_selected_target)
+
+
+# Whether approaching `target` means ramming it: the lance armed with lances left, and a ship to
+# strike (null: any ship would do).
+func is_ram_ready(target = null) -> bool:
+	var lance = agent_body.get_lance() if is_instance_valid(agent_body) and agent_body.has_method("get_lance") else null
+	if lance == null or not lance.armed or lance.nails <= 0:
+		return false
+	return target == null or (target is RigidBody and target.has_method("apply_damage") and not target.get("is_wreck"))
+
+
+# Arming the lance turns an approach into a ram; making it safe (or running out) turns it back.
+func _sync_ram_command() -> void:
+	var nav = agent_body.get_node_or_null("NavigationSystem") if is_instance_valid(agent_body) else null
+	if not is_instance_valid(nav):
+		return
+	var type: int = nav.get_current_command_type()
+	var target = nav._current_command.get("target_node", null)
+	if not is_instance_valid(target):
+		return
+	if type == NavigationSystem.CommandType.APPROACH and is_ram_ready(target):
+		agent_script.command_ram(target)
+	elif type == NavigationSystem.CommandType.RAM and not is_ram_ready(target):
+		agent_script.command_approach(target)
 
 
 func _on_Player_Flee_Pressed():

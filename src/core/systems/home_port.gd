@@ -31,5 +31,4 @@ static func service(ship: Node) -> Dictionary:
 		result.lances = lance.restock(-1 if price <= 0 else int(max(0, GameState.player_bank / price)))
 		result.lance_cost = result.lances * price
 		GameState.player_bank -= result.lance_cost
-		GameState.player_lance_nails = lance.nails
 	return result
