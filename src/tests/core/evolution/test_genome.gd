@@ -72,3 +72,18 @@ func test_build_registers_ship_and_parts_and_prices_them():
 			total += TemplateDatabase.get_template(template_id).base_value
 	assert_almost_eq(Genome.cost(genome), total, 1.0)
 	assert_false(TemplateDatabase.assets_ships.has(built.ship_template_id), "Evolved ships are not sold at stations")
+
+
+func test_lances_are_lawful_parts_with_their_own_niche():
+	var part: Dictionary = Genome.random_part("lance")
+	assert_true(part.genes.has("nail_mass") and part.genes.has("count"))
+	var genome: Dictionary = Genome.random_genome()
+	for i in range(genome.tools.size()):
+		genome.tools[i] = {}
+	genome.modules[0] = part
+	assert_eq(Genome.niche(genome).split("|")[1], "lancer")
+	genome.tools[0] = Genome.random_part("laser")
+	assert_eq(Genome.niche(genome).split("|")[1], "lance-fighter")
+	var template = TemplateDatabase.get_template(Genome.ensure_part_template(part))
+	assert_true(template is ModuleTemplate and not template.lance.empty())
+	assert_eq(template.lance.count, int(round(part.genes.count)))

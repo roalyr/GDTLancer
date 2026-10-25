@@ -2,12 +2,13 @@
 # shot energy) by the power laws in Constants (SHIP AND PART LAWS), so anything evolution makes
 # obeys the same physics. Builds the templates the game flies from those genes.
 #   Ship genes: {"type": 1-3, "size": s, "shares": {structure, engine, reactor, capacitor, hold}}
-#   Laser genes: {"mass": kg, "energy": power per shot}; module genes: {"mass": kg}
+#   Laser genes: {"mass": kg, "energy": power per shot}; module genes: {"mass": kg}, except the
+#   lance's: {"nail_mass": kg per lance, "count": lances in the quiver}
 
 extends Reference
 
 const SHARE_KEYS = ["structure", "engine", "reactor", "capacitor", "hold"]
-const MODULE_KINDS = ["plating", "thruster", "power_cell", "capacitor"]
+const MODULE_KINDS = ["plating", "thruster", "power_cell", "capacitor", "lance"]
 const MODULE_LAWS = {"plating": "hull", "thruster": "linear_thrust", "power_cell": "power_regen", "capacitor": "power_capacity"}
 
 
@@ -171,12 +172,44 @@ static func build_laser_template(genes: Dictionary, part_type: int, template_id:
 
 # --- Modules ---
 
-static func clamp_module_genes(genes: Dictionary) -> Dictionary:
+static func clamp_module_genes(genes: Dictionary, kind: String = "") -> Dictionary:
+	if kind == "lance":
+		return {
+			"nail_mass": clamp(float(genes.get("nail_mass", 200.0)), Constants.LAW_LANCE_NAIL_MASS_RANGE[0], Constants.LAW_LANCE_NAIL_MASS_RANGE[1]),
+			"count": clamp(float(genes.get("count", 3.0)), Constants.LAW_LANCE_COUNT_RANGE[0], Constants.LAW_LANCE_COUNT_RANGE[1]),  # Rounded in lance_stats, so small steps add up
+		}
 	return {"mass": clamp(float(genes.get("mass", 300.0)), Constants.LAW_MODULE_MASS_RANGE[0], Constants.LAW_MODULE_MASS_RANGE[1])}
 
 
-# {"mass", "stat_modifiers", "base_value"} of a module of `kind` (MODULE_KINDS).
+# A kinetic lance (Constants LAW_LANCE_*): {"nail_mass", "count", "mass" (seat and quiver, full),
+# "damage" (at LAW_LANCE_REF_SPEED), "length" (m past the nose), "reload" (s), "nail_value" (WP)}.
+static func lance_stats(genes: Dictionary) -> Dictionary:
+	var g: Dictionary = clamp_module_genes(genes, "lance")
+	var count: int = int(round(g.count))
+	return {
+		"nail_mass": g.nail_mass,
+		"count": count,
+		"mass": g.nail_mass * (count + Constants.LAW_LANCE_SEAT_NAILS),
+		"damage": apply_law(Constants.LAW_LANCE_DAMAGE, g.nail_mass),
+		"length": apply_law(Constants.LAW_LANCE_LENGTH, g.nail_mass),
+		"reload": apply_law(Constants.LAW_LANCE_RELOAD, g.nail_mass),
+		"nail_value": int(round(Constants.LAW_PART_VALUE_PER_KG * g.nail_mass)),
+	}
+
+
+# Damage of a lance strike at `closing_speed` (m/s along the lance) and `angle` (degrees off
+# square-on): 0 below LAW_LANCE_MIN_SPEED or past LAW_LANCE_GLANCE_ANGLE (it glances off).
+static func lance_damage(lance: Dictionary, closing_speed: float, angle: float) -> float:
+	if closing_speed < Constants.LAW_LANCE_MIN_SPEED or angle > Constants.LAW_LANCE_GLANCE_ANGLE:
+		return 0.0
+	return float(lance.damage) * pow(closing_speed / Constants.LAW_LANCE_REF_SPEED, Constants.LAW_LANCE_SPEED_EXP)
+
+
+# {"mass", "stat_modifiers", "base_value"} of a module of `kind` (MODULE_KINDS); a lance adds "lance".
 static func module_stats(kind: String, genes: Dictionary) -> Dictionary:
+	if kind == "lance":
+		var lance: Dictionary = lance_stats(genes)
+		return {"mass": lance.mass, "stat_modifiers": {}, "base_value": int(round(Constants.LAW_PART_VALUE_PER_KG * lance.mass)), "lance": lance}
 	var mass: float = clamp_module_genes(genes).mass
 	var stat: String = MODULE_LAWS.get(kind, "hull")
 	var amount: float = apply_law(_law_for_stat(stat), mass)
@@ -196,9 +229,13 @@ static func build_module_template(kind: String, genes: Dictionary, part_type: in
 	module.base_value = stats.base_value
 	module.module_name = "%s %s" % [Constants.PART_NAMES.get(kind, kind), Constants.PART_TYPE_NAMES.get(part_type, "")]
 	module.description = "%.0f kg." % stats.mass
+	if kind == "lance":
+		module.lance = stats.lance
+		module.description = "%.0f kg: %d lances of %.0f kg, %.0f damage at %.0f m/s (none under %.0f m/s)." % [
+			stats.mass, stats.lance.count, stats.lance.nail_mass, stats.lance.damage, Constants.LAW_LANCE_REF_SPEED, Constants.LAW_LANCE_MIN_SPEED]
 	module.module_kind = kind
 	module.variant_type = part_type
-	module.law_genes = clamp_module_genes(genes)
+	module.law_genes = clamp_module_genes(genes, kind)
 	return module
 
 

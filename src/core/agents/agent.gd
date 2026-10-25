@@ -34,6 +34,7 @@ var cargo_capacity: int = 0  # Units
 var salvage: Dictionary = {}  # Wrecks only: commodity id -> units left to strip
 
 const CollisionHull = preload("res://src/core/agents/components/collision_hull.gd")
+const LanceController = preload("res://src/core/agents/components/lance_controller.gd")
 const MeshLod = preload("res://src/core/agents/components/mesh_lod.gd")
 const ViewDetail = preload("res://src/core/agents/components/view_detail.gd")
 const ShipFit = preload("res://src/core/systems/ship_fit.gd")
@@ -269,6 +270,7 @@ func _init_fit() -> void:
 	if is_player():
 		GameState.player_fit = fit.duplicate(true)
 	fit_stats = ShipFit.compute_stats(ship_template, fit)
+	_refresh_lance()
 
 
 func _init_hull_and_power() -> void:
@@ -312,6 +314,54 @@ func apply_fit(new_fit: Dictionary) -> void:
 	var tools = get_node_or_null("ToolController")
 	if is_instance_valid(tools) and tools.has_method("load_tools_from_ship"):
 		tools.load_tools_from_ship()
+	_refresh_lance()
+
+
+# --- Kinetic lance (LanceController) ---
+
+# The fit's first lance module gets a LanceController (the player's keeps its lances left across
+# sectors and saves: GameState.player_lance_nails); no lance, none.
+func _refresh_lance() -> void:
+	var lance_id := ""
+	var stats: Dictionary = {}
+	for module_id in fit.get("modules", []):
+		var module = TemplateDatabase.get_template(str(module_id)) if str(module_id) != "" else null
+		if module is ModuleTemplate and not module.lance.empty():
+			lance_id = str(module_id)
+			stats = module.lance
+			break
+	var controller = get_node_or_null("LanceController")
+	if lance_id == "":
+		if controller != null:
+			remove_child(controller)
+			controller.queue_free()
+		if is_player():
+			GameState.player_lance_nails = -1
+		return
+	if controller != null and controller.module_id == lance_id:
+		return
+	var nails: int = -1
+	if is_player():
+		if controller == null:
+			nails = GameState.player_lance_nails  # Spawned with it: as it was left
+		else:
+			GameState.player_lance_nails = -1  # A new lance comes full
+	if controller == null:
+		controller = LanceController.new()
+		add_child(controller)
+	controller.setup(self, lance_id, stats, nails)
+	if is_player():
+		controller.connect("struck", self, "_on_player_lance_used")
+
+
+func _on_player_lance_used(_target, _damage) -> void:
+	var controller = get_lance()
+	if controller != null:
+		GameState.player_lance_nails = controller.nails
+
+
+func get_lance() -> Node:
+	return get_node_or_null("LanceController")
 
 
 func get_fitted_tool_ids() -> Array:
@@ -430,15 +480,17 @@ func get_random_aim_point() -> Vector3:
 
 # A shot from `from_global` lands on the hull: leaves a scar and a smoulder spot, may open a fuel
 # leak, and returns the world point it hit. The shot line meets the hit surface (the plating;
-# CollisionHull.ray_onto), aimed at random points (a line can pass between wings), then the centre;
+# CollisionHull.ray_onto), aimed at `aim_at` if given, random points (a line can pass between wings), then the centre;
 # failing that the convex collision hull at the centre, then the hull point facing the shooter.
 # Only hits on the plating scar it.
-func register_hit(from_global: Vector3, damage: float) -> Vector3:
+func register_hit(from_global: Vector3, damage: float, aim_at = null) -> Vector3:
 	var point = null
 	var normal = null
 	var centre: Vector3 = to_global(hull_bounds.position + hull_bounds.size * 0.5)
 	for attempt in range(4):
 		var aim: Vector3 = get_random_aim_point() if attempt < 2 else centre
+		if attempt == 0 and aim_at is Vector3:
+			aim = aim_at  # A known point (a lance's tip): try it first
 		var hit: Dictionary = CollisionHull.ray_onto(self, from_global, aim, get_apparent_radius() * 2.0, attempt < 3)
 		if not hit.empty():
 			point = hit.position
@@ -673,9 +725,15 @@ func get_desperation() -> float:
 	return clamp(1.0 - get_wallet() / comfort, 0.0, 1.0)
 
 
+# Lasers' damage per second, plus a lance with lances left at this ship's top speed, over
+# Constants AI_RAM_PASS_TIME between strikes (or its reload, if longer).
 func get_damage_per_second() -> float:
 	var tools = get_node_or_null("ToolController")
-	return tools.get_damage_per_second() if is_instance_valid(tools) and tools.has_method("get_damage_per_second") else 0.0
+	var dps: float = tools.get_damage_per_second() if is_instance_valid(tools) and tools.has_method("get_damage_per_second") else 0.0
+	var lance = get_lance()
+	if lance != null and lance.nails > 0:
+		dps += lance.damage_at(get_top_speed()) / max(float(lance.lance.reload), Constants.AI_RAM_PASS_TIME)
+	return dps
 
 
 # What this ship's wreck would be worth to a salvager: its hull's salvage plus its cargo.
@@ -747,6 +805,9 @@ func repair_hull() -> float:
 	_clear_smoulders()
 	if is_instance_valid(_hull_scars):
 		_hull_scars.clear_scars()
+	for child in get_children():
+		if child.is_in_group(LanceController.LANCE_GROUP):
+			child.queue_free()  # Lances stuck in the hull come out
 	_update_damage_trails()
 	if is_player():
 		GameState.player_hull = hull
@@ -917,6 +978,14 @@ func command_watch(target: Spatial):
 		navigation_system.set_command_watch(target)
 	else:
 		printerr("AgentBody: Cannot command_watch - NavigationSystem invalid.")
+
+
+# Charge `target` at full speed, nose first (a kinetic lance; command_ram), running up as needed.
+func command_ram(target: Spatial):
+	if is_instance_valid(navigation_system):
+		navigation_system.set_command_ram(target)
+	else:
+		printerr("AgentBody: Cannot command_ram - NavigationSystem invalid.")
 
 
 func command_flee(target: Spatial):

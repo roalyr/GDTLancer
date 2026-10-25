@@ -63,6 +63,7 @@ func _ready():
 	EventBus.connect("player_dock_pressed", self, "_on_dock_button_pressed")
 	EventBus.connect("player_interact_pressed", self, "_on_interact_button_pressed")
 	EventBus.connect("player_tool_pressed", self, "_on_tool_button_pressed")
+	EventBus.connect("player_lance_pressed", self, "_on_lance_button_pressed")
 
 	call_deferred("_deferred_ready_setup")
 	_change_state("default")
@@ -215,6 +216,17 @@ func _on_interact_button_pressed() -> void:
 
 
 # A HUD tool button: that tool off if it is on, otherwise on against the selected target.
+# Arms the kinetic lance (its tip strikes what it meets fast enough) or makes it safe.
+func _on_lance_button_pressed() -> void:
+	var lance = agent_body.get_lance() if is_instance_valid(agent_body) and agent_body.has_method("get_lance") else null
+	if lance == null:
+		return
+	if GameState.player_docked_at != "":
+		EventBus.emit_signal("attack_action_feedback", false, "Undock first")
+		return
+	lance.armed = not lance.armed
+
+
 func _on_tool_button_pressed(index: int) -> void:
 	if _is_jump_transition_active() or not is_instance_valid(_tool_controller):
 		return

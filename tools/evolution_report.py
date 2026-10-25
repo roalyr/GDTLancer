@@ -40,7 +40,7 @@ def part_label(part):
 def describe(genome):
     ship = genome["ship"]
     tools = " ".join(part_label(p) + ("(%.0fkg %.1fE)" % (p["genes"]["mass"], p["genes"]["energy"]) if p and p["kind"] == "laser" else "") for p in genome["tools"])
-    mods = " ".join(part_label(p) + ("(%.0fkg)" % p["genes"]["mass"] if p and p["kind"] != "harpoon" else "") for p in genome["modules"])
+    mods = " ".join(part_label(p) + (("(%dx%.0fkg)" % (p["genes"]["count"], p["genes"]["nail_mass"]) if p["kind"] == "lance" else "(%.0fkg)" % p["genes"]["mass"]) if p and p["kind"] != "harpoon" else "") for p in genome["modules"])
     b = genome.get("behavior", {})
     return "Phoenix %s s=%.2f | %s | %s | eng %.2f dis %.2f rng %.2f ret %.2f pur %.2f mer %.2f rf %.2f" % (
         {1: "I", 2: "II", 3: "III"}.get(int(ship["type"]), "?"), ship["size"], tools, mods or "-",

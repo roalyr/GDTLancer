@@ -12,6 +12,8 @@ mass = 200.0
 stat_modifiers = {
 "power_capacity": 66.6667
 }
+lance = {
+}
 module_kind = "capacitor"
 variant_type = 2
 law_genes = {

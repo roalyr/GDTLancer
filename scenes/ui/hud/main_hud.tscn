@@ -618,6 +618,24 @@ align = 1
 valign = 1
 autowrap = true
 
+[node name="ButtonLance" type="TextureButton" parent="ScreenControls/TemporaryToolZone"]
+visible = false
+margin_left = 650.0
+margin_right = 750.0
+margin_bottom = 100.0
+rect_min_size = Vector2( 100, 100 )
+texture_normal = ExtResource( 4 )
+expand = true
+
+[node name="Label" type="Label" parent="ScreenControls/TemporaryToolZone/ButtonLance"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 9 )
+text = "LANCE"
+align = 1
+valign = 1
+autowrap = true
+
 [node name="CenterRightZone" type="Control" parent="ScreenControls"]
 anchor_left = 1.0
 anchor_top = 1.0

@@ -475,3 +475,45 @@ func test_a_broke_pilot_takes_worse_odds_and_spares_less():
 	assert_eq(ai._mercy_level(), 0.0, "spares nobody")
 	assert_almost_eq(ai._pursuit_level(), 2.0, 0.001, "chases harder")
 	assert_almost_eq(ai._return_fire_level(), 1.0, 0.001, "always shoots back")
+
+
+# --- Ramming ---
+
+func _give_lance(body: RigidBody) -> Spatial:
+	var lance = load("res://src/core/agents/components/lance_controller.gd").new()
+	body.add_child(lance)
+	lance.setup(body, "test_lance", load("res://src/core/systems/ship_laws.gd").lance_stats(Constants.PART_TYPE_SEEDS.lance[2]))
+	return lance
+
+
+func test_rams_with_a_lance_while_firing_and_arms_it_only_then():
+	var prey = _make_ship(Vector3(0, 0, -500), "verdant", 20.0)
+	var lance = _give_lance(hostile)
+	_set_speed(hostile, Constants.LAW_LANCE_MIN_SPEED * Constants.AI_RAM_SPEED_MARGIN + 10.0, false)
+	hostile.power_max = 100.0
+	hostile.power = 100.0
+	ai.initialize({"patrol_center": Vector3.ZERO})
+	assert_false(lance.armed, "Safe until it rams")
+	_fighting(prey)
+	ai._process_combat()
+	assert_true(ai.can_ram())
+	assert_eq(ai.get_activity_label(), "RAMMING", "The player can see it coming")
+	assert_true(lance.armed)
+	assert_true(hostile.get_node("ToolController").is_active(0), "Lasers fire as it charges")
+	lance.nails = 0
+	ai._process_combat()
+	assert_eq(ai.get_activity_label(), "FIGHTING", "Out of lances: a laser fight")
+	assert_false(lance.armed)
+	ai._change_state(AIScript.AIState.PATROL)
+	assert_false(lance.armed, "Never armed out of a fight")
+
+
+func test_too_slow_to_strike_it_does_not_ram():
+	var prey = _make_ship(Vector3(0, 0, -500), "verdant", 20.0)
+	var lance = _give_lance(hostile)
+	_set_speed(hostile, Constants.LAW_LANCE_MIN_SPEED * 0.9, false)
+	ai.initialize({"patrol_center": Vector3.ZERO})
+	_fighting(prey)
+	ai._process_combat()
+	assert_false(ai.can_ram())
+	assert_false(lance.armed)

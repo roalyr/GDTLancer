@@ -173,6 +173,7 @@ func _serialize_game_state() -> Dictionary:
 	return {
 		"player_ship_template_id": GameState.player_ship_template_id,
 		"player_hull": GameState.player_hull,
+		"player_lance_nails": GameState.player_lance_nails,
 		"player_cargo": GameState.player_cargo.duplicate(),
 		"home_location_id": GameState.home_location_id,
 		"player_bank": GameState.player_bank,
@@ -214,6 +215,7 @@ func _deserialize_and_apply_game_state(save_data: Dictionary) -> void:
 	reset_to_defaults()
 	GameState.player_ship_template_id = str(save_data.get("player_ship_template_id", ""))
 	GameState.player_hull = float(save_data.get("player_hull", -1.0))
+	GameState.player_lance_nails = int(save_data.get("player_lance_nails", -1))
 	GameState.home_location_id = str(save_data.get("home_location_id", ""))
 	GameState.player_bank = int(save_data.get("player_bank", 0))
 	var saved_fit = save_data.get("player_fit", {})

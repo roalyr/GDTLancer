@@ -6,7 +6,7 @@ const FrameProfiler = preload("res://src/core/utils/frame_profiler.gd")
 const OBSTACLES_META = "nav_obstacles"
 
 # --- Enums and Constants ---
-enum CommandType { IDLE, STOPPING, MOVE_TO, MOVE_DIRECTION, APPROACH, ORBIT, FLEE, ALIGN_TO, WATCH }
+enum CommandType { IDLE, STOPPING, MOVE_TO, MOVE_DIRECTION, APPROACH, ORBIT, FLEE, ALIGN_TO, WATCH, RAM }
 
 # --- References ---
 var agent_body: RigidBody = null
@@ -54,6 +54,7 @@ func _initialize_command_handlers():
 		CommandType.FLEE: load(command_path + "command_flee.gd").new(),
 		CommandType.ALIGN_TO: load(command_path + "command_align_to.gd").new(),
 		CommandType.WATCH: load(command_path + "command_watch.gd").new(),
+		CommandType.RAM: load(command_path + "command_ram.gd").new(),
 	}
 
 	for handler_script in _command_handlers.values():
@@ -116,6 +117,13 @@ func set_command_watch(target: Spatial):
 	_current_command = {"type": CommandType.WATCH, "target_node": target}
 
 
+func set_command_ram(target: Spatial):
+	if not is_instance_valid(target):
+		set_command_stopping()
+		return
+	_current_command = {"type": CommandType.RAM, "target_node": target, "is_new": true}
+
+
 func set_command_align_to(
 	direction: Vector3,
 	apply_forward_thrust: bool = false,
@@ -152,7 +160,7 @@ func _update_navigation(delta: float):
 	var cmd_type = _current_command.get("type", CommandType.IDLE)
 	var target_node = _current_command.get("target_node", null)
 
-	var is_target_cmd = cmd_type in [CommandType.APPROACH, CommandType.ORBIT, CommandType.FLEE, CommandType.WATCH]
+	var is_target_cmd = cmd_type in [CommandType.APPROACH, CommandType.ORBIT, CommandType.FLEE, CommandType.WATCH, CommandType.RAM]
 	if is_target_cmd and not is_instance_valid(target_node):
 		set_command_stopping()
 		cmd_type = CommandType.STOPPING

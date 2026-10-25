@@ -25,6 +25,9 @@ var player_fit: Dictionary = {}
 ## Parts kept at the home port, not fitted: part id -> count.
 var player_storage: Dictionary = {}
 
+## Lances left in the player's lance quiver; negative means full.
+var player_lance_nails: int = -1
+
 ## Player hold: commodity id -> units.
 var player_cargo: Dictionary = {}
 
@@ -57,6 +60,7 @@ func reset_state() -> void:
 	play_time = 0.0
 	player_ship_template_id = ""
 	player_hull = -1.0
+	player_lance_nails = -1
 	player_cargo = {}
 	home_location_id = ""
 	player_bank = 0

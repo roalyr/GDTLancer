@@ -12,6 +12,8 @@
 # gracefully, reckless ones fight to the death. Every NPC has them (defaults in the Constants AI block),
 # and every gene bends with desperation: a broke pilot (little WP for its ship's worth) fights at
 # worse odds, chases harder, spares less, shoots back more and runs later.
+# Ships with a kinetic lance (lances left, fast enough to strike) ram instead of closing to laser
+# range and orbiting, their lasers firing as they reach; the lance is armed only while ramming.
 # Decisions take time (skill, how close the call is): meanwhile the ship HESITATES, a state of its
 # own the player can read. It turns its nose on the ship in question and eases off to a drift,
 # holding fire; one wavering over breaking off a fight keeps fighting meanwhile. Being shot while
@@ -70,6 +72,7 @@ var _since_hit: float = INF  # s since the ship it fights last hit it
 var _runner_judged: bool = false  # Its target's current run has had its mercy roll
 var _letting_go: bool = false  # and the roll was to let it go
 var _spared: Dictionary = {}  # Instance id -> s left during which it does not go after that ship again
+var _ramming: bool = false  # Charging its target with an armed lance (command_ram)
 
 
 func _ready() -> void:
@@ -98,6 +101,10 @@ func initialize(config: Dictionary) -> void:
 	_pursuit = float(behavior.get("pursuit", Constants.AI_PURSUIT))
 	_mercy = float(behavior.get("mercy", Constants.AI_MERCY))
 	_return_fire = float(behavior.get("return_fire", Constants.AI_RETURN_FIRE))
+	var lance = agent_script.get_lance() if agent_script.has_method("get_lance") else null
+	if lance != null and not lance.is_connected("struck", self, "_on_lance_struck"):
+		lance.connect("struck", self, "_on_lance_struck")
+		lance.connect("glanced", self, "_on_lance_glanced")
 	var docked_at = config.get("docked_at")
 	if docked_at is Spatial:
 		_dock(docked_at, false)
@@ -110,6 +117,8 @@ func get_state() -> int:
 
 
 func get_activity_label() -> String:
+	if _ramming and _current_state == AIState.COMBAT:
+		return "RAMMING"
 	return ACTIVITY_LABELS.get(_current_state, "")
 
 
@@ -177,6 +186,8 @@ func _change_state(new_state: int) -> void:
 	_repath_timer = 0.0
 	_orbiting = false
 	var keeps_fighting: bool = new_state == AIState.HESITATE and _resume_state == AIState.COMBAT
+	if not keeps_fighting:
+		_stop_ramming()
 	if is_instance_valid(_tool_controller) and not keeps_fighting:
 		_tool_controller.deactivate_all("state_change")
 
@@ -272,6 +283,10 @@ func _process_combat() -> void:
 		if _should_let_go(_target_agent):
 			_consider("let_go", _target_agent, chase_margin(_target_agent) * _pursuit_level(), 1.0)
 			return
+
+	if _ram(_target_agent):
+		_fire_at(_target_agent)
+		return
 
 	var distance: float = agent_script.global_transform.origin.distance_to(_target_agent.global_transform.origin)
 	# Close to optimal range, then orbit there; re-approach if pushed out.
@@ -406,6 +421,45 @@ func _process_depart() -> void:
 	if _repath_timer <= 0.0:
 		_repath_timer = Constants.AI_REPATH_INTERVAL * 4.0
 		agent_script.command_move_to(_home_point)
+
+
+# --- Ramming (kinetic lance) ---
+
+func can_ram() -> bool:
+	var lance = agent_script.get_lance() if agent_script.has_method("get_lance") else null
+	return lance != null and lance.nails > 0 \
+		and agent_script.get_top_speed() >= Constants.LAW_LANCE_MIN_SPEED * Constants.AI_RAM_SPEED_MARGIN
+
+
+# Rams `target` if it can (arming the lance and charging, once); true while it does. Out of lances
+# it stops, and the fight goes on at laser range.
+func _ram(target) -> bool:
+	if not can_ram():
+		if _ramming:
+			_stop_ramming()
+			_orbiting = false
+			_repath_timer = 0.0
+		return false
+	if not _ramming:
+		_ramming = true
+		agent_script.get_lance().armed = true
+		agent_script.command_ram(target)
+	return true
+
+
+func _stop_ramming() -> void:
+	_ramming = false
+	var lance = agent_script.get_lance() if is_instance_valid(agent_script) and agent_script.has_method("get_lance") else null
+	if lance != null:
+		lance.armed = false
+
+
+func _on_lance_struck(_target, _damage) -> void:
+	_note("lance_hit")
+
+
+func _on_lance_glanced(_target) -> void:
+	_note("glance")
 
 
 # --- Runners: chase or let go ---

@@ -12,6 +12,8 @@ mass = 400.0
 stat_modifiers = {
 "linear_thrust": 167418.0
 }
+lance = {
+}
 module_kind = "thruster"
 variant_type = 2
 law_genes = {

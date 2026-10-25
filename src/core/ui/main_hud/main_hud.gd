@@ -51,7 +51,8 @@ onready var button_render_scale: TextureButton = $ScreenControls/CenterRightZone
 onready var label_render_scale: Label = $ScreenControls/CenterRightZone/ButtonRenderScale/LabelButtonScale
 onready var button_particles: TextureButton = $ScreenControls/CenterLeftZone/ButtonParticlesToggle
 onready var label_particles: Label = $ScreenControls/CenterLeftZone/ButtonParticlesToggle/LabelButtonParticles
-onready var tool_buttons: Array = $ScreenControls/TemporaryToolZone.get_children()
+onready var tool_buttons: Array = _tool_button_nodes()
+onready var button_lance: TextureButton = $ScreenControls/TemporaryToolZone/ButtonLance
 var fitting_window: Control = null
 var debug_map: Control = null
 
@@ -179,6 +180,7 @@ func _ready():
 	add_child(_pointer_router)
 	for index in range(tool_buttons.size()):
 		tool_buttons[index].connect("pressed", self, "_on_tool_button_pressed", [index])
+	button_lance.connect("pressed", self, "_on_lance_button_pressed")
 	button_render_scale.connect("pressed", self, "_on_ButtonRenderScale_pressed")
 	_update_render_scale_label()
 	button_particles.connect("pressed", self, "_on_ButtonParticlesToggle_pressed")
@@ -216,6 +218,7 @@ func _update_hud() -> void:
 	_refresh_toggle_button_states()
 	_update_debug_overlay()
 	_update_tool_buttons()
+	_update_lance_button()
 	_update_dock_button_label()
 
 
@@ -421,6 +424,41 @@ func _update_tool_buttons() -> void:
 
 func _on_tool_button_pressed(index: int) -> void:
 	EventBus.emit_signal("player_tool_pressed", index)
+
+
+func _tool_button_nodes() -> Array:
+	var buttons: Array = []
+	for child in $ScreenControls/TemporaryToolZone.get_children():
+		if child.name.begins_with("ButtonTool"):
+			buttons.append(child)
+	return buttons
+
+
+# The LANCE button, after the tools (only with a lance fitted): lances left and ARM while safe;
+# ARMED (highlighted) and the closing speed on the selected target against the speed a strike needs
+# (the number an NPC rams by); LOADING while the next lance slides in.
+func _update_lance_button() -> void:
+	var player = GlobalRefs.player_agent_body
+	var lance = player.get_lance() if is_instance_valid(player) and player.has_method("get_lance") else null
+	button_lance.visible = lance != null
+	if lance == null:
+		return
+	var state: String = "ARM"
+	if lance.nails <= 0:
+		state = "EMPTY"
+	elif not lance.is_seated():
+		state = "LOADING"
+	elif lance.armed:
+		state = "ARMED"
+		var target = _current_target
+		if is_instance_valid(target) and target is RigidBody:
+			state = "%d / %d" % [int(lance.closing_speed_on(target)), int(Constants.LAW_LANCE_MIN_SPEED)]
+	button_lance.get_node("Label").text = "LANCE %d\n%s" % [lance.nails, state]
+	_apply_button_toggle_state(button_lance, lance.armed)
+
+
+func _on_lance_button_pressed() -> void:
+	EventBus.emit_signal("player_lance_pressed")
 
 
 func _on_SliderControlLeft_value_changed(value):

@@ -9,10 +9,11 @@ static func is_home(location_id: String) -> bool:
 	return location_id != "" and location_id == GameState.home_location_id
 
 
-# Banks the ship's cargo and repairs it. Returns {"banked": value added, "units": units sold,
-# "repaired": hull points restored}.
+# Banks the ship's cargo, repairs it and refills its lance quiver (paid from the bank, a lance's
+# part value each, as many as the bank covers). Returns {"banked": value added, "units": units
+# sold, "repaired": hull points restored, "lances": lances bought, "lance_cost": WP paid}.
 static func service(ship: Node) -> Dictionary:
-	var result := {"banked": 0, "units": 0, "repaired": 0.0}
+	var result := {"banked": 0, "units": 0, "repaired": 0.0, "lances": 0, "lance_cost": 0}
 	if not is_instance_valid(ship):
 		return result
 	for commodity_id in ship.cargo:
@@ -24,4 +25,11 @@ static func service(ship: Node) -> Dictionary:
 	ship.clear_cargo()
 	GameState.player_bank += result.banked
 	result.repaired = ship.repair_hull()
+	var lance = ship.get_lance() if ship.has_method("get_lance") else null
+	if lance != null:
+		var price: int = int(lance.lance.nail_value)
+		result.lances = lance.restock(-1 if price <= 0 else int(max(0, GameState.player_bank / price)))
+		result.lance_cost = result.lances * price
+		GameState.player_bank -= result.lance_cost
+		GameState.player_lance_nails = lance.nails
 	return result

@@ -154,7 +154,7 @@ static func _clamp_part(part: Dictionary, max_mass: float = INF) -> void:
 		part.genes = ShipLaws.clamp_laser_genes(part.genes)
 		part.genes.mass = min(part.genes.mass, max_mass)
 	else:
-		part.genes = ShipLaws.clamp_module_genes(part.genes)
+		part.genes = ShipLaws.clamp_module_genes(part.genes, part.kind)
 
 
 # --- Templates ---
@@ -166,7 +166,7 @@ static func part_template_id(part: Dictionary) -> String:
 	if part.kind == "harpoon":
 		return Constants.HARPOON_TEMPLATE_ID
 	var key: String = "%s_%d" % [part.kind, int(part.type)]
-	for gene in ["mass", "energy"]:
+	for gene in ["mass", "energy", "nail_mass", "count"]:
 		if part.genes.has(gene):
 			key += "_%d" % int(round(float(part.genes[gene]) * (10.0 if gene == "energy" else 1.0)))
 	return "evo_" + key
@@ -239,6 +239,10 @@ static func niche(genome: Dictionary) -> String:
 		role = "raider" if harpoons > 0 else "fighter"
 	elif harpoons > 0:
 		role = "scavenger"
+	for part in genome.modules:
+		if not part.empty() and part.kind == "lance":
+			role = "lancer" if lasers == 0 else "lance-" + role  # Its own branch, so lances do not compete head-on with lasers
+			break
 	var range_class: String = "-"
 	if lasers > 0:
 		var mean_range: float = range_sum / lasers
@@ -258,6 +262,9 @@ static func describe_part(part: Dictionary) -> String:
 	if part.kind == "laser":
 		var stats: Dictionary = ShipLaws.laser_stats(part.genes)
 		return "%s(%.0fkg %.1fE dmg%.1f/%.2fs %.0fm trk%.2f)" % [label, part.genes.mass, part.genes.energy, stats.damage, stats.cycle_time, stats.optimal_range, stats.tracking]
+	if part.kind == "lance":
+		var lance: Dictionary = ShipLaws.lance_stats(part.genes)
+		return "%s(%dx%.0fkg dmg%.0f@%.0f)" % [label, lance.count, lance.nail_mass, lance.damage, Constants.LAW_LANCE_REF_SPEED]
 	return "%s(%.0fkg)" % [label, part.genes.mass]
 
 

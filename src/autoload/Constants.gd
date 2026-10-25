@@ -61,6 +61,15 @@ const NAV_APPROACH_DISTANCE_MULTIPLIER = 1.3
 const NAV_APPROACH_MIN_DISTANCE = 50.0  # m
 const NAV_ARRIVAL_DISTANCE_THRESHOLD = 20.0  # m
 const NAV_APPROACH_RESUME_MARGIN = 30.0  # m past the hold distance before a holding approach closes in again
+# Ramming (command_ram): charges at the target's lead point (lead time distance / closing speed, at
+# least MIN_LEAD_SPEED, at most MAX_LEAD_TIME s), thrusting while the nose is within
+# acos(THRUST_ALIGNMENT) of the heading; runs up away and SIDE to one side until it has the room to
+# reach LAW_LANCE_MIN_SPEED plus TURN_ROOM m to turn in.
+const NAV_RAM_TURN_ROOM = 800.0  # m
+const NAV_RAM_RUN_UP_SIDE = 0.6
+const NAV_RAM_MIN_LEAD_SPEED = 50.0  # m/s
+const NAV_RAM_MAX_LEAD_TIME = 10.0  # s
+const NAV_RAM_THRUST_ALIGNMENT = 0.9
 const NAV_ARRIVAL_SPEED_THRESHOLD = 5.0  # m/s
 const NAV_CLOSE_ORBIT_DISTANCE_FACTOR = 1.5  # The orbit radius is at least the target's size times this
 const NAV_ORBIT_SPEED_SHARE = 0.6  # Orbit speed as a share of top speed (less on tight orbits: turning limits it)
@@ -393,6 +402,11 @@ const AI_SPARE_TIME = 60.0  # s
 const AI_DESPERATION_COMFORT = 1.0
 const AI_DESPERATION_NERVE = 0.5
 const AI_WALLET_MAX_SHARE = 2.0
+# Ramming (kinetic lance; ShipControllerAI, command_ram): a lance counts in a ship's damage per second
+# as one strike at its top speed per RAM_PASS_TIME s (or per reload, if longer). An NPC rams while
+# its top speed is at least RAM_SPEED_MARGIN times LAW_LANCE_MIN_SPEED and it has lances left.
+const AI_RAM_PASS_TIME = 15.0  # s between strikes: run-up, turn and charge
+const AI_RAM_SPEED_MARGIN = 1.1
 const AI_ENEMY_DESIRE_FACTOR = 1.5  # Ships at war (or holding a grudge) want the fight this much more
 const AI_SALVAGE_SEARCH_RANGE = 6000.0  # m; wrecks further than this are not worth the trip
 const AI_DEPART_ARRIVAL_DISTANCE = 300.0  # m from its spawn point at which a hauler leaves the sector
@@ -477,6 +491,29 @@ const LAW_LASER_MASS_RANGE = [50.0, 4000.0]
 const LAW_LASER_ENERGY_RANGE = [0.5, 60.0]
 const LAW_MODULE_MASS_RANGE = [50.0, 5000.0]
 
+# Kinetic lance (module "lance"): a seat that strikes like a hammer, and a quiver of lances (nails)
+# fixed on the hull. An armed lance strikes a ship its tip meets at a closing speed along the lance
+# of at least LANCE_MIN_SPEED, within LANCE_GLANCE_ANGLE of square-on; otherwise it glances off. A
+# strike leaves the lance in the target; the next slides into the seat after the reload time.
+# Genes: lance (nail) mass m and count n.
+#   damage = DAMAGE * (m/m0)^a * (v / REF_SPEED)^SPEED_EXP, past the nose LENGTH * (m/m0)^(1/3) m,
+#   reload RELOAD * (m/m0)^b s, module mass m * (n + SEAT_NAILS) (the seat weighs as much as that).
+const LAW_LANCE_DAMAGE = [200.0, 120.0, 0.8]  # A 200 kg lance kills a Phoenix Light at 200 m/s
+const LAW_LANCE_LENGTH = [200.0, 12.0, 1.0 / 3.0]
+const LAW_LANCE_RELOAD = [200.0, 4.0, 0.5]
+const LAW_LANCE_REF_SPEED = 200.0  # m/s
+const LAW_LANCE_SPEED_EXP = 1.0
+const LAW_LANCE_MIN_SPEED = 120.0  # m/s; slower, it glances off
+const LAW_LANCE_GLANCE_ANGLE = 60.0  # degrees off square-on
+const LAW_LANCE_SEAT_NAILS = 2.0
+const LAW_LANCE_NAIL_MASS_RANGE = [30.0, 1500.0]
+const LAW_LANCE_COUNT_RANGE = [1.0, 12.0]
+const LANCE_RADIUS = 0.4  # m at the lance's base, for a 200 kg lance (grows as mass^(1/3))
+const LANCE_STUCK_MAX = 6  # Lances left in one hull; past this the oldest goes
+const LANCE_STUCK_DEPTH = 0.3  # Share of a struck lance's length inside the hull
+const LANCE_QUIVER_RING = 0.25  # Spares sit round the stern this share of the nose distance off the axis
+const LANCE_QUIVER_SCALE = 0.6  # and are drawn this much shorter (stowed)
+
 # Ship types and part types (lineages 1-3): seeds evolution starts from, and how they look.
 const SHIP_TYPE_SEEDS = {
 	1: {"size": 0.5, "shares": {"structure": 0.45, "engine": 0.3, "reactor": 0.1, "capacitor": 0.05, "hold": 0.1}},
@@ -499,8 +536,9 @@ const PART_TYPE_SEEDS = {  # Part kind -> type -> genes
 	"thruster": {1: {"mass": 200.0}, 2: {"mass": 400.0}, 3: {"mass": 800.0}},
 	"power_cell": {1: {"mass": 150.0}, 2: {"mass": 300.0}, 3: {"mass": 600.0}},
 	"capacitor": {1: {"mass": 100.0}, 2: {"mass": 200.0}, 3: {"mass": 400.0}},
+	"lance": {1: {"nail_mass": 100.0, "count": 3.0}, 2: {"nail_mass": 200.0, "count": 3.0}, 3: {"nail_mass": 350.0, "count": 4.0}},
 }
-const PART_NAMES = {"laser": "Laser", "plating": "Hull Plating", "thruster": "Thruster", "power_cell": "Power Cell", "capacitor": "Capacitor", "harpoon": "Harpoon"}
+const PART_NAMES = {"laser": "Laser", "plating": "Hull Plating", "thruster": "Thruster", "power_cell": "Power Cell", "capacitor": "Capacitor", "harpoon": "Harpoon", "lance": "Kinetic Lance"}
 const PART_TYPE_NAMES = {1: "I", 2: "II", 3: "III"}
 const HARPOON_TEMPLATE_ID = "tool_harpoon"  # Not evolved: the same harpoon for everyone
 

@@ -12,6 +12,8 @@ mass = 1000.0
 stat_modifiers = {
 "hull": 46
 }
+lance = {
+}
 module_kind = "plating"
 variant_type = 2
 law_genes = {
