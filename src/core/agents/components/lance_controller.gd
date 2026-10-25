@@ -4,8 +4,10 @@
 # it that fit this seat: Agent.recoverable_lances_for). Only while armed (the player's LANCE button; an NPC while it
 # rams) does the tip strike: each physics step a ray runs from the seat to the tip and on by the
 # step's travel, so a fast ship cannot pass through. On a ship, a strike at a closing speed along
-# the lance of at least LAW_LANCE_MIN_SPEED, within LAW_LANCE_GLANCE_ANGLE of square-on, does
-# ShipLaws.lance_damage; otherwise it glances off (no damage, the lance stays seated). A strike stops
+# the lance of at least LAW_LANCE_MIN_SPEED goes in with a chance that falls with the angle off
+# square-on (ShipLaws.lance_hit_chance: sure square-on, unlikely past LAW_LANCE_GLANCE_ANGLE, where
+# only a long lance may slip between parts) and does ShipLaws.lance_damage; otherwise it glances off
+# (no damage, the lance stays seated). A strike stops
 # the two ships against each other along the lance (an inelastic knock: the target is shoved, the
 # rammer stopped) and leaves the lance in the target's hull until it is repaired; the next slides
 # into the seat after the reload time. Docking restocks the quiver (restock()). Spent lances are
@@ -72,7 +74,7 @@ func closing_speed_on(target: Spatial) -> float:
 
 # Damage at `closing_speed` square-on (0 if too slow).
 func damage_at(closing_speed: float) -> float:
-	return ShipLaws.lance_damage(lance, closing_speed, 0.0)
+	return ShipLaws.lance_damage(lance, closing_speed)
 
 
 # Whether a lance of `nail_mass` kg fits this seat (Constants.LANCE_RECOVER_MASS_TOLERANCE).
@@ -127,12 +129,15 @@ func _sweep(delta: float) -> void:
 
 
 # The tip meets `target` at `point` (surface `normal`): strikes or glances off. Returns the damage.
-func strike(target: RigidBody, point: Vector3, normal: Vector3) -> float:
+# `roll` (0-1) decides an angled strike; random if not given.
+func strike(target: RigidBody, point: Vector3, normal: Vector3, roll: float = -1.0) -> float:
 	var axis: Vector3 = _axis()
 	var closing: float = closing_speed_on(target)
 	var angle: float = rad2deg(acos(clamp(abs(normal.normalized().dot(axis)), 0.0, 1.0)))
-	var damage: float = ShipLaws.lance_damage(lance, closing, angle)
-	if damage <= 0.0:
+	var damage: float = ShipLaws.lance_damage(lance, closing)
+	if roll < 0.0:
+		roll = randf()
+	if damage <= 0.0 or roll >= ShipLaws.lance_hit_chance(lance, angle):
 		_glanced[target.get_instance_id()] = 1.0
 		emit_signal("glanced", target)
 		return 0.0

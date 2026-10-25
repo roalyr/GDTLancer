@@ -197,12 +197,22 @@ static func lance_stats(genes: Dictionary) -> Dictionary:
 	}
 
 
-# Damage of a lance strike at `closing_speed` (m/s along the lance) and `angle` (degrees off
-# square-on): 0 below LAW_LANCE_MIN_SPEED or past LAW_LANCE_GLANCE_ANGLE (it glances off).
-static func lance_damage(lance: Dictionary, closing_speed: float, angle: float) -> float:
-	if closing_speed < Constants.LAW_LANCE_MIN_SPEED or angle > Constants.LAW_LANCE_GLANCE_ANGLE:
+# Damage of a lance strike that goes in at `closing_speed` (m/s along the lance): 0 below
+# LAW_LANCE_MIN_SPEED (it glances off). Whether it goes in at an angle: lance_hit_chance.
+static func lance_damage(lance: Dictionary, closing_speed: float) -> float:
+	if closing_speed < Constants.LAW_LANCE_MIN_SPEED:
 		return 0.0
 	return float(lance.damage) * pow(closing_speed / Constants.LAW_LANCE_REF_SPEED, Constants.LAW_LANCE_SPEED_EXP)
+
+
+# Chance a lance meeting a hull `angle` degrees off square-on goes in rather than glancing off: 1
+# square-on, falling as (angle / LAW_LANCE_GLANCE_ANGLE)^GLANCE_EXP to the slip chance at that
+# angle; past it only the slip chance (a long lance can slip between parts), fading to 0 side-on.
+static func lance_hit_chance(lance: Dictionary, angle: float) -> float:
+	var slip: float = clamp(Constants.LAW_LANCE_SLIP_CHANCE * float(lance.length) / Constants.LAW_LANCE_LENGTH[1], 0.0, Constants.LAW_LANCE_SLIP_MAX)
+	if angle <= Constants.LAW_LANCE_GLANCE_ANGLE:
+		return 1.0 - (1.0 - slip) * pow(angle / Constants.LAW_LANCE_GLANCE_ANGLE, Constants.LAW_LANCE_GLANCE_EXP)
+	return slip * clamp((90.0 - angle) / (90.0 - Constants.LAW_LANCE_GLANCE_ANGLE), 0.0, 1.0)
 
 
 # {"mass", "stat_modifiers", "base_value"} of a module of `kind` (MODULE_KINDS); a lance adds "lance".

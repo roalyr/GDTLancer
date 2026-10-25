@@ -37,10 +37,18 @@ func test_law():
 	assert_eq(stats.count, 3)
 	assert_almost_eq(stats.mass, 200.0 * (3 + Constants.LAW_LANCE_SEAT_NAILS), 0.01, "Seat and quiver")
 	assert_almost_eq(stats.damage, Constants.LAW_LANCE_DAMAGE[1], 0.01)
-	assert_eq(ShipLaws.lance_damage(stats, Constants.LAW_LANCE_MIN_SPEED - 1.0, 0.0), 0.0, "Too slow: glances off")
-	assert_almost_eq(ShipLaws.lance_damage(stats, Constants.LAW_LANCE_REF_SPEED, 0.0), stats.damage, 0.01)
-	assert_almost_eq(ShipLaws.lance_damage(stats, 160.0, 0.0), stats.damage * 160.0 / Constants.LAW_LANCE_REF_SPEED, 0.01, "Damage grows with speed")
-	assert_eq(ShipLaws.lance_damage(stats, 300.0, Constants.LAW_LANCE_GLANCE_ANGLE + 5.0), 0.0, "Too oblique: glances off")
+	assert_eq(ShipLaws.lance_damage(stats, Constants.LAW_LANCE_MIN_SPEED - 1.0), 0.0, "Too slow: glances off")
+	assert_almost_eq(ShipLaws.lance_damage(stats, Constants.LAW_LANCE_REF_SPEED), stats.damage, 0.01)
+	assert_almost_eq(ShipLaws.lance_damage(stats, 160.0), stats.damage * 160.0 / Constants.LAW_LANCE_REF_SPEED, 0.01, "Damage grows with speed")
+	assert_eq(ShipLaws.lance_hit_chance(stats, 0.0), 1.0, "Square-on: sure")
+	var slip: float = ShipLaws.lance_hit_chance(stats, Constants.LAW_LANCE_GLANCE_ANGLE)
+	assert_almost_eq(slip, Constants.LAW_LANCE_SLIP_CHANCE, 0.001, "At the glance angle: only the slip chance (a 12 m lance)")
+	assert_gt(ShipLaws.lance_hit_chance(stats, 20.0), 0.85, "Shallow off-angle: still likely")
+	assert_gt(ShipLaws.lance_hit_chance(stats, 75.0), 0.0, "Past it: may slip in")
+	assert_lt(ShipLaws.lance_hit_chance(stats, 75.0), slip)
+	assert_eq(ShipLaws.lance_hit_chance(stats, 90.0), 0.0, "Side-on: never")
+	var long_lance: Dictionary = ShipLaws.lance_stats({"nail_mass": 1000.0, "count": 3.0})
+	assert_gt(ShipLaws.lance_hit_chance(long_lance, 70.0), ShipLaws.lance_hit_chance(stats, 70.0), "A longer lance slips in more often")
 	assert_gt(ShipLaws.lance_stats({"nail_mass": 400.0, "count": 3.0}).damage, stats.damage, "A heavier lance hits harder")
 	assert_eq(ShipLaws.lance_stats({"nail_mass": 200.0, "count": 3.4}).count, 3, "The count gene rounds")
 
@@ -69,11 +77,13 @@ func test_a_strike_damages_knocks_and_leaves_the_lance_in():
 
 func test_too_slow_or_oblique_glances_off():
 	rammer.linear_velocity = Vector3(0, 0, -(Constants.LAW_LANCE_MIN_SPEED - 10.0))
-	assert_eq(lance.strike(target, Vector3(0, 0, -20), Vector3(0, 0, 1)), 0.0)
+	assert_eq(lance.strike(target, Vector3(0, 0, -20), Vector3(0, 0, 1), 0.0), 0.0)
 	assert_eq(lance.nails, 3, "The lance stays seated")
 	assert_eq(target.hull, 200.0)
 	rammer.linear_velocity = Vector3(0, 0, -250)
-	assert_eq(lance.strike(target, Vector3(0, 0, -20), Vector3(1, 0, 0.2).normalized()), 0.0, "Side-on")
+	assert_eq(lance.strike(target, Vector3(0, 0, -20), Vector3(1, 0, 0.2).normalized(), 0.99), 0.0, "Nearly side-on: glances off")
+	lance._glanced.clear()
+	assert_gt(lance.strike(target, Vector3(0, 0, -20), Vector3(1, 0, 0.2).normalized(), 0.0), 0.0, "unless it slips between parts")
 
 
 func test_last_lance_then_restock():
