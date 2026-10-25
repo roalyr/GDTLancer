@@ -412,7 +412,7 @@ const AI_WALLET_MAX_SHARE = 2.0
 # Ramming (kinetic lance; ShipControllerAI, command_ram): a lance counts in a ship's damage per second
 # as one strike at its top speed per RAM_PASS_TIME s (or per reload, if longer). An NPC rams while
 # its top speed is at least RAM_SPEED_MARGIN times LAW_LANCE_MIN_SPEED and it has lances left.
-const AI_RAM_PASS_TIME = 15.0  # s between strikes: run-up, turn and charge
+const AI_RAM_PASS_TIME = 10.0  # s between strikes: run-up, turn and charge
 const AI_RAM_SPEED_MARGIN = 1.1
 const AI_ENEMY_DESIRE_FACTOR = 1.5  # Ships at war (or holding a grudge) want the fight this much more
 const AI_SALVAGE_SEARCH_RANGE = 6000.0  # m; wrecks further than this are not worth the trip
@@ -516,7 +516,7 @@ const LAW_LANCE_GLANCE_EXP = 2.0  # The hit chance falls as (angle / GLANCE_ANGL
 const LAW_LANCE_SLIP_CHANCE = 0.15  # Past the glance angle, the chance a 12 m lance slips between parts and goes in (times length / 12 m, fading to 0 side-on)
 const LAW_LANCE_SLIP_MAX = 0.4
 const LAW_LANCE_SEAT_NAILS = 2.0
-const LAW_LANCE_PROW_SHARE = 0.75  # The module armours the bow: hull as plating of this share of its mass (less than plating, so it is no free armour)
+const LAW_LANCE_PROW_SHARE = 1.0  # The module armours the bow: hull as plating of this share of its mass (a lancer must live through its approach)
 const LAW_LANCE_NAIL_MASS_RANGE = [30.0, 1500.0]
 const LAW_LANCE_COUNT_RANGE = [1.0, 12.0]
 const LANCE_RADIUS = 0.15  # m at the lance's base, for a 200 kg lance (grows as mass^(1/3))
