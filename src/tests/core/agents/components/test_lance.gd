@@ -101,10 +101,10 @@ func test_a_lance_adds_to_damage_per_second_while_it_has_lances():
 
 
 func test_aim_stiffens_as_the_charge_closes():
-	assert_eq(CommandRam.aim_gain(Constants.NAV_RAM_PID_GAIN_RANGE * 2.0), 1.0, "Usual aim from afar")
-	assert_almost_eq(CommandRam.aim_gain(0.0), Constants.NAV_RAM_PID_GAIN, 0.001)
-	var middle: float = CommandRam.aim_gain(Constants.NAV_RAM_PID_GAIN_RANGE * 0.5)
-	assert_lt(middle, (1.0 + Constants.NAV_RAM_PID_GAIN) * 0.5, "Most of the rise is near the end")
+	assert_eq(CommandRam.aim_gain(Constants.NAV_RAM_PID_GAIN_FROM + 1.0), 1.0, "Usual aim from afar")
+	assert_almost_eq(CommandRam.aim_gain(Constants.NAV_RAM_PID_GAIN_FULL), Constants.NAV_RAM_PID_GAIN, 0.001)
+	var middle: float = CommandRam.aim_gain((Constants.NAV_RAM_PID_GAIN_FROM + Constants.NAV_RAM_PID_GAIN_FULL) * 0.5)
+	assert_almost_eq(middle, (1.0 + Constants.NAV_RAM_PID_GAIN) * 0.5, 0.001, "Eases between")
 
 
 func test_run_up_distance():
