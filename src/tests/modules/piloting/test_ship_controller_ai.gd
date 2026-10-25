@@ -517,3 +517,22 @@ func test_too_slow_to_strike_it_does_not_ram():
 	ai._process_combat()
 	assert_false(ai.can_ram())
 	assert_false(lance.armed)
+
+
+func test_a_lancer_short_of_lances_goes_for_wrecks_with_its_lances_first_even_when_full():
+	ai.initialize({"patrol_center": Vector3.ZERO})
+	hostile.cargo_capacity = 10
+	hostile.add_cargo("test_scrap", 10)
+	var lance = _give_lance(hostile)
+	var near = _make_ship(Vector3(0, 0, -300), "verdant", 50.0)
+	near.become_wreck()
+	near.salvage = {"test_scrap": 5}
+	var far = _make_ship(Vector3(0, 0, -800), "verdant", 50.0)
+	far.become_wreck()
+	var stuck = MeshInstance.new()
+	stuck.add_to_group("stuck_lance")
+	stuck.set_meta("nail_mass", float(lance.lance.nail_mass))
+	far.add_child(stuck)
+	assert_eq(ai.scan_for_wreck(), null, "Quiver full and hold full: nothing worth salvaging")
+	lance.nails -= 1
+	assert_eq(ai.scan_for_wreck(), far, "Its lance, further off, comes first")

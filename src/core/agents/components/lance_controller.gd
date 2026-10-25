@@ -1,6 +1,7 @@
 # LanceController: the ship's kinetic lance (a "lance" module; ShipLaws.lance_stats, Constants
 # LAW_LANCE_*). Hammer and nail: a lance sits in the seat on the ship's axis, its tip past the nose;
-# spares wait in a quiver on the hull. Only while armed (the player's LANCE button; an NPC while it
+# spares wait in a quiver on the hull (salvaging a wreck with a harpoon recovers the lances stuck in
+# it that fit this seat: Agent.recoverable_lances_for). Only while armed (the player's LANCE button; an NPC while it
 # rams) does the tip strike: each physics step a ray runs from the seat to the tip and on by the
 # step's travel, so a fast ship cannot pass through. On a ship, a strike at a closing speed along
 # the lance of at least LAW_LANCE_MIN_SPEED, within LAW_LANCE_GLANCE_ANGLE of square-on, does
@@ -49,9 +50,14 @@ func is_seated() -> bool:
 	return nails > 0 and reload_left <= 0.0
 
 
+# m from the ship's origin to where the seated lance starts (a little behind the nose).
+func _seat() -> float:
+	return _nose * (1.0 - Constants.LANCE_SEAT_DEPTH)
+
+
 # Lance length past the ship's origin to its tip (m).
 func get_reach() -> float:
-	return _nose + float(lance.length)
+	return _seat() + float(lance.length)
 
 
 func get_tip() -> Vector3:
@@ -67,6 +73,11 @@ func closing_speed_on(target: Spatial) -> float:
 # Damage at `closing_speed` square-on (0 if too slow).
 func damage_at(closing_speed: float) -> float:
 	return ShipLaws.lance_damage(lance, closing_speed, 0.0)
+
+
+# Whether a lance of `nail_mass` kg fits this seat (Constants.LANCE_RECOVER_MASS_TOLERANCE).
+func fits(nail_mass: float) -> bool:
+	return abs(nail_mass - float(lance.nail_mass)) <= float(lance.nail_mass) * Constants.LANCE_RECOVER_MASS_TOLERANCE
 
 
 # kg of lances spent (left in targets) since the quiver was full.
@@ -163,6 +174,7 @@ func _leave_lance(target: Spatial, point: Vector3, axis: Vector3) -> void:
 	var length: float = float(lance.length)
 	var mesh := _lance_mesh(length)
 	mesh.add_to_group(LANCE_GROUP)
+	mesh.set_meta("nail_mass", float(lance.nail_mass))  # Salvage can recover it into a seat it fits
 	target.add_child(mesh)
 	var centre: Vector3 = point - axis * length * (0.5 - Constants.LANCE_STUCK_DEPTH)
 	mesh.global_transform = Transform(_basis_along(axis), centre)
@@ -200,7 +212,7 @@ func _build_visuals() -> void:
 	var length: float = float(lance.length)
 	_seat_mesh = _lance_mesh(length)
 	add_child(_seat_mesh)
-	_seat_mesh.transform = Transform(_basis_along(Vector3.FORWARD), Vector3(0, 0, -(_nose + length * 0.5)))
+	_seat_mesh.transform = Transform(_basis_along(Vector3.FORWARD), Vector3(0, 0, -(_seat() + length * 0.5)))
 	_quiver = Spatial.new()
 	_quiver.name = "Quiver"
 	add_child(_quiver)
@@ -226,7 +238,7 @@ func _update_visuals() -> void:
 func _lance_mesh(length: float) -> MeshInstance:
 	var cylinder := CylinderMesh.new()
 	var radius: float = Constants.LANCE_RADIUS * pow(float(lance.nail_mass) / Constants.LAW_LANCE_DAMAGE[0], 1.0 / 3.0)
-	cylinder.top_radius = radius * 0.3  # The tip (the mesh's +Y)
+	cylinder.top_radius = radius * Constants.LANCE_TIP_SHARE  # The tip (the mesh's +Y)
 	cylinder.bottom_radius = radius
 	cylinder.height = length
 	cylinder.radial_segments = 8

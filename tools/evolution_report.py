@@ -93,7 +93,7 @@ def main():
         events = Counter()
         for l in own:
             events.update(l.get("events", {}))
-        print("Run and chase: " + ", ".join("%s %d" % kv for kv in sorted(events.items())) + " (fled: broke off or ran; escaped: docked while running)")
+        print("Events: " + ", ".join("%s %d" % kv for kv in sorted(events.items())) + " (fled: broke off or ran; escaped: docked while running)")
         genes = defaultdict(list)
         for l in own:
             for gene, value in l["genome"].get("behavior", {}).items():

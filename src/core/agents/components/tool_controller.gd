@@ -21,6 +21,7 @@ signal tool_activated(tool_index, target)
 signal tool_deactivated(tool_index, reason)
 signal tool_cycled(tool_index, target, hit_quality, damage)
 signal salvage_stripped(tool_index, commodities)
+signal lance_recovered(tool_index)
 signal tool_blocked(tool_index, target, blocker)  # Something in the line of fire took the shot
 
 # Tethered bodies stop this far apart: the sum of both apparent radii times this factor.
@@ -303,14 +304,17 @@ func _process_harpoon(index: int, target: Node) -> void:
 	if not tether.is_reeled_in() or _cycle_timers.get(index, 0.0) > 0.0:
 		return
 	_cycle_timers[index] = tool_template.strip_interval
-	if _agent_body.get_free_cargo() <= 0:
+	if target.has_method("recover_lance_into") and target.recover_lance_into(_agent_body):
+		emit_signal("lance_recovered", index)  # Lances that fit its own seat come out first, into the quiver
+	elif _agent_body.get_free_cargo() <= 0:
 		return  # Hold full: keep towing.
-	var taken: Dictionary = target.take_salvage(1)
-	for commodity_id in taken:
-		_agent_body.add_cargo(commodity_id, taken[commodity_id])
-	if not taken.empty():
-		emit_signal("salvage_stripped", index, taken)
-	if target.get_salvage_units() <= 0:
+	else:
+		var taken: Dictionary = target.take_salvage(1)
+		for commodity_id in taken:
+			_agent_body.add_cargo(commodity_id, taken[commodity_id])
+		if not taken.empty():
+			emit_signal("salvage_stripped", index, taken)
+	if target.get_salvage_units() <= 0 and not (target.has_method("recoverable_lances_for") and target.recoverable_lances_for(_agent_body) > 0):
 		deactivate(index, "stripped")
 
 

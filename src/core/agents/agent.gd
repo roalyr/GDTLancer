@@ -821,6 +821,35 @@ func get_salvage_units() -> int:
 	return count_units(salvage)
 
 
+# Lances stuck in this hull (LanceController strikes; repairs take them out) that `salvager`'s lance
+# seat takes and its quiver has room for.
+func recoverable_lances_for(salvager) -> int:
+	var lance = salvager.get_lance() if is_instance_valid(salvager) and salvager.has_method("get_lance") else null
+	if lance == null or lance.nails >= int(lance.lance.count):
+		return 0
+	return int(min(_stuck_lances_fitting(lance).size(), int(lance.lance.count) - lance.nails))
+
+
+# Pulls one lance that fits `salvager`'s seat out of this hull into its quiver; true if it did.
+func recover_lance_into(salvager) -> bool:
+	if recoverable_lances_for(salvager) <= 0:
+		return false
+	var lance = salvager.get_lance()
+	var stuck: Node = _stuck_lances_fitting(lance)[0]
+	remove_child(stuck)
+	stuck.queue_free()
+	lance.restock(1)
+	return true
+
+
+func _stuck_lances_fitting(lance) -> Array:
+	var found: Array = []
+	for child in get_children():
+		if child.is_in_group(LanceController.LANCE_GROUP) and not child.is_queued_for_deletion() and lance.fits(float(child.get_meta("nail_mass", 0.0))):
+			found.append(child)
+	return found
+
+
 # Removes up to `units` from the wreck, taking commodities in name order; returns {id: units}.
 func take_salvage(units: int) -> Dictionary:
 	var taken := {}

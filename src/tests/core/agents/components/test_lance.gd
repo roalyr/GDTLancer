@@ -114,3 +114,20 @@ func test_run_up_distance():
 	var t: float = -log((150.0 - Constants.LAW_LANCE_MIN_SPEED) / 150.0) / Constants.LINEAR_DRAG
 	assert_almost_eq(from_rest, 150.0 * t - 150.0 * (1.0 - exp(-Constants.LINEAR_DRAG * t)) / Constants.LINEAR_DRAG, 1.0, "Thrust against drag from rest")
 	assert_gt(CommandRam.run_up_distance(150.0, 0.0, 10.0), from_rest, "A target pulling away needs more")
+
+
+func test_salvage_recovers_lances_that_fit_the_seat():
+	rammer.linear_velocity = Vector3(0, 0, -200)
+	lance.strike(target, Vector3(0, 0, -20), Vector3(0, 0, 1))
+	assert_eq(lance.nails, 2)
+	target.is_wreck = true
+	var other = _make_body(Vector3(50, 0, 0))
+	var heavy = LanceScript.new()
+	other.add_child(heavy)
+	heavy.setup(other, "heavy", ShipLaws.lance_stats({"nail_mass": 600.0, "count": 3.0}), 1)
+	assert_eq(target.recoverable_lances_for(other), 0, "A lance of another size does not fit that seat")
+	assert_eq(target.recoverable_lances_for(rammer), 1)
+	assert_true(target.recover_lance_into(rammer))
+	assert_eq(lance.nails, 3, "Back in the quiver")
+	assert_eq(target.recoverable_lances_for(rammer), 0)
+	assert_false(target.recover_lance_into(rammer), "Nothing left to recover (and the quiver is full)")

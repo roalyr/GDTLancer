@@ -101,6 +101,8 @@ func initialize(config: Dictionary) -> void:
 	_pursuit = float(behavior.get("pursuit", Constants.AI_PURSUIT))
 	_mercy = float(behavior.get("mercy", Constants.AI_MERCY))
 	_return_fire = float(behavior.get("return_fire", Constants.AI_RETURN_FIRE))
+	if is_instance_valid(_tool_controller) and not _tool_controller.is_connected("lance_recovered", self, "_on_lance_recovered"):
+		_tool_controller.connect("lance_recovered", self, "_on_lance_recovered")
 	var lance = agent_script.get_lance() if agent_script.has_method("get_lance") else null
 	if lance != null and not lance.is_connected("struck", self, "_on_lance_struck"):
 		lance.connect("struck", self, "_on_lance_struck")
@@ -244,10 +246,11 @@ func _process_patrol() -> void:
 			_consider("engage", target, desire_against(target), _engage_level())
 			return
 		elif _pending.empty():
-			if agent_script.get_free_cargo() <= 0 or _due_home():
+			var wreck = scan_for_wreck()
+			var lances_there: bool = is_instance_valid(wreck) and wreck.recoverable_lances_for(agent_script) > 0
+			if (agent_script.get_free_cargo() <= 0 and not lances_there) or _due_home():
 				_change_state(AIState.DEPART)
 				return
-			var wreck = scan_for_wreck()
 			if is_instance_valid(wreck):
 				_target_agent = wreck
 				_change_state(AIState.SALVAGE)
@@ -344,7 +347,7 @@ func _process_flee() -> void:
 # that show up come first.
 func _process_salvage() -> void:
 	var wreck = _target_agent
-	if not (is_instance_valid(wreck) and wreck.is_inside_tree() and wreck.get("is_wreck") and wreck.get_salvage_units() > 0) or agent_script.get_free_cargo() <= 0:
+	if not (is_instance_valid(wreck) and wreck.is_inside_tree() and wreck.get("is_wreck") and _worth_salvaging(wreck)):
 		_change_state(AIState.PATROL)
 		return
 	if _scan_timer <= 0.0:
@@ -462,6 +465,10 @@ func _stop_ramming() -> void:
 	var lance = agent_script.get_lance() if is_instance_valid(agent_script) and agent_script.has_method("get_lance") else null
 	if lance != null:
 		lance.armed = false
+
+
+func _on_lance_recovered(_index) -> void:
+	_note("lance_recovered")
 
 
 func _on_lance_struck(_target, _damage) -> void:
@@ -653,19 +660,28 @@ func _due_home() -> bool:
 	return not _arena.empty() and Evolution.is_old(agent_script.evo_uid)
 
 
-# The nearest detected wreck with something left on it that nobody else has harpooned.
+# The nearest detected wreck with something left on it for this ship that nobody else has
+# harpooned. A lancer short of lances goes for wrecks with lances that fit its seat first (they look
+# AI_LANCE_SALVAGE_PRIORITY times nearer), and recovers them even with a full hold.
 func scan_for_wreck() -> RigidBody:
 	var best: RigidBody = null
 	var best_distance: float = Constants.AI_SALVAGE_SEARCH_RANGE
 	var own_pos: Vector3 = agent_script.global_transform.origin
 	for body in get_tree().get_nodes_in_group("agent_body"):
-		if not (body.get("is_wreck") and body.get_salvage_units() > 0 and agent_script.detects(body) and _in_arena(body.global_transform.origin)):
+		if not (body.get("is_wreck") and _worth_salvaging(body) and agent_script.detects(body) and _in_arena(body.global_transform.origin)):
 			continue
 		var distance: float = own_pos.distance_to(body.global_transform.origin)
+		if body.recoverable_lances_for(agent_script) > 0:
+			distance /= Constants.AI_LANCE_SALVAGE_PRIORITY
 		if distance < best_distance and not _is_claimed(body):
 			best = body
 			best_distance = distance
 	return best
+
+
+# Lances for its own seat, or salvage with room in the hold.
+func _worth_salvaging(wreck) -> bool:
+	return wreck.recoverable_lances_for(agent_script) > 0 or (wreck.get_salvage_units() > 0 and agent_script.get_free_cargo() > 0)
 
 
 func _is_claimed(wreck) -> bool:
