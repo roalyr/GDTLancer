@@ -88,7 +88,7 @@ func execute(delta: float):
 
 
 # Rotation PID gain at `distance` m from the target: 1 from NAV_RAM_PID_GAIN_FROM out, easing up to
-# NAV_RAM_PID_GAIN at NAV_RAM_PID_GAIN_FULL (turn-arounds at 100-500 m keep the usual, calm aim).
+# NAV_RAM_PID_GAIN at NAV_RAM_PID_GAIN_FULL (turn-arounds at 200-500 m keep the usual, calm aim).
 static func aim_gain(distance: float) -> float:
 	var near: float = clamp((Constants.NAV_RAM_PID_GAIN_FROM - distance) / (Constants.NAV_RAM_PID_GAIN_FROM - Constants.NAV_RAM_PID_GAIN_FULL), 0.0, 1.0)
 	return 1.0 + (Constants.NAV_RAM_PID_GAIN - 1.0) * near * near * (3.0 - 2.0 * near)  # Smoothstep

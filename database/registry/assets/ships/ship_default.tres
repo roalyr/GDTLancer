@@ -20,7 +20,7 @@ tool_slots_medium = 0
 tool_slots_large = 0
 module_slots = 2
 equipped_tools = [ "tool_ablative_laser_long_range", "tool_harpoon" ]
-equipped_modules = [  ]
+equipped_modules = [ "module_kinetic_lance", "module_thruster" ]
 salvage_yield = {
 "commodity_scrap": 20,
 "commodity_tech": 9
