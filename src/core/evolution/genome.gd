@@ -273,10 +273,11 @@ static func describe(genome: Dictionary) -> String:
 	for part in genome.modules:
 		modules.append(describe_part(part))
 	var b: Dictionary = genome.get("behavior", default_behavior())
-	return "PHOENIX %s s=%.2f %.0fkg hull%d thr%.0fk pwr%.0f/%.1f hold%d [st%.2f en%.2f re%.2f ca%.2f ho%.2f] tools{%s} mods{%s} beh{eng%.2f dis%.2f rng%.2f ret%.2f}" % [
+	return "PHOENIX %s s=%.2f %.0fkg hull%d thr%.0fk pwr%.0f/%.1f hold%d [st%.2f en%.2f re%.2f ca%.2f ho%.2f] tools{%s} mods{%s} beh{eng%.2f dis%.2f rng%.2f ret%.2f pur%.2f mer%.2f rf%.2f}" % [
 		Constants.PART_TYPE_NAMES.get(int(ship.type), "?"), ship["size"], stats.mass, stats.hull_integrity, stats.linear_thrust / 1000.0,
 		stats.power_capacity, stats.power_regen, stats.cargo_capacity,
 		sh.structure, sh.engine, sh.reactor, sh.capacitor, sh.hold,
 		PoolStringArray(tools).join(" "), PoolStringArray(modules).join(" "),
 		b.get("engage", 1.0), b.get("disengage", 0.8), b.get("range", 1.0), b.get("retreat_hull", 0.0),
+		b.get("pursuit", Constants.AI_PURSUIT), b.get("mercy", Constants.AI_MERCY), b.get("return_fire", Constants.AI_RETURN_FIRE),
 	]

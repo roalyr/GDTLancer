@@ -10,7 +10,7 @@ description = "Bolt-on plates over the frame. More hull to burn through; heavier
 base_value = 250
 mass = 1000.0
 stat_modifiers = {
-"hull": 19
+"hull": 46
 }
 module_kind = "plating"
 variant_type = 2

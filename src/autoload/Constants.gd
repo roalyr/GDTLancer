@@ -373,6 +373,18 @@ const AI_GAIN_FACTOR_MAX = 4.0
 const AI_ENGAGE_DESIRE = 1.0
 const AI_DISENGAGE_DESIRE = 0.8  # Below the engage level, so a fight does not flip-flop
 const AI_FLEE_DISTANCE = 6000.0  # m from the threat at which a fleeing ship resumes patrol
+# Runners (see ShipControllerAI): a ship moving away from its pursuer at over RUNNER_SPEED_SHARE of
+# its top speed is running. The pursuer goes on only while (runner's time to safety) / (its own time
+# to get the runner in reach) * PURSUIT >= 1, and lets one go that has not hit it for
+# RETURN_FIRE_WINDOW s with chance MERCY; a ship let go is left alone for SPARE_TIME s unless it
+# shoots. A runner shoots back with chance RETURN_FIRE (rolled per flight). Defaults for NPCs
+# without behaviour genes: the old ways (chase anything catchable, never spare, always shoot back).
+const AI_PURSUIT = 1.0
+const AI_MERCY = 0.0
+const AI_RETURN_FIRE = 1.0
+const AI_RUNNER_SPEED_SHARE = 0.5
+const AI_RETURN_FIRE_WINDOW = 4.0  # s
+const AI_SPARE_TIME = 60.0  # s
 const AI_ENEMY_DESIRE_FACTOR = 1.5  # Ships at war (or holding a grudge) want the fight this much more
 const AI_SALVAGE_SEARCH_RANGE = 6000.0  # m; wrecks further than this are not worth the trip
 const AI_DEPART_ARRIVAL_DISTANCE = 300.0  # m from its spawn point at which a hauler leaves the sector
@@ -411,7 +423,7 @@ const WRECK_MAX: int = 16  # Past this, the oldest are removed even with salvage
 # middle. The reference points are the Phoenix Light and the Ablative Laser: their genes give
 # their old numbers. A ship's own subsystems follow the same laws as the modules that add to them.
 # Laws as [reference mass kg, amount at that mass, exponent].
-const LAW_HULL = [3300.0, 50.0, 0.8]  # Structure or plating mass -> hull points
+const LAW_HULL = [3300.0, 120.0, 0.8]  # Structure or plating mass -> hull points
 const LAW_THRUST = [1200.0, 450000.0, 0.9]  # Engine or thruster mass -> N
 const LAW_REGEN = [600.0, 10.0, 0.9]  # Reactor or power cell mass -> power per second
 const LAW_CAPACITY = [300.0, 100.0, 1.0]  # Capacitor mass -> power stored
@@ -434,7 +446,7 @@ const LAW_SLOT_MEDIUM_SIZE = 2.0  # s from which hardpoints take medium tools
 const LAW_SLOT_LARGE_SIZE = 5.0  # and large ones
 const LAW_SHIP_VALUE_PER_KG = 1.0 / 6.0  # WP
 const LAW_SCRAP_PER_KG = 1.0 / 300.0  # Salvage units of scrap in a wreck, per kg of ship
-const LAW_TECH_PER_KG = 1.0 / 600.0  # and of tech, per kg of engines and reactor
+const LAW_TECH_PER_KG = 1.0 / 200.0  # and of tech, per kg of engines and reactor
 
 # Lasers: shot energy E (power spent per cycle) and mass m (aperture, cooling).
 #   damage = DAMAGE * (E/E0)^a, optimal = RANGE * (m/m0)^b * (E/E0)^c, tracking = TRACKING * (m/m0)^d,
@@ -522,9 +534,9 @@ const ARENA_BEACON_SCENE = "res://scenes/prefabs/station/arena_beacon.tscn"
 # re-flies its genome or a mutant. Fitness is noisy, so it is shrunk toward 0 by EVO_PRIOR_LIVES.
 const EVO_KILL_BOUNTY_SHARE = 0.2  # Share of a victim's value paid to its killer
 const EVO_REPAIR_COST_SHARE = 0.5  # A full repair costs this share of the hull's value (less for less)
-const EVO_UPKEEP_PER_HOUR = 1.0  # Running costs: this share of the ship's value per hour alive
+const EVO_UPKEEP_PER_HOUR = 0.5  # Running costs: this share of the ship's value per hour alive
 const EVO_PRIOR_LIVES = 2.0  # Fitness mean = sum / (lives + this)
-const EVO_SELECTION_TEMPERATURE = 0.5  # Niche pick weight = exp(fitness / this)
+const EVO_SELECTION_TEMPERATURE = 0.2  # Niche pick weight = exp(fitness / this)
 const EVO_REFLY_CHANCE = 0.25  # A spawn flies a niche's genome unchanged (to measure it again)
 const EVO_IMMIGRANT_CHANCE = 0.05  # A spawn is a fresh random genome
 const EVO_MUTATION_SIGMA = 0.08  # Log-normal step on each mutated gene
@@ -538,6 +550,9 @@ const EVO_BEHAVIOR_RANGES = {  # Gene -> [min, max, default]
 	"disengage": [0.1, 3.0, 0.8],  # below which it breaks off (AI_DISENGAGE_DESIRE)
 	"range": [0.3, 1.5, 1.0],  # Orbit distance as a share of its laser's optimal range
 	"retreat_hull": [0.0, 0.8, 0.0],  # Hull share at which it runs home whatever the odds
+	"pursuit": [0.0, 3.0, 1.0],  # Chases a runner while it would catch it within this share of its time to safety (AI_PURSUIT)
+	"mercy": [0.0, 1.0, 0.5],  # Chance of letting a runner go that is not shooting back (AI_MERCY)
+	"return_fire": [0.0, 1.0, 0.5],  # Chance, per flight, of shooting back while running (AI_RETURN_FIRE)
 }
 const EVO_GENOME_MEMORY = 3000  # Genomes whose records are kept (elites and live ones always are)
 const EVO_REPORT_INTERVAL = 300.0  # s of game time between console reports

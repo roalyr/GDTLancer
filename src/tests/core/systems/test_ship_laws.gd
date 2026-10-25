@@ -11,7 +11,7 @@ const PHOENIX = {"type": 2, "size": 1.0, "shares": {"structure": 0.55, "engine":
 func test_reference_ship_is_the_phoenix_light():
 	var stats: Dictionary = ShipLaws.ship_stats(PHOENIX)
 	assert_almost_eq(stats.mass, 6000.0, 0.01)
-	assert_eq(stats.hull_integrity, 50)
+	assert_eq(stats.hull_integrity, int(Constants.LAW_HULL[1]))
 	assert_almost_eq(stats.linear_thrust, 450000.0, 1.0)
 	assert_almost_eq(stats.power_capacity, 100.0, 0.01)
 	assert_almost_eq(stats.power_regen, 10.0, 0.01)
@@ -37,9 +37,9 @@ func test_reference_laser_is_the_ablative_laser():
 func test_bigger_ships_are_longer_tougher_and_turn_slower():
 	var small: Dictionary = ShipLaws.ship_stats({"size": 0.25, "shares": PHOENIX.shares})
 	var big: Dictionary = ShipLaws.ship_stats({"size": 4.0, "shares": PHOENIX.shares})
-	assert_lt(small.hull_integrity, 50)
-	assert_gt(big.hull_integrity, 50)
-	assert_lt(big.hull_integrity, 50 * 4, "Hull grows slower than mass")
+	assert_lt(small.hull_integrity, Constants.LAW_HULL[1])
+	assert_gt(big.hull_integrity, Constants.LAW_HULL[1])
+	assert_lt(big.hull_integrity, Constants.LAW_HULL[1] * 4, "Hull grows slower than mass")
 	assert_almost_eq(big.apparent_radius / small.apparent_radius, pow(16.0, 1.0 / 3.0), 0.001)
 	assert_lt(big.linear_thrust / big.mass, small.linear_thrust / small.mass, "Thrust per kg falls with size")
 	assert_eq(small.tool_slots_small, 1, "Even the smallest ship has one hardpoint")
@@ -68,7 +68,7 @@ func test_laser_energy_trades_reach_and_punch_for_cycle_time():
 
 
 func test_module_laws_match_the_ship_subsystems():
-	assert_eq(ShipLaws.module_stats("plating", {"mass": 3300.0}).stat_modifiers.hull, 50)
+	assert_eq(ShipLaws.module_stats("plating", {"mass": 3300.0}).stat_modifiers.hull, int(Constants.LAW_HULL[1]))
 	assert_almost_eq(ShipLaws.module_stats("thruster", {"mass": 1200.0}).stat_modifiers.linear_thrust, 450000.0, 1.0)
 	assert_almost_eq(ShipLaws.module_stats("power_cell", {"mass": 600.0}).stat_modifiers.power_regen, 10.0, 0.001)
 	assert_almost_eq(ShipLaws.module_stats("capacitor", {"mass": 300.0}).stat_modifiers.power_capacity, 100.0, 0.001)

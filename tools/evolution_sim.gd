@@ -70,8 +70,12 @@ func _run():
 			paused = false  # Nothing here should pause the run (a menu opened by a stray event)
 		if evolution.game_time >= next_save:
 			next_save = evolution.game_time + save_every * 60.0
-			print("EVOSIM saved=%s t=%.0fs wall=%.0fs pace x%.1f" % [manager.save_game(0), evolution.game_time, (OS.get_ticks_msec() - t0) / 1000.0,
-				(evolution.game_time - start_time) / max(0.001, (OS.get_ticks_msec() - t0) / 1000.0)])
+			print("EVOSIM saved=%s t=%.0fs wall=%.0fs pace x%.1f nodes=%d orphans=%d objects=%d bodies=%d templates=%d genomes=%d mem=%.0fMB" % [
+				manager.save_game(0), evolution.game_time, (OS.get_ticks_msec() - t0) / 1000.0,
+				(evolution.game_time - start_time) / max(0.001, (OS.get_ticks_msec() - t0) / 1000.0),
+				Performance.get_monitor(Performance.OBJECT_NODE_COUNT), Performance.get_monitor(Performance.OBJECT_ORPHAN_NODE_COUNT),
+				Performance.get_monitor(Performance.OBJECT_COUNT), get_nodes_in_group("agent_body").size(),
+				root.get_node("TemplateDatabase").evolved.size(), evolution.genomes.size(), OS.get_static_memory_usage() / 1048576.0])
 	Engine.time_scale = 1.0
 	Engine.iterations_per_second = 60
 	evolution.print_report()

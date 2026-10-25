@@ -359,3 +359,86 @@ func test_retreat_gene_runs_home_whatever_the_odds():
 	hostile.hull = hostile.hull_max * 0.4
 	ai._process_combat()
 	assert_eq(ai.get_state(), AIScript.AIState.FLEE, "Under half hull: runs, though the prey is easy")
+
+
+# --- Runners: chase, let go, shoot back or not ---
+
+const MovementScript = preload("res://src/core/agents/components/movement_system.gd")
+
+
+# Gives `body` a top speed (m/s; mass 1) and a velocity away from the hostile.
+func _set_speed(body: RigidBody, top_speed: float, running: bool) -> void:
+	var movement = MovementScript.new()
+	body.add_child(movement)
+	body.movement_system = movement
+	body.mass = 1.0
+	body.ship_template.signature = 50000.0  # Seen however far it runs
+	movement.linear_thrust = top_speed * Constants.LINEAR_DRAG
+	if running:
+		body.linear_velocity = (body.global_transform.origin - hostile.global_transform.origin).normalized() * top_speed
+
+
+func _fighting(target) -> void:
+	ai._target_agent = target
+	ai._current_state = AIScript.AIState.IDLE
+	ai._change_state(AIScript.AIState.COMBAT)
+
+
+func test_a_runner_that_does_not_shoot_back_holds_fire():
+	var tough = _make_ship(Vector3(0, 0, -300), "verdant", 1000.0)
+	hostile.power_max = 100.0
+	hostile.power = 100.0
+	ai.initialize({"patrol_center": Vector3.ZERO, "behavior": {"return_fire": 0.0}})
+	ai._target_agent = tough
+	ai._change_state(AIScript.AIState.FLEE)
+	ai._process_flee()
+	assert_false(hostile.get_node("ToolController").is_active(0), "Running without shooting back")
+
+
+func test_gives_up_a_runner_it_cannot_catch_before_it_is_safe():
+	var reach: float = hostile.get_node("ToolController").get_tool(0).get_max_range()
+	var station = _arena_station(Vector3(0, 0, -(reach + 3000.0)))
+	var prey = _make_ship(Vector3(0, 0, -(reach + 500.0)), "verdant", 5.0)
+	_set_speed(hostile, 200.0, false)
+	_set_speed(prey, 100.0, true)
+	ai.initialize({"patrol_center": Vector3.ZERO, "behavior": {"mercy": 0.0},
+		"arena": {"zone_id": "t", "beacon": Vector3.ZERO, "stations": [], "refuges": {"verdant": [station]}}})
+	_fighting(prey)
+	assert_true(ai.is_running_from_me(prey))
+	assert_almost_eq(ai.chase_margin(prey), (2500.0 / 100.0) / (500.0 / 100.0), 0.01, "Caught in 5 s, safe in 25 s")
+	ai._scan_timer = 0.0
+	ai._process_combat()
+	assert_eq(ai.get_state(), AIScript.AIState.COMBAT, "Catchable: keeps after it")
+	station.global_transform.origin = prey.global_transform.origin + Vector3(0, 0, -200.0)
+	ai._scan_timer = 0.0
+	ai._process_combat()
+	assert_eq(ai.get_state(), AIScript.AIState.HESITATE, "Nearly home: weighs giving up")
+	ai._tick_decision(100.0)
+	assert_eq(ai.get_state(), AIScript.AIState.PATROL, "and gives up")
+	assert_true(ai.is_sparing(prey))
+	assert_null(ai.scan_for_target(), "and leaves it be for a while")
+	assert_almost_eq(ai.chase_margin(prey), 0.4, 0.01, "Safe in 2 s, caught in 5 s")
+	assert_true(ai.chase_margin(prey) * 3.0 >= 1.0, "A dogged pursuer (pursuit gene 3) would have gone on")
+
+
+func test_mercy_lets_go_only_a_runner_that_holds_fire():
+	var reach: float = hostile.get_node("ToolController").get_tool(0).get_max_range()
+	var prey = _make_ship(Vector3(0, 0, -(reach + 500.0)), "verdant", 5.0)
+	_set_speed(hostile, 200.0, false)
+	_set_speed(prey, 100.0, true)
+	ai.initialize({"patrol_center": Vector3.ZERO, "behavior": {"mercy": 1.0}})
+	_fighting(prey)
+	hostile.apply_damage(1.0, prey)  # It shoots back as it runs
+	ai._scan_timer = 0.0
+	ai._process_combat()
+	assert_eq(ai.get_state(), AIScript.AIState.COMBAT, "Shooting back: no mercy")
+	ai._think(Constants.AI_RETURN_FIRE_WINDOW + 0.1)  # Holds fire a while
+	ai._scan_timer = 0.0
+	ai._process_combat()
+	assert_eq(ai.get_state(), AIScript.AIState.HESITATE)
+	ai._tick_decision(100.0)
+	assert_eq(ai.get_state(), AIScript.AIState.PATROL, "Let go")
+	hostile.apply_damage(1.0, prey)
+	ai._tick_decision(100.0)
+	assert_eq(ai.get_state(), AIScript.AIState.COMBAT, "until it shoots again")
+	assert_false(ai.is_sparing(prey))

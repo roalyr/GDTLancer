@@ -6,6 +6,10 @@
 # spawn DOCKED at one of their faction's stations, flee to one (and dock: safe, repaired) and haul
 # their salvage to one to sell it; old ones retire there. Their behaviour genes set when they
 # start and break off a fight, how close they fight, and at what hull they run whatever the odds.
+# Runners: a ship running from its target's fight shoots back or not (a roll on its return_fire gene,
+# per flight). The pursuer chases only while it reckons it can catch the runner before it is safe
+# (pursuit gene), and may let a runner go that is not shooting back (mercy gene): careful ships lose
+# gracefully, reckless ones fight to the death. Every NPC has them (defaults in the Constants AI block).
 # Decisions take time (skill, how close the call is): meanwhile the ship HESITATES, a state of its
 # own the player can read. It turns its nose on the ship in question and eases off to a drift,
 # holding fire; one wavering over breaking off a fight keeps fighting meanwhile. Being shot while
@@ -28,7 +32,7 @@ const ACTIVITY_LABELS = {
 }
 
 # Which pending decision gives way to which (higher wins): being shot outranks anything else.
-const DECISION_PRIORITY = {"engage": 0, "disengage": 0, "respond": 1}
+const DECISION_PRIORITY = {"engage": 0, "disengage": 0, "let_go": 0, "respond": 1}
 
 
 var agent_script: RigidBody = null
@@ -56,6 +60,14 @@ var _engage_desire: float = Constants.AI_ENGAGE_DESIRE  # Behaviour genes (Const
 var _disengage_desire: float = Constants.AI_DISENGAGE_DESIRE
 var _range_factor: float = 1.0
 var _retreat_hull: float = 0.0
+var _pursuit: float = Constants.AI_PURSUIT  # Chases a runner while catch time * this <= its time to safety
+var _mercy: float = Constants.AI_MERCY  # Chance of letting a runner go that is not shooting back
+var _return_fire: float = Constants.AI_RETURN_FIRE  # Chance, per flight, that it shoots back running
+var _shooting_back: bool = true  # This flight's roll of _return_fire
+var _since_hit: float = INF  # s since the ship it fights last hit it
+var _runner_judged: bool = false  # Its target's current run has had its mercy roll
+var _letting_go: bool = false  # and the roll was to let it go
+var _spared: Dictionary = {}  # Instance id -> s left during which it does not go after that ship again
 
 
 func _ready() -> void:
@@ -81,6 +93,9 @@ func initialize(config: Dictionary) -> void:
 	_disengage_desire = float(behavior.get("disengage", Constants.AI_DISENGAGE_DESIRE))
 	_range_factor = float(behavior.get("range", 1.0))
 	_retreat_hull = float(behavior.get("retreat_hull", 0.0))
+	_pursuit = float(behavior.get("pursuit", Constants.AI_PURSUIT))
+	_mercy = float(behavior.get("mercy", Constants.AI_MERCY))
+	_return_fire = float(behavior.get("return_fire", Constants.AI_RETURN_FIRE))
 	var docked_at = config.get("docked_at")
 	if docked_at is Spatial:
 		_dock(docked_at, false)
@@ -130,6 +145,11 @@ func _physics_process(delta: float) -> void:
 func _think(delta: float) -> void:
 	_repath_timer = max(0.0, _repath_timer - delta)
 	_scan_timer = max(0.0, _scan_timer - delta)
+	_since_hit += delta
+	for id in _spared.keys():
+		_spared[id] -= delta
+		if _spared[id] <= 0.0:
+			_spared.erase(id)
 	_tick_decision(delta)
 	match _current_state:
 		AIState.PATROL:
@@ -172,6 +192,7 @@ func _change_state(new_state: int) -> void:
 		AIState.COMBAT:
 			agent_script.command_approach(_target_agent)
 		AIState.FLEE:
+			_shooting_back = randf() < _return_fire
 			if not _arena.empty():
 				_station = _pick_refuge(_target_agent)
 			if is_instance_valid(_station) and not _arena.empty():
@@ -243,6 +264,9 @@ func _process_combat() -> void:
 		if desire < _disengage_desire:
 			_consider("disengage", _target_agent, desire, _disengage_desire)
 			return
+		if _should_let_go(_target_agent):
+			_consider("let_go", _target_agent, chase_margin(_target_agent) * _pursuit, 1.0)
+			return
 
 	var distance: float = agent_script.global_transform.origin.distance_to(_target_agent.global_transform.origin)
 	# Close to optimal range, then orbit there; re-approach if pushed out.
@@ -278,7 +302,7 @@ func _fire_at(target) -> void:
 func _process_flee() -> void:
 	if not _arena.empty():
 		_process_run_home()
-		if is_instance_valid(_target_agent) and _is_live_target(_target_agent):
+		if _shooting_back and _is_live_target(_target_agent):
 			_fire_at(_target_agent)  # Running, but shooting back at whatever reaches
 		return
 	if not _is_live_target(_target_agent):
@@ -291,7 +315,8 @@ func _process_flee() -> void:
 	if _repath_timer <= 0.0:
 		_repath_timer = Constants.AI_REPATH_INTERVAL
 		agent_script.command_flee(_target_agent)
-	_fire_at(_target_agent)  # Running, but shooting back at whatever reaches
+	if _shooting_back:
+		_fire_at(_target_agent)  # Running, but shooting back at whatever reaches
 
 
 # Close in on a wreck, harpoon it and strip it until it is empty or the hold is full. Enemies
@@ -340,6 +365,11 @@ func _process_hesitate() -> void:
 		if desire_against(_target_agent) >= _disengage_desire:
 			_pending = {}
 			_resume()  # The fight turned back: keep at it
+	elif _pending.kind == "let_go" and _scan_timer <= 0.0:
+		_scan_timer = Constants.AI_SCAN_INTERVAL
+		if not _should_let_go(_target_agent):
+			_pending = {}
+			_resume()  # It turned round, or slowed: keep at it
 
 
 # Back to what it was doing before it hesitated (patrol, if that is over).
@@ -371,6 +401,60 @@ func _process_depart() -> void:
 	if _repath_timer <= 0.0:
 		_repath_timer = Constants.AI_REPATH_INTERVAL * 4.0
 		agent_script.command_move_to(_home_point)
+
+
+# --- Runners: chase or let go ---
+
+# Whether `body` is running from this ship: moving away from it at over AI_RUNNER_SPEED_SHARE of its
+# top speed (what the player sees too: a ship turning tail).
+func is_running_from_me(body) -> bool:
+	var away: Vector3 = body.global_transform.origin - agent_script.global_transform.origin
+	if away.length() < 0.001:
+		return false
+	return body.linear_velocity.dot(away.normalized()) > Constants.AI_RUNNER_SPEED_SHARE * max(body.get_top_speed(), 1.0)
+
+
+# A runner's time to safety over the time this ship needs to get it in reach: over 1 it gets caught,
+# under 1 it gets away; INF while in reach.
+func chase_margin(body) -> float:
+	var own_pos: Vector3 = agent_script.global_transform.origin
+	var target_pos: Vector3 = body.global_transform.origin
+	var index: int = _tool_controller.find_tool_for(body) if is_instance_valid(_tool_controller) else -1
+	var reach: float = _tool_controller.get_tool(index).get_max_range() if index >= 0 else 0.0
+	var gap: float = own_pos.distance_to(target_pos) - reach
+	if gap <= 0.0:
+		return INF
+	var runner_speed: float = max(body.get_top_speed(), body.linear_velocity.length())
+	var closing: float = agent_script.get_top_speed() - runner_speed
+	if closing <= 0.0:
+		return 0.0
+	# Safe: docked at its nearest station in an arena, otherwise once it has fled AI_FLEE_DISTANCE
+	var safe_distance: float = max(0.0, Constants.AI_FLEE_DISTANCE - own_pos.distance_to(target_pos))
+	if not _arena.empty():
+		safe_distance = INF
+		for station in _arena.get("refuges", {}).get(body.get("faction"), []):
+			if is_instance_valid(station):
+				safe_distance = min(safe_distance, target_pos.distance_to(station.get_undock_position()))
+	return (safe_distance / max(runner_speed, 1.0)) / (gap / closing)
+
+
+# Breaks off from a runner it reckons it cannot catch, or one it lets go (a mercy roll, once per run)
+# because it is not shooting back.
+func _should_let_go(body) -> bool:
+	if not (_is_live_target(body) and is_running_from_me(body)):
+		_runner_judged = false
+		return false
+	var shooting_back: bool = _since_hit < Constants.AI_RETURN_FIRE_WINDOW
+	if not _runner_judged:
+		_runner_judged = true
+		_letting_go = randf() < _mercy
+	if _letting_go and not shooting_back:
+		return true
+	return chase_margin(body) * _pursuit < 1.0
+
+
+func is_sparing(body) -> bool:
+	return is_instance_valid(body) and _spared.has(body.get_instance_id())
 
 
 # --- Arena: stations, docking, staying in the arena ---
@@ -475,6 +559,8 @@ func scan_for_target() -> RigidBody:
 	for body in get_tree().get_nodes_in_group("agent_body"):
 		if body == agent_script or not _is_live_target(body) or not agent_script.is_enemy_of(body):
 			continue
+		if is_sparing(body):
+			continue
 		if not _in_arena(body.global_transform.origin):
 			continue
 		if not agent_script.detects(body):
@@ -525,6 +611,7 @@ func _on_agent_damaged(agent_body, _amount, source) -> void:
 		fighting = _resume_target
 	if fighting != null and fighting == source:
 		_provoked = true
+		_since_hit = 0.0
 		return
 	# Shot at: once it has made up its mind, fight back if the rule says so, otherwise run.
 	_consider("respond", source, desire_against(source), _disengage_desire)
@@ -597,6 +684,13 @@ func _tick_decision(delta: float) -> void:
 				_change_state(AIState.FLEE)
 			else:
 				_resume()
+		"let_go":
+			if _should_let_go(target):
+				_spared[target.get_instance_id()] = Constants.AI_SPARE_TIME
+				_resume_target = null
+				_change_state(AIState.PATROL)
+			else:
+				_resume()
 		"respond":
 			_resume_target = null
 			if desire >= _disengage_desire and not _should_retreat():
@@ -609,6 +703,9 @@ func _tick_decision(delta: float) -> void:
 func _start_combat(target, provoked: bool) -> void:
 	_target_agent = target
 	_provoked = provoked
+	_since_hit = 0.0 if provoked else INF
+	_runner_judged = false
+	_spared.erase(target.get_instance_id())
 	_current_state = AIState.IDLE  # Re-enter combat so the approach starts toward the target
 	_change_state(AIState.COMBAT)
 

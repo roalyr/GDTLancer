@@ -239,7 +239,7 @@ func _spawn_arena_npc(zone: Dictionary, faction: String) -> RigidBody:
 		"behavior": life.behavior,
 		"patrol_center": zone.beacon.global_transform.origin,
 		"home_point": station.global_transform.origin,
-		"arena": {"zone_id": zone.id, "beacon": zone.beacon.global_transform.origin, "stations": stations},
+		"arena": {"zone_id": zone.id, "beacon": zone.beacon.global_transform.origin, "stations": stations, "refuges": zone.stations},
 		"docked_at": station,
 	})
 	if is_instance_valid(npc):
