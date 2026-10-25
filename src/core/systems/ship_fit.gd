@@ -51,7 +51,7 @@ static func random_fit(ship) -> Dictionary:
 			continue
 		if tool_template.tool_type == "laser":
 			lasers.append(tool_id)
-		if tool_template.tool_type in ["laser", "harpoon"]:
+		if tool_template.tool_type in ["laser", "missile", "cannon", "harpoon"]:
 			usable.append(tool_id)
 	for i in range(sizes.size()):
 		var choices: Array = []

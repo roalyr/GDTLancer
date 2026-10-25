@@ -105,6 +105,7 @@ func initialize(config: Dictionary) -> void:
 	_return_fire = float(behavior.get("return_fire", Constants.AI_RETURN_FIRE))
 	if is_instance_valid(_tool_controller) and not _tool_controller.is_connected("lance_recovered", self, "_on_lance_recovered"):
 		_tool_controller.connect("lance_recovered", self, "_on_lance_recovered")
+		_tool_controller.connect("ammo_recovered", self, "_on_ammo_recovered")
 	var lance = agent_script.get_lance() if agent_script.has_method("get_lance") else null
 	if lance != null and not lance.is_connected("struck", self, "_on_lance_struck"):
 		lance.connect("struck", self, "_on_lance_struck")
@@ -260,7 +261,7 @@ func _process_patrol() -> void:
 			return
 		elif _pending.empty():
 			var wreck = scan_for_wreck()
-			var lances_there: bool = is_instance_valid(wreck) and wreck.recoverable_lances_for(agent_script) > 0
+			var lances_there: bool = is_instance_valid(wreck) and (wreck.recoverable_lances_for(agent_script) > 0 or _recoverable_ammo(wreck) > 0)
 			if (agent_script.get_free_cargo() <= 0 and not lances_there) or _due_home():
 				_change_state(AIState.DEPART)
 				return
@@ -493,6 +494,10 @@ func _on_lance_recovered(_index) -> void:
 	_note("lance_recovered")
 
 
+func _on_ammo_recovered(_index, _rounds) -> void:
+	_note("ammo_recovered")
+
+
 func _on_lance_struck(_target, _damage) -> void:
 	_note("lance_hit")
 
@@ -693,17 +698,24 @@ func scan_for_wreck() -> RigidBody:
 		if not (body.get("is_wreck") and _worth_salvaging(body) and agent_script.detects(body) and _in_arena(body.global_transform.origin)):
 			continue
 		var distance: float = own_pos.distance_to(body.global_transform.origin)
-		if body.recoverable_lances_for(agent_script) > 0:
-			distance /= Constants.AI_LANCE_SALVAGE_PRIORITY
+		if body.recoverable_lances_for(agent_script) > 0 or _recoverable_ammo(body) > 0:
+			distance /= Constants.AI_LANCE_SALVAGE_PRIORITY  # Lances or rounds for its own weapons: worth a detour
 		if distance < best_distance and not _is_claimed(body):
 			best = body
 			best_distance = distance
 	return best
 
 
-# Lances for its own seat, or salvage with room in the hold.
+# Lances for its own seat, rounds for its own magazines, or salvage with room in the hold.
 func _worth_salvaging(wreck) -> bool:
-	return wreck.recoverable_lances_for(agent_script) > 0 or (wreck.get_salvage_units() > 0 and agent_script.get_free_cargo() > 0)
+	return wreck.recoverable_lances_for(agent_script) > 0 or _recoverable_ammo(wreck) > 0 or (wreck.get_salvage_units() > 0 and agent_script.get_free_cargo() > 0)
+
+
+func _recoverable_ammo(wreck) -> int:
+	var wreck_tools = wreck.get_node_or_null("ToolController")
+	if wreck_tools == null or not wreck_tools.has_method("recoverable_ammo_for") or not is_instance_valid(_tool_controller):
+		return 0
+	return wreck_tools.recoverable_ammo_for(_tool_controller)
 
 
 func _is_claimed(wreck) -> bool:
