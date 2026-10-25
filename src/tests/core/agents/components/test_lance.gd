@@ -169,3 +169,8 @@ func test_a_thin_ship_crossing_fast_cannot_slip_past_the_tip_within_a_step():
 	watch_signals(lance)
 	lance._sweep(1.0 / 60.0)
 	assert_signal_emitted(lance, "glanced", "The tip's path this step crossed it (side-on: a glance)")
+
+
+func test_a_run_up_never_runs_away_for_good():
+	assert_lt(min(CommandRam.run_up_distance(150.0, 0.0, 0.0) + Constants.NAV_RAM_TURN_ROOM, Constants.NAV_RAM_MAX_RUN_UP), INF)
+	assert_eq(CommandRam.run_up_distance(150.0, 0.0, 100.0), INF, "Against a target pulling away it could never build strike speed: the run-up must not use this")

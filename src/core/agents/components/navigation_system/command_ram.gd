@@ -5,9 +5,11 @@
 # PID (aim_gain): a near miss is a few degrees, where the usual autopilot eases in.
 # A ram picks up from how the ship moves now, from any distance: it runs up first only if it starts
 # too close to reach Constants.LAW_LANCE_MIN_SPEED of closing speed. Charging, it runs up only once
-# past the target (a strike, a glance or a miss: moving away within NAV_RAM_PASS_DISTANCE) or stalled
-# against it; running up (straight away, as a flee) it goes until it has the room to build that
-# speed from rest plus NAV_RAM_TURN_ROOM, then charges again. Each phase holds until its event, so
+# past the target (a strike, a glance or a miss: behind it and opening within NAV_RAM_PASS_DISTANCE)
+# or stalled against it; running up (straight away, as a flee) it goes until it has the room to
+# build that speed from rest on a still target plus NAV_RAM_TURN_ROOM (at most NAV_RAM_MAX_RUN_UP m,
+# NAV_RAM_MAX_RUN_UP_TIME s: a target that follows it is charged anyway), then charges again. A target
+# running away is chased, never run from. Each phase holds until its event, so
 # the ship does not dither between them.
 
 extends Node
@@ -41,6 +43,8 @@ func execute(delta: float):
 		cmd["is_new"] = false
 		cmd["running_up"] = false
 		cmd["started"] = false
+		cmd["run_up_time"] = 0.0
+		cmd["faced"] = false
 	elif delta > 0.001:
 		_target_velocity = (target_pos - _prev_target_pos) / delta
 		_prev_target_pos = target_pos
@@ -49,16 +53,25 @@ func execute(delta: float):
 	var distance: float = offset.length()
 	var direction: Vector3 = offset / distance if distance > 0.01 else _movement_system.get_forward()
 	var closing: float = (_movement_system.get_velocity() - _target_velocity).dot(direction)
-	var target_away: float = _target_velocity.dot(direction)
+	# Run-up length: the room to build strike speed from rest on a still target, plus the turn, at
+	# most NAV_RAM_MAX_RUN_UP (a target running away is chased, never run from).
+	var run_up: float = min(run_up_distance(_agent_body.get_top_speed(), 0.0, 0.0) + Constants.NAV_RAM_TURN_ROOM, Constants.NAV_RAM_MAX_RUN_UP)
+	var behind: bool = _movement_system.get_forward().dot(direction) < 0.0
 	# Hysteresis: each phase holds until a clear event, so the ship never dithers between the two.
 	if not cmd.started:  # Once, as the ram starts: from how it moves now, can it charge?
 		cmd.started = true
-		cmd.running_up = closing < Constants.LAW_LANCE_MIN_SPEED and distance < run_up_distance(_agent_body.get_top_speed(), max(0.0, closing), target_away)
+		cmd.running_up = closing < Constants.LAW_LANCE_MIN_SPEED and distance < run_up - Constants.NAV_RAM_TURN_ROOM
 	elif cmd.running_up:
-		if distance >= run_up_distance(_agent_body.get_top_speed(), 0.0, target_away) + Constants.NAV_RAM_TURN_ROOM:
-			cmd.running_up = false  # Room for a charge from rest, plus the turn
-	elif distance < Constants.NAV_RAM_PASS_DISTANCE and (closing < 0.0 or (closing < Constants.LAW_LANCE_MIN_SPEED and distance < Constants.NAV_RAM_STALL_DISTANCE)):
-		cmd.running_up = true  # Just past it (a strike, a glance or a miss), or stalled against it
+		cmd.run_up_time += delta
+		if distance >= run_up or cmd.run_up_time >= Constants.NAV_RAM_MAX_RUN_UP_TIME:
+			cmd.running_up = false  # Room for a charge, or a target that keeps up: turn and charge anyway
+	elif cmd.faced and distance < Constants.NAV_RAM_PASS_DISTANCE and ((closing < 0.0 and behind) or (closing < Constants.LAW_LANCE_MIN_SPEED and distance < Constants.NAV_RAM_STALL_DISTANCE)):
+		cmd.running_up = true  # Just past it (behind and opening: a strike, a glance or a miss), or stalled against it
+		cmd.faced = false
+	if not cmd.running_up:
+		cmd.run_up_time = 0.0
+		if not behind:
+			cmd.faced = true  # Only a charge that has turned to face the target can pass it
 
 	var heading: Vector3
 	if cmd.running_up:
