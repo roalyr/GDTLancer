@@ -40,6 +40,7 @@ signal zone_loaded(zone_node, zone_path, agent_container_node)
 signal combat_initiated(player_agent, enemy_agents)
 signal combat_ended(result_dict)  # result_dict: {outcome: "victory"/"defeat"/"flee", ...}
 signal agent_damaged(agent_body, damage_amount, source_agent)
+signal agent_charged(agent_body, charger)  # A ship with an armed lance is charging agent_body (LanceController)
 signal agent_disabled(agent_body)  # When hull <= 0
 
 # --- Docking ---

@@ -86,6 +86,7 @@ func _ready() -> void:
 	_home_position = parent.global_transform.origin
 	EventBus.connect("agent_disabled", self, "_on_agent_disabled")
 	EventBus.connect("agent_damaged", self, "_on_agent_damaged")
+	EventBus.connect("agent_charged", self, "_on_agent_charged")
 
 
 func initialize(config: Dictionary) -> void:
@@ -745,7 +746,23 @@ func _on_agent_disabled(agent_body) -> void:
 # Shot at by anyone: turn on the attacker and close in however far away it fired from, if the
 # fight is worth it; otherwise flee from it.
 func _on_agent_damaged(agent_body, _amount, source) -> void:
-	if agent_body != agent_script or not _is_live_target(source) or source == agent_script:
+	if agent_body != agent_script:
+		return
+	_react_to_attack(source)
+
+
+# Charged at with a lance (seen coming, see LanceController.is_charging): as good as shot at. It holds
+# the grudge now (Agent does too, after it), so the charger counts as an enemy in what it decides.
+func _on_agent_charged(agent_body, charger) -> void:
+	if agent_body != agent_script or not _is_live_target(charger):
+		return
+	agent_script._hold_grudge(charger)
+	_note("charged")
+	_react_to_attack(charger)
+
+
+func _react_to_attack(source) -> void:
+	if not _is_live_target(source) or source == agent_script:
 		return
 	if _current_state in [AIState.DISABLED, AIState.FLEE, AIState.DOCKED]:
 		return

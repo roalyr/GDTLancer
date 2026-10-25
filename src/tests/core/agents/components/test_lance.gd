@@ -184,3 +184,28 @@ func test_a_thin_ship_crossing_fast_cannot_slip_past_the_tip_within_a_step():
 func test_a_run_up_never_runs_away_for_good():
 	assert_lt(min(CommandRam.run_up_distance(150.0, 0.0, 0.0) + Constants.NAV_RAM_TURN_ROOM, Constants.NAV_RAM_MAX_RUN_UP), INF)
 	assert_eq(CommandRam.run_up_distance(150.0, 0.0, 100.0), INF, "Against a target pulling away it could never build strike speed: the run-up must not use this")
+
+
+func test_a_charge_is_seen_coming_and_makes_the_charger_an_enemy():
+	target.global_transform.origin = Vector3(0, 0, -600)
+	rammer.linear_velocity = Vector3(0, 0, -150)
+	assert_false(lance.is_charging(target), "Disarmed: no charge")
+	lance.armed = true
+	assert_true(lance.is_charging(target), "Armed, nose on, closing fast on a line that meets it")
+	rammer.linear_velocity = Vector3(0, 0, -30)
+	assert_false(lance.is_charging(target), "Too slow to strike")
+	rammer.linear_velocity = Vector3(60, 0, -150)
+	assert_false(lance.is_charging(target), "Its drift would carry it well wide")
+	rammer.linear_velocity = Vector3(0, 0, -150)
+	target.global_transform.origin = Vector3(0, 0, -1500)
+	assert_false(lance.is_charging(target), "Still too far to tell")
+	target.global_transform.origin = Vector3(0, 0, -600)
+	target.faction = "verdant"
+	rammer.faction = "verdant_other"
+	assert_false(target.is_enemy_of(rammer))
+	watch_signals(EventBus)
+	lance._announce_charges()
+	assert_signal_emitted_with_parameters(EventBus, "agent_charged", [target, rammer])
+	assert_true(target.is_enemy_of(rammer), "Charged at: the charger is an enemy now")
+	lance._announce_charges()
+	assert_signal_emit_count(EventBus, "agent_charged", 1, "Once a pass")

@@ -32,6 +32,8 @@ var reload_left: float = 0.0  # s until the next lance is seated
 var _agent: RigidBody = null
 var _nose: float = 0.0  # m from the ship's origin to its nose, along -Z
 var _glanced: Dictionary = {}  # Instance id -> s before it can glance off that ship again (one event per pass)
+var _charged: Dictionary = {}  # Instance id -> s before the same ship is told again that it is being charged
+var _watch_left: float = 0.0  # s until the next look for ships it is charging
 var _seat_mesh: MeshInstance = null
 var _quiver: Spatial = null
 
@@ -107,8 +109,46 @@ func _physics_process(delta: float) -> void:
 		_glanced[id] -= delta
 		if _glanced[id] <= 0.0:
 			_glanced.erase(id)
+	for id in _charged.keys():
+		_charged[id] -= delta
+		if _charged[id] <= 0.0:
+			_charged.erase(id)
 	if armed and is_seated() and is_instance_valid(_agent) and not _agent.is_wreck and not _agent.is_docked:
 		_sweep(delta)
+		_watch_left -= delta
+		if _watch_left <= 0.0:
+			_watch_left = Constants.CHARGE_WATCH_INTERVAL
+			_announce_charges()
+
+
+# Tells each ship it is charging (EventBus agent_charged), once a pass: it sees the lance coming.
+func _announce_charges() -> void:
+	if not _agent.is_inside_tree():
+		return
+	for body in get_tree().get_nodes_in_group("agent_body"):
+		if body != _agent and not _charged.has(body.get_instance_id()) and is_charging(body):
+			_charged[body.get_instance_id()] = Constants.CHARGE_ALERT_COOLDOWN
+			EventBus.emit_signal("agent_charged", body, _agent)
+
+
+# Charging `target`: armed and seated, nose toward it, within CHARGE_ALERT_DISTANCE, closing at
+# strike speed on a line that meets it (its sideways drift would miss by less than CHARGE_ALERT_MISS
+# past its size). Seen the same way by whoever is charged, NPC or player.
+func is_charging(target) -> bool:
+	if not (armed and is_seated() and is_instance_valid(target) and target is RigidBody) or target.get("is_wreck") != false or target.get("is_docked"):
+		return false
+	var offset: Vector3 = target.global_transform.origin - _agent.global_transform.origin
+	var distance: float = offset.length()
+	if distance < 1.0 or distance > Constants.CHARGE_ALERT_DISTANCE:
+		return false
+	var direction: Vector3 = offset / distance
+	var relative: Vector3 = _agent.linear_velocity - target.linear_velocity
+	var closing: float = relative.dot(direction)
+	if closing < Constants.LAW_LANCE_MIN_SPEED or _axis().dot(direction) < Constants.CHARGE_ALERT_ALIGNMENT:
+		return false
+	var radius: float = target.get_apparent_radius() if target.has_method("get_apparent_radius") else 10.0
+	var miss: float = (relative - direction * closing).length() * distance / closing  # Sideways by the time it gets there
+	return miss < radius + Constants.CHARGE_ALERT_MISS
 
 
 # The tip meets a ship when it comes within LANCE_TIP_MARGIN of the ship's hull box (its model's

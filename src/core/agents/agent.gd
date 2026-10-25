@@ -359,6 +359,17 @@ func _refresh_lance() -> void:
 	_update_mass()
 
 
+# Charged at with a lance: the charger is an enemy now, as if it had fired (the AI reacts in its own
+# controller); the player is told.
+func _on_agent_charged(agent_body, charger) -> void:
+	if agent_body != self or is_wreck or not is_instance_valid(charger):
+		return
+	_hold_grudge(charger)
+	if is_player():
+		var who: String = charger.get_faction_name() if charger.has_method("get_faction_name") else ""
+		EventBus.emit_signal("attack_action_feedback", false, "%s ship charging you with a lance!" % (who if who != "" else "A"))
+
+
 func _on_player_lance_struck(_target, damage) -> void:
 	EventBus.emit_signal("attack_action_feedback", true, "Lance in: %d damage" % int(damage))
 
@@ -903,6 +914,7 @@ func _update_mass() -> void:
 func _ready():
 	add_to_group("Agents")
 	add_to_group("agent_body")
+	EventBus.connect("agent_charged", self, "_on_agent_charged")
 	# RigidBody settings for 6DOF space flight
 	mode = RigidBody.MODE_RIGID
 	gravity_scale = 0.0  # No gravity in space

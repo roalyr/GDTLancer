@@ -125,6 +125,16 @@ func test_fleeing_it_shoots_back_at_its_pursuer():
 	assert_true(hostile.get_node("ToolController").is_active(0), "Running, but firing back.")
 
 
+func test_charged_at_by_a_neutral_ship_it_turns_on_it():
+	ai.initialize({"patrol_center": Vector3.ZERO})
+	var charger = _make_ship(Vector3(0, 0, -800), "", 20.0)
+	assert_false(hostile.is_enemy_of(charger), "No war with this one")
+	EventBus.emit_signal("agent_charged", hostile, charger)
+	assert_true(hostile.is_enemy_of(charger), "until it charged with a lance")
+	ai._tick_decision(100.0)
+	assert_eq(ai.get_state(), AIScript.AIState.COMBAT, "A weaker ship charging: it turns on it, as if shot")
+
+
 func test_damage_from_nothing_alive_does_not_provoke():
 	ai.initialize({"patrol_center": Vector3.ZERO})
 	hostile.apply_damage(1.0, null)
