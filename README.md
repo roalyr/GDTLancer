@@ -106,7 +106,7 @@ The arenas evolve while you play (watch from the home station or fly to a beacon
 godot --no-window -s tools/evolution_sim.gd -- --hours=4 --speed=6
 ```
 
-It runs about 3.5 simulated hours per wall-clock hour on a desktop. It loads the saved game (or starts one with `--new`), saves to it as it goes, and prints `EVO` lines and a report every few simulated minutes. Every finished life is also written in full to `user://evolution_logs/run_<id>.jsonl`. `python3 tools/evolution_report.py [log]` summarises a log: fitness over time, the best niches and their genomes (preset candidates), part use, and who kills whom. After changing a law, run `godot --no-window -s tools/apply_laws.gd` to bring the registry parts in line.
+It runs about 3.5 simulated hours per wall-clock hour on a desktop. It loads the saved game (or starts one with `--new`), saves to it as it goes, and prints `EVO` lines and a report every few simulated minutes. Every finished life is also written in full to `user://evolution_logs/run_<id>.jsonl`. `python3 tools/evolution_report.py [log]` summarises a log: fitness over time, the best niches and their genomes (preset candidates), part use, and who kills whom. `godot --no-window -s tools/export_presets.gd -- --top=6 --min-lives=3` writes each faction's best niches from the save as presets (ship, parts, AgentTemplate with behaviour genes) under `database/presets/`, outside the registry: move the ones you want into `database/registry/`. After changing a law, run `godot --no-window -s tools/apply_laws.gd` to bring the registry parts in line.
 
 ## Running Tests
 

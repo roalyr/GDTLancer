@@ -146,7 +146,7 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 			"home_point": overrides.get("home_point", global_transform.origin),
 			"skill": float(overrides.get("skill", template.skill)),
 			"arena": overrides.get("arena", {}),
-			"behavior": overrides.get("behavior", {}),
+			"behavior": overrides.get("behavior", template.behavior),
 			"docked_at": overrides.get("docked_at", null),
 		})
 
