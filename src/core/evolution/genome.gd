@@ -187,9 +187,13 @@ static func _clamp_part(part: Dictionary, max_mass: float = INF) -> void:
 			part.genes.round_mass = max(Constants.LAW_MISSILE_MASS_RANGE[0], min(part.genes.round_mass, max_mass / (part.genes.count + Constants.LAW_MISSILE_RACK_ROUNDS)))
 	elif part.kind == "cannon":
 		part.genes = ShipLaws.clamp_cannon_genes(part.genes)
-		if part.genes.mass + part.genes.round_mass * part.genes.count > max_mass:  # Too heavy: a smaller magazine, then a lighter gun
-			part.genes.count = max(Constants.LAW_CANNON_COUNT_RANGE[0], floor((max_mass - part.genes.mass) / part.genes.round_mass))
-			part.genes.mass = max(Constants.LAW_CANNON_MASS_RANGE[0], min(part.genes.mass, max_mass - part.genes.round_mass * part.genes.count))
+		var total: float = part.genes.mass + part.genes.round_mass * part.genes.count
+		if total > max_mass:  # Too heavy for the hardpoint: gun and magazine both scaled down, then lighter rounds
+			var share: float = max_mass / total
+			part.genes.mass = max(Constants.LAW_CANNON_MASS_RANGE[0], part.genes.mass * share)
+			part.genes.count = max(Constants.LAW_CANNON_COUNT_RANGE[0], floor(part.genes.count * share))
+			if part.genes.mass + part.genes.round_mass * part.genes.count > max_mass:
+				part.genes.round_mass = max(Constants.LAW_CANNON_ROUND_RANGE[0], (max_mass - part.genes.mass) / part.genes.count)
 	else:
 		part.genes = ShipLaws.clamp_module_genes(part.genes, part.kind)
 

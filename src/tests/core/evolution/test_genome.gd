@@ -117,3 +117,8 @@ func test_missiles_and_cannons_are_lawful_weapons_on_their_own_branches():
 	var heavy: Dictionary = {"kind": "missile", "type": 3, "genes": {"round_mass": 900.0, "count": 16.0}}
 	Genome._clamp_part(heavy, 799.0)
 	assert_true(ShipLaws.missile_stats(heavy.genes).mass <= 799.0 + 0.01, "Cut down to the hardpoint: fewer, lighter missiles")
+
+	var big_gun: Dictionary = {"kind": "cannon", "type": 3, "genes": Constants.PART_TYPE_SEEDS.cannon[3].duplicate()}
+	Genome._clamp_part(big_gun, 799.0)
+	assert_true(ShipLaws.cannon_stats(big_gun.genes).mass <= 799.0 + 0.01, "A heavy cannon cut down to a small hardpoint")
+	assert_gt(big_gun.genes.count, 20.0, "keeps a useful magazine")
