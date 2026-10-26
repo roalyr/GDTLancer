@@ -640,11 +640,28 @@ const HARPOON_TEMPLATE_ID = "tool_harpoon"  # Not evolved: the same harpoon for 
 # in the middle, each faction's two stations on its own side. NPCs spawn docked at their stations,
 # patrol round the beacon, dock to sell loot and to escape, and never leave their arena.
 const ARENA_SECTOR_ID = "sector_elace"
-const ARENA_ZONES = [  # Offset from the Arena node, ships per faction
-	{"id": "1v1", "offset": Vector3(20000, 0, 0), "per_faction": 1},
-	{"id": "2v2", "offset": Vector3(-10000, 0, 17320), "per_faction": 2},
-	{"id": "3v3", "offset": Vector3(-10000, 0, -17320), "per_faction": 3},
+const ARENA_ZONES = [  # Offset from the Arena node, ships per faction, terrain (ARENA_ROCK_FIELDS)
+	{"id": "1v1", "offset": Vector3(20000, 0, 0), "per_faction": 1, "terrain": "open"},
+	{"id": "2v2", "offset": Vector3(-10000, 0, 17320), "per_faction": 2, "terrain": "belt"},
+	{"id": "3v3", "offset": Vector3(-10000, 0, -17320), "per_faction": 3, "terrain": "scatter"},
 ]
+# Rocks per terrain (Arena builds them from a seed, so every load has the same field). They stop
+# ships, laser fire, missiles and shells: cover to fight from or run behind. A belt runs across the
+# middle, between the two sides (half as thick as ARENA_ROCK_BELT_WIDTH); a scatter fills the field.
+const ARENA_ROCK_FIELDS = {"open": 0, "belt": 22, "scatter": 26}
+const ARENA_ROCK_FIELD_RADIUS = 3000.0  # m from the beacon
+const ARENA_ROCK_BELT_WIDTH = 1000.0  # m, across the line between the two sides
+const ARENA_ROCK_HEIGHT = 600.0  # m above and below the arena's plane
+const ARENA_ROCK_CLEARANCE = 600.0  # m kept clear round the beacon and each station
+const ARENA_ROCK_SCALE = [30.0, 70.0]  # Most rocks
+const ARENA_ROCK_BIG_SCALE = [120.0, 200.0]  # and some big ones (ARENA_ROCK_BIG_CHANCE)
+const ARENA_ROCK_BIG_CHANCE = 0.2
+const ARENA_ROCK_MODELS = [
+	"res://assets/models/rocks/rock_01_6k.glb", "res://assets/models/rocks/rock_02_3k.glb",
+	"res://assets/models/rocks/rock_03_4k.glb", "res://assets/models/rocks/rock_04_3k.glb",
+	"res://assets/models/rocks/rock_05_4k.glb",
+]
+const ARENA_ROCK_SCENE = "res://scenes/prefabs/celestial/asteroid.tscn"
 const ARENA_FACTIONS = ["verdant", "violet"]
 const ARENA_STATION_DISTANCE = 4000.0  # m from the beacon to a faction's side
 const ARENA_STATION_SPREAD = 1500.0  # m between a faction's two stations, either side of its line

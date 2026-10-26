@@ -19,6 +19,13 @@ func before_each():
 	target = _make_body(Vector3(0, 0, -800))
 
 
+# Rounds still in flight belong to the test that fired them: none may reach the next one's ships.
+func after_each():
+	for child in get_children():
+		if child.has_method("_steer"):
+			child.free()
+
+
 func _make_body(position: Vector3) -> RigidBody:
 	var body = AgentScript.new()
 	add_child_autofree(body)
@@ -137,7 +144,6 @@ func test_aim_command_points_the_nose_at_the_lead():
 
 
 func test_lasers_shoot_down_missiles_coming_at_their_ship():
-	seed(5)  # Laser hits are rolled: the same rolls whatever ran before
 	controller = _arm(shooter, "missile", Constants.PART_TYPE_SEEDS.missile[2])
 	var laser: UtilityToolTemplate = ShipLaws.build_laser_template(Constants.PART_TYPE_SEEDS.laser[3], 3, "test_pd")  # A heavy laser
 	var defence = ToolControllerScript.new()
@@ -156,3 +162,23 @@ func test_lasers_shoot_down_missiles_coming_at_their_ship():
 		t += 1.0 / 60.0
 	assert_signal_emitted(defence, "missile_intercepted", "Its laser (switched off) fired at the missile")
 	assert_eq(target.hull, 300.0, "and shot it down before it got there")
+
+
+func test_missiles_and_cannons_hold_fire_behind_a_rock():
+	var rock = load(Constants.ARENA_ROCK_SCENE).instance()
+	rock.transform = Transform(Basis().scaled(Vector3.ONE * 40.0), Vector3(0, 0, -400))
+	add_child_autofree(rock)
+	yield(get_tree(), "physics_frame")
+	yield(get_tree(), "physics_frame")
+	controller = _arm(shooter, "cannon", Constants.PART_TYPE_SEEDS.cannon[2])
+	assert_true(controller.rock_in_the_way(target), "The rock is between them")
+	controller.activate(0, target)
+	controller._physics_process(0.016)
+	assert_eq(controller.get_ammo(0), 60, "The gun holds fire")
+	var rack = _arm(target, "missile", Constants.PART_TYPE_SEEDS.missile[2])
+	rack.activate(0, shooter)
+	rack._physics_process(0.016)
+	assert_eq(rack.get_ammo(0), 4, "and so does the rack")
+	rock.global_transform.origin = Vector3(500, 0, -400)
+	yield(get_tree(), "physics_frame")
+	assert_false(controller.rock_in_the_way(target), "Moved aside: a clear line")

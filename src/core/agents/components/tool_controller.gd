@@ -443,6 +443,8 @@ func _process_missile(index: int, target: Node) -> void:
 		return
 	if inbound_damage(target) >= float(target.get("hull")):
 		return  # Enough on its way already
+	if rock_in_the_way(target):
+		return  # It would only fly into the rock
 	if not _agent_body.try_spend_power(tool_template.power_per_cycle):
 		return  # Waits for power
 	var direction: Vector3 = (target.global_transform.origin - from_pos).normalized()
@@ -454,7 +456,7 @@ func _process_missile(index: int, target: Node) -> void:
 	_in_flight.append(missile)
 	_after_shot(index, tool_template, missile)
 	if target.has_method("is_player") and target.is_player():
-		EventBus.emit_signal("announcement", "Missile inbound! Lasers shoot it down; a sharp turn near it makes it overshoot", "danger")
+		EventBus.emit_signal("announcement", "Missile inbound! Lasers shoot it down; a rock in its path stops it", "danger")
 
 
 # Damage of this ship's missiles still on their way to `target`.
@@ -484,6 +486,8 @@ func _process_cannon(index: int, target: Node) -> void:
 	var miss: float = distance * sin(min(nose.angle_to(aim), PI * 0.5))
 	if nose.dot(aim) <= 0.0 or miss > _apparent_radius(target) * Constants.CANNON_AIM_SHARE:
 		return  # Not pointing where it will be
+	if rock_in_the_way(target):
+		return  # The round would only hit the rock
 	if not _agent_body.try_spend_power(tool_template.power_per_cycle):
 		return  # Waits for power
 	var shell = ShellScript.new()
@@ -541,6 +545,13 @@ func find_blocker(target: Spatial):
 	if hit.empty() or hit.collider == target:
 		return null
 	return hit.collider
+
+
+# A rock between this ship and `target`: missiles and cannons hold fire behind one (a laser's shot
+# lands on it).
+func rock_in_the_way(target: Spatial) -> bool:
+	var blocker = find_blocker(target)
+	return blocker != null and blocker is Node and blocker.is_in_group("asteroid")
 
 
 # Damages (if it can be damaged) and flashes whatever the shot lands on; a faint beam shows the

@@ -25,6 +25,7 @@ extends Node
 const FrameProfiler = preload("res://src/core/utils/frame_profiler.gd")
 
 const CombatAssessment = preload("res://src/core/systems/combat_assessment.gd")
+const NavigationSystem = preload("res://src/core/agents/components/navigation_system.gd")
 
 enum AIState { IDLE, PATROL, COMBAT, FLEE, DISABLED, SALVAGE, DEPART, HESITATE, DOCKED }
 
@@ -777,9 +778,20 @@ func _is_live_target(body) -> bool:
 	return is_instance_valid(body) and body.is_inside_tree() and not body.get("is_wreck") and not body.get("is_docked")
 
 
+# A point near home, not inside a rock (a few tries; the autopilot steers round the rest).
 func _pick_patrol_destination() -> Vector3:
-	var direction = Vector3(rand_range(-1, 1), rand_range(-1, 1), rand_range(-1, 1)).normalized()
-	return _home_position + direction * randf() * Constants.AI_PATROL_RADIUS
+	var point: Vector3 = _home_position
+	for _try in range(8):
+		var direction = Vector3(rand_range(-1, 1), rand_range(-1, 1), rand_range(-1, 1)).normalized()
+		point = _home_position + direction * randf() * Constants.AI_PATROL_RADIUS
+		var inside := false
+		for obstacle in NavigationSystem.get_obstacles(get_tree()):
+			if point.distance_to(obstacle[0]) < obstacle[1] * 1.5 + Constants.AI_PATROL_ARRIVAL_DISTANCE:
+				inside = true
+				break
+		if not inside:
+			return point
+	return point
 
 
 func _on_agent_disabled(agent_body) -> void:
