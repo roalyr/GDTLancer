@@ -187,7 +187,7 @@ func test_a_run_up_never_runs_away_for_good():
 
 
 func test_a_charge_is_seen_coming_and_makes_the_charger_an_enemy():
-	target.global_transform.origin = Vector3(0, 0, -600)
+	target.global_transform.origin = Vector3(0, 0, -400)
 	rammer.linear_velocity = Vector3(0, 0, -150)
 	assert_false(lance.is_charging(target), "Disarmed: no charge")
 	lance.armed = true
@@ -199,7 +199,7 @@ func test_a_charge_is_seen_coming_and_makes_the_charger_an_enemy():
 	rammer.linear_velocity = Vector3(0, 0, -150)
 	target.global_transform.origin = Vector3(0, 0, -1500)
 	assert_false(lance.is_charging(target), "Still too far to tell")
-	target.global_transform.origin = Vector3(0, 0, -600)
+	target.global_transform.origin = Vector3(0, 0, -400)
 	target.faction = "verdant"
 	rammer.faction = "verdant_other"
 	assert_false(target.is_enemy_of(rammer))
