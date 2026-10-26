@@ -10,7 +10,7 @@ description = "Sees farther: every detection range grows."
 base_value = 63
 mass = 250.0
 stat_modifiers = {
-"sensor_strength": 0.3
+"sensor_strength": 0.5
 }
 lance = {
 }

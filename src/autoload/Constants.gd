@@ -514,7 +514,7 @@ const LAW_LASER_ENERGY_RANGE = [0.5, 60.0]
 const LAW_MODULE_MASS_RANGE = [50.0, 5000.0]
 # Modules that do more than add a stat (ShipLaws.module_stats, ShipFit, Agent):
 # Sensor booster: sees farther (sensor strength, 1 for a bare hull, multiplies every detection range).
-const LAW_SENSOR = [250.0, 0.3, 0.5]  # Module mass -> sensor strength added
+const LAW_SENSOR = [250.0, 0.5, 0.5]  # Module mass -> sensor strength added (0.3 lagged: -0.10 fitness over rounds 34-37)
 # Signature damper: hides a share of the ship's whole signature (hull, engines, firing), more the
 # bigger it is against the hull: LAW_DAMPER_SHARE at LAW_DAMPER_REF_SHARE of the hull's mass, as the
 # square root, at most LAW_DAMPER_MAX.
