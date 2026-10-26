@@ -371,8 +371,8 @@ func _process_flee() -> void:
 		_fire_at(_target_agent)  # Running, but shooting back at whatever reaches
 
 
-# Close in on a wreck, harpoon it and strip it until it is empty or the hold is full. Enemies
-# that show up come first.
+# Close in on a wreck, harpoon it (with every harpoon it has: each strips on its own cycle) and strip
+# it until it is empty or the hold is full. Enemies that show up come first.
 func _process_salvage() -> void:
 	var wreck = _target_agent
 	if not (is_instance_valid(wreck) and wreck.is_inside_tree() and wreck.get("is_wreck") and _worth_salvaging(wreck)):
@@ -391,8 +391,9 @@ func _process_salvage() -> void:
 		return  # No harpoon fitted, or not seen yet: keep closing in
 	var harpoon_range: float = _tool_controller.get_tool(index).optimal_range
 	var distance: float = agent_script.global_transform.origin.distance_to(wreck.global_transform.origin)
-	if not _tool_controller.is_active(index):
-		_tool_controller.activate(index, wreck)  # Launches once in reach
+	for harpoon in range(_tool_controller.get_tool_count()):
+		if not _tool_controller.is_active(harpoon) and _tool_controller.can_target(_tool_controller.get_tool(harpoon), wreck):
+			_tool_controller.activate(harpoon, wreck)  # Launches once in reach
 	if distance <= harpoon_range * 0.8 and not _orbiting:
 		_orbiting = true  # Here: in reach; stop and let the tether reel it in
 		agent_script.command_stop()

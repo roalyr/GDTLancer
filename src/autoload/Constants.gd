@@ -701,6 +701,8 @@ const EVO_MACRO_MUTATION_CHANCE = 0.03  # A mutation with 5x the step
 const EVO_PART_SWAP_CHANCE = 0.08  # Per slot: a different part (another kind or type, or empty)
 const EVO_PILOT_STAKE_SHARE = 1.0  # An arena pilot's wallet: this share of its ship's cost, plus its life's net takings (comfortable at first; losses make it desperate)
 const EVO_EMPTY_SLOT_CHANCE = 0.15  # When a slot's part is picked anew, the chance it is left empty
+const EVO_HARPOON_CHANCE = 0.15  # and that a tool slot gets a harpoon (a weapon otherwise)
+const EVO_EXTRA_HARPOON_CHANCE = 0.05  # on a ship that has a harpoon already
 const EVO_BEHAVIOR_START_LIVES = 150  # Behaviour genes start mutating once a faction has logged this many lives
 const EVO_BEHAVIOR_RANGES = {  # Gene -> [min, max, default]
 	"engage": [0.3, 4.0, 1.0],  # Desire at which it starts a fight (AI_ENGAGE_DESIRE)

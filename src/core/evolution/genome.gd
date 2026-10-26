@@ -29,7 +29,7 @@ static func random_genome() -> Dictionary:
 	_mutate_ship(genome.ship, 3.0)
 	_fit_slots(genome)
 	for i in range(genome.tools.size()):
-		genome.tools[i] = random_part(_random_weapon_kind() if i == 0 else _random_tool_kind(), slot_mass_limit(genome))
+		genome.tools[i] = random_part(_random_weapon_kind() if i == 0 else _random_tool_kind(_harpoons_in(genome.tools, i)), slot_mass_limit(genome))
 	for i in range(genome.modules.size()):
 		genome.modules[i] = {} if randf() < Constants.EVO_EMPTY_SLOT_CHANCE else random_part(ShipLaws.MODULE_KINDS[randi() % ShipLaws.MODULE_KINDS.size()])
 	_one_lance(genome)
@@ -43,11 +43,22 @@ static func default_behavior() -> Dictionary:
 	return behavior
 
 
-static func _random_tool_kind() -> String:
+# A tool for a slot picked anew: empty (EVO_EMPTY_SLOT_CHANCE), a harpoon (EVO_HARPOON_CHANCE; a
+# second one on a ship that has one already, EVO_EXTRA_HARPOON_CHANCE) or a weapon.
+static func _random_tool_kind(harpoons_fitted: int = 0) -> String:
 	var roll: float = randf()
 	if roll < Constants.EVO_EMPTY_SLOT_CHANCE:
 		return ""
-	return "harpoon" if roll < 0.5 else _random_weapon_kind()
+	var harpoon_chance: float = Constants.EVO_HARPOON_CHANCE if harpoons_fitted == 0 else Constants.EVO_EXTRA_HARPOON_CHANCE
+	return "harpoon" if roll < Constants.EVO_EMPTY_SLOT_CHANCE + harpoon_chance else _random_weapon_kind()
+
+
+static func _harpoons_in(tools: Array, except: int = -1) -> int:
+	var count := 0
+	for i in range(tools.size()):
+		if i != except and not tools[i].empty() and tools[i].kind == "harpoon":
+			count += 1
+	return count
 
 
 # A weapon, by Constants EVO_WEAPON_ODDS.
@@ -88,7 +99,7 @@ static func mutate(genome: Dictionary, behavior_on: bool) -> Dictionary:
 	var max_mass: float = slot_mass_limit(child)
 	for i in range(child.tools.size()):
 		if randf() < Constants.EVO_PART_SWAP_CHANCE * scale:
-			child.tools[i] = random_part(_random_tool_kind(), max_mass)
+			child.tools[i] = random_part(_random_tool_kind(_harpoons_in(child.tools, i)), max_mass)
 		elif not child.tools[i].empty():
 			_mutate_genes(child.tools[i].genes, scale)
 		_clamp_part(child.tools[i], max_mass)
@@ -194,6 +205,7 @@ static func _clamp_part(part: Dictionary, max_mass: float = INF) -> void:
 			part.genes.round_mass = max(Constants.LAW_MISSILE_MASS_RANGE[0], min(part.genes.round_mass, max_mass / (part.genes.count + Constants.LAW_MISSILE_RACK_ROUNDS)))
 	elif part.kind == "cannon":
 		part.genes = ShipLaws.clamp_cannon_genes(part.genes)
+		part.genes.count = round(part.genes.count)  # Whole rounds in the magazine (ShipLaws.cannon_stats)
 		var total: float = part.genes.mass + part.genes.round_mass * part.genes.count
 		if total > max_mass:  # Too heavy for the hardpoint: gun and magazine both scaled down, then lighter rounds
 			var share: float = max_mass / total

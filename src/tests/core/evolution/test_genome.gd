@@ -141,3 +141,16 @@ func test_mutation_can_shift_slots_between_hardpoints_and_bays():
 		if mutant.ship.has("tool_share"):
 			seen_shares[int(round(float(mutant.ship.tool_share) * 10.0))] = true
 	assert_gt(seen_shares.size(), 1, "The split varies")
+
+
+func test_extra_harpoons_are_rare():
+	seed(3)
+	var first := 0
+	var extra := 0
+	for i in range(2000):
+		if Genome._random_tool_kind(0) == "harpoon":
+			first += 1
+		if Genome._random_tool_kind(1) == "harpoon":
+			extra += 1
+	assert_almost_eq(first / 2000.0, Constants.EVO_HARPOON_CHANCE, 0.03, "A first harpoon now and then")
+	assert_almost_eq(extra / 2000.0, Constants.EVO_EXTRA_HARPOON_CHANCE, 0.02, "a second one seldom")
