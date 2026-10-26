@@ -59,6 +59,8 @@ var _resume_state: int = AIState.PATROL  # What it was doing before it started h
 var _resume_target: RigidBody = null  # and on what
 var _think_elapsed: float = 0.0  # s since it last thought
 var _think_due: float = randf() * Constants.AI_THINK_INTERVAL  # First think staggered across ships
+var _threat = null  # The latest scan's enemy too strong for it that has not seen it (_keep_clear)
+var _avoided = null  # The one it last kept clear of
 var _arena: Dictionary = {}  # Arena NPCs: {"zone_id", "beacon" (Vector3), "stations" (its faction's)}
 var _station: Spatial = null  # The station it is heading for or docked at
 var _dock_timer: float = 0.0  # s left docked
@@ -126,6 +128,21 @@ func get_activity_label() -> String:
 	if _ramming and _current_state == AIState.COMBAT:
 		return "RAMMING"
 	return ACTIVITY_LABELS.get(_current_state, "")
+
+
+# Out of the way of an enemy too strong for it that has not seen it: patrols on the far side of home.
+func _keep_clear(threat) -> void:
+	var away: Vector3 = agent_script.global_transform.origin - threat.global_transform.origin
+	away = away.normalized() if away.length_squared() > 1.0 else Vector3.FORWARD
+	var point: Vector3 = agent_script.global_transform.origin + away * Constants.AI_PATROL_RADIUS
+	if not _in_arena(point):
+		point = _home_position + away * Constants.AI_PATROL_RADIUS * 0.5
+	if threat != _avoided:
+		_avoided = threat
+		_note("avoided")
+	_patrol_destination = point
+	_has_patrol_destination = true
+	agent_script.command_move_to(point)
 
 
 # Its group's leader (Evolution ranks; Constants RENOWN_*), unless it leads or has none.
@@ -308,6 +325,9 @@ func _process_patrol() -> void:
 			_consider("engage", target, desire_against(target), _engage_level())
 			return
 		elif _join_leader():
+			return
+		elif is_instance_valid(_threat) and _pending.empty():
+			_keep_clear(_threat)
 			return
 		elif _pending.empty():
 			var wreck = scan_for_wreck()
@@ -790,6 +810,8 @@ func _is_claimed(wreck) -> bool:
 func scan_for_target() -> RigidBody:
 	var best: RigidBody = null
 	var best_desire: float = _engage_level()
+	_threat = null
+	var worst_desire: float = _engage_level() * Constants.AI_AVOID_SHARE
 	for body in get_tree().get_nodes_in_group("agent_body"):
 		if body == agent_script or not _is_live_target(body) or not agent_script.is_enemy_of(body):
 			continue
@@ -803,6 +825,9 @@ func scan_for_target() -> RigidBody:
 		if desire >= best_desire:
 			best = body
 			best_desire = desire
+		elif desire < worst_desire and not body.detects(agent_script):
+			_threat = body  # Too strong, and has not seen it yet
+			worst_desire = desire
 	return best
 
 
@@ -812,6 +837,8 @@ func desire_against(target) -> float:
 	var ours: Dictionary = CombatAssessment.side_of(agent_script)
 	var theirs: Dictionary = CombatAssessment.side_of(target)
 	var desire: float = compute_desire(ours.hull, ours.dps, theirs.hull, theirs.dps, target.get_salvage_value())
+	if target.has_method("detects") and not target.detects(agent_script):
+		desire *= Constants.AI_UNSEEN_DESIRE_FACTOR  # It strikes first
 	return desire * (Constants.AI_ENEMY_DESIRE_FACTOR if agent_script.is_enemy_of(target) else 1.0)
 
 

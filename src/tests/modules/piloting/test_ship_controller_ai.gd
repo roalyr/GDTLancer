@@ -628,3 +628,26 @@ func test_followers_join_their_leaders_fight():
 	assert_eq(ai.get_focus(), foe)
 	Evolution.new_run()
 	TemplateDatabase.evolved = {}  # Its lives built ships and parts the registry tests must not meet
+
+
+func test_an_unseen_target_tempts_more():
+	var prey = _make_ship(Vector3(0, 0, -800), "verdant", 50.0)
+	var seen: float = ai.desire_against(prey)
+	prey.ship_template.sensor_strength = 0.1
+	prey.fit_stats = {"sensor_strength": 0.1}
+	assert_false(prey.detects(hostile))
+	assert_almost_eq(ai.desire_against(prey), seen * Constants.AI_UNSEEN_DESIRE_FACTOR, 0.001, "It would strike first")
+
+
+func test_keeps_clear_of_a_strong_enemy_that_has_not_seen_it():
+	ai.initialize({"patrol_center": Vector3.ZERO})
+	var brute = _make_ship(Vector3(0, 0, -1000), "verdant", 5000.0)
+	brute.fit_stats = {"sensor_strength": 0.1}
+	assert_null(ai.scan_for_target(), "Too strong to fight")
+	ai._scan_timer = 0.0
+	ai._process_patrol()
+	assert_gt(ai._patrol_destination.z, 0.0, "Patrols away from it")
+	assert_eq(ai._avoided, brute)
+	brute.fit_stats = {"sensor_strength": 1.0}
+	ai.scan_for_target()
+	assert_null(ai._threat, "Seen already: hiding is no use")

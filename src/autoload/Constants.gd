@@ -423,6 +423,11 @@ const AI_RAM_SPEED_MARGIN = 1.1
 const AI_TEAM_RADIUS = 3000.0  # m: friends this near a ship count on its side of a fight (CombatAssessment.side_of)
 const AI_ASSIST_RADIUS = 4000.0  # m: an NPC this near a friend under fire considers going to help
 const AI_ENEMY_DESIRE_FACTOR = 1.5
+# Seeing first (signature dampers, sensor boosters): a target that cannot see this ship is a first
+# strike, AI_UNSEEN_DESIRE_FACTOR times as tempting; an enemy it sees but that cannot see it, under
+# AI_AVOID_SHARE of the fight it would take on, it keeps clear of while it can ("avoided").
+const AI_UNSEEN_DESIRE_FACTOR = 1.3
+const AI_AVOID_SHARE = 0.5
 const AI_AFTERBURNER_RESERVE = 0.3  # Share of its power an NPC keeps for its weapons (it burns on past it only to run)
 const AI_AFTERBURNER_CLOSE_FACTOR = 2.0  # Burns to close in from beyond this many times its fighting range  # Ships at war (or holding a grudge) want the fight this much more
 const AI_SALVAGE_SEARCH_RANGE = 6000.0  # m; wrecks further than this are not worth the trip
