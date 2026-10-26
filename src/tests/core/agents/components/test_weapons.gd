@@ -138,9 +138,7 @@ func test_aim_command_points_the_nose_at_the_lead():
 
 func test_lasers_shoot_down_missiles_coming_at_their_ship():
 	controller = _arm(shooter, "missile", Constants.PART_TYPE_SEEDS.missile[2])
-	var laser: UtilityToolTemplate = ShipLaws.build_laser_template(Constants.PART_TYPE_SEEDS.laser[1], 1, "test_pd")
-	for field in ShipLaws.laser_stats(Constants.PART_TYPE_SEEDS.laser[1]):
-		laser.set(field, ShipLaws.laser_stats(Constants.PART_TYPE_SEEDS.laser[1])[field])
+	var laser: UtilityToolTemplate = ShipLaws.build_laser_template(Constants.PART_TYPE_SEEDS.laser[3], 3, "test_pd")  # A heavy laser
 	var defence = ToolControllerScript.new()
 	defence.name = "ToolController"
 	target.add_child(defence)

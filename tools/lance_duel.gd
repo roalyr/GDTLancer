@@ -28,7 +28,7 @@ const DESIGNS = {
 	"gunner": {"ship": {"type": 2, "size": 1.0, "shares": {"structure": 0.5, "engine": 0.25, "reactor": 0.1, "capacitor": 0.05, "hold": 0.1}},
 		"tools": [{"kind": "cannon", "type": 2, "genes": {"mass": 300.0, "round_mass": 5.0, "count": 60.0}}, {"kind": "cannon", "type": 2, "genes": {"mass": 300.0, "round_mass": 5.0, "count": 60.0}}], "modules": [{}, {}]},
 }
-const MATCHES_WEAPONS = [["missileer", "laser"], ["gunner", "laser"], ["missileer", "gunner"], ["gunner", "lancer_fast"], ["missileer", "lancer_fast"]]
+const MATCHES_WEAPONS = [["missileer", "laser"], ["gunner", "laser"], ["missileer", "gunner"], ["gunner", "lancer_fast"], ["missileer", "lancer_fast"], ["missileer", "laser_heavy"]]
 const MATCHES = [["lancer", "hauler"], ["lancer", "laser"], ["lancer_fast", "laser"], ["lancer_fast", "laser_heavy"], ["lance_laser", "laser"], ["lance_laser", "laser_heavy"]]
 const DUEL_TIME = 180.0  # s of game time before a duel is called a draw
 const ARENA_OFFSET = Vector3(0, 15000, 0)  # From the home station (in the 3v3 arena): well above every arena
@@ -73,7 +73,7 @@ func _run():
 	var centre: Vector3 = refs.player_agent_body.global_transform.origin + ARENA_OFFSET
 	for pairing in matches:
 		print("DESIGNS %s vs %s" % [pairing[0], pairing[1]])
-		var tally := {"wins": {}, "draws": 0, "times": [], "strikes": 0, "glances": 0, "damage": 0.0, "speeds": []}
+		var tally := {"wins": {}, "draws": 0, "times": [], "strikes": 0, "glances": 0, "damage": 0.0, "speeds": [], "rounds": {}}
 		for i in range(duels):
 			var result = yield(_duel(built[pairing[0]], built[pairing[1]], centre), "completed")
 			if result.winner == "":
@@ -86,8 +86,10 @@ func _run():
 			tally.glances += result.glances
 			tally.damage += result.damage
 			tally.speeds += result.speeds
-		print("DUEL %s vs %s: wins %s, draws %d, mean time %.0fs, lance strikes %d (%.0f damage), glances %d, closing speeds at contact %s" % [
-			pairing[0], pairing[1], tally.wins, tally.draws, _mean(tally.times), tally.strikes, tally.damage, tally.glances, _summary(tally.speeds)])
+			for key in result.rounds:
+				tally.rounds[key] = int(tally.rounds.get(key, 0)) + int(result.rounds[key])
+		print("DUEL %s vs %s: wins %s, draws %d, mean time %.0fs, lance strikes %d (%.0f damage), glances %d, closing speeds at contact %s, rounds %s" % [
+			pairing[0], pairing[1], tally.wins, tally.draws, _mean(tally.times), tally.strikes, tally.damage, tally.glances, _summary(tally.speeds), tally.rounds])
 	quit()
 
 
@@ -103,7 +105,7 @@ func _duel(a_build: Dictionary, b_build: Dictionary, centre: Vector3):
 		_shown[a_build.ship_template_id + b_build.ship_template_id] = true
 		for body in [a, b]:
 			print("  %s: top speed %.0f m/s, hull %.0f, %.0f kg" % [body.ship_template.template_id, body.get_top_speed(), body.hull_max, body.mass])
-	var result := {"winner": "", "time": 0.0, "strikes": 0, "glances": 0, "damage": 0.0, "speeds": []}
+	var result := {"winner": "", "time": 0.0, "strikes": 0, "glances": 0, "damage": 0.0, "speeds": [], "rounds": {}}
 	for pair in [[a, b], [b, a]]:
 		var lance = pair[0].get_lance()
 		if lance != null:
@@ -112,6 +114,10 @@ func _duel(a_build: Dictionary, b_build: Dictionary, centre: Vector3):
 		var ai = pair[0].get_node_or_null("AIController")
 		if ai != null:
 			ai._start_combat(pair[1], true)
+		var tools = pair[0].get_node_or_null("ToolController")
+		if tools != null:
+			tools.connect("projectile_fired", self, "_on_fired", [result])
+			tools.connect("missile_intercepted", self, "_on_intercepted", [result])
 	var t := 0.0
 	while t < DUEL_TIME:
 		yield(_wait(1.0), "completed")
@@ -138,6 +144,25 @@ func _duel(a_build: Dictionary, b_build: Dictionary, centre: Vector3):
 			body.despawn()
 	yield(_wait(1.0), "completed")
 	return result
+
+
+# Rounds fired and hits, by kind ("missile", "shell"), and missiles shot down.
+func _on_fired(_index, projectile, result):
+	var kind: String = projectile.get_script().resource_path.get_file().get_basename()
+	_count(result.rounds, kind + " fired")
+	projectile.connect("hit", self, "_on_round_hit", [kind, result])
+
+
+func _on_round_hit(_projectile, _body, damage, kind, result):
+	_count(result.rounds, kind + (" hit" if damage > 0.0 else " rock"))
+
+
+func _on_intercepted(_index, _missile, destroyed, result):
+	_count(result.rounds, "missile shot down" if destroyed else "missile scorched")
+
+
+static func _count(counts: Dictionary, key: String) -> void:
+	counts[key] = int(counts.get(key, 0)) + 1
 
 
 func _on_struck(_target, damage, result, rammer):
