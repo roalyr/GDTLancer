@@ -1,7 +1,8 @@
 # Navigation command: point the nose where a cannon round will meet a (possibly moving) target (its
 # lead direction, ToolController.cannon_aim_direction) and hold the range: the velocity it steers
 # for is the target's, plus a closing (or opening) speed toward the range it was given, at most
-# NAV_AIM_MAX_CLOSING. The nose turns with a stiffer rotation PID (NAV_AIM_PID_GAIN): a cannon misses
+# NAV_AIM_MAX_CLOSING, plus a sideways drift (NAV_AIM_STRAFE_SPEED, one side chosen at the start)
+# so it does not sit still for the target's lasers to track. The nose turns with a stiffer rotation PID (NAV_AIM_PID_GAIN): a cannon misses
 # by a degree, where the usual autopilot eases in.
 
 extends Node
@@ -32,5 +33,10 @@ func execute(delta: float):
 	var aim: Vector3 = tools.cannon_aim_direction(index, target_node) if index >= 0 else direction
 	_movement_system.request_rotation_to_pid(aim, delta, Constants.NAV_AIM_PID_GAIN)
 	var target_velocity = target_node.get("linear_velocity")
+	if not cmd.has("side"):
+		var side: Vector3 = direction.cross(Vector3.UP if abs(direction.dot(Vector3.UP)) < 0.9 else Vector3.RIGHT).normalized()
+		cmd["side"] = side if randf() < 0.5 else -side
+	var strafe: Vector3 = cmd.side - direction * cmd.side.dot(direction)  # Kept square to the line as it turns
 	var keep: float = clamp((distance - float(cmd.get("range", 1000.0))) / Constants.NAV_AIM_RANGE_TIME, -Constants.NAV_AIM_MAX_CLOSING, Constants.NAV_AIM_MAX_CLOSING)
-	_movement_system.request_velocity_pid((target_velocity if target_velocity is Vector3 else Vector3.ZERO) + direction * keep, delta)
+	_movement_system.request_velocity_pid((target_velocity if target_velocity is Vector3 else Vector3.ZERO) + direction * keep
+		+ strafe.normalized() * Constants.NAV_AIM_STRAFE_SPEED, delta)
