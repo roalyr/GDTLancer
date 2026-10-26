@@ -203,3 +203,10 @@ func test_renown_puts_off_retiring():
 	assert_false(Evolution.on_docked(_body(life.uid)), "Not old yet")
 	Evolution.live[life.uid].kills = 100
 	assert_almost_eq(Evolution.lifetime_of(life.uid), Constants.ARENA_MAX_LIFETIME * Constants.ARENA_LIFETIME_MAX_FACTOR, 0.01, "At most this long")
+
+
+func test_presets_come_in_three_weights_per_role():
+	var Exporter = load("res://src/core/evolution/preset_exporter.gd")
+	assert_eq(Exporter.archetype("s-1.5|missile-raider|-"), "missile-raider light")
+	assert_eq(Exporter.archetype("s+0.5|missile-raider|-"), "missile-raider medium")
+	assert_eq(Exporter.archetype("s+2.5|missile-raider|-"), "missile-raider heavy")

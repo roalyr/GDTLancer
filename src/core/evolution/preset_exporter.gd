@@ -1,7 +1,8 @@
 # PresetExporter: writes a saved evolution's best genomes as template files (tools/export_presets.gd).
 # Presets are what the arenas evolve for, whatever the faction: the factions' pools are ranked as one.
-# Each archetype (a niche's role: "lance-missile-raider", "scavenger", ...) gives its fittest genome
-# with at least `min_lives` lives, the archetypes fittest first, `top` of them. Each becomes a
+# Each archetype (a niche's role: "lance-missile-raider", "scavenger", ...) in each weight class
+# (light, medium, heavy: PRESET_WEIGHT_CLASSES) gives its fittest genome with at least `min_lives`
+# lives, fittest first, `top` of them. Each becomes a
 # ShipTemplate (its default fit the genome's parts, one harpoon at most), the part templates it names,
 # and a faction-free AgentTemplate with the behaviour genes. Ids are stable for the same genes, so
 # exporting again overwrites rather than duplicates.
@@ -16,9 +17,20 @@ static func shrunk(entry: Dictionary) -> float:
 	return float(entry.fitness_sum) / (float(entry.lives) + Constants.EVO_PRIOR_LIVES)
 
 
+# "role weight": a niche's role and its hull's weight class.
 static func archetype(niche: String) -> String:
 	var fields: PoolStringArray = niche.split("|")
-	return fields[1] if fields.size() > 1 else niche
+	if fields.size() < 2:
+		return niche
+	return "%s %s" % [fields[1], weight_class(float(fields[0].substr(1)))]
+
+
+# Light, medium or heavy, from the niche's size class (log2 of the hull's size, in half steps).
+static func weight_class(size_class: float) -> String:
+	for weight in Constants.PRESET_WEIGHT_CLASSES:
+		if size_class <= weight[1]:
+			return weight[0]
+	return Constants.PRESET_WEIGHT_CLASSES.back()[0]
 
 
 # Returns a line per preset written.
@@ -32,6 +44,8 @@ static func export_all(evolution: Dictionary, top: int, min_lives: int, folder: 
 			var entry = genomes.get(cells[niche])
 			if not (entry is Dictionary and int(entry.lives) >= min_lives):
 				continue
+			if niche.find("|drifter|") >= 0:
+				continue  # Unarmed and without a harpoon: no use as a preset
 			var pick := {"fitness": shrunk(entry), "niche": niche, "id": cells[niche], "entry": entry}
 			var kind: String = archetype(niche)
 			if not best.has(kind) or pick.fitness > best[kind].fitness:
@@ -41,7 +55,7 @@ static func export_all(evolution: Dictionary, top: int, min_lives: int, folder: 
 	Directory.new().make_dir_recursive(folder)
 	for i in range(min(top, ranked.size())):
 		var pick: Dictionary = ranked[i]
-		lines.append("#%d %s %s fit %+.2f n=%d -> %s" % [i + 1, pick.niche, pick.id, pick.fitness, int(pick.entry.lives),
+		lines.append("#%d %s (%s) %s fit %+.2f n=%d -> %s" % [i + 1, archetype(pick.niche), pick.niche, pick.id, pick.fitness, int(pick.entry.lives),
 			write_preset(pick.entry.genome, pick.id, folder)])
 	if ranked.empty():
 		lines.append("no niche's best has %d lives yet" % min_lives)

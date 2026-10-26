@@ -710,6 +710,7 @@ const ARENA_DOCK_TIME = 10.0  # s an NPC stays docked (selling, repairs) before 
 const ARENA_UNDOCK_CLEAR_RADIUS = 3500.0  # m: with an enemy this near its undock point (past a heavy laser's reach), a docked NPC waits
 const ARENA_DOCK_MAX_WAIT = 90.0  # s, at most, past its dock time (upkeep runs on meanwhile)
 const ARENA_DOCK_DISTANCE = 250.0  # m from a station's undock point at which an NPC docks
+const PRESET_WEIGHT_CLASSES = [["light", -0.5], ["medium", 1.0], ["heavy", INF]]  # Preset export: niche size class up to this
 const ARENA_MAX_LIFETIME = 900.0  # s; after this an NPC retires at its next dock (its record is kept)
 # Rank (Evolution): a faction's ships in one arena zone are a group, ranked by renown, what they have
 # won in this life (RENOWN_PER_KILL a kill, RENOWN_PER_ASSIST going to help a friend, RENOWN_PER_DAMAGE
@@ -724,6 +725,7 @@ const RENOWN_LEADER_MIN = 10.0
 const ARENA_LIFETIME_PER_RENOWN = 0.05  # A kill: half as long again
 const ARENA_LIFETIME_MAX_FACTOR = 1.0  # Off (1): long lives slowed the turnover by a quarter; templates are the point
 const AI_FOLLOW_RADIUS = 1000.0  # m round its leader a follower patrols
+const AI_FOLLOW_MIN_TEAMWORK = 0.5  # A loner (teamwork gene under this) patrols on its own
 const ARENA_FACTION_MATERIALS = {  # Station paint by faction
 	"verdant": "res://assets/art/materials_generic/mat_hull_faction_verdant.tres",
 	"violet": "res://assets/art/materials_generic/mat_hull_faction_violet.tres",
@@ -764,6 +766,9 @@ const EVO_BEHAVIOR_RANGES = {  # Gene -> [min, max, default]
 	"pursuit": [0.0, 3.0, 1.0],  # Chases a runner while it would catch it within this share of its time to safety (AI_PURSUIT)
 	"mercy": [0.0, 1.0, 0.5],  # Chance of letting a runner go that is not shooting back (AI_MERCY)
 	"return_fire": [0.0, 1.0, 0.5],  # Chance, per flight, of shooting back while running (AI_RETURN_FIRE)
+	"teamwork": [0.0, 2.0, 1.0],  # Times its desire to help a friend or join its leader; under AI_FOLLOW_MIN_TEAMWORK it trails no leader
+	"caution": [0.0, 1.0, 0.5],  # Keeps clear of unseen enemies under this share of its engage desire (AI_AVOID_SHARE)
+	"burn": [0.0, 0.8, 0.3],  # Share of its power kept from the afterburner for its weapons (AI_AFTERBURNER_RESERVE)
 }
 const EVO_GENOME_MEMORY = 3000  # Genomes whose records are kept (elites and live ones always are)
 const EVO_REPORT_INTERVAL = 300.0  # s of game time between console reports

@@ -651,3 +651,15 @@ func test_keeps_clear_of_a_strong_enemy_that_has_not_seen_it():
 	brute.fit_stats = {"sensor_strength": 1.0}
 	ai.scan_for_target()
 	assert_null(ai._threat, "Seen already: hiding is no use")
+
+
+func test_loners_help_no_one_and_the_reckless_keep_clear_of_no_one():
+	ai.initialize({"patrol_center": Vector3.ZERO, "behavior": {"teamwork": 0.0, "caution": 0.0}})
+	var friend = _make_ship(Vector3(0, 0, -1500), "violet", 50.0)
+	var attacker = _make_ship(Vector3(0, 0, -2500), "verdant", 30.0)
+	friend.apply_damage(1.0, attacker)
+	assert_eq(ai.get_state(), AIScript.AIState.PATROL, "A loner lets its friend fend for itself")
+	var brute = _make_ship(Vector3(0, 0, -1000), "verdant", 5000.0)
+	brute.fit_stats = {"sensor_strength": 0.1}
+	ai.scan_for_target()
+	assert_null(ai._threat, "and the reckless keep clear of no one")

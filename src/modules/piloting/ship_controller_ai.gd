@@ -71,6 +71,9 @@ var _retreat_hull: float = 0.0
 var _pursuit: float = Constants.AI_PURSUIT  # Chases a runner while catch time * this <= its time to safety
 var _mercy: float = Constants.AI_MERCY  # Chance of letting a runner go that is not shooting back
 var _return_fire: float = Constants.AI_RETURN_FIRE  # Chance, per flight, that it shoots back running
+var _teamwork: float = 1.0  # Times its desire to help friends and join its leader (gene)
+var _caution: float = Constants.AI_AVOID_SHARE  # Keeps clear of unseen enemies this much stronger (gene)
+var _burn_reserve: float = Constants.AI_AFTERBURNER_RESERVE  # Power share kept from the afterburner (gene)
 var _shooting_back: bool = true  # This flight's roll of _return_fire
 var _since_hit: float = INF  # s since the ship it fights last hit it
 var _runner_judged: bool = false  # Its target's current run has had its mercy roll
@@ -106,6 +109,9 @@ func initialize(config: Dictionary) -> void:
 	_pursuit = float(behavior.get("pursuit", Constants.AI_PURSUIT))
 	_mercy = float(behavior.get("mercy", Constants.AI_MERCY))
 	_return_fire = float(behavior.get("return_fire", Constants.AI_RETURN_FIRE))
+	_teamwork = float(behavior.get("teamwork", 1.0))
+	_caution = float(behavior.get("caution", Constants.AI_AVOID_SHARE))
+	_burn_reserve = float(behavior.get("burn", Constants.AI_AFTERBURNER_RESERVE))
 	if is_instance_valid(_tool_controller) and not _tool_controller.is_connected("lance_recovered", self, "_on_lance_recovered"):
 		_tool_controller.connect("lance_recovered", self, "_on_lance_recovered")
 		_tool_controller.connect("ammo_recovered", self, "_on_ammo_recovered")
@@ -147,7 +153,7 @@ func _keep_clear(threat) -> void:
 
 # Its group's leader (Evolution ranks; Constants RENOWN_*), unless it leads or has none.
 func get_leader() -> Node:
-	if _arena.empty() or agent_script.evo_uid == "":
+	if _arena.empty() or agent_script.evo_uid == "" or _teamwork < Constants.AI_FOLLOW_MIN_TEAMWORK:
 		return null
 	var leader = Evolution.leader_of(agent_script.faction, _arena.zone_id)
 	return leader if leader != agent_script else null
@@ -245,7 +251,7 @@ func _think(delta: float) -> void:
 
 
 # Lights the afterburner (if fitted) to run, to charge with the lance, to catch a runner or to close
-# from far out; keeps AI_AFTERBURNER_RESERVE of its power for its weapons, except when running.
+# from far out; keeps its burn gene's share of its power for its weapons, except when running.
 func _update_afterburner() -> void:
 	if not agent_script.has_method("has_afterburner") or not agent_script.has_afterburner():
 		return
@@ -255,7 +261,7 @@ func _update_afterburner() -> void:
 	elif _current_state == AIState.COMBAT and _is_live_target(_target_agent):
 		var distance: float = agent_script.global_transform.origin.distance_to(_target_agent.global_transform.origin)
 		want = is_ram_committed() or is_running_from_me(_target_agent) or distance > get_engagement_range() * Constants.AI_AFTERBURNER_CLOSE_FACTOR
-		if agent_script.power < agent_script.power_max * Constants.AI_AFTERBURNER_RESERVE:
+		if agent_script.power < agent_script.power_max * _burn_reserve:
 			want = false
 	agent_script.set_afterburner(want)
 
@@ -811,7 +817,7 @@ func scan_for_target() -> RigidBody:
 	var best: RigidBody = null
 	var best_desire: float = _engage_level()
 	_threat = null
-	var worst_desire: float = _engage_level() * Constants.AI_AVOID_SHARE
+	var worst_desire: float = _engage_level() * _caution
 	for body in get_tree().get_nodes_in_group("agent_body"):
 		if body == agent_script or not _is_live_target(body) or not agent_script.is_enemy_of(body):
 			continue
@@ -905,7 +911,9 @@ func _assist(friend, source) -> void:
 		return
 	if not _pending.empty() and _pending.kind == "assist" and _pending.target == source:
 		return
-	_consider("assist", source, desire_against(source), _engage_level())
+	if _teamwork <= 0.0:
+		return  # A loner: helps no one
+	_consider("assist", source, desire_against(source) * _teamwork, _engage_level())
 
 
 # Charged at with a lance (seen coming, see LanceController.is_charging): as good as shot at. It holds
