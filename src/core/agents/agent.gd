@@ -50,6 +50,10 @@ const LaserHitEffect = preload("res://src/core/agents/effects/laser_hit_effect.g
 const WreckExplosionScene = preload("res://scenes/prefabs/effects/wreck_explosion.tscn")
 var _damage_toward_leak := 0.0
 var _engine_activity := 0.0  # Smoothed engine thrust fraction, 0..1 (signature)
+const DecoyScript = preload("res://src/core/agents/components/decoy.gd")
+var decoys: int = 0  # Decoy launcher charges left (fit_stats decoy_charges when full)
+var afterburner_lit: bool = false  # Afterburner on: extra thrust, power drain, a hot plume
+var _decoy_watch := 0.0  # s to the next look for missiles coming in
 var _leaks: Array = []
 var _smoulders: Array = []  # HullSmoulder spots, oldest first
 var _hull_scars = null  # HullScars under the visual root
@@ -270,6 +274,7 @@ func _init_fit() -> void:
 	if is_player():
 		GameState.player_fit = fit.duplicate(true)
 	fit_stats = ShipFit.compute_stats(ship_template, fit)
+	decoys = get_decoy_capacity()
 	_refresh_lance()
 
 
@@ -293,7 +298,7 @@ func _apply_fit_stats() -> void:
 
 func _apply_fit_to_movement() -> void:
 	if is_instance_valid(movement_system) and not fit_stats.empty():
-		movement_system.linear_thrust = fit_stats.linear_thrust
+		movement_system.linear_thrust = fit_stats.linear_thrust + (float(fit_stats.get("afterburner_thrust", 0.0)) if afterburner_lit else 0.0)
 		movement_system.angular_thrust = fit_stats.angular_thrust
 	_update_mass()
 
@@ -305,6 +310,9 @@ func apply_fit(new_fit: Dictionary) -> void:
 	if is_player():
 		GameState.player_fit = fit.duplicate(true)
 	fit_stats = ShipFit.compute_stats(ship_template, fit)
+	decoys = get_decoy_capacity()  # Refitted at a base: a new launcher comes loaded
+	if afterburner_lit and not has_afterburner():
+		afterburner_lit = false
 	_apply_fit_stats()
 	hull = min(hull, hull_max)
 	power = min(power, power_max)
@@ -398,7 +406,7 @@ func outruns_ram(target) -> bool:
 	if away.length() < 0.001:
 		return false
 	var running: bool = target.linear_velocity.dot(away.normalized()) > Constants.AI_RUNNER_SPEED_SHARE * max(target.get_top_speed(), 1.0)
-	return running and get_top_speed() - target.get_top_speed() < Constants.LAW_LANCE_MIN_SPEED * Constants.AI_RAM_SPEED_MARGIN
+	return running and get_burst_top_speed() - target.get_top_speed() < Constants.LAW_LANCE_MIN_SPEED * Constants.AI_RAM_SPEED_MARGIN  # An afterburner counts
 
 
 func get_lance() -> Node:
@@ -722,7 +730,72 @@ func get_signature() -> float:
 	for leak in _leaks:
 		if is_instance_valid(leak):
 			signature += Constants.SIG_PER_LEAK * leak.get_pressure()
+	if afterburner_lit:
+		signature += Constants.SIG_AFTERBURNER * _engine_activity
+	signature *= 1.0 - float(fit_stats.get("signature_damping", 0.0))  # A damper hides a share of it all
 	return max(Constants.SIG_MIN, signature)
+
+
+# --- Afterburner and decoys (modules; Constants LAW_AFTERBURNER_*, LAW_DECOY_*, DECOY_*) ---
+
+func has_afterburner() -> bool:
+	return float(fit_stats.get("afterburner_thrust", 0.0)) > 0.0
+
+
+# Lights the afterburner (true if it is lit now) or puts it out. It takes power to light.
+func set_afterburner(on: bool) -> bool:
+	if on and (not has_afterburner() or is_wreck or is_docked or power <= 0.0):
+		on = false
+	if on != afterburner_lit:
+		afterburner_lit = on
+		_apply_fit_to_movement()
+	return afterburner_lit
+
+
+# Top speed with the afterburner lit (as it is without one).
+func get_burst_top_speed() -> float:
+	if not has_afterburner() or not is_instance_valid(movement_system):
+		return get_top_speed()
+	return (float(fit_stats.get("linear_thrust", 0.0)) + float(fit_stats.afterburner_thrust)) / max(mass * Constants.LINEAR_DRAG, 0.001)
+
+
+func get_decoy_capacity() -> int:
+	return int(fit_stats.get("decoy_charges", 0))
+
+
+# Refills the launcher (at a base); the charges added.
+func restock_decoys() -> int:
+	var added: int = get_decoy_capacity() - decoys
+	decoys = get_decoy_capacity()
+	return int(max(0, added))
+
+
+# A missile coming at this ship within DECOY_TRIGGER_TIME of impact draws a decoy (each missile one);
+# DECOY_SEDUCE_CHANCE of them turn after the flare.
+func _launch_decoys() -> void:
+	for missile in get_tree().get_nodes_in_group("missile"):
+		if decoys <= 0:
+			return
+		if missile.done or missile.target != self or missile.has_meta("decoy_drawn"):
+			continue
+		var offset: Vector3 = global_transform.origin - missile.global_transform.origin
+		var distance: float = offset.length()
+		var closing: float = (missile.velocity - linear_velocity).dot(offset / max(distance, 0.001))
+		if closing <= 0.0 or distance / closing > Constants.DECOY_TRIGGER_TIME:
+			continue
+		missile.set_meta("decoy_drawn", true)
+		decoys -= 1
+		var side: Vector3 = offset.cross(Vector3.UP)
+		side = (side.normalized() if side.length_squared() > 0.01 else Vector3.RIGHT) * (1.0 if randf() < 0.5 else -1.0)
+		var decoy = DecoyScript.new()
+		decoy.launch(get_parent(), global_transform.origin + side * get_apparent_radius(), linear_velocity + side * Constants.DECOY_EJECT_SPEED)
+		var taken: bool = randf() < Constants.DECOY_SEDUCE_CHANCE
+		if taken:
+			missile.target = decoy
+		if is_player():
+			EventBus.emit_signal("announcement", "Decoy out (%d left): %s" % [decoys, "the missile took it" if taken else "the missile kept on"], "info" if taken else "danger")
+		elif evo_uid != "":
+			Evolution.note(evo_uid, "decoyed" if taken else "decoy_failed")
 
 
 func get_sensor_strength() -> float:
@@ -944,6 +1017,16 @@ func _ready():
 func _physics_process(delta: float) -> void:
 	if not is_wreck and power < power_max:
 		power = min(power_max, power + power_regen * delta)
+	if afterburner_lit:
+		var used = movement_system.get("last_thrust_fraction") if is_instance_valid(movement_system) else 0.0
+		var drain: float = float(fit_stats.get("afterburner_thrust", 0.0)) / 1000.0 * Constants.LAW_AFTERBURNER_POWER_PER_KN * float(used if used != null else 0.0) * delta
+		if is_wreck or is_docked or not try_spend_power(drain):
+			set_afterburner(false)  # Out of power: it goes out
+	if decoys > 0 and not is_wreck and not is_docked:
+		_decoy_watch -= delta
+		if _decoy_watch <= 0.0:
+			_decoy_watch = 0.1
+			_launch_decoys()
 	_apply_leak_thrust()
 	var thrust_used = movement_system.get("last_thrust_fraction") if is_instance_valid(movement_system) else null
 	var thrust: float = float(thrust_used) if thrust_used != null and not is_wreck and not is_docked else 0.0

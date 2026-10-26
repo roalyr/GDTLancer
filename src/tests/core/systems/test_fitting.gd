@@ -283,3 +283,10 @@ func test_a_small_reactor_runs_quieter():
 	assert_almost_eq(ShipFit.reactor_signature_factor(6000.0, reference, reference * 0.5), 1.0 - Constants.SIG_REACTOR_SHARE * 0.5, 0.0001, "Half the power: quieter")
 	assert_gt(ShipFit.reactor_signature_factor(6000.0, reference, reference * 2.0), 1.0, "Power cells on top: louder")
 	assert_eq(ShipFit.reactor_signature_factor(6000.0, 0.0, 0.0), 1.0, "No reactor law: as it is")
+
+
+func test_a_damper_hides_more_of_a_small_hull():
+	assert_almost_eq(ShipFit.damper_share(300.0, 6000.0), Constants.LAW_DAMPER_SHARE, 0.001, "5% of the hull's mass: the reference share")
+	assert_lt(ShipFit.damper_share(300.0, 24000.0), ShipFit.damper_share(300.0, 6000.0), "The same damper hides less of a bigger ship")
+	assert_eq(ShipFit.damper_share(5000.0, 6000.0), Constants.LAW_DAMPER_MAX, "and never all of it")
+	assert_eq(ShipFit.damper_share(0.0, 6000.0), 0.0)

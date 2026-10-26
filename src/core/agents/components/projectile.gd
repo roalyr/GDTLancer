@@ -41,6 +41,8 @@ func _physics_process(delta: float) -> void:
 		emit_signal("expired", self)
 		return
 	_steer(delta)
+	if done:
+		return  # Steering ended it (a missile bursting on a decoy)
 	var from: Vector3 = global_transform.origin
 	var to: Vector3 = from + velocity * delta
 	var met: Dictionary = _first_ship_on(from, to, delta)

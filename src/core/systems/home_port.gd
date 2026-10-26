@@ -12,9 +12,10 @@ static func is_home(location_id: String) -> bool:
 # Banks the ship's cargo, repairs it and refills its lance quiver and magazines (paid from the bank,
 # a lance's part value and a round's value each, as many as the bank covers). Returns {"banked":
 # value added, "units": units sold, "repaired": hull points restored, "lances": lances bought,
-# "lance_cost": WP paid, "rounds": missiles and rounds bought, "ammo_cost": WP paid}.
+# "lance_cost": WP paid, "rounds": missiles and rounds bought, "ammo_cost": WP paid, "decoys": decoys
+# bought, at LAW_DECOY_VALUE each, "decoy_cost"}.
 static func service(ship: Node) -> Dictionary:
-	var result := {"banked": 0, "units": 0, "repaired": 0.0, "lances": 0, "lance_cost": 0, "rounds": 0, "ammo_cost": 0}
+	var result := {"banked": 0, "units": 0, "repaired": 0.0, "lances": 0, "lance_cost": 0, "rounds": 0, "ammo_cost": 0, "decoys": 0, "decoy_cost": 0}
 	if not is_instance_valid(ship):
 		return result
 	for commodity_id in ship.cargo:
@@ -47,4 +48,12 @@ static func service(ship: Node) -> Dictionary:
 			result.rounds += take
 			result.ammo_cost += take * price
 			GameState.player_bank -= take * price
+	if ship.has_method("restock_decoys"):
+		var want: int = ship.get_decoy_capacity() - ship.decoys
+		var afford: int = int(min(want, max(0, GameState.player_bank / Constants.LAW_DECOY_VALUE)))
+		if afford > 0:
+			ship.decoys += afford
+			result.decoys = afford
+			result.decoy_cost = afford * Constants.LAW_DECOY_VALUE
+			GameState.player_bank -= result.decoy_cost
 	return result

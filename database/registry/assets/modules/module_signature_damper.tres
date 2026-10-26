@@ -1,0 +1,21 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/asset_module_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "module_signature_damper"
+module_name = "Signature Damper"
+description = "Hides a share of the ship's signature (more on a smaller hull)."
+base_value = 75
+mass = 300.0
+stat_modifiers = {
+"damper_mass": 300.0
+}
+lance = {
+}
+module_kind = "damper"
+variant_type = 2
+law_genes = {
+"mass": 300.0
+}

@@ -422,7 +422,9 @@ const AI_RAM_PASS_TIME = 10.0  # s between strikes: run-up, turn and charge
 const AI_RAM_SPEED_MARGIN = 1.1
 const AI_TEAM_RADIUS = 3000.0  # m: friends this near a ship count on its side of a fight (CombatAssessment.side_of)
 const AI_ASSIST_RADIUS = 4000.0  # m: an NPC this near a friend under fire considers going to help
-const AI_ENEMY_DESIRE_FACTOR = 1.5  # Ships at war (or holding a grudge) want the fight this much more
+const AI_ENEMY_DESIRE_FACTOR = 1.5
+const AI_AFTERBURNER_RESERVE = 0.3  # Share of its power an NPC keeps for its weapons (it burns on past it only to run)
+const AI_AFTERBURNER_CLOSE_FACTOR = 2.0  # Burns to close in from beyond this many times its fighting range  # Ships at war (or holding a grudge) want the fight this much more
 const AI_SALVAGE_SEARCH_RANGE = 6000.0  # m; wrecks further than this are not worth the trip
 const AI_DEPART_ARRIVAL_DISTANCE = 300.0  # m from its spawn point at which a hauler leaves the sector
 
@@ -505,6 +507,34 @@ const LAW_PART_VALUE_PER_KG = 0.25  # WP for modules
 const LAW_LASER_MASS_RANGE = [50.0, 4000.0]
 const LAW_LASER_ENERGY_RANGE = [0.5, 60.0]
 const LAW_MODULE_MASS_RANGE = [50.0, 5000.0]
+# Modules that do more than add a stat (ShipLaws.module_stats, ShipFit, Agent):
+# Sensor booster: sees farther (sensor strength, 1 for a bare hull, multiplies every detection range).
+const LAW_SENSOR = [250.0, 0.3, 0.5]  # Module mass -> sensor strength added
+# Signature damper: hides a share of the ship's whole signature (hull, engines, firing), more the
+# bigger it is against the hull: LAW_DAMPER_SHARE at LAW_DAMPER_REF_SHARE of the hull's mass, as the
+# square root, at most LAW_DAMPER_MAX.
+const LAW_DAMPER_SHARE = 0.3
+const LAW_DAMPER_REF_SHARE = 0.05
+const LAW_DAMPER_MAX = 0.6
+# Decoy launcher: a charge per LAW_DECOY_CHARGE_MASS kg. A missile coming at the ship within
+# DECOY_TRIGGER_TIME s of impact draws a decoy (one each); DECOY_SEDUCE_CHANCE of them take the missile
+# off after the flare, which drifts off at DECOY_EJECT_SPEED and burns DECOY_LIFETIME s. Refilled at a
+# base for LAW_DECOY_VALUE WP each.
+const LAW_DECOY_CHARGE_MASS = 50.0
+const LAW_DECOY_VALUE = 15
+const DECOY_TRIGGER_TIME = 2.5
+const DECOY_SEDUCE_CHANCE = 0.7
+const DECOY_EJECT_SPEED = 80.0
+const DECOY_LIFETIME = 5.0
+const DECOY_BURST_DISTANCE = 25.0  # m: a missile this near its decoy bursts on it
+const DECOY_COLOR = Color(1.0, 0.85, 0.5)
+const DECOY_MODEL_RADIUS = 1.5  # m
+# Afterburner: while lit, extra thrust LAW_AFTERBURNER_FACTOR times a thruster of its mass gives, at
+# LAW_AFTERBURNER_POWER_PER_KN power a second per kN in use (none while coasting), and a hot plume
+# (SIG_AFTERBURNER at full thrust). Goes out when power runs short.
+const LAW_AFTERBURNER_FACTOR = 3.0
+const LAW_AFTERBURNER_POWER_PER_KN = 0.03
+const SIG_AFTERBURNER = 3000.0
 
 # Kinetic lance (module "lance"): a seat that strikes like a hammer, and a quiver of lances (nails)
 # fixed on the hull. An armed lance strikes a ship its tip meets at a closing speed along the lance
@@ -626,8 +656,12 @@ const PART_TYPE_SEEDS = {  # Part kind -> type -> genes
 	"lance": {1: {"nail_mass": 100.0, "count": 3.0}, 2: {"nail_mass": 200.0, "count": 3.0}, 3: {"nail_mass": 350.0, "count": 4.0}},
 	"missile": {1: {"round_mass": 40.0, "count": 4.0}, 2: {"round_mass": 100.0, "count": 4.0}, 3: {"round_mass": 250.0, "count": 4.0}},
 	"cannon": {1: {"mass": 150.0, "round_mass": 2.0, "count": 80.0}, 2: {"mass": 300.0, "round_mass": 5.0, "count": 60.0}, 3: {"mass": 700.0, "round_mass": 15.0, "count": 40.0}},
+	"sensor": {1: {"mass": 120.0}, 2: {"mass": 250.0}, 3: {"mass": 500.0}},
+	"damper": {1: {"mass": 150.0}, 2: {"mass": 300.0}, 3: {"mass": 600.0}},
+	"decoy": {1: {"mass": 100.0}, 2: {"mass": 200.0}, 3: {"mass": 400.0}},
+	"afterburner": {1: {"mass": 200.0}, 2: {"mass": 400.0}, 3: {"mass": 800.0}},
 }
-const PART_NAMES = {"laser": "Laser", "plating": "Hull Plating", "thruster": "Thruster", "power_cell": "Power Cell", "capacitor": "Capacitor", "harpoon": "Harpoon", "lance": "Kinetic Lance", "missile": "Missile Rack", "cannon": "Rail Cannon"}
+const PART_NAMES = {"laser": "Laser", "plating": "Hull Plating", "thruster": "Thruster", "power_cell": "Power Cell", "capacitor": "Capacitor", "harpoon": "Harpoon", "lance": "Kinetic Lance", "missile": "Missile Rack", "cannon": "Rail Cannon", "sensor": "Sensor Booster", "damper": "Signature Damper", "decoy": "Decoy Launcher", "afterburner": "Afterburner"}
 const PART_TYPE_NAMES = {1: "I", 2: "II", 3: "III"}
 const HARPOON_TEMPLATE_ID = "tool_harpoon"  # Not evolved: the same harpoon for everyone
 

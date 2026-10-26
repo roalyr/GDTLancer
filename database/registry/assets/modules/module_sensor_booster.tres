@@ -1,0 +1,21 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/asset_module_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "module_sensor_booster"
+module_name = "Sensor Booster"
+description = "Sees farther: every detection range grows."
+base_value = 63
+mass = 250.0
+stat_modifiers = {
+"sensor_strength": 0.3
+}
+lance = {
+}
+module_kind = "sensor"
+variant_type = 2
+law_genes = {
+"mass": 250.0
+}

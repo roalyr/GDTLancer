@@ -105,3 +105,13 @@ func test_tool_share_splits_the_slots_keeping_one_of_each():
 	var stats: Dictionary = ShipLaws.ship_stats({"size": 4.0, "tool_share": 0.0})
 	assert_eq(stats.module_slots, total - 1)
 	assert_eq(stats.tool_slots_small + stats.tool_slots_medium + stats.tool_slots_large, 1)
+
+
+func test_special_modules():
+	var sensor: Dictionary = ShipLaws.module_stats("sensor", {"mass": 250.0})
+	assert_almost_eq(sensor.stat_modifiers.sensor_strength, Constants.LAW_SENSOR[1], 0.001, "The reference booster")
+	assert_eq(ShipLaws.module_stats("decoy", {"mass": 200.0}).stat_modifiers.decoy_charges, 4, "Four flares in 200 kg")
+	var burner: Dictionary = ShipLaws.module_stats("afterburner", {"mass": 400.0})
+	var thruster: Dictionary = ShipLaws.module_stats("thruster", {"mass": 400.0})
+	assert_almost_eq(burner.stat_modifiers.afterburner_thrust, thruster.stat_modifiers.linear_thrust * Constants.LAW_AFTERBURNER_FACTOR, 1.0, "Three thrusters' worth, while lit")
+	assert_eq(ShipLaws.module_stats("damper", {"mass": 300.0}).stat_modifiers.damper_mass, 300.0)

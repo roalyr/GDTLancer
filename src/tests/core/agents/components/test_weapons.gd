@@ -22,7 +22,7 @@ func before_each():
 # Rounds still in flight belong to the test that fired them: none may reach the next one's ships.
 func after_each():
 	for child in get_children():
-		if child.has_method("_steer"):
+		if child.has_method("_steer") or child.is_in_group("decoy"):
 			child.free()
 
 
@@ -182,3 +182,37 @@ func test_missiles_and_cannons_hold_fire_behind_a_rock():
 	rock.global_transform.origin = Vector3(500, 0, -400)
 	yield(get_tree(), "physics_frame")
 	assert_false(controller.rock_in_the_way(target), "Moved aside: a clear line")
+
+
+func test_a_decoy_takes_a_missile_off():
+	seed(2)
+	target.decoys = 2
+	controller = _arm(shooter, "missile", Constants.PART_TYPE_SEEDS.missile[2])
+	target.global_transform.origin = Vector3(0, 0, -1500)
+	controller.activate(0, target)
+	controller._physics_process(0.016)
+	var missile = controller._in_flight[0]
+	var t := 0.0
+	while t < 15.0 and is_instance_valid(missile) and not missile.done:
+		target._launch_decoys()
+		for child in get_children():
+			if child.is_in_group("decoy"):
+				child._physics_process(1.0 / 60.0)
+		_fly(1.0 / 60.0)
+		t += 1.0 / 60.0
+	assert_eq(target.decoys, 1, "One flare for the one missile")
+	assert_eq(target.hull, 300.0, "which took it, and burst on it")
+
+
+func test_afterburner_and_damper_on_the_signature():
+	var body = _make_body(Vector3(0, 0, 500))
+	body.fit_stats = {"sensor_strength": 1.0, "signature": 1000.0, "linear_thrust": 300000.0}
+	assert_false(body.set_afterburner(true), "None fitted: nothing to light")
+	body.fit_stats["afterburner_thrust"] = 500000.0
+	assert_true(body.set_afterburner(true), "Lit")
+	var quiet: float = body.get_signature()
+	body.fit_stats["signature_damping"] = 0.3
+	assert_almost_eq(body.get_signature(), quiet * 0.7, 0.01, "A damper hides 30% of it")
+	body.power = 0.0
+	body.set_afterburner(false)
+	assert_false(body.set_afterburner(true), "No power: it will not light")

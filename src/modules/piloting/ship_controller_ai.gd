@@ -198,7 +198,23 @@ func _think(delta: float) -> void:
 			_process_hesitate()
 		AIState.DOCKED:
 			_process_docked(delta)
+	_update_afterburner()
 
+
+# Lights the afterburner (if fitted) to run, to charge with the lance, to catch a runner or to close
+# from far out; keeps AI_AFTERBURNER_RESERVE of its power for its weapons, except when running.
+func _update_afterburner() -> void:
+	if not agent_script.has_method("has_afterburner") or not agent_script.has_afterburner():
+		return
+	var want := false
+	if _current_state == AIState.FLEE:
+		want = true
+	elif _current_state == AIState.COMBAT and _is_live_target(_target_agent):
+		var distance: float = agent_script.global_transform.origin.distance_to(_target_agent.global_transform.origin)
+		want = is_ram_committed() or is_running_from_me(_target_agent) or distance > get_engagement_range() * Constants.AI_AFTERBURNER_CLOSE_FACTOR
+		if agent_script.power < agent_script.power_max * Constants.AI_AFTERBURNER_RESERVE:
+			want = false
+	agent_script.set_afterburner(want)
 
 func _change_state(new_state: int) -> void:
 	if _current_state == new_state:

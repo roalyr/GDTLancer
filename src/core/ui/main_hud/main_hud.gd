@@ -55,6 +55,7 @@ onready var button_particles: TextureButton = $ScreenControls/CenterLeftZone/But
 onready var label_particles: Label = $ScreenControls/CenterLeftZone/ButtonParticlesToggle/LabelButtonParticles
 onready var tool_buttons: Array = _tool_button_nodes()
 onready var button_lance: TextureButton = $ScreenControls/TemporaryToolZone/ButtonLance
+onready var button_afterburner: TextureButton = $ScreenControls/TemporaryToolZone/ButtonAfterburner
 var fitting_window: Control = null
 var debug_map: Control = null
 
@@ -187,6 +188,7 @@ func _ready():
 	for index in range(tool_buttons.size()):
 		tool_buttons[index].connect("pressed", self, "_on_tool_button_pressed", [index])
 	button_lance.connect("pressed", self, "_on_lance_button_pressed")
+	button_afterburner.connect("pressed", self, "_on_afterburner_button_pressed")
 	button_render_scale.connect("pressed", self, "_on_ButtonRenderScale_pressed")
 	_update_render_scale_label()
 	button_particles.connect("pressed", self, "_on_ButtonParticlesToggle_pressed")
@@ -225,6 +227,7 @@ func _update_hud() -> void:
 	_update_debug_overlay()
 	_update_tool_buttons()
 	_update_lance_button()
+	_update_afterburner_button()
 	_update_dock_button_label()
 
 
@@ -475,6 +478,26 @@ func _update_lance_button() -> void:
 
 func _on_lance_button_pressed() -> void:
 	EventBus.emit_signal("player_lance_pressed")
+
+
+# The AFTERBURN button, after the lance (only with an afterburner fitted): ON (highlighted) and the
+# top speed it gives, or OFF; with a decoy launcher, the decoys left under it.
+func _update_afterburner_button() -> void:
+	var player = GlobalRefs.player_agent_body
+	var fitted: bool = is_instance_valid(player) and player.has_method("has_afterburner") and player.has_afterburner()
+	var decoys: bool = is_instance_valid(player) and player.has_method("get_decoy_capacity") and player.get_decoy_capacity() > 0
+	button_afterburner.visible = fitted or decoys
+	if not button_afterburner.visible:
+		return
+	var text: String = "BURN %s\n%d m/s" % ["ON" if player.afterburner_lit else "OFF", int(player.get_burst_top_speed())] if fitted else "NO BURNER"
+	if decoys:
+		text += "\nDECOYS %d" % player.decoys
+	button_afterburner.get_node("Label").text = text
+	_apply_button_toggle_state(button_afterburner, fitted and player.afterburner_lit)
+
+
+func _on_afterburner_button_pressed() -> void:
+	EventBus.emit_signal("player_afterburner_pressed")
 
 
 func _on_SliderControlLeft_value_changed(value):

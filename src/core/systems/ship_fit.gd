@@ -146,6 +146,9 @@ static func compute_stats(ship, fit: Dictionary) -> Dictionary:
 		"signature": float(ship.signature),
 		"sensor_strength": float(ship.sensor_strength),
 		"mass": float(ship.mass),
+		"decoy_charges": 0.0,
+		"afterburner_thrust": 0.0,
+		"damper_mass": 0.0,
 	}
 	for tool_id in fit.get("tools", []):
 		var tool_template = TemplateDatabase.get_template(str(tool_id))
@@ -159,7 +162,15 @@ static func compute_stats(ship, fit: Dictionary) -> Dictionary:
 				if stats.has(stat):
 					stats[stat] += float(module.stat_modifiers[stat])
 	stats.signature *= reactor_signature_factor(float(ship.mass), float(ship.power_regen), stats.power_regen)
+	stats["signature_damping"] = damper_share(stats.damper_mass, float(ship.mass))
 	return stats
+
+
+# Share of a ship's signature its dampers hide (Constants LAW_DAMPER_*).
+static func damper_share(damper_mass: float, ship_mass: float) -> float:
+	if damper_mass <= 0.0 or ship_mass <= 0.0:
+		return 0.0
+	return min(Constants.LAW_DAMPER_MAX, Constants.LAW_DAMPER_SHARE * sqrt(damper_mass / (ship_mass * Constants.LAW_DAMPER_REF_SHARE)))
 
 
 # A reactor runs hot: SIG_REACTOR_SHARE of a hull's signature scales with its power output (power

@@ -67,6 +67,7 @@ func _ready():
 	EventBus.connect("player_interact_pressed", self, "_on_interact_button_pressed")
 	EventBus.connect("player_tool_pressed", self, "_on_tool_button_pressed")
 	EventBus.connect("player_lance_pressed", self, "_on_lance_button_pressed")
+	EventBus.connect("player_afterburner_pressed", self, "_on_afterburner_button_pressed")
 
 	call_deferred("_deferred_ready_setup")
 	_change_state("default")
@@ -229,6 +230,17 @@ func _on_lance_button_pressed() -> void:
 		EventBus.emit_signal("attack_action_feedback", false, "Undock first")
 		return
 	lance.armed = not lance.armed
+
+
+# The AFTERBURN button: lights the afterburner or puts it out.
+func _on_afterburner_button_pressed() -> void:
+	if not is_instance_valid(agent_body) or not agent_body.has_method("has_afterburner") or not agent_body.has_afterburner():
+		return
+	if GameState.player_docked_at != "":
+		EventBus.emit_signal("attack_action_feedback", false, "Undock first")
+		return
+	if not agent_body.set_afterburner(not agent_body.afterburner_lit) and agent_body.power <= 0.0:
+		EventBus.emit_signal("attack_action_feedback", false, "Afterburner: no power")
 
 
 func _on_tool_button_pressed(index: int) -> void:
@@ -819,12 +831,14 @@ func _on_player_docked(location_id):
 		agent_body.dock_at(_find_station(location_id))
 	if HomePort.is_home(location_id):
 		var result: Dictionary = HomePort.service(agent_body)
-		if result.units > 0 or result.repaired > 0.0 or result.lances > 0 or result.rounds > 0:
+		if result.units > 0 or result.repaired > 0.0 or result.lances > 0 or result.rounds > 0 or result.decoys > 0:
 			var message: String = "Home port: banked %d WP from %d units, repaired %d hull" % [result.banked, result.units, result.repaired]
 			if result.lances > 0:
 				message += ", %d lances for %d WP" % [result.lances, result.lance_cost]
 			if result.rounds > 0:
 				message += ", %d rounds for %d WP" % [result.rounds, result.ammo_cost]
+			if result.decoys > 0:
+				message += ", %d decoys for %d WP" % [result.decoys, result.decoy_cost]
 			EventBus.emit_signal("dock_action_feedback", true, message)
 	set_process_unhandled_input(false)
 	set_physics_process(false)

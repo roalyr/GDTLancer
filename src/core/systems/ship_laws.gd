@@ -8,7 +8,7 @@
 extends Reference
 
 const SHARE_KEYS = ["structure", "engine", "reactor", "capacitor", "hold"]
-const MODULE_KINDS = ["plating", "thruster", "power_cell", "capacitor", "lance"]
+const MODULE_KINDS = ["plating", "thruster", "power_cell", "capacitor", "lance", "sensor", "damper", "decoy", "afterburner"]
 const MODULE_LAWS = {"plating": "hull", "thruster": "linear_thrust", "power_cell": "power_regen", "capacitor": "power_capacity"}
 
 
@@ -332,6 +332,18 @@ static func module_stats(kind: String, genes: Dictionary) -> Dictionary:
 		var prow: int = int(round(apply_law(Constants.LAW_HULL, lance.mass * Constants.LAW_LANCE_PROW_SHARE)))  # The seat armours the bow
 		return {"mass": lance.mass, "stat_modifiers": {"hull": prow}, "base_value": int(round(Constants.LAW_PART_VALUE_PER_KG * lance.mass)), "lance": lance}
 	var mass: float = clamp_module_genes(genes).mass
+	var special := {}
+	match kind:
+		"sensor":
+			special = {"sensor_strength": apply_law(Constants.LAW_SENSOR, mass)}
+		"damper":
+			special = {"damper_mass": mass}  # ShipFit turns it into a share against the hull's mass
+		"decoy":
+			special = {"decoy_charges": int(max(1, round(mass / Constants.LAW_DECOY_CHARGE_MASS)))}
+		"afterburner":
+			special = {"afterburner_thrust": Constants.LAW_AFTERBURNER_FACTOR * apply_law(Constants.LAW_THRUST, mass)}
+	if not special.empty():
+		return {"mass": mass, "stat_modifiers": special, "base_value": int(round(Constants.LAW_PART_VALUE_PER_KG * mass))}
 	var stat: String = MODULE_LAWS.get(kind, "hull")
 	var amount: float = apply_law(_law_for_stat(stat), mass)
 	return {

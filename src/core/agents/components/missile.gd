@@ -3,7 +3,8 @@
 # pursuit) but turning at most turn_rate rad/s: a ship crossing fast enough, near enough, makes it
 # overshoot, and it has to come round again before its fuel (flight_time) runs out. The warhead
 # bursts as a small explosion. The plume is the ships' own engine exhaust (EngineExhaustSet).
-# Lasers can shoot it down (ToolController point defence): `hp` of laser damage destroys it.
+# Lasers can shoot it down (ToolController point defence): `hp` of laser damage destroys it. A decoy
+# (Decoy) may take it off its ship: it chases the flare and bursts on it.
 
 extends "res://src/core/agents/components/projectile.gd"
 
@@ -67,6 +68,12 @@ func get_top_speed() -> float:
 
 
 func _steer(delta: float) -> void:
+	if is_instance_valid(target) and target.is_in_group("decoy") and global_transform.origin.distance_to(target.global_transform.origin) <= Constants.DECOY_BURST_DISTANCE:
+		done = true  # Took the flare for its ship: bursts on it
+		_explode(Vector3.ZERO)
+		queue_free()
+		emit_signal("expired", self)
+		return
 	var own: Vector3 = velocity - _launch_velocity
 	var speed: float = min(top_speed, own.length() + accel * delta)
 	var heading: Vector3 = own.normalized() if own.length_squared() > 0.01 else -global_transform.basis.z

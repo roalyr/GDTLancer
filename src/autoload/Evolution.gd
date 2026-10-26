@@ -197,6 +197,8 @@ func on_docked(body: Node) -> bool:
 			repair_cost += int(added[index]) * float(tools.get_tool(index).round_value)  # Rounds fired are bought anew
 		if not added.empty():
 			note(uid, "reloaded")
+	if body.has_method("restock_decoys"):
+		repair_cost += body.restock_decoys() * Constants.LAW_DECOY_VALUE
 	record.earned = int(record.earned) + value
 	record.spent = float(record.get("spent", 0.0)) + repair_cost
 	record.docks = int(record.docks) + 1

@@ -80,6 +80,8 @@ const STAT_LABELS = {
 	"angular_thrust": ["%+d kNm turn", 0.001],
 	"signature": ["%+d m signature", 1.0],
 	"sensor_strength": ["%+.1f sensors", 1.0],
+	"decoy_charges": ["%d decoys", 1.0],
+	"afterburner_thrust": ["%+d kN thrust lit", 0.001],
 }
 
 
@@ -92,6 +94,9 @@ static func describe_part(part_id: String) -> String:
 	if part is ModuleTemplate:
 		var effects: Array = []
 		for stat in part.stat_modifiers:
+			if stat == "damper_mass":  # Its share depends on the hull: the reference hull's
+				effects.append("-%d%% signature on a Phoenix Light" % int(round(100.0 * ShipFit.damper_share(part.stat_modifiers[stat], Constants.LAW_SHIP_REF_MASS))))
+				continue
 			var label: Array = STAT_LABELS.get(stat, ["%+d " + stat, 1.0])
 			effects.append(label[0] % (part.stat_modifiers[stat] * label[1]))
 		return "%s  %s, %.1f t" % [part.module_name, PoolStringArray(effects).join(", "), part.mass / 1000.0]
