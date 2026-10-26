@@ -137,6 +137,7 @@ func test_aim_command_points_the_nose_at_the_lead():
 
 
 func test_lasers_shoot_down_missiles_coming_at_their_ship():
+	seed(5)  # Laser hits are rolled: the same rolls whatever ran before
 	controller = _arm(shooter, "missile", Constants.PART_TYPE_SEEDS.missile[2])
 	var laser: UtilityToolTemplate = ShipLaws.build_laser_template(Constants.PART_TYPE_SEEDS.laser[3], 3, "test_pd")  # A heavy laser
 	var defence = ToolControllerScript.new()
