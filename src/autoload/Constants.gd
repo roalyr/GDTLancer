@@ -535,7 +535,7 @@ const LAW_LASER_POWER_PER_ENERGY = 1.5  # Power drawn per unit of shot energy: t
 
 # Missiles (genes: round_mass kg, count). The rack holds count missiles, plus RACK_ROUNDS' mass of frame.
 const LAW_MISSILE_REF_MASS = 100.0  # kg
-const LAW_MISSILE_DAMAGE = [100.0, 55.0, 0.9]  # Round mass -> warhead damage: three reference missiles kill a Phoenix Light
+const LAW_MISSILE_DAMAGE = [100.0, 50.0, 0.9]  # Round mass -> warhead damage: three reference missiles kill a Phoenix Light
 const LAW_MISSILE_SPEED = [100.0, 320.0, -0.1]  # -> top speed, m/s past the launcher's
 const LAW_MISSILE_ACCEL = [100.0, 120.0, -0.2]  # -> m/s^2
 const LAW_MISSILE_TURN = [100.0, 1.2, -0.25]  # -> rad/s: heavy missiles turn wide, so an agile ship can make them overshoot
