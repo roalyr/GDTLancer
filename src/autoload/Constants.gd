@@ -706,6 +706,19 @@ const ARENA_UNDOCK_CLEAR_RADIUS = 3500.0  # m: with an enemy this near its undoc
 const ARENA_DOCK_MAX_WAIT = 90.0  # s, at most, past its dock time (upkeep runs on meanwhile)
 const ARENA_DOCK_DISTANCE = 250.0  # m from a station's undock point at which an NPC docks
 const ARENA_MAX_LIFETIME = 900.0  # s; after this an NPC retires at its next dock (its record is kept)
+# Rank (Evolution): a faction's ships in one arena zone are a group, ranked by renown, what they have
+# won in this life (RENOWN_PER_KILL a kill, RENOWN_PER_ASSIST going to help a friend, RENOWN_PER_DAMAGE
+# per hull point dealt). The first, with RENOWN_LEADER_MIN and a group to lead, is its leader: the
+# others patrol near it (AI_FOLLOW_RADIUS) and join its fights. Renown also puts off retiring: the
+# lifetime grows by ARENA_LIFETIME_PER_RENOWN of itself per point, at most ARENA_LIFETIME_MAX_FACTOR
+# times (a ship that dies still dies).
+const RENOWN_PER_KILL = 10.0
+const RENOWN_PER_ASSIST = 2.0
+const RENOWN_PER_DAMAGE = 0.02  # 500 hull dealt: as much as a kill
+const RENOWN_LEADER_MIN = 10.0
+const ARENA_LIFETIME_PER_RENOWN = 0.05  # A kill: half as long again
+const ARENA_LIFETIME_MAX_FACTOR = 3.0
+const AI_FOLLOW_RADIUS = 1000.0  # m round its leader a follower patrols
 const ARENA_FACTION_MATERIALS = {  # Station paint by faction
 	"verdant": "res://assets/art/materials_generic/mat_hull_faction_verdant.tres",
 	"violet": "res://assets/art/materials_generic/mat_hull_faction_violet.tres",

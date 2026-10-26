@@ -203,7 +203,7 @@ func on_docked(body: Node) -> bool:
 	record.spent = float(record.get("spent", 0.0)) + repair_cost
 	record.docks = int(record.docks) + 1
 	_log(2, "EVO DOCK %s sold %d units for %d WP (life total %d), repaired %.0f hull for %.0f WP, age %.0fs" % [uid, units, value, record.earned, repaired, repair_cost, game_time - float(record.born)])
-	if game_time - float(record.born) >= Constants.ARENA_MAX_LIFETIME:
+	if game_time - float(record.born) >= lifetime_of(uid):
 		_end_life(uid, false, "")
 		return true
 	return false
@@ -223,7 +223,58 @@ func note(uid: String, event: String) -> void:
 
 
 func is_old(uid: String) -> bool:
-	return live.has(uid) and game_time - float(live[uid].born) >= Constants.ARENA_MAX_LIFETIME
+	return live.has(uid) and game_time - float(live[uid].born) >= lifetime_of(uid)
+
+
+# --- Rank: renown within a group (a faction's ships in one arena zone; Constants RENOWN_*) ---
+
+static func renown_of(record: Dictionary) -> float:
+	return Constants.RENOWN_PER_KILL * int(record.get("kills", 0)) \
+		+ Constants.RENOWN_PER_ASSIST * int(record.get("events", {}).get("assisted", 0)) \
+		+ Constants.RENOWN_PER_DAMAGE * float(record.get("damage_dealt", 0.0))
+
+
+# How long it flies before it retires: longer the more renown it has won.
+func lifetime_of(uid: String) -> float:
+	var renown: float = renown_of(live.get(uid, {}))
+	return Constants.ARENA_MAX_LIFETIME * min(Constants.ARENA_LIFETIME_MAX_FACTOR, 1.0 + renown * Constants.ARENA_LIFETIME_PER_RENOWN)
+
+
+# The group's lives, most renowned first (the older first on a tie).
+func group_of(faction: String, zone_id: String) -> Array:
+	var group: Array = []
+	for uid in live:
+		if live[uid].faction == faction and live[uid].zone == zone_id:
+			group.append(uid)
+	group.sort_custom(self, "_ranks_above")
+	return group
+
+
+func _ranks_above(a: String, b: String) -> bool:
+	var renown_a: float = renown_of(live[a])
+	var renown_b: float = renown_of(live[b])
+	if renown_a != renown_b:
+		return renown_a > renown_b
+	return float(live[a].born) < float(live[b].born)
+
+
+# 1 for the first in its group; 0 if not a live arena NPC.
+func rank_of(uid: String) -> int:
+	if not live.has(uid):
+		return 0
+	return group_of(live[uid].faction, live[uid].zone).find(uid) + 1
+
+
+# The group's leader, if it has one out flying: the first, with RENOWN_LEADER_MIN renown and someone
+# to lead.
+func leader_of(faction: String, zone_id: String) -> Node:
+	var group: Array = group_of(faction, zone_id)
+	if group.size() < 2 or renown_of(live[group[0]]) < Constants.RENOWN_LEADER_MIN:
+		return null
+	var body = _bodies.get(group[0])
+	if not is_instance_valid(body) or body.get("is_docked") or body.get("is_wreck"):
+		return null
+	return body
 
 
 func _on_agent_damaged(body, amount, source) -> void:
@@ -302,9 +353,9 @@ func _end_life(uid: String, died: bool, killer: String) -> void:
 		verdict = _place_in_archive(record.genome_id)
 	var pool: Dictionary = pools[record.faction]
 	pool.lives = int(pool.lives) + 1
-	_log(1, "EVO %s %s %s zone=%s age=%.0fs kills=%d earned=%d bounty=%.0f spent=%.0f dealt=%.0f taken=%.0f docks=%d %s cost=%.0f fitness=%+.2f genome_mean=%+.2f (n=%d) %s%s" % [
+	_log(1, "EVO %s %s %s zone=%s age=%.0fs kills=%d earned=%d bounty=%.0f spent=%.0f dealt=%.0f taken=%.0f docks=%d %s renown=%.0f cost=%.0f fitness=%+.2f genome_mean=%+.2f (n=%d) %s%s" % [
 		"DEATH" if died else "RETIRE", uid, record.genome_id, record.zone, age, record.kills, record.earned, record.bounty,
-		record.get("spent", 0.0), record.damage_dealt, record.damage_taken, record.docks, to_json(record.get("events", {})), record.cost, fitness, shrunk_fitness(record.genome_id),
+		record.get("spent", 0.0), record.damage_dealt, record.damage_taken, record.docks, to_json(record.get("events", {})), renown_of(record), record.cost, fitness, shrunk_fitness(record.genome_id),
 		int(entry.get("lives", 0)), verdict, (" killer=" + killer) if killer != "" else ""])
 	_write_life(record, died, killer, fitness, age)
 	_prune_genomes()

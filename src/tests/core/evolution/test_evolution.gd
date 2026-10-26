@@ -170,3 +170,28 @@ func _remove_tree(path: String) -> void:
 			dir.remove(name)
 		name = dir.get_next()
 	Directory.new().remove(path)
+
+
+func test_groups_rank_by_renown_and_the_first_leads():
+	var first: Dictionary = Evolution.begin_life("verdant", "3v3")
+	var second: Dictionary = Evolution.begin_life("verdant", "3v3")
+	Evolution.begin_life("violet", "3v3")
+	assert_eq(Evolution.rank_of(first.uid), 1, "No renown yet: the older first")
+	Evolution.live[second.uid].kills = 1
+	assert_eq(Evolution.rank_of(second.uid), 1, "A kill puts it first")
+	assert_eq(Evolution.group_of("verdant", "3v3").size(), 2, "Only its faction in its zone")
+	var body := _body(second.uid)
+	body.set("is_docked", false)
+	Evolution.attach_body(second.uid, body)
+	assert_eq(Evolution.leader_of("verdant", "3v3"), body, "and makes it the leader")
+	assert_null(Evolution.leader_of("violet", "3v3"), "No one to lead, no leader")
+
+
+func test_renown_puts_off_retiring():
+	var life: Dictionary = Evolution.begin_life("verdant", "3v3")
+	Evolution.live[life.uid].kills = 2
+	assert_almost_eq(Evolution.lifetime_of(life.uid), Constants.ARENA_MAX_LIFETIME * 2.0, 0.01, "Two kills: twice as long")
+	Evolution.game_time += Constants.ARENA_MAX_LIFETIME + 1.0
+	assert_false(Evolution.on_docked(_body(life.uid)), "Not old yet")
+	Evolution.live[life.uid].kills = 100
+	assert_almost_eq(Evolution.lifetime_of(life.uid), Constants.ARENA_MAX_LIFETIME * Constants.ARENA_LIFETIME_MAX_FACTOR, 0.01, "At most this long")

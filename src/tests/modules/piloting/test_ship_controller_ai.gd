@@ -600,3 +600,31 @@ func test_does_not_leave_its_own_fight_to_help_or_help_from_afar():
 	ai._start_combat(foe, false)
 	near_friend.apply_damage(1.0, attacker)
 	assert_eq(ai.get_focus(), foe, "Busy with its own fight")
+
+
+func test_followers_join_their_leaders_fight():
+	Evolution.new_run()
+	var arena := {"zone_id": "t", "beacon": Vector3.ZERO, "stations": []}
+	ai.initialize({"patrol_center": Vector3.ZERO, "arena": arena})
+	var follower: Dictionary = Evolution.begin_life("violet", "t")
+	var chief: Dictionary = Evolution.begin_life("violet", "t")
+	Evolution.live[chief.uid].kills = 1
+	hostile.evo_uid = follower.uid
+	var leader = _make_ship(Vector3(0, 0, -1200), "violet", 50.0)
+	leader.evo_uid = chief.uid
+	Evolution.attach_body(chief.uid, leader)
+	var leader_ai = AIScript.new()
+	leader_ai.name = Constants.AI_CONTROLLER_NODE_NAME
+	leader.add_child(leader_ai)
+	leader_ai.initialize({"patrol_center": Vector3.ZERO, "arena": arena})
+	assert_eq(ai.get_leader(), leader, "Its group's leader")
+	assert_null(leader_ai.get_leader(), "The leader follows no one")
+	var foe = _make_ship(Vector3(0, 0, -2700), "verdant", 30.0)
+	assert_false(hostile.detects(foe), "Too far for the follower to see")
+	leader_ai._start_combat(foe, false)
+	ai._scan_timer = 0.0
+	ai._process_patrol()
+	assert_eq(ai._pending.get("kind"), "assist", "It goes to join the fight")
+	assert_eq(ai.get_focus(), foe)
+	Evolution.new_run()
+	TemplateDatabase.evolved = {}  # Its lives built ships and parts the registry tests must not meet

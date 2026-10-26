@@ -128,6 +128,32 @@ func get_activity_label() -> String:
 	return ACTIVITY_LABELS.get(_current_state, "")
 
 
+# Its group's leader (Evolution ranks; Constants RENOWN_*), unless it leads or has none.
+func get_leader() -> Node:
+	if _arena.empty() or agent_script.evo_uid == "":
+		return null
+	var leader = Evolution.leader_of(agent_script.faction, _arena.zone_id)
+	return leader if leader != agent_script else null
+
+
+# A follower joins the fight its leader is in, as it would go to help any friend under fire.
+func _join_leader() -> bool:
+	var leader = get_leader()
+	if leader == null:
+		return false
+	var leader_ai = leader.get_node_or_null(Constants.AI_CONTROLLER_NODE_NAME)
+	if leader_ai == null or not leader_ai.has_method("get_state") or leader_ai.get_state() != AIState.COMBAT:
+		return false
+	var target = leader_ai.get_focus()
+	if not _is_live_target(target):
+		return false
+	_assist(leader, target)
+	if not _pending.empty() and _pending.kind == "assist":
+		_note("followed")
+		return true
+	return false
+
+
 # The ship it is fighting, fleeing from or salvaging, if any.
 func get_focus() -> Node:
 	return _target_agent if is_instance_valid(_target_agent) else null
@@ -280,6 +306,8 @@ func _process_patrol() -> void:
 		var target = scan_for_target()
 		if is_instance_valid(target):
 			_consider("engage", target, desire_against(target), _engage_level())
+			return
+		elif _join_leader():
 			return
 		elif _pending.empty():
 			var wreck = scan_for_wreck()
@@ -795,12 +823,19 @@ func _is_live_target(body) -> bool:
 	return is_instance_valid(body) and body.is_inside_tree() and not body.get("is_wreck") and not body.get("is_docked")
 
 
-# A point near home, not inside a rock (a few tries; the autopilot steers round the rest).
+# A point near home (near its leader, if its group has one: Evolution.leader_of), not inside a rock (a
+# few tries; the autopilot steers round the rest).
 func _pick_patrol_destination() -> Vector3:
-	var point: Vector3 = _home_position
+	var centre: Vector3 = _home_position
+	var radius: float = Constants.AI_PATROL_RADIUS
+	var leader = get_leader()
+	if leader != null:
+		centre = leader.global_transform.origin
+		radius = Constants.AI_FOLLOW_RADIUS
+	var point: Vector3 = centre
 	for _try in range(8):
 		var direction = Vector3(rand_range(-1, 1), rand_range(-1, 1), rand_range(-1, 1)).normalized()
-		point = _home_position + direction * randf() * Constants.AI_PATROL_RADIUS
+		point = centre + direction * randf() * radius
 		var inside := false
 		for obstacle in NavigationSystem.get_obstacles(get_tree()):
 			if point.distance_to(obstacle[0]) < obstacle[1] * 1.5 + Constants.AI_PATROL_ARRIVAL_DISTANCE:
