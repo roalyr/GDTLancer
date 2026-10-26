@@ -4,6 +4,8 @@
 
 extends GutTest
 
+const CombatAssessment = preload("res://src/core/systems/combat_assessment.gd")
+
 const AgentScript = preload("res://src/core/agents/agent.gd")
 const AIScript = preload("res://src/modules/piloting/ship_controller_ai.gd")
 const ToolControllerScript = preload("res://src/core/agents/components/tool_controller.gd")
@@ -59,7 +61,7 @@ func test_desire_weighs_advantage_by_gain():
 
 
 func test_scan_picks_the_most_desirable_detected_target():
-	var tough = _make_ship(Vector3(0, 0, -300), "verdant", 1000.0)
+	var tough = _make_ship(Vector3(0, 0, -300), "raiders", 1000.0)  # Not the weak one's side: judged alone
 	var weak = _make_ship(Vector3(0, 0, -1200), "verdant", 25.0)
 	_make_ship(Vector3(0, 0, -100), "violet", 10.0)  # Own side: ignored
 	var unseen = _make_ship(Vector3(0, 0, -5000), "verdant", 5.0)  # Beyond its signature: undetected
@@ -182,7 +184,6 @@ func test_tools_act_only_on_detected_targets():
 # --- Player parity: the same assessment, as words ---
 
 func test_player_reads_difficulty_with_the_same_rule():
-	var CombatAssessment = load("res://src/core/systems/combat_assessment.gd")
 	var weak = _make_ship(Vector3(0, 0, -500), "verdant", 10.0)
 	var even = _make_ship(Vector3(0, 0, -500), "verdant", 50.0)
 	var tough = _make_ship(Vector3(0, 0, -500), "verdant", 1000.0)
@@ -556,3 +557,44 @@ func test_does_not_ram_a_runner_it_cannot_outpace_by_strike_speed():
 	assert_true(ai.outruns_ram(runner), "Same top speed: it could never close at strike speed")
 	runner.linear_velocity = Vector3.ZERO
 	assert_false(ai.outruns_ram(runner), "Standing: rammable")
+
+
+func test_friends_near_a_ship_count_on_its_side():
+	var prey = _make_ship(Vector3(0, 0, -800), "verdant", 25.0)
+	var alone: float = ai.desire_against(prey)
+	var escort = _make_ship(Vector3(0, 0, -1300), "verdant", 100.0)
+	assert_lt(ai.desire_against(prey), alone, "Its escort makes it a harder fight")
+	var hurt: float = ai.desire_against(prey)
+	_make_ship(Vector3(300, 0, 0), "violet", 100.0)
+	assert_gt(ai.desire_against(prey), hurt, "and its own wingman an easier one")
+	var side: Dictionary = CombatAssessment.side_of(hostile)
+	assert_eq(side.ships, 2, "A wingman near it counts on its side")
+	assert_almost_eq(side.hull, 150.0, 0.01)
+	escort.global_transform.origin = Vector3(0, 0, -800 - Constants.AI_TEAM_RADIUS - 100.0)
+	assert_eq(CombatAssessment.side_of(prey).ships, 1, "A friend too far away does not")
+
+
+func test_goes_to_help_a_friend_under_fire():
+	ai.initialize({"patrol_center": Vector3.ZERO})
+	var friend = _make_ship(Vector3(0, 0, -1500), "violet", 50.0)
+	var attacker = _make_ship(Vector3(0, 0, -2500), "verdant", 30.0)
+	friend.apply_damage(1.0, attacker)
+	assert_eq(ai.get_state(), AIScript.AIState.HESITATE, "Weighs going to help")
+	assert_eq(ai._pending.kind, "assist")
+	assert_eq(ai.get_focus(), attacker, "against the attacker")
+	ai._tick_decision(100.0)
+	assert_eq(ai.get_state(), AIScript.AIState.COMBAT, "Goes, its friend on its side")
+	assert_eq(ai.get_focus(), attacker)
+
+
+func test_does_not_leave_its_own_fight_to_help_or_help_from_afar():
+	ai.initialize({"patrol_center": Vector3.ZERO})
+	var far_friend = _make_ship(Vector3(0, 0, Constants.AI_ASSIST_RADIUS + 500.0), "violet", 50.0)
+	var attacker = _make_ship(Vector3(0, 0, Constants.AI_ASSIST_RADIUS + 1500.0), "verdant", 30.0)
+	far_friend.apply_damage(1.0, attacker)
+	assert_eq(ai.get_state(), AIScript.AIState.PATROL, "Too far to help")
+	var near_friend = _make_ship(Vector3(0, 0, -1000), "violet", 50.0)
+	var foe = _make_ship(Vector3(0, 0, -600), "verdant", 20.0)
+	ai._start_combat(foe, false)
+	near_friend.apply_damage(1.0, attacker)
+	assert_eq(ai.get_focus(), foe, "Busy with its own fight")

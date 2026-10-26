@@ -420,6 +420,8 @@ const AI_WALLET_MAX_SHARE = 2.0
 # its top speed is at least RAM_SPEED_MARGIN times LAW_LANCE_MIN_SPEED and it has lances left.
 const AI_RAM_PASS_TIME = 10.0  # s between strikes: run-up, turn and charge
 const AI_RAM_SPEED_MARGIN = 1.1
+const AI_TEAM_RADIUS = 3000.0  # m: friends this near a ship count on its side of a fight (CombatAssessment.side_of)
+const AI_ASSIST_RADIUS = 4000.0  # m: an NPC this near a friend under fire considers going to help
 const AI_ENEMY_DESIRE_FACTOR = 1.5  # Ships at war (or holding a grudge) want the fight this much more
 const AI_SALVAGE_SEARCH_RANGE = 6000.0  # m; wrecks further than this are not worth the trip
 const AI_DEPART_ARRIVAL_DISTANCE = 300.0  # m from its spawn point at which a hauler leaves the sector

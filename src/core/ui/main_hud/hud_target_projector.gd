@@ -328,7 +328,7 @@ func get_ship_cues(target_ref, detailed: bool = true) -> Array:
 	if ai != null and ai.has_method("get_activity_label") and ai.get_activity_label() != "":
 		cues.append(ai.get_activity_label())
 	if detailed or hostile:
-		cues.append(CombatAssessment.difficulty_label(CombatAssessment.advantage_between(player, target_ref)))
+		cues.append(CombatAssessment.difficulty_label(CombatAssessment.team_advantage(player, target_ref)))
 		if target_ref.detects(player):
 			cues.append("SEES YOU")
 	return cues

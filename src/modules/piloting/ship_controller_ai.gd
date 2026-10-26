@@ -36,7 +36,7 @@ const ACTIVITY_LABELS = {
 }
 
 # Which pending decision gives way to which (higher wins): being shot outranks anything else.
-const DECISION_PRIORITY = {"engage": 0, "disengage": 0, "let_go": 0, "respond": 1}
+const DECISION_PRIORITY = {"engage": 0, "disengage": 0, "let_go": 0, "assist": 1, "respond": 2}
 
 
 var agent_script: RigidBody = null
@@ -760,12 +760,12 @@ func scan_for_target() -> RigidBody:
 	return best
 
 
-# How much this ship wants to fight `target` (see Constants AI block and CombatAssessment).
+# How much this ship wants to fight `target` (see Constants AI block and CombatAssessment): its side
+# (its friends near it) against the target's.
 func desire_against(target) -> float:
-	var desire: float = compute_desire(
-		agent_script.hull, agent_script.get_damage_per_second(),
-		target.hull, target.get_damage_per_second(), target.get_salvage_value()
-	)
+	var ours: Dictionary = CombatAssessment.side_of(agent_script)
+	var theirs: Dictionary = CombatAssessment.side_of(target)
+	var desire: float = compute_desire(ours.hull, ours.dps, theirs.hull, theirs.dps, target.get_salvage_value())
 	return desire * (Constants.AI_ENEMY_DESIRE_FACTOR if agent_script.is_enemy_of(target) else 1.0)
 
 
@@ -791,8 +791,30 @@ func _on_agent_disabled(agent_body) -> void:
 # fight is worth it; otherwise flee from it.
 func _on_agent_damaged(agent_body, _amount, source) -> void:
 	if agent_body != agent_script:
+		_assist(agent_body, source)
 		return
 	_react_to_attack(source)
+
+
+# A friend (its faction, within AI_ASSIST_RADIUS) shot at while this ship is not fighting: it weighs
+# going to help (a decision, as any other: veterans make it sooner), and goes if its side, the friend
+# included, wants that fight. The attacker becomes its enemy too.
+func _assist(friend, source) -> void:
+	if not _is_live_target(source) or source == agent_script or not _is_live_target(friend):
+		return
+	if friend.get("faction") != agent_script.faction or agent_script.faction == "" or source.get("faction") == agent_script.faction:
+		return
+	if not _current_state in [AIState.PATROL, AIState.SALVAGE, AIState.HESITATE]:
+		return
+	if _current_state == AIState.HESITATE and _resume_state == AIState.COMBAT:
+		return
+	if friend.global_transform.origin.distance_to(agent_script.global_transform.origin) > Constants.AI_ASSIST_RADIUS:
+		return
+	if not _in_arena(source.global_transform.origin):
+		return
+	if not _pending.empty() and _pending.kind == "assist" and _pending.target == source:
+		return
+	_consider("assist", source, desire_against(source), _engage_level())
 
 
 # Charged at with a lance (seen coming, see LanceController.is_charging): as good as shot at. It holds
@@ -897,6 +919,13 @@ func _tick_decision(delta: float) -> void:
 					Evolution.note(spared_uid, "spared")
 				_resume_target = null
 				_change_state(AIState.PATROL)
+			else:
+				_resume()
+		"assist":
+			if desire >= _engage_level() and not _should_retreat():
+				agent_script._hold_grudge(target)
+				_note("assisted")
+				_start_combat(target, true)
 			else:
 				_resume()
 		"respond":
