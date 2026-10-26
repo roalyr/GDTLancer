@@ -677,7 +677,7 @@ const ARENA_SECTOR_ID = "sector_elace"
 const ARENA_ZONES = [  # Offset from the Arena node, ships per faction, terrain (ARENA_ROCK_FIELDS)
 	{"id": "1v1", "offset": Vector3(20000, 0, 0), "per_faction": 1, "terrain": "open"},
 	{"id": "2v2", "offset": Vector3(-10000, 0, 17320), "per_faction": 2, "terrain": "belt"},
-	{"id": "3v3", "offset": Vector3(-10000, 0, -17320), "per_faction": 3, "terrain": "scatter"},
+	{"id": "4v4", "offset": Vector3(-10000, 0, -17320), "per_faction": 4, "terrain": "scatter"},
 ]
 # Rocks per terrain (Arena builds them from a seed, so every load has the same field). They stop
 # ships, laser fire, missiles and shells: cover to fight from or run behind. A belt runs across the
@@ -709,7 +709,7 @@ const ARENA_MAX_LIFETIME = 900.0  # s; after this an NPC retires at its next doc
 # Rank (Evolution): a faction's ships in one arena zone are a group, ranked by renown, what they have
 # won in this life (RENOWN_PER_KILL a kill, RENOWN_PER_ASSIST going to help a friend, RENOWN_PER_DAMAGE
 # per hull point dealt). The first, with RENOWN_LEADER_MIN and a group to lead, is its leader: the
-# others patrol near it (AI_FOLLOW_RADIUS) and join its fights. Renown also puts off retiring: the
+# others patrol near it (AI_FOLLOW_RADIUS) and join its fights. Renown can also put off retiring: the
 # lifetime grows by ARENA_LIFETIME_PER_RENOWN of itself per point, at most ARENA_LIFETIME_MAX_FACTOR
 # times (a ship that dies still dies).
 const RENOWN_PER_KILL = 10.0
@@ -717,7 +717,7 @@ const RENOWN_PER_ASSIST = 2.0
 const RENOWN_PER_DAMAGE = 0.02  # 500 hull dealt: as much as a kill
 const RENOWN_LEADER_MIN = 10.0
 const ARENA_LIFETIME_PER_RENOWN = 0.05  # A kill: half as long again
-const ARENA_LIFETIME_MAX_FACTOR = 3.0
+const ARENA_LIFETIME_MAX_FACTOR = 1.0  # Off (1): long lives slowed the turnover by a quarter; templates are the point
 const AI_FOLLOW_RADIUS = 1000.0  # m round its leader a follower patrols
 const ARENA_FACTION_MATERIALS = {  # Station paint by faction
 	"verdant": "res://assets/art/materials_generic/mat_hull_faction_verdant.tres",

@@ -97,7 +97,7 @@ func test_docking_sells_the_hold_and_charges_repairs():
 
 
 func test_old_ships_retire_at_the_dock():
-	var life: Dictionary = Evolution.begin_life("verdant", "3v3")
+	var life: Dictionary = Evolution.begin_life("verdant", "4v4")
 	Evolution.game_time += Constants.ARENA_MAX_LIFETIME + 1.0
 	assert_true(Evolution.on_docked(_body(life.uid)))
 	assert_eq(int(Evolution.totals.retired), 1)
@@ -129,7 +129,7 @@ func test_suspended_lives_resume_by_zone_and_faction():
 	var life: Dictionary = Evolution.begin_life("verdant", "1v1")
 	Evolution.suspend_all()
 	assert_true(Evolution.live.empty())
-	var other: Dictionary = Evolution.begin_life("verdant", "3v3")
+	var other: Dictionary = Evolution.begin_life("verdant", "4v4")
 	assert_ne(other.uid, life.uid, "Another zone's slot gets a new life")
 	assert_eq(Evolution.begin_life("verdant", "1v1").uid, life.uid)
 
@@ -173,25 +173,26 @@ func _remove_tree(path: String) -> void:
 
 
 func test_groups_rank_by_renown_and_the_first_leads():
-	var first: Dictionary = Evolution.begin_life("verdant", "3v3")
-	var second: Dictionary = Evolution.begin_life("verdant", "3v3")
-	Evolution.begin_life("violet", "3v3")
+	var first: Dictionary = Evolution.begin_life("verdant", "4v4")
+	var second: Dictionary = Evolution.begin_life("verdant", "4v4")
+	Evolution.begin_life("violet", "4v4")
 	assert_eq(Evolution.rank_of(first.uid), 1, "No renown yet: the older first")
 	Evolution.live[second.uid].kills = 1
 	assert_eq(Evolution.rank_of(second.uid), 1, "A kill puts it first")
-	assert_eq(Evolution.group_of("verdant", "3v3").size(), 2, "Only its faction in its zone")
+	assert_eq(Evolution.group_of("verdant", "4v4").size(), 2, "Only its faction in its zone")
 	var body := _body(second.uid)
 	body.set("is_docked", false)
 	Evolution.attach_body(second.uid, body)
-	assert_eq(Evolution.leader_of("verdant", "3v3"), body, "and makes it the leader")
-	assert_null(Evolution.leader_of("violet", "3v3"), "No one to lead, no leader")
+	assert_eq(Evolution.leader_of("verdant", "4v4"), body, "and makes it the leader")
+	assert_null(Evolution.leader_of("violet", "4v4"), "No one to lead, no leader")
 
 
 func test_renown_puts_off_retiring():
-	var life: Dictionary = Evolution.begin_life("verdant", "3v3")
+	var life: Dictionary = Evolution.begin_life("verdant", "4v4")
 	Evolution.live[life.uid].kills = 2
-	assert_almost_eq(Evolution.lifetime_of(life.uid), Constants.ARENA_MAX_LIFETIME * 2.0, 0.01, "Two kills: twice as long")
-	Evolution.game_time += Constants.ARENA_MAX_LIFETIME + 1.0
+	var longer: float = min(2.0, Constants.ARENA_LIFETIME_MAX_FACTOR)
+	assert_almost_eq(Evolution.lifetime_of(life.uid), Constants.ARENA_MAX_LIFETIME * longer, 0.01, "Two kills: twice as long (if on)")
+	Evolution.game_time += Constants.ARENA_MAX_LIFETIME * longer - 1.0
 	assert_false(Evolution.on_docked(_body(life.uid)), "Not old yet")
 	Evolution.live[life.uid].kills = 100
 	assert_almost_eq(Evolution.lifetime_of(life.uid), Constants.ARENA_MAX_LIFETIME * Constants.ARENA_LIFETIME_MAX_FACTOR, 0.01, "At most this long")

@@ -35,8 +35,8 @@ func test_the_same_field_every_time():
 	add_child_autofree(first)
 	var second = ArenaScript.new()
 	add_child_autofree(second)
-	var a: Array = _rocks(first, "3v3")
-	var b: Array = _rocks(second, "3v3")
+	var a: Array = _rocks(first, "4v4")
+	var b: Array = _rocks(second, "4v4")
 	assert_eq(a.size(), b.size())
 	for i in range(min(a.size(), b.size())):
 		assert_eq(a[i].transform, b[i].transform, "Rock %d where it was" % i)

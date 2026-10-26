@@ -89,6 +89,12 @@ func deserialize(data: Dictionary) -> bool:
 			pools[faction] = {"cells": {}, "lives": 0}
 	genomes = data.get("genomes", {})
 	resume = data.get("lives", [])
+	var zones: Array = []
+	for zone in Constants.ARENA_ZONES:
+		zones.append(zone.id)
+	for record in resume:
+		if not record.get("zone") in zones:
+			record.zone = zones.back()  # Its zone is gone (3v3 became 4v4): it flies in the biggest
 	_next_uid = int(data.get("next_uid", 0))
 	_next_genome = int(data.get("next_genome", genomes.size()))
 	_report_due = game_time + Constants.EVO_REPORT_INTERVAL
