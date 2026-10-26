@@ -132,11 +132,16 @@ func get_focus() -> Node:
 	return _target_agent if is_instance_valid(_target_agent) else null
 
 
-# Distance the AI tries to fight at: the shortest optimal range among the weapons that work on the
-# target (and have rounds left), so all of them reach; times its range gene.
+# Distance the AI tries to fight at: a cannon's optimal range if it has one with rounds (a gunner
+# keeps out of laser reach, its lasers firing when they reach), otherwise the shortest optimal range
+# among the weapons that work on the target (and have rounds left), so all of them reach; times its
+# range gene.
 func get_engagement_range() -> float:
 	if not is_instance_valid(_tool_controller) or not is_instance_valid(_target_agent):
 		return 0.0
+	var cannon: int = _tool_controller.find_cannon_for(_target_agent)
+	if cannon >= 0:
+		return _tool_controller.get_tool(cannon).optimal_range * _range_factor
 	var best: float = INF
 	for index in range(_tool_controller.get_tool_count()):
 		var tool_template = _tool_controller.get_tool(index)

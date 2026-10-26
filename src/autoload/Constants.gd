@@ -68,7 +68,7 @@ const NAV_APPROACH_RESUME_MARGIN = 30.0  # m past the hold distance before a hol
 const NAV_AIM_PID_GAIN = 2.0  # Rotation PID gain while aiming a cannon
 const NAV_AIM_RANGE_TIME = 5.0  # s to make up a range error: closing speed = error / this
 const NAV_AIM_MAX_CLOSING = 80.0  # m/s at most, closing or opening
-const NAV_AIM_STRAFE_SPEED = 60.0  # m/s sideways while aiming: at 1 km, 0.06 rad/s for the target's turrets to track
+const NAV_AIM_STRAFE_SPEED = 90.0  # m/s sideways while aiming: at 1.8 km, 0.05 rad/s for the target's turrets to track
 const NAV_RAM_TURN_ROOM = 150.0  # m
 const NAV_RAM_MIN_LEAD_SPEED = 50.0  # m/s
 const NAV_RAM_MAX_LEAD_TIME = 5.0  # s
@@ -558,7 +558,7 @@ const LAW_CANNON_DAMAGE = [5.0, 11.0, 0.9]  # Round mass -> damage at the refere
 const LAW_CANNON_CYCLE = [5.0, 1.2, 0.5]  # Round mass -> s between shots
 const LAW_CANNON_POWER = [5.0, 1.0, 1.0]  # Round mass -> power per shot: a fifth of a laser's
 const LAW_CANNON_FLIGHT = 4.0  # s a round flies
-const LAW_CANNON_AIM_TIME = 1.5  # Optimal range: this many seconds of round flight
+const LAW_CANNON_AIM_TIME = 2.0  # Optimal range: this many seconds of round flight (outside a reference laser's reach)
 const LAW_CANNON_VALUE = [0.2, 0.2]  # WP per kg of gun, per kg of rounds
 const LAW_CANNON_MASS_RANGE = [50.0, 4000.0]
 const LAW_CANNON_ROUND_RANGE = [0.5, 100.0]
