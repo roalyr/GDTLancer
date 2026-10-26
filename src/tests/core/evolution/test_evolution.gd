@@ -134,26 +134,33 @@ func test_suspended_lives_resume_by_zone_and_faction():
 	assert_eq(Evolution.begin_life("verdant", "1v1").uid, life.uid)
 
 
-func test_presets_export_the_fittest_tried_genomes():
+func test_presets_export_the_fittest_of_each_archetype_whatever_the_faction():
 	var Exporter = load("res://src/core/evolution/preset_exporter.gd")
-	var genome_id: String = Evolution._add_genome(Evolution.Genome.random_genome(), "verdant", "")
+	var genome: Dictionary = Evolution.Genome.random_genome()
+	genome.tools = [{"kind": "harpoon", "type": 1, "genes": {}}, {"kind": "harpoon", "type": 1, "genes": {}},
+		{"kind": "missile", "type": 2, "genes": Constants.PART_TYPE_SEEDS.missile[2].duplicate()}]
+	var genome_id: String = Evolution._add_genome(genome, "violet", "")
 	Evolution.genomes[genome_id].lives = 3
 	Evolution.genomes[genome_id].fitness_sum = 1.5
 	Evolution._place_in_archive(genome_id)
-	var untried: String = Evolution._add_genome(Evolution.Genome.random_genome(), "violet", "")
+	var untried: String = Evolution._add_genome(Evolution.Genome.random_genome(), "verdant", "")
 	Evolution._place_in_archive(untried)
 	var folder := "user://test_presets/"
 	var lines: Array = Exporter.export_all(Evolution.serialize(), 5, 3, folder)
-	var agent = load(folder + "verdant/agent_preset_verdant_%s.tres" % genome_id.to_lower())
+	var agent = load(folder + "agent_preset_%s.tres" % genome_id.to_lower())
 	assert_true(agent is AgentTemplate, str(lines))
 	if agent is AgentTemplate:
-		var ship = load(folder + "verdant/%s.tres" % agent.ship_template_id)
+		assert_eq(agent.faction, "", "No faction: an archetype")
+		var ship = load(folder + "%s.tres" % agent.ship_template_id)
 		assert_true(ship is ShipTemplate)
-		assert_eq(agent.faction, "verdant")
+		assert_eq(ship.equipped_tools.count(Constants.HARPOON_TEMPLATE_ID), 1, "One harpoon: the spare is junk")
 		for part_id in ship.equipped_tools + ship.equipped_modules:
 			if part_id != Constants.HARPOON_TEMPLATE_ID:
-				assert_true(File.new().file_exists(folder + "verdant/%s.tres" % part_id), part_id)
-	assert_false(Directory.new().file_exists(folder + "violet/agent_preset_violet_%s.tres" % untried.to_lower()), "Too few lives to trust")
+				var part = load(folder + "%s.tres" % part_id)
+				assert_not_null(part, part_id)
+				if part_id.begins_with("preset_missile"):
+					assert_true(part is UtilityToolTemplate, "A missile rack is a tool, not a module")
+	assert_false(Directory.new().file_exists(folder + "agent_preset_%s.tres" % untried.to_lower()), "Too few lives to trust")
 	_remove_tree(folder)
 
 

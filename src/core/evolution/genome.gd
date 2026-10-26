@@ -237,13 +237,17 @@ static func ensure_part_template(part: Dictionary) -> String:
 	var template_id: String = part_template_id(part)
 	if template_id == "" or TemplateDatabase.get_template(template_id) != null:
 		return template_id
-	if part.kind == "laser":
-		TemplateDatabase.register_evolved(ShipLaws.build_laser_template(part.genes, int(part.type), template_id))
-	elif part.kind in ["missile", "cannon"]:
-		TemplateDatabase.register_evolved(ShipLaws.build_weapon_template(part.kind, part.genes, int(part.type), template_id))
-	else:
-		TemplateDatabase.register_evolved(ShipLaws.build_module_template(part.kind, part.genes, int(part.type), template_id))
+	TemplateDatabase.register_evolved(build_part_template(part, template_id))
 	return template_id
+
+
+# A part's template from its genes (a laser, a missile rack or cannon, or a module).
+static func build_part_template(part: Dictionary, template_id: String) -> Resource:
+	if part.kind == "laser":
+		return ShipLaws.build_laser_template(part.genes, int(part.type), template_id)
+	if part.kind in ["missile", "cannon"]:
+		return ShipLaws.build_weapon_template(part.kind, part.genes, int(part.type), template_id)
+	return ShipLaws.build_module_template(part.kind, part.genes, int(part.type), template_id)
 
 
 # Registers the ship and parts of a genome; returns {"ship_template_id", "fit"} (ShipFit fit).
