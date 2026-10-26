@@ -448,7 +448,10 @@ func _update_lance_button() -> void:
 	button_lance.visible = lance != null
 	var controller = _get_player_controller()
 	var ram: bool = is_instance_valid(controller) and controller.has_method("is_ram_ready") and controller.is_ram_ready()
-	button_approach.get_node("LabelButtonApproach").text = "RAM" if ram else "APPROACH"  # Approach rams while the lance is armed
+	var label: String = "RAM" if ram else "APPROACH"  # Approach rams while the lance is armed
+	if ram and player.outruns_ram(controller.get("_selected_target")):
+		label = "RAM: TOO SLOW"  # It runs too fast to strike: the lance would glance off
+	button_approach.get_node("LabelButtonApproach").text = label
 	if lance == null:
 		return
 	var state: String = "ARM"

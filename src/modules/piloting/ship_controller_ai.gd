@@ -457,10 +457,9 @@ func can_ram() -> bool:
 		and agent_script.get_top_speed() >= Constants.LAW_LANCE_MIN_SPEED * Constants.AI_RAM_SPEED_MARGIN
 
 
-# A target running from it that it cannot outpace by strike speed (LAW_LANCE_MIN_SPEED, with
-# AI_RAM_SPEED_MARGIN) would only be touched too slowly: the lance would glance off.
+# A target running from it that it cannot outpace by strike speed (Agent.outruns_ram).
 func outruns_ram(target) -> bool:
-	return is_running_from_me(target) and agent_script.get_top_speed() - target.get_top_speed() < Constants.LAW_LANCE_MIN_SPEED * Constants.AI_RAM_SPEED_MARGIN
+	return agent_script.outruns_ram(target)
 
 
 # Rams `target` if it can (arming the lance and charging, once); true while it does. Out of lances,
