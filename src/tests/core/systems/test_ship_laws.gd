@@ -93,3 +93,15 @@ func test_built_ship_scales_its_model_and_paints_its_type():
 	assert_almost_eq(ship.model_scale, pow(2.0, 1.0 / 3.0), 0.0001)
 	assert_eq(ship.panel_material, Constants.SHIP_TYPE_PANEL_MATERIALS[3])
 	assert_eq(ship.ship_scene.resource_path, Constants.SHIP_FACTION_SCENES.violet)
+
+
+func test_tool_share_splits_the_slots_keeping_one_of_each():
+	var natural: Array = ShipLaws.slot_counts(4.0)
+	var total: int = natural[0] + natural[1]
+	assert_eq(ShipLaws.slot_counts(4.0, -1.0), natural, "No gene: the natural split")
+	assert_eq(ShipLaws.slot_counts(4.0, 0.0), [1, total - 1], "All bays but one hardpoint")
+	assert_eq(ShipLaws.slot_counts(4.0, 1.0), [total - 1, 1], "All hardpoints but one bay")
+	assert_eq(ShipLaws.slot_counts(Constants.LAW_SHIP_SIZE_MIN, 1.0), [1, 1], "The smallest hull: one of each")
+	var stats: Dictionary = ShipLaws.ship_stats({"size": 4.0, "tool_share": 0.0})
+	assert_eq(stats.module_slots, total - 1)
+	assert_eq(stats.tool_slots_small + stats.tool_slots_medium + stats.tool_slots_large, 1)

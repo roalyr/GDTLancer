@@ -62,6 +62,19 @@ static func module_slot_count(size: float) -> int:
 	return int(max(0, round(Constants.LAW_MODULE_SLOTS * sqrt(clamp_size(size)))))
 
 
+# [tool hardpoints, module bays]. The size sets how many slots in all (the two counts above); the
+# `tool_share` gene (0..1, an evolved hull's; below 0: none) splits them otherwise, keeping at least
+# one of each.
+static func slot_counts(size: float, tool_share: float = -1.0) -> Array:
+	var tools: int = tool_slot_count(size)
+	var modules: int = module_slot_count(size)
+	var total: int = tools + modules
+	if tool_share < 0.0 or total < 2:
+		return [tools, modules]
+	tools = int(clamp(round(total * tool_share), 1, total - 1))
+	return [tools, total - tools]
+
+
 static func slot_size_for(size: float) -> String:
 	if size >= Constants.LAW_SLOT_LARGE_SIZE:
 		return "large"
@@ -77,7 +90,8 @@ static func ship_stats(genes: Dictionary) -> Dictionary:
 	var mass: float = Constants.LAW_SHIP_REF_MASS * size
 	var length: float = ship_length(size)
 	var thrust: float = apply_law(Constants.LAW_THRUST, mass * shares.engine)
-	var slots: int = tool_slot_count(size)
+	var counts: Array = slot_counts(size, float(genes.get("tool_share", -1.0)))
+	var slots: int = counts[0]
 	var slot_size: String = slot_size_for(size)
 	return {
 		"mass": mass,
@@ -94,7 +108,7 @@ static func ship_stats(genes: Dictionary) -> Dictionary:
 		"tool_slots_small": slots if slot_size == "small" else 0,
 		"tool_slots_medium": slots if slot_size == "medium" else 0,
 		"tool_slots_large": slots if slot_size == "large" else 0,
-		"module_slots": module_slot_count(size),
+		"module_slots": counts[1],
 		"base_value": int(round(Constants.LAW_SHIP_VALUE_PER_KG * mass)),
 		"salvage_yield": {
 			"commodity_scrap": int(round(Constants.LAW_SCRAP_PER_KG * mass)),

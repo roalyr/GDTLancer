@@ -676,6 +676,7 @@ const EVO_SELECTION_TEMPERATURE = 0.2  # Niche pick weight = exp(fitness / this)
 const EVO_REFLY_CHANCE = 0.25  # A spawn flies a niche's genome unchanged (to measure it again)
 const EVO_IMMIGRANT_CHANCE = 0.05  # A spawn is a fresh random genome
 const EVO_MUTATION_SIGMA = 0.08  # Log-normal step on each mutated gene
+const EVO_SLOT_SHARE_SIGMA = 0.1  # Step on a hull's tool_share (how its slots split; ShipLaws.slot_counts)
 const EVO_GENE_MUTATION_CHANCE = 0.4  # Per gene
 const EVO_MACRO_MUTATION_CHANCE = 0.03  # A mutation with 5x the step
 const EVO_PART_SWAP_CHANCE = 0.08  # Per slot: a different part (another kind or type, or empty)

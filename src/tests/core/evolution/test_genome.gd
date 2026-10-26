@@ -13,13 +13,14 @@ func after_each():
 func _assert_lawful(genome: Dictionary) -> void:
 	var size: float = float(genome.ship["size"])
 	assert_between(size, Constants.LAW_SHIP_SIZE_MIN, Constants.LAW_SHIP_SIZE_MAX)
-	assert_eq(genome.tools.size(), ShipLaws.tool_slot_count(size), "One part (or none) per hardpoint")
-	assert_eq(genome.modules.size(), ShipLaws.module_slot_count(size), "One part (or none) per bay")
+	var counts: Array = ShipLaws.slot_counts(size, float(genome.ship.get("tool_share", -1.0)))
+	assert_eq(genome.tools.size(), counts[0], "One part (or none) per hardpoint")
+	assert_eq(genome.modules.size(), counts[1], "One part (or none) per bay")
 	for part in genome.tools:
 		if not part.empty() and part.kind == "laser":
 			assert_true(part.genes.mass <= Genome.slot_mass_limit(genome), "The laser fits the hardpoints")
 		elif not part.empty() and part.kind == "missile":
-			assert_true(ShipLaws.missile_stats(part.genes).mass <= Genome.slot_mass_limit(genome) + 0.01, "The rack fits the hardpoints")
+			assert_true(ShipLaws.missile_stats(part.genes).mass <= Genome.slot_mass_limit(genome) + 0.01, "The rack fits the hardpoints: %s %.1f" % [part.genes, Genome.slot_mass_limit(genome)])
 		elif not part.empty() and part.kind == "cannon":
 			assert_true(ShipLaws.cannon_stats(part.genes).mass <= Genome.slot_mass_limit(genome) + 0.01, "The cannon fits the hardpoints")
 	for gene in genome.behavior:
@@ -122,3 +123,21 @@ func test_missiles_and_cannons_are_lawful_weapons_on_their_own_branches():
 	Genome._clamp_part(big_gun, 799.0)
 	assert_true(ShipLaws.cannon_stats(big_gun.genes).mass <= 799.0 + 0.01, "A heavy cannon cut down to a small hardpoint")
 	assert_gt(big_gun.genes.count, 20.0, "keeps a useful magazine")
+
+
+func test_mutation_can_shift_slots_between_hardpoints_and_bays():
+	seed(7)
+	var genome: Dictionary = Genome.random_genome()
+	genome.ship["size"] = 4.0
+	genome.ship["tool_share"] = 0.0
+	var child: Dictionary = Genome.mutate(genome, false)
+	var counts: Array = ShipLaws.slot_counts(float(child.ship["size"]), float(child.ship.tool_share))
+	assert_eq(child.tools.size(), counts[0], "Hardpoints follow the gene")
+	assert_eq(child.modules.size(), counts[1], "and so do the bays")
+	assert_true(child.tools.size() >= 1 and child.modules.size() >= 1, "One of each kept")
+	var seen_shares := {}
+	for i in range(200):
+		var mutant: Dictionary = Genome.mutate(genome, false)
+		if mutant.ship.has("tool_share"):
+			seen_shares[int(round(float(mutant.ship.tool_share) * 10.0))] = true
+	assert_gt(seen_shares.size(), 1, "The split varies")

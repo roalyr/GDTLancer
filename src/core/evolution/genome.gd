@@ -1,5 +1,7 @@
 # Genome: what an arena NPC is made of, as plain data (saved as is), and how it varies.
-#   {"ship": ShipLaws ship genes, "tools": [part per hardpoint], "modules": [part per bay],
+#   {"ship": ShipLaws ship genes (and "tool_share": how its slots split between hardpoints and bays,
+#    ShipLaws.slot_counts; absent until it first mutates), "tools": [part per hardpoint],
+#    "modules": [part per bay],
 #    "behavior": {gene: value} (Constants EVO_BEHAVIOR_RANGES)}
 #   part: {} (empty slot) or {"kind", "type", "genes"}; kinds "laser", "missile", "cannon", "harpoon" (tools) and
 #   ShipLaws.MODULE_KINDS (modules). The harpoon has no genes: it is the registry one.
@@ -128,6 +130,10 @@ static func _mutate_ship(ship: Dictionary, scale: float) -> void:
 		if randf() < Constants.EVO_GENE_MUTATION_CHANCE * scale:
 			ship.shares[key] = max(0.001, float(ship.shares.get(key, Constants.LAW_SHIP_SHARES[key])) * _step(scale))
 	ship.shares = ShipLaws.normalized_shares(ship.shares)
+	if randf() < Constants.EVO_GENE_MUTATION_CHANCE * scale:
+		var counts: Array = ShipLaws.slot_counts(float(ship["size"]))
+		var share: float = float(ship.get("tool_share", float(counts[0]) / max(1, counts[0] + counts[1])))
+		ship["tool_share"] = clamp(share + _gauss() * Constants.EVO_SLOT_SHARE_SIGMA * scale, 0.0, 1.0)
 
 
 static func _mutate_genes(genes: Dictionary, scale: float) -> void:
@@ -149,11 +155,11 @@ static func _mutate_behavior(genome: Dictionary, scale: float) -> void:
 	genome.behavior.disengage = min(genome.behavior.disengage, genome.behavior.engage * 0.95)  # Never fights on past what it would start
 
 
-# Slot lists sized to the ship (ShipLaws): new slots come empty, extra ones are dropped.
+# Slot lists sized to the ship (ShipLaws.slot_counts): new slots come empty, extra ones are dropped.
 static func _fit_slots(genome: Dictionary) -> void:
-	var size: float = float(genome.ship["size"])
-	genome.tools = _resized(genome.tools, ShipLaws.tool_slot_count(size))
-	genome.modules = _resized(genome.modules, ShipLaws.module_slot_count(size))
+	var counts: Array = ShipLaws.slot_counts(float(genome.ship["size"]), float(genome.ship.get("tool_share", -1.0)))
+	genome.tools = _resized(genome.tools, counts[0])
+	genome.modules = _resized(genome.modules, counts[1])
 
 
 static func _resized(parts: Array, count: int) -> Array:
@@ -181,6 +187,7 @@ static func _clamp_part(part: Dictionary, max_mass: float = INF) -> void:
 		part.genes.mass = min(part.genes.mass, max_mass)
 	elif part.kind == "missile":
 		part.genes = ShipLaws.clamp_missile_genes(part.genes)
+		part.genes.count = round(part.genes.count)  # The rack carries whole missiles (ShipLaws.missile_stats)
 		var rack_rounds: float = part.genes.count + Constants.LAW_MISSILE_RACK_ROUNDS
 		if part.genes.round_mass * rack_rounds > max_mass:  # Too heavy for the hardpoint: fewer missiles, then lighter ones
 			part.genes.count = max(Constants.LAW_MISSILE_COUNT_RANGE[0], floor(max_mass / part.genes.round_mass - Constants.LAW_MISSILE_RACK_ROUNDS))
