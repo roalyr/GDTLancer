@@ -367,7 +367,7 @@ func _on_agent_charged(agent_body, charger) -> void:
 	_hold_grudge(charger)
 	if is_player():
 		var who: String = charger.get_faction_name() if charger.has_method("get_faction_name") else ""
-		EventBus.emit_signal("attack_action_feedback", false, "%s ship charging you with a lance!" % (who if who != "" else "A"))
+		EventBus.emit_signal("announcement", "%s ship charging you with a lance!" % (who if who != "" else "A"), "danger")
 
 
 func _on_player_lance_struck(_target, damage) -> void:

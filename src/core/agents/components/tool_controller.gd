@@ -454,7 +454,7 @@ func _process_missile(index: int, target: Node) -> void:
 	_in_flight.append(missile)
 	_after_shot(index, tool_template, missile)
 	if target.has_method("is_player") and target.is_player():
-		EventBus.emit_signal("attack_action_feedback", false, "Missile inbound! Lasers shoot it down; a sharp turn near it makes it overshoot")
+		EventBus.emit_signal("announcement", "Missile inbound! Lasers shoot it down; a sharp turn near it makes it overshoot", "danger")
 
 
 # Damage of this ship's missiles still on their way to `target`.

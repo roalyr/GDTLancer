@@ -4,6 +4,7 @@ extends Control
 ## Manages sub-screens (Station Menu) and docking prompts.
 
 const FrameProfiler = preload("res://src/core/utils/frame_profiler.gd")
+const Announcements = preload("res://src/core/ui/main_hud/announcements.gd")
 const RouteTargetProviderScript = preload("res://src/core/targeting/route_target_provider.gd")
 const ProjectedTargetBracketScene = preload("res://scenes/ui/hud/projected_target_bracket.tscn")
 const BUTTON_ACTIVE_MODULATE = Color8(255, 230, 89, 255)
@@ -66,7 +67,7 @@ var _current_target = null
 var _main_camera: Camera = null
 var _player_uid: int = -1
 var _is_game_over: bool = false
-var _action_feedback_popup: AcceptDialog = null  # Popup for dock/attack feedback
+var _announcements: Control = null  # Fading feedback labels (Announcements)
 var _hud_alpha = 1.0
 var _dock_location_id: String = ""  # Currently available dock location
 var _jump_target_id: String = ""  # Currently available jump route target
@@ -94,6 +95,9 @@ func _ready():
 	_frame_profiler = FrameProfiler.new()
 	_frame_profiler.name = "FrameProfiler"
 	add_child(_frame_profiler)
+	_announcements = Announcements.new()
+	_announcements.name = "Announcements"
+	add_child(_announcements)
 	GlobalRefs.set_main_hud(self)
 
 	# Get camera reference once
@@ -125,6 +129,7 @@ func _ready():
 		# Dock/Attack feedback signals
 		EventBus.connect("dock_action_feedback", self, "_on_dock_action_feedback")
 		EventBus.connect("attack_action_feedback", self, "_on_attack_action_feedback")
+		EventBus.connect("announcement", self, "announce")
 
 		# Combat flow (Phase 1: debug feedback)
 		if not EventBus.is_connected("combat_initiated", self, "_on_combat_initiated"):
@@ -517,28 +522,19 @@ func _refresh_projected_target_info_hints() -> void:
 	_update_world_target_selection_state()
 
 
-# --- Dock/Attack Feedback Handlers ---
+# --- Dock/Attack Feedback: fading announcements (Announcements) ---
+# Done: info; refused or failed: warning. Threats come through EventBus.announcement as danger.
 func _on_dock_action_feedback(success: bool, message: String) -> void:
-	_show_action_feedback_popup("Dock", success, message)
+	announce(message, "info" if success else "warning")
 
 
 func _on_attack_action_feedback(success: bool, message: String) -> void:
-	_show_action_feedback_popup("Attack", success, message)
+	announce(message, "info" if success else "warning")
 
 
-func _show_action_feedback_popup(action_type: String, success: bool, message: String) -> void:
-	if not is_instance_valid(_action_feedback_popup):
-		_action_feedback_popup = AcceptDialog.new()
-		_action_feedback_popup.pause_mode = Node.PAUSE_MODE_PROCESS
-		add_child(_action_feedback_popup)
-	
-	if success:
-		_action_feedback_popup.window_title = action_type
-	else:
-		_action_feedback_popup.window_title = action_type + " Failed"
-	
-	_action_feedback_popup.dialog_text = message
-	_action_feedback_popup.popup_centered()
+func announce(message: String, level: String = "info") -> void:
+	if is_instance_valid(_announcements):
+		_announcements.announce(message, level)
 
 
 func _on_SliderControlRight_value_changed(value):

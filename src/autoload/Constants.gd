@@ -753,6 +753,16 @@ const MUSIC_SILENT_DB = -60.0
 
 const RENDER_SCALE_STEPS = [1.0, 0.5, 0.25]  # Render resolution shares the HUD's render scale button cycles through
 
+# HUD announcements (Announcements): fading labels stacked up from ANNOUNCE_ANCHOR (share of the
+# screen height, from the top), newest at the bottom.
+const ANNOUNCE_COLORS = {"info": Color(0.75, 1.0, 0.8), "warning": Color(1.0, 0.8, 0.35), "danger": Color(1.0, 0.35, 0.3)}
+const ANNOUNCE_HOLD = 2.5  # s at full strength
+const ANNOUNCE_FADE = 1.5  # s fading out
+const ANNOUNCE_MAX = 5  # Shown at once; the oldest goes first
+const ANNOUNCE_ANCHOR = 0.62  # The newest's bottom edge, as a share of the screen height
+const ANNOUNCE_GAP = 4.0  # px between two
+const ANNOUNCE_PADDING = Vector2(14, 6)  # px round the text
+const ANNOUNCE_SLIDE_RATE = 12.0  # How fast pushed ones slide up to their places (1/s)
 const COLOR_UI_TARGET_SELECTED = Color(1.0, 0.9, 0.35, 1.0)  # Yellow: anything not hostile, wrecks included
 const COLOR_UI_TARGET_HOSTILE = Color(1.0, 0.22, 0.18, 1.0)  # Red: a live ship hostile to the player
 const COLOR_UI_TARGET_NEUTRAL = Color(0.35, 0.95, 1.0, 0.95)  # Cyan: brackets of things without a faction

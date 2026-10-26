@@ -87,7 +87,7 @@ const STAT_LABELS = {
 static func describe_part(part_id: String) -> String:
 	var part = TemplateDatabase.get_template(part_id)
 	if part is UtilityToolTemplate:
-		var note: String = "" if part.tool_type in ["laser", "harpoon"] else "  (no use yet)"
+		var note: String = "" if part.tool_type in ["laser", "harpoon", "missile", "cannon"] else "  (no use yet)"
 		return "%s  %s, %d m, %.1f t%s" % [part.tool_name, part.mount_size, part.optimal_range, part.mass / 1000.0, note]
 	if part is ModuleTemplate:
 		var effects: Array = []
