@@ -457,10 +457,17 @@ func can_ram() -> bool:
 		and agent_script.get_top_speed() >= Constants.LAW_LANCE_MIN_SPEED * Constants.AI_RAM_SPEED_MARGIN
 
 
-# Rams `target` if it can (arming the lance and charging, once); true while it does. Out of lances
-# it stops, and the fight goes on at laser range.
+# A target running from it that it cannot outpace by strike speed (LAW_LANCE_MIN_SPEED, with
+# AI_RAM_SPEED_MARGIN) would only be touched too slowly: the lance would glance off.
+func outruns_ram(target) -> bool:
+	return is_running_from_me(target) and agent_script.get_top_speed() - target.get_top_speed() < Constants.LAW_LANCE_MIN_SPEED * Constants.AI_RAM_SPEED_MARGIN
+
+
+# Rams `target` if it can (arming the lance and charging, once); true while it does. Out of lances,
+# or against a runner too fast to strike (even mid-charge: running, it never turns to fight), it
+# stops, and the fight goes on with its other weapons.
 func _ram(target) -> bool:
-	if not can_ram():
+	if not can_ram() or outruns_ram(target):
 		if _ramming:
 			_stop_ramming()
 			_orbiting = false

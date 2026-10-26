@@ -547,3 +547,12 @@ func test_a_lancer_short_of_lances_goes_for_wrecks_with_its_lances_first_even_wh
 	assert_eq(ai.scan_for_wreck(), null, "Quiver full and hold full: nothing worth salvaging")
 	lance.nails -= 1
 	assert_eq(ai.scan_for_wreck(), far, "Its lance, further off, comes first")
+
+
+func test_does_not_ram_a_runner_it_cannot_outpace_by_strike_speed():
+	ai.initialize({"patrol_center": Vector3.ZERO})
+	var runner = _make_ship(Vector3(0, 0, -800), "verdant", 50.0)
+	runner.linear_velocity = Vector3(0, 0, -50)  # Running (test ships have no engines: neither is faster)
+	assert_true(ai.outruns_ram(runner), "Same top speed: it could never close at strike speed")
+	runner.linear_velocity = Vector3.ZERO
+	assert_false(ai.outruns_ram(runner), "Standing: rammable")
