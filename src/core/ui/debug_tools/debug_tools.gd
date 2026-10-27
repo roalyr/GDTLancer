@@ -2,6 +2,7 @@
 # - JUMP: every sector; pick one to be there at once (no fuel, from anywhere, docked or not).
 # - GO TO: the current sector's places (stations, beacons, jump points, bodies, megastructures), or
 #   typed coordinates in km; the ship is put a standoff away, stopped (undocked first if need be).
+# - TO TARGET: straight to the selected target, TARGET_STANDOFF off its edge, at its speed.
 # - REFIT: every tool slot and module slot of the ship; pick one, then any part that fits it (or
 #   none). Free and at once, without docking or storage.
 
@@ -12,6 +13,7 @@ const Fitting = preload("res://src/core/systems/fitting.gd")
 const MainTheme = preload("res://assets/themes/main_theme.tres")
 const BUTTON_HEIGHT = 64
 const STANDOFF_MIN = 1500.0  # m off a place's edge the ship is put
+const TARGET_STANDOFF = 300.0  # m off the selected target's edge
 const PLACE_GROUPS = [["dockable_station", "STATION"], ["arena_beacon", "BEACON"], ["jump_point", "JUMP POINT"], ["celestial", "BODY"], ["megastructure", "MEGASTRUCTURE"]]
 
 var _title: Label = null
@@ -19,9 +21,12 @@ var _status: Label = null
 var _list: VBoxContainer = null
 var _coords: HBoxContainer = null
 var _coord_edits: Array = []  # LineEdits: x, y, z in km
+var _target: WeakRef = weakref(null)  # The player's selected target
 
 
 func _ready() -> void:
+	EventBus.connect("player_target_selected", self, "_on_target_selected")
+	EventBus.connect("player_target_deselected", self, "_on_target_selected", [null])
 	theme = MainTheme
 	visible = false
 	anchor_right = 1.0
@@ -163,14 +168,31 @@ func _nearer(a: Dictionary, b: Dictionary) -> bool:
 	return a.distance < b.distance
 
 
-func go_to_place(node: Spatial) -> void:
+func go_to_place(node: Spatial, standoff: float = STANDOFF_MIN, velocity: Vector3 = Vector3.ZERO) -> void:
 	if not is_instance_valid(node):
 		return
 	var target: Vector3 = node.global_transform.origin
 	var away: Vector3 = (_ship_position() - target).normalized()
 	if away.length_squared() < 0.5:
 		away = Vector3.BACK
-	put_ship_at(target + away * (_size_of(node) + STANDOFF_MIN))
+	put_ship_at(target + away * (_size_of(node) + standoff), velocity)
+
+
+# --- TO TARGET ---
+
+func _on_target_selected(target) -> void:
+	_target = weakref(target)
+
+
+# Next to the selected target, moving with it. Returns false without one.
+func go_to_target() -> bool:
+	var target = _target.get_ref()
+	var ship = GlobalRefs.player_agent_body
+	if not (target is Spatial and is_instance_valid(target) and target.is_inside_tree()) or target == ship:
+		return false
+	var velocity = target.get("linear_velocity")
+	go_to_place(target, TARGET_STANDOFF, velocity if velocity is Vector3 else Vector3.ZERO)
+	return true
 
 
 func _go_to_typed() -> void:
@@ -189,8 +211,8 @@ func _fill_coords_here() -> void:
 		_coord_edits[index].text = "%.1f" % (at[index] / 1000.0)
 
 
-# Puts the player's ship at `position`, stopped (undocked first if docked).
-func put_ship_at(position: Vector3) -> void:
+# Puts the player's ship at `position`, moving at `velocity` (undocked first if docked).
+func put_ship_at(position: Vector3, velocity: Vector3 = Vector3.ZERO) -> void:
 	var ship = GlobalRefs.player_agent_body
 	if not is_instance_valid(ship):
 		return
@@ -199,9 +221,9 @@ func put_ship_at(position: Vector3) -> void:
 		EventBus.emit_signal("player_undocked")
 		yield(get_tree(), "idle_frame")
 	ship.global_transform.origin = position
-	ship.linear_velocity = Vector3.ZERO
+	ship.linear_velocity = velocity
 	ship.angular_velocity = Vector3.ZERO
-	if ship.has_method("command_stop"):
+	if velocity == Vector3.ZERO and ship.has_method("command_stop"):
 		ship.command_stop()
 
 

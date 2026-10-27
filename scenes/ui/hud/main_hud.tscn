@@ -1010,6 +1010,14 @@ focus_mode = 0
 theme = ExtResource( 9 )
 text = "DEBUG GO TO"
 
+[node name="ButtonDebugToTarget" type="Button" parent="ScreenControls/DebugOverlay/LeftColumn"]
+margin_right = 255.0
+margin_bottom = 64.0
+rect_min_size = Vector2( 0, 64 )
+focus_mode = 0
+theme = ExtResource( 9 )
+text = "DEBUG TO TARGET"
+
 [node name="ButtonDebugRefit" type="Button" parent="ScreenControls/DebugOverlay/LeftColumn"]
 margin_right = 255.0
 margin_bottom = 64.0

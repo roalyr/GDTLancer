@@ -202,6 +202,7 @@ func _ready():
 	add_child(debug_tools)
 	$ScreenControls/DebugOverlay/LeftColumn/ButtonDebugJump.connect("pressed", debug_tools, "open_jump")
 	$ScreenControls/DebugOverlay/LeftColumn/ButtonDebugGoTo.connect("pressed", debug_tools, "open_go_to")
+	$ScreenControls/DebugOverlay/LeftColumn/ButtonDebugToTarget.connect("pressed", debug_tools, "go_to_target")
 	$ScreenControls/DebugOverlay/LeftColumn/ButtonDebugRefit.connect("pressed", debug_tools, "open_refit")
 	_refresh_toggle_button_states()
 

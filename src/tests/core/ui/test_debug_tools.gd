@@ -103,3 +103,17 @@ func test_jump_lists_every_sector():
 		if TemplateDatabase.locations[id].get("connections") != null:
 			sectors += 1
 	assert_eq(tools._list.get_child_count(), sectors)
+
+
+func test_to_target_puts_the_ship_beside_the_selected_target_at_its_speed():
+	assert_false(tools.go_to_target(), "Nothing selected")
+	var target := RigidBody.new()
+	target.translation = Vector3(20000, 0, 0)
+	add_child_autofree(target)
+	target.linear_velocity = Vector3(0, 0, 50)
+	EventBus.emit_signal("player_target_selected", target)
+	assert_true(tools.go_to_target())
+	assert_almost_eq(ship.global_transform.origin.distance_to(target.translation), DebugTools.TARGET_STANDOFF, 1.0)
+	assert_eq(ship.linear_velocity, Vector3(0, 0, 50), "Moving with it")
+	EventBus.emit_signal("player_target_deselected")
+	assert_false(tools.go_to_target())
