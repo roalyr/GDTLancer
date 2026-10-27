@@ -97,26 +97,23 @@ func test_reset_to_defaults_clears_state():
 	assert_eq(GameState.player_arrival_direction, Vector3.ZERO)
 
 
-func test_losing_the_player_ship_deletes_saves_under_permadeath():
+func test_losing_the_ship_keeps_the_bank_and_storage_and_wakes_at_home():
 	_populate_game_state()
-	GameStateManager.save_game(TEST_SLOT)
-	assert_true(GameStateManager.has_save_file(TEST_SLOT))
-	var ship = RigidBody.new()
-	add_child_autofree(ship)
-	GlobalRefs.player_agent_body = ship
-	GameStateManager._on_agent_disabled(ship)
-	assert_eq(GameStateManager.has_save_file(TEST_SLOT), not Constants.RUN_PERMADEATH)
-	GlobalRefs.player_agent_body = null
-
-
-func test_losing_another_ship_keeps_saves():
-	_populate_game_state()
-	GameStateManager.save_game(TEST_SLOT)
-	var other = RigidBody.new()
-	add_child_autofree(other)
-	GameStateManager._on_agent_disabled(other)
-	assert_true(GameStateManager.has_save_file(TEST_SLOT))
-
+	GameState.home_location_id = "station_elace_home"
+	GameState.player_bank = 1234
+	GameState.player_storage = {"commodity_tech": 3}
+	GameState.player_cargo = {"commodity_scrap": 5}
+	GameState.player_fit = {"tools": ["tool_harpoon"]}
+	GameState.player_docked_at = ""
+	GameStateManager.lose_ship()
+	assert_eq(GameState.player_bank, 1234, "The bank is kept")
+	assert_eq(GameState.player_storage.get("commodity_tech"), 3, "and the storage")
+	assert_true(GameState.player_cargo.empty(), "The cargo goes with the ship")
+	assert_true(GameState.player_fit.empty(), "The new ship has its hull's default fit")
+	var game_start = TemplateDatabase.game_starts.get(Constants.DEFAULT_GAME_START_ID)
+	assert_eq(GameState.player_ship_template_id, game_start.player_ship_template if game_start != null else Constants.FALLBACK_SHIP_TEMPLATE_ID, "The start's ship")
+	assert_eq(GameState.player_docked_at, "station_elace_home", "Docked at home")
+	assert_eq(GameState.current_sector_id, Constants.INITIAL_SECTOR_ID)
 
 
 func test_save_carries_the_evolution_and_a_summary():

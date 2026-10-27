@@ -15,7 +15,6 @@ var keep_evolution: bool = false  # The next reset keeps the evolution running (
 
 
 func _ready() -> void:
-	EventBus.connect("agent_disabled", self, "_on_agent_disabled")
 	delete_outdated_saves()
 
 
@@ -56,7 +55,7 @@ func delete_save(slot_id: int = 0) -> void:
 		dir.remove(path)
 
 
-# Every save slot, for the end of a run under permadeath.
+# Every save slot.
 func delete_all_saves() -> void:
 	var dir := Directory.new()
 	if dir.open(save_dir) != OK:
@@ -69,10 +68,23 @@ func delete_all_saves() -> void:
 		file_name = dir.get_next()
 
 
-# The player's ship is lost: under permadeath the run's saves go with it.
-func _on_agent_disabled(agent_body) -> void:
-	if Constants.RUN_PERMADEATH and is_instance_valid(agent_body) and agent_body == GlobalRefs.player_agent_body:
-		delete_all_saves()
+# The player's ship is lost (Constants RESPAWN_DELAY): the state they wake up in, docked at home in
+# the start's ship. Bank, storage, home and play time stay.
+func lose_ship() -> void:
+	var game_start = TemplateDatabase.game_starts.get(Constants.DEFAULT_GAME_START_ID)
+	GameState.player_ship_template_id = game_start.player_ship_template if game_start != null else Constants.FALLBACK_SHIP_TEMPLATE_ID
+	GameState.player_fit = {}  # The hull's default fit
+	GameState.player_hull = -1.0
+	GameState.player_lance_nails = -1
+	GameState.player_tool_ammo = []
+	GameState.player_cargo = {}
+	GameState.player_hull_scars = []
+	GameState.player_docked_at = GameState.home_location_id
+	GameState.current_sector_id = Constants.INITIAL_SECTOR_ID  # The home port's sector
+	GameState.player_position = Vector3.ZERO
+	GameState.player_rotation = Vector3.ZERO
+	GameState.player_arrived_from_sector = ""
+	GameState.player_arrival_direction = Vector3.ZERO
 
 
 func reset_to_defaults() -> void:

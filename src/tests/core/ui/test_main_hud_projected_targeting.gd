@@ -595,7 +595,7 @@ func test_freed_target_is_not_a_route_and_not_valid():
 
 
 
-func test_ship_lost_shows_the_popup_without_pausing_and_frames_the_wreck():
+func test_ship_lost_frames_the_wreck_without_a_popup_or_pausing():
 	var player = RigidBody.new()
 	player.set_script(AgentScript)
 	player.agent_type = "player"
@@ -613,9 +613,7 @@ func test_ship_lost_shows_the_popup_without_pausing_and_frames_the_wreck():
 	add_child_autofree(hud)
 
 	hud._on_agent_disabled(player)
-	assert_true(hud.game_over_overlay.visible, "The run-over popup shows")
-	assert_false(get_tree().paused, "but the game keeps running behind it")
+	assert_false(get_tree().paused, "The game keeps running (WorldManager respawns the player at home)")
 	assert_eq(camera.get_camera_mode(), 0, "and the camera orbits")
 	assert_eq(camera._position_controller._target, player, "the wreck.")
-	assert_eq(hud.game_over_overlay.mouse_filter, Control.MOUSE_FILTER_IGNORE, "Clicks off the panel still reach the world.")
 	get_tree().paused = false

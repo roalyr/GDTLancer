@@ -60,14 +60,11 @@ var fitting_window: Control = null
 var debug_map: Control = null
 
 # --- Game Over UI ---
-onready var game_over_overlay: Control = $"GameOverOverlay (to be made into a dedicated window like main menu)"
-onready var button_return_to_menu: Button = $"GameOverOverlay (to be made into a dedicated window like main menu)/CenterContainer/PanelContainer/VBoxContainer/ButtonReturnToMenu"
 
 # --- State ---
 var _current_target = null
 var _main_camera: Camera = null
 var _player_uid: int = -1
-var _is_game_over: bool = false
 var _announcements: Control = null  # Fading feedback labels (Announcements)
 var _hud_alpha = 1.0
 var _dock_location_id: String = ""  # Currently available dock location
@@ -954,56 +951,21 @@ func _on_agent_damaged(agent_body, damage_amount: float, _source_agent) -> void:
 
 func _on_agent_disabled(agent_body) -> void:
 	call_deferred("_rebuild_world_target_overlay")  # Relabel the bracket as a wreck.
-	if _is_game_over:
+	if not is_instance_valid(agent_body) or agent_body != GlobalRefs.player_agent_body:
 		return
-	if not is_instance_valid(agent_body):
-		return
-	if not is_instance_valid(GlobalRefs.player_agent_body):
-		return
-	if agent_body != GlobalRefs.player_agent_body:
-		return
-	_show_game_over_overlay()
+	_watch_own_wreck()
 
 
-# The run is over: the popup shows, but the game keeps running behind it, with the camera on the
-# player's wreck (orbiting it, not tracking a target) so the player can watch the scene play out.
-# The overlay only takes clicks on its panel; the rest of the screen still turns and zooms the camera.
-func _show_game_over_overlay() -> void:
-	_is_game_over = true
-	var summary = game_over_overlay.get_node_or_null("CenterContainer/PanelContainer/VBoxContainer/LabelGameOver") if is_instance_valid(game_over_overlay) else null
-	if is_instance_valid(summary):
-		summary.text = "SHIP LOST\nThe run is over.\nBanked this run: %d WP" % GameState.player_bank
-	if is_instance_valid(game_over_overlay):
-		game_over_overlay.visible = true
-		game_over_overlay.raise()
-		if is_instance_valid(button_return_to_menu):
-			button_return_to_menu.grab_focus()
+# The ship is lost: the camera orbits the wreck (not tracking a target) so the player can watch the
+# scene play out until WorldManager fades to the respawn at home (Constants RESPAWN_DELAY).
+func _watch_own_wreck() -> void:
+	EventBus.emit_signal("announcement", "SHIP LOST", "danger")
 	var camera = GlobalRefs.main_camera
 	if is_instance_valid(camera) and is_instance_valid(GlobalRefs.player_agent_body):
 		if camera.has_method("set_camera_mode"):
 			camera.set_camera_mode(0)  # ORBIT
 		camera.set_target_node(GlobalRefs.player_agent_body)
 	_refresh_toggle_button_states()
-
-
-# Starts the next run straight from the run-over screen.
-func _on_ButtonNewRun_pressed() -> void:
-	get_tree().paused = false
-	_is_game_over = false
-	if is_instance_valid(game_over_overlay):
-		game_over_overlay.visible = false
-	if EventBus:
-		EventBus.emit_signal("new_game_requested")
-
-
-func _on_ButtonReturnToMenu_pressed() -> void:
-	# Unpause first so the menu and world manager can react normally.
-	get_tree().paused = false
-	_is_game_over = false
-	if is_instance_valid(game_over_overlay):
-		game_over_overlay.visible = false
-	if EventBus:
-		EventBus.emit_signal("main_menu_requested")
 
 
 func _update_dock_button_label() -> void:

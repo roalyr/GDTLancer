@@ -24,7 +24,11 @@ const AI_CONTROLLER_NODE_NAME = "AIController"
 const PLAYER_INPUT_HANDLER_NAME = "PlayerInputHandler"
 
 const INITIAL_SECTOR_ID: String = "sector_elace"  # Starting sector for a new game
-const RUN_PERMADEATH = true  # Losing the ship ends the run: its saves are deleted
+# Losing the ship is not the end: the player watches the wreck for RESPAWN_DELAY s, the screen fades
+# to black, and they wake docked at home in the start's ship (its default fit). Lost: the ship, its
+# fit, cargo and loaded rounds. Kept: the bank, station storage and the world. The save is overwritten.
+const RESPAWN_DELAY = 7.0  # s
+const RESPAWN_FADE_DURATION = 2.0  # s, each way
 const DEFAULT_GAME_START_ID = "start_default"
 const FALLBACK_SHIP_TEMPLATE_ID = "ship_default"  # If the game start names no ship
 

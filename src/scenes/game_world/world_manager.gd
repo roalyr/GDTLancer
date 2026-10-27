@@ -16,6 +16,8 @@ var _sector_loader = null
 var _pending_jump_target: String = ""
 var _reported_invalid_sectors: Dictionary = {}
 var _jump_transition_active: bool = false
+var _respawning: bool = false
+var _world_serial: int = 0  # Bumped by a new game or a load: a respawn under way for the old world is dropped
 var _jump_transition_tree_was_paused: bool = false
 var _jump_transition_mouse_mode_before_lock: int = Input.MOUSE_MODE_VISIBLE
 var _recorded_fov: float = 70.0
@@ -58,6 +60,7 @@ func _ready():
 		if not EventBus.is_connected("new_game_requested", self, "_on_new_game_requested"):
 			EventBus.connect("new_game_requested", self, "_on_new_game_requested")
 	EventBus.connect("player_jump_requested", self, "_on_player_jump_requested")
+	EventBus.connect("agent_disabled", self, "_on_agent_disabled")
 	EventBus.connect("jump_available", self, "_on_jump_available")
 	EventBus.connect("jump_unavailable", self, "_on_jump_unavailable")
 
@@ -66,6 +69,7 @@ func _ready():
 
 
 func _on_new_game_requested() -> void:
+	_world_serial += 1
 	# Ensure we don't inherit mouse/camera capture/rotation state from a prior session.
 	_reset_camera_input_state()
 	_reset_jump_transition_foundation()
@@ -90,6 +94,7 @@ func _on_new_game_requested() -> void:
 
 
 func _on_game_state_loaded() -> void:
+	_world_serial += 1
 	# Ensure we don't inherit mouse/camera capture/rotation state from a prior session.
 	_reset_camera_input_state()
 	_reset_jump_transition_foundation()
@@ -108,6 +113,36 @@ func _on_game_state_loaded() -> void:
 	GameState.current_sector_id = saved_sector
 	load_sector(saved_sector)
 	call_deferred("_emit_loaded_dock_signal")
+
+
+# The player's ship is lost: after RESPAWN_DELAY s watching the wreck the screen fades to black,
+# they wake docked at home in the start's ship (GameStateManager.lose_ship), the game saves over the
+# old ship, and the screen fades back.
+func _on_agent_disabled(agent_body) -> void:
+	if _respawning or not is_instance_valid(agent_body) or agent_body != GlobalRefs.player_agent_body:
+		return
+	_respawning = true
+	var serial: int = _world_serial
+	yield(get_tree().create_timer(Constants.RESPAWN_DELAY), "timeout")
+	if serial != _world_serial:  # A new game or a load came first
+		_respawning = false
+		return
+	var fade_state = _fade_transition_overlay(1.0, Constants.RESPAWN_FADE_DURATION)
+	if fade_state is GDScriptFunctionState:
+		yield(fade_state, "completed")
+	GameStateManager.lose_ship()
+	_reset_camera_input_state()
+	_cleanup_all_agents()
+	_cleanup_current_zone()
+	yield(get_tree(), "idle_frame")
+	load_sector(GameState.current_sector_id)
+	var dock_state = _emit_loaded_dock_signal()
+	if dock_state is GDScriptFunctionState:
+		yield(dock_state, "completed")
+	GameStateManager.save_game(0)
+	EventBus.emit_signal("announcement", "Back home in a new ship. The bank and storage are kept: %d WP" % GameState.player_bank, "info")
+	_respawning = false
+	_fade_transition_overlay_async(0.0, Constants.RESPAWN_FADE_DURATION)
 
 
 func _emit_loaded_dock_signal() -> void:

@@ -1060,49 +1060,6 @@ custom_fonts/font = SubResource( 1 )
 align = 2
 autowrap = true
 
-[node name="GameOverOverlay (to be made into a dedicated window like main menu)" type="Control" parent="."]
-pause_mode = 2
-visible = false
-anchor_right = 1.0
-anchor_bottom = 1.0
-mouse_filter = 2
-
-[node name="CenterContainer" type="CenterContainer" parent="GameOverOverlay (to be made into a dedicated window like main menu)"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-mouse_filter = 2
-
-[node name="PanelContainer" type="PanelContainer" parent="GameOverOverlay (to be made into a dedicated window like main menu)/CenterContainer"]
-margin_left = 953.0
-margin_top = 533.0
-margin_right = 967.0
-margin_bottom = 547.0
-theme = ExtResource( 9 )
-
-[node name="VBoxContainer" type="VBoxContainer" parent="GameOverOverlay (to be made into a dedicated window like main menu)/CenterContainer/PanelContainer"]
-margin_left = 7.0
-margin_top = 7.0
-margin_right = 146.0
-margin_bottom = 69.0
-
-[node name="LabelGameOver" type="Label" parent="GameOverOverlay (to be made into a dedicated window like main menu)/CenterContainer/PanelContainer/VBoxContainer"]
-margin_right = 139.0
-margin_bottom = 27.0
-theme = ExtResource( 9 )
-text = "GAME OVER"
-align = 1
-
-[node name="ButtonNewRun" type="Button" parent="GameOverOverlay (to be made into a dedicated window like main menu)/CenterContainer/PanelContainer/VBoxContainer"]
-theme = ExtResource( 9 )
-text = "NEW RUN"
-
-[node name="ButtonReturnToMenu" type="Button" parent="GameOverOverlay (to be made into a dedicated window like main menu)/CenterContainer/PanelContainer/VBoxContainer"]
-margin_top = 31.0
-margin_right = 139.0
-margin_bottom = 62.0
-theme = ExtResource( 9 )
-text = "RETURN TO MENU"
-
 [connection signal="pressed" from="ScreenControls/CenterLeftZone/ButtonMenu" to="." method="_on_ButtonMenu_pressed"]
 [connection signal="pressed" from="ScreenControls/CenterLeftZone/ButtonDebug" to="." method="_on_ButtonDebug_pressed"]
 [connection signal="value_changed" from="ScreenControls/CenterLeftZone/SliderControlLeft" to="." method="_on_SliderControlLeft_value_changed"]
@@ -1115,5 +1072,3 @@ text = "RETURN TO MENU"
 [connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonInteract" to="." method="_on_ButtonInteract_pressed"]
 [connection signal="pressed" from="ScreenControls/CenterRightZone/ButtonUIOpacity" to="." method="_on_ButtonUIOpacity_pressed"]
 [connection signal="value_changed" from="ScreenControls/CenterRightZone/SliderControlRight" to="." method="_on_SliderControlRight_value_changed"]
-[connection signal="pressed" from="GameOverOverlay (to be made into a dedicated window like main menu)/CenterContainer/PanelContainer/VBoxContainer/ButtonNewRun" to="." method="_on_ButtonNewRun_pressed"]
-[connection signal="pressed" from="GameOverOverlay (to be made into a dedicated window like main menu)/CenterContainer/PanelContainer/VBoxContainer/ButtonReturnToMenu" to="." method="_on_ButtonReturnToMenu_pressed"]
