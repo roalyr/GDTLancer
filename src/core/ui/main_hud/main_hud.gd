@@ -199,7 +199,7 @@ func _ready():
 	add_child(fitting_window)
 	debug_map = DebugMapScene.instance()
 	add_child(debug_map)
-	$ScreenControls/DebugOverlay/LeftColumn/ButtonDebugMap.connect("pressed", debug_map, "open")
+	$ScreenControls/DebugOverlay/RightColumn/ButtonDebugMap.connect("pressed", debug_map, "open")
 	threat_ring = ThreatRing.new()
 	threat_ring.name = "ThreatRing"
 	add_child(threat_ring)
@@ -207,9 +207,9 @@ func _ready():
 	debug_tools = DebugTools.new()
 	debug_tools.name = "DebugTools"
 	add_child(debug_tools)
-	$ScreenControls/DebugOverlay/LeftColumn/ButtonDebugJump.connect("pressed", debug_tools, "open_jump")
-	$ScreenControls/DebugOverlay/LeftColumn/ButtonDebugGoTo.connect("pressed", debug_tools, "open_go_to")
-	$ScreenControls/DebugOverlay/LeftColumn/ButtonDebugToTarget.connect("pressed", debug_tools, "go_to_target")
+	$ScreenControls/DebugOverlay/RightColumn/ButtonDebugJump.connect("pressed", debug_tools, "open_jump")
+	$ScreenControls/DebugOverlay/RightColumn/ButtonDebugGoTo.connect("pressed", debug_tools, "open_go_to")
+	$ScreenControls/DebugOverlay/RightColumn/ButtonDebugToTarget.connect("pressed", debug_tools, "go_to_target")
 	$ScreenControls/DebugOverlay/LeftColumn/ButtonDebugRefit.connect("pressed", debug_tools, "open_refit")
 	_refresh_toggle_button_states()
 
@@ -745,11 +745,22 @@ func describe_world_stats(player) -> String:
 		lines.append("AUTOPILOT %s" % nav.CommandType.keys()[nav.get_current_command_type()])
 	var ships_seen := 0
 	var ships := 0
+	var npcs := {"active": 0, "docked": 0, "wrecks": 0, "awake": 0}  # Bodies in the scene, by what physics does with them
 	for body in get_tree().get_nodes_in_group("agent_body"):
 		if is_instance_valid(body) and body != player:
 			ships += 1
 			ships_seen += 1 if player.detects(body) else 0
+			if body.get("is_wreck"):
+				npcs.wrecks += 1
+			elif body.get("is_docked"):
+				npcs.docked += 1
+			else:
+				npcs.active += 1
+			if body is RigidBody and not body.sleeping:
+				npcs.awake += 1
 	lines.append("SHIPS SEEN %d / %d" % [ships_seen, ships])
+	lines.append("NPCS ACTIVE %d  DOCKED %d" % [npcs.active, npcs.docked])  # Active: flying, AI and physics every step
+	lines.append("WRECKS %d  BODIES AWAKE %d" % [npcs.wrecks, npcs.awake])
 	var brackets_shown := 0
 	for instance_id in _world_target_buttons:
 		var button = _world_target_buttons[instance_id]

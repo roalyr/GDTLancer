@@ -116,7 +116,7 @@ func _show(title: String, with_coords: bool) -> void:
 # --- JUMP ---
 
 func open_jump() -> void:
-	_show("DEBUG JUMP", false)
+	_show("JUMP", false)
 	var ids: Array = []
 	for id in TemplateDatabase.locations:
 		if TemplateDatabase.locations[id].get("connections") != null:
@@ -142,7 +142,7 @@ func jump_to(sector_id: String) -> void:
 # --- GO TO ---
 
 func open_go_to() -> void:
-	_show("DEBUG GO TO", true)
+	_show("GO TO", true)
 	_fill_coords_here()
 	for place in places():
 		_list.add_child(_button("%s  %s  (%.0f KM)" % [place.kind, place.name.to_upper(), place.distance / 1000.0], self, "go_to_place", [place.node]))
@@ -256,7 +256,7 @@ static func _size_of(node: Spatial) -> float:
 # --- REFIT ---
 
 func open_refit() -> void:
-	_show("DEBUG REFIT", false)
+	_show("REFIT", false)
 	var ship = GlobalRefs.player_agent_body
 	if not is_instance_valid(ship):
 		_status.text = "No ship"
@@ -273,7 +273,7 @@ func _pick_part(kind: String, slot: int) -> void:
 	var ship = GlobalRefs.player_agent_body
 	if not is_instance_valid(ship):
 		return
-	_show("DEBUG REFIT: %s %d" % ["TOOL" if kind == "tools" else "MODULE", slot + 1], false)
+	_show("REFIT: %s %d" % ["TOOL" if kind == "tools" else "MODULE", slot + 1], false)
 	_list.add_child(_button("< BACK", self, "open_refit"))
 	_list.add_child(_button("EMPTY", self, "refit", [kind, slot, ""]))
 	for part_id in parts_for(ship, kind, slot):

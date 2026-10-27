@@ -47,7 +47,7 @@ func test_debug_overlay_opens_the_debug_map() -> void:
 	GameState.current_sector_id = Constants.INITIAL_SECTOR_ID
 
 	assert_false(hud.debug_map.visible, "The debug map starts closed.")
-	hud.get_node("ScreenControls/DebugOverlay/LeftColumn/ButtonDebugMap").emit_signal("pressed")
+	hud.get_node("ScreenControls/DebugOverlay/RightColumn/ButtonDebugMap").emit_signal("pressed")
 	assert_true(hud.debug_map.visible, "The overlay's map button opens it")
 	var content: Spatial = hud.debug_map.get_node("Panel/Layout/MapArea/ViewportContainer/Viewport/MapContent")
 	for sector_id in TemplateDatabase.locations:

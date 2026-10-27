@@ -34,7 +34,7 @@ custom_constants/separation = 8
 [node name="Title" type="Label" parent="Panel/Layout/Header"]
 size_flags_horizontal = 3
 size_flags_vertical = 5
-text = "DEBUG MAP"
+text = "MAP"
 valign = 1
 
 [node name="ButtonRotLeft" type="Button" parent="Panel/Layout/Header"]
