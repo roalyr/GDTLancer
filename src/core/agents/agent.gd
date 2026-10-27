@@ -384,7 +384,10 @@ func _on_agent_charged(agent_body, charger) -> void:
 		EventBus.emit_signal("announcement", "%s ship charging you with a lance!" % (who if who != "" else "A"), "danger")
 
 
-func _on_player_lance_struck(_target, damage) -> void:
+func _on_player_lance_struck(target, damage) -> void:
+	if is_instance_valid(target) and target.is_in_group("ore_chunk"):
+		EventBus.emit_signal("attack_action_feedback", true, "Broke out a chunk: %d units, the lance in it (harpoon it)" % target.get_salvage_units())
+		return
 	EventBus.emit_signal("attack_action_feedback", true, "Lance in: %d damage" % int(damage))
 
 

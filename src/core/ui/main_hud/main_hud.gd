@@ -684,6 +684,13 @@ func describe_target_stats(player) -> String:
 		return PoolStringArray(lines).join("\n")
 	if _current_target.get("is_wreck"):
 		lines.append("WRECK  SALVAGE %d" % _current_target.get_salvage_units())
+	elif _current_target.has_method("is_exposed"):  # A rock (Constants MINING)
+		if _current_target.get_deposit() <= 0:
+			lines.append("WORKED OUT")
+		elif _current_target.is_exposed():
+			lines.append("BARED: LANCE IT  ORE %d" % _current_target.get_deposit())
+		else:
+			lines.append("SHELL %d%%  ORE %d" % [int(ceil(100.0 * _current_target.shell / Constants.MINING_SHELL_HP)), _current_target.get_deposit()])
 	elif _current_target.get("hull_max"):
 		lines.append("HULL %d / %d" % [ceil(_current_target.hull), _current_target.hull_max])
 		var cues: Array = _target_projector.get_ship_cues(_current_target)
@@ -893,6 +900,8 @@ func _resolve_target_display_name(target_node) -> String:
 		if "station_name" in target_node and target_node.station_name != "":
 			return target_node.station_name
 		return "Station"
+	if target_node.has_method("get_display_name"):
+		return target_node.get_display_name()
 	if target_node.is_in_group("asteroid"):
 		return "Asteroid"
 	if target_node.is_in_group("agent_body"):

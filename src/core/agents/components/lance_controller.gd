@@ -175,6 +175,49 @@ func _sweep(delta: float) -> void:
 		if not hit.empty():
 			strike(body, body.global_transform.xform(hit.point), body.global_transform.basis.xform(hit.normal).normalized())
 			return
+	_sweep_rock(seat, tip + _agent.linear_velocity * delta)
+
+
+# A rock on the lance's line (seat to where the tip gets this step): mining (Constants MINING).
+func _sweep_rock(seat: Vector3, reach: Vector3) -> void:
+	var hit: Dictionary = _agent.get_world().direct_space_state.intersect_ray(seat, reach, [_agent], Constants.SHOT_BLOCK_MASK)
+	if hit.empty() or not (hit.collider is Node and hit.collider.is_in_group("mineable")) or _glanced.has(hit.collider.get_instance_id()):
+		return
+	strike_rock(hit.collider, hit.position, hit.normal)
+
+
+# The tip meets a rock at `point` (surface `normal`). Bared (Asteroid.is_exposed), struck at strike
+# speed square enough, it breaks out a chunk with the lance stuck in it and stops the ship against
+# it; otherwise the lance glances off. Returns the damage. `roll` as for strike().
+func strike_rock(rock: Spatial, point: Vector3, normal: Vector3, roll: float = -1.0) -> float:
+	var axis: Vector3 = _axis()
+	var closing: float = _agent.linear_velocity.dot(axis)
+	var angle: float = rad2deg(acos(clamp(abs(normal.normalized().dot(axis)), 0.0, 1.0)))
+	var damage: float = ShipLaws.lance_damage(lance, closing)
+	if roll < 0.0:
+		roll = randf()
+	var reason: String = ""
+	if not rock.is_exposed():
+		reason = "the rock's shell is whole (burn it off with a laser)" if rock.get_deposit() > 0 else "the rock is worked out"
+	elif damage <= 0.0:
+		reason = "too slow, %d of %d m/s" % [int(closing), int(Constants.LAW_LANCE_MIN_SPEED)]
+	elif roll >= ShipLaws.lance_hit_chance(lance, angle):
+		reason = "at %d degrees" % int(angle)
+	if reason != "":
+		_glanced[rock.get_instance_id()] = 1.0
+		emit_signal("glanced", rock, reason)
+		return 0.0
+	var chunk = rock.break_chunk(point, axis, damage)
+	if chunk == null:
+		return 0.0
+	_agent.linear_velocity -= axis * closing  # Stopped against the rock
+	_leave_lance(chunk, chunk.get_hull_point_facing(_agent.global_transform.origin), axis)
+	nails -= 1
+	reload_left = float(lance.reload) if nails > 0 else 0.0
+	_update_visuals()
+	emit_signal("nails_changed", nails)
+	emit_signal("struck", chunk, damage)
+	return damage
 
 
 # Where the segment `from` -> `to` first enters `box` (slab method): {"point", "normal"} (the face's

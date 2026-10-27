@@ -473,6 +473,26 @@ const FUEL_COMMODITY = "commodity_fuel"
 const FUEL_MASS_PER_UNIT = 2500.0  # kg
 const FUEL_STARTING_UNITS = 6  # In the hold of a new game's ship and of the ship given after a loss
 
+# Mining (Asteroid, OreChunk, LanceController): a composite act. Laser shots burn off a rock's shell
+# (MINING_SHELL_HP); bared, it glows, and an armed lance driven into it at strike speed breaks out a
+# chunk holding damage / MINING_DAMAGE_PER_UNIT units of the rock's deposit (at most
+# MINING_CHUNK_MAX, and what is left), with the lance stuck in it; a harpoon tows the chunk and strips
+# it like a wreck (lance first). The shell closes again after each chunk, or MINING_EXPOSED_TIME s.
+const MINING_SHELL_HP = 60.0  # Laser damage to bare a rock
+const MINING_EXPOSED_TIME = 90.0  # s a bared rock stays bare
+const MINING_DAMAGE_PER_UNIT = 15.0  # Lance damage per unit broken out
+const MINING_CHUNK_MAX = 12  # Units in one chunk
+const MINING_ORE_PER_METRE = 1.0  # A rock's deposit: units per metre of its radius
+const MINING_CHUNK_SPEED = 8.0  # m/s the chunk drifts off the rock's face
+const MINING_CHUNK_BASE_MASS = 400.0  # kg of rock round the deposit in a chunk
+const MINING_CHUNK_RADIUS = 2.5  # m for a one-unit chunk (grows as the cube root of its units)
+const MINING_CHUNK_MODELS = [  # Low-poly rocks (the rock models' last LOD)
+	"res://assets/models/rocks/lod/rock_01_6k_LOD3.glb", "res://assets/models/rocks/lod/rock_03_4k_LOD3.glb",
+	"res://assets/models/rocks/lod/rock_05_4k_LOD3.glb",
+]
+const MINING_EXPOSED_COLOR = Color(1.0, 0.45, 0.15, 1.0)  # A bared rock's glow
+const MINING_DEPOSIT = "commodity_ore"  # What rocks hold
+
 # Prices (Market): physics value * (1 + the station's markup) * (1 -+ standing share).
 const PRICE_MARKUP_MAX = 0.5  # A station's markup is rolled once per game in 0..this
 const PRICE_STANDING_SHARE = 0.1  # Standing 1 buys this much cheaper and sells this much dearer; -1 the reverse

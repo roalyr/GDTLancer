@@ -1,0 +1,10 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/asset_commodity_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "commodity_biotech"
+commodity_name = "Biotech"
+base_value = 60
+unit_mass = 30.0
