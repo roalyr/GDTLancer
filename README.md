@@ -71,7 +71,7 @@ Complete the engine, then freeze it. After the freeze, work is content, tuning a
 
 **Freeze when:** all of the above work with placeholder content, new parts, hulls, sectors and encounters need only data or scene files, and the tests pass.
 
-**Out of scope:** multiplayer, narrative, companions, crafting, economy, world simulation, meta-progression, card or board mechanics.
+**Out of scope:** multiplayer, narrative, companions, crafting, market simulation, production chains, meta-progression, card or board mechanics. Persistent NPCs travel the sector graph (fuel per jump) on an abstract off-screen timetable; sessions can be short or long, as the player likes.
 
 ## Controls
 
