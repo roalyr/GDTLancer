@@ -13,6 +13,7 @@ export var magnitude: float = 1.0  # Scales every piece and distance
 
 
 func _ready() -> void:
+	add_to_group("megastructure")  # A place to go to (DebugTools)
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed_value
 	var core_size := 0.0

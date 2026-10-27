@@ -41,6 +41,7 @@ var world_time: float = 0.0
 
 ## Each station's price markup (Market): location id -> 0..PRICE_MARKUP_MAX, rolled on first use.
 var station_markups: Dictionary = {}
+var station_markup_until: Dictionary = {}  # Location id -> world time its markup is rolled again
 
 ## Lances left in the player's lance quiver; negative means full.
 var player_lance_nails: int = -1
@@ -92,6 +93,7 @@ func reset_state() -> void:
 	traffic_next_id = 0
 	world_time = 0.0
 	station_markups = {}
+	station_markup_until = {}
 	player_hull_scars = []
 	current_zone_instance = null
 	current_sector_id = ""

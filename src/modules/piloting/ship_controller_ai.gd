@@ -778,7 +778,7 @@ func _dock(station: Spatial, service: bool) -> void:
 	agent_script.dock_at(station)
 	_change_state(AIState.DOCKED)
 	_dock_timer = Constants.ARENA_DOCK_TIME
-	if service and Evolution.on_docked(agent_script):
+	if service and Evolution.on_docked(agent_script, str(station.get("location_id"))):
 		agent_script.despawn()  # Retired: its record is in the log
 
 

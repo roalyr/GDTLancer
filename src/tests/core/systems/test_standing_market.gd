@@ -135,3 +135,33 @@ func test_a_jump_burns_fuel_by_mass_and_selling_the_hold_keeps_it():
 	Market.sell_hold(ship, "s")
 	assert_eq(Fuel.carried(ship), 100 - cost, "Fuel stays aboard")
 	assert_false(ship.cargo.has("commodity_scrap"))
+
+
+func test_a_markup_is_rolled_again_once_its_time_is_up():
+	var markup: float = Market.markup("s")
+	var until: float = float(GameState.station_markup_until["s"])
+	assert_between(until - GameState.world_time, Constants.PRICE_MARKUP_PERIOD[0], Constants.PRICE_MARKUP_PERIOD[1])
+	GameState.world_time = until - 1.0
+	assert_eq(Market.markup("s"), markup, "Holds till then")
+	GameState.world_time = until + 1.0
+	Market.markup("s")
+	assert_gt(float(GameState.station_markup_until["s"]), GameState.world_time, "Rolled again, with a new time")
+
+
+func test_npcs_get_the_station_cargo_price_for_their_hold_but_not_for_fuel():
+	var ship = _ship("verdant")
+	ship.cargo_capacity = 1000
+	ship.add_cargo("commodity_tech", 3)
+	ship.add_cargo(Constants.FUEL_COMMODITY, 5)
+	GameState.station_markups = {"s": 0.3}
+	var scrap := CommodityTemplate.new()
+	scrap.template_id = "commodity_tech"
+	scrap.base_value = 60
+	scrap.unit_mass = 20.0
+	var saved: Dictionary = TemplateDatabase.assets_commodities
+	TemplateDatabase.assets_commodities = {"commodity_tech": scrap}
+	var sale: Dictionary = Market.hold_value(ship, "s")
+	TemplateDatabase.assets_commodities = saved
+	assert_eq(int(sale.units), 3)
+	assert_eq(int(sale.value), 3 * Market.cargo_sale_price(float(scrap.base_value), "s"))
+	assert_almost_eq(float(sale.mass), 3 * float(scrap.unit_mass), 0.01)

@@ -994,6 +994,30 @@ focus_mode = 0
 theme = ExtResource( 9 )
 text = "DEBUG MAP"
 
+[node name="ButtonDebugJump" type="Button" parent="ScreenControls/DebugOverlay/LeftColumn"]
+margin_right = 255.0
+margin_bottom = 64.0
+rect_min_size = Vector2( 0, 64 )
+focus_mode = 0
+theme = ExtResource( 9 )
+text = "DEBUG JUMP"
+
+[node name="ButtonDebugGoTo" type="Button" parent="ScreenControls/DebugOverlay/LeftColumn"]
+margin_right = 255.0
+margin_bottom = 64.0
+rect_min_size = Vector2( 0, 64 )
+focus_mode = 0
+theme = ExtResource( 9 )
+text = "DEBUG GO TO"
+
+[node name="ButtonDebugRefit" type="Button" parent="ScreenControls/DebugOverlay/LeftColumn"]
+margin_right = 255.0
+margin_bottom = 64.0
+rect_min_size = Vector2( 0, 64 )
+focus_mode = 0
+theme = ExtResource( 9 )
+text = "DEBUG REFIT"
+
 [node name="LabelShip" type="Label" parent="ScreenControls/DebugOverlay/LeftColumn"]
 margin_top = 80.0
 margin_right = 255.0

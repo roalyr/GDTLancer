@@ -11,6 +11,8 @@
 extends Spatial
 
 const StationScene = preload("res://scenes/prefabs/station/arena_station.tscn")
+const XenoForm = preload("res://src/scenes/game_world/xeno_form.gd")
+const CollisionHull = preload("res://src/core/agents/components/collision_hull.gd")
 const BeaconScene = preload("res://scenes/prefabs/station/arena_beacon.tscn")
 
 var zones: Array = []  # [{"id", "factions": {faction: ships}, "beacon", "stations": {faction: [ArenaStation]}}]
@@ -55,10 +57,27 @@ func _build_zone(zone: Dictionary) -> Dictionary:
 			station.location_id = "arena_%s_%s_%s" % [zone.id, faction, letter.to_lower()]
 			station.station_name = ("%s Post %s %s" % [faction_name, zone.id, letter]) if place == "sides" else ("%s %s" % [faction_name, "Outpost" if place == "outpost" else "Hive"])
 			station.transform.origin = spots[index]
+			if faction == "xenohive":
+				_dress_as_hive(station)
 			add_child(station)
 			stations[faction].append(station)
 	_build_rocks(zone, offset, radial, across, stations)
 	return {"id": zone.id, "factions": zone.factions.duplicate(), "beacon": beacon, "stations": stations}
+
+
+# The xenohive's station is grown, not built: a XenoForm in place of the cargo ship, its convex hull
+# for collision.
+func _dress_as_hive(station: Node) -> void:
+	var old: Node = station.get_node("Model")
+	station.remove_child(old)
+	old.free()
+	var model := Spatial.new()
+	model.name = "Model"
+	model.add_child(XenoForm.build(Constants.XENO_FORMS.hive, Constants.XENO_HIVE_LENGTH, Constants.XENO_HIVE_SEED))
+	station.add_child(model)
+	var shape: Shape = CollisionHull.shape_for(model, Transform.IDENTITY)
+	if shape != null:
+		station.get_node("CollisionShape").shape = shape
 
 
 # The zone's rock field (Constants ARENA_ROCK_FIELDS), the same on every load: clear of the beacon,

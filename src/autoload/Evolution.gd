@@ -12,6 +12,7 @@ extends Node
 
 const Genome = preload("res://src/core/evolution/genome.gd")
 const PresetExporter = preload("res://src/core/evolution/preset_exporter.gd")
+const Market = preload("res://src/core/systems/market.gd")
 const SAVE_VERSION = 1
 
 var run_id: String = ""  # Names the log file; a new game starts a new run
@@ -214,20 +215,15 @@ func get_record(uid: String) -> Dictionary:
 
 # Docked at one of its stations: sells the hold, repairs. Returns true if the ship retires here
 # (Constants ARENA_MAX_LIFETIME): its life ends, and the caller removes it.
-func on_docked(body: Node) -> bool:
+func on_docked(body: Node, location_id: String = "") -> bool:
 	var uid: String = str(body.get("evo_uid"))
 	if not live.has(uid):
 		return false
 	var record: Dictionary = live[uid]
-	var value := 0
-	var units := 0
-	var delivered := 0.0
-	for commodity_id in body.cargo:
-		var commodity = TemplateDatabase.get_template(commodity_id)
-		units += int(body.cargo[commodity_id])
-		if commodity is CommodityTemplate:
-			value += int(body.cargo[commodity_id]) * commodity.base_value
-			delivered += int(body.cargo[commodity_id]) * float(commodity.unit_mass)
+	var sale: Dictionary = Market.hold_value(body, location_id)  # At the station's cargo price, as the player
+	var value: int = int(sale.value)
+	var units: int = int(sale.units)
+	var delivered: float = float(sale.mass)
 	body.clear_cargo()
 	var pool: Dictionary = pools.get(record.faction, {})
 	pool["delivered"] = float(pool.get("delivered", 0.0)) + delivered

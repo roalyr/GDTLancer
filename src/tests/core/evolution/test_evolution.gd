@@ -126,8 +126,9 @@ func test_docking_sells_the_hold_and_charges_repairs():
 	var body := _body(life.uid)
 	body.cargo = {"commodity_tech": 2}
 	body.hull = 25.0
-	assert_false(Evolution.on_docked(body), "A young ship does not retire")
-	assert_eq(int(Evolution.live[life.uid].earned), 2 * 60)
+	GameState.station_markups = {"s": 0.25}  # Cargo price: (1 + 0.25) * PRICE_CARGO_SELL_SHARE of value
+	assert_false(Evolution.on_docked(body, "s"), "A young ship does not retire")
+	assert_eq(int(Evolution.live[life.uid].earned), 2 * int(round(60 * 1.25 * Constants.PRICE_CARGO_SELL_SHARE)), "At the station's cargo price")
 	assert_almost_eq(float(Evolution.live[life.uid].spent), Constants.EVO_REPAIR_COST_SHARE * float(life.hull_value) * 0.5, 0.01)
 	assert_true(body.cargo.empty())
 

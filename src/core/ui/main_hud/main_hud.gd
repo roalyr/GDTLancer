@@ -23,6 +23,7 @@ const OVERLAY_KIND_JUMP = "jump"
 const PointerRouterClass = preload("res://src/core/ui/pointer_router.gd")
 const FittingWindowScene = preload("res://scenes/ui/menus/fitting_window.tscn")
 const DebugMapScene = preload("res://scenes/ui/menus/debug_map.tscn")
+const DebugTools = preload("res://src/core/ui/debug_tools/debug_tools.gd")
 const HUDTargetProjectorClass = preload("res://src/core/ui/main_hud/hud_target_projector.gd")
 
 
@@ -58,6 +59,7 @@ onready var button_lance: TextureButton = $ScreenControls/TemporaryToolZone/Butt
 onready var button_afterburner: TextureButton = $ScreenControls/TemporaryToolZone/ButtonAfterburner
 var fitting_window: Control = null
 var debug_map: Control = null
+var debug_tools: Control = null
 
 # --- Game Over UI ---
 
@@ -195,6 +197,12 @@ func _ready():
 	debug_map = DebugMapScene.instance()
 	add_child(debug_map)
 	$ScreenControls/DebugOverlay/LeftColumn/ButtonDebugMap.connect("pressed", debug_map, "open")
+	debug_tools = DebugTools.new()
+	debug_tools.name = "DebugTools"
+	add_child(debug_tools)
+	$ScreenControls/DebugOverlay/LeftColumn/ButtonDebugJump.connect("pressed", debug_tools, "open_jump")
+	$ScreenControls/DebugOverlay/LeftColumn/ButtonDebugGoTo.connect("pressed", debug_tools, "open_go_to")
+	$ScreenControls/DebugOverlay/LeftColumn/ButtonDebugRefit.connect("pressed", debug_tools, "open_refit")
 	_refresh_toggle_button_states()
 
 	pause_mode = PAUSE_MODE_PROCESS

@@ -533,7 +533,8 @@ const TRAFFIC_WORK_RADIUS = 1500.0  # m round its work point a traveller turns u
 const TRAFFIC_WORK_SEARCH = 40000.0  # m from the entry point a prospector looks for something to mine
 
 # Prices (Market): physics value * (1 + the station's markup) * (1 -+ standing share).
-const PRICE_MARKUP_MAX = 0.5  # A station's markup is rolled once per game in 0..this
+const PRICE_MARKUP_MAX = 0.5  # A station's markup is rolled in 0..this
+const PRICE_MARKUP_PERIOD = [1440.0, 2160.0]  # s of world time a markup holds before it is rolled again
 const PRICE_STANDING_SHARE = 0.1  # Standing 1 buys this much cheaper and sells this much dearer; -1 the reverse
 const PRICE_CARGO_SELL_SHARE = 0.8  # What a station pays for cargo, of what it charges (under (1-S)/(1+S): no round trip pays)
 const PRICE_PART_SELL_SHARE = 0.5  # and for parts and a traded-in hull
@@ -737,8 +738,27 @@ const SHIP_FACTION_SCENES = {  # Hull model by faction (scaled to the ship's siz
 	"verdant": "res://scenes/prefabs/ships/phoenix_light_verdant.tscn",
 	"violet": "res://scenes/prefabs/ships/phoenix_light_violet.tscn",
 	"raiders": "res://scenes/prefabs/ships/phoenix_light_raiders.tscn",
-	"xenohive": "res://scenes/prefabs/ships/phoenix_light_xenohive.tscn",
+	"xenohive": "res://scenes/prefabs/ships/xenohive_vessel.tscn",
 }
+# The xenohive's forms (XenoForm): rings of petals, spikes and glowing cells round a spindle, at odd
+# counts, leaning `lean` degrees off the tail-ward axis (over 90: forward) and twisted `twist` about
+# their own. `size`, `z` (along the axis, + aft) and `out` (from it) are shares of the form's length.
+const XENO_FORMS = {
+	"vessel": {"girth": 0.13, "rings": [
+		{"shape": "petal", "count": 3, "lean": 55.0, "twist": 25.0, "size": 0.45, "z": 0.05, "out": 0.1},
+		{"shape": "spike", "count": 3, "lean": 115.0, "twist": 10.0, "size": 0.3, "z": -0.1, "out": 0.08},
+	]},
+	"hive": {"girth": 0.16, "rings": [
+		{"shape": "petal", "count": 5, "lean": 40.0, "twist": 30.0, "size": 0.5, "z": 0.1, "out": 0.12},
+		{"shape": "cell", "count": 7, "lean": 90.0, "twist": 0.0, "size": 0.12, "z": -0.05, "out": 0.2},
+		{"shape": "spike", "count": 5, "lean": 130.0, "twist": 15.0, "size": 0.35, "z": -0.25, "out": 0.08},
+		{"shape": "petal", "count": 3, "lean": 70.0, "twist": -20.0, "size": 0.4, "z": 0.3, "out": 0.05},
+	]},
+}
+const XENO_VESSEL_LENGTH = 17.0  # m at model scale 1, like the other hull models
+const XENO_VESSEL_SEED = 5
+const XENO_HIVE_LENGTH = 240.0  # m
+const XENO_HIVE_SEED = 13
 const SHIP_DEFAULT_SCENE = "res://scenes/prefabs/ships/phoenix_light.tscn"
 const PART_TYPE_SEEDS = {  # Part kind -> type -> genes
 	"laser": {1: {"mass": 150.0, "energy": 2.5}, 2: {"mass": 300.0, "energy": 5.0}, 3: {"mass": 600.0, "energy": 12.0}},

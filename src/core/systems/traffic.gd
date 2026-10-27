@@ -5,7 +5,7 @@
 #    (WP), "cargo" {commodity: units}, "hull" (share, 1 = whole)}
 # Off-screen it keeps a timetable: it stays in a sector until "until", then jumps to "next", burning a
 # jump's fuel (ceil(mass / FUEL_MASS_PER_UNIT), as everyone), and arrives TRAFFIC_TRANSIT_TIME later.
-# Without fuel for a jump it stays put. In Elace it sells its cargo (base value) into its bank, buys
+# Without fuel for a jump it stays put. In Elace it sells its cargo (home station prices) into its bank, buys
 # fuel and is repaired. In the player's sector it is a ship (its genome, built as an arena NPC's is):
 # its AI mines, raids or patrols round its work point (prospectors: the nearest minable thing), and
 # when its time is up, or its hold full, it flies out toward "next" and jumps. A traveller that dies is
@@ -15,6 +15,7 @@
 extends Node
 
 const Genome = preload("res://src/core/evolution/genome.gd")
+const Market = preload("res://src/core/systems/market.gd")
 
 var _bodies: Dictionary = {}  # Traveller id -> its ship in the current sector
 var _unloading: bool = false  # The sector is going: its ships leave with it, not through a jump point
@@ -139,15 +140,15 @@ func _arrive(record: Dictionary) -> void:
 	record.next = _pick_next(record)
 
 
-# In Elace: sells the hold, buys fuel to TRAFFIC_FUEL_JUMPS jumps' worth, and is repaired.
+# In Elace: sells the hold at the home station's prices, buys fuel to TRAFFIC_FUEL_JUMPS jumps' worth, and is repaired.
 func _restock(record: Dictionary) -> void:
 	for commodity_id in record.cargo:
 		var commodity = TemplateDatabase.get_template(commodity_id)
 		if commodity is CommodityTemplate:
-			record.bank = float(record.bank) + int(record.cargo[commodity_id]) * commodity.base_value
+			record.bank = float(record.bank) + int(record.cargo[commodity_id]) * Market.cargo_sale_price(float(commodity.base_value), GameState.home_location_id)
 	record.cargo = {}
 	var fuel = TemplateDatabase.get_template(Constants.FUEL_COMMODITY)
-	var price: float = float(fuel.base_value) if fuel is CommodityTemplate else 25.0
+	var price: float = float(Market.price(float(fuel.base_value), GameState.home_location_id)) if fuel is CommodityTemplate else 25.0
 	var want: int = jump_cost(record) * Constants.TRAFFIC_FUEL_JUMPS - int(record.fuel)
 	var bought: int = int(clamp(want, 0, floor(max(0.0, float(record.bank)) / price)))
 	record.fuel = int(record.fuel) + bought

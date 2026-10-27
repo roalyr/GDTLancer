@@ -201,6 +201,7 @@ func _serialize_game_state() -> Dictionary:
 		"traffic_next_id": GameState.traffic_next_id,
 		"world_time": GameState.world_time,
 		"station_markups": GameState.station_markups.duplicate(),
+		"station_markup_until": GameState.station_markup_until.duplicate(),
 		"player_hull_scars": GameState.player_hull_scars.duplicate(true),
 		"current_sector_id": GameState.current_sector_id,
 		"player_docked_at": GameState.player_docked_at,
@@ -251,7 +252,7 @@ func _deserialize_and_apply_game_state(save_data: Dictionary) -> void:
 	GameState.traffic_replacements = saved_replacements if saved_replacements is Array else []
 	GameState.traffic_next_id = int(save_data.get("traffic_next_id", 0))
 	GameState.world_time = float(save_data.get("world_time", 0.0))
-	for key in ["player_standing", "player_bounties", "station_markups"]:
+	for key in ["player_standing", "player_bounties", "station_markups", "station_markup_until"]:
 		var saved = save_data.get(key, {})
 		var values: Dictionary = {}
 		if saved is Dictionary:
