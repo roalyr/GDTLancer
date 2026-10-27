@@ -36,6 +36,7 @@ func before_each():
 	GameState.reset_state()
 	GameState.home_location_id = "home"
 	GameState.player_docked_at = "home"
+	GameState.station_markups = {"home": 0.0}  # Prices at physics value
 
 
 func after_each():
@@ -246,7 +247,7 @@ func test_cargo_is_bought_into_the_hold_and_sold_back_at_base_value():
 	assert_ne(Fitting.buy_cargo(body, "c_fuel"), "", "Hold full")
 	assert_eq(GameState.player_bank, 50, "costs nothing.")
 	assert_eq(Fitting.sell_cargo(body, "c_fuel"), "")
-	assert_eq(GameState.player_bank, 75)
+	assert_eq(GameState.player_bank, 50 + 20, "Sold at the station's cargo price: PRICE_CARGO_SELL_SHARE of 25")
 	assert_eq_deep(body.cargo, {"c_fuel": 1})
 	body.remove_cargo("c_fuel", 1)
 	assert_ne(Fitting.sell_cargo(body, "c_fuel"), "", "None left to sell.")

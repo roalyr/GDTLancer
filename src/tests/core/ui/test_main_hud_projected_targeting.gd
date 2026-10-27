@@ -518,7 +518,7 @@ func test_selected_bracket_is_red_on_live_hostile_and_yellow_once_wrecked():
 	GlobalRefs.player_agent_body = player
 	var hostile = AgentScript.new()
 	add_child_autofree(hostile)
-	hostile.faction = "raiders"  # At war with the player
+	hostile.faction = "raiders"  # Hostile standing with the player from the start
 	bracket.configure_target(hostile, "Hostile")
 	assert_eq(bracket.get_node("BracketNormal").modulate, Constants.COLOR_UI_TARGET_HOSTILE, "Hostile to you: red even unselected.")
 	bracket.set_selected_state(true)

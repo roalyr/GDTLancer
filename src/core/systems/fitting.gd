@@ -1,13 +1,15 @@
-# Fitting: the home station's store and refitting. It sells everything there is: every tool and
-# module (bought into the home storage, fitted from there, sold back for half), every ship hull
-# (the current one is traded in for half its price) and every commodity (into the hold, sold back
-# at the same price). Every refit is applied to the ship at once (stats, mass, tools) and repairs it.
+# Fitting: the home station's store and refitting. It sells everything there is at the station's
+# prices (Market): every tool and module (bought into the home storage, fitted from there, sold back
+# for half), every ship hull (the current one is traded in for half its price) and every commodity
+# (into the hold, sold back at the station's cargo price). Every refit is applied to the ship at once
+# (stats, mass, tools) and repairs it.
 # Returns "" on success or a message saying why not.
 
 extends Reference
 
 const ShipFit = preload("res://src/core/systems/ship_fit.gd")
 const HomePort = preload("res://src/core/systems/home_port.gd")
+const Market = preload("res://src/core/systems/market.gd")
 
 
 static func is_available() -> bool:
@@ -39,13 +41,24 @@ static func cargo_catalog() -> Array:
 	return ids
 
 
+# What the home station charges.
 static func price(part_id: String) -> int:
-	var part = TemplateDatabase.get_template(part_id)
-	return int(part.base_value) if part != null and "base_value" in part else 0
+	return Market.price(_value(part_id), GameState.home_location_id)
 
 
+# What it pays for a part or a traded-in hull.
 static func sale_price(part_id: String) -> int:
-	return price(part_id) / 2
+	return Market.part_sale_price(_value(part_id), GameState.home_location_id)
+
+
+# What it pays for a unit of cargo.
+static func cargo_sale_price(commodity_id: String) -> int:
+	return Market.cargo_sale_price(_value(commodity_id), GameState.home_location_id)
+
+
+static func _value(part_id: String) -> float:
+	var part = TemplateDatabase.get_template(part_id)
+	return float(part.base_value) if part != null and "base_value" in part else 0.0
 
 
 static func part_name(part_id: String) -> String:
@@ -107,7 +120,7 @@ static func buy_ship(ship_id: String) -> String:
 	return ""
 
 
-# One unit of a commodity into the hold, at its base value.
+# One unit of a commodity into the hold, at the station's price.
 static func buy_cargo(ship_body: Node, commodity_id: String) -> String:
 	if not is_available():
 		return "Dock at the home station to trade"
@@ -122,13 +135,13 @@ static func buy_cargo(ship_body: Node, commodity_id: String) -> String:
 	return ""
 
 
-# One unit of a commodity from the hold, at its base value.
+# One unit of a commodity from the hold, at the station's cargo price.
 static func sell_cargo(ship_body: Node, commodity_id: String) -> String:
 	if not is_available():
 		return "Dock at the home station to trade"
 	if ship_body.remove_cargo(commodity_id, 1) <= 0:
 		return "None in the hold"
-	GameState.player_bank += price(commodity_id)
+	GameState.player_bank += cargo_sale_price(commodity_id)
 	return ""
 
 

@@ -4,6 +4,7 @@ extends Reference
 
 const CombatAssessment = preload("res://src/core/systems/combat_assessment.gd")
 const ScreenSpace = preload("res://src/core/ui/screen_space.gd")
+const Standing = preload("res://src/core/systems/standing.gd")
 
 var _hud: Control
 var _last_full_refresh_ms := -1000000  # OS ticks of the last full world-bracket refresh
@@ -324,6 +325,8 @@ func get_ship_cues(target_ref, detailed: bool = true) -> Array:
 	var hostile: bool = target_ref.is_enemy_of(player)
 	if hostile:
 		cues.append("HOSTILE")
+	elif Standing.label(target_ref.get("faction")) == "FRIENDLY":
+		cues.append("FRIENDLY")
 	var ai = target_ref.get_node_or_null(Constants.AI_CONTROLLER_NODE_NAME)
 	if ai != null and ai.has_method("get_activity_label") and ai.get_activity_label() != "":
 		cues.append(ai.get_activity_label())

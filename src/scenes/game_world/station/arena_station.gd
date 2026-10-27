@@ -1,6 +1,7 @@
 # ArenaStation: a faction's station in an arena (see Arena). Its NPCs spawn docked here, and dock
 # here to sell salvage, repair and escape a fight. Painted in its faction's colour; the player can
-# dock too (a safe seat to watch from), but only the home station trades with the player.
+# dock too (a safe seat to watch from, unless its standing is hostile): it buys the hold at its cargo
+# price (Market), but only the home station sells.
 
 extends "res://src/scenes/game_world/station/dockable_station.gd"
 

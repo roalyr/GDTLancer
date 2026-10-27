@@ -448,13 +448,26 @@ const AI_REPATH_INTERVAL = 0.5  # s
 const AI_SCAN_INTERVAL = 1.0  # s
 const AI_THINK_INTERVAL = 0.1  # s between an NPC's thinks (its commands and tools run on in between)
 
-# Factions: who is at war with whom. "player" is the player's faction; NPCs are neutral to the
-# player unless at war with it, or holding a grudge (the player shot them).
+# Factions: who is at war with whom. "player" is the player's faction; NPCs treat the player by
+# standing (Standing: the faction's "standing" to start with, 0 if none) or a grudge (the player shot them).
 const FACTIONS = {
 	"verdant": {"name": "Verdant", "color": Color(0.45, 1.0, 0.35, 1.0), "enemies": ["violet"]},
 	"violet": {"name": "Violet", "color": Color(0.85, 0.45, 1.0, 1.0), "enemies": ["verdant"]},
-	"raiders": {"name": "Raiders", "color": Color(1.0, 0.55, 0.3, 1.0), "enemies": ["player", "verdant", "violet"]},
+	"raiders": {"name": "Raiders", "color": Color(1.0, 0.55, 0.3, 1.0), "enemies": ["verdant", "violet"], "standing": -1.0},
 }
+
+# Standing (Standing): the player's name with each faction, -1 to 1, as in Freelancer.
+const STANDING_HOSTILE = -0.6  # At or below: its ships attack the player on sight, its stations refuse docking
+const STANDING_FRIENDLY = 0.6  # At or above: friendly (shown; prices are best)
+const STANDING_ATTACK = 0.03  # Lost with a ship's faction the first time the player hits that ship
+const STANDING_KILL = 0.12  # Lost with a ship's faction when the player kills it
+const STANDING_KILL_ENEMY = 0.04  # Gained with each faction at war with the victim's
+
+# Prices (Market): physics value * (1 + the station's markup) * (1 -+ standing share).
+const PRICE_MARKUP_MAX = 0.5  # A station's markup is rolled once per game in 0..this
+const PRICE_STANDING_SHARE = 0.1  # Standing 1 buys this much cheaper and sells this much dearer; -1 the reverse
+const PRICE_CARGO_SELL_SHARE = 0.8  # What a station pays for cargo, of what it charges (under (1-S)/(1+S): no round trip pays)
+const PRICE_PART_SELL_SHARE = 0.5  # and for parts and a traded-in hull
 
 # Wrecks pile up in a long fight: past this many, the oldest stripped ones are removed.
 const WRECK_LOOTED_CAP: int = 6

@@ -29,6 +29,8 @@ var _nearest_dock_node: Spatial = null   # Nearest station or jump point in prom
 var _nearest_dock_type: String = ""      # "station" or "jump"
 
 const HomePort = preload("res://src/core/systems/home_port.gd")
+const Market = preload("res://src/core/systems/market.gd")
+const Standing = preload("res://src/core/systems/standing.gd")
 
 # --- Preload States ---
 const StateBase = preload("res://src/modules/piloting/player_input_states/state_base.gd")
@@ -369,6 +371,9 @@ func request_dock(station: Spatial) -> void:
 	var gap: float = get_docking_gap(station)
 	if gap > Constants.DOCKING_ACTION_RADIUS:
 		EventBus.emit_signal("dock_action_feedback", false, "Too far to dock: %.0f m to the station, %.0f m needed" % [gap, Constants.DOCKING_ACTION_RADIUS])
+		return
+	if Standing.is_hostile(station.get("faction")):
+		EventBus.emit_signal("dock_action_feedback", false, "%s refuses docking: hostile standing" % Constants.FACTIONS[station.faction].get("name", station.faction))
 		return
 	EventBus.emit_signal("player_docked", station.location_id)
 
@@ -840,11 +845,22 @@ func _on_player_docked(location_id):
 			if result.decoys > 0:
 				message += ", %d decoys for %d WP" % [result.decoys, result.decoy_cost]
 			EventBus.emit_signal("dock_action_feedback", true, message)
+	else:
+		_sell_hold_at(_find_station(location_id), location_id)
 	set_process_unhandled_input(false)
 	set_physics_process(false)
 	# Stop the ship
 	if agent_script.has_method("command_stop"):
 		agent_script.command_stop()
+
+# Docked at a faction's station: it buys the hold at its cargo price (Market), into the bank.
+func _sell_hold_at(station: Node, location_id: String) -> void:
+	var faction = station.get("faction") if is_instance_valid(station) else null
+	if not Standing.has_standing(faction) or agent_body.get_cargo_units() <= 0:
+		return
+	var sold: Dictionary = Market.sell_hold(agent_body, location_id, faction)
+	EventBus.emit_signal("dock_action_feedback", true, "%s: sold %d units for %d WP (standing %+.2f)" % [Constants.FACTIONS[faction].get("name", faction), sold.units, sold.banked, Standing.of(faction)])
+
 
 func _on_player_undocked():
 	if Constants.VERBOSE_RUNTIME_LOGS:

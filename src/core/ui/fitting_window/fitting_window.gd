@@ -154,7 +154,7 @@ func _rebuild_store(ship_body) -> void:
 		var buy: Button = _add_button(row, "%d WP  %s  x%d" % [cost, Fitting.part_name(commodity_id), held], GameState.player_bank < cost or ship_body.get_free_cargo() <= 0, "_on_buy_cargo", [commodity_id])
 		buy.size_flags_horizontal = SIZE_EXPAND_FILL
 		buy.clip_text = true
-		_add_button(row, "Sell", held <= 0, "_on_sell_cargo", [commodity_id])
+		_add_button(row, "Sell %d" % Fitting.cargo_sale_price(commodity_id), held <= 0, "_on_sell_cargo", [commodity_id])
 
 
 # A hull, compactly: hull points, tool slots by size, module slots, mass.
@@ -210,7 +210,7 @@ func _on_buy_cargo(commodity_id: String) -> void:
 
 
 func _on_sell_cargo(commodity_id: String) -> void:
-	_report(Fitting.sell_cargo(GlobalRefs.player_agent_body, commodity_id), "Sold 1 %s for %d WP" % [Fitting.part_name(commodity_id), Fitting.price(commodity_id)])
+	_report(Fitting.sell_cargo(GlobalRefs.player_agent_body, commodity_id), "Sold 1 %s for %d WP" % [Fitting.part_name(commodity_id), Fitting.cargo_sale_price(commodity_id)])
 
 
 func _on_sell(part_id: String) -> void:

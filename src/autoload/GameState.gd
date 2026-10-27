@@ -25,6 +25,12 @@ var player_fit: Dictionary = {}
 ## Parts kept at the home port, not fitted: part id -> count.
 var player_storage: Dictionary = {}
 
+## The player's standing with each faction (Standing): faction id -> -1..1; missing means its start.
+var player_standing: Dictionary = {}
+
+## Each station's price markup (Market): location id -> 0..PRICE_MARKUP_MAX, rolled on first use.
+var station_markups: Dictionary = {}
+
 ## Lances left in the player's lance quiver; negative means full.
 var player_lance_nails: int = -1
 var player_tool_ammo: Array = []  # [[tool id, rounds left] per tool slot] (ToolController)
@@ -68,6 +74,8 @@ func reset_state() -> void:
 	player_bank = 0
 	player_fit = {}
 	player_storage = {}
+	player_standing = {}
+	station_markups = {}
 	player_hull_scars = []
 	current_zone_instance = null
 	current_sector_id = ""

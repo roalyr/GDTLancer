@@ -1,8 +1,10 @@
-# HomePort: what docking at the run's home station does. Cargo is banked at its commodities'
-# base value, and the ship is repaired (hull restored, scars cleared). Banked value is the
-# run's score and, later, what fitting is paid with.
+# HomePort: what docking at the run's home station does. Cargo is sold into the bank at the
+# station's cargo price (Market), and the ship is repaired (hull restored, scars cleared). Banked
+# value is the run's score and what fitting is paid with.
 
 extends Reference
+
+const Market = preload("res://src/core/systems/market.gd")
 
 
 static func is_home(location_id: String) -> bool:
@@ -10,26 +12,21 @@ static func is_home(location_id: String) -> bool:
 
 
 # Banks the ship's cargo, repairs it and refills its lance quiver and magazines (paid from the bank,
-# a lance's part value and a round's value each, as many as the bank covers). Returns {"banked":
+# a lance's part value and a round's value each at the station's prices, as many as the bank covers). Returns {"banked":
 # value added, "units": units sold, "repaired": hull points restored, "lances": lances bought,
 # "lance_cost": WP paid, "rounds": missiles and rounds bought, "ammo_cost": WP paid, "decoys": decoys
-# bought, at LAW_DECOY_VALUE each, "decoy_cost"}.
+# bought, at LAW_DECOY_VALUE each before the markup, "decoy_cost"}.
 static func service(ship: Node) -> Dictionary:
 	var result := {"banked": 0, "units": 0, "repaired": 0.0, "lances": 0, "lance_cost": 0, "rounds": 0, "ammo_cost": 0, "decoys": 0, "decoy_cost": 0}
 	if not is_instance_valid(ship):
 		return result
-	for commodity_id in ship.cargo:
-		var commodity = TemplateDatabase.get_template(commodity_id)
-		var units: int = int(ship.cargo[commodity_id])
-		result.units += units
-		if commodity is CommodityTemplate:
-			result.banked += units * commodity.base_value
-	ship.clear_cargo()
-	GameState.player_bank += result.banked
+	var sold: Dictionary = Market.sell_hold(ship, GameState.home_location_id)
+	result.banked = sold.banked
+	result.units = sold.units
 	result.repaired = ship.repair_hull()
 	var lance = ship.get_lance() if ship.has_method("get_lance") else null
 	if lance != null:
-		var price: int = int(lance.lance.nail_value)
+		var price: int = Market.price(float(lance.lance.nail_value), GameState.home_location_id)
 		result.lances = lance.restock(-1 if price <= 0 else int(max(0, GameState.player_bank / price)))
 		result.lance_cost = result.lances * price
 		GameState.player_bank -= result.lance_cost
@@ -39,7 +36,7 @@ static func service(ship: Node) -> Dictionary:
 			if not tools.has_magazine(index):
 				continue
 			var tool_template = tools.get_tool(index)
-			var price: int = int(max(1, tool_template.round_value))
+			var price: int = int(max(1, Market.price(float(tool_template.round_value), GameState.home_location_id)))
 			var room: int = int(tool_template.ammo) - tools.get_ammo(index)
 			var take: int = int(min(room, max(0, GameState.player_bank / price)))
 			if take <= 0:
@@ -50,10 +47,11 @@ static func service(ship: Node) -> Dictionary:
 			GameState.player_bank -= take * price
 	if ship.has_method("restock_decoys"):
 		var want: int = ship.get_decoy_capacity() - ship.decoys
-		var afford: int = int(min(want, max(0, GameState.player_bank / Constants.LAW_DECOY_VALUE)))
+		var decoy_price: int = int(max(1, Market.price(float(Constants.LAW_DECOY_VALUE), GameState.home_location_id)))
+		var afford: int = int(min(want, max(0, GameState.player_bank / decoy_price)))
 		if afford > 0:
 			ship.decoys += afford
 			result.decoys = afford
-			result.decoy_cost = afford * Constants.LAW_DECOY_VALUE
+			result.decoy_cost = afford * decoy_price
 			GameState.player_bank -= result.decoy_cost
 	return result
