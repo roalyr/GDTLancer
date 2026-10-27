@@ -8,6 +8,7 @@
 #   --new          start a new evolution even if a save exists (otherwise the save is loaded)
 #   --save-every=M simulated minutes between saves (default 15)
 #   --save-dir=D   save folder (default the game's); use another to keep a run apart
+#   --new-era      the rules changed: every genome's record starts over (Evolution.new_era)
 # Vsync is switched off: with it, a monitor gone to sleep (DPMS) stalls every frame and the run with it.
 extends SceneTree
 
@@ -16,6 +17,7 @@ var speed := 6.0
 var fresh := false
 var save_every := 15.0
 var save_dir := ""
+var new_era := false
 
 
 func _initialize():
@@ -30,6 +32,8 @@ func _initialize():
 			save_every = max(1.0, float(arg.split("=")[1]))
 		elif arg.begins_with("--save-dir="):
 			save_dir = arg.split("=")[1]
+		elif arg == "--new-era":
+			new_era = true
 	OS.vsync_enabled = false
 	call_deferred("_run")
 
@@ -54,6 +58,8 @@ func _run():
 		root.get_node("EventBus").emit_signal("new_game_requested")
 	while not is_instance_valid(refs.player_agent_body):
 		yield(_wait(0.25), "completed")
+	if new_era:
+		evolution.new_era()
 	var menu = _find_menu()
 	if menu != null:
 		menu.visible = false

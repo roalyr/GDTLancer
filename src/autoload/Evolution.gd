@@ -65,6 +65,34 @@ func new_run() -> void:
 	_next_uid = 0
 	_next_genome = 0
 	_report_due = Constants.EVO_REPORT_INTERVAL
+	plant_seeds()
+
+
+# Puts each starting design (Constants EVO_SEEDS) into its pool, where its niche is still empty.
+# Returns how many were planted.
+func plant_seeds() -> int:
+	var planted := 0
+	for faction in Constants.EVO_SEEDS:
+		if not pools.has(faction):
+			pools[faction] = {"cells": {}, "lives": 0}
+		for spec in Constants.EVO_SEEDS[faction]:
+			var genome: Dictionary = Genome.seed_genome(spec)
+			var niche: String = Genome.niche(genome)
+			if not pools[faction].cells.has(niche):
+				pools[faction].cells[niche] = _add_genome(genome, faction, "")
+				planted += 1
+	return planted
+
+
+# A new era of rules: every genome's record starts over (lives, fitness, kills), so what is measured
+# from now on is not mixed with fitness earned under the old rules. The genomes and niches stay.
+func new_era() -> void:
+	for genome_id in genomes:
+		var entry: Dictionary = genomes[genome_id]
+		for key in ["lives", "kills", "deaths", "earned"]:
+			entry[key] = 0
+		entry.fitness_sum = 0.0
+	_log(1, "EVO NEW ERA: %d genomes start over, %d seeds planted" % [genomes.size(), plant_seeds()])
 
 
 func serialize() -> Dictionary:
@@ -100,6 +128,7 @@ func deserialize(data: Dictionary) -> bool:
 			record.zone = zones.back()  # Its zone is gone (3v3 became 4v4): it flies in the biggest
 	_next_uid = int(data.get("next_uid", 0))
 	_next_genome = int(data.get("next_genome", genomes.size()))
+	plant_seeds()
 	_report_due = game_time + Constants.EVO_REPORT_INTERVAL
 	_log(1, "EVO RESUMED run %s at t=%.0fs: %d lives ended, %d genomes, %d ships to fly again" % [run_id, game_time, lives_ended(), genomes.size(), resume.size()])
 	return true
@@ -139,7 +168,7 @@ func begin_life(faction: String, zone_id: String) -> Dictionary:
 			_start(saved)
 			_log(2, "EVO BACK %s %s zone=%s age=%.0fs" % [saved.uid, saved.genome_id, zone_id, game_time - float(saved.born)])
 			return saved
-	var pick: Dictionary = _pick_genome(faction)
+	var pick: Dictionary = _pick_genome(faction, _preferred_role(faction, zone_id))
 	var genome_id: String = pick.genome_id
 	var entry: Dictionary = genomes[genome_id]
 	var prefix: String = Constants.FACTIONS.get(faction, {}).get("name", faction).substr(0, 2).to_upper()
@@ -171,6 +200,14 @@ func attach_body(uid: String, body: Node) -> void:
 	_bodies[uid] = body
 
 
+# Extra drones a xenohive has grown from what its drones brought home (Constants XENOHIVE_*).
+func grown_drones(faction: String) -> int:
+	if not Constants.FACTIONS.get(faction, {}).has("territory"):
+		return 0
+	var delivered: float = float(pools.get(faction, {}).get("delivered", 0.0))
+	return int(min(Constants.XENOHIVE_DRONES_MAX, floor(delivered / Constants.XENOHIVE_MASS_PER_DRONE)))
+
+
 func get_record(uid: String) -> Dictionary:
 	return live.get(uid, {})
 
@@ -184,12 +221,16 @@ func on_docked(body: Node) -> bool:
 	var record: Dictionary = live[uid]
 	var value := 0
 	var units := 0
+	var delivered := 0.0
 	for commodity_id in body.cargo:
 		var commodity = TemplateDatabase.get_template(commodity_id)
 		units += int(body.cargo[commodity_id])
 		if commodity is CommodityTemplate:
 			value += int(body.cargo[commodity_id]) * commodity.base_value
+			delivered += int(body.cargo[commodity_id]) * float(commodity.unit_mass)
 	body.clear_cargo()
+	var pool: Dictionary = pools.get(record.faction, {})
+	pool["delivered"] = float(pool.get("delivered", 0.0)) + delivered
 	var hull_max: float = max(float(body.hull_max), 1.0)
 	var repaired: float = body.repair_hull()
 	var repair_cost: float = Constants.EVO_REPAIR_COST_SHARE * float(record.get("hull_value", record.cost)) * repaired / hull_max
@@ -395,17 +436,29 @@ func _place_in_archive(genome_id: String) -> String:
 	return "below best of " + niche
 
 
-func _pick_genome(faction: String) -> Dictionary:
+# A zone can favour a role (Constants ARENA_ZONES prefer_role, prefer_share): this spawn picks among
+# that role's niches only, if the pool has any. Returns the role, or "".
+func _preferred_role(faction: String, zone_id: String) -> String:
+	for zone in Constants.ARENA_ZONES:
+		if zone.id == zone_id and zone.has("prefer_role") and randf() < float(zone.get("prefer_share", 0.0)):
+			var role: String = "|%s|" % zone.prefer_role
+			for niche in pools.get(faction, {}).get("cells", {}):
+				if niche.find(role) >= 0:
+					return role
+	return ""
+
+
+func _pick_genome(faction: String, role: String = "") -> Dictionary:
 	var pool: Dictionary = pools[faction]
 	var cells: Array = []
 	for niche in pool.cells:
-		if genomes.has(pool.cells[niche]):
+		if genomes.has(pool.cells[niche]) and (role == "" or niche.find(role) >= 0):
 			cells.append(pool.cells[niche])
-	if Constants.EVO_PROVING and not cells.empty() and randf() < Constants.EVO_PROVE_REFLY_CHANCE:
+	if Constants.EVO_PROVING and role == "" and not cells.empty() and randf() < Constants.EVO_PROVE_REFLY_CHANCE:
 		var unproven: Array = _unproven(faction)
 		if not unproven.empty():
 			return {"genome_id": unproven[randi() % unproven.size()], "how": "refly"}
-	var immigrant_chance: float = 0.0 if Constants.EVO_PROVING else Constants.EVO_IMMIGRANT_CHANCE
+	var immigrant_chance: float = 0.0 if Constants.EVO_PROVING or role != "" else Constants.EVO_IMMIGRANT_CHANCE
 	if cells.empty() or randf() < immigrant_chance:
 		return {"genome_id": _add_genome(Genome.random_genome(), faction, ""), "how": "immigrant"}
 	var weights: Array = []

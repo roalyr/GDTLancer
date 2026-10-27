@@ -12,6 +12,9 @@
 # gracefully, reckless ones fight to the death. Every NPC has them (defaults in the Constants AI block),
 # and every gene bends with desperation: a broke pilot (little WP for its ship's worth) fights at
 # worse odds, chases harder, spares less, shoots back more and runs later.
+# Prospectors (prospect gene, with a laser, a lance and a harpoon) mine when they have nothing else to
+# do: burn a rock's shell off with the laser, ram the bared rock, then harpoon and strip the chunk
+# (SALVAGE) and haul it home (Constants MINING).
 # Ships with a kinetic lance (lances left, fast enough to strike) ram instead of closing to laser
 # range and orbiting, their lasers firing as they reach; the lance is armed only while ramming.
 # Decisions take time (skill, how close the call is): meanwhile the ship HESITATES, a state of its
@@ -27,13 +30,13 @@ const FrameProfiler = preload("res://src/core/utils/frame_profiler.gd")
 const CombatAssessment = preload("res://src/core/systems/combat_assessment.gd")
 const NavigationSystem = preload("res://src/core/agents/components/navigation_system.gd")
 
-enum AIState { IDLE, PATROL, COMBAT, FLEE, DISABLED, SALVAGE, DEPART, HESITATE, DOCKED }
+enum AIState { IDLE, PATROL, COMBAT, FLEE, DISABLED, SALVAGE, DEPART, HESITATE, DOCKED, MINE }
 
 # What the player reads off a ship's behaviour (see the parity rule in the README).
 const ACTIVITY_LABELS = {
 	AIState.PATROL: "PATROLLING", AIState.COMBAT: "FIGHTING", AIState.FLEE: "FLEEING",
 	AIState.SALVAGE: "SALVAGING", AIState.DEPART: "HAULING", AIState.HESITATE: "HESITATING",
-	AIState.DOCKED: "DOCKED",
+	AIState.DOCKED: "DOCKED", AIState.MINE: "MINING",
 }
 
 # Which pending decision gives way to which (higher wins): being shot outranks anything else.
@@ -80,6 +83,10 @@ var _runner_judged: bool = false  # Its target's current run has had its mercy r
 var _letting_go: bool = false  # and the roll was to let it go
 var _spared: Dictionary = {}  # Instance id -> s left during which it does not go after that ship again
 var _ramming: bool = false  # Charging its target with an armed lance (command_ram)
+var _prospect: float = 0.0  # Behaviour gene: mines when idle at 0.5 or more (can_mine)
+var _rock: Spatial = null  # The rock it is mining
+var _mine_time: float = 0.0  # s on _rock without a chunk
+var _given_up: Dictionary = {}  # Rocks it gave up on (instance id -> true)
 
 
 func _ready() -> void:
@@ -112,6 +119,7 @@ func initialize(config: Dictionary) -> void:
 	_teamwork = float(behavior.get("teamwork", 1.0))
 	_caution = float(behavior.get("caution", Constants.AI_AVOID_SHARE))
 	_burn_reserve = float(behavior.get("burn", Constants.AI_AFTERBURNER_RESERVE))
+	_prospect = float(behavior.get("prospect", 0.0))
 	if is_instance_valid(_tool_controller) and not _tool_controller.is_connected("lance_recovered", self, "_on_lance_recovered"):
 		_tool_controller.connect("lance_recovered", self, "_on_lance_recovered")
 		_tool_controller.connect("ammo_recovered", self, "_on_ammo_recovered")
@@ -247,6 +255,8 @@ func _think(delta: float) -> void:
 			_process_hesitate()
 		AIState.DOCKED:
 			_process_docked(delta)
+		AIState.MINE:
+			_process_mine(delta)
 	_update_afterburner()
 
 
@@ -321,6 +331,9 @@ func _change_state(new_state: int) -> void:
 		AIState.HESITATE:
 			if not keeps_fighting:
 				agent_script.command_watch(_target_agent)
+		AIState.MINE:
+			_mine_time = 0.0
+			_ramming = false
 
 
 func _process_patrol() -> void:
@@ -345,6 +358,12 @@ func _process_patrol() -> void:
 				_target_agent = wreck
 				_change_state(AIState.SALVAGE)
 				return
+			if can_mine():
+				var rock = scan_for_rock()
+				if is_instance_valid(rock):
+					_rock = rock
+					_change_state(AIState.MINE)
+					return
 
 	var current_pos = agent_script.global_transform.origin
 	if not _has_patrol_destination or current_pos.distance_to(_patrol_destination) <= Constants.AI_PATROL_ARRIVAL_DISTANCE:
@@ -581,12 +600,91 @@ func _on_ammo_recovered(_index, _rounds) -> void:
 	_note("ammo_recovered")
 
 
-func _on_lance_struck(_target, _damage) -> void:
+func _on_lance_struck(target, _damage) -> void:
 	_note("lance_hit")
+	if _current_state == AIState.MINE and is_instance_valid(target) and target.is_in_group("ore_chunk"):
+		_note("mined")
+		_target_agent = target  # Its chunk, with its lance in it: harpoon it home
+		_change_state(AIState.SALVAGE)
 
 
 func _on_lance_glanced(_target, reason) -> void:
 	_note("glance_slow" if str(reason).begins_with("too slow") else "glance_angle")
+
+
+# --- Mining (prospect gene; Constants MINING) ---
+
+func can_mine() -> bool:
+	if _prospect < 0.5 or _arena.empty() or not is_instance_valid(_tool_controller) or agent_script.get_free_cargo() <= 0 or not can_ram():
+		return false
+	return _mining_laser() >= 0 and _has_harpoon()
+
+
+func _mining_laser() -> int:
+	for index in range(_tool_controller.get_tool_count()):
+		if _tool_controller.get_tool(index).tool_type == "laser":
+			return index
+	return -1
+
+
+func _has_harpoon() -> bool:
+	for index in range(_tool_controller.get_tool_count()):
+		if _tool_controller.get_tool(index).tool_type == "harpoon":
+			return true
+	return false
+
+
+# The nearest detected rock in its arena with ore left, that it has not given up on.
+func scan_for_rock() -> Spatial:
+	var best: Spatial = null
+	var best_distance: float = Constants.AI_MINE_SEARCH_RANGE
+	var own_pos: Vector3 = agent_script.global_transform.origin
+	for rock in get_tree().get_nodes_in_group("mineable"):
+		if _given_up.has(rock.get_instance_id()) or rock.get_deposit() <= 0 or not _in_arena(rock.global_transform.origin) or not agent_script.detects(rock):
+			continue
+		var distance: float = own_pos.distance_to(rock.global_transform.origin)
+		if distance < best_distance:
+			best = rock
+			best_distance = distance
+	return best
+
+
+# Burns the shell off from AI_MINE_STANDOFF of its laser's range, then rams the bared rock; the strike
+# (_on_lance_struck) sends it after the chunk. Enemies that show up come first.
+func _process_mine(delta: float) -> void:
+	_mine_time += delta
+	if not (is_instance_valid(_rock) and _rock.get_deposit() > 0 and can_mine()) or _mine_time > Constants.AI_MINE_GIVE_UP:
+		if is_instance_valid(_rock) and _mine_time > Constants.AI_MINE_GIVE_UP:
+			_given_up[_rock.get_instance_id()] = true
+		_rock = null
+		_change_state(AIState.PATROL)
+		return
+	if _scan_timer <= 0.0:
+		_scan_timer = Constants.AI_SCAN_INTERVAL
+		var enemy = scan_for_target()
+		if is_instance_valid(enemy):
+			_consider("engage", enemy, desire_against(enemy), _engage_level())
+			return
+	var laser: int = _mining_laser()
+	if _rock.is_exposed():
+		if _tool_controller.is_active(laser):
+			_tool_controller.deactivate(laser, "bared")
+		_ram(_rock)
+		return
+	if _ramming:  # The shell closed before it got there: burn it again
+		_stop_ramming()
+		_repath_timer = 0.0
+	var reach: float = _tool_controller.get_tool(laser).optimal_range
+	var away: Vector3 = agent_script.global_transform.origin - _rock.global_transform.origin
+	var standoff: Vector3 = _rock.global_transform.origin + away.normalized() * (_rock.get_apparent_radius() + reach * Constants.AI_MINE_STANDOFF)
+	if _repath_timer <= 0.0:
+		_repath_timer = Constants.AI_REPATH_INTERVAL * 4.0
+		if agent_script.global_transform.origin.distance_to(standoff) > reach * 0.3:
+			agent_script.command_move_to(standoff)
+		else:
+			agent_script.command_watch(_rock)
+	if not _tool_controller.is_active(laser):
+		_tool_controller.activate(laser, _rock)  # Fires once in range
 
 
 # --- Runners: chase or let go ---

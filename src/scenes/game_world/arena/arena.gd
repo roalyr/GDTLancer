@@ -1,8 +1,11 @@
-# Arena: the three evolution arenas of the Elace system (Constants ARENA_ZONES). Sits where the home
-# station used to be (it now stands in the 4v4 arena, on the side away from both factions) and builds, for each zone, a beacon at its middle and each faction's two stations on its
-# own side, across the line from the home station so both sides are as far from home.
-# Each zone has its own terrain (Constants ARENA_ZONES, ARENA_ROCK_FIELDS): open space, a rock belt
-# across the middle or rocks scattered over the field, built from the zone's seed.
+# Arena: the evolution arenas of the Elace system (Constants ARENA_ZONES). Sits where the home
+# station used to be (it now stands in the 4v4 arena, on the side away from both factions) and builds,
+# for each zone, a beacon at its middle and its factions' stations (Constants ARENA_STATION_PLACES):
+# Verdant and Violet two each on their own side, across the line from the home station so both sides
+# are as far from home; the raiders an outpost out along the zone's line, the xenohive a hive back
+# toward the Arena. Each zone has its own terrain (Constants ARENA_ZONES, ARENA_ROCK_FIELDS): open
+# space, a rock belt across the middle, rocks scattered over the field or a wide field of them, built
+# from the zone's seed.
 # AgentSystem keeps each zone's NPCs topped up from Evolution.
 
 extends Spatial
@@ -10,7 +13,7 @@ extends Spatial
 const StationScene = preload("res://scenes/prefabs/station/arena_station.tscn")
 const BeaconScene = preload("res://scenes/prefabs/station/arena_beacon.tscn")
 
-var zones: Array = []  # [{"id", "per_faction", "beacon", "stations": {faction: [ArenaStation]}}]
+var zones: Array = []  # [{"id", "factions": {faction: ships}, "beacon", "stations": {faction: [ArenaStation]}}]
 
 
 func _ready():
@@ -31,8 +34,18 @@ func _build_zone(zone: Dictionary) -> Dictionary:
 	var stations := {}
 	var side := 1.0
 	for faction in Constants.ARENA_FACTIONS:
+		if not zone.factions.has(faction):
+			continue
 		stations[faction] = []
-		for index in range(2):
+		var place: String = Constants.ARENA_STATION_PLACES.get(faction, "sides")
+		var spots: Array = []
+		if place == "sides":
+			for index in range(2):
+				spots.append(offset + across * side * Constants.ARENA_STATION_DISTANCE + radial * Constants.ARENA_STATION_SPREAD * (index - 0.5))
+			side = -side
+		else:
+			spots.append(offset + radial * (1.0 if place == "outpost" else -1.0) * Constants.ARENA_OUTPOST_DISTANCE)
+		for index in range(spots.size()):
 			var station = StationScene.instance()
 			var faction_name: String = Constants.FACTIONS.get(faction, {}).get("name", faction)
 			var letter: String = ["A", "B"][index]
@@ -40,14 +53,12 @@ func _build_zone(zone: Dictionary) -> Dictionary:
 			station.faction = faction
 			station.zone_id = zone.id
 			station.location_id = "arena_%s_%s_%s" % [zone.id, faction, letter.to_lower()]
-			station.station_name = "%s Post %s %s" % [faction_name, zone.id, letter]
-			var spread: float = Constants.ARENA_STATION_SPREAD * (index - 0.5)
-			station.transform.origin = offset + across * side * Constants.ARENA_STATION_DISTANCE + radial * spread
+			station.station_name = ("%s Post %s %s" % [faction_name, zone.id, letter]) if place == "sides" else ("%s %s" % [faction_name, "Outpost" if place == "outpost" else "Hive"])
+			station.transform.origin = spots[index]
 			add_child(station)
 			stations[faction].append(station)
-		side = -side
 	_build_rocks(zone, offset, radial, across, stations)
-	return {"id": zone.id, "per_faction": int(zone.per_faction), "beacon": beacon, "stations": stations}
+	return {"id": zone.id, "factions": zone.factions.duplicate(), "beacon": beacon, "stations": stations}
 
 
 # The zone's rock field (Constants ARENA_ROCK_FIELDS), the same on every load: clear of the beacon,

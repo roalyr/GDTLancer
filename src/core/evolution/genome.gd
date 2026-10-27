@@ -36,6 +36,41 @@ static func random_genome() -> Dictionary:
 	return genome
 
 
+# A starting design (Constants EVO_SEEDS): hull type and size, tool and module kinds in slot order
+# (a kind, or [kind, part type]; "" leaves a slot empty), behaviour genes over the defaults. Parts
+# get their type's seed genes; slots past the hull's are dropped, missing ones left empty.
+static func seed_genome(spec: Dictionary) -> Dictionary:
+	var ship_type: int = int(spec.get("type", 2))
+	var seed_genes: Dictionary = Constants.SHIP_TYPE_SEEDS[ship_type]
+	var genome := {
+		"ship": {"type": ship_type, "size": float(spec.get("size", seed_genes["size"])), "shares": seed_genes.shares.duplicate()},
+		"tools": [],
+		"modules": [],
+		"behavior": default_behavior(),
+	}
+	if spec.has("tool_share"):
+		genome.ship["tool_share"] = float(spec.tool_share)
+	for gene in spec.get("behavior", {}):
+		genome.behavior[gene] = float(spec.behavior[gene])
+	_fit_slots(genome)
+	var max_mass: float = slot_mass_limit(genome)
+	for group in [["tools", spec.get("tools", [])], ["modules", spec.get("modules", [])]]:
+		var parts: Array = genome[group[0]]
+		for i in range(min(parts.size(), group[1].size())):
+			var item = group[1][i]
+			var kind: String = str(item[0]) if item is Array else str(item)
+			var part_type: int = int(item[1]) if item is Array else 1
+			if kind == "":
+				parts[i] = {}
+			elif kind == "harpoon":
+				parts[i] = {"kind": "harpoon", "type": 0, "genes": {}}
+			else:
+				parts[i] = {"kind": kind, "type": part_type, "genes": Constants.PART_TYPE_SEEDS[kind][part_type].duplicate()}
+				_clamp_part(parts[i], max_mass if group[0] == "tools" else INF)
+	_one_lance(genome)
+	return genome
+
+
 static func default_behavior() -> Dictionary:
 	var behavior := {}
 	for gene in Constants.EVO_BEHAVIOR_RANGES:
@@ -318,10 +353,14 @@ static func niche(genome: Dictionary) -> String:
 	for kind in ["cannon", "missile"]:
 		if kinds.has(kind):
 			role = kind + "-" + role
+	var lance := false
 	for part in genome.modules:
 		if not part.empty() and part.kind == "lance":
 			role = "lancer" if not armed else "lance-" + role
+			lance = true
 			break
+	if lance and lasers > 0 and harpoons > 0 and float(genome.get("behavior", {}).get("prospect", 0.0)) >= 0.5:
+		role = "prospector"  # Mines (ShipControllerAI): laser, lance and harpoon, and the will to
 	var range_class: String = "-"
 	if lasers > 0:
 		var mean_range: float = range_sum / lasers

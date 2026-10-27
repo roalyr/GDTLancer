@@ -435,6 +435,9 @@ const AI_AVOID_SHARE = 0.5
 const AI_AFTERBURNER_RESERVE = 0.3  # Share of its power an NPC keeps for its weapons (it burns on past it only to run)
 const AI_AFTERBURNER_CLOSE_FACTOR = 2.0  # Burns to close in from beyond this many times its fighting range  # Ships at war (or holding a grudge) want the fight this much more
 const AI_SALVAGE_SEARCH_RANGE = 6000.0  # m; wrecks further than this are not worth the trip
+const AI_MINE_SEARCH_RANGE = 6000.0  # m; rocks further than this are not worth the trip
+const AI_MINE_STANDOFF = 0.7  # Burns a rock's shell from this share of its laser's optimal range off the rock's face
+const AI_MINE_GIVE_UP = 120.0  # s on one rock without a chunk before it tries another
 const AI_DEPART_ARRIVAL_DISTANCE = 300.0  # m from its spawn point at which a hauler leaves the sector
 
 # NPCs hesitate like people: a decision the rule calls for (engage, break off, answer being shot)
@@ -454,6 +457,10 @@ const FACTIONS = {
 	"verdant": {"name": "Verdant", "color": Color(0.45, 1.0, 0.35, 1.0), "enemies": ["violet"]},
 	"violet": {"name": "Violet", "color": Color(0.85, 0.45, 1.0, 1.0), "enemies": ["verdant"]},
 	"raiders": {"name": "Raiders", "color": Color(1.0, 0.55, 0.3, 1.0), "enemies": ["verdant", "violet"], "standing": -1.0},
+	# Aliens: no standing or bounties; they react on the spot, and take any ship within `territory` m of
+	# their hive for an enemy. Their carcasses hold biotech (`salvage_as`: a wreck's salvage, all of it).
+	"xenohive": {"name": "Xenohive", "color": Color(0.35, 0.95, 0.75, 1.0), "enemies": [], "no_standing": true,
+		"territory": 2500.0, "salvage_as": "commodity_biotech"},
 }
 
 # Standing (Standing): the player's name with each faction, -1 to 1, as in Freelancer.
@@ -713,6 +720,8 @@ const SHIP_TYPE_PANEL_MATERIALS = {  # Hull panel material (surface 1 of the Pho
 const SHIP_FACTION_SCENES = {  # Hull model by faction (scaled to the ship's size)
 	"verdant": "res://scenes/prefabs/ships/phoenix_light_verdant.tscn",
 	"violet": "res://scenes/prefabs/ships/phoenix_light_violet.tscn",
+	"raiders": "res://scenes/prefabs/ships/phoenix_light_raiders.tscn",
+	"xenohive": "res://scenes/prefabs/ships/phoenix_light_xenohive.tscn",
 }
 const SHIP_DEFAULT_SCENE = "res://scenes/prefabs/ships/phoenix_light.tscn"
 const PART_TYPE_SEEDS = {  # Part kind -> type -> genes
@@ -742,15 +751,19 @@ const HARPOON_TEMPLATE_ID = "tool_harpoon"  # Not evolved: the same harpoon for 
 # in the middle, each faction's two stations on its own side. NPCs spawn docked at their stations,
 # patrol round the beacon, dock to sell loot and to escape, and never leave their arena.
 const ARENA_SECTOR_ID = "sector_elace"
+# The frontier is the mixed one: a wide field of rocks to mine, both factions' stations, a raider
+# outpost on one end (the raiders' only market) and a xenohive on the other (ARENA_STATION_PLACES).
 const ARENA_ZONES = [  # Offset from the Arena node, ships per faction, terrain (ARENA_ROCK_FIELDS)
-	{"id": "1v1", "offset": Vector3(20000, 0, 0), "per_faction": 1, "terrain": "open"},
-	{"id": "2v2", "offset": Vector3(-10000, 0, 17320), "per_faction": 2, "terrain": "belt"},
-	{"id": "4v4", "offset": Vector3(-10000, 0, -17320), "per_faction": 4, "terrain": "scatter"},
+	{"id": "1v1", "offset": Vector3(20000, 0, 0), "factions": {"verdant": 1, "violet": 1}, "terrain": "open"},
+	{"id": "2v2", "offset": Vector3(-10000, 0, 17320), "factions": {"verdant": 2, "violet": 2}, "terrain": "belt"},
+	{"id": "4v4", "offset": Vector3(-10000, 0, -17320), "factions": {"verdant": 4, "violet": 4}, "terrain": "scatter"},
+	{"id": "frontier", "offset": Vector3(-30000, 0, 0), "factions": {"verdant": 3, "violet": 3, "raiders": 3, "xenohive": 2}, "terrain": "field",
+		"prefer_role": "prospector", "prefer_share": 0.5},  # Half the factions' spawns here fly a prospector niche (Evolution._pick_genome)
 ]
 # Rocks per terrain (Arena builds them from a seed, so every load has the same field). They stop
 # ships, laser fire, missiles and shells: cover to fight from or run behind. A belt runs across the
 # middle, between the two sides (half as thick as ARENA_ROCK_BELT_WIDTH); a scatter fills the field.
-const ARENA_ROCK_FIELDS = {"open": 0, "belt": 22, "scatter": 26}
+const ARENA_ROCK_FIELDS = {"open": 0, "belt": 22, "scatter": 26, "field": 40}
 const ARENA_ROCK_FIELD_RADIUS = 3000.0  # m from the beacon
 const ARENA_ROCK_BELT_WIDTH = 1000.0  # m, across the line between the two sides
 const ARENA_ROCK_HEIGHT = 600.0  # m above and below the arena's plane
@@ -764,7 +777,15 @@ const ARENA_ROCK_MODELS = [
 	"res://assets/models/rocks/rock_05_4k.glb",
 ]
 const ARENA_ROCK_SCENE = "res://scenes/prefabs/celestial/asteroid.tscn"
-const ARENA_FACTIONS = ["verdant", "violet"]
+const ARENA_FACTIONS = ["verdant", "violet", "raiders", "xenohive"]  # Each keeps a gene pool
+# Where a faction's stations stand in a zone: "sides" (two, on opposite sides of the beacon, in
+# ARENA_FACTIONS order), "outpost" (one, out along the zone's radial line), "hive" (one, back toward the Arena).
+const ARENA_STATION_PLACES = {"verdant": "sides", "violet": "sides", "raiders": "outpost", "xenohive": "hive"}
+const ARENA_OUTPOST_DISTANCE = 4500.0  # m from the beacon
+# The xenohive's drones grow with what they bring home: one more per XENOHIVE_MASS_PER_DRONE kg of cargo
+# delivered (all zones, all time), up to XENOHIVE_DRONES_MAX extra. A fixed spawner for now; the hive does not grow.
+const XENOHIVE_MASS_PER_DRONE = 5000.0  # kg
+const XENOHIVE_DRONES_MAX = 3
 const ARENA_STATION_DISTANCE = 4000.0  # m from the beacon to a faction's side
 const ARENA_STATION_SPREAD = 1500.0  # m between a faction's two stations, either side of its line
 const ARENA_RADIUS = 7000.0  # m from the beacon: NPCs do not chase, salvage or patrol beyond it
@@ -792,6 +813,8 @@ const AI_FOLLOW_MIN_TEAMWORK = 0.5  # A loner (teamwork gene under this) patrols
 const ARENA_FACTION_MATERIALS = {  # Station paint by faction
 	"verdant": "res://assets/art/materials_generic/mat_hull_faction_verdant.tres",
 	"violet": "res://assets/art/materials_generic/mat_hull_faction_violet.tres",
+	"raiders": "res://assets/art/materials_generic/mat_hull_faction_raiders.tres",
+	"xenohive": "res://assets/art/materials_generic/mat_hull_faction_xenohive.tres",
 }
 const ARENA_STATION_SCENE = "res://scenes/prefabs/station/arena_station.tscn"
 const ARENA_BEACON_SCENE = "res://scenes/prefabs/station/arena_beacon.tscn"
@@ -810,7 +833,7 @@ const EVO_PRIOR_LIVES = 2.0  # Fitness mean = sum / (lives + this)
 const EVO_SELECTION_TEMPERATURE = 0.2  # Niche pick weight = exp(fitness / this)
 const EVO_REFLY_CHANCE = 0.25  # A spawn flies a niche's genome unchanged (to measure it again)
 const EVO_IMMIGRANT_CHANCE = 0.05  # A spawn is a fresh random genome
-const EVO_PROVING = true  # Proving mode: most spawns re-fly the archetypes' leading genomes until they have EVO_PROVE_LIVES lives (presets need the evidence)
+const EVO_PROVING = false  # Proving mode: most spawns re-fly the archetypes' leading genomes until they have EVO_PROVE_LIVES lives (presets need the evidence)
 const EVO_PROVE_REFLY_CHANCE = 0.7  # In proving mode: a spawn re-flies a leading genome short of its lives (a mutant otherwise; no immigrants)
 const EVO_PROVE_LIVES = 10  # Lives that make a genome proven (tools/export_presets.gd --min-lives)
 const EVO_PROVE_PER_ARCHETYPE = 3  # The fittest this many niche bests of each archetype (PresetExporter.archetype, both factions) are proved
@@ -835,6 +858,28 @@ const EVO_BEHAVIOR_RANGES = {  # Gene -> [min, max, default]
 	"teamwork": [0.0, 2.0, 1.0],  # Times its desire to help a friend or join its leader; under AI_FOLLOW_MIN_TEAMWORK it trails no leader
 	"caution": [0.0, 1.0, 0.5],  # Keeps clear of unseen enemies under this share of its engage desire (AI_AVOID_SHARE)
 	"burn": [0.0, 0.8, 0.3],  # Share of its power kept from the afterburner for its weapons (AI_AFTERBURNER_RESERVE)
+	"prospect": [0.0, 1.0, 0.0],  # At 0.5 or more, with a laser, a lance and a harpoon, it mines when it has nothing else to do
+}
+# Starting designs, guessed, planted in each pool's empty niches (Evolution.plant_seeds; Genome.seed_genome):
+# prospectors and escorts for the factions, raiders, and the xenohive's drones, gatherers and wardens.
+const EVO_FACTION_SEEDS = [
+	{"type": 2, "size": 1.0, "tools": ["laser", "harpoon"], "modules": ["lance", "plating"], "behavior": {"prospect": 1.0, "engage": 2.0, "retreat_hull": 0.4}},
+	{"type": 1, "size": 0.7, "tools": ["laser", "harpoon"], "modules": ["lance", "thruster"], "behavior": {"prospect": 1.0, "engage": 2.5, "retreat_hull": 0.5}},
+	{"type": 2, "size": 1.2, "tools": [["laser", 2], ["laser", 2]], "modules": [["plating", 2], "sensor"], "behavior": {"teamwork": 2.0, "engage": 0.8}},
+]
+const EVO_SEEDS = {
+	"verdant": EVO_FACTION_SEEDS,
+	"violet": EVO_FACTION_SEEDS,
+	"raiders": [
+		{"type": 1, "size": 0.7, "tools": ["laser", "harpoon"], "modules": ["afterburner", "plating"], "behavior": {"engage": 0.7, "mercy": 0.1, "pursuit": 2.0}},
+		{"type": 2, "size": 1.0, "tools": ["laser", "harpoon"], "modules": [["lance", 2], "afterburner"], "behavior": {"engage": 0.8, "mercy": 0.2}},
+		{"type": 2, "size": 1.3, "tools": [["cannon", 2], "harpoon"], "modules": [["plating", 2], ["afterburner", 2]], "behavior": {"engage": 0.8}},
+	],
+	"xenohive": [
+		{"type": 1, "size": 0.5, "tools": ["laser"], "modules": ["thruster"], "behavior": {"teamwork": 2.0, "engage": 0.6}},
+		{"type": 1, "size": 0.7, "tools": ["harpoon", "laser"], "modules": ["plating", "thruster"], "behavior": {"engage": 2.5, "retreat_hull": 0.5}},
+		{"type": 2, "size": 1.5, "tools": [["laser", 2], "laser"], "modules": ["lance", ["plating", 2]], "behavior": {"engage": 0.6, "teamwork": 1.5}},
+	],
 }
 const EVO_GENOME_MEMORY = 3000  # Genomes whose records are kept (elites and live ones always are)
 const EVO_REPORT_INTERVAL = 300.0  # s of game time between console reports

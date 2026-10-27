@@ -455,18 +455,31 @@ func undock() -> void:
 # --- Factions ---
 
 # Whether this ship treats `other` as an enemy: its faction is at war with other's (with the player:
-# its standing is hostile), other shot it, or other carries a bounty worth hunting (Bounty). One-sided: a ship that hits another by accident does
+# its standing is hostile), other shot it, other carries a bounty worth hunting (Bounty), or other is
+# in its faction's territory (in_territory). One-sided: a ship that hits another by accident does
 # not start hating it.
 func is_enemy_of(other) -> bool:
 	if not (is_instance_valid(other) and other != self and other.get("faction") != null):
 		return false
 	if _grudges.has(other.get_instance_id()):
 		return true
-	if Bounty.is_worth_hunting(self, other):
+	if Bounty.is_worth_hunting(self, other) or in_territory(other):
 		return true
 	if other.faction == "player":
 		return Standing.is_hostile(faction)
 	return other.faction in Constants.FACTIONS.get(faction, {}).get("enemies", [])
+
+
+# A territorial faction's ship (Constants FACTIONS "territory": the xenohive) takes any other ship
+# within that many m of one of its stations (its hive) for an enemy.
+func in_territory(other) -> bool:
+	var territory: float = float(Constants.FACTIONS.get(faction, {}).get("territory", 0.0))
+	if territory <= 0.0 or other.get("faction") == faction or not is_inside_tree():
+		return false
+	for station in get_tree().get_nodes_in_group("arena_station"):
+		if station.get("faction") == faction and other.global_transform.origin.distance_to(station.global_transform.origin) <= territory:
+			return true
+	return false
 
 
 func get_faction_color() -> Color:

@@ -196,7 +196,8 @@ func _get_jump_in_distance_for_sector(sector_id: String) -> float:
 # --- NPC Population: the arenas (see Arena, Evolution, Constants ARENA AND EVOLUTION) ---
 
 # Every arena slot (zone, faction, index) keeps one NPC flying from Evolution's gene pool: when
-# its NPC dies or retires, a replacement undocks ARENA_RESPAWN_DELAY later. Called every second
+# its NPC dies or retires, a replacement undocks ARENA_RESPAWN_DELAY later. A xenohive has extra
+# slots that fill as it grows (Evolution.grown_drones). Called every second
 # by the respawn timer; also clears old wrecks.
 func _top_up_population(_fill: bool = false) -> void:
 	if not is_instance_valid(GlobalRefs.agent_container) or not is_instance_valid(_player_agent_body):
@@ -207,9 +208,9 @@ func _top_up_population(_fill: bool = false) -> void:
 		return
 	if _arena_slots.empty():
 		for zone in arena.zones:
-			for faction in Constants.ARENA_FACTIONS:
-				for _i in range(zone.per_faction):
-					_arena_slots.append({"zone": zone, "faction": faction, "body": null, "ready_at": 0.0})
+			for faction in zone.factions:
+				for index in range(int(zone.factions[faction]) + (Constants.XENOHIVE_DRONES_MAX if Constants.FACTIONS.get(faction, {}).has("territory") else 0)):
+					_arena_slots.append({"zone": zone, "faction": faction, "body": null, "ready_at": 0.0, "extra": int(max(0, index - int(zone.factions[faction]) + 1))})
 	var now: float = Evolution.game_time
 	for slot in _arena_slots:
 		var body = slot.body
@@ -218,6 +219,8 @@ func _top_up_population(_fill: bool = false) -> void:
 		if body != null:  # Lost or retired: the replacement waits a little
 			slot.body = null
 			slot.ready_at = now + Constants.ARENA_RESPAWN_DELAY
+		if slot.extra > Evolution.grown_drones(slot.faction):
+			continue  # The hive has not grown that far yet
 		if now >= slot.ready_at:
 			slot.body = _spawn_arena_npc(slot.zone, slot.faction)
 	clear_old_wrecks()
@@ -237,7 +240,7 @@ func _spawn_arena_npc(zone: Dictionary, faction: String) -> RigidBody:
 		"evo_uid": life.uid,
 		"skill": life.skill,
 		"behavior": life.behavior,
-		"patrol_center": zone.beacon.global_transform.origin,
+		"patrol_center": station.global_transform.origin if Constants.FACTIONS.get(faction, {}).has("territory") else zone.beacon.global_transform.origin,  # A hive's drones keep near it
 		"home_point": station.global_transform.origin,
 		"arena": {"zone_id": zone.id, "beacon": zone.beacon.global_transform.origin, "stations": stations, "refuges": zone.stations},
 		"docked_at": station,

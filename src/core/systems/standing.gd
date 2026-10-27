@@ -3,14 +3,14 @@
 # does to its ships: the first hit on a ship costs STANDING_ATTACK, a kill STANDING_KILL, and a kill
 # earns STANDING_KILL_ENEMY with each faction at war with the victim's. At STANDING_HOSTILE or below
 # its ships attack the player on sight (Agent.is_enemy_of) and its stations refuse docking; its
-# prices follow it too (Market). Factions outside Constants.FACTIONS have no standing: they react on
-# the spot. Kept in GameState.player_standing (saved).
+# prices follow it too (Market). Factions outside Constants.FACTIONS, or marked no_standing (aliens),
+# have none: they react on the spot. Kept in GameState.player_standing (saved).
 
 extends Reference
 
 
 static func has_standing(faction) -> bool:
-	return faction is String and Constants.FACTIONS.has(faction)
+	return faction is String and Constants.FACTIONS.has(faction) and not Constants.FACTIONS[faction].get("no_standing", false)
 
 
 static func of(faction) -> float:

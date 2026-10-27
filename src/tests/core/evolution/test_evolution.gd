@@ -25,12 +25,45 @@ var _saved_commodities: Dictionary = {}
 
 
 func before_each():
-	Evolution.new_run()
+	_empty_run()
 	_saved_commodities = TemplateDatabase.assets_commodities
 	var tech := CommodityTemplate.new()
 	tech.template_id = "commodity_tech"
 	tech.base_value = 60
 	TemplateDatabase.assets_commodities = {"commodity_tech": tech}
+
+
+# A new run without its seed designs (Constants EVO_SEEDS): the mechanics from an empty pool.
+func _empty_run() -> void:
+	Evolution.new_run()
+	Evolution.genomes = {}
+	for faction in Evolution.pools:
+		Evolution.pools[faction] = {"cells": {}, "lives": 0}
+
+
+func test_a_new_run_plants_the_seed_designs_each_in_its_niche():
+	Evolution.new_run()
+	for faction in Constants.EVO_SEEDS:
+		assert_gt(Evolution.pools[faction].cells.size(), 0, faction)
+	var prospectors := 0
+	for niche in Evolution.pools.verdant.cells:
+		if niche.find("|prospector|") >= 0:
+			prospectors += 1
+	assert_eq(prospectors, 2, "Two prospector seeds, light and medium")
+	assert_eq(Evolution.plant_seeds(), 0, "Planted once")
+	var life: Dictionary = Evolution.begin_life("xenohive", "frontier")
+	assert_true(TemplateDatabase.get_template(life.ship_template_id) is ShipTemplate)
+	assert_true(TemplateDatabase.get_template(life.ship_template_id).salvage_yield.has("commodity_biotech"), "Alien carcasses hold biotech")
+
+
+func test_a_new_era_starts_every_record_over():
+	Evolution.new_run()
+	var genome_id: String = Evolution.pools.verdant.cells.values()[0]
+	Evolution.genomes[genome_id].lives = 7
+	Evolution.genomes[genome_id].fitness_sum = 3.0
+	Evolution.new_era()
+	assert_eq(int(Evolution.genomes[genome_id].lives), 0)
+	assert_eq(float(Evolution.genomes[genome_id].fitness_sum), 0.0)
 
 
 func after_each():
