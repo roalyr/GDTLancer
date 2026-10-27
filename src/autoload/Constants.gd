@@ -516,6 +516,22 @@ const MEGASTRUCTURE_LAYERS = [
 ]
 const MEGASTRUCTURE_SHAPES = ["box", "cylinder", "sphere", "prism", "capsule"]
 
+# Traffic (Traffic): persistent NPCs travelling the sector graph, the population outside the arenas.
+const TRAFFIC_ROSTER = [  # Kind (faction, niche role; "" any) and how many
+	{"faction": "verdant", "role": "prospector", "count": 2},
+	{"faction": "violet", "role": "prospector", "count": 2},
+	{"faction": "verdant", "role": "fighter", "count": 1},
+	{"faction": "violet", "role": "fighter", "count": 1},
+	{"faction": "raiders", "role": "", "count": 3},
+]
+const TRAFFIC_DWELL_TIME = [240.0, 720.0]  # s of world time a traveller stays in a sector
+const TRAFFIC_TRANSIT_TIME = 60.0  # s between leaving a sector and arriving in the next
+const TRAFFIC_REPLACE_TIME = 600.0  # s before a lost traveller's place is filled again
+const TRAFFIC_FUEL_JUMPS = 4  # Fuel bought in Elace: this many jumps' worth
+const TRAFFIC_START_BANK = 2000.0  # WP a new traveller has
+const TRAFFIC_WORK_RADIUS = 1500.0  # m round its work point a traveller turns up at
+const TRAFFIC_WORK_SEARCH = 40000.0  # m from the entry point a prospector looks for something to mine
+
 # Prices (Market): physics value * (1 + the station's markup) * (1 -+ standing share).
 const PRICE_MARKUP_MAX = 0.5  # A station's markup is rolled once per game in 0..this
 const PRICE_STANDING_SHARE = 0.1  # Standing 1 buys this much cheaper and sells this much dearer; -1 the reverse

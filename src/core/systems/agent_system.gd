@@ -2,12 +2,16 @@
 
 extends Node
 
+const Traffic = preload("res://src/core/systems/traffic.gd")
+
 var populate_sectors: bool = true  # Tests switch this off to spawn only the player.
+var run_traffic: bool = true  # The evolution sim switches this off: no travellers in the arenas
 
 var _player_agent_body: RigidBody = null
 var _next_agent_uid: int = 0  # Counter for generating unique agent UIDs
 var _npc_bodies: Array = []  # Live NPCs in the current sector
 var _respawn_timer: Timer = null
+var traffic: Node = null  # The travelling NPCs (Traffic)
 var _arena_slots: Array = []  # [{"zone", "faction", "body", "ready_at"}], reset per sector
 
 
@@ -19,8 +23,17 @@ func _ready():
 
 	_respawn_timer = Timer.new()
 	_respawn_timer.wait_time = 1.0
-	_respawn_timer.connect("timeout", self, "_top_up_population")
+	_respawn_timer.connect("timeout", self, "_on_population_tick")
 	add_child(_respawn_timer)
+	traffic = Traffic.new()
+	traffic.name = "Traffic"
+	add_child(traffic)
+
+
+func _on_population_tick() -> void:
+	if populate_sectors and run_traffic and is_instance_valid(_player_agent_body):
+		traffic.tick()
+	_top_up_population()
 
 
 func _on_Zone_Loaded(_zone_instance, _zone_path, agent_container_node):

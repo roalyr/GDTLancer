@@ -21,6 +21,7 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if GameState.current_sector_id != "":
 		GameState.play_time += delta / max(Engine.time_scale, 0.001)
+		GameState.world_time += delta
 
 
 # Saves of an older format (or unreadable ones) are of no use any more: removes them.
@@ -195,6 +196,10 @@ func _serialize_game_state() -> Dictionary:
 		"player_storage": GameState.player_storage.duplicate(),
 		"player_standing": GameState.player_standing.duplicate(),
 		"player_bounties": GameState.player_bounties.duplicate(),
+		"travelers": GameState.travelers.duplicate(true),
+		"traffic_replacements": GameState.traffic_replacements.duplicate(),
+		"traffic_next_id": GameState.traffic_next_id,
+		"world_time": GameState.world_time,
 		"station_markups": GameState.station_markups.duplicate(),
 		"player_hull_scars": GameState.player_hull_scars.duplicate(true),
 		"current_sector_id": GameState.current_sector_id,
@@ -240,6 +245,12 @@ func _deserialize_and_apply_game_state(save_data: Dictionary) -> void:
 	GameState.player_fit = saved_fit if saved_fit is Dictionary else {}
 	var saved_storage = save_data.get("player_storage", {})
 	GameState.player_storage = saved_storage if saved_storage is Dictionary else {}
+	var saved_travelers = save_data.get("travelers", [])
+	GameState.travelers = saved_travelers if saved_travelers is Array else []
+	var saved_replacements = save_data.get("traffic_replacements", [])
+	GameState.traffic_replacements = saved_replacements if saved_replacements is Array else []
+	GameState.traffic_next_id = int(save_data.get("traffic_next_id", 0))
+	GameState.world_time = float(save_data.get("world_time", 0.0))
 	for key in ["player_standing", "player_bounties", "station_markups"]:
 		var saved = save_data.get(key, {})
 		var values: Dictionary = {}

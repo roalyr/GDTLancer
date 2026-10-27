@@ -31,6 +31,14 @@ var player_standing: Dictionary = {}
 ## Bounties posted on the player (Bounty): faction id -> WP; they lapse when the ship is lost.
 var player_bounties: Dictionary = {}
 
+## Persistent travelling NPCs (Traffic): their records, and when lost ones are replaced (world time).
+var travelers: Array = []
+var traffic_replacements: Array = []
+var traffic_next_id: int = 0
+
+## Game time (scaled with the time scale, unlike play_time), the clock the travellers keep.
+var world_time: float = 0.0
+
 ## Each station's price markup (Market): location id -> 0..PRICE_MARKUP_MAX, rolled on first use.
 var station_markups: Dictionary = {}
 
@@ -79,6 +87,10 @@ func reset_state() -> void:
 	player_storage = {}
 	player_standing = {}
 	player_bounties = {}
+	travelers = []
+	traffic_replacements = []
+	traffic_next_id = 0
+	world_time = 0.0
 	station_markups = {}
 	player_hull_scars = []
 	current_zone_instance = null

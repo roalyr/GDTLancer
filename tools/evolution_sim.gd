@@ -60,6 +60,7 @@ func _run():
 		yield(_wait(0.25), "completed")
 	if new_era:
 		evolution.new_era()
+	refs.agent_spawner.run_traffic = false
 	var menu = _find_menu()
 	if menu != null:
 		menu.visible = false

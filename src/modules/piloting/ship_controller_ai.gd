@@ -531,6 +531,16 @@ func _resume() -> void:
 		_provoked = provoked
 
 
+# A traveller whose time in the sector is up (Traffic): out through `point` and away.
+func leave_toward(point: Vector3) -> void:
+	_home_point = point
+	_change_state(AIState.DEPART)
+
+
+func is_leaving() -> bool:
+	return _current_state == AIState.DEPART
+
+
 # Full hold: fly back to where it came from and leave the sector with the loot.
 func _process_depart() -> void:
 	if not _arena.empty():
@@ -615,7 +625,7 @@ func _on_lance_glanced(_target, reason) -> void:
 # --- Mining (prospect gene; Constants MINING) ---
 
 func can_mine() -> bool:
-	if _prospect < 0.5 or _arena.empty() or not is_instance_valid(_tool_controller) or agent_script.get_free_cargo() <= 0 or not can_ram():
+	if _prospect < 0.5 or not is_instance_valid(_tool_controller) or agent_script.get_free_cargo() <= 0 or not can_ram():
 		return false
 	return _mining_laser() >= 0 and _has_harpoon()
 
