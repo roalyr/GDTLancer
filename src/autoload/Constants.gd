@@ -516,6 +516,13 @@ const MEGASTRUCTURE_LAYERS = [
 ]
 const MEGASTRUCTURE_SHAPES = ["box", "cylinder", "sphere", "prism", "capsule"]
 
+# Threat ring (HUD ThreatRing): arrows round the screen's middle toward hostile ships out of sight.
+const THREAT_RANGE = 15000.0  # m; detected hostiles further than this are not shown
+const THREAT_REFRESH_INTERVAL = 0.25  # s between rechecks of who is hostile
+const THREAT_RING_RADIUS_SHARE = 0.25  # Ring radius, of the screen's shorter side
+const THREAT_ARROW_SIZE = [28.0, 56.0]  # px, far to near
+const THREAT_COLOR = Color(1.0, 0.15, 0.1, 1.0)
+
 # Traffic (Traffic): persistent NPCs travelling the sector graph, the population outside the arenas.
 const TRAFFIC_ROSTER = [  # Kind (faction, niche role; "" any) and how many
 	{"faction": "verdant", "role": "prospector", "count": 2},

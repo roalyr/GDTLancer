@@ -24,6 +24,7 @@ const PointerRouterClass = preload("res://src/core/ui/pointer_router.gd")
 const FittingWindowScene = preload("res://scenes/ui/menus/fitting_window.tscn")
 const DebugMapScene = preload("res://scenes/ui/menus/debug_map.tscn")
 const DebugTools = preload("res://src/core/ui/debug_tools/debug_tools.gd")
+const ThreatRing = preload("res://src/core/ui/main_hud/threat_ring.gd")
 const HUDTargetProjectorClass = preload("res://src/core/ui/main_hud/hud_target_projector.gd")
 
 
@@ -60,6 +61,7 @@ onready var button_afterburner: TextureButton = $ScreenControls/TemporaryToolZon
 var fitting_window: Control = null
 var debug_map: Control = null
 var debug_tools: Control = null
+var threat_ring: Control = null
 var _world_rebuild_queued: bool = false  # A bracket rebuild is due at the end of the frame
 
 # --- Game Over UI ---
@@ -198,6 +200,10 @@ func _ready():
 	debug_map = DebugMapScene.instance()
 	add_child(debug_map)
 	$ScreenControls/DebugOverlay/LeftColumn/ButtonDebugMap.connect("pressed", debug_map, "open")
+	threat_ring = ThreatRing.new()
+	threat_ring.name = "ThreatRing"
+	add_child(threat_ring)
+	move_child(threat_ring, $ScreenControls.get_index() + 1)  # Over the HUD buttons (it takes no input), under the windows
 	debug_tools = DebugTools.new()
 	debug_tools.name = "DebugTools"
 	add_child(debug_tools)
@@ -470,7 +476,8 @@ func _update_lance_button() -> void:
 	var lance = player.get_lance() if is_instance_valid(player) and player.has_method("get_lance") else null
 	button_lance.visible = lance != null
 	var controller = _get_player_controller()
-	var ram: bool = is_instance_valid(controller) and controller.has_method("is_ram_ready") and controller.is_ram_ready()
+	var selected = controller.get("_selected_target") if is_instance_valid(controller) else null
+	var ram: bool = is_instance_valid(controller) and controller.has_method("is_ram_ready") and controller.is_ram_ready(selected if is_instance_valid(selected) else null)  # As the button will act
 	var label: String = "RAM" if ram else "APPROACH"  # Approach rams while the lance is armed
 	if ram and player.outruns_ram(controller.get("_selected_target")):
 		label = "RAM: TOO SLOW"  # It runs too fast to strike: the lance would glance off

@@ -162,6 +162,11 @@ func test_approach_rams_while_the_lance_is_armed():
 	lance.armed = true
 	controller._sync_ram_command()
 	assert_eq(recorder.last, "ram", "Armed while approaching: ramming")
+	enemy.is_wreck = true
+	assert_true(controller.is_ram_ready(enemy), "A derelict is rammed too (to harpoon it)")
+	var station := StaticBody.new()
+	add_child_autofree(station)
+	assert_false(controller.is_ram_ready(station), "A station is approached")
 	lance.nails = 0
 	assert_false(controller.is_ram_ready(enemy), "No lances left: no ramming")
 	controller.free()
