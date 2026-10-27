@@ -24,6 +24,9 @@ const LANCE_GROUP = "stuck_lance"  # Lances left in a hull (cleared on repair)
 const LanceMaterial = preload("res://assets/art/materials_generic/mat_engine_dark_alloy.tres")
 const ShipLaws = preload("res://src/core/systems/ship_laws.gd")
 
+var _nearby: Array = []  # Ships an armed lance checks each step (_refresh_nearby)
+var _nearby_left: float = 0.0  # s to the next listing
+var _rock_near: bool = false  # A rock is close enough to ray-check
 var lance: Dictionary = {}  # ShipLaws.lance_stats
 var module_id: String = ""
 var armed: bool = false
@@ -119,6 +122,8 @@ func _physics_process(delta: float) -> void:
 		if _watch_left <= 0.0:
 			_watch_left = Constants.CHARGE_WATCH_INTERVAL
 			_announce_charges()
+	else:
+		_nearby_left = 0.0  # Armed again: list afresh at once
 
 
 # Tells each ship it is charging (EventBus agent_charged), once a pass: it sees the lance coming.
@@ -151,17 +156,40 @@ func is_charging(target) -> bool:
 	return miss < radius + Constants.CHARGE_ALERT_MISS
 
 
+# The ships and rocks within Constants.LANCE_SWEEP_RANGE (past their size), listed every
+# LANCE_SWEEP_REFRESH s: an armed lance looks only at these each step (it looked at every ship in the
+# sector each step, the costliest script in a physics step).
+func _refresh_nearby() -> void:
+	_nearby_left = Constants.LANCE_SWEEP_REFRESH
+	_nearby = []
+	_rock_near = false
+	var here: Vector3 = _agent.global_transform.origin
+	for body in get_tree().get_nodes_in_group("agent_body"):
+		if body != _agent and body is RigidBody and body.get("is_wreck") == false:
+			var radius: float = body.get_apparent_radius() if body.has_method("get_apparent_radius") else 10.0
+			if here.distance_to(body.global_transform.origin) <= Constants.LANCE_SWEEP_RANGE + radius:
+				_nearby.append(body)
+	for rock in get_tree().get_nodes_in_group("mineable"):
+		var size: float = rock.get_apparent_radius() if rock.has_method("get_apparent_radius") else 100.0
+		if here.distance_to(rock.global_transform.origin) <= Constants.LANCE_SWEEP_RANGE + size:
+			_rock_near = true
+			break
+
+
 # The tip meets a ship when it comes within LANCE_TIP_MARGIN of the ship's hull box (its model's
 # bounds), checked by proximity rather than the physics' collision: along the lance from the seat to
 # the tip, and along the tip's path this step relative to that ship (closing speeds of a few hundred
-# m/s cover metres per step, more than a thin hull is deep).
+# m/s cover metres per step, more than a thin hull is deep). Only ships listed near (_refresh_nearby).
 func _sweep(delta: float) -> void:
 	if not _agent.is_inside_tree():
 		return
+	_nearby_left -= delta
+	if _nearby_left <= 0.0:
+		_refresh_nearby()
 	var tip: Vector3 = get_tip()
 	var seat: Vector3 = _agent.global_transform.xform(Vector3(0, 0, -_seat()))
-	for body in get_tree().get_nodes_in_group("agent_body"):
-		if body == _agent or not body is RigidBody or body.get("is_wreck") != false or _glanced.has(body.get_instance_id()):
+	for body in _nearby:
+		if not is_instance_valid(body) or not body.is_inside_tree() or body.get("is_wreck") != false or _glanced.has(body.get_instance_id()):
 			continue  # Wrecks are not worth a lance
 		var relative: Vector3 = (_agent.linear_velocity - body.linear_velocity) * delta
 		var radius: float = body.get_apparent_radius() if body.has_method("get_apparent_radius") else 10.0
@@ -175,7 +203,8 @@ func _sweep(delta: float) -> void:
 		if not hit.empty():
 			strike(body, body.global_transform.xform(hit.point), body.global_transform.basis.xform(hit.normal).normalized())
 			return
-	_sweep_rock(seat, tip + _agent.linear_velocity * delta)
+	if _rock_near:
+		_sweep_rock(seat, tip + _agent.linear_velocity * delta)
 
 
 # A rock on the lance's line (seat to where the tip gets this step): mining (Constants MINING).

@@ -60,6 +60,7 @@ func _run():
 	root.get_node("GameStateManager").save_dir = "user://test_savegames/"
 	change_scene("res://scenes/levels/game_world/main_game_scene.tscn")
 	yield(_wait(1.0), "completed")
+	refs.agent_spawner.offscreen.enabled = false  # The fights are staged far from the player: fly them all
 	root.get_node("EventBus").emit_signal("new_game_requested")
 	while not is_instance_valid(refs.player_agent_body):
 		yield(_wait(0.25), "completed")

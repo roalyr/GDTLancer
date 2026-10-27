@@ -516,6 +516,18 @@ const MEGASTRUCTURE_LAYERS = [
 ]
 const MEGASTRUCTURE_SHAPES = ["box", "cylinder", "sphere", "prism", "capsule"]
 
+# Off-screen resolution (Offscreen): ships far from the player are not flown but resolved by rule.
+const OFFSCREEN_RADIUS = 12000.0  # m from the player past which a ship is resolved off-screen
+const OFFSCREEN_FULL_RADIUS = 10000.0  # m within which it is flown again (the gap stops flicker)
+const OFFSCREEN_CHECK_INTERVAL = 0.5  # s between looks at who is near and far
+const OFFSCREEN_TICK = 1.0  # s per resolution step
+const OFFSCREEN_SPEED_SHARE = 0.6  # Of its top speed it moves at (to be fitted to flown runs)
+const OFFSCREEN_ENGAGE_RANGE = 1500.0  # m at which an off-screen fight is resolved
+const OFFSCREEN_HIT_SHARE = 0.35  # Of its damage per second that lands (to be fitted to flown fights)
+const OFFSCREEN_MINE_RANGE = 1000.0  # m off a rock's surface a prospector works from
+const OFFSCREEN_ORE_PER_SECOND = 0.1  # Units a prospector gets off a rock (to be fitted to flown mining)
+const OFFSCREEN_PATROL_RADIUS = 1500.0  # m from the middle of its patrol it keeps within
+
 # Threat ring (HUD ThreatRing): arrows round the screen's middle toward hostile ships out of sight.
 const THREAT_RANGE = 15000.0  # m; detected hostiles further than this are not shown
 const THREAT_REFRESH_INTERVAL = 0.25  # s between rechecks of who is hostile
@@ -714,6 +726,8 @@ const AI_MISSILE_FIGHT_TIME = 30.0  # s: missiles' damage counts as spread over 
 const AI_MISSILE_HIT_SHARE = 0.7  # Expected share of missiles that hit
 const AI_CANNON_HIT_SHARE = 0.75  # and of cannon rounds (duels: 73-94%)
 const LANCE_RADIUS = 0.15  # m at the lance's base, for a 200 kg lance (grows as mass^(1/3))
+const LANCE_SWEEP_RANGE = 800.0  # m: an armed lance only checks ships and rocks this close (past their size), listed every LANCE_SWEEP_REFRESH s; closing speeds cover far less in that time
+const LANCE_SWEEP_REFRESH = 0.25  # s
 const LANCE_TIP_MARGIN = 0.5  # m: the tip strikes a ship it comes this close to (its hull box, LanceController._sweep)
 const LANCE_STUCK_CENTERING = 0.7  # A stuck lance turns this share of the way from its line toward the target's centre
 const LANCE_TIP_SHARE = 0.6  # The tip's radius as a share of the base's

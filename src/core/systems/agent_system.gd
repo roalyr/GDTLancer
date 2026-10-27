@@ -3,6 +3,7 @@
 extends Node
 
 const Traffic = preload("res://src/core/systems/traffic.gd")
+const Offscreen = preload("res://src/core/systems/offscreen.gd")
 
 var populate_sectors: bool = true  # Tests switch this off to spawn only the player.
 var run_traffic: bool = true  # The evolution sim switches this off: no travellers in the arenas
@@ -12,6 +13,7 @@ var _next_agent_uid: int = 0  # Counter for generating unique agent UIDs
 var _npc_bodies: Array = []  # Live NPCs in the current sector
 var _respawn_timer: Timer = null
 var traffic: Node = null  # The travelling NPCs (Traffic)
+var offscreen: Node = null  # Far ships resolved by rule (Offscreen)
 var _arena_slots: Array = []  # [{"zone", "faction", "body", "ready_at"}], reset per sector
 
 
@@ -28,6 +30,9 @@ func _ready():
 	traffic = Traffic.new()
 	traffic.name = "Traffic"
 	add_child(traffic)
+	offscreen = Offscreen.new()
+	offscreen.name = "Offscreen"
+	add_child(offscreen)
 
 
 func _on_population_tick() -> void:

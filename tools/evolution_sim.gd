@@ -50,6 +50,8 @@ func _run():
 		manager.save_dir = save_dir
 	change_scene("res://scenes/levels/game_world/main_game_scene.tscn")
 	yield(_wait(1.0), "completed")
+	refs.agent_spawner.run_traffic = false  # No travellers in the arenas
+	refs.agent_spawner.offscreen.enabled = false  # Every arena flown: fitness from real fights only
 	if not fresh and manager.has_save_file(0):
 		print("EVOSIM loading the saved game")
 		manager.load_game(0)
@@ -60,7 +62,6 @@ func _run():
 		yield(_wait(0.25), "completed")
 	if new_era:
 		evolution.new_era()
-	refs.agent_spawner.run_traffic = false
 	var menu = _find_menu()
 	if menu != null:
 		menu.visible = false

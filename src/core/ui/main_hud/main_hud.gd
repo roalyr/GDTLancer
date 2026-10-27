@@ -759,7 +759,10 @@ func describe_world_stats(player) -> String:
 			if body is RigidBody and not body.sleeping:
 				npcs.awake += 1
 	lines.append("SHIPS SEEN %d / %d" % [ships_seen, ships])
-	lines.append("NPCS ACTIVE %d  DOCKED %d" % [npcs.active, npcs.docked])  # Active: flying, AI and physics every step
+	var spawner = GlobalRefs.agent_spawner
+	var offscreen: int = spawner.offscreen.count() if is_instance_valid(spawner) and is_instance_valid(spawner.get("offscreen")) else 0
+	lines.append("NPCS ACTIVE %d  DOCKED %d" % [npcs.active - offscreen, npcs.docked])  # Active: flown, AI and physics every step
+	lines.append("OFF-SCREEN %d (by rule, no physics)" % offscreen)
 	lines.append("WRECKS %d  BODIES AWAKE %d" % [npcs.wrecks, npcs.awake])
 	var brackets_shown := 0
 	for instance_id in _world_target_buttons:

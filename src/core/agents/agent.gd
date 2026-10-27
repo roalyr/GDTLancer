@@ -442,12 +442,16 @@ func dock_at(station: Spatial) -> void:
 	angular_velocity = Vector3.ZERO
 	if is_instance_valid(station) and station.has_method("get_undock_position"):
 		global_transform.origin = station.get_undock_position()
+	mode = MODE_STATIC  # Out of the physics while docked: no integration, no _integrate_forces
 
 
 func undock() -> void:
 	if is_docked and _undocked_collision.size() == 2:
 		collision_layer = _undocked_collision[0]
 		collision_mask = _undocked_collision[1]
+	if is_docked:
+		mode = MODE_RIGID
+		sleeping = false
 	is_docked = false
 	visible = true
 

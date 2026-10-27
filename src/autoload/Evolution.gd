@@ -209,6 +209,12 @@ func grown_drones(faction: String) -> int:
 	return int(min(Constants.XENOHIVE_DRONES_MAX, floor(delivered / Constants.XENOHIVE_MASS_PER_DRONE)))
 
 
+# The life was resolved off-screen for a while (Offscreen): it is logged but not scored.
+func mark_offscreen(uid: String) -> void:
+	if live.has(uid):
+		live[uid]["offscreen"] = true
+
+
 func get_record(uid: String) -> Dictionary:
 	return live.get(uid, {})
 
@@ -390,7 +396,9 @@ func _end_life(uid: String, died: bool, killer: String) -> void:
 	var entry: Dictionary = genomes.get(record.genome_id, {})
 	totals[("deaths" if died else "retired")] = int(totals.get("deaths" if died else "retired", 0)) + 1
 	var verdict: String = ""
-	if not entry.empty():
+	if record.get("offscreen", false):
+		verdict = "OFFSCREEN: not scored"  # Partly resolved by Offscreen's rules, not flown
+	elif not entry.empty():
 		entry.lives = int(entry.lives) + 1
 		entry.fitness_sum = float(entry.fitness_sum) + fitness
 		entry.kills = int(entry.kills) + int(record.kills)
