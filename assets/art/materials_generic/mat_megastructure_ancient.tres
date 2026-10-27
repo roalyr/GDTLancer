@@ -1,0 +1,19 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=2]
+
+[ext_resource path="res://assets/art/shaders/solid.gdshader" type="Shader" id=1]
+
+[resource]
+shader = ExtResource( 1 )
+shader_param/albedo = Color( 0.62, 0.58, 0.5, 1 )
+shader_param/emission = Color( 0.0, 0.0, 0.0, 1 )
+shader_param/emission_strength = 1.0
+shader_param/rim_strength = 0.9
+shader_param/rim_exponent = 3.2
+shader_param/rim_intensity = 0.25
+shader_param/fade_start = 300000.0
+shader_param/fade_end_mul = 5.0
+shader_param/fade_power = 2.0
+shader_param/scale_start = 1e+09
+shader_param/scale_end_mul = 100.0
+shader_param/scale_power = 1.0
+shader_param/scale_min = 1.0

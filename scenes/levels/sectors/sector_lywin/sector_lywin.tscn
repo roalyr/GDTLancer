@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=2]
+[gd_scene load_steps=13 format=2]
 
 [ext_resource path="res://src/core/utils/editor_object.gd" type="Script" id=1]
 [ext_resource path="res://src/scenes/game_world/starsphere_slot.gd" type="Script" id=2]
@@ -9,6 +9,7 @@
 [ext_resource path="res://scenes/levels/sectors/sector_lywin/star_lywin_D/star_lywin_D.tscn" type="PackedScene" id=11]
 [ext_resource path="res://scenes/levels/sectors/sector_lywin/star_lywin_E/star_lywin_E.tscn" type="PackedScene" id=12]
 [ext_resource path="res://scenes/levels/sectors/sector_lywin/planet_lywin_a/planet_lywin_a.tscn" type="PackedScene" id=13]
+[ext_resource path="res://src/scenes/game_world/celestial/megastructure.gd" type="Script" id=14]
 
 [sub_resource type="SpatialMaterial" id=1]
 flags_unshaded = true
@@ -63,3 +64,8 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -187000, -35000, -129000 )
 
 [node name="Planet Lywin A" parent="SceneAssets" instance=ExtResource( 13 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -35000, 4000, -30000 )
+
+[node name="Megastructure" type="Spatial" parent="SceneAssets"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -16900, 1690, -16900 )
+script = ExtResource( 14 )
+seed_value = 11

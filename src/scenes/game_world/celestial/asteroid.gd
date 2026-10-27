@@ -19,6 +19,9 @@ export var model: PackedScene = null  # Rock mesh scene; the prefab's default is
 export var stretch: Vector3 = Vector3.ONE  # Per-axis model stretch, for a non-spherical rock
 export var deposit_id: String = Constants.MINING_DEPOSIT
 export var deposit: int = -1  # Units; negative: by size (MINING_ORE_PER_METRE)
+export var mineable: bool = true
+export var surface: Material = null  # The rock material if unset
+export var display_name: String = "Asteroid"
 
 var shell: float = Constants.MINING_SHELL_HP  # Laser damage left before it is bared
 var _exposed_left: float = 0.0  # s it stays bared
@@ -44,7 +47,7 @@ func _ready() -> void:
 	hull_bounds = _measure_model_bounds()
 	for node in _all_nodes(_model):
 		if node is MeshInstance:
-			node.material_override = RockMaterial
+			node.material_override = _surface()
 	# Collision follows the rock's outline (convex hull of its lowest level of detail, stretch baked
 	# in), so ships and shots touch rock, not air. Failing that, a sphere that fits inside the rock.
 	var hull_shape = CollisionHull.shape_for(_model, _model.transform)
@@ -55,8 +58,19 @@ func _ready() -> void:
 		var collision_radius: float = min(hull_bounds.size.x, min(hull_bounds.size.y, hull_bounds.size.z)) * 0.45
 		_collision.transform = Transform(Basis().scaled(Vector3.ONE * collision_radius), hull_bounds.position + hull_bounds.size * 0.5)
 	MeshLod.attach(_model, ViewDetail.attach(self, get_apparent_radius()), Constants.LOD_LEVEL_BY_BAND_DENSE)
-	add_to_group("mineable")
+	if mineable:
+		add_to_group("mineable")
+	else:
+		deposit = 0
 	set_physics_process(false)
+
+
+func get_display_name() -> String:
+	return display_name
+
+
+func _surface() -> Material:
+	return surface if surface != null else RockMaterial
 
 
 func get_deposit() -> int:
@@ -94,12 +108,12 @@ func _close_shell() -> void:
 
 func _set_glow(on: bool) -> void:
 	if on and _exposed_material == null:
-		_exposed_material = RockMaterial.duplicate()
+		_exposed_material = _surface().duplicate()
 		_exposed_material.set_shader_param("emission", Constants.MINING_EXPOSED_COLOR)
 		_exposed_material.set_shader_param("emission_strength", 0.6)
 	for node in _all_nodes(_model):
 		if node is MeshInstance:
-			node.material_override = _exposed_material if on else RockMaterial
+			node.material_override = _exposed_material if on else _surface()
 
 
 # A lance went in at `point`, along `axis`, for `damage`: breaks out a chunk of the deposit (see

@@ -493,6 +493,22 @@ const MINING_CHUNK_MODELS = [  # Low-poly rocks (the rock models' last LOD)
 const MINING_EXPOSED_COLOR = Color(1.0, 0.45, 0.15, 1.0)  # A bared rock's glow
 const MINING_DEPOSIT = "commodity_ore"  # What rocks hold
 
+# Megastructures (Megastructure): clusters of remnants left by successive builders, one layer each,
+# in plain geometric shapes for now (to judge scale by eye). Per layer: its material (the solid
+# shader with NLP off), how many pieces, their size (m, longest side), how far out from the cluster's
+# middle (times the first layer's size; 0: at the middle), and whether its pieces are mined (for what,
+# units per metre of radius).
+const MEGASTRUCTURE_LAYERS = [
+	{"name": "Ancient remnant", "material": "res://assets/art/materials_generic/mat_megastructure_ancient.tres",
+		"count": [1, 2], "size": [1500.0, 4000.0], "spread": [0.0, 0.3], "mineable": false},
+	{"name": "Old structure", "material": "res://assets/art/materials_generic/mat_megastructure_middle.tres",
+		"count": [5, 9], "size": [150.0, 600.0], "spread": [0.4, 0.7], "mineable": false},
+	{"name": "Derelict debris", "material": "res://assets/art/materials_generic/mat_megastructure_recent.tres",
+		"count": [14, 22], "size": [15.0, 80.0], "spread": [0.8, 1.6], "mineable": true,
+		"deposit_id": "commodity_relic", "deposit_per_metre": 0.15},
+]
+const MEGASTRUCTURE_SHAPES = ["box", "cylinder", "sphere", "prism", "capsule"]
+
 # Prices (Market): physics value * (1 + the station's markup) * (1 -+ standing share).
 const PRICE_MARKUP_MAX = 0.5  # A station's markup is rolled once per game in 0..this
 const PRICE_STANDING_SHARE = 0.1  # Standing 1 buys this much cheaper and sells this much dearer; -1 the reverse

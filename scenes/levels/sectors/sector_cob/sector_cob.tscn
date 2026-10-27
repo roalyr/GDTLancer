@@ -1,10 +1,11 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=9 format=2]
 
 [ext_resource path="res://src/core/utils/editor_object.gd" type="Script" id=1]
 [ext_resource path="res://src/scenes/game_world/starsphere_slot.gd" type="Script" id=2]
 [ext_resource path="res://scenes/starspheres/global_nebulas_starsphere/global_nebulas.tscn" type="PackedScene" id=3]
 [ext_resource path="res://scenes/levels/sectors/sector_cob/star_cob/star_cob.tscn" type="PackedScene" id=4]
 [ext_resource path="res://scenes/levels/sectors/sector_cob/planet_cob_a/planet_cob_a.tscn" type="PackedScene" id=5]
+[ext_resource path="res://src/scenes/game_world/celestial/megastructure.gd" type="Script" id=6]
 
 [sub_resource type="SpatialMaterial" id=1]
 flags_unshaded = true
@@ -47,3 +48,8 @@ __meta__ = {
 
 [node name="Planet Cob A" parent="SceneAssets" instance=ExtResource( 5 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 8000, -1000, -44800 )
+
+[node name="Megastructure" type="Spatial" parent="SceneAssets"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 29280, -570, -6550 )
+script = ExtResource( 6 )
+seed_value = 7

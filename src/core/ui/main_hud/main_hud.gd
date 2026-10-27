@@ -684,7 +684,7 @@ func describe_target_stats(player) -> String:
 		return PoolStringArray(lines).join("\n")
 	if _current_target.get("is_wreck"):
 		lines.append("WRECK  SALVAGE %d" % _current_target.get_salvage_units())
-	elif _current_target.has_method("is_exposed"):  # A rock (Constants MINING)
+	elif _current_target.has_method("is_exposed") and _current_target.mineable:  # A rock (Constants MINING)
 		if _current_target.get_deposit() <= 0:
 			lines.append("WORKED OUT")
 		elif _current_target.is_exposed():
