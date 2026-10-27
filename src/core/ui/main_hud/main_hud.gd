@@ -60,6 +60,7 @@ onready var button_afterburner: TextureButton = $ScreenControls/TemporaryToolZon
 var fitting_window: Control = null
 var debug_map: Control = null
 var debug_tools: Control = null
+var _world_rebuild_queued: bool = false  # A bracket rebuild is due at the end of the frame
 
 # --- Game Over UI ---
 
@@ -273,7 +274,7 @@ func _on_agent_despawning(agent_body) -> void:
 	# If our selected target is being removed, clear target UI.
 	if is_instance_valid(_current_target) and _current_target is Spatial and agent_body == _current_target:
 		_on_Player_Target_Deselected()
-	call_deferred("_rebuild_world_target_overlay")
+	_queue_world_target_rebuild()
 
 
 func _on_player_spawned(_player_body) -> void:
@@ -281,7 +282,15 @@ func _on_player_spawned(_player_body) -> void:
 
 
 func _on_agent_spawned(_agent_body, _init_data) -> void:
-	call_deferred("_rebuild_world_target_overlay")
+	_queue_world_target_rebuild()
+
+
+# One rebuild of the brackets however many ships come or go at once (a sector's population spawns
+# together: a rebuild each cost seconds).
+func _queue_world_target_rebuild() -> void:
+	if not _world_rebuild_queued:
+		_world_rebuild_queued = true
+		call_deferred("_rebuild_world_target_overlay")
 
 
 func _on_new_game_requested() -> void:
@@ -968,7 +977,7 @@ func _on_agent_damaged(agent_body, damage_amount: float, _source_agent) -> void:
 
 
 func _on_agent_disabled(agent_body) -> void:
-	call_deferred("_rebuild_world_target_overlay")  # Relabel the bracket as a wreck.
+	_queue_world_target_rebuild()  # Relabel the bracket as a wreck.
 	if not is_instance_valid(agent_body) or agent_body != GlobalRefs.player_agent_body:
 		return
 	_watch_own_wreck()
@@ -1074,6 +1083,7 @@ func _get_route_target_overlay_signature(sector_id: String) -> String:
 	return _target_projector.get_route_target_overlay_signature(sector_id)
 
 func _rebuild_world_target_overlay() -> void:
+	_world_rebuild_queued = false
 	_target_projector.rebuild_world_target_overlay()
 
 func _update_route_target_overlay() -> void:
