@@ -9,6 +9,7 @@ extends Node
 const TemplateIndexer = preload("res://src/scenes/game_world/world_manager/template_indexer.gd")
 const WorldGenerator = preload("res://src/scenes/game_world/world_manager/world_generator.gd")
 const JumpOrchestrator = preload("res://src/scenes/game_world/world_manager/jump_orchestrator.gd")
+const Fuel = preload("res://src/core/systems/fuel.gd")
 
 # --- State ---
 var _spawned_agent_bodies = []
@@ -421,7 +422,16 @@ func _on_jump_unavailable():
 	_pending_jump_target = ""
 
 
+# The player's jump burns fuel (Fuel) first; without enough it does not happen.
 func _on_player_jump_requested(target_sector_id):
+	if _jump_transition_active:
+		return
+	var ship = GlobalRefs.player_agent_body
+	if is_instance_valid(ship):
+		var refusal: String = Fuel.burn_for_jump(ship)
+		if refusal != "":
+			EventBus.emit_signal("announcement", refusal, "warning")
+			return
 	travel_to_sector(target_sector_id)
 
 

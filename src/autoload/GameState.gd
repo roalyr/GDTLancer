@@ -28,6 +28,9 @@ var player_storage: Dictionary = {}
 ## The player's standing with each faction (Standing): faction id -> -1..1; missing means its start.
 var player_standing: Dictionary = {}
 
+## Bounties posted on the player (Bounty): faction id -> WP; they lapse when the ship is lost.
+var player_bounties: Dictionary = {}
+
 ## Each station's price markup (Market): location id -> 0..PRICE_MARKUP_MAX, rolled on first use.
 var station_markups: Dictionary = {}
 
@@ -75,6 +78,7 @@ func reset_state() -> void:
 	player_fit = {}
 	player_storage = {}
 	player_standing = {}
+	player_bounties = {}
 	station_markups = {}
 	player_hull_scars = []
 	current_zone_instance = null

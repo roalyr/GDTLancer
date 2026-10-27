@@ -26,7 +26,7 @@ const PLAYER_INPUT_HANDLER_NAME = "PlayerInputHandler"
 const INITIAL_SECTOR_ID: String = "sector_elace"  # Starting sector for a new game
 # Losing the ship is not the end: the player watches the wreck for RESPAWN_DELAY s, the screen fades
 # to black, and they wake docked at home in the start's ship (its default fit). Lost: the ship, its
-# fit, cargo and loaded rounds. Kept: the bank, station storage and the world. The save is overwritten.
+# fit, cargo, loaded rounds and the bounties on it. Kept: the bank, station storage, standing and the world. The save is overwritten.
 const RESPAWN_DELAY = 7.0  # s
 const RESPAWN_FADE_DURATION = 2.0  # s, each way
 const DEFAULT_GAME_START_ID = "start_default"
@@ -463,6 +463,16 @@ const STANDING_ATTACK = 0.03  # Lost with a ship's faction the first time the pl
 const STANDING_KILL = 0.12  # Lost with a ship's faction when the player kills it
 const STANDING_KILL_ENEMY = 0.04  # Gained with each faction at war with the victim's
 
+# Bounties (Bounty): shares of the ship's value (Agent.get_value).
+const BOUNTY_WAR_SHARE = 0.2  # Paid by a faction for a ship of a faction it is at war with
+const BOUNTY_POST_SHARE = 0.1  # Posted by a faction on whoever kills one of its ships, per kill
+const BOUNTY_HUNT_SHARE = 0.05  # Ships go after a ship carrying a claimable posting worth this much of their own value
+
+# Fuel (Fuel): a jump burns ceil(ship mass / FUEL_MASS_PER_UNIT) units from the hold.
+const FUEL_COMMODITY = "commodity_fuel"
+const FUEL_MASS_PER_UNIT = 2500.0  # kg
+const FUEL_STARTING_UNITS = 6  # In the hold of a new game's ship and of the ship given after a loss
+
 # Prices (Market): physics value * (1 + the station's markup) * (1 -+ standing share).
 const PRICE_MARKUP_MAX = 0.5  # A station's markup is rolled once per game in 0..this
 const PRICE_STANDING_SHARE = 0.1  # Standing 1 buys this much cheaper and sells this much dearer; -1 the reverse
@@ -758,7 +768,6 @@ const ARENA_BEACON_SCENE = "res://scenes/prefabs/station/arena_beacon.tscn"
 # best genome; a spawn picks a niche (softly by fitness, so near-equal ones all carry on), then
 # re-flies its genome or a mutant. Fitness is noisy, so it is shrunk toward 0 by EVO_PRIOR_LIVES.
 const EVO_WEAPON_ODDS = {"laser": 0.5, "missile": 0.25, "cannon": 0.25}  # A new weapon is of this kind this often
-const EVO_KILL_BOUNTY_SHARE = 0.2  # Share of a victim's value paid to its killer
 const EVO_REPAIR_COST_SHARE = 0.5  # A full repair costs this share of the hull's value (less for less)
 const EVO_UPKEEP_PER_HOUR = 0.5  # Running costs: this share of the ship's value per hour alive
 const EVO_PRIOR_LIVES = 2.0  # Fitness mean = sum / (lives + this)

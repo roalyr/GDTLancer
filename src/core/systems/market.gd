@@ -39,15 +39,17 @@ static func part_sale_price(value: float, location_id: String, faction: String =
 	return int(Constants.PRICE_PART_SELL_SHARE * price(value, location_id, faction))
 
 
-# Sells the whole hold to the station into the bank. Returns {"banked", "units"}.
+# Sells the hold to the station into the bank, all but the fuel. Returns {"banked", "units"}.
 static func sell_hold(ship: Node, location_id: String, faction: String = "") -> Dictionary:
 	var result := {"banked": 0, "units": 0}
-	for commodity_id in ship.cargo:
+	for commodity_id in ship.cargo.keys():
+		if commodity_id == Constants.FUEL_COMMODITY:
+			continue
 		var commodity = TemplateDatabase.get_template(commodity_id)
 		var units: int = int(ship.cargo[commodity_id])
 		result.units += units
 		if commodity is CommodityTemplate:
 			result.banked += units * cargo_sale_price(float(commodity.base_value), location_id, faction)
-	ship.clear_cargo()
+		ship.remove_cargo(commodity_id, units)
 	GameState.player_bank += result.banked
 	return result

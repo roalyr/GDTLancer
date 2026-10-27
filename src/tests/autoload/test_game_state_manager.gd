@@ -108,7 +108,7 @@ func test_losing_the_ship_keeps_the_bank_and_storage_and_wakes_at_home():
 	GameStateManager.lose_ship()
 	assert_eq(GameState.player_bank, 1234, "The bank is kept")
 	assert_eq(GameState.player_storage.get("commodity_tech"), 3, "and the storage")
-	assert_true(GameState.player_cargo.empty(), "The cargo goes with the ship")
+	assert_eq_deep(GameState.player_cargo, {Constants.FUEL_COMMODITY: Constants.FUEL_STARTING_UNITS})  # The cargo goes with the ship; the new one is fuelled
 	assert_true(GameState.player_fit.empty(), "The new ship has its hull's default fit")
 	var game_start = TemplateDatabase.game_starts.get(Constants.DEFAULT_GAME_START_ID)
 	assert_eq(GameState.player_ship_template_id, game_start.player_ship_template if game_start != null else Constants.FALLBACK_SHIP_TEMPLATE_ID, "The start's ship")

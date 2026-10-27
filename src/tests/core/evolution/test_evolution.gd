@@ -10,6 +10,7 @@ class FakeBody extends Node:
 	var cargo := {}
 	var hull_max := 50.0
 	var hull := 50.0
+	var bounty_paid := 0.0
 
 	func clear_cargo() -> void:
 		cargo = {}
@@ -77,10 +78,12 @@ func test_a_kill_pays_a_bounty_and_ends_the_victims_life_in_the_archive():
 	var hunter: Dictionary = Evolution.begin_life("verdant", "1v1")
 	var prey: Dictionary = Evolution.begin_life("violet", "1v1")
 	Evolution._on_agent_damaged(_body(prey.uid), 10.0, _body(hunter.uid))
-	Evolution._on_agent_disabled(_body(prey.uid))
+	var wreck := _body(prey.uid)
+	wreck.bounty_paid = 123.0  # What Bounty.on_kill paid the killer
+	Evolution._on_agent_disabled(wreck)
 	assert_false(Evolution.live.has(prey.uid))
 	assert_eq(int(Evolution.live[hunter.uid].kills), 1)
-	assert_almost_eq(float(Evolution.live[hunter.uid].bounty), Constants.EVO_KILL_BOUNTY_SHARE * float(prey.cost), 0.01)
+	assert_almost_eq(float(Evolution.live[hunter.uid].bounty), 123.0, 0.01)
 	assert_eq(int(Evolution.totals.deaths), 1)
 	assert_eq(Evolution.pools.violet.cells.size(), 1, "Its genome takes an empty niche")
 

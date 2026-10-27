@@ -306,7 +306,7 @@ func _on_agent_disabled(body) -> void:
 		return
 	var killer: String = str(live[uid].get("last_hit_by", ""))
 	if live.has(killer):
-		var bounty: float = Constants.EVO_KILL_BOUNTY_SHARE * float(live[uid].cost)
+		var bounty: float = float(body.get("bounty_paid")) if body.get("bounty_paid") != null else 0.0  # Bounty.on_kill
 		live[killer].kills = int(live[killer].kills) + 1
 		live[killer].victims.append(uid)
 		live[killer].bounty = float(live[killer].bounty) + bounty

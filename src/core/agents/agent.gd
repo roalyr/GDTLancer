@@ -10,6 +10,8 @@ var interaction_radius: float = 150.0
 var faction: String = ""  # Constants.FACTIONS id; the player's is "player"
 var _grudges: Dictionary = {}  # Instance ids of ships that shot this one: enemies whatever their faction
 var _hit_by_player: bool = false  # The player has hit it (its faction's standing paid for that once)
+var bounties: Dictionary = {}  # Bounty postings on this ship: faction -> WP (the player's are in GameState)
+var bounty_paid: float = 0.0  # A wreck: what its killer was paid for it (Bounty.on_kill)
 var _last_hit_by = null  # weakref to the ship that hit it last: the killer, when it becomes a wreck
 var ship_template = null  # ShipTemplate this agent flies
 var evo_uid: String = ""  # Arena NPCs: their life in Evolution
@@ -41,6 +43,7 @@ const MeshLod = preload("res://src/core/agents/components/mesh_lod.gd")
 const ViewDetail = preload("res://src/core/agents/components/view_detail.gd")
 const ShipFit = preload("res://src/core/systems/ship_fit.gd")
 const Standing = preload("res://src/core/systems/standing.gd")
+const Bounty = preload("res://src/core/systems/bounty.gd")
 
 # --- Fit ---
 var fit: Dictionary = {}  # ShipFit fit: parts per slot. The player's lives in GameState.player_fit.
@@ -449,12 +452,14 @@ func undock() -> void:
 # --- Factions ---
 
 # Whether this ship treats `other` as an enemy: its faction is at war with other's (with the player:
-# its standing is hostile), or other shot it. One-sided: a ship that hits another by accident does
+# its standing is hostile), other shot it, or other carries a bounty worth hunting (Bounty). One-sided: a ship that hits another by accident does
 # not start hating it.
 func is_enemy_of(other) -> bool:
 	if not (is_instance_valid(other) and other != self and other.get("faction") != null):
 		return false
 	if _grudges.has(other.get_instance_id()):
+		return true
+	if Bounty.is_worth_hunting(self, other):
 		return true
 	if other.faction == "player":
 		return Standing.is_hostile(faction)
@@ -505,6 +510,7 @@ func become_wreck() -> void:
 	var killer = _last_hit_by.get_ref() if _last_hit_by != null else null
 	if is_instance_valid(killer) and killer.has_method("is_player") and killer.is_player():
 		Standing.on_player_killed(faction)
+	bounty_paid = Bounty.on_kill(killer, self) if is_instance_valid(killer) else 0.0
 	for spot in _smoulders:
 		if is_instance_valid(spot):
 			spot.duration_factor = Constants.SMOULDER_WRECK_FACTOR  # Wrecks smoulder on

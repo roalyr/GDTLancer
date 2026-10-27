@@ -5,6 +5,7 @@ extends Reference
 const CombatAssessment = preload("res://src/core/systems/combat_assessment.gd")
 const ScreenSpace = preload("res://src/core/ui/screen_space.gd")
 const Standing = preload("res://src/core/systems/standing.gd")
+const Bounty = preload("res://src/core/systems/bounty.gd")
 
 var _hud: Control
 var _last_full_refresh_ms := -1000000  # OS ticks of the last full world-bracket refresh
@@ -314,7 +315,7 @@ func get_projected_target_context_hint(target_ref) -> String:
 
 
 # The player's read of a live ship, in words: what it is doing, whether it is hostile to the
-# player, and (when selected or hostile) how tough it is and whether it can see the player.
+# player, and (when selected or hostile) its bounty, how tough it is and whether it can see the player.
 func get_ship_cues(target_ref, detailed: bool = true) -> Array:
 	var cues: Array = []
 	var player = GlobalRefs.player_agent_body
@@ -327,6 +328,10 @@ func get_ship_cues(target_ref, detailed: bool = true) -> Array:
 		cues.append("HOSTILE")
 	elif Standing.label(target_ref.get("faction")) == "FRIENDLY":
 		cues.append("FRIENDLY")
+	if detailed:
+		var price: float = Bounty.claimable(player, target_ref)
+		if price >= 1.0:
+			cues.append("BOUNTY %d" % int(round(price)))
 	var ai = target_ref.get_node_or_null(Constants.AI_CONTROLLER_NODE_NAME)
 	if ai != null and ai.has_method("get_activity_label") and ai.get_activity_label() != "":
 		cues.append(ai.get_activity_label())

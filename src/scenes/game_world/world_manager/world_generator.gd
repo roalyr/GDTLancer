@@ -14,3 +14,4 @@ func generate_new_world(start_template_id: String = Constants.DEFAULT_GAME_START
 	GameState.player_docked_at = game_start.player_starting_location
 	GameState.home_location_id = game_start.player_starting_location
 	GameState.player_bank = game_start.starting_bank
+	GameState.player_cargo = {Constants.FUEL_COMMODITY: Constants.FUEL_STARTING_UNITS}
