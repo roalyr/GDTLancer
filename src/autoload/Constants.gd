@@ -876,7 +876,7 @@ const EVO_PRIOR_LIVES = 2.0  # Fitness mean = sum / (lives + this)
 const EVO_SELECTION_TEMPERATURE = 0.2  # Niche pick weight = exp(fitness / this)
 const EVO_REFLY_CHANCE = 0.25  # A spawn flies a niche's genome unchanged (to measure it again)
 const EVO_IMMIGRANT_CHANCE = 0.05  # A spawn is a fresh random genome
-const EVO_PROVING = false  # Proving mode: most spawns re-fly the archetypes' leading genomes until they have EVO_PROVE_LIVES lives (presets need the evidence)
+const EVO_PROVING = true  # Proving mode: most spawns re-fly the archetypes' leading genomes until they have EVO_PROVE_LIVES lives (presets need the evidence)
 const EVO_PROVE_REFLY_CHANCE = 0.7  # In proving mode: a spawn re-flies a leading genome short of its lives (a mutant otherwise; no immigrants)
 const EVO_PROVE_LIVES = 10  # Lives that make a genome proven (tools/export_presets.gd --min-lives)
 const EVO_PROVE_PER_ARCHETYPE = 3  # The fittest this many niche bests of each archetype (PresetExporter.archetype, both factions) are proved
