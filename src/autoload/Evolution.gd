@@ -2,13 +2,16 @@
 # ARENA AND EVOLUTION). Each faction has its own pool: an archive of niches (Genome.niche), each
 # holding the best genome found for it. A spawn (begin_life) picks a niche softly by fitness and
 # flies its genome again or a mutant; the life's end (death or retirement) scores the genome and
-# may make it its niche's best. Saved with the game (serialize / deserialize).
+# may make it its niche's best. In proving mode (Constants EVO_PROVING) it mostly re-flies the leading
+# genomes of each archetype until they have enough lives to be presets (_unproven).
+# Saved with the game (serialize / deserialize).
 # Console: lines start with "EVO " (Constants EVO_LOG_LEVEL), a report every EVO_REPORT_INTERVAL.
 # File: every finished life in full, one JSON line each, under Constants EVO_LOG_DIR.
 
 extends Node
 
 const Genome = preload("res://src/core/evolution/genome.gd")
+const PresetExporter = preload("res://src/core/evolution/preset_exporter.gd")
 const SAVE_VERSION = 1
 
 var run_id: String = ""  # Names the log file; a new game starts a new run
@@ -398,7 +401,12 @@ func _pick_genome(faction: String) -> Dictionary:
 	for niche in pool.cells:
 		if genomes.has(pool.cells[niche]):
 			cells.append(pool.cells[niche])
-	if cells.empty() or randf() < Constants.EVO_IMMIGRANT_CHANCE:
+	if Constants.EVO_PROVING and not cells.empty() and randf() < Constants.EVO_PROVE_REFLY_CHANCE:
+		var unproven: Array = _unproven(faction)
+		if not unproven.empty():
+			return {"genome_id": unproven[randi() % unproven.size()], "how": "refly"}
+	var immigrant_chance: float = 0.0 if Constants.EVO_PROVING else Constants.EVO_IMMIGRANT_CHANCE
+	if cells.empty() or randf() < immigrant_chance:
 		return {"genome_id": _add_genome(Genome.random_genome(), faction, ""), "how": "immigrant"}
 	var weights: Array = []
 	var total := 0.0
@@ -417,6 +425,29 @@ func _pick_genome(faction: String) -> Dictionary:
 		return {"genome_id": parent, "how": "refly"}
 	var behavior_on: bool = int(pool.lives) >= Constants.EVO_BEHAVIOR_START_LIVES
 	return {"genome_id": _add_genome(Genome.mutate(genomes[parent].genome, behavior_on), faction, parent), "how": "mutant"}
+
+
+# Proving mode: this faction's niche bests that rank among the fittest EVO_PROVE_PER_ARCHETYPE of their
+# archetype (both factions' pools as one, as the presets are picked) and have fewer than EVO_PROVE_LIVES lives.
+func _unproven(faction: String) -> Array:
+	var ranked: Dictionary = {}  # Archetype -> [[fitness, genome id]]
+	for pool_faction in pools:
+		var cells: Dictionary = pools[pool_faction].cells
+		for niche in cells:
+			if genomes.has(cells[niche]) and niche.find("|drifter|") < 0:
+				var kind: String = PresetExporter.archetype(niche)
+				if not ranked.has(kind):
+					ranked[kind] = []
+				ranked[kind].append([shrunk_fitness(cells[niche]), cells[niche]])
+	var unproven: Array = []
+	for kind in ranked:
+		var picks: Array = ranked[kind]
+		picks.sort_custom(self, "_fitter_first")
+		for i in range(min(Constants.EVO_PROVE_PER_ARCHETYPE, picks.size())):
+			var entry: Dictionary = genomes[picks[i][1]]
+			if entry.faction == faction and int(entry.lives) < Constants.EVO_PROVE_LIVES:
+				unproven.append(picks[i][1])
+	return unproven
 
 
 func _add_genome(genome: Dictionary, faction: String, parent: String) -> String:

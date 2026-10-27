@@ -210,3 +210,18 @@ func test_presets_come_in_three_weights_per_role():
 	assert_eq(Exporter.archetype("s-1.5|missile-raider|-"), "missile-raider light")
 	assert_eq(Exporter.archetype("s+0.5|missile-raider|-"), "missile-raider medium")
 	assert_eq(Exporter.archetype("s+2.5|missile-raider|-"), "missile-raider heavy")
+
+
+func test_proving_reflies_the_leading_unproven_of_each_archetype():
+	var ids: Array = []
+	var niches: Array = ["s+1.5|raider|long", "s+1.5|raider|mid", "s+2.0|raider|short", "s+2.5|raider|-", "s+1.5|drifter|-"]
+	for i in range(niches.size()):
+		var faction: String = "violet" if i == 1 else "verdant"
+		var genome_id: String = Evolution._add_genome(Evolution.Genome.random_genome(), faction, "")
+		Evolution.genomes[genome_id].lives = 10 if i == 0 else 3
+		Evolution.genomes[genome_id].fitness_sum = 5.0 - i
+		Evolution.pools[faction].cells[niches[i]] = genome_id
+		ids.append(genome_id)
+	var unproven: Array = Evolution._unproven("verdant")
+	assert_eq(unproven, [ids[2]], "The top three raider heavies but the proven one and the other faction's; not the fourth, nor a drifter")
+	assert_eq(Evolution._unproven("violet"), [ids[1]])
