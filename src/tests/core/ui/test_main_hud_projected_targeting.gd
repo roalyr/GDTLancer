@@ -350,28 +350,24 @@ func test_projected_target_bracket_ships_are_bright_when_they_see_the_player_dim
 	hostile.sees = false
 	bracket.refresh_style()
 	assert_eq(normal_bracket.modulate, Color(dim, dim, dim, Constants.UI_UNAWARE_ALPHA), "A neutral too: its colour, dimmed")
+	assert_eq(bracket.get_node("InfoPanel/InfoLabel").get_color("font_color"), Color.white, "but not its label")
 	GlobalRefs.player_agent_body = saved_player
 
 
-func test_projected_target_bracket_doubles_the_cross_on_stations_and_hostile_ships_only() -> void:
+func test_projected_target_bracket_crosses_are_doubled_and_celestials_fainter() -> void:
 	var bracket = _create_projected_target_bracket()
 	var normal_bracket = bracket.get_node("BracketNormal")
 	var rock = Spatial.new()
 	add_child_autofree(rock)
 	bracket.configure_target(rock, "Rock")
-	assert_eq(normal_bracket.rect_scale, Vector2.ONE, "Celestials as they were")
+	assert_eq(normal_bracket.rect_scale, Vector2.ONE * 2.0, "Every cross twice the size")
+	assert_almost_eq(normal_bracket.modulate.a, Constants.COLOR_UI_TARGET_NEUTRAL.a * Constants.UI_CELESTIAL_ALPHA, 0.001, "Celestials fainter")
 	var station = StaticBody.new()
 	station.set_script(DockableStationScript)
 	add_child_autofree(station)
 	bracket.configure_target(station, "Station")
-	assert_eq(normal_bracket.rect_scale, Vector2.ONE * 2.0, "Stations twice the size")
-	var hostile = HostileShipStub.new()
-	add_child_autofree(hostile)
-	bracket.configure_target(hostile, "Hostile")
-	assert_eq(normal_bracket.rect_scale, Vector2.ONE * 2.0, "Hostile ships twice the size")
-	hostile.is_wreck = true
-	bracket.refresh_style()
-	assert_eq(normal_bracket.rect_scale, Vector2.ONE, "Its wreck as it was")
+	assert_eq(normal_bracket.rect_scale, Vector2.ONE * 2.0)
+	assert_eq(normal_bracket.modulate.a, Constants.COLOR_UI_TARGET_NEUTRAL.a, "Stations as they were")
 
 
 func test_projected_target_bracket_distance_formatter_matches_requested_magnitudes() -> void:

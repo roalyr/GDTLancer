@@ -4,7 +4,7 @@
 extends Button
 
 const BRACKET_TEXTURE_RECT_SIZE = Vector2(150, 150)
-const BRACKET_LARGE_SCALE = 2.0  # The unselected cross on stations and hostile ships
+const BRACKET_CROSS_SCALE = 2.0  # The unselected cross, drawn this many times its texture's size
 const DISTANCE_KILOUNIT_SCALE = 1000.0
 const DISTANCE_PLAIN_THRESHOLD = 2000.0
 const DISTANCE_DECIMAL_K_THRESHOLD = 10000.0
@@ -118,11 +118,14 @@ func _apply_bracket_style() -> void:
 		_normal_bracket.visible = not _is_selected
 		if _is_route_target(target_ref) or _is_jump_point_target(target_ref):
 			_normal_bracket.modulate = _get_jump_route_color()
+		elif _is_live_ship():
+			_normal_bracket.modulate = _awareness_shade(_get_ship_color())
 		else:
 			_normal_bracket.modulate = _get_ship_color()
-		var large: bool = _is_dockable_target(target_ref) or (_is_live_ship() and _is_hostile_to_player())
+			if _is_celestial():
+				_normal_bracket.modulate.a *= Constants.UI_CELESTIAL_ALPHA
 		_normal_bracket.rect_pivot_offset = BRACKET_TEXTURE_RECT_SIZE * 0.5
-		_normal_bracket.rect_scale = Vector2.ONE * (BRACKET_LARGE_SCALE if large else 1.0)
+		_normal_bracket.rect_scale = Vector2.ONE * BRACKET_CROSS_SCALE
 	if is_instance_valid(_selected_bracket):
 		_selected_bracket.visible = _is_selected
 		_apply_selected_color()
@@ -142,14 +145,21 @@ func refresh_style() -> void:
 		_sync_label()  # Label colour follows the bracket's
 
 
-# Unselected: red for a live ship hostile to the player, its faction's colour otherwise (either dim
-# while it has not detected the player), grey for wrecks.
+# Unselected: red-orange for a live ship hostile to the player, its faction's colour otherwise, grey
+# for wrecks. The cross dims it while the ship has not detected the player (_awareness_shade); the
+# label does not.
 func _get_ship_color() -> Color:
 	if not (is_instance_valid(target_ref) and target_ref.has_method("get_faction_color")):
 		return Constants.COLOR_UI_TARGET_NEUTRAL
 	if target_ref.get("is_wreck"):
 		return Constants.COLOR_UI_WRECK
-	return _awareness_shade(Constants.COLOR_UI_TARGET_HOSTILE if _is_hostile_to_player() else target_ref.get_faction_color())
+	return Constants.COLOR_UI_TARGET_HOSTILE if _is_hostile_to_player() else target_ref.get_faction_color()
+
+
+# A rock, a planet or the like: no side, not a station, a wreck or a route.
+func _is_celestial() -> bool:
+	return is_instance_valid(target_ref) and not target_ref.has_method("get_faction_color") and not target_ref.get("is_wreck") \
+			and not _is_dockable_target(target_ref) and not _is_route_target(target_ref) and not _is_jump_point_target(target_ref)
 
 
 # `color` as it is if the ship detects the player, dimmed (Constants UI_UNAWARE_*) if not.

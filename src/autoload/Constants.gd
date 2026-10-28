@@ -557,7 +557,7 @@ const THREAT_RANGE = 15000.0  # m; detected hostiles further than this are not s
 const THREAT_REFRESH_INTERVAL = 0.25  # s between rechecks of who is hostile
 const THREAT_RING_RADIUS_SHARE = 0.25  # Ring radius, of the screen's shorter side
 const THREAT_ARROW_SIZE = [28.0, 56.0]  # px, far to near
-const THREAT_COLOR = Color(1.0, 0.15, 0.1, 1.0)
+const THREAT_COLOR = Color(1.0, 0.36, 0.12, 1.0)  # Red-orange, as hostile brackets
 
 # Traffic (Traffic): persistent NPCs travelling the sector graph, the population outside the arenas.
 const TRAFFIC_ROSTER = [  # Kind (faction, niche role; "" any) and how many
@@ -1039,9 +1039,10 @@ const ANNOUNCE_GAP = 4.0  # px between two
 const ANNOUNCE_PADDING = Vector2(14, 6)  # px round the text
 const ANNOUNCE_SLIDE_RATE = 12.0  # How fast pushed ones slide up to their places (1/s)
 const COLOR_UI_TARGET_SELECTED = Color(1.0, 0.9, 0.35, 1.0)  # Yellow: anything not hostile, wrecks included
-const COLOR_UI_TARGET_HOSTILE = Color(1.0, 0.22, 0.18, 1.0)  # Red: a live ship hostile to the player
+const COLOR_UI_TARGET_HOSTILE = Color(1.0, 0.36, 0.12, 1.0)  # Red-orange: a live ship hostile to the player
 const UI_UNAWARE_DIM = 0.55  # A live ship that has not detected the player shows its colour this bright
-const UI_UNAWARE_ALPHA = 0.85  # and this opaque
+const UI_UNAWARE_ALPHA = 0.85  # and this opaque (its cross only: labels stay readable)
+const UI_CELESTIAL_ALPHA = 0.45  # Crosses on rocks, planets and the like are this faint
 const COLOR_UI_TARGET_NEUTRAL = Color(0.35, 0.95, 1.0, 0.95)  # Cyan: brackets of things without a faction
 const COLOR_UI_WRECK = Color(0.6, 0.6, 0.6, 0.9)  # Grey: wreck brackets
 
