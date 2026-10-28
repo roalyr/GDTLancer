@@ -1,15 +1,17 @@
 # OreChunk: a piece a lance broke off a rock (Asteroid.break_chunks; Constants MINING). It drifts,
 # holds its rock's deposit as salvage, and passes for a wreck: brackets show it and salvagers look for
 # it the same way (it is in the agent_body group with is_wreck set). It comes crusted: laser fire
-# burns the crust off (MINING_CRUST_HP) and bares the ore as slag that glows hot and fades as it
-# cools (MINING_COOL_TIME); cooled, a harpoon tows and strips it (the lance stuck in it first, into
-# a seat it fits). Stripped, it is cleared away like a wreck.
+# burns the crust off (MINING_CRUST_HP) and bares the ore, a cluster of smooth metal lumps in place
+# of the rock, glowing hot and fading as it cools (MINING_COOL_TIME); cooled, a harpoon tows and
+# strips it. Stripped, it is cleared away like a wreck.
 
 extends RigidBody
 
 const LanceController = preload("res://src/core/agents/components/lance_controller.gd")
 const MeshLod = preload("res://src/core/agents/components/mesh_lod.gd")
 const RockMaterial = preload("res://assets/art/materials_generic/mat_asteroid_rock.tres")
+const OreMaterial = preload("res://assets/art/materials_generic/mat_ore_bared.tres")
+const ORE_LUMPS = 3  # Smooth lumps the bared ore is drawn as
 
 var is_wreck: bool = true
 var is_docked: bool = false
@@ -86,15 +88,37 @@ func cut(damage: float) -> void:
 	crust = max(0.0, crust - damage)
 	if crust <= 0.0:
 		heat = Constants.MINING_COOL_TIME
-		var material: Material = RockMaterial.duplicate()
-		if material is ShaderMaterial:
-			_slag_material = material
-			_slag_material.set_shader_param("emission", Constants.MINING_SLAG_COLOR)
-			for node in _all_nodes(get_node("Model")):
-				if node is MeshInstance:
-					node.material_override = _slag_material
+		_slag_material = OreMaterial.duplicate()
+		_slag_material.set_shader_param("emission", Constants.MINING_SLAG_COLOR)
+		_bare_ore()
 		_show_heat()
 		set_process(true)
+
+
+# The rock model gives way to the ore: ORE_LUMPS smooth low-poly lumps round the middle, a shape
+# of their own for each chunk.
+func _bare_ore() -> void:
+	var model = get_node_or_null("Model")
+	if model != null:
+		model.visible = false
+	var rng := RandomNumberGenerator.new()
+	rng.seed = get_instance_id()
+	var ore := Spatial.new()
+	ore.name = "Ore"
+	add_child(ore)
+	for index in range(ORE_LUMPS):
+		var size: float = _radius * rng.randf_range(0.45, 0.7)
+		var lump := SphereMesh.new()
+		lump.radius = size
+		lump.height = size * rng.randf_range(1.3, 2.0)
+		lump.radial_segments = 7
+		lump.rings = 4
+		var part := MeshInstance.new()
+		part.mesh = lump
+		part.material_override = _slag_material
+		var offset := Vector3(rng.randf_range(-1, 1), rng.randf_range(-1, 1), rng.randf_range(-1, 1)).normalized() * _radius * 0.3
+		part.transform = Transform(Basis(Vector3(rng.randf(), rng.randf(), rng.randf()).normalized(), rng.randf_range(0, TAU)), offset)
+		ore.add_child(part)
 
 
 func _process(delta: float) -> void:

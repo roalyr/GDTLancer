@@ -277,13 +277,17 @@ func _find_arena() -> Node:
 
 
 # Past WRECK_LOOTED_CAP wrecks, removes the oldest stripped ones; past WRECK_MAX, the oldest of
-# any. Wrecks someone is harpooning, and the player's own, stay.
+# any; past LANCE_LOOSE_MAX loose lances, the oldest. Ones someone is harpooning, and the player's
+# own wreck, stay.
 func clear_old_wrecks() -> void:
 	var wrecks: Array = []
+	var loose: Array = []  # Lances adrift or in rocks: counted apart (Constants.LANCE_LOOSE_MAX)
 	var held := {}
 	for body in get_tree().get_nodes_in_group("agent_body"):
 		if body.get("is_wreck"):
-			if not body.is_player():
+			if body.is_in_group("loose_lance"):
+				loose.append(body)
+			elif not body.is_player():
 				wrecks.append(body)
 			continue
 		var tools = body.get_node_or_null("ToolController")
@@ -291,6 +295,14 @@ func clear_old_wrecks() -> void:
 			for index in range(tools.get_tool_count()):
 				if is_instance_valid(tools.get_target(index)):
 					held[tools.get_target(index)] = true
+	loose.sort_custom(self, "_older_wreck_first")
+	var spare: int = loose.size() - Constants.LANCE_LOOSE_MAX
+	for lance in loose:
+		if spare <= 0:
+			break
+		if not held.has(lance):
+			lance.despawn()
+			spare -= 1
 	wrecks.sort_custom(self, "_older_wreck_first")
 	var excess: int = wrecks.size() - Constants.WRECK_LOOTED_CAP
 	for wreck in wrecks.duplicate():

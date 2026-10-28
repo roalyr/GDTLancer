@@ -4,8 +4,9 @@
 # physics' collision: a ship's hull box (along its path this step relative to the ship, as a fast
 # lance would otherwise pass through) or, for a rock, a ray along its path. Meeting it, the lance
 # strikes or glances (LanceController.strike / strike_rock); anything else in the way, the target
-# gone or LANCE_SHOT_LIFE s up, it misses and is lost. A child of the world, not of the ship: a lance
-# outlives a pass; if its ship is gone before it lands, it is lost.
+# gone or LANCE_SHOT_LIFE s up, it misses. A lance that glances or misses drifts on as a LooseLance
+# (LanceController.drop_lance) for a harpoon to recover. A child of the world, not of the ship: a
+# lance outlives a pass; if its ship is gone before it lands, it is lost.
 
 extends Spatial
 
@@ -55,6 +56,8 @@ func _physics_process(delta: float) -> void:
 			if ray.collider == target:
 				launcher.strike_rock(target, ray.position, ray.normal, -1.0, direction, velocity)
 			else:
+				var surface: Vector3 = ray.collider.linear_velocity if ray.collider is RigidBody else Vector3.ZERO
+				launcher.drop_lance(ray.position, velocity, ray.normal, surface)
 				launcher.emit_signal("glanced", target, "missed")
 			queue_free()
 			return
@@ -63,5 +66,6 @@ func _physics_process(delta: float) -> void:
 
 func _lost(launcher, target) -> void:
 	if is_instance_valid(launcher):
+		launcher.drop_lance(global_transform.origin, velocity)
 		launcher.emit_signal("glanced", target, "missed")
 	queue_free()

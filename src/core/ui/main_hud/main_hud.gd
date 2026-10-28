@@ -469,22 +469,19 @@ func _tool_button_nodes() -> Array:
 
 
 # The LANCE button, after the tools (only with a lance fitted): lances left and ARM while safe;
-# ARMED (highlighted) and the closing speed on the selected target against the speed a strike needs
-# (the number an NPC rams by); LOADING while the next lance slides in.
+# ARMED (highlighted) and the speed a throw would strike the selected target at against the speed a
+# strike needs, or TOO SLOW (it runs faster than the ship can gain on it) or TOO HOT (its side's guns
+# would take the whole hull on the way in: what NPCs weigh); LOADING while the next lance slides in.
+# Armed, APPROACH flies the throwing pass at a ship or a rock; one throw (a volley from launchers
+# side by side) and it disarms.
 func _update_lance_button() -> void:
 	var player = GlobalRefs.player_agent_body
 	var lance = player.get_lance() if is_instance_valid(player) and player.has_method("get_lance") else null
 	button_lance.visible = lance != null
 	var controller = _get_player_controller()
 	var selected = controller.get("_selected_target") if is_instance_valid(controller) else null
-	var ram: bool = is_instance_valid(controller) and controller.has_method("is_ram_ready") and controller.is_ram_ready(selected if is_instance_valid(selected) else null)  # As the button will act
-	var label: String = "RAM" if ram else "APPROACH"  # Approach rams while the lance is armed
-	var ram_target = controller.get("_selected_target") if ram else null
-	if ram and player.outruns_ram(ram_target):
-		label = "RAM: TOO SLOW"  # It runs too fast to catch
-	elif ram and is_instance_valid(ram_target) and ram_target is RigidBody and ram_target.get("is_wreck") == false and player.ram_outlook(ram_target).cost >= player.hull:
-		label = "RAM: TOO HOT"  # Its side's guns would take the whole hull on the way in (what NPCs weigh)
-	button_approach.get_node("LabelButtonApproach").text = label
+	var ram: bool = is_instance_valid(controller) and controller.has_method("is_ram_ready") and controller.is_ram_ready(selected if is_instance_valid(selected) else null)  # As APPROACH will act
+	var ram_target = selected if ram and is_instance_valid(selected) else null
 	if lance == null:
 		return
 	var state: String = "ARM"
@@ -500,7 +497,11 @@ func _update_lance_button() -> void:
 	elif lance.armed:
 		state = "ARMED"
 		var target = _current_target
-		if is_instance_valid(target) and target is RigidBody:
+		if ram_target != null and player.outruns_ram(ram_target):
+			state = "TOO SLOW"
+		elif ram_target is RigidBody and ram_target.get("is_wreck") == false and player.ram_outlook(ram_target).cost >= player.hull:
+			state = "TOO HOT"
+		elif is_instance_valid(target) and target is RigidBody:
 			state = "%d / %d" % [int(seated.strike_speed_on(target)), int(Constants.LAW_LANCE_MIN_SPEED)]
 	button_lance.get_node("Label").text = "LANCE %d\n%s" % [player.get_lance_nails(), state]
 	_apply_button_toggle_state(button_lance, lance.armed)
@@ -715,7 +716,9 @@ func describe_target_stats(player) -> String:
 		return PoolStringArray(lines).join("\n")
 	if not (_current_target is Spatial):
 		return PoolStringArray(lines).join("\n")
-	if _current_target.has_method("has_crust"):  # An ore chunk (Constants MINING)
+	if _current_target.is_in_group("loose_lance"):
+		lines.append("LANCE: HARPOON IT")
+	elif _current_target.has_method("has_crust"):  # An ore chunk (Constants MINING)
 		if _current_target.has_crust():
 			lines.append("CRUST %d%%: BURN IT  ORE %d" % [int(ceil(100.0 * _current_target.crust / Constants.MINING_CRUST_HP)), _current_target.get_salvage_units()])
 		elif _current_target.is_hot():

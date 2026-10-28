@@ -192,3 +192,27 @@ func test_a_lost_target_stops_the_commands_on_it():
 	assert_eq(recorder.last, "stop", "Lost: no more following it")
 	controller.free()
 	recorder.free()
+
+
+func test_a_missile_rack_launches_once_per_press():
+	var Tools = load("res://src/core/agents/components/tool_controller.gd")
+	var Agent = load("res://src/core/agents/agent.gd")
+	var ship = Agent.new()
+	add_child_autofree(ship)
+	var tools = Tools.new()
+	ship.add_child(tools)
+	var missile = UtilityToolTemplate.new()
+	missile.tool_type = "missile"
+	var laser = UtilityToolTemplate.new()
+	laser.tool_type = "laser"
+	tools.set_tools([missile, laser])
+	var controller = PlayerControllerScript.new()
+	controller.agent_body = ship
+	controller._tool_controller = tools
+	tools._targets[0] = ship
+	tools._targets[1] = ship
+	controller._on_projectile_fired(0, null)
+	assert_false(tools.is_active(0), "Launched one: the rack is off (missiles are few)")
+	controller._on_projectile_fired(1, null)
+	assert_true(tools.is_active(1), "Other tools keep at it")
+	controller.free()

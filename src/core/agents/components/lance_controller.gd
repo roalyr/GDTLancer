@@ -28,6 +28,7 @@ const LANCE_GROUP = "stuck_lance"  # Lances left in a hull (cleared on repair)
 const LanceMaterial = preload("res://assets/art/materials_generic/mat_engine_dark_alloy.tres")
 const ShipLaws = preload("res://src/core/systems/ship_laws.gd")
 const LanceShot = preload("res://src/core/agents/components/lance_shot.gd")
+const LooseLance = preload("res://src/core/agents/components/loose_lance.gd")
 
 var lance: Dictionary = {}  # ShipLaws.lance_stats
 var module_id: String = ""
@@ -314,15 +315,40 @@ func strike_rock(rock: Spatial, point: Vector3, normal: Vector3, roll: float = -
 		reason = "at %d degrees" % int(angle)
 	if reason != "":
 		_glanced[rock.get_instance_id()] = 1.0
+		drop_lance(point, motion, normal)
 		emit_signal("glanced", rock, reason)
 		return 0.0
 	var chunks: Array = rock.break_chunks(point, axis, damage)
 	if chunks.empty():
 		return 0.0
-	var chunk = chunks[0]
-	_leave_lance(chunk, chunk.get_hull_point_facing(point - axis * 10.0), axis)
-	emit_signal("struck", chunk, damage)
+	var length: float = float(lance.length)
+	_spawn_loose(point - axis * length * (0.5 - Constants.LANCE_STUCK_DEPTH), axis, Vector3.ZERO)  # Stays in the rock
+	emit_signal("struck", chunks[0], damage)
 	return damage
+
+
+# A lance that did not stay in what it met, at `point`, moving at `velocity`: off a face of `normal`
+# (moving at `surface_velocity`) it glances away at LANCE_GLANCE_KEEP of its speed against it,
+# mirrored; with no normal (a miss) it flies on. Either way a LooseLance to recover.
+func drop_lance(point: Vector3, velocity: Vector3, normal: Vector3 = Vector3.ZERO, surface_velocity: Vector3 = Vector3.ZERO) -> RigidBody:
+	var drift: Vector3 = velocity
+	if normal != Vector3.ZERO:
+		var relative: Vector3 = velocity - surface_velocity
+		var face: Vector3 = normal.normalized()
+		if relative.dot(face) < 0.0:
+			relative = relative - 2.0 * relative.dot(face) * face  # Mirrored off the face
+		drift = surface_velocity + relative * Constants.LANCE_GLANCE_KEEP
+	var axis: Vector3 = drift.normalized() if drift.length_squared() > 0.01 else _axis()
+	return _spawn_loose(point - axis * float(lance.length) * 0.5, axis, drift)
+
+
+func _spawn_loose(centre: Vector3, axis: Vector3, velocity: Vector3) -> RigidBody:
+	if not (is_instance_valid(_agent) and _agent.is_inside_tree()):
+		return null
+	var loose = LooseLance.new()
+	_agent.get_parent().add_child(loose)
+	loose.setup(_lance_mesh(float(lance.length)), float(lance.length), float(lance.nail_mass), centre, axis, velocity)
+	return loose
 
 
 # Where the segment `from` -> `to` first enters `box` (slab method): {"point", "normal"} (the face's
@@ -379,6 +405,7 @@ func strike(target: RigidBody, point: Vector3, normal: Vector3, roll: float = -1
 		roll = randf()
 	if damage <= 0.0 or roll >= ShipLaws.lance_hit_chance(lance, angle):
 		_glanced[target.get_instance_id()] = 1.0
+		drop_lance(point, lance_velocity, normal, target.linear_velocity)
 		emit_signal("glanced", target, "too slow, %d of %d m/s" % [int(closing), int(Constants.LAW_LANCE_MIN_SPEED)] if damage <= 0.0 else "at %d degrees" % int(angle))
 		return 0.0
 	target.linear_velocity += axis * closing * float(lance.nail_mass) / max(target.mass, 1.0)  # Shoved by the lance's momentum

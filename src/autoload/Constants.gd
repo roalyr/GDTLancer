@@ -502,13 +502,12 @@ const FUEL_STARTING_UNITS = 6  # In the hold of a new game's ship and of the shi
 
 # Mining (Asteroid, OreChunk, LanceController): a composite act. A lance thrown into a rock at strike
 # speed breaks damage / MINING_DAMAGE_PER_UNIT units of its deposit (at most MINING_CHUNK_MAX, and
-# what is left) off its face, in a piece per MINING_PIECE_UNITS (up to MINING_PIECES_MAX), the
-# lance stuck in the biggest. Each piece is crusted: laser fire burns the crust off (MINING_CRUST_HP)
-# and bares the ore as slag, glowing hot, that cools in MINING_COOL_TIME s; cooled, a harpoon tows it
-# and strips it like a wreck (lance first).
+# what is left) off its face, in 1 to MINING_PIECES_MAX pieces; the lance stays in the rock (a
+# LooseLance, harpooned out). Each piece is crusted: laser fire burns the crust off (MINING_CRUST_HP)
+# and bares the ore, a metal lump unlike the rock, glowing hot, that cools in MINING_COOL_TIME s;
+# cooled, a harpoon tows it and strips it like a wreck.
 const MINING_DAMAGE_PER_UNIT = 15.0  # Lance damage per unit broken out
 const MINING_CHUNK_MAX = 12  # Units broken out by one strike
-const MINING_PIECE_UNITS = 4  # Units per piece
 const MINING_PIECES_MAX = 3
 const MINING_PIECE_SPREAD = 30.0  # Degrees the pieces fan out off the face
 const MINING_CRUST_HP = 40.0  # Laser damage to burn a piece's crust off
@@ -516,7 +515,7 @@ const MINING_COOL_TIME = 15.0  # s the bared slag glows before a harpoon can tak
 const MINING_ORE_PER_METRE = 1.0  # A rock's deposit: units per metre of its radius
 const MINING_CHUNK_SPEED = 8.0  # m/s the chunk drifts off the rock's face
 const MINING_CHUNK_BASE_MASS = 400.0  # kg of rock round the deposit in a chunk
-const MINING_CHUNK_RADIUS = 2.5  # m for a one-unit chunk (grows as the cube root of its units)
+const MINING_CHUNK_RADIUS = 1.5  # m for a one-unit chunk (grows as the cube root of its units)
 const MINING_CHUNK_MODELS = [  # Low-poly rocks (the rock models' last LOD)
 	"res://assets/models/rocks/lod/rock_01_6k_LOD3.glb", "res://assets/models/rocks/lod/rock_03_4k_LOD3.glb",
 	"res://assets/models/rocks/lod/rock_05_4k_LOD3.glb",
@@ -768,6 +767,12 @@ const CHARGE_ALERT_MISS = 60.0  # m past the target's size its line may pass and
 const CHARGE_ALERT_COOLDOWN = 10.0  # s before the same ship is warned of the same charger again
 const CHARGE_WATCH_INTERVAL = 0.25  # s between a charging ship's looks for whom it is charging
 const LANCE_STUCK_DEPTH = 0.5  # Share of a struck lance's length inside the hull
+# A lance that glances off or misses drifts on as a LooseLance, a harpoon's to recover: off a face
+# at LANCE_GLANCE_KEEP of its speed against it, mirrored; a miss at its own speed. It slows by
+# LANCE_LOOSE_DAMP (a share of its speed a second); past LANCE_LOOSE_MAX loose lances the oldest go.
+const LANCE_GLANCE_KEEP = 0.3
+const LANCE_LOOSE_DAMP = 0.5
+const LANCE_LOOSE_MAX = 12
 const LANCE_QUIVER_RING = 0.25  # Spares sit round the stern this share of the nose distance off the axis
 const LANCE_QUIVER_SCALE = 0.6  # and are drawn this much shorter (stowed)
 

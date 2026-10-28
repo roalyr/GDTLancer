@@ -22,6 +22,11 @@ func before_each():
 	lance.setup(rammer, "test_lance", ShipLaws.lance_stats(Constants.PART_TYPE_SEEDS.lance[2]))
 
 
+func after_each():
+	for loose in get_tree().get_nodes_in_group("loose_lance"):
+		loose.free()  # Glances and misses leave them in the world
+
+
 func _make_body(position: Vector3) -> RigidBody:
 	var body = AgentScript.new()
 	add_child_autofree(body)
@@ -87,6 +92,30 @@ func test_in_release_range_it_throws_straight_at_the_target_cancelling_its_drift
 	assert_true(lance.firing_solution(target).empty(), "Slipping by faster than a throw can make up")
 	rammer.linear_velocity = Vector3.ZERO
 	assert_false(lance.firing_solution(target).empty(), "From a standstill the throw alone is past strike speed")
+
+
+func test_a_lance_that_glances_off_or_misses_drifts_on_to_be_harpooned():
+	rammer.linear_velocity = Vector3(0, 0, -(Constants.LAW_LANCE_MIN_SPEED - 10.0))
+	lance.nails -= 1  # Thrown
+	assert_eq(lance.strike(target, Vector3(0, 0, -20), Vector3(0, 0, 1), 0.0), 0.0, "Too slow: glances")
+	var loose: Array = get_tree().get_nodes_in_group("loose_lance")
+	assert_eq(loose.size(), 1, "Adrift")
+	assert_gt(loose[0].linear_velocity.z, 0.0, "Off the face, back the way it came")
+	assert_eq(loose[0].recoverable_lances_for(rammer), 1, "A harpoon brings it back")
+	assert_true(loose[0].recover_lance_into(rammer))
+	assert_eq(lance.nails, int(lance.lance.count))
+	loose[0].free()
+	var missed = lance.drop_lance(Vector3(0, 0, -100), Vector3(0, 0, -250))
+	assert_eq(missed.linear_velocity, Vector3(0, 0, -250), "A miss flies on")
+	assert_eq(missed.linear_damp, Constants.LANCE_LOOSE_DAMP, "and slows to a stop")
+	missed.free()
+
+
+func test_the_players_lances_disarm_after_a_throw():
+	rammer.set_lances_armed(true)
+	rammer._on_player_lance_launched(target)
+	yield(get_tree(), "idle_frame")
+	assert_false(lance.armed, "One volley per arming: lances are few")
 
 
 func test_a_thrown_lance_flies_kicks_the_ship_back_and_strikes():

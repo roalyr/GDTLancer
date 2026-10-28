@@ -75,15 +75,15 @@ func get_deposit() -> int:
 
 
 # A lance went in at `point`, along `axis`, for `damage`: breaks damage / MINING_DAMAGE_PER_UNIT
-# units of the deposit (at most MINING_CHUNK_MAX, and what is left) off the face, in a piece per
-# MINING_PIECE_UNITS (at most MINING_PIECES_MAX), drifting apart off the face. Returns the chunks,
-# biggest first; none from a worked-out rock.
+# units of the deposit (at most MINING_CHUNK_MAX, and what is left) off the face, in 1 to
+# MINING_PIECES_MAX pieces drifting apart off the face. Returns the chunks, biggest first; none from
+# a worked-out rock.
 func break_chunks(point: Vector3, axis: Vector3, damage: float) -> Array:
 	if get_deposit() <= 0 or not is_inside_tree():
 		return []
 	var units: int = int(clamp(round(damage / Constants.MINING_DAMAGE_PER_UNIT), 1, min(Constants.MINING_CHUNK_MAX, get_deposit())))
 	deposit -= units
-	var pieces: int = int(clamp(ceil(float(units) / Constants.MINING_PIECE_UNITS), 1, Constants.MINING_PIECES_MAX))
+	var pieces: int = int(min(1 + randi() % Constants.MINING_PIECES_MAX, units))
 	var outward: Vector3 = (point - global_transform.origin).normalized()
 	if outward.length_squared() < 0.5:
 		outward = -axis.normalized()

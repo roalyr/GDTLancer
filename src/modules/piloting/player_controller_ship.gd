@@ -57,6 +57,7 @@ func _ready():
 	_tool_controller = agent_body.get_node_or_null("ToolController")
 	if is_instance_valid(_tool_controller) and not _tool_controller.is_connected("tool_deactivated", self, "_on_tool_deactivated"):
 		_tool_controller.connect("tool_deactivated", self, "_on_tool_deactivated")
+		_tool_controller.connect("projectile_fired", self, "_on_projectile_fired")
 
 	_states = {
 		"default": _register_input_state("StateDefault", StateDefault.new()),
@@ -270,6 +271,13 @@ func _on_tool_button_pressed(index: int) -> void:
 		EventBus.emit_signal("attack_action_feedback", false, _describe_tool_failure(result.get("reason", "")))
 	elif tool_template.tool_type == "cannon":
 		agent_script.command_aim(target, tool_template.optimal_range)  # A cannon fires where the nose points: the autopilot aims it
+
+
+# The player's missiles go one per press (their stock is limited): a launch switches the rack off.
+func _on_projectile_fired(index: int, _projectile) -> void:
+	var tool_template = _tool_controller.get_tool(index)
+	if tool_template != null and tool_template.tool_type == "missile":
+		_tool_controller.deactivate(index, "fired")
 
 
 # A magazine ran dry, or a cannon stopped: the aim it held goes with it.
@@ -677,7 +685,7 @@ func _on_Player_Orbit_Pressed():
 		agent_script.command_orbit(_selected_target)
 
 
-# APPROACH, or with the lance armed (and a ship selected) RAM: the button is contextual.
+# APPROACH: with the lance armed, at a ship or a rock with ore, the pass that throws it (command_ram).
 func _on_Player_Approach_Pressed():
 	if is_instance_valid(_selected_target) and _selected_target is Spatial:
 		if is_ram_ready(_selected_target):
@@ -700,7 +708,7 @@ static func is_rammable(target) -> bool:
 	if not (target is Spatial and is_instance_valid(target)):
 		return false
 	if target is RigidBody and target.has_method("apply_damage"):
-		return true
+		return not target.is_in_group("loose_lance")  # Harpooned, not shoved
 	return target.is_in_group("mineable") and target.has_method("get_deposit") and target.get_deposit() > 0
 
 
