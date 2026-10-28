@@ -56,6 +56,9 @@ func _physics_process(delta: float) -> void:
 	_scoop_left = Constants.LANCE_SCOOP_INTERVAL
 	for body in get_tree().get_nodes_in_group("agent_body"):
 		if can_be_scooped_by(body) and recover_lance_into(body):
+			var ai = body.get_node_or_null(Constants.AI_CONTROLLER_NODE_NAME)
+			if ai != null and ai.has_method("_on_lance_recovered"):
+				ai._on_lance_recovered(-1)  # Counted as a harpooned one is
 			return
 
 
