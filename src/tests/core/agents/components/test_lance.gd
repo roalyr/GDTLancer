@@ -9,6 +9,12 @@ const LanceScript = preload("res://src/core/agents/components/lance_controller.g
 const CommandRam = preload("res://src/core/agents/components/navigation_system/command_ram.gd")
 const ShipLaws = preload("res://src/core/systems/ship_laws.gd")
 
+
+class NavigationStub extends Node:
+	var target = null
+	func get_command_target():
+		return target
+
 var rammer: RigidBody = null
 var target: RigidBody = null
 var lance: Spatial = null
@@ -226,6 +232,16 @@ func test_a_charge_is_seen_coming_and_makes_the_charger_an_enemy():
 	target.global_transform.origin = Vector3(0, 0, -1500)
 	assert_false(lance.is_charging(target), "Still too far to tell")
 	target.global_transform.origin = Vector3(0, 0, -400)
+	var navigation = NavigationStub.new()
+	rammer.navigation_system = navigation
+	var elsewhere = Spatial.new()
+	navigation.target = elsewhere
+	assert_false(lance.is_charging(target), "Flying at something else: it only passes")
+	navigation.target = target
+	assert_true(lance.is_charging(target), "Flying at it")
+	rammer.navigation_system = null
+	elsewhere.free()
+	navigation.free()
 	target.faction = "verdant"
 	rammer.faction = "verdant_other"
 	assert_false(target.is_enemy_of(rammer))

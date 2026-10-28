@@ -274,11 +274,15 @@ func _announce_charges() -> void:
 			EventBus.emit_signal("agent_charged", body, _agent)
 
 
-# Charging `target`: armed and seated, nose toward it, within CHARGE_ALERT_DISTANCE, closing at
-# strike speed on a line that meets it (its sideways drift would miss by less than CHARGE_ALERT_MISS
-# past its size). Seen the same way by whoever is charged, NPC or player.
+# Charging `target`: armed and seated, flying at it (its navigation command is about it: a ship that
+# only passes, or charges something beyond, is not), nose toward it, within CHARGE_ALERT_DISTANCE,
+# closing at strike speed on a line that meets it (its sideways drift would miss by less than
+# CHARGE_ALERT_MISS past its size). Seen the same way by whoever is charged, NPC or player.
 func is_charging(target) -> bool:
 	if not (armed and is_seated() and is_instance_valid(target) and target is RigidBody) or target.get("is_wreck") != false or target.get("is_docked"):
+		return false
+	var navigation = _agent.get("navigation_system")
+	if is_instance_valid(navigation) and navigation.has_method("get_command_target") and navigation.get_command_target() != target:
 		return false
 	var offset: Vector3 = target.global_transform.origin - _agent.global_transform.origin
 	var distance: float = offset.length()

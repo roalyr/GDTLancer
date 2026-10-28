@@ -147,6 +147,8 @@ func _ready():
 			EventBus.connect("agent_despawning", self, "_on_agent_despawning")
 		if not EventBus.is_connected("agent_spawned", self, "_on_agent_spawned"):
 			EventBus.connect("agent_spawned", self, "_on_agent_spawned")
+		if not EventBus.is_connected("debris_spawned", self, "_on_debris_spawned"):
+			EventBus.connect("debris_spawned", self, "_on_debris_spawned")
 		if not EventBus.is_connected("new_game_requested", self, "_on_new_game_requested"):
 			EventBus.connect("new_game_requested", self, "_on_new_game_requested")
 		if not EventBus.is_connected("game_state_loaded", self, "_on_game_state_loaded"):
@@ -289,6 +291,13 @@ func _on_player_spawned(_player_body) -> void:
 
 func _on_agent_spawned(_agent_body, _init_data) -> void:
 	_queue_world_target_rebuild()
+
+
+# Chunks and loose lances come often (every lance throw): each gets its own bracket, not a rebuild.
+func _on_debris_spawned(body) -> void:
+	if is_instance_valid(body) and _target_projector.is_world_projectable_target(body):
+		_target_projector.add_world_target(body)
+		_target_projector.update_world_target_overlay(true)
 
 
 # One rebuild of the brackets however many ships come or go at once (a sector's population spawns

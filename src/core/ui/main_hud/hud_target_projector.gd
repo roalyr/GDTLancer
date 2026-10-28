@@ -159,16 +159,24 @@ func rebuild_world_target_overlay() -> void:
 		return
 	var world_targets: Array = collect_world_projected_targets()
 	for target_node in world_targets:
-		var button = _hud._instance_projected_target_bracket()
-		if button == null:
-			continue
-		button.name = "World_%s" % target_node.get_instance_id()
-		button.configure_target(target_node, _hud._resolve_target_display_name(target_node))
-		button.connect("pressed", _hud, "_on_world_target_button_pressed", [target_node])
-		_hud.projected_target_overlay.add_child(button)
-		_hud._world_target_buttons[target_node.get_instance_id()] = button
+		add_world_target(target_node)
 	update_world_target_selection_state()
 	_hud._refresh_process_state()
+
+
+# One bracket for `target_node` (a chunk or a loose lance just come into the world: the rest come in
+# a rebuild), unless it has one.
+func add_world_target(target_node: Node) -> void:
+	if not is_instance_valid(_hud.projected_target_overlay) or _hud._world_target_buttons.has(target_node.get_instance_id()):
+		return
+	var button = _hud._instance_projected_target_bracket()
+	if button == null:
+		return
+	button.name = "World_%s" % target_node.get_instance_id()
+	button.configure_target(target_node, _hud._resolve_target_display_name(target_node))
+	button.connect("pressed", _hud, "_on_world_target_button_pressed", [target_node])
+	_hud.projected_target_overlay.add_child(button)
+	_hud._world_target_buttons[target_node.get_instance_id()] = button
 
 func update_route_target_overlay() -> void:
 	if not is_instance_valid(_hud._main_camera):

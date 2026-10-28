@@ -150,6 +150,12 @@ func set_command_align_to(
 	}
 
 
+# The ship or body the current command is about (null for none).
+func get_command_target():
+	var target = _current_command.get("target_node")
+	return target if is_instance_valid(target) else null
+
+
 func get_current_command_type() -> int:
 	return int(_current_command.get("type", CommandType.IDLE))
 

@@ -28,7 +28,7 @@ var _slag_material: ShaderMaterial = null
 # `model`: a rock mesh scene; `radius`: m.
 func setup(units: Dictionary, model: PackedScene, radius: float) -> void:
 	salvage = units.duplicate()
-	_radius = max(radius, 1.0)
+	_radius = max(radius, 0.5)
 	name = "OreChunk"
 	gravity_scale = 0.0
 	can_sleep = false
@@ -65,6 +65,7 @@ func _ready() -> void:
 	add_to_group("wreck")
 	add_to_group("ore_chunk")
 	wreck_time_ms = OS.get_ticks_msec()
+	EventBus.emit_signal("debris_spawned", self)
 	set_process(false)
 
 

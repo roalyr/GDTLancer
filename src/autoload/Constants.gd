@@ -514,8 +514,8 @@ const MINING_CRUST_HP = 40.0  # Laser damage to burn a piece's crust off
 const MINING_COOL_TIME = 15.0  # s the bared slag glows before a harpoon can take it
 const MINING_ORE_PER_METRE = 1.0  # A rock's deposit: units per metre of its radius
 const MINING_CHUNK_SPEED = 8.0  # m/s the chunk drifts off the rock's face
-const MINING_CHUNK_BASE_MASS = 400.0  # kg of rock round the deposit in a chunk
-const MINING_CHUNK_RADIUS = 1.5  # m for a one-unit chunk (grows as the cube root of its units)
+const MINING_CHUNK_BASE_MASS = 100.0  # kg of rock round the deposit in a chunk
+const MINING_CHUNK_RADIUS = 0.75  # m for a one-unit chunk (grows as the cube root of its units)
 const MINING_CHUNK_MODELS = [  # Low-poly rocks (the rock models' last LOD)
 	"res://assets/models/rocks/lod/rock_01_6k_LOD3.glb", "res://assets/models/rocks/lod/rock_03_4k_LOD3.glb",
 	"res://assets/models/rocks/lod/rock_05_4k_LOD3.glb",

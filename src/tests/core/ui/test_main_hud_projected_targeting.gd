@@ -346,10 +346,12 @@ func test_projected_target_bracket_ships_are_bright_when_they_see_the_player_dim
 	hostile.sees = true
 	bracket.refresh_style()
 	assert_eq(normal_bracket.modulate, red, "Sees the player: bright red")
+	assert_eq(normal_bracket.rect_scale, Vector2.ONE * 4.0, "A hostile's cross twice everyone else's")
 	hostile.hostile = false
 	hostile.sees = false
 	bracket.refresh_style()
 	assert_eq(normal_bracket.modulate, Color(dim, dim, dim, Constants.UI_UNAWARE_ALPHA), "A neutral too: its colour, dimmed")
+	assert_eq(normal_bracket.rect_scale, Vector2.ONE * 2.0)
 	assert_eq(bracket.get_node("InfoPanel/InfoLabel").get_color("font_color"), Color.white, "but not its label")
 	GlobalRefs.player_agent_body = saved_player
 

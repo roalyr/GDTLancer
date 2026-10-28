@@ -135,8 +135,8 @@ func _physics_process(delta: float) -> void:
 	var direction: Vector3 = offset / distance
 	var separating_speed: float = (towed.linear_velocity - holder.linear_velocity).dot(direction)
 	var tension: float = get_tension(distance - length, separating_speed)
-	_apply_force(holder, direction * tension)
-	_apply_force(towed, -direction * tension)
+	_apply_force(holder, direction * tension, delta)
+	_apply_force(towed, -direction * tension, delta)
 
 
 # Reels in at reel_speed; slack (the bodies closer than the cable is long) is taken up at
@@ -241,10 +241,13 @@ func _is_near_camera() -> bool:
 	return ViewDetail.band_of_host(holder) <= Constants.TETHER_ROPE_SIM_MAX_BAND  # The holding ship's band
 
 
-func _apply_force(body: RigidBody, force: Vector3) -> void:
+# Through a ship's MovementSystem; a body with none (an ore chunk, a loose lance) is pushed directly.
+func _apply_force(body: RigidBody, force: Vector3, delta: float) -> void:
 	var movement = body.get("movement_system")
 	if is_instance_valid(movement) and movement.has_method("add_external_force"):
 		movement.add_external_force(force)
+	elif body.mode == RigidBody.MODE_RIGID:
+		body.apply_central_impulse(force * delta)
 
 
 # Draws the rope as a smooth ribbon facing the camera, and places the hook at its end. Strain

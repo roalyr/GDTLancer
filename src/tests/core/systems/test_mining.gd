@@ -96,6 +96,29 @@ func test_a_chunk_is_burnt_bare_cools_and_only_then_takes_a_harpoon():
 		node.free()
 
 
+func test_a_harpoon_reels_in_a_loose_lance_and_a_chunk():
+	var Tether = load("res://src/core/agents/components/tether.gd")
+	var chunks: Array = _strike()[1]
+	var loose = get_tree().get_nodes_in_group("loose_lance")[0]
+	for body in [loose, chunks[0]]:
+		var start: Vector3 = body.global_transform.origin
+		var tether = Tether.new()
+		tether.holder = miner
+		tether.towed = body
+		tether.length = 1.0
+		tether.min_length = 1.0
+		add_child_autofree(tether)
+		tether._physics_process(0.1)
+		yield(get_tree(), "physics_frame")
+		yield(get_tree(), "physics_frame")
+		var pull: Vector3 = (miner.global_transform.origin - start).normalized()
+		assert_gt(body.linear_velocity.dot(pull), 0.0, "%s: pulled toward the ship, with no engine of its own" % body.name)
+		tether.free()
+	assert_lt(chunks[0].mass, 1000.0, "A chunk is light enough to tow")
+	for node in chunks + get_tree().get_nodes_in_group("loose_lance"):
+		node.free()
+
+
 func test_a_worked_out_rock_glances_a_lance_off_to_drift():
 	rock.deposit = 0
 	var result: Array = _strike()

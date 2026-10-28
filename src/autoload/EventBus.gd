@@ -10,6 +10,7 @@ signal main_menu_requested
 # --- Agents ---
 signal agent_spawned(agent_body, init_data)
 signal agent_despawning(agent_body)
+signal debris_spawned(body)  # An ore chunk or a loose lance came into the world: it gets a bracket
 signal agent_reached_destination(agent_body)
 signal player_spawned(player_agent_body)
 

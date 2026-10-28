@@ -5,6 +5,7 @@ extends Button
 
 const BRACKET_TEXTURE_RECT_SIZE = Vector2(150, 150)
 const BRACKET_CROSS_SCALE = 2.0  # The unselected cross, drawn this many times its texture's size
+const BRACKET_HOSTILE_CROSS_SCALE = 4.0  # A live hostile's: twice everyone else's
 const DISTANCE_KILOUNIT_SCALE = 1000.0
 const DISTANCE_PLAIN_THRESHOLD = 2000.0
 const DISTANCE_DECIMAL_K_THRESHOLD = 10000.0
@@ -125,7 +126,8 @@ func _apply_bracket_style() -> void:
 			if _is_celestial():
 				_normal_bracket.modulate.a *= Constants.UI_CELESTIAL_ALPHA
 		_normal_bracket.rect_pivot_offset = BRACKET_TEXTURE_RECT_SIZE * 0.5
-		_normal_bracket.rect_scale = Vector2.ONE * BRACKET_CROSS_SCALE
+		var hostile: bool = _is_live_ship() and _is_hostile_to_player()
+		_normal_bracket.rect_scale = Vector2.ONE * (BRACKET_HOSTILE_CROSS_SCALE if hostile else BRACKET_CROSS_SCALE)
 	if is_instance_valid(_selected_bracket):
 		_selected_bracket.visible = _is_selected
 		_apply_selected_color()

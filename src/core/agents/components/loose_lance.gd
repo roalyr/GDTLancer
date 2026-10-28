@@ -43,6 +43,7 @@ func _ready() -> void:
 	add_to_group("wreck")
 	add_to_group("loose_lance")
 	wreck_time_ms = OS.get_ticks_msec()
+	EventBus.emit_signal("debris_spawned", self)
 
 
 func get_display_name() -> String:
