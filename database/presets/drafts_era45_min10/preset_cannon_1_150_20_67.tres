@@ -1,0 +1,36 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/utility_tool_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_cannon_1_150_20_67"
+tool_name = "Rail Cannon I"
+hud_label = "CANNON I"
+description = "287 kg: 67 rounds of 2.0 kg, 5 damage each at 874 m/s. Fixed forward: the ship aims, leading the target."
+tool_type = "cannon"
+mount_size = "small"
+base_value = 97
+mass = 287.343
+damage = 5.22163
+optimal_range = 1747.47
+falloff = 873.737
+tracking = 0.0
+cycle_time = 0.768356
+power_per_cycle = 0.40998
+reel_speed = 15.0
+launch_speed = 0.0
+strip_interval = 1.0
+ammo = 67
+round_mass = 2.0499
+round_value = 1
+projectile_speed = 873.737
+projectile_accel = 0.0
+turn_rate = 0.0
+flight_time = 4.0
+variant_type = 1
+law_genes = {
+"count": 67.0,
+"mass": 150.0,
+"round_mass": 2.0499
+}
