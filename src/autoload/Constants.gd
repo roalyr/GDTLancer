@@ -889,6 +889,7 @@ const ARENA_DOCK_TIME = 10.0  # s an NPC stays docked (selling, repairs) before 
 const ARENA_UNDOCK_CLEAR_RADIUS = 3500.0  # m: with an enemy this near its undock point (past a heavy laser's reach), a docked NPC waits
 const ARENA_DOCK_MAX_WAIT = 90.0  # s, at most, past its dock time (upkeep runs on meanwhile)
 const ARENA_DOCK_DISTANCE = 250.0  # m from a station's undock point at which an NPC docks
+const PRESETS_DIR = "res://database/presets"  # Exported designs (tools/export_presets.gd): the home station sells them
 const PRESET_WEIGHT_CLASSES = [["light", -0.5], ["medium", 1.0], ["heavy", INF]]  # Preset export: niche size class up to this
 const ARENA_MAX_LIFETIME = 900.0  # s; after this an NPC retires at its next dock (its record is kept)
 # Rank (Evolution): a faction's ships in one arena zone are a group, ranked by renown, what they have

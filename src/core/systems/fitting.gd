@@ -16,20 +16,26 @@ static func is_available() -> bool:
 	return HomePort.is_home(GameState.player_docked_at)
 
 
-# Parts the home station sells: every tool and module.
+# Parts the home station sells: every tool and module, the presets' included.
 static func catalog() -> Array:
 	var ids: Array = []
 	for tool_id in TemplateDatabase.utility_tools:
 		ids.append(tool_id)
 	for module_id in TemplateDatabase.assets_modules:
 		ids.append(module_id)
+	for preset_id in TemplateDatabase.presets:
+		if not TemplateDatabase.presets[preset_id] is ShipTemplate:
+			ids.append(preset_id)
 	ids.sort()
 	return ids
 
 
-# Ships the home station sells: every hull.
+# Ships the home station sells: every hull, and every preset design (each comes with its fit).
 static func ship_catalog() -> Array:
 	var ids: Array = TemplateDatabase.assets_ships.keys()
+	for preset_id in TemplateDatabase.presets:
+		if TemplateDatabase.presets[preset_id] is ShipTemplate:
+			ids.append(preset_id)
 	ids.sort()
 	return ids
 
@@ -97,7 +103,7 @@ static func ship_cost(ship_id: String) -> int:
 static func buy_ship(ship_id: String) -> String:
 	if not is_available():
 		return "Dock at the home station to change ships"
-	if not TemplateDatabase.assets_ships.get(ship_id) is ShipTemplate:
+	if not (TemplateDatabase.get_template(ship_id) is ShipTemplate and ship_id in ship_catalog()):
 		return "Not for sale"
 	if ship_id == GameState.player_ship_template_id:
 		return "Already flying it"

@@ -208,6 +208,21 @@ func test_store_sells_every_ship_part_and_commodity():
 	assert_eq(Fitting.cargo_catalog(), ["c_fuel"], "and every commodity.")
 
 
+func test_store_sells_the_preset_designs_and_their_parts():
+	_with_ships_and_cargo()
+	var saved_presets: Dictionary = TemplateDatabase.presets
+	var design = ShipTemplate.new()
+	design.template_id = "preset_ship_x1"
+	design.base_value = 900
+	var gun = _tool("preset_laser_x1", "small", 80, 500.0)
+	TemplateDatabase.presets = {"preset_ship_x1": design, "preset_laser_x1": gun}
+	assert_has(Fitting.ship_catalog(), "preset_ship_x1", "Evolved designs are for sale")
+	assert_has(Fitting.catalog(), "preset_laser_x1", "and so are their parts")
+	assert_does_not_have(Fitting.catalog(), "preset_ship_x1", "Ships are not parts")
+	assert_eq(TemplateDatabase.get_template("preset_ship_x1"), design)
+	TemplateDatabase.presets = saved_presets
+
+
 func test_buying_a_ship_trades_the_old_one_in_and_stores_its_fit():
 	_with_ships_and_cargo()
 	var spawner = SpawnerStub.new()

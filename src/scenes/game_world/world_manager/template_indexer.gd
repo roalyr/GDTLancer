@@ -1,4 +1,8 @@
-# TemplateIndexer: scans database/registry/ and registers every .tres template into TemplateDatabase.
+# TemplateIndexer: scans database/registry/ and registers every .tres template into TemplateDatabase;
+# then database/presets/ (evolved designs: tools/export_presets.gd), whose ships and parts go to
+# TemplateDatabase.presets, for the home station's store only (AgentTemplates there are left out:
+# nothing spawns from presets yet). A preset in several folders is the same design (ids follow the
+# genes): the first is kept.
 
 extends Node
 
@@ -9,11 +13,32 @@ func index_all_templates():
 	if Constants.VERBOSE_RUNTIME_LOGS:
 		print("TemplateIndexer: Indexing all data templates...")
 	_scan_directory_for_templates("res://database/registry/")
+	_scan_presets(Constants.PRESETS_DIR)
 	if Constants.VERBOSE_RUNTIME_LOGS:
 		print("TemplateIndexer: Template indexing complete.")
 
 
 # --- Private Logic ---
+
+func _scan_presets(path: String) -> void:
+	var dir = Directory.new()
+	if dir.open(path) != OK:
+		return
+	dir.list_dir_begin(true, true)
+	var file_name = dir.get_next()
+	while file_name != "":
+		var full_path: String = path.plus_file(file_name)
+		if dir.current_is_dir():
+			_scan_presets(full_path)
+		elif file_name.ends_with(".tres") and not file_name.begins_with("agent_"):
+			var template = load(full_path)
+			if template is ShipTemplate or template is UtilityToolTemplate or template is ModuleTemplate:
+				if not TemplateDatabase.presets.has(template.template_id) and TemplateDatabase.get_template(template.template_id) == null:
+					TemplateDatabase.presets[template.template_id] = template
+				if template is ShipTemplate and path.ends_with("min10"):
+					TemplateDatabase.proven_presets[template.template_id] = true
+		file_name = dir.get_next()
+
 
 # Recursively scans a directory path for .tres files.
 func _scan_directory_for_templates(path: String):

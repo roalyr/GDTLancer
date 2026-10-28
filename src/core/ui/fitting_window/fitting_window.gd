@@ -1,7 +1,9 @@
 # FittingWindow: the home station's store and refitting, mouse-only. Covers the screen for as
 # long as the player is docked at home (the docked ship is out of the world); UNDOCK leaves. Slots (click to unfit), storage (fit or sell) and the store, which
-# sells every ship (the one flown is traded in), part and commodity (bought into the hold, sold
-# back from it). The frame is the scene; rows are rebuilt after every change.
+# sells every ship (the one flown is traded in; preset designs come fitted), part and commodity
+# (bought into the hold, sold back from it). The store shows one tab at a time (STORE_TABS), its
+# goods under headings (weight class, part kind), each a two-line row: name over what it is, its
+# price on the button beside it. The frame is the scene; rows are rebuilt after every change.
 
 extends Control
 
@@ -13,7 +15,19 @@ onready var _stats: Label = $Panel/Layout/Body/Content/Stats
 onready var _slots: VBoxContainer = $Panel/Layout/Body/Content/Columns/Slots/List
 onready var _storage: VBoxContainer = $Panel/Layout/Body/Content/Columns/Storage/Scroll/List
 onready var _store: VBoxContainer = $Panel/Layout/Body/Content/Columns/Store/Scroll/List
+onready var _store_scroll: ScrollContainer = $Panel/Layout/Body/Content/Columns/Store/Scroll
+onready var _tabs: HBoxContainer = $Panel/Layout/Body/Content/Columns/Store/Tabs
 onready var _status: Label = $Panel/Layout/Body/Content/Status
+
+const STORE_TABS = ["ships", "weapons", "equipment", "modules", "cargo"]
+const WEAPON_TYPES = ["laser", "missile", "cannon"]
+const DETAIL_COLOR = Color(1, 1, 1, 0.6)
+const HEADING_COLOR = Color(1.0, 0.82, 0.45)
+const ROW_SHADE = Color(1, 1, 1, 0.05)
+const GROUP_OPEN_MAX = 12  # A part heading over more rows than this starts folded (tap it to unfold)
+
+var _tab: String = "ships"
+var _folded: Dictionary = {}  # Tab/heading -> folded, once tapped
 
 
 func _ready() -> void:
@@ -85,12 +99,20 @@ const STAT_LABELS = {
 }
 
 
-# What a part does, compactly: effect or role, then mass.
+# What a part does, compactly: its name, effect or role, then mass.
 static func describe_part(part_id: String) -> String:
+	var part = TemplateDatabase.get_template(part_id)
+	if part is UtilityToolTemplate or part is ModuleTemplate:
+		return "%s  %s" % [Fitting.part_name(part_id), part_detail(part_id)]
+	return part_id
+
+
+# What a part does, without its name.
+static func part_detail(part_id: String) -> String:
 	var part = TemplateDatabase.get_template(part_id)
 	if part is UtilityToolTemplate:
 		var note: String = "" if part.tool_type in ["laser", "harpoon", "missile", "cannon"] else "  (no use yet)"
-		return "%s  %s, %d m, %.1f t%s" % [part.tool_name, part.mount_size, part.optimal_range, part.mass / 1000.0, note]
+		return "%s, %d m, %.1f t%s" % [part.mount_size, part.optimal_range, part.mass / 1000.0, note]
 	if part is ModuleTemplate:
 		var effects: Array = []
 		for stat in part.stat_modifiers:
@@ -99,8 +121,8 @@ static func describe_part(part_id: String) -> String:
 				continue
 			var label: Array = STAT_LABELS.get(stat, ["%+d " + stat, 1.0])
 			effects.append(label[0] % (part.stat_modifiers[stat] * label[1]))
-		return "%s  %s, %.1f t" % [part.module_name, PoolStringArray(effects).join(", "), part.mass / 1000.0]
-	return part_id
+		return "%s, %.1f t" % [PoolStringArray(effects).join(", "), part.mass / 1000.0]
+	return ""
 
 
 func _rebuild_slots(ship_body) -> void:
@@ -119,45 +141,153 @@ func _rebuild_storage(_ship_body) -> void:
 	var ids: Array = GameState.player_storage.keys()
 	ids.sort()
 	if ids.empty():
-		var empty := Label.new()
-		empty.text = "Nothing stored"
-		_storage.add_child(empty)
-	for part_id in ids:
-		var row := HBoxContainer.new()
-		_storage.add_child(row)
-		var fit_button: Button = _add_button(row, "Fit %s  x%d" % [Fitting.part_name(part_id), GameState.player_storage[part_id]], false, "_on_fit", [part_id])
-		fit_button.size_flags_horizontal = SIZE_EXPAND_FILL
-		fit_button.clip_text = true
-		_add_button(row, "Sell %d" % Fitting.sale_price(part_id), false, "_on_sell", [part_id])
+		_add_note(_storage, "Nothing stored")
+	for i in range(ids.size()):
+		var part_id: String = ids[i]
+		_add_row(_storage, i, "%s  x%d" % [Fitting.part_name(part_id), GameState.player_storage[part_id]], part_detail(part_id),
+			[["FIT", false, "_on_fit", [part_id]], ["SELL %d" % Fitting.sale_price(part_id), false, "_on_sell", [part_id]]])
+
+
+func _rebuild_tabs() -> void:
+	_clear(_tabs)
+	for tab in STORE_TABS:
+		var button: Button = _add_button(_tabs, ("[%s]" if tab == _tab else "%s") % tab, false, "_on_tab", [tab])
+		button.align = Button.ALIGN_CENTER
+		button.size_flags_horizontal = SIZE_EXPAND_FILL
 
 
 func _rebuild_store(ship_body) -> void:
+	_rebuild_tabs()
 	_clear(_store)
-	_add_heading(_store, "SHIPS - yours is traded in for half")
+	match _tab:
+		"ships":
+			_add_note(_store, "Yours is traded in for half. Designs come fitted; PROVEN ones flew 10 lives or more.")
+			_store_ships()
+		"weapons":
+			_store_parts(store_groups(true))
+		"equipment":
+			_store_parts(store_groups(false, true))
+		"modules":
+			_store_parts(store_groups(false))
+		"cargo":
+			_store_cargo(ship_body)
+
+
+# Ships by weight class, proven designs first, then by price.
+func _store_ships() -> void:
+	var groups := {}
 	for ship_id in Fitting.ship_catalog():
-		var flying: bool = ship_id == GameState.player_ship_template_id
-		var cost: int = Fitting.ship_cost(ship_id)
-		var label: String = "FLYING" if flying else ("%d WP" % cost if cost >= 0 else "+%d WP" % -cost)
-		var button: Button = _add_button(_store, "%s  %s" % [label, describe_ship(ship_id)], flying or GameState.player_bank < cost, "_on_buy_ship", [ship_id])
-		button.clip_text = true
-	_add_heading(_store, "PARTS - into storage")
+		var weight: String = ship_weight(ship_id)
+		if not groups.has(weight):
+			groups[weight] = []
+		groups[weight].append(ship_id)
+	for weight in Constants.PRESET_WEIGHT_CLASSES:
+		var ids: Array = groups.get(weight[0], [])
+		if ids.empty():
+			continue
+		ids.sort_custom(self, "_ships_first")
+		if not _add_group_heading("%s HULLS" % weight[0].to_upper(), ids.size()):
+			continue
+		for i in range(ids.size()):
+			var ship_id: String = ids[i]
+			var flying: bool = ship_id == GameState.player_ship_template_id
+			var cost: int = Fitting.ship_cost(ship_id)
+			var label: String = "FLYING" if flying else ("BUY %d" % cost if cost >= 0 else "BUY +%d" % -cost)
+			var title: String = Fitting.part_name(ship_id) + ("  PROVEN" if TemplateDatabase.proven_presets.has(ship_id) else "")
+			_add_row(_store, i, title, describe_ship(ship_id), [[label, flying or GameState.player_bank < cost, "_on_buy_ship", [ship_id]]])
+
+
+# [heading, [part ids]] pairs for a tab (weapons; equipment: other tools; else modules), each
+# kind's parts by mount size then price.
+func store_groups(weapons: bool, equipment: bool = false) -> Array:
+	var kinds := {}
 	for part_id in Fitting.catalog():
-		var cost: int = Fitting.price(part_id)
-		var button: Button = _add_button(_store, "%d WP  %s" % [cost, describe_part(part_id)], GameState.player_bank < cost, "_on_buy", [part_id])
-		button.clip_text = true
-	_add_heading(_store, "CARGO - hold %d / %d" % [ship_body.get_cargo_units(), ship_body.cargo_capacity])
-	for commodity_id in Fitting.cargo_catalog():
+		var part = TemplateDatabase.get_template(part_id)
+		var kind: String = part_kind(part)
+		if part is UtilityToolTemplate:
+			if (part.tool_type in WEAPON_TYPES) != weapons or not (weapons or equipment):
+				continue
+		elif weapons or equipment:
+			continue
+		if not kinds.has(kind):
+			kinds[kind] = []
+		kinds[kind].append(part_id)
+	var names: Array = kinds.keys()
+	names.sort()
+	var groups: Array = []
+	for kind in names:
+		kinds[kind].sort_custom(self, "_parts_first")
+		groups.append([kind, kinds[kind]])
+	return groups
+
+
+func _store_parts(groups: Array) -> void:
+	if groups.empty():
+		_add_note(_store, "Nothing here")
+	for group in groups:
+		if not _add_group_heading(group[0].replace("_", " ").to_upper(), group[1].size()):
+			continue
+		for i in range(group[1].size()):
+			var part_id: String = group[1][i]
+			var cost: int = Fitting.price(part_id)
+			_add_row(_store, i, Fitting.part_name(part_id), part_detail(part_id), [["BUY %d" % cost, GameState.player_bank < cost, "_on_buy", [part_id]]])
+
+
+func _store_cargo(ship_body) -> void:
+	_add_heading(_store, "CARGO  hold %d / %d" % [ship_body.get_cargo_units(), ship_body.cargo_capacity])
+	var ids: Array = Fitting.cargo_catalog()
+	for i in range(ids.size()):
+		var commodity_id: String = ids[i]
 		var cost: int = Fitting.price(commodity_id)
 		var held: int = int(ship_body.cargo.get(commodity_id, 0))
-		var row := HBoxContainer.new()
-		_store.add_child(row)
-		var buy: Button = _add_button(row, "%d WP  %s  x%d" % [cost, Fitting.part_name(commodity_id), held], GameState.player_bank < cost or ship_body.get_free_cargo() <= 0, "_on_buy_cargo", [commodity_id])
-		buy.size_flags_horizontal = SIZE_EXPAND_FILL
-		buy.clip_text = true
-		_add_button(row, "Sell %d" % Fitting.cargo_sale_price(commodity_id), held <= 0, "_on_sell_cargo", [commodity_id])
+		_add_row(_store, i, Fitting.part_name(commodity_id), "%d in the hold" % held, [
+			["BUY %d" % cost, GameState.player_bank < cost or ship_body.get_free_cargo() <= 0, "_on_buy_cargo", [commodity_id]],
+			["SELL %d" % Fitting.cargo_sale_price(commodity_id), held <= 0, "_on_sell_cargo", [commodity_id]]])
 
 
-# A hull, compactly: hull points, tool slots by size, module slots, mass.
+# Light, medium or heavy (Constants PRESET_WEIGHT_CLASSES), from the hull's size gene; a hull
+# without one by its mass against the reference hull's.
+static func ship_weight(ship_id: String) -> String:
+	var ship = TemplateDatabase.get_template(ship_id)
+	var size: float = float(ship.law_genes.get("size", 0.0)) if ship is ShipTemplate and ship.law_genes is Dictionary else 0.0
+	if size <= 0.0:
+		size = float(ship.mass) / Constants.LAW_SHIP_REF_MASS if ship is ShipTemplate else 1.0
+	var size_class: float = round(log(max(size, 0.001)) / log(2.0) * 2.0) / 2.0
+	for weight in Constants.PRESET_WEIGHT_CLASSES:
+		if size_class <= weight[1]:
+			return weight[0]
+	return Constants.PRESET_WEIGHT_CLASSES.back()[0]
+
+
+# What a fitted design fights with, as the evolution names it ("lance-missile-raider", "scavenger").
+static func ship_role(ship) -> String:
+	var kinds := {}
+	for tool_id in ship.equipped_tools:
+		var part = TemplateDatabase.get_template(str(tool_id))
+		if part is UtilityToolTemplate:
+			kinds[part.tool_type] = true
+	var armed: bool = kinds.has("laser") or kinds.has("missile") or kinds.has("cannon")
+	var role: String = ("raider" if kinds.has("harpoon") else "fighter") if armed else ("scavenger" if kinds.has("harpoon") else "")
+	for kind in ["cannon", "missile"]:
+		if kinds.has(kind):
+			role = kind + "-" + role
+	for module_id in ship.equipped_modules:
+		if part_kind(TemplateDatabase.get_template(str(module_id))) == "lance":
+			return "lancer" if not armed else "lance-" + role
+	return role if role != "" else "hull"
+
+
+static func part_kind(part) -> String:
+	if part is UtilityToolTemplate:
+		return part.tool_type
+	if part is ModuleTemplate:
+		if part.module_kind != "":
+			return part.module_kind
+		return "lance" if not part.lance.empty() else "other"
+	return "other"
+
+
+# A hull, in a line: role, hull points, tool slots by size, module slots, mass; then its fit.
 static func describe_ship(ship_id: String) -> String:
 	var ship = TemplateDatabase.get_template(ship_id)
 	if not ship is ShipTemplate:
@@ -166,13 +296,97 @@ static func describe_ship(ship_id: String) -> String:
 	for size in [["small", ship.tool_slots_small], ["medium", ship.tool_slots_medium], ["large", ship.tool_slots_large]]:
 		if size[1] > 0:
 			tools.append("%d %s" % [size[1], size[0]])
-	return "%s  hull %d, tools %s, %d modules, %.1f t" % [ship.ship_model_name, ship.hull_integrity, PoolStringArray(tools).join(" + "), ship.module_slots, ship.mass / 1000.0]
+	var fitted: Array = []
+	for part_id in ship.equipped_tools + ship.equipped_modules:
+		if str(part_id) != "":
+			fitted.append(Fitting.part_name(str(part_id)))
+	return "%s   hull %d   tools %s   modules %d   %.1f t\n%s" % [ship_role(ship).to_upper(), ship.hull_integrity, PoolStringArray(tools).join(" + "),
+		ship.module_slots, ship.mass / 1000.0, ("Fitted: " + PoolStringArray(fitted).join(", ")) if not fitted.empty() else "Bare hull"]
+
+
+func _ships_first(a: String, b: String) -> bool:
+	var proven_a: bool = TemplateDatabase.proven_presets.has(a)
+	if proven_a != TemplateDatabase.proven_presets.has(b):
+		return proven_a
+	return Fitting.price(a) < Fitting.price(b)
+
+
+func _parts_first(a: String, b: String) -> bool:
+	var size_a: int = ShipFit.SIZES.find(str(TemplateDatabase.get_template(a).get("mount_size")))
+	var size_b: int = ShipFit.SIZES.find(str(TemplateDatabase.get_template(b).get("mount_size")))
+	if size_a != size_b:
+		return size_a < size_b
+	return Fitting.price(a) < Fitting.price(b)
 
 
 func _add_heading(container: Node, text: String) -> void:
 	var heading := Label.new()
 	heading.text = text
+	heading.add_color_override("font_color", HEADING_COLOR)
+	if container.get_child_count() > 0:
+		var gap := Control.new()
+		gap.rect_min_size = Vector2(0, 10)
+		container.add_child(gap)
 	container.add_child(heading)
+
+
+# A store heading that folds its group away when tapped; returns whether the group shows.
+func _add_group_heading(title: String, count: int) -> bool:
+	var key: String = _tab + "/" + title
+	var folded: bool = _folded.get(key, _tab != "ships" and count > GROUP_OPEN_MAX)
+	if _store.get_child_count() > 0:
+		var gap := Control.new()
+		gap.rect_min_size = Vector2(0, 6)
+		_store.add_child(gap)
+	var button: Button = _add_button(_store, "%s  (%d)  %s" % [title, count, "+" if folded else "-"], false, "_on_fold", [key, not folded])
+	button.add_color_override("font_color", HEADING_COLOR)
+	button.add_color_override("font_color_hover", HEADING_COLOR)
+	button.add_color_override("font_color_pressed", HEADING_COLOR)
+	return not folded
+
+
+func _add_note(container: Node, text: String) -> void:
+	var note := Label.new()
+	note.text = text
+	note.autowrap = true
+	note.add_color_override("font_color", DETAIL_COLOR)
+	container.add_child(note)
+
+
+# A row: `title` over `detail` (dimmer, wrapping), and its buttons ([text, disabled, method, binds])
+# beside them. Every other row is shaded, so rows read apart.
+func _add_row(container: Node, index: int, title: String, detail: String, buttons: Array) -> void:
+	var panel := PanelContainer.new()
+	var style := StyleBoxFlat.new()
+	style.bg_color = ROW_SHADE if index % 2 == 0 else Color(0, 0, 0, 0)
+	style.content_margin_left = 8
+	style.content_margin_right = 4
+	style.content_margin_top = 4
+	style.content_margin_bottom = 4
+	panel.add_stylebox_override("panel", style)
+	container.add_child(panel)
+	var row := HBoxContainer.new()
+	row.add_constant_override("separation", 8)
+	panel.add_child(row)
+	var text := VBoxContainer.new()
+	text.size_flags_horizontal = SIZE_EXPAND_FILL
+	text.add_constant_override("separation", 0)
+	row.add_child(text)
+	var name_label := Label.new()
+	name_label.text = title.to_upper()
+	name_label.clip_text = true
+	text.add_child(name_label)
+	if detail != "":
+		var detail_label := Label.new()
+		detail_label.text = detail
+		detail_label.autowrap = true
+		detail_label.add_color_override("font_color", DETAIL_COLOR)
+		text.add_child(detail_label)
+	for spec in buttons:
+		var button: Button = _add_button(row, spec[0], spec[1], spec[2], spec[3])
+		button.align = Button.ALIGN_CENTER
+		button.rect_min_size = Vector2(120, 48)
+		button.size_flags_vertical = SIZE_SHRINK_CENTER
 
 
 func _add_button(container: Node, text: String, disabled: bool, method: String, binds: Array) -> Button:
@@ -195,6 +409,17 @@ func _clear(container: Node) -> void:
 func _report(error: String, success: String) -> void:
 	_status.text = error if error != "" else success
 	refresh()
+
+
+func _on_fold(key: String, folded: bool) -> void:
+	_folded[key] = folded
+	refresh()
+
+
+func _on_tab(tab: String) -> void:
+	_tab = tab
+	refresh()
+	_store_scroll.scroll_vertical = 0
 
 
 func _on_buy(part_id: String) -> void:

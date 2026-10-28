@@ -13,8 +13,8 @@ func get_ship_template(ship_template_id: String) -> ShipTemplate:
 		return null
 	if TemplateDatabase.assets_ships.has(ship_template_id):
 		return TemplateDatabase.assets_ships[ship_template_id]
-	var evolved = TemplateDatabase.evolved.get(ship_template_id)
-	return evolved if evolved is ShipTemplate else null
+	var other = TemplateDatabase.presets.get(ship_template_id, TemplateDatabase.evolved.get(ship_template_id))
+	return other if other is ShipTemplate else null
 
 
 func get_player_ship_template() -> ShipTemplate:

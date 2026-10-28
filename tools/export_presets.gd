@@ -1,8 +1,9 @@
 # Exports a save's best evolved designs as presets (PresetExporter), whatever their faction: the
 # fittest of each archetype (role and weight class: up to three per role) whose genome has flown at least --min-lives lives, its ship, parts
-# and a faction-free AgentTemplate (behaviour genes) as .tres files under database/presets/. That
-# folder is outside the registry, so nothing reaches the game or the station shop until you move the
-# files you want into database/registry/ (parts first: ships name them by id).
+# and a faction-free AgentTemplate (behaviour genes) as .tres files under database/presets/. The home
+# station's store sells every ship and part there (TemplateIndexer: TemplateDatabase.presets; designs
+# from a *_min10 folder are marked PROVEN); NPCs do not fly them until the files are moved into
+# database/registry/ (parts first: ships name them by id).
 #     godot --no-window -s tools/export_presets.gd -- --top=60 --min-lives=10 --clean
 # Options: --save=PATH (default user://savegames/save_0.sav), --top=N archetypes, --min-lives=N,
 # --out=PATH (default res://database/presets/), --clean (remove the presets there first).
