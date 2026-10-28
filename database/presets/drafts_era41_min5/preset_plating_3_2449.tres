@@ -1,0 +1,21 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/asset_module_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_plating_3_2449"
+module_name = "Hull Plating III"
+description = "2449 kg."
+base_value = 612
+mass = 2449.22
+stat_modifiers = {
+"hull": 95
+}
+lance = {
+}
+module_kind = "plating"
+variant_type = 3
+law_genes = {
+"mass": 2449.22
+}
