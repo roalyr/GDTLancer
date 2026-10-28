@@ -314,6 +314,22 @@ func test_burns_a_chunks_crust_off_waits_for_the_slag_to_cool_then_harpoons_it()
 	assert_true(tools.is_active(1), "Cooled: harpoon on it")
 
 
+func test_a_prospector_at_work_leaves_far_enemies_be_and_runs_when_attacked():
+	ai.initialize({"patrol_center": Vector3.ZERO, "behavior": {"prospect": 1.0, "engage": 0.3}})
+	var far = _make_ship(Vector3(0, 0, -5000), "verdant", 10.0)
+	var near = _make_ship(Vector3(0, 0, -50), "verdant", 10.0)
+	ai._current_state = AIScript.AIState.MINE
+	assert_true(ai.is_mining_work())
+	assert_true(ai._busy_mining_past(far), "Out of its laser's reach: left be")
+	assert_false(ai._busy_mining_past(near), "In reach: it may take it on")
+	ai._react_to_attack(near)
+	assert_eq(ai.get_state(), AIScript.AIState.FLEE, "Attacked at work: it runs home rather than fight")
+	ai._current_state = AIScript.AIState.PATROL
+	assert_false(ai.is_mining_work(), "Not at work: it fights as ever")
+	ai._react_to_attack(near)
+	assert_ne(ai.get_state(), AIScript.AIState.FLEE)
+
+
 func test_takes_a_hold_home_once_it_is_worth_its_haul_share_of_the_ship():
 	ai.initialize({"patrol_center": Vector3.ZERO, "home_point": Vector3(0, 0, 200), "behavior": {"haul": 0.25}})
 	hostile.cargo_capacity = 100

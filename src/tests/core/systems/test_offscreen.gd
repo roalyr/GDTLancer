@@ -22,6 +22,8 @@ class StubAI extends Node:
 		return false
 	func _due_home() -> bool:
 		return false
+	func hold_worth_hauling() -> bool:
+		return false
 	func _should_retreat() -> bool:
 		return retreat
 	func can_mine() -> bool:

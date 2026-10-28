@@ -475,7 +475,7 @@ func _process_salvage() -> void:
 	if _scan_timer <= 0.0:
 		_scan_timer = Constants.AI_SCAN_INTERVAL
 		var enemy = scan_for_target()
-		if is_instance_valid(enemy):
+		if is_instance_valid(enemy) and not _busy_mining_past(enemy):
 			_consider("engage", enemy, desire_against(enemy), _engage_level())
 			return
 	if wreck.has_method("is_ready_to_strip") and not wreck.is_ready_to_strip():
@@ -689,6 +689,29 @@ func _on_lance_glanced(_target, reason) -> void:
 
 # --- Mining (prospect gene; Constants MINING) ---
 
+# A prospector (prospect gene) mining, working ore or a loose lance, or hauling home: it minds its
+# work (Constants AI block): it takes on no enemy out of its weapons' reach, helps no friend, and runs
+# home when attacked.
+func is_mining_work() -> bool:
+	if _prospect < 0.5:
+		return false
+	if _current_state in [AIState.MINE, AIState.DEPART]:
+		return true
+	return _current_state == AIState.SALVAGE and is_instance_valid(_target_agent) \
+			and (_target_agent.is_in_group("ore_chunk") or _target_agent.is_in_group("loose_lance"))
+
+
+# An enemy a prospector at work leaves be: out of reach of all its weapons.
+func _busy_mining_past(enemy) -> bool:
+	if not is_mining_work() or not is_instance_valid(_tool_controller):
+		return false
+	var reach := 0.0
+	for index in range(_tool_controller.get_tool_count()):
+		if _tool_controller.can_target(_tool_controller.get_tool(index), enemy):
+			reach = max(reach, _tool_controller.get_tool(index).get_max_range())
+	return agent_script.global_transform.origin.distance_to(enemy.global_transform.origin) > reach
+
+
 func can_mine() -> bool:
 	if _prospect < 0.5 or not is_instance_valid(_tool_controller) or agent_script.get_free_cargo() <= 0 or not can_ram():
 		return false
@@ -738,7 +761,7 @@ func _process_mine(delta: float) -> void:
 	if _scan_timer <= 0.0:
 		_scan_timer = Constants.AI_SCAN_INTERVAL
 		var enemy = scan_for_target()
-		if is_instance_valid(enemy):
+		if is_instance_valid(enemy) and not _busy_mining_past(enemy):
 			_consider("engage", enemy, desire_against(enemy), _engage_level())
 			return
 	_ram(_rock)
@@ -1076,6 +1099,8 @@ func _assist(friend, source) -> void:
 		return
 	if _teamwork <= 0.0:
 		return  # A loner: helps no one
+	if is_mining_work():
+		return  # A prospector at work leaves fights to others
 	_consider("assist", source, desire_against(source) * _teamwork, _engage_level())
 
 
@@ -1100,6 +1125,10 @@ func _react_to_attack(source) -> void:
 	if fighting != null and fighting == source:
 		_provoked = true
 		_since_hit = 0.0
+		return
+	if is_mining_work():
+		_note("fled_work")
+		_change_state(AIState.FLEE)  # A prospector at work runs home, it does not fight
 		return
 	# Shot at: once it has made up its mind, fight back if the rule says so, otherwise run.
 	_consider("respond", source, desire_against(source), _disengage_level())

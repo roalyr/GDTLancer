@@ -133,10 +133,12 @@ func resolve(dt: float) -> void:
 
 func _resolve_ship(body: RigidBody, ai: Node, entry: Dictionary, dt: float) -> void:
 	var enemy = _nearest_enemy(body)
-	var going_home: bool = ai.is_leaving() or body.get_free_cargo() <= 0 or ai._due_home() or (enemy != null and ai._should_retreat())
+	var going_home: bool = ai.is_leaving() or body.get_free_cargo() <= 0 or ai.hold_worth_hauling() or ai._due_home() or (enemy != null and ai._should_retreat())
 	if going_home:
 		_go_home(body, ai, entry, dt, enemy)
 		return
+	if enemy != null and ai.can_mine() and body.global_transform.origin.distance_to(enemy.global_transform.origin) > Constants.OFFSCREEN_ENGAGE_RANGE:
+		enemy = null  # A prospector minds its mining (ShipControllerAI.is_mining_work)
 	if enemy != null:
 		var distance: float = body.global_transform.origin.distance_to(enemy.global_transform.origin)
 		if distance > Constants.OFFSCREEN_ENGAGE_RANGE:
