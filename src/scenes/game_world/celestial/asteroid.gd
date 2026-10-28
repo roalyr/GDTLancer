@@ -2,8 +2,7 @@
 # assets/models/rocks/), size it with the node's uniform scale. The rock material is applied here,
 # since the rock meshes come without one.
 # Mining (Constants MINING): it holds a deposit (`deposit_id`, units by size unless `deposit` is set).
-# Laser hits burn its shell off; bared, it glows, and an armed lance struck into it breaks out an
-# OreChunk (break_chunk); the shell then closes again.
+# A lance thrown into it breaks a few OreChunks off its face (break_chunks); lasers only chip it.
 
 extends StaticBody
 
@@ -23,9 +22,6 @@ export var mineable: bool = true
 export var surface: Material = null  # The rock material if unset
 export var display_name: String = "Asteroid"
 
-var shell: float = Constants.MINING_SHELL_HP  # Laser damage left before it is bared
-var _exposed_left: float = 0.0  # s it stays bared
-var _exposed_material: Material = null
 
 var hull_bounds: AABB = AABB(Vector3(-0.5, -0.5, -0.5), Vector3.ONE)
 var _radius := -1.0  # get_apparent_radius() cache, for _radius_basis
@@ -62,7 +58,6 @@ func _ready() -> void:
 		add_to_group("mineable")
 	else:
 		deposit = 0
-	set_physics_process(false)
 
 
 func get_display_name() -> String:
@@ -79,59 +74,34 @@ func get_deposit() -> int:
 	return deposit
 
 
-func is_exposed() -> bool:
-	return shell <= 0.0 and get_deposit() > 0
-
-
-# Laser damage on the shell; bared at 0, for MINING_EXPOSED_TIME.
-func cut(damage: float) -> void:
-	if damage <= 0.0 or get_deposit() <= 0 or is_exposed():
-		return
-	shell = max(0.0, shell - damage)
-	if shell <= 0.0:
-		_exposed_left = Constants.MINING_EXPOSED_TIME
-		_set_glow(true)
-		set_physics_process(true)
-
-
-func _physics_process(delta: float) -> void:
-	_exposed_left -= delta
-	if _exposed_left <= 0.0:
-		_close_shell()
-
-
-func _close_shell() -> void:
-	shell = Constants.MINING_SHELL_HP
-	_set_glow(false)
-	set_physics_process(false)
-
-
-func _set_glow(on: bool) -> void:
-	if on and _exposed_material == null:
-		_exposed_material = _surface().duplicate()
-		_exposed_material.set_shader_param("emission", Constants.MINING_EXPOSED_COLOR)
-		_exposed_material.set_shader_param("emission_strength", 0.6)
-	for node in _all_nodes(_model):
-		if node is MeshInstance:
-			node.material_override = _exposed_material if on else _surface()
-
-
-# A lance went in at `point`, along `axis`, for `damage`: breaks out a chunk of the deposit (see
-# Constants MINING) drifting off the face, and closes the shell. Returns the chunk, or null.
-func break_chunk(point: Vector3, axis: Vector3, damage: float) -> RigidBody:
-	if not is_exposed() or not is_inside_tree():
-		return null
+# A lance went in at `point`, along `axis`, for `damage`: breaks damage / MINING_DAMAGE_PER_UNIT
+# units of the deposit (at most MINING_CHUNK_MAX, and what is left) off the face, in a piece per
+# MINING_PIECE_UNITS (at most MINING_PIECES_MAX), drifting apart off the face. Returns the chunks,
+# biggest first; none from a worked-out rock.
+func break_chunks(point: Vector3, axis: Vector3, damage: float) -> Array:
+	if get_deposit() <= 0 or not is_inside_tree():
+		return []
 	var units: int = int(clamp(round(damage / Constants.MINING_DAMAGE_PER_UNIT), 1, min(Constants.MINING_CHUNK_MAX, get_deposit())))
 	deposit -= units
-	_close_shell()
-	var chunk = OreChunk.new()
-	var models: Array = Constants.MINING_CHUNK_MODELS
-	chunk.setup({deposit_id: units}, load(models[randi() % models.size()]), Constants.MINING_CHUNK_RADIUS * pow(float(units), 1.0 / 3.0))
-	get_parent().add_child(chunk)
+	var pieces: int = int(clamp(ceil(float(units) / Constants.MINING_PIECE_UNITS), 1, Constants.MINING_PIECES_MAX))
 	var outward: Vector3 = (point - global_transform.origin).normalized()
-	chunk.global_transform = Transform(Basis(), point + outward * chunk.get_apparent_radius() * 1.5)
-	chunk.linear_velocity = outward * Constants.MINING_CHUNK_SPEED
-	return chunk
+	if outward.length_squared() < 0.5:
+		outward = -axis.normalized()
+	var side: Vector3 = outward.cross(Vector3.UP if abs(outward.y) < 0.9 else Vector3.RIGHT).normalized()
+	var chunks: Array = []
+	var models: Array = Constants.MINING_CHUNK_MODELS
+	for index in range(pieces):
+		var share: int = units / pieces + (1 if index < units % pieces else 0)  # Biggest first
+		var chunk = OreChunk.new()
+		chunk.setup({deposit_id: share}, load(models[randi() % models.size()]), Constants.MINING_CHUNK_RADIUS * pow(float(share), 1.0 / 3.0))
+		get_parent().add_child(chunk)
+		var heading: Vector3 = outward
+		if pieces > 1:  # Fanned round the face
+			heading = outward.rotated(side.rotated(outward, TAU * index / pieces), deg2rad(Constants.MINING_PIECE_SPREAD)).normalized()
+		chunk.global_transform = Transform(Basis(), point + heading * chunk.get_apparent_radius() * 1.5)
+		chunk.linear_velocity = heading * Constants.MINING_CHUNK_SPEED
+		chunks.append(chunk)
+	return chunks
 
 
 func _measure_model_bounds() -> AABB:
@@ -180,7 +150,6 @@ func register_hit(from_global: Vector3, damage: float) -> Vector3:
 	var aim: Vector3 = global_transform.xform(hull_bounds.position + hull_bounds.size * 0.5)
 	var hit: Dictionary = CollisionHull.ray_onto(self, from_global, aim, get_apparent_radius() * 2.0)
 	var point: Vector3 = hit.position if not hit.empty() else get_hull_point_facing(from_global)
-	cut(damage)
 	if damage > 0.0 and is_inside_tree() and RockDustEffect.is_wanted(get_tree(), get_viewport(), point):
 		var dust = RockDustScene.instance()
 		dust.outward = (from_global - point).normalized()

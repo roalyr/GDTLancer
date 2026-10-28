@@ -715,15 +715,17 @@ func describe_target_stats(player) -> String:
 		return PoolStringArray(lines).join("\n")
 	if not (_current_target is Spatial):
 		return PoolStringArray(lines).join("\n")
-	if _current_target.get("is_wreck"):
-		lines.append("WRECK  SALVAGE %d" % _current_target.get_salvage_units())
-	elif _current_target.has_method("is_exposed") and _current_target.mineable:  # A rock (Constants MINING)
-		if _current_target.get_deposit() <= 0:
-			lines.append("WORKED OUT")
-		elif _current_target.is_exposed():
-			lines.append("BARED: LANCE IT  ORE %d" % _current_target.get_deposit())
+	if _current_target.has_method("has_crust"):  # An ore chunk (Constants MINING)
+		if _current_target.has_crust():
+			lines.append("CRUST %d%%: BURN IT  ORE %d" % [int(ceil(100.0 * _current_target.crust / Constants.MINING_CRUST_HP)), _current_target.get_salvage_units()])
+		elif _current_target.is_hot():
+			lines.append("SLAG COOLING %ds  ORE %d" % [int(ceil(_current_target.heat)), _current_target.get_salvage_units()])
 		else:
-			lines.append("SHELL %d%%  ORE %d" % [int(ceil(100.0 * _current_target.shell / Constants.MINING_SHELL_HP)), _current_target.get_deposit()])
+			lines.append("SLAG: HARPOON IT  ORE %d" % _current_target.get_salvage_units())
+	elif _current_target.get("is_wreck"):
+		lines.append("WRECK  SALVAGE %d" % _current_target.get_salvage_units())
+	elif _current_target.has_method("get_deposit") and _current_target.mineable:  # A rock
+		lines.append("WORKED OUT" if _current_target.get_deposit() <= 0 else "ORE %d: LANCE IT" % _current_target.get_deposit())
 	elif _current_target.get("hull_max"):
 		lines.append("HULL %d / %d" % [ceil(_current_target.hull), _current_target.hull_max])
 		var cues: Array = _target_projector.get_ship_cues(_current_target)

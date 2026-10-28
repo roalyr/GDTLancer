@@ -215,7 +215,7 @@ func find_tool_for(target) -> int:
 	return -1
 
 
-# Laser: live ships and rocks. Harpoon: wrecks.
+# Laser: live ships, rocks and crusted ore chunks. Harpoon: wrecks, and ore chunks once bared and cooled.
 func can_target(tool_template, target) -> bool:
 	if not (is_instance_valid(target) and target != _agent_body and target is Spatial):
 		return false
@@ -224,11 +224,11 @@ func can_target(tool_template, target) -> bool:
 		return false  # Tools act only on what the ship's sensors can see
 	match tool_template.tool_type:
 		"laser":
-			return (is_ship and not target.get("is_wreck")) or target.is_in_group("asteroid")
+			return (is_ship and not target.get("is_wreck")) or target.is_in_group("asteroid") or (target.has_method("has_crust") and target.has_crust())
 		"missile", "cannon":
 			return is_ship and not target.get("is_wreck")
 		"harpoon":
-			return is_ship and bool(target.get("is_wreck"))
+			return is_ship and bool(target.get("is_wreck")) and not (target.has_method("is_ready_to_strip") and not target.is_ready_to_strip())
 	return false
 
 

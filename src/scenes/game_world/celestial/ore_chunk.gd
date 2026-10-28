@@ -1,7 +1,9 @@
-# OreChunk: a piece a lance broke out of a bared rock (Asteroid.break_chunk; Constants MINING). It
-# drifts, holds its rock's deposit as salvage, and passes for a wreck: brackets show it, a harpoon tows
-# and strips it (the lance stuck in it first, into a seat it fits), and salvagers look for it the same
-# way (it is in the agent_body group with is_wreck set). Stripped, it is cleared away like a wreck.
+# OreChunk: a piece a lance broke off a rock (Asteroid.break_chunks; Constants MINING). It drifts,
+# holds its rock's deposit as salvage, and passes for a wreck: brackets show it and salvagers look for
+# it the same way (it is in the agent_body group with is_wreck set). It comes crusted: laser fire
+# burns the crust off (MINING_CRUST_HP) and bares the ore as slag that glows hot and fades as it
+# cools (MINING_COOL_TIME); cooled, a harpoon tows and strips it (the lance stuck in it first, into
+# a seat it fits). Stripped, it is cleared away like a wreck.
 
 extends RigidBody
 
@@ -15,7 +17,10 @@ var faction: String = ""
 var salvage: Dictionary = {}  # Commodity id -> units left to strip
 var wreck_time_ms: int = 0
 var hull_bounds: AABB = AABB(Vector3(-1, -1, -1), Vector3(2, 2, 2))
+var crust: float = Constants.MINING_CRUST_HP  # Laser damage left before the ore is bared
+var heat: float = 0.0  # s of cooling left once bared
 var _radius: float = 1.0
+var _slag_material: ShaderMaterial = null
 
 
 # `model`: a rock mesh scene; `radius`: m.
@@ -58,6 +63,51 @@ func _ready() -> void:
 	add_to_group("wreck")
 	add_to_group("ore_chunk")
 	wreck_time_ms = OS.get_ticks_msec()
+	set_process(false)
+
+
+func has_crust() -> bool:
+	return crust > 0.0
+
+
+func is_hot() -> bool:
+	return crust <= 0.0 and heat > 0.0
+
+
+# Bared and cooled: a harpoon can take it.
+func is_ready_to_strip() -> bool:
+	return crust <= 0.0 and heat <= 0.0
+
+
+# Laser damage on the crust; bared at 0, hot for MINING_COOL_TIME.
+func cut(damage: float) -> void:
+	if damage <= 0.0 or not has_crust():
+		return
+	crust = max(0.0, crust - damage)
+	if crust <= 0.0:
+		heat = Constants.MINING_COOL_TIME
+		var material: Material = RockMaterial.duplicate()
+		if material is ShaderMaterial:
+			_slag_material = material
+			_slag_material.set_shader_param("emission", Constants.MINING_SLAG_COLOR)
+			for node in _all_nodes(get_node("Model")):
+				if node is MeshInstance:
+					node.material_override = _slag_material
+		_show_heat()
+		set_process(true)
+
+
+func _process(delta: float) -> void:
+	heat = max(0.0, heat - delta)
+	_show_heat()
+	if heat <= 0.0:
+		set_process(false)
+
+
+# The slag's glow, from bright to none as it cools.
+func _show_heat() -> void:
+	if _slag_material != null:
+		_slag_material.set_shader_param("emission_strength", 0.8 * heat / Constants.MINING_COOL_TIME)
 
 
 static func _all_nodes(root: Node) -> Array:
@@ -71,7 +121,7 @@ func get_display_name() -> String:
 	var units := 0
 	for commodity_id in salvage:
 		units += int(salvage[commodity_id])
-	return "Ore chunk (%d)" % units
+	return "Ore chunk (%d)" % units if not has_crust() else "Rock chunk (%d)" % units
 
 
 func is_player() -> bool:
@@ -82,7 +132,8 @@ func apply_damage(_amount: float, _source: Node = null) -> void:
 	pass  # Rock: shots only chip it
 
 
-func register_hit(from_global: Vector3, _damage: float, _aim_at = null) -> Vector3:
+func register_hit(from_global: Vector3, damage: float, _aim_at = null) -> Vector3:
+	cut(damage)
 	return get_hull_point_facing(from_global)
 
 

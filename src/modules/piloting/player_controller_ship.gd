@@ -687,8 +687,8 @@ func _on_Player_Approach_Pressed():
 
 
 # Whether approaching `target` means ramming it: the lance armed with lances left, and something it
-# can strike: a ship, a wreck or an ore chunk (to harpoon it after), or a bared rock (to break a chunk
-# out), as NPCs ram them (null: any of these would do). A station or a whole rock is approached.
+# can strike: a ship, a wreck or an ore chunk (shoved), or a rock with ore left (to break chunks off),
+# as NPCs ram them (null: any of these would do). A station or a worked-out rock is approached.
 func is_ram_ready(target = null) -> bool:
 	var lance = agent_body.get_lance() if is_instance_valid(agent_body) and agent_body.has_method("get_lance") else null
 	if lance == null or not lance.armed or agent_body.get_lance_nails() <= 0:
@@ -701,7 +701,7 @@ static func is_rammable(target) -> bool:
 		return false
 	if target is RigidBody and target.has_method("apply_damage"):
 		return true
-	return target.is_in_group("mineable") and target.has_method("is_exposed") and target.is_exposed()
+	return target.is_in_group("mineable") and target.has_method("get_deposit") and target.get_deposit() > 0
 
 
 # Arming the lance turns an approach into a ram; making it safe (or running out) turns it back.

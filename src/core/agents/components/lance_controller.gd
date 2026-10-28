@@ -294,9 +294,9 @@ func is_charging(target) -> bool:
 
 
 # A lance (along `direction`, at `velocity`; the seated one's if not given) meets a rock at `point`
-# (surface `normal`). Bared (Asteroid.is_exposed), struck at strike speed square enough, it breaks
-# out a chunk with the lance stuck in it; otherwise the lance glances off. Returns the damage. `roll`
-# as for strike().
+# (surface `normal`). Struck at strike speed square enough, it breaks chunks off (Asteroid.break_chunks)
+# with the lance stuck in the biggest; otherwise the lance glances off. Returns the damage. `roll` as
+# for strike().
 func strike_rock(rock: Spatial, point: Vector3, normal: Vector3, roll: float = -1.0, direction: Vector3 = Vector3.ZERO, velocity = null) -> float:
 	var axis: Vector3 = direction.normalized() if direction != Vector3.ZERO else _axis()
 	var motion: Vector3 = velocity if velocity is Vector3 else _agent.linear_velocity
@@ -306,8 +306,8 @@ func strike_rock(rock: Spatial, point: Vector3, normal: Vector3, roll: float = -
 	if roll < 0.0:
 		roll = randf()
 	var reason: String = ""
-	if not rock.is_exposed():
-		reason = "the rock's shell is whole (burn it off with a laser)" if rock.get_deposit() > 0 else "the rock is worked out"
+	if rock.get_deposit() <= 0:
+		reason = "the rock is worked out"
 	elif damage <= 0.0:
 		reason = "too slow, %d of %d m/s" % [int(closing), int(Constants.LAW_LANCE_MIN_SPEED)]
 	elif roll >= ShipLaws.lance_hit_chance(lance, angle):
@@ -316,9 +316,10 @@ func strike_rock(rock: Spatial, point: Vector3, normal: Vector3, roll: float = -
 		_glanced[rock.get_instance_id()] = 1.0
 		emit_signal("glanced", rock, reason)
 		return 0.0
-	var chunk = rock.break_chunk(point, axis, damage)
-	if chunk == null:
+	var chunks: Array = rock.break_chunks(point, axis, damage)
+	if chunks.empty():
 		return 0.0
+	var chunk = chunks[0]
 	_leave_lance(chunk, chunk.get_hull_point_facing(point - axis * 10.0), axis)
 	emit_signal("struck", chunk, damage)
 	return damage

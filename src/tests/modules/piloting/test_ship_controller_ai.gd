@@ -7,6 +7,7 @@ extends GutTest
 const CombatAssessment = preload("res://src/core/systems/combat_assessment.gd")
 
 const AgentScript = preload("res://src/core/agents/agent.gd")
+const OreChunkScript = preload("res://src/scenes/game_world/celestial/ore_chunk.gd")
 const AIScript = preload("res://src/modules/piloting/ship_controller_ai.gd")
 const ToolControllerScript = preload("res://src/core/agents/components/tool_controller.gd")
 
@@ -284,6 +285,34 @@ func test_stray_fire_from_own_side_is_forgiven():
 
 
 # --- Salvage and leaving ---
+
+func test_burns_a_chunks_crust_off_waits_for_the_slag_to_cool_then_harpoons_it():
+	ai.initialize({"patrol_center": Vector3.ZERO})
+	hostile.cargo_capacity = 10
+	var chunk = OreChunkScript.new()
+	chunk.setup({"test_scrap": 3}, null, 2.0)
+	add_child_autofree(chunk)
+	chunk.global_transform.origin = Vector3(0, 0, -100)
+	var harpoon = UtilityToolTemplate.new()
+	harpoon.tool_type = "harpoon"
+	harpoon.optimal_range = 300.0
+	var tools = hostile.get_node("ToolController")
+	tools.set_tools([tools.get_tool(0), harpoon])
+	ai._target_agent = chunk
+	ai._change_state(AIScript.AIState.SALVAGE)
+	ai._scan_timer = 10.0
+	ai._process_salvage()
+	assert_true(tools.is_active(0), "Laser on the crust")
+	assert_false(tools.is_active(1), "No harpoon yet")
+	chunk.cut(Constants.MINING_CRUST_HP)
+	ai._process_salvage()
+	assert_false(tools.is_active(0), "Bared: laser off")
+	assert_false(tools.is_active(1), "Waits for the slag to cool")
+	assert_eq(ai.get_state(), AIScript.AIState.SALVAGE)
+	chunk._process(Constants.MINING_COOL_TIME + 1.0)
+	ai._process_salvage()
+	assert_true(tools.is_active(1), "Cooled: harpoon on it")
+
 
 func test_takes_a_hold_home_once_it_is_worth_its_haul_share_of_the_ship():
 	ai.initialize({"patrol_center": Vector3.ZERO, "home_point": Vector3(0, 0, 200), "behavior": {"haul": 0.25}})

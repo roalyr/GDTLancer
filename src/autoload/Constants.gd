@@ -457,7 +457,6 @@ const AI_AFTERBURNER_RESERVE = 0.3  # Share of its power an NPC keeps for its we
 const AI_AFTERBURNER_CLOSE_FACTOR = 2.0  # Burns to close in from beyond this many times its fighting range  # Ships at war (or holding a grudge) want the fight this much more
 const AI_SALVAGE_SEARCH_RANGE = 6000.0  # m; wrecks further than this are not worth the trip
 const AI_MINE_SEARCH_RANGE = 6000.0  # m; rocks further than this are not worth the trip
-const AI_MINE_STANDOFF = 0.7  # Burns a rock's shell from this share of its laser's optimal range off the rock's face
 const AI_MINE_GIVE_UP = 120.0  # s on one rock without a chunk before it tries another
 const AI_DEPART_ARRIVAL_DISTANCE = 300.0  # m from its spawn point at which a hauler leaves the sector
 
@@ -501,15 +500,19 @@ const FUEL_COMMODITY = "commodity_fuel"
 const FUEL_MASS_PER_UNIT = 2500.0  # kg
 const FUEL_STARTING_UNITS = 6  # In the hold of a new game's ship and of the ship given after a loss
 
-# Mining (Asteroid, OreChunk, LanceController): a composite act. Laser shots burn off a rock's shell
-# (MINING_SHELL_HP); bared, it glows, and an armed lance driven into it at strike speed breaks out a
-# chunk holding damage / MINING_DAMAGE_PER_UNIT units of the rock's deposit (at most
-# MINING_CHUNK_MAX, and what is left), with the lance stuck in it; a harpoon tows the chunk and strips
-# it like a wreck (lance first). The shell closes again after each chunk, or MINING_EXPOSED_TIME s.
-const MINING_SHELL_HP = 60.0  # Laser damage to bare a rock
-const MINING_EXPOSED_TIME = 90.0  # s a bared rock stays bare
+# Mining (Asteroid, OreChunk, LanceController): a composite act. A lance thrown into a rock at strike
+# speed breaks damage / MINING_DAMAGE_PER_UNIT units of its deposit (at most MINING_CHUNK_MAX, and
+# what is left) off its face, in a piece per MINING_PIECE_UNITS (up to MINING_PIECES_MAX), the
+# lance stuck in the biggest. Each piece is crusted: laser fire burns the crust off (MINING_CRUST_HP)
+# and bares the ore as slag, glowing hot, that cools in MINING_COOL_TIME s; cooled, a harpoon tows it
+# and strips it like a wreck (lance first).
 const MINING_DAMAGE_PER_UNIT = 15.0  # Lance damage per unit broken out
-const MINING_CHUNK_MAX = 12  # Units in one chunk
+const MINING_CHUNK_MAX = 12  # Units broken out by one strike
+const MINING_PIECE_UNITS = 4  # Units per piece
+const MINING_PIECES_MAX = 3
+const MINING_PIECE_SPREAD = 30.0  # Degrees the pieces fan out off the face
+const MINING_CRUST_HP = 40.0  # Laser damage to burn a piece's crust off
+const MINING_COOL_TIME = 15.0  # s the bared slag glows before a harpoon can take it
 const MINING_ORE_PER_METRE = 1.0  # A rock's deposit: units per metre of its radius
 const MINING_CHUNK_SPEED = 8.0  # m/s the chunk drifts off the rock's face
 const MINING_CHUNK_BASE_MASS = 400.0  # kg of rock round the deposit in a chunk
@@ -518,7 +521,7 @@ const MINING_CHUNK_MODELS = [  # Low-poly rocks (the rock models' last LOD)
 	"res://assets/models/rocks/lod/rock_01_6k_LOD3.glb", "res://assets/models/rocks/lod/rock_03_4k_LOD3.glb",
 	"res://assets/models/rocks/lod/rock_05_4k_LOD3.glb",
 ]
-const MINING_EXPOSED_COLOR = Color(1.0, 0.45, 0.15, 1.0)  # A bared rock's glow
+const MINING_SLAG_COLOR = Color(1.0, 0.45, 0.15, 1.0)  # Hot slag's glow, fading as it cools
 const MINING_DEPOSIT = "commodity_ore"  # What rocks hold
 
 # Megastructures (Megastructure): clusters of remnants left by successive builders, one layer each,

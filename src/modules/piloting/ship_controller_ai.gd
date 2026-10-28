@@ -478,6 +478,9 @@ func _process_salvage() -> void:
 		if is_instance_valid(enemy):
 			_consider("engage", enemy, desire_against(enemy), _engage_level())
 			return
+	if wreck.has_method("is_ready_to_strip") and not wreck.is_ready_to_strip():
+		_work_chunk(wreck)
+		return
 	var index: int = _tool_controller.find_tool_for(wreck) if is_instance_valid(_tool_controller) else -1
 	if index < 0:
 		if not agent_script.detects(wreck):
@@ -494,6 +497,28 @@ func _process_salvage() -> void:
 	elif distance > harpoon_range and _orbiting:
 		_orbiting = false
 		agent_script.command_approach(wreck)
+
+
+# An ore chunk not ready for the harpoon: burns its crust off from within its laser's reach, then
+# waits by the hot slag till it cools (Constants MINING).
+func _work_chunk(chunk) -> void:
+	var laser: int = _mining_laser() if is_instance_valid(_tool_controller) else -1
+	if laser < 0:
+		_change_state(AIState.PATROL)
+		return
+	var reach: float = _tool_controller.get_tool(laser).optimal_range
+	var distance: float = agent_script.global_transform.origin.distance_to(chunk.global_transform.origin)
+	if distance <= reach * 0.8 and not _orbiting:
+		_orbiting = true
+		agent_script.command_stop()
+	elif distance > reach and _orbiting:
+		_orbiting = false
+		agent_script.command_approach(chunk)
+	if chunk.has_crust():
+		if not _tool_controller.is_active(laser):
+			_tool_controller.activate(laser, chunk)  # Fires once in reach
+	elif _tool_controller.is_active(laser):
+		_tool_controller.deactivate(laser, "bared")
 
 
 # Making up its mind about _target_agent (the decision in _pending, resolved by _tick_decision).
@@ -699,8 +724,9 @@ func scan_for_rock() -> Spatial:
 	return best
 
 
-# Burns the shell off from AI_MINE_STANDOFF of its laser's range, then rams the bared rock; the strike
-# (_on_lance_struck) sends it after the chunk. Enemies that show up come first.
+# Throws a lance into the rock (command_ram holds it off the face); the strike (_on_lance_struck)
+# sends it after the biggest chunk, and the rest are picked up as wrecks. Enemies that show up come
+# first.
 func _process_mine(delta: float) -> void:
 	_mine_time += delta
 	if not (is_instance_valid(_rock) and _rock.get_deposit() > 0 and can_mine()) or _mine_time > Constants.AI_MINE_GIVE_UP:
@@ -715,26 +741,7 @@ func _process_mine(delta: float) -> void:
 		if is_instance_valid(enemy):
 			_consider("engage", enemy, desire_against(enemy), _engage_level())
 			return
-	var laser: int = _mining_laser()
-	if _rock.is_exposed():
-		if _tool_controller.is_active(laser):
-			_tool_controller.deactivate(laser, "bared")
-		_ram(_rock)
-		return
-	if _ramming:  # The shell closed before it got there: burn it again
-		_stop_ramming()
-		_repath_timer = 0.0
-	var reach: float = _tool_controller.get_tool(laser).optimal_range
-	var away: Vector3 = agent_script.global_transform.origin - _rock.global_transform.origin
-	var standoff: Vector3 = _rock.global_transform.origin + away.normalized() * (_rock.get_apparent_radius() + reach * Constants.AI_MINE_STANDOFF)
-	if _repath_timer <= 0.0:
-		_repath_timer = Constants.AI_REPATH_INTERVAL * 4.0
-		if agent_script.global_transform.origin.distance_to(standoff) > reach * 0.3:
-			agent_script.command_move_to(standoff)
-		else:
-			agent_script.command_watch(_rock)
-	if not _tool_controller.is_active(laser):
-		_tool_controller.activate(laser, _rock)  # Fires once in range
+	_ram(_rock)
 
 
 # --- Runners: chase or let go ---
@@ -945,6 +952,8 @@ func scan_for_wreck() -> RigidBody:
 
 # Lances for its own seat, rounds for its own magazines, or salvage with room in the hold.
 func _worth_salvaging(wreck) -> bool:
+	if wreck.has_method("has_crust") and wreck.has_crust() and not (is_instance_valid(_tool_controller) and _mining_laser() >= 0):
+		return false  # A crusted chunk needs a laser first
 	return wreck.recoverable_lances_for(agent_script) > 0 or _recoverable_ammo(wreck) > 0 or (wreck.get_salvage_units() > 0 and agent_script.get_free_cargo() > 0)
 
 
