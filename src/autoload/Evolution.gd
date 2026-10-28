@@ -194,6 +194,7 @@ func _start(record: Dictionary) -> void:
 	record.ship_template_id = built.ship_template_id
 	record.fit = built.fit
 	record.behavior = entry.genome.get("behavior", Genome.default_behavior())
+	record.combat = Genome.is_combat_role(Genome.niche(entry.genome))
 	live[record.uid] = record
 
 
@@ -337,6 +338,9 @@ func _on_agent_damaged(body, amount, source) -> void:
 		source_uid = str(source.get("evo_uid")) if source.get("evo_uid") != null and str(source.get("evo_uid")) != "" else ("player" if source.has_method("is_player") and source.is_player() else "")
 	if live.has(source_uid):
 		live[source_uid].damage_dealt = float(live[source_uid].damage_dealt) + float(amount)
+		if live.has(victim_uid) and live[victim_uid].faction != live[source_uid].faction and float(body.get("hull_max")) > 0.0:
+			var share: float = min(float(amount), float(body.hull_max)) / float(body.hull_max)
+			live[source_uid].destroyed = float(live[source_uid].get("destroyed", 0.0)) + share * float(live[victim_uid].cost)
 	if live.has(victim_uid):
 		live[victim_uid].damage_taken = float(live[victim_uid].damage_taken) + float(amount)
 		live[victim_uid].last_hit_by = source_uid
@@ -370,8 +374,13 @@ func _on_agent_despawning(body) -> void:
 
 
 # Fitness: return on cost, (earned + bounties - repairs - upkeep) / cost, less 1 if the ship was lost.
+# A combat niche's also counts the enemy value it destroyed (Constants EVO_COMBAT_EXCHANGE_WEIGHT):
+# what it took from the other side against what it cost its own.
 static func fitness_of(record: Dictionary, died: bool, age: float) -> float:
-	return net_of(record, age) / max(float(record.cost), 1.0) - (1.0 if died else 0.0)
+	var takings: float = net_of(record, age)
+	if record.get("combat", false):
+		takings += Constants.EVO_COMBAT_EXCHANGE_WEIGHT * float(record.get("destroyed", 0.0))
+	return takings / max(float(record.cost), 1.0) - (1.0 if died else 0.0)
 
 
 # A life's takings so far (WP): earned + bounties - repairs - upkeep.
@@ -564,7 +573,7 @@ func _write_life(record: Dictionary, died: bool, killer: String, fitness: float,
 		"t": game_time, "uid": record.uid, "faction": record.faction, "zone": record.zone, "genome_id": record.genome_id,
 		"parent": record.parent, "how": record.get("how", ""), "died": died, "killer": killer, "age": age,
 		"kills": record.kills, "victims": record.victims, "earned": record.earned, "bounty": record.bounty, "spent": record.get("spent", 0.0),
-		"damage_dealt": record.damage_dealt, "damage_taken": record.damage_taken, "docks": record.docks, "events": record.get("events", {}),
+		"damage_dealt": record.damage_dealt, "damage_taken": record.damage_taken, "destroyed": record.get("destroyed", 0.0), "docks": record.docks, "events": record.get("events", {}),
 		"cost": record.cost, "skill": record.skill, "fitness": fitness,
 		"niche": Genome.niche(entry.genome) if not entry.empty() else "", "genome": entry.get("genome", {}),
 	}

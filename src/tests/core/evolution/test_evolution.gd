@@ -2,6 +2,8 @@
 
 extends GutTest
 
+const Genome = preload("res://src/core/evolution/genome.gd")
+
 var _bodies: Array = []
 
 
@@ -96,6 +98,15 @@ func test_fitness_is_return_on_cost_less_a_lost_ship():
 	assert_almost_eq(Evolution.fitness_of(record, true, 0.0), -0.5, 0.0001)
 	var upkeep: float = Constants.EVO_UPKEEP_PER_HOUR
 	assert_almost_eq(Evolution.fitness_of(record, false, 3600.0), 0.5 - upkeep, 0.0001, "Upkeep: a share of the cost per hour")
+	record.destroyed = 1500.0
+	assert_almost_eq(Evolution.fitness_of(record, true, 0.0), -0.5, 0.0001, "Enemy value destroyed counts only in combat niches")
+	record.combat = true
+	assert_almost_eq(Evolution.fitness_of(record, true, 0.0), -0.5 + 1.5 * Constants.EVO_COMBAT_EXCHANGE_WEIGHT, 0.0001, "A fighter that took 1.5 ships' worth for its own: ahead")
+	assert_true(Genome.is_combat_role("s+0.0|missile-raider|-"))
+	assert_true(Genome.is_combat_role("s+0.0|lancer|-"))
+	assert_true(Genome.is_combat_role("s+0.0|lance-cannon-fighter|mid"))
+	assert_false(Genome.is_combat_role("s+0.0|scavenger|-"))
+	assert_false(Genome.is_combat_role("s+0.0|prospector|mid"))
 
 
 func test_run_and_chase_events_are_counted_per_life():

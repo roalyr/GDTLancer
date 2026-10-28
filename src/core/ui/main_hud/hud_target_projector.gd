@@ -309,21 +309,21 @@ func get_world_target_instance_id() -> int:
 		return _hud._current_target.get_instance_id()
 	return -1
 
+# Under the selected bracket's name: only how a fight with a live ship would go (EASY .. DEADLY).
+# Whose side it is on and whether it sees the player the bracket's colour and brightness say; the
+# rest (bounty, what it is doing, its rank) is in the debug overlay's TARGET column (get_ship_cues).
 func get_projected_target_context_hint(target_ref) -> String:
-	if is_route_target(target_ref):
+	if not (is_instance_valid(target_ref) and target_ref is Node and target_ref.has_method("is_enemy_of") and not target_ref.get("is_wreck")):
 		return ""
-	if is_instance_valid(target_ref) and target_ref is Node and target_ref.is_in_group("dockable_station"):
-		return "Dock Target"
-	var selected: bool = target_ref == _hud._current_target and is_target_valid(target_ref)
-	var cues: Array = []
-	if selected:
-		cues.append("Target Locked")
-	cues += get_ship_cues(target_ref, selected)
-	return PoolStringArray(cues).join("  ")
+	var player = GlobalRefs.player_agent_body
+	if not (is_instance_valid(player) and player.has_method("get_damage_per_second")):
+		return ""
+	return CombatAssessment.difficulty_label(CombatAssessment.team_advantage(player, target_ref))
 
 
-# The player's read of a live ship, in words: what it is doing, whether it is hostile to the
-# player, and (when selected or hostile) its bounty, how tough it is and whether it can see the player.
+# The player's read of a live ship, in words, for the debug overlay: what it is doing, whether it is
+# hostile to the player, and (detailed) its bounty, rank, how tough it is and whether it can see the
+# player.
 func get_ship_cues(target_ref, detailed: bool = true) -> Array:
 	var cues: Array = []
 	var player = GlobalRefs.player_agent_body

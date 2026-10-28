@@ -303,7 +303,7 @@ func test_projected_target_bracket_applies_colors_by_jump_type() -> void:
 		assert_eq(normal_bracket.modulate, expected_color, "Normal bracket modulate should match the jump type: " + type)
 
 
-func test_projected_target_bracket_station_label_shows_dock_context() -> void:
+func test_projected_target_bracket_station_label_shows_just_its_name() -> void:
 	var bracket = _create_projected_target_bracket()
 	var station = StaticBody.new()
 	station.set_script(DockableStationScript)
@@ -314,7 +314,7 @@ func test_projected_target_bracket_station_label_shows_dock_context() -> void:
 	yield(get_tree(), "idle_frame")
 
 	var info_label = bracket.get_node("InfoPanel/InfoLabel")
-	assert_eq(info_label.text, "Elace Exchange\nDock Target", "Selected dockable stations should show dock context under their brackets.")
+	assert_eq(info_label.text, "Elace Exchange", "Essentials only: the name (and the distance)")
 
 
 class HostileShipStub extends Spatial:

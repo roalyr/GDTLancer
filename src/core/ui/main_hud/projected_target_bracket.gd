@@ -297,13 +297,7 @@ func _resolve_primary_label() -> String:
 func _resolve_secondary_label() -> String:
 	if _context_hint != "":
 		return _context_hint
-	if _is_route_target(target_ref):
-		return ""
-	if _is_dockable_target(target_ref):
-		return "Dock Target"
-	if _is_selected:
-		return "Target Locked"
-	return ""
+	return ""  # Essentials only: the rest is in the debug overlay
 
 
 func _is_route_target(target_candidate) -> bool:

@@ -330,6 +330,13 @@ static func hull_value(genome: Dictionary) -> float:
 # is fighter / raider (with a harpoon) / scavenger / drifter, after its weapons; missiles, cannons
 # and a lance each prefix it ("missile-fighter", "lance-cannon-raider"), so a new archetype grows on
 # its own branch instead of competing head-on with lasers. A lance with no other weapon: "lancer".
+# A niche whose job is fighting: fighters, raiders and lancers (not scavengers, prospectors or
+# drifters), judged on the exchange (Evolution.fitness_of).
+static func is_combat_role(niche_name: String) -> bool:
+	var role: String = niche_name.split("|")[1] if niche_name.count("|") >= 2 else niche_name
+	return role.ends_with("fighter") or role.ends_with("raider") or role == "lancer"
+
+
 static func niche(genome: Dictionary) -> String:
 	var lasers := 0
 	var harpoons := 0

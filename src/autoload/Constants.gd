@@ -924,6 +924,10 @@ const ARENA_BEACON_SCENE = "res://scenes/prefabs/station/arena_beacon.tscn"
 const EVO_WEAPON_ODDS = {"laser": 0.5, "missile": 0.25, "cannon": 0.25}  # A new weapon is of this kind this often
 const EVO_REPAIR_COST_SHARE = 0.5  # A full repair costs this share of the hull's value (less for less)
 const EVO_UPKEEP_PER_HOUR = 0.5  # Running costs: this share of the ship's value per hour alive
+# Combat niches (fighters, raiders, lancers: Genome.is_combat_role) are judged on the exchange: the
+# value of enemy ships they destroyed (each hit worth its share of the victim's hull, times the
+# victim's cost) counts toward fitness at this weight, next to what they earned and lost.
+const EVO_COMBAT_EXCHANGE_WEIGHT = 1.0
 const EVO_PRIOR_LIVES = 2.0  # Fitness mean = sum / (lives + this)
 const EVO_SELECTION_TEMPERATURE = 0.2  # Niche pick weight = exp(fitness / this)
 const EVO_REFLY_CHANCE = 0.25  # A spawn flies a niche's genome unchanged (to measure it again)
