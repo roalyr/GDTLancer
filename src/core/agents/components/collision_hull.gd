@@ -45,8 +45,11 @@ static func shape_for(visual_root: Node, to_body: Transform) -> Shape:
 	return shape
 
 
+const FX_MODELS_DIR = "res://assets/models/fx/"  # Effect models, left out of hulls
+
+
 # Points of the models under `root`, in root space: from .glb model files (their cached hulls), or
-# with `models_only` false from every MeshInstance's own hull.
+# with `models_only` false from every MeshInstance's own hull; effect models (FX_MODELS_DIR) left out.
 static func _model_points(root: Node, models_only: bool) -> PoolVector3Array:
 	var points := PoolVector3Array()
 	var stack: Array = [[root, Transform.IDENTITY]]
@@ -54,6 +57,8 @@ static func _model_points(root: Node, models_only: bool) -> PoolVector3Array:
 		var item: Array = stack.pop_back()
 		var node: Node = item[0]
 		var to_root: Transform = item[1]
+		if node.filename.begins_with(FX_MODELS_DIR):
+			continue  # An effect (an engine's exhaust plume), not the hull
 		if models_only and node.filename.ends_with(".glb"):
 			if node.filename.find("/lod/") < 0:  # MeshLod's lower levels stand beside the original
 				for point in points_for_model(node.filename):
@@ -84,8 +89,13 @@ static func points_for_model(model_path: String) -> PoolVector3Array:
 	return points
 
 
-# The convex hull of a mesh's vertices (Godot computes it), as points.
+# The convex hull of a mesh's vertices (Godot computes it), as points. A primitive mesh (a cone, a
+# sphere: XenoForm) builds its vertices only on the next idle frame, so they are built here.
 static func _mesh_points(mesh: Mesh) -> PoolVector3Array:
+	if mesh is PrimitiveMesh:
+		var built := ArrayMesh.new()
+		built.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, mesh.get_mesh_arrays())
+		mesh = built
 	var shape = mesh.create_convex_shape()
 	return shape.points if shape is ConvexPolygonShape else PoolVector3Array()
 

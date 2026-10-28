@@ -148,3 +148,14 @@ func test_lines_of_fire_ignore_hit_surfaces():
 	var space = ship.get_world().direct_space_state
 	var through: Dictionary = space.intersect_ray(Vector3(0, 500, 0), Vector3(0, -500, 0), [ship], Constants.SHOT_BLOCK_MASK)
 	assert_true(through.empty(), "With the ship itself left out, its hit surface does not block a shot from inside it.")
+
+
+func test_a_grown_hull_of_primitive_meshes_is_its_body_not_its_exhaust_plume():
+	var vessel = load("res://scenes/prefabs/ships/xenohive_vessel.tscn").instance()
+	add_child_autofree(vessel)
+	var shape = CollisionHull.shape_for(vessel, Transform.IDENTITY)
+	assert_not_null(shape, "Primitive meshes (cones, spheres) give points before they are drawn")
+	var box := AABB(shape.points[0], Vector3.ZERO)
+	for point in shape.points:
+		box = box.expand(point)
+	assert_gt(box.size.z, Constants.XENO_VESSEL_LENGTH * 0.8, "Nose to tail, not the 1 m engine plume model")
