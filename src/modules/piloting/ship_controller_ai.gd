@@ -84,6 +84,7 @@ var _letting_go: bool = false  # and the roll was to let it go
 var _spared: Dictionary = {}  # Instance id -> s left during which it does not go after that ship again
 var _ramming: bool = false  # Charging its target with an armed lance (command_ram)
 var _prospect: float = 0.0  # Behaviour gene: mines when idle at 0.5 or more (can_mine)
+var _haul: float = Constants.AI_HAUL_SHARE  # Behaviour gene: goes home to sell once its hold is worth this share of its ship
 var _rock: Spatial = null  # The rock it is mining
 var _mine_time: float = 0.0  # s on _rock without a chunk
 var _given_up: Dictionary = {}  # Rocks it gave up on (instance id -> true)
@@ -120,6 +121,7 @@ func initialize(config: Dictionary) -> void:
 	_caution = float(behavior.get("caution", Constants.AI_AVOID_SHARE))
 	_burn_reserve = float(behavior.get("burn", Constants.AI_AFTERBURNER_RESERVE))
 	_prospect = float(behavior.get("prospect", 0.0))
+	_haul = float(behavior.get("haul", Constants.AI_HAUL_SHARE))
 	if is_instance_valid(_tool_controller) and not _tool_controller.is_connected("lance_recovered", self, "_on_lance_recovered"):
 		_tool_controller.connect("lance_recovered", self, "_on_lance_recovered")
 		_tool_controller.connect("ammo_recovered", self, "_on_ammo_recovered")
@@ -351,7 +353,7 @@ func _process_patrol() -> void:
 		elif _pending.empty():
 			var wreck = scan_for_wreck()
 			var lances_there: bool = is_instance_valid(wreck) and (wreck.recoverable_lances_for(agent_script) > 0 or _recoverable_ammo(wreck) > 0)
-			if (agent_script.get_free_cargo() <= 0 and not lances_there) or _due_home():
+			if ((agent_script.get_free_cargo() <= 0 or hold_worth_hauling()) and not lances_there) or _due_home():
 				_change_state(AIState.DEPART)
 				return
 			if is_instance_valid(wreck):
@@ -912,6 +914,12 @@ func _note(event: String) -> void:
 
 
 # An old arena NPC goes home to retire (Evolution, Constants ARENA_MAX_LIFETIME).
+# Its hold is worth its haul gene's share of its ship: worth taking home before it is lost with it.
+func hold_worth_hauling() -> bool:
+	var cargo_value: float = agent_script.get_cargo_value()
+	return cargo_value > 0.0 and cargo_value >= _haul * agent_script.get_value()
+
+
 func _due_home() -> bool:
 	return not _arena.empty() and Evolution.is_old(agent_script.evo_uid)
 

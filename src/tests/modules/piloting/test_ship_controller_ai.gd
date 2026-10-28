@@ -285,6 +285,22 @@ func test_stray_fire_from_own_side_is_forgiven():
 
 # --- Salvage and leaving ---
 
+func test_takes_a_hold_home_once_it_is_worth_its_haul_share_of_the_ship():
+	ai.initialize({"patrol_center": Vector3.ZERO, "home_point": Vector3(0, 0, 200), "behavior": {"haul": 0.25}})
+	hostile.cargo_capacity = 100
+	hostile.ship_template.base_value = 1000
+	hostile.add_cargo("test_scrap", 24)  # 10 WP a unit
+	assert_false(ai.hold_worth_hauling(), "Under a quarter of the ship: not worth the trip yet")
+	ai._scan_timer = 0.0
+	ai._process_patrol()
+	assert_ne(ai.get_state(), AIScript.AIState.DEPART)
+	hostile.add_cargo("test_scrap", 1)
+	assert_true(ai.hold_worth_hauling())
+	ai._scan_timer = 0.0
+	ai._process_patrol()
+	assert_eq(ai.get_state(), AIScript.AIState.DEPART, "Worth a quarter of the ship: takes it home with room to spare")
+
+
 func test_strips_the_nearest_free_wreck_and_leaves_when_full():
 	ai.initialize({"patrol_center": Vector3.ZERO, "home_point": Vector3(0, 0, 200)})
 	hostile.cargo_capacity = 10

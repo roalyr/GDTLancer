@@ -683,7 +683,7 @@ static func describe_ship_stats(player) -> String:
 		"SHIP",
 		"HULL  %d / %d" % [ceil(player.hull), player.hull_max],
 		"POWER %d / %d  +%.1f/s" % [floor(player.power), player.power_max, player.power_regen],
-		"CARGO %d / %d" % [player.get_cargo_units(), player.cargo_capacity],
+		"CARGO %d / %d  %d WP, %d%% of ship" % [player.get_cargo_units(), player.cargo_capacity, player.get_cargo_value(), round(100.0 * player.get_cargo_value() / max(1.0, player.get_value()))],  # NPCs take it home at their haul gene's share
 		"BANK  %d WP" % GameState.player_bank,
 		"SPEED %d / %d m/s" % [player.linear_velocity.length(), player.get_top_speed()],
 		"MASS  %.1f t" % (player.mass / 1000.0),

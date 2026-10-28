@@ -425,6 +425,7 @@ const AI_SPARE_TIME = 60.0  # s
 # toward 1 by d) and runs home later (retreat hull * (1 - d)). NPCs outside the arenas start with a
 # random wallet of up to WALLET_MAX_SHARE of their ship's value; arena pilots, see EVO_PILOT_STAKE_SHARE.
 const AI_DESPERATION_COMFORT = 1.0
+const AI_HAUL_SHARE = 0.25  # An NPC goes home to sell once its hold is worth this share of its ship (behaviour gene "haul")
 const AI_DESPERATION_NERVE = 0.5
 const AI_WALLET_MAX_SHARE = 2.0
 # Ramming (kinetic lance; ShipControllerAI, command_ram): a lance counts in a ship's damage per second
@@ -939,6 +940,7 @@ const EVO_BEHAVIOR_RANGES = {  # Gene -> [min, max, default]
 	"caution": [0.0, 1.0, 0.5],  # Keeps clear of unseen enemies under this share of its engage desire (AI_AVOID_SHARE)
 	"burn": [0.0, 0.8, 0.3],  # Share of its power kept from the afterburner for its weapons (AI_AFTERBURNER_RESERVE)
 	"prospect": [0.0, 1.0, 0.0],  # At 0.5 or more, with a laser, a lance and a harpoon, it mines when it has nothing else to do
+	"haul": [0.05, 1.0, 0.25],  # Goes home to sell once its hold is worth this share of its ship (AI_HAUL_SHARE)
 }
 # Starting designs, guessed, planted in each pool's empty niches (Evolution.plant_seeds; Genome.seed_genome):
 # prospectors and escorts for the factions, raiders, and the xenohive's drones, gatherers and wardens.

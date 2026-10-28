@@ -948,6 +948,16 @@ func get_damage_per_second() -> float:
 	return dps
 
 
+# What its hold is worth (WP of base value), all but the fuel.
+func get_cargo_value() -> float:
+	var value := 0.0
+	for commodity_id in cargo:
+		var commodity = TemplateDatabase.get_template(commodity_id)
+		if commodity_id != Constants.FUEL_COMMODITY and commodity is CommodityTemplate:
+			value += int(cargo[commodity_id]) * float(commodity.base_value)
+	return value
+
+
 # What this ship's wreck would be worth to a salvager: its hull's salvage plus its cargo.
 func get_salvage_value() -> int:
 	var stock: Dictionary = (ship_template.salvage_yield if is_instance_valid(ship_template) else {}).duplicate()
