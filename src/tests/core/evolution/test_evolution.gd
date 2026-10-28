@@ -92,6 +92,30 @@ func test_first_life_is_an_immigrant_with_a_buildable_ship():
 	assert_gt(float(life.cost), 0.0)
 
 
+func test_each_family_gets_its_share_of_lives_whatever_its_fitness():
+	Evolution.new_run()
+	var cells: Dictionary = Evolution.pools.verdant.cells
+	var families := {}
+	for niche in cells:
+		var entry: Dictionary = Evolution.genomes[cells[niche]]
+		entry.lives = 50
+		entry.fitness_sum = 50.0 * (2.0 if Genome.family(niche) != "prospector" else -2.0)  # Prospectors far behind
+		families[Genome.family(niche)] = 0
+	assert_true(families.has("prospector") and families.size() > 1)
+	for i in range(400):
+		var pick: Dictionary = Evolution._pick_genome("verdant")
+		var entry: Dictionary = Evolution.genomes[pick.genome_id]
+		var source: Dictionary = Evolution.genomes[entry.parent] if pick.how == "mutant" else entry
+		families[Genome.family(Genome.niche(source.genome))] += 1
+	var share: float = float(families.prospector) / 400.0
+	assert_almost_eq(share, 1.0 / families.size(), 0.08, "Prospectors fly their family's share though far less fit")
+	assert_eq(Genome.family("s+0.0|lance-cannon-raider|-"), "lance")
+	assert_eq(Genome.family("s+0.0|missile-cannon-raider|-"), "raider")
+	assert_eq(Genome.family("s+0.0|cannon-fighter|mid"), "fighter")
+	assert_eq(Genome.family("s+0.0|scavenger|-"), "scavenger")
+	assert_eq(Genome.family("s+0.0|driller|-"), "driller", "A role a new rule adds is its own family")
+
+
 func test_fitness_is_return_on_cost_less_a_lost_ship():
 	var record := {"earned": 300, "bounty": 200.0, "spent": 0.0, "cost": 1000.0}
 	assert_almost_eq(Evolution.fitness_of(record, false, 0.0), 0.5, 0.0001)

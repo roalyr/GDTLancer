@@ -462,14 +462,22 @@ func _preferred_role(faction: String, zone_id: String) -> String:
 	return ""
 
 
+# A spawn's genome. Its family first (Genome.family; drifters only when there is nothing else), each
+# as likely as the others whatever their fitness, so every family keeps evolving; within it, a leading
+# genome short of its proving lives, or a parent picked by fitness, re-flown or mutated. A zone's
+# preferred `role` (Constants ARENA_ZONES) takes the family's place.
 func _pick_genome(faction: String, role: String = "") -> Dictionary:
 	var pool: Dictionary = pools[faction]
+	var family: String = "" if role != "" else _pick_family(pool)
 	var cells: Array = []
 	for niche in pool.cells:
-		if genomes.has(pool.cells[niche]) and (role == "" or niche.find(role) >= 0):
+		if genomes.has(pool.cells[niche]) and (role == "" or niche.find(role) >= 0) and (family == "" or Genome.family(niche) == family):
 			cells.append(pool.cells[niche])
 	if Constants.EVO_PROVING and role == "" and not cells.empty() and randf() < Constants.EVO_PROVE_REFLY_CHANCE:
-		var unproven: Array = _unproven(faction)
+		var unproven: Array = []
+		for genome_id in _unproven(faction):
+			if family == "" or Genome.family(Genome.niche(genomes[genome_id].genome)) == family:
+				unproven.append(genome_id)
 		if not unproven.empty():
 			return {"genome_id": unproven[randi() % unproven.size()], "how": "refly"}
 	var immigrant_chance: float = 0.0 if Constants.EVO_PROVING or role != "" else Constants.EVO_IMMIGRANT_CHANCE
@@ -492,6 +500,19 @@ func _pick_genome(faction: String, role: String = "") -> Dictionary:
 		return {"genome_id": parent, "how": "refly"}
 	var behavior_on: bool = int(pool.lives) >= Constants.EVO_BEHAVIOR_START_LIVES
 	return {"genome_id": _add_genome(Genome.mutate(genomes[parent].genome, behavior_on), faction, parent), "how": "mutant"}
+
+
+# One of the pool's families, each as likely ("" if it has no niches yet); drifters (unarmed, no
+# harpoon: no use as presets) only if there is nothing else.
+func _pick_family(pool: Dictionary) -> String:
+	var families: Array = []
+	for niche in pool.cells:
+		var family: String = Genome.family(niche)
+		if genomes.has(pool.cells[niche]) and not family in families:
+			families.append(family)
+	if families.size() > 1:
+		families.erase("drifter")
+	return families[randi() % families.size()] if not families.empty() else ""
 
 
 # Proving mode: this faction's niche bests that rank among the fittest EVO_PROVE_PER_ARCHETYPE of their

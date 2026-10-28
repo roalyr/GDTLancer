@@ -337,6 +337,19 @@ static func is_combat_role(niche_name: String) -> bool:
 	return role.ends_with("fighter") or role.ends_with("raider") or role == "lancer"
 
 
+# A niche's family, what a spawn picks first (Evolution._pick_genome, so each gets its share of lives
+# whatever its fitness): "lance" (lancer, lance-*), "raider", "fighter" (guns, with or without a
+# harpoon), or the role itself (prospector, scavenger, drifter, and any role a new rule adds).
+static func family(niche_name: String) -> String:
+	var role: String = niche_name.split("|")[1] if niche_name.count("|") >= 2 else niche_name
+	if role == "lancer" or role.begins_with("lance-"):
+		return "lance"
+	for kind in ["raider", "fighter"]:
+		if role.ends_with(kind):
+			return kind
+	return role
+
+
 static func niche(genome: Dictionary) -> String:
 	var lasers := 0
 	var harpoons := 0
