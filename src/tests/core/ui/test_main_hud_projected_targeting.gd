@@ -317,6 +317,35 @@ func test_projected_target_bracket_station_label_shows_dock_context() -> void:
 	assert_eq(info_label.text, "Elace Exchange\nDock Target", "Selected dockable stations should show dock context under their brackets.")
 
 
+class HostileShipStub extends Spatial:
+	var is_wreck: bool = false
+	func get_faction_color() -> Color:
+		return Color.white
+	func is_enemy_of(_other) -> bool:
+		return true
+
+
+func test_projected_target_bracket_doubles_the_cross_on_stations_and_hostile_ships_only() -> void:
+	var bracket = _create_projected_target_bracket()
+	var normal_bracket = bracket.get_node("BracketNormal")
+	var rock = Spatial.new()
+	add_child_autofree(rock)
+	bracket.configure_target(rock, "Rock")
+	assert_eq(normal_bracket.rect_scale, Vector2.ONE, "Celestials as they were")
+	var station = StaticBody.new()
+	station.set_script(DockableStationScript)
+	add_child_autofree(station)
+	bracket.configure_target(station, "Station")
+	assert_eq(normal_bracket.rect_scale, Vector2.ONE * 2.0, "Stations twice the size")
+	var hostile = HostileShipStub.new()
+	add_child_autofree(hostile)
+	bracket.configure_target(hostile, "Hostile")
+	assert_eq(normal_bracket.rect_scale, Vector2.ONE * 2.0, "Hostile ships twice the size")
+	hostile.is_wreck = true
+	bracket.refresh_style()
+	assert_eq(normal_bracket.rect_scale, Vector2.ONE, "Its wreck as it was")
+
+
 func test_projected_target_bracket_distance_formatter_matches_requested_magnitudes() -> void:
 	var bracket = _create_projected_target_bracket()
 

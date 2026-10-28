@@ -4,6 +4,7 @@
 extends Button
 
 const BRACKET_TEXTURE_RECT_SIZE = Vector2(150, 150)
+const BRACKET_LARGE_SCALE = 2.0  # The unselected cross on stations and hostile ships
 const DISTANCE_KILOUNIT_SCALE = 1000.0
 const DISTANCE_PLAIN_THRESHOLD = 2000.0
 const DISTANCE_DECIMAL_K_THRESHOLD = 10000.0
@@ -119,6 +120,9 @@ func _apply_bracket_style() -> void:
 			_normal_bracket.modulate = _get_jump_route_color()
 		else:
 			_normal_bracket.modulate = _get_ship_color()
+		var large: bool = _is_dockable_target(target_ref) or (_is_live_ship() and _is_hostile_to_player())
+		_normal_bracket.rect_pivot_offset = BRACKET_TEXTURE_RECT_SIZE * 0.5
+		_normal_bracket.rect_scale = Vector2.ONE * (BRACKET_LARGE_SCALE if large else 1.0)
 	if is_instance_valid(_selected_bracket):
 		_selected_bracket.visible = _is_selected
 		_apply_selected_color()
