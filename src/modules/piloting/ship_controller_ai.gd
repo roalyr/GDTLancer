@@ -341,6 +341,11 @@ func _change_state(new_state: int) -> void:
 func _process_patrol() -> void:
 	if _scan_timer <= 0.0:
 		_scan_timer = Constants.AI_SCAN_INTERVAL
+		var lance = _lance_to_collect()
+		if is_instance_valid(lance):
+			_target_agent = lance
+			_change_state(AIState.SALVAGE)
+			return
 		var target = scan_for_target()
 		if is_instance_valid(target):
 			_consider("engage", target, desire_against(target), _engage_level())
@@ -474,10 +479,12 @@ func _process_salvage() -> void:
 		return
 	if _scan_timer <= 0.0:
 		_scan_timer = Constants.AI_SCAN_INTERVAL
-		var enemy = scan_for_target()
+		var enemy = scan_for_target() if not _collecting_lances(wreck) else null
 		if is_instance_valid(enemy) and not _busy_mining_past(enemy):
 			_consider("engage", enemy, desire_against(enemy), _engage_level())
 			return
+	if wreck.is_in_group("loose_lance") and wreck.can_be_scooped_by(agent_script):
+		return  # Scooped up at its next check
 	if wreck.has_method("is_ready_to_strip") and not wreck.is_ready_to_strip():
 		_work_chunk(wreck)
 		return
@@ -485,7 +492,7 @@ func _process_salvage() -> void:
 	if index < 0:
 		if not agent_script.detects(wreck):
 			_change_state(AIState.PATROL)
-		return  # No harpoon fitted, or not seen yet: keep closing in
+		return  # No harpoon fitted (a loose lance it scoops up as it gets there), or not seen yet: keep closing in
 	var harpoon_range: float = _tool_controller.get_tool(index).optimal_range
 	var distance: float = agent_script.global_transform.origin.distance_to(wreck.global_transform.origin)
 	for harpoon in range(_tool_controller.get_tool_count()):
@@ -971,6 +978,29 @@ func scan_for_wreck() -> RigidBody:
 			best = body
 			best_distance = distance
 	return best
+
+
+# Out of lances (it has launchers, all empty): the nearest loose lance it can take back, which it
+# goes for before any fight; null if none or it still has lances.
+func _lance_to_collect():
+	if not agent_script.has_method("get_lances") or agent_script.get_lances().empty() or agent_script.get_lance_nails() > 0:
+		return null
+	var best = null
+	var best_distance: float = Constants.AI_SALVAGE_SEARCH_RANGE
+	var own_pos: Vector3 = agent_script.global_transform.origin
+	for body in get_tree().get_nodes_in_group("loose_lance"):
+		if body.recoverable_lances_for(agent_script) <= 0 or not agent_script.detects(body) or not _in_arena(body.global_transform.origin) or _is_claimed(body):
+			continue
+		var distance: float = own_pos.distance_to(body.global_transform.origin)
+		if distance < best_distance:
+			best = body
+			best_distance = distance
+	return best
+
+
+# Going for a loose lance with none left: it does not pick fights on the way (it still answers fire).
+func _collecting_lances(wreck) -> bool:
+	return wreck.is_in_group("loose_lance") and agent_script.has_method("get_lance_nails") and agent_script.get_lance_nails() <= 0
 
 
 # Lances for its own seat, rounds for its own magazines, or salvage with room in the hold.

@@ -726,7 +726,7 @@ func describe_target_stats(player) -> String:
 	if not (_current_target is Spatial):
 		return PoolStringArray(lines).join("\n")
 	if _current_target.is_in_group("loose_lance"):
-		lines.append("LANCE: HARPOON IT")
+		lines.append("LANCE: APPROACH OR HARPOON IT")
 	elif _current_target.has_method("has_crust"):  # An ore chunk (Constants MINING)
 		if _current_target.has_crust():
 			lines.append("CRUST %d%%: BURN IT  ORE %d" % [int(ceil(100.0 * _current_target.crust / Constants.MINING_CRUST_HP)), _current_target.get_salvage_units()])

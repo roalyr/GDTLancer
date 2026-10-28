@@ -10,6 +10,8 @@ const AgentScript = preload("res://src/core/agents/agent.gd")
 const OreChunkScript = preload("res://src/scenes/game_world/celestial/ore_chunk.gd")
 const AIScript = preload("res://src/modules/piloting/ship_controller_ai.gd")
 const ToolControllerScript = preload("res://src/core/agents/components/tool_controller.gd")
+const LanceScript = preload("res://src/core/agents/components/lance_controller.gd")
+const ShipLaws = preload("res://src/core/systems/ship_laws.gd")
 
 var hostile: RigidBody = null
 var ai: Node = null
@@ -312,6 +314,26 @@ func test_burns_a_chunks_crust_off_waits_for_the_slag_to_cool_then_harpoons_it()
 	chunk._process(Constants.MINING_COOL_TIME + 1.0)
 	ai._process_salvage()
 	assert_true(tools.is_active(1), "Cooled: harpoon on it")
+
+
+func test_a_lancer_out_of_lances_collects_a_loose_one_before_fighting():
+	ai.initialize({"patrol_center": Vector3.ZERO, "behavior": {"engage": 0.0}})
+	var lance = LanceScript.new()
+	hostile.add_child(lance)
+	lance.setup(hostile, "test_lance", ShipLaws.lance_stats(Constants.PART_TYPE_SEEDS.lance[2]))
+	lance.nails = 0
+	var loose = lance.drop_lance(Vector3(0, 0, -200), Vector3.ZERO)
+	var enemy = _make_ship(Vector3(0, 0, -300), "verdant", 1.0)
+	ai._change_state(AIScript.AIState.PATROL)
+	ai._scan_timer = 0.0
+	ai._process_patrol()
+	assert_eq(ai.get_state(), AIScript.AIState.SALVAGE, "Out of lances: the loose one first")
+	assert_eq(ai._target_agent, loose)
+	assert_true(ai._collecting_lances(loose), "No fights picked on the way")
+	lance.nails = 1
+	assert_null(ai._lance_to_collect(), "With lances left it goes about its business")
+	loose.free()
+	enemy.free()
 
 
 func test_a_prospector_at_work_leaves_far_enemies_be_and_runs_when_attacked():

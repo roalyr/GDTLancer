@@ -117,6 +117,23 @@ func test_a_lance_that_glances_off_or_misses_drifts_on_to_be_harpooned():
 	missed.free()
 
 
+func test_a_loose_lance_is_scooped_up_by_a_ship_close_and_slow():
+	lance.nails -= 1  # Thrown
+	var own: Vector3 = rammer.global_transform.origin
+	var loose = lance.drop_lance(own + Vector3(0, 0, -(Constants.LANCE_SCOOP_RANGE + 20.0)), Vector3.ZERO)
+	rammer.linear_velocity = Vector3.ZERO
+	assert_false(loose.can_be_scooped_by(rammer), "Too far")
+	loose.global_transform.origin = own + Vector3(0, 0, -(Constants.LANCE_SCOOP_RANGE - 10.0))
+	rammer.linear_velocity = Vector3(0, 0, -(Constants.LANCE_SCOOP_SPEED + 30.0))
+	assert_false(loose.can_be_scooped_by(rammer), "Too fast: it flies past")
+	rammer.linear_velocity = Vector3(0, 0, -5.0)
+	assert_true(loose.can_be_scooped_by(rammer), "Close and slow: no harpoon needed")
+	loose._physics_process(Constants.LANCE_SCOOP_INTERVAL)
+	assert_eq(lance.nails, int(lance.lance.count), "Back in the seat")
+	yield(get_tree(), "idle_frame")
+	assert_true(get_tree().get_nodes_in_group("loose_lance").empty(), "Gone from space")
+
+
 func test_the_players_lances_disarm_after_a_throw():
 	rammer.set_lances_armed(true)
 	rammer._on_player_lance_launched(target)

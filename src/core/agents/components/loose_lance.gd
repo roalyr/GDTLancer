@@ -2,7 +2,9 @@
 # slowing to a stop: Constants LANCE_LOOSE_DAMP), or one stuck in a rock it broke ore off (still).
 # It passes for a wreck holding just the lance: brackets show it, a harpoon tows it and takes the
 # lance back into a seat it fits (LanceController.recover_from), and salvagers short of lances look
-# for it. It touches nothing (no collision): it is pulled out of a rock as easily as picked up.
+# for it; a ship with a seat it fits also scoops it up by coming close and slow (Constants
+# LANCE_SCOOP_*: an approach does it). It touches nothing (no collision): it is pulled out of a rock
+# as easily as picked up.
 # Recovered, it is gone; AgentSystem clears the oldest past Constants.LANCE_LOOSE_MAX.
 
 extends RigidBody
@@ -15,6 +17,7 @@ var faction: String = ""
 var wreck_time_ms: int = 0
 var hull_bounds: AABB = AABB(Vector3(-1, -1, -1), Vector3(2, 2, 2))
 var _length: float = 10.0
+var _scoop_left: float = 0.0
 
 
 # `mesh`: the lance (LanceController._lance_mesh), placed along `axis` with its middle at `centre`;
@@ -44,6 +47,25 @@ func _ready() -> void:
 	add_to_group("loose_lance")
 	wreck_time_ms = OS.get_ticks_msec()
 	EventBus.emit_signal("debris_spawned", self)
+
+
+func _physics_process(delta: float) -> void:
+	_scoop_left -= delta
+	if _scoop_left > 0.0 or is_queued_for_deletion():
+		return
+	_scoop_left = Constants.LANCE_SCOOP_INTERVAL
+	for body in get_tree().get_nodes_in_group("agent_body"):
+		if can_be_scooped_by(body) and recover_lance_into(body):
+			return
+
+
+# `ship` is close and slow enough to take it up, with a seat it fits.
+func can_be_scooped_by(ship) -> bool:
+	if ship == self or not (ship is RigidBody) or ship.get("is_wreck") != false or ship.get("is_docked") or not ship.has_method("get_lances"):
+		return false
+	if ship.global_transform.origin.distance_to(global_transform.origin) > Constants.LANCE_SCOOP_RANGE:
+		return false
+	return (ship.linear_velocity - linear_velocity).length() <= Constants.LANCE_SCOOP_SPEED and recoverable_lances_for(ship) > 0
 
 
 func get_display_name() -> String:

@@ -773,6 +773,12 @@ const LANCE_STUCK_DEPTH = 0.5  # Share of a struck lance's length inside the hul
 const LANCE_GLANCE_KEEP = 0.3
 const LANCE_LOOSE_DAMP = 0.5
 const LANCE_LOOSE_MAX = 12
+# A ship with a launcher it fits scoops a loose lance up without a harpoon: within LANCE_SCOOP_RANGE
+# of it (past NAV_APPROACH_MIN_DISTANCE: an approach does it) at LANCE_SCOOP_SPEED or less relative to
+# it, checked every LANCE_SCOOP_INTERVAL.
+const LANCE_SCOOP_RANGE = 60.0  # m, centre to centre
+const LANCE_SCOOP_SPEED = 20.0  # m/s
+const LANCE_SCOOP_INTERVAL = 0.25  # s
 const LANCE_QUIVER_RING = 0.25  # Spares sit round the stern this share of the nose distance off the axis
 const LANCE_QUIVER_SCALE = 0.6  # and are drawn this much shorter (stowed)
 
