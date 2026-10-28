@@ -1,0 +1,21 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/asset_module_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_sensor_3_500"
+module_name = "Sensor Booster III"
+description = "500 kg."
+base_value = 125
+mass = 500.0
+stat_modifiers = {
+"sensor_strength": 0.707107
+}
+lance = {
+}
+module_kind = "sensor"
+variant_type = 3
+law_genes = {
+"mass": 500.0
+}

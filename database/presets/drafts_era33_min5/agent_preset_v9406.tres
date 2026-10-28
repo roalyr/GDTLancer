@@ -1,0 +1,24 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_v9406"
+agent_type = "npc"
+ship_template_id = "preset_ship_v9406"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.25048,
+"caution": 0.445867,
+"disengage": 1.06593,
+"engage": 2.49986,
+"mercy": 0.457605,
+"prospect": 0.609763,
+"pursuit": 0.45519,
+"range": 1.16645,
+"retreat_hull": 0.680559,
+"return_fire": 0.192824,
+"teamwork": 1.50183
+}

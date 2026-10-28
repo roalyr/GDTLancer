@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://scenes/prefabs/ships/phoenix_light.tscn" type="PackedScene" id=1]
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=2]
+
+[resource]
+script = ExtResource( 2 )
+template_id = "preset_ship_r9451"
+ship_model_name = "Phoenix II R9451"
+base_value = 1599
+ship_scene = ExtResource( 1 )
+hull_integrity = 165
+cargo_capacity = 45
+interaction_radius = 17.5405
+apparent_radius = 14.0324
+signature = 1754.05
+sensor_strength = 1.0
+tool_slots_small = 2
+tool_slots_medium = 0
+tool_slots_large = 0
+module_slots = 4
+equipped_tools = [ "preset_missile_3_768_2", "tool_harpoon" ]
+equipped_modules = [ "preset_decoy_1_109", "preset_afterburner_1_161" ]
+salvage_yield = {
+"commodity_scrap": 32,
+"commodity_tech": 15
+}
+power_capacity = 90.0418
+power_regen = 15.6909
+mass = 9594.11
+linear_thrust = 734823.0
+angular_thrust = 953799.0
+alignment_threshold_angle_deg = 45.0
+model_scale = 1.16937
+panel_material = "res://assets/art/materials_generic/mat_hull_panel_dark.tres"
+variant_type = 2
+law_genes = {
+"shares": {
+"capacitor": 0.0281553,
+"engine": 0.21568,
+"hold": 0.141637,
+"reactor": 0.103165,
+"structure": 0.511363
+},
+"size": 1.59902,
+"tool_share": 0.387409,
+"type": 2
+}
