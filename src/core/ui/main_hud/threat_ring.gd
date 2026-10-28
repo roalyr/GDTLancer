@@ -3,7 +3,8 @@
 # come up from behind. Only ships the player's sensors detect (Agent.detects, the rule NPCs go by),
 # within Constants.THREAT_RANGE. Hostile: it takes the player for an enemy (its
 # faction's war or standing, a grudge, a bounty, territory: Agent.is_enemy_of). Nearer ones draw
-# bigger and brighter. Shown only; it takes no input. The list is refreshed every
+# bigger and brighter; one that has not detected the player is dimmed as its bracket is (Constants
+# UI_UNAWARE_*). Shown only; it takes no input. The list is refreshed every
 # THREAT_REFRESH_INTERVAL s, the arrows every frame.
 
 extends Control
@@ -48,6 +49,15 @@ static func threats(player, bodies: Array) -> Array:
 	return found
 
 
+# An arrow's colour: brighter the nearer (`nearness` 0..1), dimmed while `ship` has not detected `player`.
+static func arrow_colour(ship, player, nearness: float) -> Color:
+	var colour: Color = Constants.THREAT_COLOR
+	colour.a = lerp(0.45, 1.0, nearness)
+	if ship.has_method("detects") and not ship.detects(player):
+		colour = Color(colour.r * Constants.UI_UNAWARE_DIM, colour.g * Constants.UI_UNAWARE_DIM, colour.b * Constants.UI_UNAWARE_DIM, colour.a * Constants.UI_UNAWARE_ALPHA)
+	return colour
+
+
 # Which way on the screen `point` lies from the camera's view axis (unit; y down), behind it included.
 static func screen_direction(camera_transform: Transform, point: Vector3) -> Vector2:
 	var local: Vector3 = camera_transform.basis.xform_inv(point - camera_transform.origin)
@@ -77,8 +87,7 @@ func _draw() -> void:
 				continue  # In sight: its bracket shows it
 		var nearness: float = 1.0 - clamp(from.distance_to(point) / Constants.THREAT_RANGE, 0.0, 1.0)
 		var size: float = lerp(Constants.THREAT_ARROW_SIZE[0], Constants.THREAT_ARROW_SIZE[1], nearness)
-		var colour: Color = Constants.THREAT_COLOR
-		colour.a = lerp(0.45, 1.0, nearness)
+		var colour: Color = arrow_colour(ship, player, nearness)
 		var direction: Vector2 = screen_direction(camera.global_transform, point)
 		var base: Vector2 = centre + direction * radius
 		var tip: Vector2 = base + direction * size

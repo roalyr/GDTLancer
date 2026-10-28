@@ -39,3 +39,20 @@ func test_arrows_point_the_way_to_turn():
 	assert_eq(ThreatRing.screen_direction(camera, Vector3(100, 0, 50)), Vector2(1, 0), "Behind and to the right: right")
 	assert_eq(ThreatRing.screen_direction(camera, Vector3(0, 100, 50)), Vector2(0, -1), "Above: up the screen")
 	assert_eq(ThreatRing.screen_direction(camera, Vector3(0, 0, 100)), Vector2(0, 1), "Dead astern: down")
+
+
+class SeerStub extends Spatial:
+	var sees: bool = true
+	func detects(_other) -> bool:
+		return sees
+
+
+func test_an_arrow_is_dim_while_the_hostile_has_not_seen_the_player():
+	var ship = SeerStub.new()
+	add_child_autofree(ship)
+	var bright: Color = ThreatRing.arrow_colour(ship, null, 1.0)
+	assert_eq(bright, Constants.THREAT_COLOR, "Near, and it sees the player: full red")
+	ship.sees = false
+	var dim: Color = ThreatRing.arrow_colour(ship, null, 1.0)
+	assert_almost_eq(dim.r, Constants.THREAT_COLOR.r * Constants.UI_UNAWARE_DIM, 0.001)
+	assert_almost_eq(dim.a, Constants.UI_UNAWARE_ALPHA, 0.001)
