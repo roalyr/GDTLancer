@@ -18,3 +18,11 @@ behavior = {
 "retreat_hull": 0.0365142,
 "return_fire": 0.351763
 }
+role = "lance-cannon-raider"
+family = "lance"
+weight_class = "medium"
+archetype = "lance-cannon-raider medium"
+temperament = "measured"
+traits = [ "stubborn" ]
+lives = 7
+fitness = -0.680352

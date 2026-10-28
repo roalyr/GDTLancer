@@ -15,3 +15,11 @@ behavior = {
 "range": 0.909726,
 "retreat_hull": 0.0
 }
+role = "fighter"
+family = "fighter"
+weight_class = "medium"
+archetype = "fighter medium"
+temperament = "measured"
+traits = [ "quick to fight" ]
+lives = 0
+fitness = 0.0

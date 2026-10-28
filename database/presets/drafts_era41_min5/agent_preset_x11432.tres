@@ -23,3 +23,11 @@ behavior = {
 "return_fire": 0.0464375,
 "teamwork": 0.380389
 }
+role = "cannon-raider"
+family = "raider"
+weight_class = "medium"
+archetype = "cannon-raider medium"
+temperament = "cautious"
+traits = [ "picks its fights", "close-in", "merciful", "runs silent", "loner", "bold" ]
+lives = 5
+fitness = 0.0600728

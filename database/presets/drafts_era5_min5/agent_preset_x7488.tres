@@ -22,3 +22,11 @@ behavior = {
 "return_fire": 0.5,
 "teamwork": 1.0
 }
+role = "missile-cannon-fighter"
+family = "fighter"
+weight_class = "light"
+archetype = "missile-cannon-fighter light"
+temperament = "cautious"
+traits = [ "skittish" ]
+lives = 5
+fitness = -0.286959

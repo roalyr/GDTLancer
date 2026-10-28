@@ -12,6 +12,7 @@ var utility_tools: Dictionary = {}  # Weapons and other utility tools
 var game_starts: Dictionary = {}
 var evolved: Dictionary = {}  # Ships and parts built from genes at runtime (Evolution); not sold at stations
 var presets: Dictionary = {}  # Evolved designs exported to database/presets/ (ships, tools, modules): sold at the home station only
+var preset_agents: Dictionary = {}  # Preset ship id -> its AgentTemplate (behaviour, classification); nothing spawns from these yet
 var proven_presets: Dictionary = {}  # Preset ship ids from a *_min10 folder: designs that flew 10 lives or more
 
 

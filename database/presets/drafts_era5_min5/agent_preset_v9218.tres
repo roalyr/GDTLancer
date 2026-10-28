@@ -22,3 +22,11 @@ behavior = {
 "return_fire": 0.309132,
 "teamwork": 1.05998
 }
+role = "prospector"
+family = "prospector"
+weight_class = "medium"
+archetype = "prospector medium"
+temperament = "cautious"
+traits = [ "lets runners go" ]
+lives = 9
+fitness = -0.469915

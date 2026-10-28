@@ -21,3 +21,11 @@ behavior = {
 "return_fire": 0.481159,
 "teamwork": 1.25048
 }
+role = "missile-raider"
+family = "raider"
+weight_class = "medium"
+archetype = "missile-raider medium"
+temperament = "measured"
+traits = [  ]
+lives = 8
+fitness = 0.105

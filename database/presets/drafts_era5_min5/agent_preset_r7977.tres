@@ -22,3 +22,11 @@ behavior = {
 "return_fire": 0.5,
 "teamwork": 1.0
 }
+role = "scavenger"
+family = "scavenger"
+weight_class = "medium"
+archetype = "scavenger medium"
+temperament = "measured"
+traits = [  ]
+lives = 14
+fitness = 0.0333907

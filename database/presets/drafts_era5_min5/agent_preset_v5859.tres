@@ -20,3 +20,11 @@ behavior = {
 "retreat_hull": 0.0,
 "return_fire": 0.567075
 }
+role = "lancer"
+family = "lance"
+weight_class = "light"
+archetype = "lancer light"
+temperament = "measured"
+traits = [ "stubborn" ]
+lives = 6
+fitness = -0.205861

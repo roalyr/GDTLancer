@@ -22,3 +22,11 @@ behavior = {
 "return_fire": 0.393553,
 "teamwork": 2.0
 }
+role = "missile-raider"
+family = "raider"
+weight_class = "heavy"
+archetype = "missile-raider heavy"
+temperament = "measured"
+traits = [ "stubborn", "close-in", "relentless", "merciful", "team player" ]
+lives = 5
+fitness = -0.200969

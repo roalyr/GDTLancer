@@ -22,3 +22,11 @@ behavior = {
 "return_fire": 0.382147,
 "teamwork": 0.952029
 }
+role = "fighter"
+family = "fighter"
+weight_class = "light"
+archetype = "fighter light"
+temperament = "measured"
+traits = [  ]
+lives = 6
+fitness = 0.222582

@@ -22,3 +22,11 @@ behavior = {
 "return_fire": 0.581868,
 "teamwork": 0.673113
 }
+role = "lance-missile-cannon-fighter"
+family = "lance"
+weight_class = "heavy"
+archetype = "lance-missile-cannon-fighter heavy"
+temperament = "measured"
+traits = [ "quick to fight" ]
+lives = 6
+fitness = -0.478632

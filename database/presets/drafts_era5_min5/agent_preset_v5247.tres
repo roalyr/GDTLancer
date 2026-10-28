@@ -21,3 +21,11 @@ behavior = {
 "return_fire": 0.0,
 "teamwork": 0.842061
 }
+role = "missile-cannon-raider"
+family = "raider"
+weight_class = "light"
+archetype = "missile-cannon-raider light"
+temperament = "measured"
+traits = [ "quick to fight", "stubborn", "lets runners go", "runs silent" ]
+lives = 7
+fitness = -0.585255

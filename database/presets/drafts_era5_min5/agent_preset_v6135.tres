@@ -21,3 +21,11 @@ behavior = {
 "return_fire": 0.5,
 "teamwork": 1.0
 }
+role = "lance-raider"
+family = "lance"
+weight_class = "light"
+archetype = "lance-raider light"
+temperament = "measured"
+traits = [  ]
+lives = 9
+fitness = -0.618785

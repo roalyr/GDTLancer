@@ -21,3 +21,11 @@ behavior = {
 "return_fire": 0.47304,
 "teamwork": 1.04934
 }
+role = "missile-fighter"
+family = "fighter"
+weight_class = "light"
+archetype = "missile-fighter light"
+temperament = "measured"
+traits = [ "quick to fight" ]
+lives = 10
+fitness = -0.274859

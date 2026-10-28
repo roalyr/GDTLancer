@@ -22,3 +22,11 @@ behavior = {
 "return_fire": 0.00650712,
 "teamwork": 1.90282
 }
+role = "raider"
+family = "raider"
+weight_class = "light"
+archetype = "raider light"
+temperament = "cautious"
+traits = [ "picks its fights", "standoff", "ruthless", "runs silent", "team player" ]
+lives = 11
+fitness = -0.655027

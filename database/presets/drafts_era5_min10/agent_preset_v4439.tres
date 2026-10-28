@@ -20,3 +20,11 @@ behavior = {
 "retreat_hull": 0.0451616,
 "return_fire": 0.624827
 }
+role = "scavenger"
+family = "scavenger"
+weight_class = "heavy"
+archetype = "scavenger heavy"
+temperament = "measured"
+traits = [ "stubborn", "standoff", "merciful" ]
+lives = 10
+fitness = -0.687586

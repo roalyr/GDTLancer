@@ -15,3 +15,11 @@ behavior = {
 "range": 0.721334,
 "retreat_hull": 0.0366469
 }
+role = "fighter"
+family = "fighter"
+weight_class = "light"
+archetype = "fighter light"
+temperament = "measured"
+traits = [  ]
+lives = 0
+fitness = 0.0

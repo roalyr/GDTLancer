@@ -11,6 +11,7 @@ extends Reference
 
 const Genome = preload("res://src/core/evolution/genome.gd")
 const ShipLaws = preload("res://src/core/systems/ship_laws.gd")
+const PresetClassifier = preload("res://src/core/evolution/preset_classifier.gd")
 
 
 static func shrunk(entry: Dictionary) -> float:
@@ -56,14 +57,15 @@ static func export_all(evolution: Dictionary, top: int, min_lives: int, folder: 
 	for i in range(min(top, ranked.size())):
 		var pick: Dictionary = ranked[i]
 		lines.append("#%d %s (%s) %s fit %+.2f n=%d -> %s" % [i + 1, archetype(pick.niche), pick.niche, pick.id, pick.fitness, int(pick.entry.lives),
-			write_preset(pick.entry.genome, pick.id, folder)])
+			write_preset(pick.entry.genome, pick.id, folder, {"lives": int(pick.entry.lives), "fitness": pick.fitness})])
 	if ranked.empty():
 		lines.append("no niche's best has %d lives yet" % min_lives)
 	return lines
 
 
 # Writes one genome's files; returns the agent template's path.
-static func write_preset(genome: Dictionary, genome_id: String, dir_path: String) -> String:
+# `record`: {"lives", "fitness"} of the design, kept on the agent with its classification.
+static func write_preset(genome: Dictionary, genome_id: String, dir_path: String, record: Dictionary = {}) -> String:
 	var tools: Array = []
 	var harpoon := false
 	for part in genome.tools:
@@ -87,9 +89,18 @@ static func write_preset(genome: Dictionary, genome_id: String, dir_path: String
 	agent.ship_template_id = ship_id
 	agent.faction = ""  # Archetypes belong to no faction; the spawner gives one
 	agent.behavior = genome.get("behavior", {}).duplicate()
+	var niche: String = Genome.niche(genome)
+	apply_classification(agent, PresetClassifier.classify(ship, agent.behavior, niche.split("|")[1] if niche.count("|") >= 2 else ""))
+	agent.lives = int(record.get("lives", 0))
+	agent.fitness = float(record.get("fitness", 0.0))
 	var agent_path: String = dir_path.plus_file(agent.template_id + ".tres")
 	ResourceSaver.save(agent_path, agent)
 	return agent_path
+
+
+static func apply_classification(agent, classification: Dictionary) -> void:
+	for field in classification:
+		agent.set(field, classification[field])
 
 
 static func _filled(ids: Array) -> Array:

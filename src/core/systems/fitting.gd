@@ -30,7 +30,8 @@ static func catalog() -> Array:
 	return ids
 
 
-# Ships the home station sells: every hull, and every preset design (each comes with its fit).
+# Ships the home station sells: every hull, and every preset design's hull (bare: its price is the
+# hull's; the presets' parts are in catalog()).
 static func ship_catalog() -> Array:
 	var ids: Array = TemplateDatabase.assets_ships.keys()
 	for preset_id in TemplateDatabase.presets:
@@ -99,7 +100,8 @@ static func ship_cost(ship_id: String) -> int:
 
 
 # Swaps the player's hull for another. The fitted parts go to storage, the new hull comes with its
-# own default fit, repaired and docked here (and, as on any docking at home, its hold is banked).
+# own default fit (a preset's bare), repaired and docked here (and, as on any docking at home, its
+# hold is banked).
 static func buy_ship(ship_id: String) -> String:
 	if not is_available():
 		return "Dock at the home station to change ships"
@@ -119,7 +121,8 @@ static func buy_ship(ship_id: String) -> String:
 			if str(part_id) != "":
 				_add_to_storage(str(part_id), 1)
 	GameState.player_ship_template_id = ship_id
-	GameState.player_fit = {}  # The new hull's default fit
+	var hull = TemplateDatabase.get_template(ship_id)
+	GameState.player_fit = ShipFit.empty_fit(hull) if TemplateDatabase.presets.has(ship_id) else {}  # Bare, or the hull's default fit
 	GameState.player_hull = -1.0  # Full
 	GameState.player_hull_scars = []  # A new hull is unmarked
 	spawner.replace_player()

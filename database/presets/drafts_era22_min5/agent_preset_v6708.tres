@@ -18,3 +18,11 @@ behavior = {
 "retreat_hull": 0.211078,
 "return_fire": 0.388399
 }
+role = "lance-raider"
+family = "lance"
+weight_class = "light"
+archetype = "lance-raider light"
+temperament = "measured"
+traits = [ "ruthless" ]
+lives = 6
+fitness = -0.65869

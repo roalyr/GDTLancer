@@ -22,3 +22,11 @@ behavior = {
 "return_fire": 0.805947,
 "teamwork": 2.0
 }
+role = "prospector"
+family = "prospector"
+weight_class = "heavy"
+archetype = "prospector heavy"
+temperament = "cautious"
+traits = [ "picks its fights", "standoff", "lets runners go", "shoots back", "team player" ]
+lives = 6
+fitness = -0.781129

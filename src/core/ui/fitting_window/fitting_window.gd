@@ -9,6 +9,7 @@ extends Control
 
 const Fitting = preload("res://src/core/systems/fitting.gd")
 const ShipFit = preload("res://src/core/systems/ship_fit.gd")
+const PresetClassifier = preload("res://src/core/evolution/preset_classifier.gd")
 
 onready var _title: Label = $Panel/Layout/Header/Title
 onready var _stats: Label = $Panel/Layout/Body/Content/Stats
@@ -161,7 +162,7 @@ func _rebuild_store(ship_body) -> void:
 	_clear(_store)
 	match _tab:
 		"ships":
-			_add_note(_store, "Yours is traded in for half. Designs come fitted; PROVEN ones flew 10 lives or more.")
+			_add_note(_store, "Hulls only: yours is traded in for half, its parts go to storage. Each line says how the hull was fitted when it evolved; PROVEN ones flew 10 lives or more.")
 			_store_ships()
 		"weapons":
 			_store_parts(store_groups(true))
@@ -177,7 +178,7 @@ func _rebuild_store(ship_body) -> void:
 func _store_ships() -> void:
 	var groups := {}
 	for ship_id in Fitting.ship_catalog():
-		var weight: String = ship_weight(ship_id)
+		var weight: String = PresetClassifier.ship_weight(TemplateDatabase.get_template(ship_id))
 		if not groups.has(weight):
 			groups[weight] = []
 		groups[weight].append(ship_id)
@@ -245,38 +246,6 @@ func _store_cargo(ship_body) -> void:
 			["SELL %d" % Fitting.cargo_sale_price(commodity_id), held <= 0, "_on_sell_cargo", [commodity_id]]])
 
 
-# Light, medium or heavy (Constants PRESET_WEIGHT_CLASSES), from the hull's size gene; a hull
-# without one by its mass against the reference hull's.
-static func ship_weight(ship_id: String) -> String:
-	var ship = TemplateDatabase.get_template(ship_id)
-	var size: float = float(ship.law_genes.get("size", 0.0)) if ship is ShipTemplate and ship.law_genes is Dictionary else 0.0
-	if size <= 0.0:
-		size = float(ship.mass) / Constants.LAW_SHIP_REF_MASS if ship is ShipTemplate else 1.0
-	var size_class: float = round(log(max(size, 0.001)) / log(2.0) * 2.0) / 2.0
-	for weight in Constants.PRESET_WEIGHT_CLASSES:
-		if size_class <= weight[1]:
-			return weight[0]
-	return Constants.PRESET_WEIGHT_CLASSES.back()[0]
-
-
-# What a fitted design fights with, as the evolution names it ("lance-missile-raider", "scavenger").
-static func ship_role(ship) -> String:
-	var kinds := {}
-	for tool_id in ship.equipped_tools:
-		var part = TemplateDatabase.get_template(str(tool_id))
-		if part is UtilityToolTemplate:
-			kinds[part.tool_type] = true
-	var armed: bool = kinds.has("laser") or kinds.has("missile") or kinds.has("cannon")
-	var role: String = ("raider" if kinds.has("harpoon") else "fighter") if armed else ("scavenger" if kinds.has("harpoon") else "")
-	for kind in ["cannon", "missile"]:
-		if kinds.has(kind):
-			role = kind + "-" + role
-	for module_id in ship.equipped_modules:
-		if part_kind(TemplateDatabase.get_template(str(module_id))) == "lance":
-			return "lancer" if not armed else "lance-" + role
-	return role if role != "" else "hull"
-
-
 static func part_kind(part) -> String:
 	if part is UtilityToolTemplate:
 		return part.tool_type
@@ -300,8 +269,13 @@ static func describe_ship(ship_id: String) -> String:
 	for part_id in ship.equipped_tools + ship.equipped_modules:
 		if str(part_id) != "":
 			fitted.append(Fitting.part_name(str(part_id)))
-	return "%s   hull %d   tools %s   modules %d   %.1f t\n%s" % [ship_role(ship).to_upper(), ship.hull_integrity, PoolStringArray(tools).join(" + "),
-		ship.module_slots, ship.mass / 1000.0, ("Fitted: " + PoolStringArray(fitted).join(", ")) if not fitted.empty() else "Bare hull"]
+	var agent = TemplateDatabase.preset_agents.get(ship_id)
+	var role: String = agent.role if agent != null and agent.role != "" else PresetClassifier.ship_role(ship, agent.behavior if agent != null else {})
+	if agent != null and agent.temperament != "":
+		role += ", " + agent.temperament  # How its evolved pilot flies it (NPCs; a hint to the player)
+	var fit_note: String = "Evolved with: " if TemplateDatabase.presets.has(ship_id) else "Comes with: "
+	return "%s   hull %d   tools %s   modules %d   %.1f t\n%s" % [role.to_upper(), ship.hull_integrity, PoolStringArray(tools).join(" + "),
+		ship.module_slots, ship.mass / 1000.0, (fit_note + PoolStringArray(fitted).join(", ")) if not fitted.empty() else "Bare hull"]
 
 
 func _ships_first(a: String, b: String) -> bool:

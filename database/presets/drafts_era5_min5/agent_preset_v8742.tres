@@ -21,3 +21,11 @@ behavior = {
 "return_fire": 0.240094,
 "teamwork": 1.18787
 }
+role = "cannon-fighter"
+family = "fighter"
+weight_class = "heavy"
+archetype = "cannon-fighter heavy"
+temperament = "measured"
+traits = [ "quick to fight", "stubborn", "standoff", "lets runners go", "bold" ]
+lives = 7
+fitness = 0.286866

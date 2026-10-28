@@ -23,3 +23,11 @@ behavior = {
 "return_fire": 0.5,
 "teamwork": 1.29245
 }
+role = "lancer"
+family = "lance"
+weight_class = "medium"
+archetype = "lancer medium"
+temperament = "measured"
+traits = [  ]
+lives = 10
+fitness = 0.0674914

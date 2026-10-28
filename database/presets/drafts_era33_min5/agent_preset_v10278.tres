@@ -22,3 +22,11 @@ behavior = {
 "return_fire": 0.823223,
 "teamwork": 0.289382
 }
+role = "lancer"
+family = "lance"
+weight_class = "heavy"
+archetype = "lancer heavy"
+temperament = "aggressive"
+traits = [ "quick to fight", "stubborn", "shoots back", "loner" ]
+lives = 5
+fitness = -0.37283

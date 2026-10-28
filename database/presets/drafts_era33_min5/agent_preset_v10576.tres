@@ -20,3 +20,11 @@ behavior = {
 "return_fire": 0.398702,
 "teamwork": 1.00574
 }
+role = "lance-fighter"
+family = "lance"
+weight_class = "medium"
+archetype = "lance-fighter medium"
+temperament = "measured"
+traits = [  ]
+lives = 5
+fitness = -0.116121

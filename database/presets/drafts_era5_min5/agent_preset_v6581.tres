@@ -21,3 +21,11 @@ behavior = {
 "return_fire": 0.499581,
 "teamwork": 1.0
 }
+role = "missile-cannon-fighter"
+family = "fighter"
+weight_class = "medium"
+archetype = "missile-cannon-fighter medium"
+temperament = "measured"
+traits = [  ]
+lives = 5
+fitness = -0.300606

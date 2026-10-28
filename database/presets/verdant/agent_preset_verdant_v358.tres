@@ -15,3 +15,11 @@ behavior = {
 "range": 1.0,
 "retreat_hull": 0.0
 }
+role = "raider"
+family = "raider"
+weight_class = "medium"
+archetype = "raider medium"
+temperament = "measured"
+traits = [  ]
+lives = 0
+fitness = 0.0

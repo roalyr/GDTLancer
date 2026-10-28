@@ -19,3 +19,11 @@ behavior = {
 "return_fire": 0.266453,
 "teamwork": 0.910592
 }
+role = "scavenger"
+family = "scavenger"
+weight_class = "light"
+archetype = "scavenger light"
+temperament = "aggressive"
+traits = [ "quick to fight", "stubborn", "ruthless" ]
+lives = 5
+fitness = -0.212529

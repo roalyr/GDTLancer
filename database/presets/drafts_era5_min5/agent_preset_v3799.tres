@@ -18,3 +18,11 @@ behavior = {
 "retreat_hull": 0.0,
 "return_fire": 0.403524
 }
+role = "lance-fighter"
+family = "lance"
+weight_class = "heavy"
+archetype = "lance-fighter heavy"
+temperament = "aggressive"
+traits = [ "quick to fight", "standoff", "relentless" ]
+lives = 6
+fitness = -0.558151

@@ -21,3 +21,11 @@ behavior = {
 "return_fire": 0.5,
 "teamwork": 1.0
 }
+role = "raider"
+family = "raider"
+weight_class = "medium"
+archetype = "raider medium"
+temperament = "measured"
+traits = [  ]
+lives = 5
+fitness = -0.364538

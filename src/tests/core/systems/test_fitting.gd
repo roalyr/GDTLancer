@@ -220,6 +220,18 @@ func test_store_sells_the_preset_designs_and_their_parts():
 	assert_has(Fitting.catalog(), "preset_laser_x1", "and so are their parts")
 	assert_does_not_have(Fitting.catalog(), "preset_ship_x1", "Ships are not parts")
 	assert_eq(TemplateDatabase.get_template("preset_ship_x1"), design)
+	design.tool_slots_small = 1
+	design.module_slots = 1
+	design.equipped_tools = ["preset_laser_x1"]
+	var spawner = SpawnerStub.new()
+	add_child_autofree(spawner)
+	var saved_spawner = GlobalRefs.agent_spawner
+	GlobalRefs.agent_spawner = spawner
+	GameState.player_ship_template_id = "s_light"
+	GameState.player_bank = 5000
+	assert_eq(Fitting.buy_ship("preset_ship_x1"), "")
+	assert_eq_deep(GameState.player_fit, {"tools": [""], "modules": [""]})  # A preset's hull comes bare: its price is the hull's
+	GlobalRefs.agent_spawner = saved_spawner
 	TemplateDatabase.presets = saved_presets
 
 

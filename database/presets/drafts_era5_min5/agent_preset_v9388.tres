@@ -21,3 +21,11 @@ behavior = {
 "retreat_hull": 0.163484,
 "return_fire": 0.554666
 }
+role = "fighter"
+family = "fighter"
+weight_class = "heavy"
+archetype = "fighter heavy"
+temperament = "measured"
+traits = [ "standoff" ]
+lives = 5
+fitness = -0.725717

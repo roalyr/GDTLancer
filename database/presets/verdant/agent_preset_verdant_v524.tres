@@ -15,3 +15,11 @@ behavior = {
 "range": 1.0419,
 "retreat_hull": 0.0
 }
+role = "scavenger"
+family = "scavenger"
+weight_class = "heavy"
+archetype = "scavenger heavy"
+temperament = "measured"
+traits = [  ]
+lives = 0
+fitness = 0.0
