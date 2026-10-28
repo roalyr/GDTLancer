@@ -128,11 +128,12 @@ func _apply_bracket_style() -> void:
 		_apply_selected_color()
 
 
-# Red while the selected target is a live ship hostile to the player, yellow otherwise (wrecks included).
+# Red while the selected target is a live ship hostile to the player (dim while it has not detected
+# the player), yellow otherwise (wrecks included).
 func _apply_selected_color() -> void:
 	if not is_instance_valid(_selected_bracket):
 		return
-	_selected_bracket.modulate = Constants.COLOR_UI_TARGET_HOSTILE if _is_hostile_to_player() else Constants.COLOR_UI_TARGET_SELECTED
+	_selected_bracket.modulate = _awareness_shade(Constants.COLOR_UI_TARGET_HOSTILE) if _is_hostile_to_player() else Constants.COLOR_UI_TARGET_SELECTED
 
 
 func refresh_style() -> void:
@@ -141,15 +142,22 @@ func refresh_style() -> void:
 		_sync_label()  # Label colour follows the bracket's
 
 
-# Unselected: red for a live ship hostile to the player, its faction's colour otherwise, grey for wrecks.
+# Unselected: red for a live ship hostile to the player, its faction's colour otherwise (either dim
+# while it has not detected the player), grey for wrecks.
 func _get_ship_color() -> Color:
 	if not (is_instance_valid(target_ref) and target_ref.has_method("get_faction_color")):
 		return Constants.COLOR_UI_TARGET_NEUTRAL
 	if target_ref.get("is_wreck"):
 		return Constants.COLOR_UI_WRECK
-	if _is_hostile_to_player():
-		return Constants.COLOR_UI_TARGET_HOSTILE
-	return target_ref.get_faction_color()
+	return _awareness_shade(Constants.COLOR_UI_TARGET_HOSTILE if _is_hostile_to_player() else target_ref.get_faction_color())
+
+
+# `color` as it is if the ship detects the player, dimmed (Constants UI_UNAWARE_*) if not.
+func _awareness_shade(color: Color) -> Color:
+	var player = GlobalRefs.player_agent_body
+	if not target_ref.has_method("detects") or not is_instance_valid(player) or target_ref.detects(player):
+		return color
+	return Color(color.r * Constants.UI_UNAWARE_DIM, color.g * Constants.UI_UNAWARE_DIM, color.b * Constants.UI_UNAWARE_DIM, color.a * Constants.UI_UNAWARE_ALPHA)
 
 
 func _is_live_ship() -> bool:

@@ -319,10 +319,38 @@ func test_projected_target_bracket_station_label_shows_dock_context() -> void:
 
 class HostileShipStub extends Spatial:
 	var is_wreck: bool = false
+	var sees: bool = true
+	var hostile: bool = true
 	func get_faction_color() -> Color:
 		return Color.white
 	func is_enemy_of(_other) -> bool:
-		return true
+		return hostile
+	func detects(_other) -> bool:
+		return sees
+
+
+func test_projected_target_bracket_ships_are_bright_when_they_see_the_player_dim_when_not() -> void:
+	var bracket = _create_projected_target_bracket()
+	var normal_bracket = bracket.get_node("BracketNormal")
+	var saved_player = GlobalRefs.player_agent_body
+	var player = Spatial.new()
+	add_child_autofree(player)
+	GlobalRefs.player_agent_body = player
+	var hostile = HostileShipStub.new()
+	add_child_autofree(hostile)
+	hostile.sees = false
+	bracket.configure_target(hostile, "Hostile")
+	var red: Color = Constants.COLOR_UI_TARGET_HOSTILE
+	var dim: float = Constants.UI_UNAWARE_DIM
+	assert_eq(normal_bracket.modulate, Color(red.r * dim, red.g * dim, red.b * dim, red.a * Constants.UI_UNAWARE_ALPHA), "Hostile, has not seen the player: dim red")
+	hostile.sees = true
+	bracket.refresh_style()
+	assert_eq(normal_bracket.modulate, red, "Sees the player: bright red")
+	hostile.hostile = false
+	hostile.sees = false
+	bracket.refresh_style()
+	assert_eq(normal_bracket.modulate, Color(dim, dim, dim, Constants.UI_UNAWARE_ALPHA), "A neutral too: its colour, dimmed")
+	GlobalRefs.player_agent_body = saved_player
 
 
 func test_projected_target_bracket_doubles_the_cross_on_stations_and_hostile_ships_only() -> void:

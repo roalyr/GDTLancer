@@ -1040,6 +1040,8 @@ const ANNOUNCE_PADDING = Vector2(14, 6)  # px round the text
 const ANNOUNCE_SLIDE_RATE = 12.0  # How fast pushed ones slide up to their places (1/s)
 const COLOR_UI_TARGET_SELECTED = Color(1.0, 0.9, 0.35, 1.0)  # Yellow: anything not hostile, wrecks included
 const COLOR_UI_TARGET_HOSTILE = Color(1.0, 0.22, 0.18, 1.0)  # Red: a live ship hostile to the player
+const UI_UNAWARE_DIM = 0.55  # A live ship that has not detected the player shows its colour this bright
+const UI_UNAWARE_ALPHA = 0.85  # and this opaque
 const COLOR_UI_TARGET_NEUTRAL = Color(0.35, 0.95, 1.0, 0.95)  # Cyan: brackets of things without a faction
 const COLOR_UI_WRECK = Color(0.6, 0.6, 0.6, 0.9)  # Grey: wreck brackets
 
