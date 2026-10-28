@@ -206,3 +206,21 @@ func test_a_charge_is_seen_coming_and_makes_the_charger_an_enemy():
 	assert_true(target.is_enemy_of(rammer), "Charged at: the charger is an enemy now")
 	lance._announce_charges()
 	assert_signal_emit_count(EventBus, "agent_charged", 1, "Once a pass")
+
+
+func test_an_off_axis_launcher_twists_the_ship_and_a_pair_cancels():
+	var left = LanceScript.new()
+	var right = LanceScript.new()
+	for launcher in [left, right]:
+		rammer.add_child(launcher)
+	left.setup(rammer, "left", lance.lance, -1, 0, 2)
+	right.setup(rammer, "right", lance.lance, -1, 1, 2)
+	assert_lt(left.mount_offset, 0.0)
+	assert_gt(right.mount_offset, 0.0)
+	var throw := {"direction": Vector3.FORWARD, "velocity": Vector3(0, 0, -300)}
+	left.fire(target, throw)
+	var twist: float = rammer.angular_velocity.y
+	assert_ne(twist, 0.0, "Thrown off the axis: the kick twists the ship")
+	right.fire(target, throw)
+	assert_almost_eq(rammer.angular_velocity.y, 0.0, 0.0001, "A volley from both sides cancels")
+	assert_almost_eq(rammer.linear_velocity.z, 2.0 * Constants.LANCE_LAUNCH_SPEED * lance.lance.nail_mass / rammer.mass, 0.01, "but the kicks add up")

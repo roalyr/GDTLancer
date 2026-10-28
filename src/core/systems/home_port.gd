@@ -24,12 +24,12 @@ static func service(ship: Node) -> Dictionary:
 	result.banked = sold.banked
 	result.units = sold.units
 	result.repaired = ship.repair_hull()
-	var lance = ship.get_lance() if ship.has_method("get_lance") else null
-	if lance != null:
+	for lance in (ship.get_lances() if ship.has_method("get_lances") else []):
 		var price: int = Market.price(float(lance.lance.nail_value), GameState.home_location_id)
-		result.lances = lance.restock(-1 if price <= 0 else int(max(0, GameState.player_bank / price)))
-		result.lance_cost = result.lances * price
-		GameState.player_bank -= result.lance_cost
+		var bought: int = lance.restock(-1 if price <= 0 else int(max(0, GameState.player_bank / price)))
+		result.lances += bought
+		result.lance_cost += bought * price
+		GameState.player_bank -= bought * price
 	var tools = ship.get_node_or_null("ToolController")
 	if tools != null and tools.has_method("restock_ammo"):
 		for index in range(tools.get_tool_count()):

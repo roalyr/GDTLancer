@@ -1,12 +1,13 @@
-# LanceController: the ship's kinetic lance launcher (a "lance" module; ShipLaws.lance_stats,
-# Constants LAW_LANCE_*). A lance sits in the seat on the ship's axis; spares wait in a quiver on the
-# hull (salvaging a wreck with a harpoon recovers the lances stuck in it that fit this seat:
+# LanceController: a kinetic lance launcher (a "lance" module; ShipLaws.lance_stats, Constants
+# LAW_LANCE_*). A ship may carry several, side by side across its bow (mount_offset: one sits on the
+# axis). A lance sits in the seat; spares wait in a quiver on the hull (salvaging a wreck with a harpoon recovers the lances stuck in it that fit this seat:
 # Agent.recoverable_lances_for). Only while armed (the player's LANCE button; an NPC while it rams)
 # does it fire, and only at the ram's target (NavigationSystem RAM): once within
 # Constants.LANCE_RELEASE_RANGE of it, the seat throws the lance at LANCE_LAUNCH_SPEED toward it,
 # aimed (within LANCE_AIM_CONE of the nose) so that the lance's flight relative to the target runs
 # straight at its middle, cancelling the ship's sideways drift (firing_solution); the ship flies by
-# (command_ram passes beside the target). The throw kicks the ship back by the lance's momentum. In
+# (command_ram passes beside the target). The throw kicks the ship back by the lance's momentum, at
+# the launcher's mount: one off the axis also twists the ship, the price of a bank of launchers. In
 # flight it is a LanceShot. On a ship, a lance meeting it at a closing speed along the lance of at
 # least LAW_LANCE_MIN_SPEED goes in with a chance that falls with the angle off square-on
 # (ShipLaws.lance_hit_chance) and does ShipLaws.lance_damage, shoving the ship by its momentum and
@@ -14,7 +15,7 @@
 # out a chunk (Constants MINING). The next lance is seated after the reload time. Docking restocks
 # the quiver (restock()). Spent lances are gone from the ship's mass (spent_mass()). The module's
 # mass also armours the bow (ShipLaws).
-# Child of AgentBody, made by it when the fit has a lance (one per ship: ShipFit).
+# Child of AgentBody, one per lance module in its fit (Agent.get_lances).
 
 extends Spatial
 
@@ -40,16 +41,24 @@ var _charged: Dictionary = {}  # Instance id -> s before the same ship is told a
 var _watch_left: float = 0.0  # s until the next look for ships it is charging
 var _seat_mesh: MeshInstance = null
 var _quiver: Spatial = null
+var mount_offset: float = 0.0  # m off the ship's axis, across (+X), that this launcher sits
 
 
-func setup(agent: RigidBody, p_module_id: String, p_lance: Dictionary, p_nails: int = -1) -> void:
+# Launcher `index` of `count` on the ship: the launchers spread evenly across the middle half of the
+# bow's width (one alone sits on the axis).
+func setup(agent: RigidBody, p_module_id: String, p_lance: Dictionary, p_nails: int = -1, index: int = 0, count: int = 1) -> void:
 	_agent = agent
 	module_id = p_module_id
 	lance = p_lance
 	nails = int(lance.count) if p_nails < 0 else int(min(p_nails, lance.count))
 	reload_left = 0.0
-	name = "LanceController"
+	name = "LanceController" if index == 0 else "LanceController%d" % (index + 1)
 	_nose = _measure_nose()
+	mount_offset = 0.0
+	if count > 1:
+		var bounds = _agent.get("hull_bounds")
+		var width: float = bounds.size.x if bounds is AABB and bounds.size.x > 0.0 else _nose
+		mount_offset = lerp(-0.25, 0.25, float(index) / float(count - 1)) * width
 	_build_visuals()
 
 
@@ -68,7 +77,7 @@ func get_reach() -> float:
 
 
 func get_tip() -> Vector3:
-	return _agent.global_transform.xform(Vector3(0, 0, -get_reach()))
+	return _agent.global_transform.xform(Vector3(mount_offset, 0, -get_reach()))
 
 
 # Closing speed along the lance on `target` (m/s): what the strike would be at now.
@@ -85,6 +94,64 @@ func strike_speed_on(target: Spatial) -> float:
 # Damage at `closing_speed` square-on (0 if too slow).
 func damage_at(closing_speed: float) -> float:
 	return ShipLaws.lance_damage(lance, closing_speed)
+
+
+# The throw's kick on the ship (`impulse`: the lance's momentum, N s), at the launcher's mount: it
+# slows the ship and, off the axis, twists it (inertia as a solid ball of the ship's size).
+func _recoil(impulse: Vector3) -> void:
+	var mass: float = max(_agent.mass, 1.0)
+	_agent.linear_velocity -= impulse / mass
+	if mount_offset != 0.0:
+		var radius: float = _agent.get_apparent_radius() if _agent.has_method("get_apparent_radius") else 10.0
+		var arm: Vector3 = _agent.global_transform.basis.xform(Vector3(mount_offset, 0, -_seat()))
+		_agent.angular_velocity += arm.cross(-impulse) / (0.4 * mass * radius * radius)
+
+
+# Lances stuck in `hull` (a wreck or a chunk) that `salvager`'s launchers take and have room for.
+static func recoverable_from(hull: Node, salvager) -> int:
+	if not (is_instance_valid(salvager) and salvager.has_method("get_lances")):
+		return 0
+	var stuck: Array = _stuck_in(hull)
+	var total := 0
+	for lance in salvager.get_lances():
+		var room: int = int(lance.lance.count) - lance.nails
+		var fitting := 0
+		for child in stuck:
+			if lance.fits(float(child.get_meta("nail_mass", 0.0))):
+				fitting += 1
+		var taken: int = int(min(room, fitting))
+		total += taken
+		for i in range(taken):  # Each stuck lance goes to one launcher
+			for child in stuck:
+				if lance.fits(float(child.get_meta("nail_mass", 0.0))):
+					stuck.erase(child)
+					break
+	return total
+
+
+# Pulls one lance out of `hull` into the first of `salvager`'s launchers it fits with room; true if
+# it did.
+static func recover_from(hull: Node, salvager) -> bool:
+	if recoverable_from(hull, salvager) <= 0:
+		return false
+	for lance in salvager.get_lances():
+		if lance.nails >= int(lance.lance.count):
+			continue
+		for child in _stuck_in(hull):
+			if lance.fits(float(child.get_meta("nail_mass", 0.0))):
+				hull.remove_child(child)
+				child.queue_free()
+				lance.restock(1)
+				return true
+	return false
+
+
+static func _stuck_in(hull: Node) -> Array:
+	var found: Array = []
+	for child in hull.get_children():
+		if child.is_in_group(LANCE_GROUP) and not child.is_queued_for_deletion():
+			found.append(child)
+	return found
 
 
 # Whether a lance of `nail_mass` kg fits this seat (Constants.LANCE_RECOVER_MASS_TOLERANCE).
@@ -184,7 +251,7 @@ func firing_solution(target: Spatial) -> Dictionary:
 func fire(target: Spatial, solution: Dictionary) -> void:
 	var direction: Vector3 = solution.direction
 	var velocity: Vector3 = solution.velocity
-	_agent.linear_velocity -= direction * Constants.LANCE_LAUNCH_SPEED * float(lance.nail_mass) / max(_agent.mass, 1.0)
+	_recoil(direction * Constants.LANCE_LAUNCH_SPEED * float(lance.nail_mass))
 	var shot = LanceShot.new()
 	var world = _agent.get_parent()
 	world.add_child(shot)
@@ -366,7 +433,7 @@ func _build_visuals() -> void:
 	var length: float = float(lance.length)
 	_seat_mesh = _lance_mesh(length)
 	add_child(_seat_mesh)
-	_seat_mesh.transform = Transform(_basis_along(Vector3.FORWARD), Vector3(0, 0, -(_seat() + length * 0.5)))
+	_seat_mesh.transform = Transform(_basis_along(Vector3.FORWARD), Vector3(mount_offset, 0, -(_seat() + length * 0.5)))
 	_quiver = Spatial.new()
 	_quiver.name = "Quiver"
 	add_child(_quiver)
@@ -375,7 +442,7 @@ func _build_visuals() -> void:
 	for i in range(spares):
 		var spare := _lance_mesh(length * Constants.LANCE_QUIVER_SCALE)
 		var angle: float = TAU * i / max(1, spares)
-		spare.transform = Transform(_basis_along(Vector3.FORWARD), Vector3(cos(angle) * ring, sin(angle) * ring, _nose * 0.3))
+		spare.transform = Transform(_basis_along(Vector3.FORWARD), Vector3(mount_offset + cos(angle) * ring, sin(angle) * ring, _nose * 0.3))
 		_quiver.add_child(spare)
 	_update_visuals()
 

@@ -280,7 +280,7 @@ func _pick_part(kind: String, slot: int) -> void:
 		_list.add_child(_button(_part_label(part_id), self, "refit", [kind, slot, part_id]))
 
 
-# Every part that can go in the slot: tools that fit its size, any module (one lance a ship).
+# Every part that can go in the slot: tools that fit its size, any module.
 static func parts_for(ship: Node, kind: String, slot: int) -> Array:
 	var ids: Array = []
 	if kind == "tools":
@@ -289,11 +289,8 @@ static func parts_for(ship: Node, kind: String, slot: int) -> Array:
 			if slot < sizes.size() and ShipFit.tool_fits_slot(TemplateDatabase.utility_tools[tool_id], sizes[slot]):
 				ids.append(tool_id)
 	else:
-		var others: Dictionary = ship.fit.duplicate(true)
-		others.modules[slot] = ""
 		for module_id in TemplateDatabase.assets_modules:
-			if not (ShipFit.is_lance(TemplateDatabase.assets_modules[module_id]) and ShipFit.has_lance(others)):
-				ids.append(module_id)
+			ids.append(module_id)
 	ids.sort()
 	return ids
 

@@ -7,7 +7,8 @@
 # Designs (Genome genomes, see DESIGNS): "lancer" (small and fast: lance and harpoon), "lance_laser"
 # (Phoenix Light sized, engine-heavy: lance and a laser), "laser" (the Phoenix Light, two lasers),
 # "laser_heavy" (a big slow three-laser ship), "hauler" (an unarmed Phoenix Light), "lancer_fast"
-# (engine-heavy, a 200 kg lance and a light laser). See MATCHES.
+# (engine-heavy, a 200 kg lance and a light laser), "lance_twin" (lance_laser with a second launcher
+# beside the first). See MATCHES.
 extends SceneTree
 
 const DESIGNS = {
@@ -17,6 +18,8 @@ const DESIGNS = {
 		"tools": [{"kind": "laser", "type": 1, "genes": {"mass": 100.0, "energy": 1.5}}], "modules": [{"kind": "lance", "type": 2, "genes": {"nail_mass": 200.0, "count": 3.0}}]},
 	"lance_laser": {"ship": {"type": 2, "size": 1.0, "shares": {"structure": 0.45, "engine": 0.32, "reactor": 0.1, "capacitor": 0.05, "hold": 0.08}},
 		"tools": [{"kind": "laser", "type": 1, "genes": {"mass": 150.0, "energy": 2.5}}, {}], "modules": [{"kind": "lance", "type": 2, "genes": {"nail_mass": 200.0, "count": 3.0}}, {}]},
+	"lance_twin": {"ship": {"type": 2, "size": 1.0, "shares": {"structure": 0.45, "engine": 0.32, "reactor": 0.1, "capacitor": 0.05, "hold": 0.08}},
+		"tools": [{"kind": "laser", "type": 1, "genes": {"mass": 150.0, "energy": 2.5}}, {}], "modules": [{"kind": "lance", "type": 2, "genes": {"nail_mass": 200.0, "count": 3.0}}, {"kind": "lance", "type": 2, "genes": {"nail_mass": 200.0, "count": 3.0}}]},
 	"laser": {"ship": {"type": 2, "size": 1.0, "shares": {"structure": 0.55, "engine": 0.2, "reactor": 0.1, "capacitor": 0.05, "hold": 0.1}},
 		"tools": [{"kind": "laser", "type": 2, "genes": {"mass": 300.0, "energy": 5.0}}, {"kind": "laser", "type": 2, "genes": {"mass": 300.0, "energy": 5.0}}], "modules": [{}, {}]},
 	"laser_heavy": {"ship": {"type": 3, "size": 2.5, "shares": {"structure": 0.65, "engine": 0.15, "reactor": 0.1, "capacitor": 0.04, "hold": 0.06}},

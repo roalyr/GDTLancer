@@ -103,12 +103,14 @@ func restore(body: RigidBody) -> void:
 
 func _set_flown(body: Node, on: bool) -> void:
 	body.set_physics_process(on)
-	for name in [Constants.AI_CONTROLLER_NODE_NAME, "NavigationSystem", "ToolController", "LanceController"]:
+	for name in [Constants.AI_CONTROLLER_NODE_NAME, "NavigationSystem", "ToolController"]:
 		var node = body.get_node_or_null(name)
 		if node != null:
 			node.set_physics_process(on)
 			if name == "ToolController" and not on and node.has_method("deactivate_all"):
 				node.deactivate_all("offscreen")
+	for lance in (body.get_lances() if body.has_method("get_lances") else []):
+		lance.set_physics_process(on)
 
 
 # --- Resolution ---

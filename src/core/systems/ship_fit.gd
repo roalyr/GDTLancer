@@ -92,12 +92,12 @@ static func normalized(ship, fit: Dictionary) -> Dictionary:
 	var modules: Array = fit.get("modules", [])
 	for i in range(min(modules.size(), result.modules.size())):
 		var module = TemplateDatabase.get_template(str(modules[i]))
-		if module is ModuleTemplate and not (is_lance(module) and has_lance(result)):  # One lance per ship
+		if module is ModuleTemplate:
 			result.modules[i] = str(modules[i])
 	return result
 
 
-# A kinetic lance module. A ship takes one: its seat sits on the ship's axis.
+# A kinetic lance module (a launcher; a ship may carry several side by side).
 static func is_lance(module) -> bool:
 	return module is ModuleTemplate and not module.lance.empty()
 

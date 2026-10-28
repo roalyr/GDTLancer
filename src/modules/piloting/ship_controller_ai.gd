@@ -123,10 +123,10 @@ func initialize(config: Dictionary) -> void:
 	if is_instance_valid(_tool_controller) and not _tool_controller.is_connected("lance_recovered", self, "_on_lance_recovered"):
 		_tool_controller.connect("lance_recovered", self, "_on_lance_recovered")
 		_tool_controller.connect("ammo_recovered", self, "_on_ammo_recovered")
-	var lance = agent_script.get_lance() if agent_script.has_method("get_lance") else null
-	if lance != null and not lance.is_connected("struck", self, "_on_lance_struck"):
-		lance.connect("struck", self, "_on_lance_struck")
-		lance.connect("glanced", self, "_on_lance_glanced")
+	for lance in (agent_script.get_lances() if agent_script.has_method("get_lances") else []):
+		if not lance.is_connected("struck", self, "_on_lance_struck"):
+			lance.connect("struck", self, "_on_lance_struck")
+			lance.connect("glanced", self, "_on_lance_glanced")
 	var docked_at = config.get("docked_at")
 	if docked_at is Spatial:
 		_dock(docked_at, false)
@@ -558,8 +558,7 @@ func _process_depart() -> void:
 # --- Ramming (kinetic lance) ---
 
 func can_ram() -> bool:
-	var lance = agent_script.get_lance() if agent_script.has_method("get_lance") else null
-	return lance != null and lance.nails > 0 \
+	return agent_script.has_method("get_lance_nails") and agent_script.get_lance_nails() > 0 \
 		and agent_script.get_top_speed() >= Constants.LANCE_CATCH_SPEED
 
 
@@ -581,7 +580,7 @@ func _ram(target) -> bool:
 		return false
 	if not _ramming:
 		_ramming = true
-		agent_script.get_lance().armed = true
+		agent_script.set_lances_armed(true)
 		agent_script.command_ram(target)
 	return true
 
@@ -597,9 +596,8 @@ func is_ram_committed() -> bool:
 
 func _stop_ramming() -> void:
 	_ramming = false
-	var lance = agent_script.get_lance() if is_instance_valid(agent_script) and agent_script.has_method("get_lance") else null
-	if lance != null:
-		lance.armed = false
+	if is_instance_valid(agent_script) and agent_script.has_method("set_lances_armed"):
+		agent_script.set_lances_armed(false)
 
 
 func _on_lance_recovered(_index) -> void:

@@ -231,7 +231,7 @@ func _on_lance_button_pressed() -> void:
 	if GameState.player_docked_at != "":
 		EventBus.emit_signal("attack_action_feedback", false, "Undock first")
 		return
-	lance.armed = not lance.armed
+	agent_body.set_lances_armed(not lance.armed)  # All launchers together
 
 
 # The AFTERBURN button: lights the afterburner or puts it out.
@@ -691,7 +691,7 @@ func _on_Player_Approach_Pressed():
 # out), as NPCs ram them (null: any of these would do). A station or a whole rock is approached.
 func is_ram_ready(target = null) -> bool:
 	var lance = agent_body.get_lance() if is_instance_valid(agent_body) and agent_body.has_method("get_lance") else null
-	if lance == null or not lance.armed or lance.nails <= 0:
+	if lance == null or not lance.armed or agent_body.get_lance_nails() <= 0:
 		return false
 	return target == null or is_rammable(target)
 

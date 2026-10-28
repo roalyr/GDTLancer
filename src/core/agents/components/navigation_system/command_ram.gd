@@ -145,8 +145,9 @@ func _hold_off_rock(rock: Spatial, delta: float) -> void:
 		return
 	var direction: Vector3 = offset / distance
 	var radius: float = rock.get_apparent_radius() if rock.has_method("get_apparent_radius") else 100.0
-	var lance = _agent_body.get_lance() if _agent_body.has_method("get_lance") else null
-	var reach: float = lance.get_reach() if lance != null else 0.0  # The lance is thrown from its tip
+	var reach := 0.0  # The lance is thrown from its tip
+	for lance in (_agent_body.get_lances() if _agent_body.has_method("get_lances") else []):
+		reach = max(reach, lance.get_reach())
 	var gap: float = distance - radius - Constants.NAV_RAM_ROCK_STANDOFF - reach
 	var speed: float = clamp(gap * Constants.NAV_RAM_ROCK_SPEED_GAIN, -Constants.NAV_RAM_ROCK_MAX_SPEED, Constants.NAV_RAM_ROCK_MAX_SPEED)
 	_movement_system.request_rotation_to_pid(direction, delta)

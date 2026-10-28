@@ -485,16 +485,21 @@ func _update_lance_button() -> void:
 	if lance == null:
 		return
 	var state: String = "ARM"
-	if lance.nails <= 0:
+	var seated = null  # A launcher with a lance ready
+	for each in player.get_lances():
+		if each.is_seated():
+			seated = each
+			break
+	if player.get_lance_nails() <= 0:
 		state = "EMPTY"
-	elif not lance.is_seated():
+	elif seated == null:
 		state = "LOADING"
 	elif lance.armed:
 		state = "ARMED"
 		var target = _current_target
 		if is_instance_valid(target) and target is RigidBody:
-			state = "%d / %d" % [int(lance.strike_speed_on(target)), int(Constants.LAW_LANCE_MIN_SPEED)]
-	button_lance.get_node("Label").text = "LANCE %d\n%s" % [lance.nails, state]
+			state = "%d / %d" % [int(seated.strike_speed_on(target)), int(Constants.LAW_LANCE_MIN_SPEED)]
+	button_lance.get_node("Label").text = "LANCE %d\n%s" % [player.get_lance_nails(), state]
 	_apply_button_toggle_state(button_lance, lance.armed)
 
 

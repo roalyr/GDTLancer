@@ -236,12 +236,13 @@ func on_docked(body: Node, location_id: String = "") -> bool:
 	var hull_max: float = max(float(body.hull_max), 1.0)
 	var repaired: float = body.repair_hull()
 	var repair_cost: float = Constants.EVO_REPAIR_COST_SHARE * float(record.get("hull_value", record.cost)) * repaired / hull_max
-	var lance = body.get_lance() if body.has_method("get_lance") else null
-	if lance != null:
+	var rearmed := false
+	for lance in (body.get_lances() if body.has_method("get_lances") else []):
 		var lances: int = lance.restock()
 		repair_cost += lances * float(lance.lance.nail_value)  # Lances used are bought anew
-		if lances > 0:
-			note(uid, "rearmed")
+		rearmed = rearmed or lances > 0
+	if rearmed:
+		note(uid, "rearmed")
 	var tools = body.get_node_or_null("ToolController")
 	if tools != null and tools.has_method("restock_ammo"):
 		var added: Dictionary = tools.restock_ammo()

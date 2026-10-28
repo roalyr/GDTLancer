@@ -333,43 +333,48 @@ func apply_fit(new_fit: Dictionary) -> void:
 
 # --- Kinetic lance (LanceController) ---
 
-# The fit's lance module (one per ship) gets a LanceController (the player's keeps its lances left
-# across sectors and saves: GameState.player_lance_nails); no lance, none. Spent lances lighten the
-# ship.
+# Each lance module in the fit gets a LanceController, side by side across the bow (the player's
+# keep their lances left across sectors and saves: GameState.player_lance_nails, their total, filled
+# in launcher order); no lance, none. Spent lances lighten the ship.
 func _refresh_lance() -> void:
-	var lance_id := ""
-	var stats: Dictionary = {}
+	var wanted: Array = []  # [module_id, stats]
 	for module_id in fit.get("modules", []):
 		var module = TemplateDatabase.get_template(str(module_id)) if str(module_id) != "" else null
 		if module is ModuleTemplate and not module.lance.empty():
-			lance_id = str(module_id)
-			stats = module.lance
-			break
-	var controller = get_node_or_null("LanceController")
-	if lance_id == "":
-		if controller != null:
-			remove_child(controller)
-			controller.queue_free()
-			_update_mass()
+			wanted.append([str(module_id), module.lance])
+	var current: Array = get_lances()
+	var same: bool = current.size() == wanted.size()
+	for i in range(min(current.size(), wanted.size())):
+		same = same and current[i].module_id == wanted[i][0]
+	if same:
+		return
+	var spawned: bool = current.empty()
+	for controller in current:
+		remove_child(controller)
+		controller.queue_free()
+	if wanted.empty():
+		_update_mass()
 		if is_player():
 			GameState.player_lance_nails = -1
 		return
-	if controller != null and controller.module_id == lance_id:
-		return
-	var nails: int = -1
+	var left: int = -1
 	if is_player():
-		if controller == null:
-			nails = GameState.player_lance_nails  # Spawned with it: as it was left
+		if spawned:
+			left = GameState.player_lance_nails  # Spawned with them: as they were left
 		else:
-			GameState.player_lance_nails = -1  # A new lance comes full
-	if controller == null:
-		controller = LanceController.new()
+			GameState.player_lance_nails = -1  # New lances come full
+	for i in range(wanted.size()):
+		var controller = LanceController.new()
 		add_child(controller)
+		var nails: int = -1
+		if left >= 0:
+			nails = int(min(left, int(wanted[i][1].count)))
+			left -= nails
+		controller.setup(self, wanted[i][0], wanted[i][1], nails, i, wanted.size())
 		controller.connect("nails_changed", self, "_on_lance_nails_changed")
 		if is_player():  # A glance leaves no mark: say what the tip met
 			controller.connect("struck", self, "_on_player_lance_struck")
 			controller.connect("glanced", self, "_on_player_lance_glanced")
-	controller.setup(self, lance_id, stats, nails)
 	_update_mass()
 
 
@@ -399,9 +404,9 @@ func _on_tool_ammo_changed(_index: int, _ammo: int) -> void:
 	_update_mass()
 
 
-func _on_lance_nails_changed(nails: int) -> void:
+func _on_lance_nails_changed(_nails: int) -> void:
 	if is_player():
-		GameState.player_lance_nails = nails
+		GameState.player_lance_nails = get_lance_nails()
 	_update_mass()
 
 
@@ -418,8 +423,32 @@ func outruns_ram(target) -> bool:
 	return running and get_burst_top_speed() - target.get_top_speed() < Constants.LANCE_CATCH_SPEED  # An afterburner counts
 
 
+# The first lance launcher (the one on the axis if it has only one), or null.
 func get_lance() -> Node:
 	return get_node_or_null("LanceController")
+
+
+# Every lance launcher, in mount order.
+func get_lances() -> Array:
+	var found: Array = []
+	for child in get_children():
+		if child is LanceController and not child.is_queued_for_deletion():
+			found.append(child)
+	return found
+
+
+# Lances left in all its launchers.
+func get_lance_nails() -> int:
+	var total := 0
+	for lance in get_lances():
+		total += lance.nails
+	return total
+
+
+# Arms or makes safe all its launchers.
+func set_lances_armed(on: bool) -> void:
+	for lance in get_lances():
+		lance.armed = on
 
 
 func get_fitted_tool_ids() -> Array:
@@ -884,9 +913,9 @@ func get_desperation() -> float:
 func get_damage_per_second() -> float:
 	var tools = get_node_or_null("ToolController")
 	var dps: float = tools.get_damage_per_second() if is_instance_valid(tools) and tools.has_method("get_damage_per_second") else 0.0
-	var lance = get_lance()
-	if lance != null and lance.nails > 0:
-		dps += lance.damage_at(get_top_speed() + Constants.LANCE_LAUNCH_SPEED) / max(float(lance.lance.reload), Constants.AI_RAM_PASS_TIME)
+	for lance in get_lances():
+		if lance.nails > 0:
+			dps += lance.damage_at(get_top_speed() + Constants.LANCE_LAUNCH_SPEED) / max(float(lance.lance.reload), Constants.AI_RAM_PASS_TIME)
 	return dps
 
 
@@ -973,33 +1002,16 @@ func get_salvage_units() -> int:
 	return count_units(salvage)
 
 
-# Lances stuck in this hull (LanceController strikes; repairs take them out) that `salvager`'s lance
-# seat takes and its quiver has room for.
+# Lances stuck in this hull (LanceController strikes; repairs take them out) that `salvager`'s
+# launchers take and their quivers have room for.
 func recoverable_lances_for(salvager) -> int:
-	var lance = salvager.get_lance() if is_instance_valid(salvager) and salvager.has_method("get_lance") else null
-	if lance == null or lance.nails >= int(lance.lance.count):
-		return 0
-	return int(min(_stuck_lances_fitting(lance).size(), int(lance.lance.count) - lance.nails))
+	return LanceController.recoverable_from(self, salvager)
 
 
-# Pulls one lance that fits `salvager`'s seat out of this hull into its quiver; true if it did.
+# Pulls one lance that fits one of `salvager`'s launchers out of this hull into its quiver; true if
+# it did.
 func recover_lance_into(salvager) -> bool:
-	if recoverable_lances_for(salvager) <= 0:
-		return false
-	var lance = salvager.get_lance()
-	var stuck: Node = _stuck_lances_fitting(lance)[0]
-	remove_child(stuck)
-	stuck.queue_free()
-	lance.restock(1)
-	return true
-
-
-func _stuck_lances_fitting(lance) -> Array:
-	var found: Array = []
-	for child in get_children():
-		if child.is_in_group(LanceController.LANCE_GROUP) and not child.is_queued_for_deletion() and lance.fits(float(child.get_meta("nail_mass", 0.0))):
-			found.append(child)
-	return found
+	return LanceController.recover_from(self, salvager)
 
 
 # Removes up to `units` from the wreck, taking commodities in name order; returns {id: units}.
@@ -1034,8 +1046,7 @@ func get_cargo_mass() -> float:
 # slower and heavier to turn.
 func _update_mass() -> void:
 	var base_mass: float = float(fit_stats.get("mass", ship_template.mass if is_instance_valid(ship_template) else Constants.DEFAULT_SHIP_MASS))
-	var lance = get_lance()
-	if lance != null:
+	for lance in get_lances():
 		base_mass -= lance.spent_mass()
 	var tools = get_node_or_null("ToolController")
 	if tools != null and tools.has_method("spent_ammo_mass"):

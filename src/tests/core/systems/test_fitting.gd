@@ -147,7 +147,7 @@ func test_fitting_and_unfitting_update_the_live_ship():
 	assert_ne(Fitting.fit_part(body, "m_engine"), "", "Nothing left in storage to fit.")
 
 
-func test_one_lance_per_ship_and_spent_lances_lighten_it():
+func test_lance_launchers_side_by_side_and_spent_lances_lighten_the_ship():
 	var lance_genes := {"nail_mass": 200.0, "count": 3.0}
 	TemplateDatabase.assets_modules["m_lance"] = ShipLaws.build_module_template("lance", lance_genes, 2, "m_lance")
 	TemplateDatabase.assets_modules["m_lance_2"] = ShipLaws.build_module_template("lance", lance_genes, 2, "m_lance_2")
@@ -158,16 +158,21 @@ func test_one_lance_per_ship_and_spent_lances_lighten_it():
 	assert_eq(Fitting.fit_part(body, "m_lance"), "")
 	assert_almost_eq(body.hull_max, 100.0 + ShipLaws.module_stats("lance", lance_genes).stat_modifiers.hull, 0.01, "The prow armours the bow")
 	assert_gt(ShipLaws.module_stats("lance", lance_genes).stat_modifiers.hull, 0)
-	assert_eq(Fitting.fit_part(body, "m_lance_2"), "One lance per ship")
-	assert_eq(ShipFit.normalized(ship, {"tools": [], "modules": ["m_lance", "m_lance_2"]}).modules, ["m_lance", ""], "A second lance is dropped")
-	var lance = body.get_lance()
 	assert_almost_eq(body.mass, base_mass + 1000.0, 0.01)
+	assert_eq(Fitting.fit_part(body, "m_lance_2"), "", "A second launcher fits beside the first")
+	assert_eq(ShipFit.normalized(ship, {"tools": [], "modules": ["m_lance", "m_lance_2"]}).modules, ["m_lance", "m_lance_2"])
+	var lances: Array = body.get_lances()
+	assert_eq(lances.size(), 2)
+	assert_almost_eq(lances[0].mount_offset, -lances[1].mount_offset, 0.001, "Side by side, either side of the axis")
+	assert_ne(lances[0].mount_offset, 0.0)
+	assert_almost_eq(body.mass, base_mass + 2000.0, 0.01)
+	var lance = lances[1]
 	lance.nails -= 1
 	lance.emit_signal("nails_changed", lance.nails)
-	assert_almost_eq(body.mass, base_mass + 800.0, 0.01, "A spent lance is gone from the ship")
-	assert_eq(GameState.player_lance_nails, 2, "Saved")
+	assert_almost_eq(body.mass, base_mass + 1800.0, 0.01, "A spent lance is gone from the ship")
+	assert_eq(GameState.player_lance_nails, 5, "Saved: the lances left in both")
 	lance.restock()
-	assert_almost_eq(body.mass, base_mass + 1000.0, 0.01, "Restocked")
+	assert_almost_eq(body.mass, base_mass + 2000.0, 0.01, "Restocked")
 
 
 class SpawnerStub:
