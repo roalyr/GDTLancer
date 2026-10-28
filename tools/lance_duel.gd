@@ -3,6 +3,7 @@
 # A throwaway save folder; never the real save. DUEL_TRACE=1 in the environment prints the first
 # ship's state every second (distance, speed, activity, lance, run-up).
 #     godot --no-window -s tools/lance_duel.gd -- --duels=8 --speed=6 [--weapons: missile and cannon designs]
+#         [--match=lancer,laser: that one match only]
 # Designs (Genome genomes, see DESIGNS): "lancer" (small and fast: lance and harpoon), "lance_laser"
 # (Phoenix Light sized, engine-heavy: lance and a laser), "laser" (the Phoenix Light, two lasers),
 # "laser_heavy" (a big slow three-laser ship), "hauler" (an unarmed Phoenix Light), "lancer_fast"
@@ -45,6 +46,8 @@ func _initialize():
 			duels = int(arg.split("=")[1])
 		elif arg == "--weapons":
 			matches = MATCHES_WEAPONS
+		elif arg.begins_with("--match="):
+			matches = [arg.split("=")[1].split(",")]
 		elif arg.begins_with("--speed="):
 			speed = max(1.0, float(arg.split("=")[1]))
 	OS.vsync_enabled = false

@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/phoenix_light.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_v8900"
+ship_model_name = "Phoenix II V8900"
+base_value = 1064
+ship_scene = ExtResource( 2 )
+hull_integrity = 119
+cargo_capacity = 31
+interaction_radius = 15.3111
+apparent_radius = 12.2489
+signature = 1531.11
+sensor_strength = 1.0
+tool_slots_small = 2
+tool_slots_medium = 0
+tool_slots_large = 0
+module_slots = 2
+equipped_tools = [ "preset_laser_2_300_50", "preset_laser_2_270_43" ]
+equipped_modules = [ "preset_thruster_1_200" ]
+salvage_yield = {
+"commodity_scrap": 21,
+"commodity_tech": 9
+}
+power_capacity = 109.78
+power_regen = 9.59243
+mass = 6381.1
+linear_thrust = 479876.0
+angular_thrust = 543709.0
+alignment_threshold_angle_deg = 45.0
+model_scale = 1.02074
+panel_material = "res://assets/art/materials_generic/mat_hull_panel_dark.tres"
+variant_type = 2
+law_genes = {
+"shares": {
+"capacitor": 0.0516119,
+"engine": 0.201978,
+"hold": 0.145457,
+"reactor": 0.0897793,
+"structure": 0.511174
+},
+"size": 1.06352,
+"tool_share": 0.393535,
+"type": 2
+}

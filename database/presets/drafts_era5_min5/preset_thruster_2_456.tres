@@ -1,0 +1,21 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/asset_module_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_thruster_2_456"
+module_name = "Thruster II"
+description = "456 kg."
+base_value = 114
+mass = 455.609
+stat_modifiers = {
+"linear_thrust": 188227.0
+}
+lance = {
+}
+module_kind = "thruster"
+variant_type = 2
+law_genes = {
+"mass": 455.609
+}

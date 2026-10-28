@@ -1,0 +1,21 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/asset_module_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_power_cell_2_300"
+module_name = "Power Cell II"
+description = "300 kg."
+base_value = 75
+mass = 300.0
+stat_modifiers = {
+"power_regen": 5.35887
+}
+lance = {
+}
+module_kind = "power_cell"
+variant_type = 2
+law_genes = {
+"mass": 300.0
+}

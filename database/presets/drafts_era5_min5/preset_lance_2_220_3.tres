@@ -1,0 +1,29 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/asset_module_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_lance_2_220_3"
+module_name = "Kinetic Lance II"
+description = "1102 kg: 3 lances of 220 kg, 130 damage at 200 m/s (none under 60 m/s); an armoured prow, +50 hull. One per ship."
+base_value = 275
+mass = 1101.57
+stat_modifiers = {
+"hull": 50
+}
+lance = {
+"count": 3,
+"damage": 129.656,
+"length": 12.3933,
+"mass": 1101.57,
+"nail_mass": 220.315,
+"nail_value": 55,
+"reload": 4.19823
+}
+module_kind = "lance"
+variant_type = 2
+law_genes = {
+"count": 2.63964,
+"nail_mass": 220.315
+}
