@@ -479,8 +479,11 @@ func _update_lance_button() -> void:
 	var selected = controller.get("_selected_target") if is_instance_valid(controller) else null
 	var ram: bool = is_instance_valid(controller) and controller.has_method("is_ram_ready") and controller.is_ram_ready(selected if is_instance_valid(selected) else null)  # As the button will act
 	var label: String = "RAM" if ram else "APPROACH"  # Approach rams while the lance is armed
-	if ram and player.outruns_ram(controller.get("_selected_target")):
-		label = "RAM: TOO SLOW"  # It runs too fast to strike: the lance would glance off
+	var ram_target = controller.get("_selected_target") if ram else null
+	if ram and player.outruns_ram(ram_target):
+		label = "RAM: TOO SLOW"  # It runs too fast to catch
+	elif ram and is_instance_valid(ram_target) and ram_target is RigidBody and ram_target.get("is_wreck") == false and player.ram_outlook(ram_target).cost >= player.hull:
+		label = "RAM: TOO HOT"  # Its side's guns would take the whole hull on the way in (what NPCs weigh)
 	button_approach.get_node("LabelButtonApproach").text = label
 	if lance == null:
 		return

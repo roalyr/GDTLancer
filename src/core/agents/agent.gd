@@ -44,6 +44,7 @@ const ViewDetail = preload("res://src/core/agents/components/view_detail.gd")
 const ShipFit = preload("res://src/core/systems/ship_fit.gd")
 const Standing = preload("res://src/core/systems/standing.gd")
 const Bounty = preload("res://src/core/systems/bounty.gd")
+const CombatAssessment = preload("res://src/core/systems/combat_assessment.gd")
 
 # --- Fit ---
 var fit: Dictionary = {}  # ShipFit fit: parts per slot. The player's lives in GameState.player_fit.
@@ -421,6 +422,34 @@ func outruns_ram(target) -> bool:
 		return false
 	var running: bool = target.linear_velocity.dot(away.normalized()) > Constants.AI_RUNNER_SPEED_SHARE * max(target.get_top_speed(), 1.0)
 	return running and get_burst_top_speed() - target.get_top_speed() < Constants.LANCE_CATCH_SPEED  # An afterburner counts
+
+
+# What a lance charge at `target` from here would cost and bring (Constants AI_RAM_*: the AI's
+# ram_worth and the player's RAM button go by it): {"cost": hull it can expect to lose to the
+# target's side on the way in and round for the next pass, "strike": what a throw from each launcher
+# with lances would do at top speed, less misses}.
+func ram_outlook(target) -> Dictionary:
+	var side: Dictionary = CombatAssessment.side_of(target)
+	var offset: Vector3 = target.global_transform.origin - global_transform.origin
+	var away: float = max(0.0, target.linear_velocity.dot(offset.normalized())) if target is RigidBody and offset.length() > 0.01 else 0.0
+	var closing: float = max(get_top_speed() - away, Constants.LANCE_CATCH_SPEED)
+	var exposed: float = max(0.0, min(offset.length(), weapon_reach_of(target)) - Constants.LANCE_RELEASE_RANGE)
+	var cost: float = float(side.dps) * (exposed / closing + Constants.AI_RAM_TURN_EXPOSURE) * Constants.AI_RAM_HIT_SHARE
+	var strike := 0.0
+	for lance in get_lances():
+		if lance.nails > 0:
+			strike += lance.damage_at(get_top_speed() + Constants.LANCE_LAUNCH_SPEED) * (1.0 - Constants.AI_RAM_MISS_SHARE)
+	return {"cost": cost, "strike": strike}
+
+
+# The furthest `body`'s weapons reach (m), 0 if it has none.
+static func weapon_reach_of(body) -> float:
+	var reach := 0.0
+	var tools = body.get_node_or_null("ToolController") if is_instance_valid(body) else null
+	if tools != null and tools.has_method("get_tool_count"):
+		for index in range(tools.get_tool_count()):
+			reach = max(reach, tools.get_tool(index).get_max_range())
+	return reach
 
 
 # The first lance launcher (the one on the axis if it has only one), or null.

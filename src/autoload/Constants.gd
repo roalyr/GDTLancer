@@ -431,6 +431,19 @@ const AI_WALLET_MAX_SHARE = 2.0
 # as one throw at its top speed plus LANCE_LAUNCH_SPEED per RAM_PASS_TIME s (or per reload, if
 # longer). An NPC rams while its top speed is at least LANCE_CATCH_SPEED and it has lances left.
 const AI_RAM_PASS_TIME = 10.0  # s between strikes: run-up, turn and charge
+# Whether a charge pays (Agent.ram_outlook; ShipControllerAI.ram_worth): the hull it can expect to
+# lose on the way in (the target's side's damage per second, times HIT_SHARE for the angled approach,
+# over the time from the side's reach to release range, plus TURN_EXPOSURE s round for the next
+# pass) against what its throws would do (less MISS_SHARE). An NPC charges only while that loss keeps
+# it above its retreat level, or when a throw would finish the target (and not it); it weighs it
+# again between passes, and may break off a charge until NO_RETURN m from the target. A lancer with
+# no other weapon on the target hangs back, HOLD_OFF times the side's reach away. The player's RAM
+# button reads RAM: TOO HOT when the loss would be its whole hull.
+const AI_RAM_HIT_SHARE = 0.5
+const AI_RAM_TURN_EXPOSURE = 4.0  # s
+const AI_RAM_MISS_SHARE = 0.2
+const AI_RAM_NO_RETURN = 300.0  # m
+const AI_RAM_HOLD_OFF = 1.2
 const AI_TEAM_RADIUS = 3000.0  # m: friends this near a ship count on its side of a fight (CombatAssessment.side_of)
 const AI_ASSIST_RADIUS = 4000.0  # m: an NPC this near a friend under fire considers going to help
 const AI_ENEMY_DESIRE_FACTOR = 1.5

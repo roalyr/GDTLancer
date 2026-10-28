@@ -503,7 +503,7 @@ func _give_lance(body: RigidBody) -> Spatial:
 func test_rams_with_a_lance_while_firing_and_arms_it_only_then():
 	var prey = _make_ship(Vector3(0, 0, -500), "verdant", 20.0)
 	var lance = _give_lance(hostile)
-	_set_speed(hostile, Constants.LANCE_CATCH_SPEED + 10.0, false)
+	_set_speed(hostile, 200.0, false)  # A charge from 500 m pays: a few seconds under its laser
 	hostile.power_max = 100.0
 	hostile.power = 100.0
 	ai.initialize({"patrol_center": Vector3.ZERO})
@@ -520,6 +520,33 @@ func test_rams_with_a_lance_while_firing_and_arms_it_only_then():
 	assert_false(lance.armed)
 	ai._change_state(AIScript.AIState.PATROL)
 	assert_false(lance.armed, "Never armed out of a fight")
+
+
+func test_it_does_not_charge_into_guns_that_would_take_its_hull_and_a_lone_lancer_hangs_back():
+	var fortress = _make_ship(Vector3(0, 0, -500), "verdant", 1000.0)
+	fortress.get_node("ToolController").get_tool(0).damage = 60.0  # 60 damage a second
+	var lance = _give_lance(hostile)
+	_set_speed(hostile, 200.0, false)
+	hostile.power_max = 100.0
+	hostile.power = 100.0
+	ai.initialize({"patrol_center": Vector3.ZERO})
+	var outlook: Dictionary = hostile.ram_outlook(fortress)
+	assert_gt(outlook.cost, hostile.hull, "Its guns would take the whole hull on the way in")
+	assert_false(ai.ram_worth(fortress))
+	_fighting(fortress)
+	ai._scan_timer = 10.0  # Not weighing whether to break off this tick
+	ai._process_combat()
+	assert_false(lance.armed, "No charge")
+	assert_true(hostile.get_node("ToolController").is_active(0), "Its laser fights on")
+	hostile.get_node("ToolController").set_tools([])  # Only the lance now
+	ai._repath_timer = 0.0
+	ai._scan_timer = 10.0
+	ai._process_combat()
+	assert_false(lance.armed)
+	assert_gt(ai._repath_timer, 0.0, "Hangs back out of its reach (a move, then a while before the next)")
+	fortress.hull = 30.0  # Worn down by friends: one throw finishes it, and its guns would not finish this one
+	fortress.get_node("ToolController").get_tool(0).damage = 6.0
+	assert_true(ai.ram_worth(fortress), "Now it pays")
 
 
 func test_too_slow_to_catch_anything_it_does_not_ram():

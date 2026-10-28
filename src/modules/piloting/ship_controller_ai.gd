@@ -400,6 +400,9 @@ func _process_combat() -> void:
 	if _ram(_target_agent):
 		_fire_at(_target_agent)
 		return
+	if can_ram() and is_instance_valid(_tool_controller) and _tool_controller.find_tool_for(_target_agent) < 0:
+		_hold_off(_target_agent)  # Only a lance, and charging does not pay now
+		return
 
 	var distance: float = agent_script.global_transform.origin.distance_to(_target_agent.global_transform.origin)
 	# Close to optimal range, then orbit there (a cannon: aim, holding the range); re-approach if pushed out.
@@ -567,11 +570,13 @@ func outruns_ram(target) -> bool:
 	return agent_script.outruns_ram(target)
 
 
-# Rams `target` if it can (arming the lance and charging, once); true while it does. Out of lances,
-# or against a runner too fast to strike (even mid-charge: running, it never turns to fight), it
-# stops, and the fight goes on with its other weapons.
+# Rams `target` if it can and it pays (ram_worth: weighed as it starts and again between passes);
+# true while it does. Out of lances, against a runner too fast to strike (even mid-charge: running,
+# it never turns to fight), or when a charge no longer pays, it stops, and the fight goes on with
+# its other weapons (a lancer without any hangs back: _hold_off).
 func _ram(target) -> bool:
-	if not can_ram() or outruns_ram(target):
+	var weigh: bool = not _ramming or _running_up()
+	if not can_ram() or outruns_ram(target) or (weigh and not ram_worth(target)):
 		if _ramming:
 			_stop_ramming()
 			_orbiting = false
@@ -585,13 +590,45 @@ func _ram(target) -> bool:
 	return true
 
 
-# Charging (not running up): a charge once begun is seen through, since breaking off would only give
-# the target a free shot at its back; it reconsiders while it runs up for the next.
+# Charging (not running up) within AI_RAM_NO_RETURN of the target: a charge that far in is seen
+# through, since breaking off would only give the target a free shot at its back; further out it
+# may still break off (its retreat level), and it reconsiders while it runs up for the next.
 func is_ram_committed() -> bool:
-	if not _ramming or not _is_live_target(_target_agent):
+	if not _ramming or not _is_live_target(_target_agent) or _running_up():
 		return false
+	return agent_script.global_transform.origin.distance_to(_target_agent.global_transform.origin) < Constants.AI_RAM_NO_RETURN
+
+
+func _running_up() -> bool:
 	var nav = agent_script.navigation_system
-	return is_instance_valid(nav) and not nav._current_command.get("running_up", true)
+	return not is_instance_valid(nav) or nav._current_command.get("running_up", true)
+
+
+# Whether a charge at `target` pays (Agent.ram_outlook, Constants AI_RAM_*): the hull it would lose
+# keeps it above its retreat level, or a throw would finish the target and the loss would not finish
+# it. A rock, a wreck or a chunk always does (nothing shoots back).
+func ram_worth(target) -> bool:
+	if not (target is RigidBody and target.get("is_wreck") == false):
+		return true
+	var outlook: Dictionary = agent_script.ram_outlook(target)
+	var hull: float = float(agent_script.hull)
+	if outlook.strike >= float(target.get("hull") if target.get("hull") != null else INF):
+		return outlook.cost < hull
+	return outlook.cost < hull - _retreat_level() * float(agent_script.hull_max)
+
+
+# A lancer whose charge does not pay and that has no other weapon on `target`: waits outside the
+# reach of the target's guns (AI_RAM_HOLD_OFF), for its friends to wear it down.
+func _hold_off(target) -> void:
+	if _repath_timer > 0.0:
+		return
+	_repath_timer = Constants.AI_REPATH_INTERVAL * 2.0
+	_orbiting = false
+	_aiming = false
+	var away: Vector3 = agent_script.global_transform.origin - target.global_transform.origin
+	away = away.normalized() if away.length_squared() > 1.0 else Vector3.BACK
+	var reach: float = max(agent_script.weapon_reach_of(target), Constants.LANCE_RELEASE_RANGE)
+	agent_script.command_move_to(target.global_transform.origin + away * reach * Constants.AI_RAM_HOLD_OFF)
 
 
 func _stop_ramming() -> void:
