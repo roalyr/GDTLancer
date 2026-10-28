@@ -46,10 +46,11 @@ func test_a_lance_on_a_shut_rock_glances_off():
 func test_a_lance_on_a_bared_rock_breaks_out_a_chunk_with_the_lance_in_it():
 	rock.cut(Constants.MINING_SHELL_HP)
 	miner.linear_velocity = Vector3(0, 0, -200)
+	lance.nails -= 1  # Thrown (LanceController.fire)
 	var damage: float = lance.strike_rock(rock, Vector3(0, 0, 20), Vector3(0, 0, 1), 0.0)
 	assert_gt(damage, 0.0)
 	assert_eq(lance.nails, int(lance.lance.count) - 1)
-	assert_almost_eq(miner.linear_velocity.z, 0.0, 0.01, "Stopped against the rock")
+	assert_almost_eq(miner.linear_velocity.z, -200.0, 0.01, "The ship is not stopped: it threw the lance")
 	assert_false(rock.is_exposed(), "The shell closes after a chunk")
 	var chunk = null
 	for node in get_tree().get_nodes_in_group("ore_chunk"):

@@ -503,7 +503,7 @@ func _give_lance(body: RigidBody) -> Spatial:
 func test_rams_with_a_lance_while_firing_and_arms_it_only_then():
 	var prey = _make_ship(Vector3(0, 0, -500), "verdant", 20.0)
 	var lance = _give_lance(hostile)
-	_set_speed(hostile, Constants.LAW_LANCE_MIN_SPEED * Constants.AI_RAM_SPEED_MARGIN + 10.0, false)
+	_set_speed(hostile, Constants.LANCE_CATCH_SPEED + 10.0, false)
 	hostile.power_max = 100.0
 	hostile.power = 100.0
 	ai.initialize({"patrol_center": Vector3.ZERO})
@@ -522,10 +522,10 @@ func test_rams_with_a_lance_while_firing_and_arms_it_only_then():
 	assert_false(lance.armed, "Never armed out of a fight")
 
 
-func test_too_slow_to_strike_it_does_not_ram():
+func test_too_slow_to_catch_anything_it_does_not_ram():
 	var prey = _make_ship(Vector3(0, 0, -500), "verdant", 20.0)
 	var lance = _give_lance(hostile)
-	_set_speed(hostile, Constants.LAW_LANCE_MIN_SPEED * 0.9, false)
+	_set_speed(hostile, Constants.LANCE_CATCH_SPEED * 0.9, false)
 	ai.initialize({"patrol_center": Vector3.ZERO})
 	_fighting(prey)
 	ai._process_combat()

@@ -560,7 +560,7 @@ func _process_depart() -> void:
 func can_ram() -> bool:
 	var lance = agent_script.get_lance() if agent_script.has_method("get_lance") else null
 	return lance != null and lance.nails > 0 \
-		and agent_script.get_top_speed() >= Constants.LAW_LANCE_MIN_SPEED * Constants.AI_RAM_SPEED_MARGIN
+		and agent_script.get_top_speed() >= Constants.LANCE_CATCH_SPEED
 
 
 # A target running from it that it cannot outpace by strike speed (Agent.outruns_ram).
@@ -619,7 +619,10 @@ func _on_lance_struck(target, _damage) -> void:
 
 
 func _on_lance_glanced(_target, reason) -> void:
-	_note("glance_slow" if str(reason).begins_with("too slow") else "glance_angle")
+	if str(reason) == "missed":
+		_note("lance_missed")
+	else:
+		_note("glance_slow" if str(reason).begins_with("too slow") else "glance_angle")
 
 
 # --- Mining (prospect gene; Constants MINING) ---

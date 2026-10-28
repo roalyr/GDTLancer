@@ -65,15 +65,23 @@ const NAV_APPROACH_DISTANCE_MULTIPLIER = 1.3
 const NAV_APPROACH_MIN_DISTANCE = 50.0  # m
 const NAV_ARRIVAL_DISTANCE_THRESHOLD = 20.0  # m
 const NAV_APPROACH_RESUME_MARGIN = 30.0  # m past the hold distance before a holding approach closes in again
-# Ramming (command_ram): charges straight at the target's lead point (lead time distance / closing
-# speed, at least MIN_LEAD_SPEED, at most MAX_LEAD_TIME s), thrusting while the nose is within
-# acos(THRUST_ALIGNMENT) of the heading; too close to reach LAW_LANCE_MIN_SPEED, it runs straight
-# away until it has the room for that plus TURN_ROOM m to turn in.
+# Ramming (command_ram): charges at the target's lead point, or beside it for a ship (lead time
+# distance / closing speed, at least MIN_LEAD_SPEED, at most MAX_LEAD_TIME s), thrusting while the
+# nose is within acos(THRUST_ALIGNMENT) of the heading; too close to reach strike speed (less the
+# throw), it runs straight away until it has the room for that plus TURN_ROOM m to turn in.
 const NAV_AIM_PID_GAIN = 2.0  # Rotation PID gain while aiming a cannon
 const NAV_AIM_RANGE_TIME = 5.0  # s to make up a range error: closing speed = error / this
 const NAV_AIM_MAX_CLOSING = 80.0  # m/s at most, closing or opening
 const NAV_AIM_STRAFE_SPEED = 90.0  # m/s sideways while aiming: at 1.8 km, 0.05 rad/s for the target's turrets to track
 const NAV_RAM_TURN_ROOM = 150.0  # m
+const NAV_RAM_WEAVE_ANGLE = 35.0  # degrees off the line a charge at a ship comes in at from afar: turrets must track it (command_ram)
+const NAV_RAM_WEAVE_FULL = 400.0  # m: the full angle from here out
+const NAV_RAM_WEAVE_NONE = 200.0  # m: straight in from here in (smoothstep between)
+const NAV_RAM_WEAVE_MIN_CLOSING = 60.0  # m/s: closing slower than this, it comes straight in (twice this: the full angle); a target backing away or circling is not lost
+const NAV_RAM_PASS_CLEARANCE = 10.0  # m between hulls a ram passes a ship by (it throws its lance on the way, LanceController)
+const NAV_RAM_ROCK_STANDOFF = 40.0  # m off a rock's surface a ram on a rock stops its lance's tip, to throw from
+const NAV_RAM_ROCK_SPEED_GAIN = 0.5  # 1/s: closing on that standoff at this times the distance left
+const NAV_RAM_ROCK_MAX_SPEED = 80.0  # m/s
 const NAV_RAM_MIN_LEAD_SPEED = 50.0  # m/s
 const NAV_RAM_MAX_LEAD_TIME = 5.0  # s
 const NAV_RAM_PID_GAIN = 3.0  # Times PID_ROTATION_KP at the target while charging (command_ram.aim_gain)
@@ -420,10 +428,9 @@ const AI_DESPERATION_COMFORT = 1.0
 const AI_DESPERATION_NERVE = 0.5
 const AI_WALLET_MAX_SHARE = 2.0
 # Ramming (kinetic lance; ShipControllerAI, command_ram): a lance counts in a ship's damage per second
-# as one strike at its top speed per RAM_PASS_TIME s (or per reload, if longer). An NPC rams while
-# its top speed is at least RAM_SPEED_MARGIN times LAW_LANCE_MIN_SPEED and it has lances left.
+# as one throw at its top speed plus LANCE_LAUNCH_SPEED per RAM_PASS_TIME s (or per reload, if
+# longer). An NPC rams while its top speed is at least LANCE_CATCH_SPEED and it has lances left.
 const AI_RAM_PASS_TIME = 10.0  # s between strikes: run-up, turn and charge
-const AI_RAM_SPEED_MARGIN = 1.1
 const AI_TEAM_RADIUS = 3000.0  # m: friends this near a ship count on its side of a fight (CombatAssessment.side_of)
 const AI_ASSIST_RADIUS = 4000.0  # m: an NPC this near a friend under fire considers going to help
 const AI_ENEMY_DESIRE_FACTOR = 1.5
@@ -726,9 +733,12 @@ const AI_MISSILE_FIGHT_TIME = 30.0  # s: missiles' damage counts as spread over 
 const AI_MISSILE_HIT_SHARE = 0.7  # Expected share of missiles that hit
 const AI_CANNON_HIT_SHARE = 0.75  # and of cannon rounds (duels: 73-94%)
 const LANCE_RADIUS = 0.15  # m at the lance's base, for a 200 kg lance (grows as mass^(1/3))
-const LANCE_SWEEP_RANGE = 800.0  # m: an armed lance only checks ships and rocks this close (past their size), listed every LANCE_SWEEP_REFRESH s; closing speeds cover far less in that time
-const LANCE_SWEEP_REFRESH = 0.25  # s
-const LANCE_TIP_MARGIN = 0.5  # m: the tip strikes a ship it comes this close to (its hull box, LanceController._sweep)
+const LANCE_LAUNCH_SPEED = 100.0  # m/s a thrown lance gains on the ship's own speed (LanceController.fire)
+const LANCE_RELEASE_RANGE = 80.0  # m from the tip to the target's hull (or a rock's surface) within which an armed lance is thrown
+const LANCE_AIM_CONE = 60.0  # degrees off the nose the seat can throw it, to cancel the ship's drift past the target
+const LANCE_SHOT_LIFE = 1.5  # s a thrown lance flies before it is lost
+const LANCE_CATCH_SPEED = 20.0  # m/s a lancer must be able to gain on a runner to get within release range (Agent.outruns_ram)
+const LANCE_TIP_MARGIN = 0.5  # m: a thrown lance strikes a ship it comes this close to (its hull box, LanceShot)
 const LANCE_STUCK_CENTERING = 0.7  # A stuck lance turns this share of the way from its line toward the target's centre
 const LANCE_TIP_SHARE = 0.6  # The tip's radius as a share of the base's
 const LANCE_SEAT_DEPTH = 0.3  # Share of the nose's distance from the origin that the seated lance starts behind the nose
@@ -737,7 +747,7 @@ const AI_LANCE_SALVAGE_PRIORITY = 3.0  # A wreck with lances that fit its seat l
 const LANCE_STUCK_MAX = 6  # Lances left in one hull; past this the oldest goes
 const CHARGE_ALERT_DISTANCE = 500.0  # m: a lance charging from nearer than this is seen for what it is; its target turns hostile (2-3 s before it strikes)
 const CHARGE_ALERT_ALIGNMENT = 0.9  # Nose . direction to the target at least this (about 25 degrees)
-const CHARGE_ALERT_MISS = 30.0  # m past the target's size its line may pass and still count as a charge at it
+const CHARGE_ALERT_MISS = 60.0  # m past the target's size its line may pass and still count as a charge at it
 const CHARGE_ALERT_COOLDOWN = 10.0  # s before the same ship is warned of the same charger again
 const CHARGE_WATCH_INTERVAL = 0.25  # s between a charging ship's looks for whom it is charging
 const LANCE_STUCK_DEPTH = 0.5  # Share of a struck lance's length inside the hull

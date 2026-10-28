@@ -493,7 +493,7 @@ func _update_lance_button() -> void:
 		state = "ARMED"
 		var target = _current_target
 		if is_instance_valid(target) and target is RigidBody:
-			state = "%d / %d" % [int(lance.closing_speed_on(target)), int(Constants.LAW_LANCE_MIN_SPEED)]
+			state = "%d / %d" % [int(lance.strike_speed_on(target)), int(Constants.LAW_LANCE_MIN_SPEED)]
 	button_lance.get_node("Label").text = "LANCE %d\n%s" % [lance.nails, state]
 	_apply_button_toggle_state(button_lance, lance.armed)
 

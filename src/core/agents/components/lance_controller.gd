@@ -1,17 +1,19 @@
-# LanceController: the ship's kinetic lance (a "lance" module; ShipLaws.lance_stats, Constants
-# LAW_LANCE_*). Hammer and nail: a lance sits in the seat on the ship's axis, its tip past the nose;
-# spares wait in a quiver on the hull (salvaging a wreck with a harpoon recovers the lances stuck in
-# it that fit this seat: Agent.recoverable_lances_for). Only while armed (the player's LANCE button; an NPC while it
-# rams) does the tip strike: each physics step it checks the lance and the tip's path relative to
-# each ship near it against that ship's hull box (_sweep), so a fast ship cannot pass through. On a ship, a strike at a closing speed along
-# the lance of at least LAW_LANCE_MIN_SPEED goes in with a chance that falls with the angle off
-# square-on (ShipLaws.lance_hit_chance: sure square-on, unlikely past LAW_LANCE_GLANCE_ANGLE, where
-# only a long lance may slip between parts) and does ShipLaws.lance_damage; otherwise it glances off
-# (no damage, the lance stays seated). A strike stops
-# the two ships against each other along the lance (an inelastic knock: the target is shoved, the
-# rammer stopped) and leaves the lance in the target's hull until it is repaired; the next slides
-# into the seat after the reload time. Docking restocks the quiver (restock()). Spent lances are
-# gone from the ship's mass (spent_mass()). The module's mass also armours the bow (ShipLaws).
+# LanceController: the ship's kinetic lance launcher (a "lance" module; ShipLaws.lance_stats,
+# Constants LAW_LANCE_*). A lance sits in the seat on the ship's axis; spares wait in a quiver on the
+# hull (salvaging a wreck with a harpoon recovers the lances stuck in it that fit this seat:
+# Agent.recoverable_lances_for). Only while armed (the player's LANCE button; an NPC while it rams)
+# does it fire, and only at the ram's target (NavigationSystem RAM): once within
+# Constants.LANCE_RELEASE_RANGE of it, the seat throws the lance at LANCE_LAUNCH_SPEED toward it,
+# aimed (within LANCE_AIM_CONE of the nose) so that the lance's flight relative to the target runs
+# straight at its middle, cancelling the ship's sideways drift (firing_solution); the ship flies by
+# (command_ram passes beside the target). The throw kicks the ship back by the lance's momentum. In
+# flight it is a LanceShot. On a ship, a lance meeting it at a closing speed along the lance of at
+# least LAW_LANCE_MIN_SPEED goes in with a chance that falls with the angle off square-on
+# (ShipLaws.lance_hit_chance) and does ShipLaws.lance_damage, shoving the ship by its momentum and
+# staying in its hull until it is repaired; otherwise it glances off and is lost. A bared rock breaks
+# out a chunk (Constants MINING). The next lance is seated after the reload time. Docking restocks
+# the quiver (restock()). Spent lances are gone from the ship's mass (spent_mass()). The module's
+# mass also armours the bow (ShipLaws).
 # Child of AgentBody, made by it when the fit has a lance (one per ship: ShipFit).
 
 extends Spatial
@@ -19,14 +21,13 @@ extends Spatial
 signal struck(target, damage)
 signal glanced(target, reason)  # reason: "too slow" or "at an angle"
 signal nails_changed(nails)
+signal launched(target)
 
 const LANCE_GROUP = "stuck_lance"  # Lances left in a hull (cleared on repair)
 const LanceMaterial = preload("res://assets/art/materials_generic/mat_engine_dark_alloy.tres")
 const ShipLaws = preload("res://src/core/systems/ship_laws.gd")
+const LanceShot = preload("res://src/core/agents/components/lance_shot.gd")
 
-var _nearby: Array = []  # Ships an armed lance checks each step (_refresh_nearby)
-var _nearby_left: float = 0.0  # s to the next listing
-var _rock_near: bool = false  # A rock is close enough to ray-check
 var lance: Dictionary = {}  # ShipLaws.lance_stats
 var module_id: String = ""
 var armed: bool = false
@@ -76,6 +77,11 @@ func closing_speed_on(target: Spatial) -> float:
 	return (_agent.linear_velocity - target_velocity).dot(_axis())
 
 
+# The closing speed a lance thrown now would meet `target` at (the ship's own plus the launch).
+func strike_speed_on(target: Spatial) -> float:
+	return closing_speed_on(target) + Constants.LANCE_LAUNCH_SPEED
+
+
 # Damage at `closing_speed` square-on (0 if too slow).
 func damage_at(closing_speed: float) -> float:
 	return ShipLaws.lance_damage(lance, closing_speed)
@@ -116,14 +122,78 @@ func _physics_process(delta: float) -> void:
 		_charged[id] -= delta
 		if _charged[id] <= 0.0:
 			_charged.erase(id)
-	if armed and is_seated() and is_instance_valid(_agent) and not _agent.is_wreck and not _agent.is_docked:
-		_sweep(delta)
+	if armed and is_seated() and is_instance_valid(_agent) and not _agent.is_wreck and not _agent.is_docked and _agent.is_inside_tree():
+		var target = get_aim_target()
+		if target != null:
+			var solution: Dictionary = firing_solution(target)
+			if not solution.empty():
+				fire(target, solution)
 		_watch_left -= delta
 		if _watch_left <= 0.0:
 			_watch_left = Constants.CHARGE_WATCH_INTERVAL
 			_announce_charges()
-	else:
-		_nearby_left = 0.0  # Armed again: list afresh at once
+
+
+# What it fires at: the target of the ship's ram (NavigationSystem RAM), or null.
+func get_aim_target() -> Spatial:
+	var nav = _agent.get("navigation_system")
+	if not is_instance_valid(nav) or nav.get_current_command_type() != nav.CommandType.RAM:
+		return null
+	var target = nav._current_command.get("target_node")
+	if not (target is Spatial and is_instance_valid(target) and target.is_inside_tree()):
+		return null
+	if target is RigidBody:
+		return target if target.get("is_wreck") == false else null  # Wrecks and chunks are rammed, not lanced
+	return target if target.is_in_group("mineable") else null
+
+
+# How to throw a lance at `target` now, or {} if not now: within LANCE_RELEASE_RANGE of its hull
+# (a ship) or surface (a rock), the launch (LANCE_LAUNCH_SPEED, within LANCE_AIM_CONE of the nose)
+# that sends the lance straight at its middle relative to it, at strike speed. {"direction" (the
+# throw), "velocity" (the lance's), "closing"}.
+func firing_solution(target: Spatial) -> Dictionary:
+	var tip: Vector3 = get_tip()
+	var target_velocity: Vector3 = target.linear_velocity if target is RigidBody else Vector3.ZERO
+	var radius: float = target.get_apparent_radius() if target.has_method("get_apparent_radius") else 10.0
+	var aim: Vector3 = target.global_transform.origin
+	var bounds = target.get("hull_bounds")
+	if target is RigidBody and bounds is AABB:
+		aim = target.to_global(bounds.position + bounds.size * 0.5)
+	var offset: Vector3 = aim - tip
+	var distance: float = offset.length()
+	if distance < 0.01 or distance - radius > Constants.LANCE_RELEASE_RANGE:
+		return {}
+	var line: Vector3 = offset / distance
+	var relative: Vector3 = _agent.linear_velocity - target_velocity
+	var along: float = relative.dot(line)
+	var drift: Vector3 = relative - line * along
+	var launch_speed: float = Constants.LANCE_LAUNCH_SPEED
+	if drift.length() >= launch_speed:
+		return {}  # Slipping by too fast to throw it straight at the target
+	var forward: float = sqrt(launch_speed * launch_speed - drift.length_squared())
+	var direction: Vector3 = (line * forward - drift) / launch_speed
+	if direction.dot(_axis()) < cos(deg2rad(Constants.LANCE_AIM_CONE)):
+		return {}
+	var closing: float = along + forward
+	if closing < Constants.LAW_LANCE_MIN_SPEED:
+		return {}
+	return {"direction": direction, "velocity": _agent.linear_velocity + direction * launch_speed, "closing": closing}
+
+
+# Throws the seated lance (a LanceShot) at `target`; the ship is kicked back by its momentum.
+func fire(target: Spatial, solution: Dictionary) -> void:
+	var direction: Vector3 = solution.direction
+	var velocity: Vector3 = solution.velocity
+	_agent.linear_velocity -= direction * Constants.LANCE_LAUNCH_SPEED * float(lance.nail_mass) / max(_agent.mass, 1.0)
+	var shot = LanceShot.new()
+	var world = _agent.get_parent()
+	world.add_child(shot)
+	shot.launch(self, target, get_tip(), velocity, (velocity - (target.linear_velocity if target is RigidBody else Vector3.ZERO)).normalized(), _lance_mesh(float(lance.length)))
+	nails -= 1
+	reload_left = float(lance.reload) if nails > 0 else 0.0
+	_update_visuals()
+	emit_signal("nails_changed", nails)
+	emit_signal("launched", target)
 
 
 # Tells each ship it is charging (EventBus agent_charged), once a pass: it sees the lance coming.
@@ -149,78 +219,21 @@ func is_charging(target) -> bool:
 	var direction: Vector3 = offset / distance
 	var relative: Vector3 = _agent.linear_velocity - target.linear_velocity
 	var closing: float = relative.dot(direction)
-	if closing < Constants.LAW_LANCE_MIN_SPEED or _axis().dot(direction) < Constants.CHARGE_ALERT_ALIGNMENT:
+	if closing < max(1.0, Constants.LAW_LANCE_MIN_SPEED - Constants.LANCE_LAUNCH_SPEED) or _axis().dot(direction) < Constants.CHARGE_ALERT_ALIGNMENT:
 		return false
 	var radius: float = target.get_apparent_radius() if target.has_method("get_apparent_radius") else 10.0
 	var miss: float = (relative - direction * closing).length() * distance / closing  # Sideways by the time it gets there
 	return miss < radius + Constants.CHARGE_ALERT_MISS
 
 
-# The ships and rocks within Constants.LANCE_SWEEP_RANGE (past their size), listed every
-# LANCE_SWEEP_REFRESH s: an armed lance looks only at these each step (it looked at every ship in the
-# sector each step, the costliest script in a physics step).
-func _refresh_nearby() -> void:
-	_nearby_left = Constants.LANCE_SWEEP_REFRESH
-	_nearby = []
-	_rock_near = false
-	var here: Vector3 = _agent.global_transform.origin
-	for body in get_tree().get_nodes_in_group("agent_body"):
-		if body != _agent and body is RigidBody and body.get("is_wreck") == false:
-			var radius: float = body.get_apparent_radius() if body.has_method("get_apparent_radius") else 10.0
-			if here.distance_to(body.global_transform.origin) <= Constants.LANCE_SWEEP_RANGE + radius:
-				_nearby.append(body)
-	for rock in get_tree().get_nodes_in_group("mineable"):
-		var size: float = rock.get_apparent_radius() if rock.has_method("get_apparent_radius") else 100.0
-		if here.distance_to(rock.global_transform.origin) <= Constants.LANCE_SWEEP_RANGE + size:
-			_rock_near = true
-			break
-
-
-# The tip meets a ship when it comes within LANCE_TIP_MARGIN of the ship's hull box (its model's
-# bounds), checked by proximity rather than the physics' collision: along the lance from the seat to
-# the tip, and along the tip's path this step relative to that ship (closing speeds of a few hundred
-# m/s cover metres per step, more than a thin hull is deep). Only ships listed near (_refresh_nearby).
-func _sweep(delta: float) -> void:
-	if not _agent.is_inside_tree():
-		return
-	_nearby_left -= delta
-	if _nearby_left <= 0.0:
-		_refresh_nearby()
-	var tip: Vector3 = get_tip()
-	var seat: Vector3 = _agent.global_transform.xform(Vector3(0, 0, -_seat()))
-	for body in _nearby:
-		if not is_instance_valid(body) or not body.is_inside_tree() or body.get("is_wreck") != false or _glanced.has(body.get_instance_id()):
-			continue  # Wrecks are not worth a lance
-		var relative: Vector3 = (_agent.linear_velocity - body.linear_velocity) * delta
-		var radius: float = body.get_apparent_radius() if body.has_method("get_apparent_radius") else 10.0
-		if tip.distance_to(body.global_transform.origin) > radius + relative.length() + float(lance.length) + Constants.LANCE_TIP_MARGIN:
-			continue
-		var bounds: AABB = body.hull_bounds.grow(Constants.LANCE_TIP_MARGIN)
-		var to_local: Transform = body.global_transform.affine_inverse()
-		var hit: Dictionary = _segment_into_box(to_local.xform(seat), to_local.xform(tip), bounds)
-		if hit.empty():
-			hit = _segment_into_box(to_local.xform(tip - relative), to_local.xform(tip), bounds)
-		if not hit.empty():
-			strike(body, body.global_transform.xform(hit.point), body.global_transform.basis.xform(hit.normal).normalized())
-			return
-	if _rock_near:
-		_sweep_rock(seat, tip + _agent.linear_velocity * delta)
-
-
-# A rock on the lance's line (seat to where the tip gets this step): mining (Constants MINING).
-func _sweep_rock(seat: Vector3, reach: Vector3) -> void:
-	var hit: Dictionary = _agent.get_world().direct_space_state.intersect_ray(seat, reach, [_agent], Constants.SHOT_BLOCK_MASK)
-	if hit.empty() or not (hit.collider is Node and hit.collider.is_in_group("mineable")) or _glanced.has(hit.collider.get_instance_id()):
-		return
-	strike_rock(hit.collider, hit.position, hit.normal)
-
-
-# The tip meets a rock at `point` (surface `normal`). Bared (Asteroid.is_exposed), struck at strike
-# speed square enough, it breaks out a chunk with the lance stuck in it and stops the ship against
-# it; otherwise the lance glances off. Returns the damage. `roll` as for strike().
-func strike_rock(rock: Spatial, point: Vector3, normal: Vector3, roll: float = -1.0) -> float:
-	var axis: Vector3 = _axis()
-	var closing: float = _agent.linear_velocity.dot(axis)
+# A lance (along `direction`, at `velocity`; the seated one's if not given) meets a rock at `point`
+# (surface `normal`). Bared (Asteroid.is_exposed), struck at strike speed square enough, it breaks
+# out a chunk with the lance stuck in it; otherwise the lance glances off. Returns the damage. `roll`
+# as for strike().
+func strike_rock(rock: Spatial, point: Vector3, normal: Vector3, roll: float = -1.0, direction: Vector3 = Vector3.ZERO, velocity = null) -> float:
+	var axis: Vector3 = direction.normalized() if direction != Vector3.ZERO else _axis()
+	var motion: Vector3 = velocity if velocity is Vector3 else _agent.linear_velocity
+	var closing: float = motion.dot(axis)
 	var angle: float = rad2deg(acos(clamp(abs(normal.normalized().dot(axis)), 0.0, 1.0)))
 	var damage: float = ShipLaws.lance_damage(lance, closing)
 	if roll < 0.0:
@@ -239,12 +252,7 @@ func strike_rock(rock: Spatial, point: Vector3, normal: Vector3, roll: float = -
 	var chunk = rock.break_chunk(point, axis, damage)
 	if chunk == null:
 		return 0.0
-	_agent.linear_velocity -= axis * closing  # Stopped against the rock
-	_leave_lance(chunk, chunk.get_hull_point_facing(_agent.global_transform.origin), axis)
-	nails -= 1
-	reload_left = float(lance.reload) if nails > 0 else 0.0
-	_update_visuals()
-	emit_signal("nails_changed", nails)
+	_leave_lance(chunk, chunk.get_hull_point_facing(point - axis * 10.0), axis)
 	emit_signal("struck", chunk, damage)
 	return damage
 
@@ -282,18 +290,20 @@ static func _segment_into_box(from: Vector3, to: Vector3, box: AABB) -> Dictiona
 	return {"point": from + direction * t_enter, "normal": normal}
 
 
-# The tip meets `target` at `point` (surface `normal`): strikes or glances off. Returns the damage.
-# `roll` (0-1) decides an angled strike; random if not given.
-func strike(target: RigidBody, point: Vector3, normal: Vector3, roll: float = -1.0) -> float:
-	var axis: Vector3 = _axis()
-	var closing: float = closing_speed_on(target)
+# A lance (along `direction`, at `velocity`; the seated one's if not given) meets `target` at `point`
+# (surface `normal`): strikes or glances off. Returns the damage. `roll` (0-1) decides an angled
+# strike; random if not given.
+func strike(target: RigidBody, point: Vector3, normal: Vector3, roll: float = -1.0, direction: Vector3 = Vector3.ZERO, velocity = null) -> float:
+	var axis: Vector3 = direction.normalized() if direction != Vector3.ZERO else _axis()
+	var lance_velocity: Vector3 = velocity if velocity is Vector3 else _agent.linear_velocity
+	var closing: float = (lance_velocity - target.linear_velocity).dot(axis)
 	var angle: float = rad2deg(acos(clamp(abs(normal.normalized().dot(axis)), 0.0, 1.0)))  # Off the face it meets
 	var bounds = target.get("hull_bounds")
 	if bounds is AABB:  # A lance driving at the hull's middle goes in, whichever face of its box it meets first
 		var inward: Vector3 = target.to_global(bounds.position + bounds.size * 0.5) - point
 		if inward.length_squared() > 0.01:
 			angle = min(angle, rad2deg(acos(clamp(inward.normalized().dot(axis), -1.0, 1.0))))
-	var motion: Vector3 = _agent.linear_velocity - target.linear_velocity
+	var motion: Vector3 = lance_velocity - target.linear_velocity
 	if motion.length_squared() > 1.0:  # But only motion along the lance drives it in: a sideswipe glances
 		angle = max(angle, rad2deg(acos(clamp(motion.normalized().dot(axis), -1.0, 1.0))))
 	var damage: float = ShipLaws.lance_damage(lance, closing)
@@ -303,29 +313,14 @@ func strike(target: RigidBody, point: Vector3, normal: Vector3, roll: float = -1
 		_glanced[target.get_instance_id()] = 1.0
 		emit_signal("glanced", target, "too slow, %d of %d m/s" % [int(closing), int(Constants.LAW_LANCE_MIN_SPEED)] if damage <= 0.0 else "at %d degrees" % int(angle))
 		return 0.0
-	_knock(target, axis)
+	target.linear_velocity += axis * closing * float(lance.nail_mass) / max(target.mass, 1.0)  # Shoved by the lance's momentum
 	if target.has_method("register_hit"):
 		target.register_hit(point - axis * float(lance.length), damage, point)
 	_leave_lance(target, point, axis)
-	nails -= 1
-	reload_left = float(lance.reload) if nails > 0 else 0.0
-	_update_visuals()
-	emit_signal("nails_changed", nails)
 	emit_signal("struck", target, damage)
 	if target.has_method("apply_damage"):
 		target.apply_damage(damage, _agent)
 	return damage
-
-
-# Both ships end up moving alike along the lance (momentum kept): the target is shoved, the rammer stopped.
-func _knock(target: RigidBody, axis: Vector3) -> void:
-	var own_mass: float = max(_agent.mass, 1.0)
-	var target_mass: float = max(target.mass, 1.0)
-	var own_along: float = _agent.linear_velocity.dot(axis)
-	var target_along: float = target.linear_velocity.dot(axis)
-	var common: float = (own_mass * own_along + target_mass * target_along) / (own_mass + target_mass)
-	_agent.linear_velocity += axis * (common - own_along)  # At once: the hulls must not meet at ramming speed
-	target.linear_velocity += axis * (common - target_along)
 
 
 # The struck lance stays in the hull, a third of it in (Constants LANCE_STUCK_MAX per ship), turned

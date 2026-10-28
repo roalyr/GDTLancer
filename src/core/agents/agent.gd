@@ -405,9 +405,9 @@ func _on_lance_nails_changed(nails: int) -> void:
 	_update_mass()
 
 
-# `target` is running from this ship faster than it could be struck: its top speed is within strike
-# speed (LAW_LANCE_MIN_SPEED, with AI_RAM_SPEED_MARGIN) of this ship's, so a lance would only touch
-# it too slowly and glance off. NPCs do not ram such a runner; the player's RAM button says so.
+# `target` is running from this ship too fast to be lanced: this ship cannot gain LANCE_CATCH_SPEED
+# on it, so it never gets within release range (LANCE_RELEASE_RANGE). NPCs do not ram such a runner;
+# the player's RAM button says so.
 func outruns_ram(target) -> bool:
 	if not (is_instance_valid(target) and target is RigidBody and target.has_method("get_top_speed")):
 		return false
@@ -415,7 +415,7 @@ func outruns_ram(target) -> bool:
 	if away.length() < 0.001:
 		return false
 	var running: bool = target.linear_velocity.dot(away.normalized()) > Constants.AI_RUNNER_SPEED_SHARE * max(target.get_top_speed(), 1.0)
-	return running and get_burst_top_speed() - target.get_top_speed() < Constants.LAW_LANCE_MIN_SPEED * Constants.AI_RAM_SPEED_MARGIN  # An afterburner counts
+	return running and get_burst_top_speed() - target.get_top_speed() < Constants.LANCE_CATCH_SPEED  # An afterburner counts
 
 
 func get_lance() -> Node:
@@ -886,7 +886,7 @@ func get_damage_per_second() -> float:
 	var dps: float = tools.get_damage_per_second() if is_instance_valid(tools) and tools.has_method("get_damage_per_second") else 0.0
 	var lance = get_lance()
 	if lance != null and lance.nails > 0:
-		dps += lance.damage_at(get_top_speed()) / max(float(lance.lance.reload), Constants.AI_RAM_PASS_TIME)
+		dps += lance.damage_at(get_top_speed() + Constants.LANCE_LAUNCH_SPEED) / max(float(lance.lance.reload), Constants.AI_RAM_PASS_TIME)
 	return dps
 
 
