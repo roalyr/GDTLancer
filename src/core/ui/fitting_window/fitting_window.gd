@@ -77,13 +77,41 @@ func _station_name(location_id: String) -> String:
 	return location_id
 
 
+# Where the power goes, from the fit: the reactor's charge (less what sensor dampers run off it),
+# the draw of every tool working at once (harpoons draw per launch, not counted), the afterburner's
+# at full thrust, and the net with the tools on: what a long fight costs or leaves. One entry per
+# line of the HUD's ship info; the docking view runs them together.
+static func power_flow(ship_body) -> Array:
+	var stats: Dictionary = ship_body.get("fit_stats") if ship_body.get("fit_stats") != null else {}
+	var damper: float = Constants.LAW_DAMPER_POWER_PER_KG * float(stats.get("damper_mass", 0.0))
+	var reactor: String = "REACTOR +%.1f/s" % (ship_body.power_regen + damper)
+	if damper > 0.0:
+		reactor += "  DAMPER -%.1f/s" % damper
+	var lines: Array = [reactor]
+	var tools_draw := 0.0
+	var tools = ship_body.get_node_or_null("ToolController")
+	if is_instance_valid(tools):
+		for index in range(tools.get_tool_count()):
+			var tool_template = tools.get_tool(index)
+			if tool_template != null and tool_template.tool_type != "harpoon" and tool_template.cycle_time > 0.0:
+				tools_draw += tool_template.power_per_cycle / tool_template.cycle_time
+	if tools_draw > 0.0:
+		var net: float = ship_body.power_regen - tools_draw
+		lines.append("TOOLS ON -%.1f/s  NET %s%.1f/s%s" % [tools_draw, "+" if net >= 0.0 else "-", abs(net),
+			"" if net >= 0.0 else "  FULL TO EMPTY %ds" % int(ship_body.power_max / -net)])
+	var afterburner: float = float(stats.get("afterburner_thrust", 0.0)) / 1000.0 * Constants.LAW_AFTERBURNER_POWER_PER_KN
+	if afterburner > 0.0:
+		lines.append("AFTERBURNER -%.1f/s at full thrust" % afterburner)
+	return lines
+
+
 static func describe_stats(ship_body) -> String:
 	var stats: Dictionary = ship_body.fit_stats
 	var top_speed: float = stats.linear_thrust / max(ship_body.mass * Constants.LINEAR_DRAG, 0.001)
 	return "HULL %d   POWER %d (+%d/s)   CARGO %d   THRUST %d kN   MASS %.1f t   TOP SPEED %d m/s   SIGNATURE %.1f km   SENSORS x%.1f" % [
 		stats.hull, stats.power_capacity, stats.power_regen, stats.cargo_capacity,
 		stats.linear_thrust / 1000.0, ship_body.mass / 1000.0, top_speed, stats.signature / 1000.0, stats.sensor_strength
-	]
+	] + "\nPOWER FLOW   " + PoolStringArray(power_flow(ship_body)).join("   ")
 
 
 const STAT_LABELS = {

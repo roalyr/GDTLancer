@@ -22,6 +22,7 @@ const OVERLAY_KIND_STELLAR = "stellar"
 const OVERLAY_KIND_JUMP = "jump"
 const PointerRouterClass = preload("res://src/core/ui/pointer_router.gd")
 const FittingWindowScene = preload("res://scenes/ui/menus/fitting_window.tscn")
+const FittingWindowScript = preload("res://src/core/ui/fitting_window/fitting_window.gd")
 const DebugMapScene = preload("res://scenes/ui/menus/debug_map.tscn")
 const DebugTools = preload("res://src/core/ui/debug_tools/debug_tools.gd")
 const ThreatRing = preload("res://src/core/ui/main_hud/threat_ring.gd")
@@ -757,31 +758,9 @@ static func describe_ship_stats(player) -> String:
 	]).join("\n")
 
 
-# Where the power goes, from the fit: the reactor's charge (less what sensor dampers run off it),
-# the draw of every tool working at once (harpoons draw per launch, not counted), the afterburner's
-# at full thrust, and the net with the tools on: what a long fight costs or leaves.
+# Where the power goes (FittingWindow.power_flow), a line each under POWER.
 static func describe_power_flow(player) -> String:
-	var stats: Dictionary = player.get("fit_stats") if player.get("fit_stats") != null else {}
-	var damper: float = Constants.LAW_DAMPER_POWER_PER_KG * float(stats.get("damper_mass", 0.0))
-	var parts: Array = ["  REACTOR +%.1f/s" % (player.power_regen + damper)]
-	if damper > 0.0:
-		parts.append("DAMPER -%.1f/s" % damper)
-	var tools_draw := 0.0
-	var tools = player.get_node_or_null("ToolController")
-	if is_instance_valid(tools):
-		for index in range(tools.get_tool_count()):
-			var tool_template = tools.get_tool(index)
-			if tool_template != null and tool_template.tool_type != "harpoon" and tool_template.cycle_time > 0.0:
-				tools_draw += tool_template.power_per_cycle / tool_template.cycle_time
-	var lines: Array = [PoolStringArray(parts).join("  ")]
-	if tools_draw > 0.0:
-		var net: float = player.power_regen - tools_draw
-		lines.append("  TOOLS ON -%.1f/s  NET %s%.1f/s%s" % [tools_draw, "+" if net >= 0.0 else "-", abs(net),
-			"" if net >= 0.0 else "  FULL TO EMPTY %ds" % int(player.power_max / -net)])
-	var afterburner: float = float(stats.get("afterburner_thrust", 0.0)) / 1000.0 * Constants.LAW_AFTERBURNER_POWER_PER_KN
-	if afterburner > 0.0:
-		lines.append("  AFTERBURNER -%.1f/s at full thrust" % afterburner)
-	return PoolStringArray(lines).join("\n")
+	return "  " + PoolStringArray(FittingWindowScript.power_flow(player)).join("\n  ")
 
 
 func describe_tool_stats(player) -> String:

@@ -172,3 +172,19 @@ func test_ship_info_shows_the_power_flow() -> void:
 	assert_string_contains(text, "TOOLS ON -%.1f/s" % draw)
 	assert_string_contains(text, "NET -%.1f/s" % (draw - 10.0))
 	assert_string_contains(text, "AFTERBURNER -%.1f/s" % (100.0 * Constants.LAW_AFTERBURNER_POWER_PER_KN))
+
+
+func test_docking_view_shows_the_power_flow_too() -> void:
+	var ship := Spatial.new()
+	var script := GDScript.new()
+	script.source_code = "extends Spatial\nvar power_regen = 10.0\nvar power_max = 100.0\nvar mass = 3000.0\nvar fit_stats = {\"hull\": 100.0, \"power_capacity\": 100.0, \"power_regen\": 10.0, \"cargo_capacity\": 10.0, \"linear_thrust\": 300000.0, \"signature\": 2000.0, \"sensor_strength\": 1.0}\n"
+	script.reload()
+	ship.set_script(script)
+	add_child_autofree(ship)
+	var tools := FakeTools.new()
+	tools.count = 1
+	tools.name = "ToolController"
+	ship.add_child(tools)
+	var text: String = load("res://src/core/ui/fitting_window/fitting_window.gd").describe_stats(ship)
+	assert_string_contains(text, "POWER FLOW   REACTOR +10.0/s   TOOLS ON -")
+
