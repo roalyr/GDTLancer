@@ -1,0 +1,35 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/utility_tool_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_laser_3_699_214"
+tool_name = "Laser III"
+hud_label = "LASER III"
+description = "699 kg, 32.1 per shot."
+tool_type = "laser"
+mount_size = "small"
+base_value = 311
+mass = 699.21
+damage = 19.2164
+optimal_range = 1907.53
+falloff = 476.882
+tracking = 0.0655023
+cycle_time = 2.80646
+power_per_cycle = 32.1338
+reel_speed = 15.0
+launch_speed = 0.0
+strip_interval = 1.0
+ammo = 0
+round_mass = 0.0
+round_value = 0
+projectile_speed = 0.0
+projectile_accel = 0.0
+turn_rate = 0.0
+flight_time = 0.0
+variant_type = 3
+law_genes = {
+"energy": 21.4226,
+"mass": 699.21
+}

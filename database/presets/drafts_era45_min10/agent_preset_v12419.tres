@@ -1,0 +1,33 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_v12419"
+agent_type = "npc"
+ship_template_id = "preset_ship_v12419"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.414882,
+"caution": 0.172553,
+"disengage": 1.84962,
+"engage": 3.75547,
+"haul": 0.371732,
+"mercy": 0.00603373,
+"prospect": 0.662522,
+"pursuit": 0.0415004,
+"range": 1.29234,
+"retreat_hull": 0.261645,
+"return_fire": 0.04737,
+"teamwork": 2.0
+}
+role = "missile-raider"
+family = "raider"
+weight_class = "medium"
+archetype = "missile-raider medium"
+temperament = "cautious"
+traits = [ "picks its fights", "lets runners go", "ruthless", "runs silent", "team player", "bold" ]
+lives = 10
+fitness = 0.546161

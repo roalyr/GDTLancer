@@ -7,17 +7,17 @@ script = ExtResource( 1 )
 template_id = "preset_laser_1_149_25"
 tool_name = "Laser I"
 hud_label = "LASER I"
-description = "149 kg, 3.7 per shot."
+description = "149 kg, 3.8 per shot."
 tool_type = "laser"
 mount_size = "small"
 base_value = 50
-mass = 149.344
-damage = 3.40782
-optimal_range = 664.124
-falloff = 166.031
-tracking = 0.141731
-cycle_time = 0.698832
-power_per_cycle = 3.69801
+mass = 148.931
+damage = 3.44609
+optimal_range = 665.831
+falloff = 166.458
+tracking = 0.141928
+cycle_time = 0.70964
+power_per_cycle = 3.75
 reel_speed = 15.0
 launch_speed = 0.0
 strip_interval = 1.0
@@ -30,6 +30,6 @@ turn_rate = 0.0
 flight_time = 0.0
 variant_type = 1
 law_genes = {
-"energy": 2.46534,
-"mass": 149.344
+"energy": 2.5,
+"mass": 148.931
 }

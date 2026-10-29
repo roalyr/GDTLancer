@@ -1,0 +1,21 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/asset_module_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_afterburner_2_343"
+module_name = "Afterburner II"
+description = "343 kg."
+base_value = 86
+mass = 342.715
+stat_modifiers = {
+"afterburner_thrust": 437029.0
+}
+lance = {
+}
+module_kind = "afterburner"
+variant_type = 2
+law_genes = {
+"mass": 342.715
+}

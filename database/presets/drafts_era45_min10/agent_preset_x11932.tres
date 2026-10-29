@@ -29,5 +29,5 @@ weight_class = "light"
 archetype = "scavenger light"
 temperament = "cautious"
 traits = [ "stubborn", "skittish", "lets runners go" ]
-lives = 11
-fitness = 0.666652
+lives = 12
+fitness = 0.610006
