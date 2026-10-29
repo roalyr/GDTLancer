@@ -1,0 +1,35 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/utility_tool_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_laser_2_300_51"
+tool_name = "Laser II"
+hud_label = "LASER II"
+description = "300 kg, 7.7 per shot."
+tool_type = "laser"
+mount_size = "small"
+base_value = 101
+mass = 300.0
+damage = 6.12322
+optimal_range = 1006.37
+falloff = 251.593
+tracking = 0.1
+cycle_time = 1.02574
+power_per_cycle = 7.69302
+reel_speed = 15.0
+launch_speed = 0.0
+strip_interval = 1.0
+ammo = 0
+round_mass = 0.0
+round_value = 0
+projectile_speed = 0.0
+projectile_accel = 0.0
+turn_rate = 0.0
+flight_time = 0.0
+variant_type = 2
+law_genes = {
+"energy": 5.12868,
+"mass": 300.0
+}

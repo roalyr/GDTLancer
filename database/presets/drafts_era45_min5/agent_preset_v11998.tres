@@ -29,5 +29,5 @@ weight_class = "heavy"
 archetype = "prospector heavy"
 temperament = "cautious"
 traits = [ "lets runners go", "shoots back", "wary" ]
-lives = 6
-fitness = -0.249917
+lives = 8
+fitness = -0.391131

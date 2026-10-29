@@ -28,5 +28,5 @@ weight_class = "light"
 archetype = "prospector light"
 temperament = "cautious"
 traits = [ "picks its fights" ]
-lives = 5
-fitness = -0.29328
+lives = 6
+fitness = -0.391621
