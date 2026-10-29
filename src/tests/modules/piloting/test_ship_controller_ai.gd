@@ -414,7 +414,7 @@ func test_fires_every_weapon_that_reaches():
 
 # --- Arena NPCs ---
 
-func _arena_station(position: Vector3) -> Spatial:
+func _haven_station(position: Vector3) -> Spatial:
 	var station = load("res://src/scenes/game_world/station/dockable_station.gd").new()
 	add_child_autofree(station)
 	station.global_transform.origin = position
@@ -422,19 +422,19 @@ func _arena_station(position: Vector3) -> Spatial:
 	return station
 
 
-func test_arena_npcs_ignore_ships_outside_their_arena():
-	ai.initialize({"patrol_center": Vector3.ZERO, "arena": {"zone_id": "t", "beacon": Vector3(0, 0, Constants.ARENA_RADIUS + 500.0), "stations": []}})
+func test_haven_npcs_ignore_ships_outside_the_play_area():
+	ai.initialize({"patrol_center": Vector3.ZERO, "havens": {"zone_id": "t", "centre": Vector3(0, 0, 60500.0), "radius": 60000.0, "stations": []}})
 	var weak = _make_ship(Vector3(0, 0, -1200), "verdant", 25.0)
-	assert_null(ai.scan_for_target(), "The weak ship is out of the arena")
-	ai._arena.beacon = Vector3.ZERO
+	assert_null(ai.scan_for_target(), "The weak ship is out of the play area")
+	ai._havens.centre = Vector3.ZERO
 	assert_eq(ai.scan_for_target(), weak)
 
 
 func test_arena_npc_flees_to_its_station_and_docks_there_then_undocks():
-	var near = _arena_station(Vector3(0, 0, 2000))
-	var far = _arena_station(Vector3(0, 0, -6000))
+	var near = _haven_station(Vector3(0, 0, 2000))
+	var far = _haven_station(Vector3(0, 0, -6000))
 	var threat = _make_ship(Vector3(0, 0, -800), "verdant", 500.0)
-	ai.initialize({"patrol_center": Vector3.ZERO, "arena": {"zone_id": "t", "beacon": Vector3.ZERO, "stations": [near, far]}})
+	ai.initialize({"patrol_center": Vector3.ZERO, "havens": {"zone_id": "t", "centre": Vector3.ZERO, "radius": 60000.0, "stations": [near, far]}})
 	ai._target_agent = threat
 	ai._change_state(AIScript.AIState.FLEE)
 	assert_eq(ai._station, near, "Runs to the station away from the threat")
@@ -443,15 +443,15 @@ func test_arena_npc_flees_to_its_station_and_docks_there_then_undocks():
 	assert_eq(ai.get_state(), AIScript.AIState.DOCKED)
 	assert_true(hostile.is_docked)
 	threat.global_transform.origin = Vector3(0, 0, -6000)  # Gone: clear to undock
-	ai._process_docked(Constants.ARENA_DOCK_TIME + 0.1)
+	ai._process_docked(Constants.HAVEN_DOCK_TIME + 0.1)
 	assert_eq(ai.get_state(), AIScript.AIState.PATROL)
 	assert_false(hostile.is_docked)
 
 
 func test_retreat_gene_runs_home_whatever_the_odds():
-	var station = _arena_station(Vector3(0, 0, 3000))
+	var station = _haven_station(Vector3(0, 0, 3000))
 	var prey = _make_ship(Vector3(0, 0, -500), "verdant", 5.0)
-	ai.initialize({"patrol_center": Vector3.ZERO, "behavior": {"retreat_hull": 0.5}, "arena": {"zone_id": "t", "beacon": Vector3.ZERO, "stations": [station]}})
+	ai.initialize({"patrol_center": Vector3.ZERO, "behavior": {"retreat_hull": 0.5}, "havens": {"zone_id": "t", "centre": Vector3.ZERO, "radius": 60000.0, "stations": [station]}})
 	ai._target_agent = prey
 	ai._current_state = AIScript.AIState.IDLE
 	ai._change_state(AIScript.AIState.COMBAT)
@@ -496,12 +496,12 @@ func test_a_runner_that_does_not_shoot_back_holds_fire():
 
 func test_gives_up_a_runner_it_cannot_catch_before_it_is_safe():
 	var reach: float = hostile.get_node("ToolController").get_tool(0).get_max_range()
-	var station = _arena_station(Vector3(0, 0, -(reach + 3000.0)))
+	var station = _haven_station(Vector3(0, 0, -(reach + 3000.0)))
 	var prey = _make_ship(Vector3(0, 0, -(reach + 500.0)), "verdant", 5.0)
 	_set_speed(hostile, 200.0, false)
 	_set_speed(prey, 100.0, true)
 	ai.initialize({"patrol_center": Vector3.ZERO, "behavior": {"mercy": 0.0},
-		"arena": {"zone_id": "t", "beacon": Vector3.ZERO, "stations": [], "refuges": {"verdant": [station]}}})
+		"havens": {"zone_id": "t", "centre": Vector3.ZERO, "radius": 60000.0, "stations": [], "refuges": {"verdant": [station]}}})
 	_fighting(prey)
 	assert_true(ai.is_running_from_me(prey))
 	assert_almost_eq(ai.chase_margin(prey), (2500.0 / 100.0) / (500.0 / 100.0), 0.01, "Caught in 5 s, safe in 25 s")
@@ -544,17 +544,17 @@ func test_mercy_lets_go_only_a_runner_that_holds_fire():
 
 
 func test_waits_docked_while_an_enemy_watches_its_station():
-	var station = _arena_station(Vector3(0, 0, 3000))
-	var camper = _make_ship(Vector3(0, 0, 3000 + Constants.ARENA_UNDOCK_CLEAR_RADIUS - 200.0), "verdant", 50.0)  # Undock offset 0 in tests
-	ai.initialize({"patrol_center": Vector3.ZERO, "docked_at": station, "arena": {"zone_id": "t", "beacon": Vector3.ZERO, "stations": [station]}})
+	var station = _haven_station(Vector3(0, 0, 3000))
+	var camper = _make_ship(Vector3(0, 0, 3000 + Constants.HAVEN_UNDOCK_CLEAR_RADIUS - 200.0), "verdant", 50.0)  # Undock offset 0 in tests
+	ai.initialize({"patrol_center": Vector3.ZERO, "docked_at": station, "havens": {"zone_id": "t", "centre": Vector3.ZERO, "radius": 60000.0, "stations": [station]}})
 	assert_eq(ai.get_state(), AIScript.AIState.DOCKED)
-	ai._process_docked(Constants.ARENA_DOCK_TIME + 1.0)
+	ai._process_docked(Constants.HAVEN_DOCK_TIME + 1.0)
 	assert_eq(ai.get_state(), AIScript.AIState.DOCKED, "An enemy outside: stays in")
-	ai._process_docked(Constants.ARENA_DOCK_MAX_WAIT)
+	ai._process_docked(Constants.HAVEN_DOCK_MAX_WAIT)
 	assert_eq(ai.get_state(), AIScript.AIState.PATROL, "but not for ever")
 	ai._dock(station, false)
-	camper.global_transform.origin = Vector3(0, 0, 3000 + Constants.ARENA_UNDOCK_CLEAR_RADIUS + 200.0)
-	ai._process_docked(Constants.ARENA_DOCK_TIME + 1.0)
+	camper.global_transform.origin = Vector3(0, 0, 3000 + Constants.HAVEN_UNDOCK_CLEAR_RADIUS + 200.0)
+	ai._process_docked(Constants.HAVEN_DOCK_TIME + 1.0)
 	assert_eq(ai.get_state(), AIScript.AIState.PATROL, "Clear outside: undocks on time")
 
 
@@ -714,8 +714,8 @@ func test_does_not_leave_its_own_fight_to_help_or_help_from_afar():
 
 func test_followers_join_their_leaders_fight():
 	Evolution.new_run()
-	var arena := {"zone_id": "t", "beacon": Vector3.ZERO, "stations": []}
-	ai.initialize({"patrol_center": Vector3.ZERO, "arena": arena})
+	var havens := {"zone_id": "t", "centre": Vector3.ZERO, "radius": 60000.0, "stations": []}
+	ai.initialize({"patrol_center": Vector3.ZERO, "havens": havens})
 	var follower: Dictionary = Evolution.begin_life("violet", "t")
 	var chief: Dictionary = Evolution.begin_life("violet", "t")
 	Evolution.live[chief.uid].kills = 1
@@ -726,7 +726,7 @@ func test_followers_join_their_leaders_fight():
 	var leader_ai = AIScript.new()
 	leader_ai.name = Constants.AI_CONTROLLER_NODE_NAME
 	leader.add_child(leader_ai)
-	leader_ai.initialize({"patrol_center": Vector3.ZERO, "arena": arena})
+	leader_ai.initialize({"patrol_center": Vector3.ZERO, "havens": havens})
 	assert_eq(ai.get_leader(), leader, "Its group's leader")
 	assert_null(leader_ai.get_leader(), "The leader follows no one")
 	var foe = _make_ship(Vector3(0, 0, -2700), "verdant", 30.0)

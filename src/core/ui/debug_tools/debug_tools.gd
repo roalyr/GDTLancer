@@ -14,7 +14,7 @@ const MainTheme = preload("res://assets/themes/main_theme.tres")
 const BUTTON_HEIGHT = 64
 const STANDOFF_MIN = 1500.0  # m off a place's edge the ship is put
 const TARGET_STANDOFF = 300.0  # m off the selected target's edge
-const PLACE_GROUPS = [["dockable_station", "STATION"], ["arena_beacon", "BEACON"], ["jump_point", "JUMP POINT"], ["celestial", "BODY"], ["megastructure", "MEGASTRUCTURE"]]
+const PLACE_GROUPS = [["dockable_station", "STATION"], ["beacon", "BEACON"], ["jump_point", "JUMP POINT"], ["celestial", "BODY"], ["megastructure", "MEGASTRUCTURE"]]
 
 var _title: Label = null
 var _status: Label = null

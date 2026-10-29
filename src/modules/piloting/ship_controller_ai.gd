@@ -2,9 +2,13 @@
 # with its own, or ships that shot it), flees fights not worth it (shooting back at its pursuer
 # as it goes), strips wrecks, and with a full
 # hold flies back to where it came from and leaves the sector.
-# Arena NPCs (see Arena, Evolution) instead live round their arena's beacon and never leave it: they
-# spawn DOCKED at one of their faction's stations, flee to one (and dock: safe, repaired) and haul
-# their salvage to one to sell it; old ones retire there. Their behaviour genes set when they
+# Haven NPCs (the evolving ones: SectorLayout, Evolution) instead live in their sector and never
+# leave its play area: they spawn DOCKED at their haven, go about the sector by its beacons
+# (BeaconNetwork: patrols round their pickets and to trouble, raiders hunting busy beacons, miners to
+# rich fields, the unarmed to fights' leavings), flying planned routes round hazards and hot spots
+# as their caution goes; they flee to a haven that welcomes them (and dock: safe, repaired as far as
+# it does that), haul their hold to the one that pays best for it on the way, and retire there when
+# old. Their behaviour genes set when they
 # start and break off a fight, how close they fight, and at what hull they run whatever the odds.
 # Runners: a ship running from its target's fight shoots back or not (a roll on its return_fire gene,
 # per flight). The pursuer chases only while it reckons it can catch the runner before it is safe
@@ -28,6 +32,8 @@ extends Node
 const FrameProfiler = preload("res://src/core/utils/frame_profiler.gd")
 
 const CombatAssessment = preload("res://src/core/systems/combat_assessment.gd")
+const BeaconNetwork = preload("res://src/scenes/game_world/sector_layout/beacon_network.gd")
+const Market = preload("res://src/core/systems/market.gd")
 const NavigationSystem = preload("res://src/core/agents/components/navigation_system.gd")
 
 enum AIState { IDLE, PATROL, COMBAT, FLEE, DISABLED, SALVAGE, DEPART, HESITATE, DOCKED, MINE }
@@ -64,7 +70,11 @@ var _think_elapsed: float = 0.0  # s since it last thought
 var _think_due: float = randf() * Constants.AI_THINK_INTERVAL  # First think staggered across ships
 var _threat = null  # The latest scan's enemy too strong for it that has not seen it (_keep_clear)
 var _avoided = null  # The one it last kept clear of
-var _arena: Dictionary = {}  # Arena NPCs: {"zone_id", "beacon" (Vector3), "stations" (its faction's)}
+var _havens: Dictionary = {}  # Haven NPCs: {"zone_id" (its haven), "stations" (where it is welcome), "refuges" (faction -> those), "centre", "radius" (the play area), "territorial"}
+var _beacon: Node = null  # The beacon it is going to or staying at (BeaconNetwork)
+var _route: Array = []  # Waypoints still to fly to it, the next first
+var _loiter_left: float = 0.0  # s it stays at _beacon before choosing again
+var _trip: Array = []  # Waypoints to the station it runs or hauls to, the station's last
 var _station: Spatial = null  # The station it is heading for or docked at
 var _dock_timer: float = 0.0  # s left docked
 var _engage_desire: float = Constants.AI_ENGAGE_DESIRE  # Behaviour genes (Constants EVO_BEHAVIOR_RANGES)
@@ -108,7 +118,7 @@ func initialize(config: Dictionary) -> void:
 	_home_position = config.get("patrol_center", agent_script.global_transform.origin)
 	_home_point = config.get("home_point", agent_script.global_transform.origin)
 	skill = clamp(float(config.get("skill", skill)), 0.0, 1.0)
-	_arena = config.get("arena", {})
+	_havens = config.get("havens", {})
 	var behavior: Dictionary = config.get("behavior", {})
 	_engage_desire = float(behavior.get("engage", Constants.AI_ENGAGE_DESIRE))
 	_disengage_desire = float(behavior.get("disengage", Constants.AI_DISENGAGE_DESIRE))
@@ -151,7 +161,7 @@ func _keep_clear(threat) -> void:
 	var away: Vector3 = agent_script.global_transform.origin - threat.global_transform.origin
 	away = away.normalized() if away.length_squared() > 1.0 else Vector3.FORWARD
 	var point: Vector3 = agent_script.global_transform.origin + away * Constants.AI_PATROL_RADIUS
-	if not _in_arena(point):
+	if not _in_play_area(point):
 		point = _home_position + away * Constants.AI_PATROL_RADIUS * 0.5
 	if threat != _avoided:
 		_avoided = threat
@@ -163,9 +173,9 @@ func _keep_clear(threat) -> void:
 
 # Its group's leader (Evolution ranks; Constants RENOWN_*), unless it leads or has none.
 func get_leader() -> Node:
-	if _arena.empty() or agent_script.evo_uid == "" or _teamwork < Constants.AI_FOLLOW_MIN_TEAMWORK:
+	if _havens.empty() or agent_script.evo_uid == "" or _teamwork < Constants.AI_FOLLOW_MIN_TEAMWORK:
 		return null
-	var leader = Evolution.leader_of(agent_script.faction, _arena.zone_id)
+	var leader = Evolution.leader_of(agent_script.faction, _havens.zone_id)
 	return leader if leader != agent_script else null
 
 
@@ -243,6 +253,9 @@ func _think(delta: float) -> void:
 		_spared[id] -= delta
 		if _spared[id] <= 0.0:
 			_spared.erase(id)
+	if _current_state == AIState.PATROL and is_instance_valid(_beacon) and _route.empty() \
+			and agent_script.global_transform.origin.distance_to(_beacon.global_transform.origin) <= max(_beacon.radius, Constants.BEACON_LOITER_RADIUS) + Constants.ROUTE_WAYPOINT_REACHED:
+		_loiter_left -= delta
 	_tick_decision(delta)
 	match _current_state:
 		AIState.PATROL:
@@ -303,6 +316,8 @@ func _change_state(new_state: int) -> void:
 			_provoked = false
 			_target_agent = null
 			_has_patrol_destination = false
+			_route = []  # From wherever it is now
+			_loiter_left = 0.0
 		AIState.COMBAT:
 			agent_script.command_approach(_target_agent)
 		AIState.FLEE:
@@ -310,10 +325,10 @@ func _change_state(new_state: int) -> void:
 			_note("fled")
 			if not _shooting_back:
 				_note("held_fire")
-			if not _arena.empty():
+			if not _havens.empty():
 				_station = _pick_refuge(_target_agent)
-			if is_instance_valid(_station) and not _arena.empty():
-				agent_script.command_move_to(_station.get_undock_position())
+			if is_instance_valid(_station) and not _havens.empty():
+				_set_trip(_station.get_undock_position())
 			else:
 				agent_script.command_flee(_target_agent)
 		AIState.SALVAGE:
@@ -321,10 +336,10 @@ func _change_state(new_state: int) -> void:
 		AIState.DEPART:
 			_provoked = false
 			_target_agent = null
-			if not _arena.empty():
-				_station = _pick_refuge(null)
-			if is_instance_valid(_station) and not _arena.empty():
-				agent_script.command_move_to(_station.get_undock_position())
+			if not _havens.empty():
+				_station = _pick_market()
+			if is_instance_valid(_station) and not _havens.empty():
+				_set_trip(_station.get_undock_position())
 			else:
 				agent_script.command_move_to(_home_point)
 		AIState.DOCKED:
@@ -375,7 +390,8 @@ func _process_patrol() -> void:
 					return
 
 	var current_pos = agent_script.global_transform.origin
-	if not _has_patrol_destination or current_pos.distance_to(_patrol_destination) <= Constants.AI_PATROL_ARRIVAL_DISTANCE:
+	var arrival: float = Constants.ROUTE_WAYPOINT_REACHED if not _route.empty() else Constants.AI_PATROL_ARRIVAL_DISTANCE
+	if not _has_patrol_destination or current_pos.distance_to(_patrol_destination) <= arrival:
 		_patrol_destination = _pick_patrol_destination()
 		_has_patrol_destination = true
 		agent_script.command_move_to(_patrol_destination)
@@ -388,8 +404,8 @@ func _process_combat() -> void:
 	if not _provoked and not agent_script.detects(_target_agent):
 		_change_state(AIState.PATROL)  # Lost contact
 		return
-	if not _in_arena(agent_script.global_transform.origin, 1.3):
-		_change_state(AIState.PATROL)  # Chased out of its arena: back to the beacon
+	if not _in_play_area(agent_script.global_transform.origin, 1.1):
+		_change_state(AIState.PATROL)  # Chased out of the play area: back to its beacons
 		return
 	var committed: bool = is_ram_committed()
 	if not committed and _should_retreat():
@@ -453,7 +469,7 @@ func _fire_at(target) -> void:
 
 
 func _process_flee() -> void:
-	if not _arena.empty():
+	if not _havens.empty():
 		_process_run_home()
 		if _shooting_back and _is_live_target(_target_agent):
 			_fire_at(_target_agent)  # Running, but shooting back at whatever reaches
@@ -582,7 +598,7 @@ func is_leaving() -> bool:
 
 # Full hold: fly back to where it came from and leave the sector with the loot.
 func _process_depart() -> void:
-	if not _arena.empty():
+	if not _havens.empty():
 		_process_run_home()
 		return
 	if agent_script.global_transform.origin.distance_to(_home_point) <= Constants.AI_DEPART_ARRIVAL_DISTANCE:
@@ -741,13 +757,13 @@ func _has_harpoon() -> bool:
 	return false
 
 
-# The nearest detected rock in its arena with ore left, that it has not given up on.
+# The nearest detected rock in its play area with ore left, that it has not given up on.
 func scan_for_rock() -> Spatial:
 	var best: Spatial = null
 	var best_distance: float = Constants.AI_MINE_SEARCH_RANGE
 	var own_pos: Vector3 = agent_script.global_transform.origin
 	for rock in get_tree().get_nodes_in_group("mineable"):
-		if _given_up.has(rock.get_instance_id()) or rock.get_deposit() <= 0 or not _in_arena(rock.global_transform.origin) or not agent_script.detects(rock):
+		if _given_up.has(rock.get_instance_id()) or rock.get_deposit() <= 0 or not _in_play_area(rock.global_transform.origin) or not agent_script.detects(rock):
 			continue
 		var distance: float = own_pos.distance_to(rock.global_transform.origin)
 		if distance < best_distance:
@@ -801,11 +817,11 @@ func chase_margin(body) -> float:
 	var closing: float = agent_script.get_top_speed() - runner_speed
 	if closing <= 0.0:
 		return 0.0
-	# Safe: docked at its nearest station in an arena, otherwise once it has fled AI_FLEE_DISTANCE
+	# Safe: docked at a welcoming station (a haven NPC), otherwise once it has fled AI_FLEE_DISTANCE
 	var safe_distance: float = max(0.0, Constants.AI_FLEE_DISTANCE - own_pos.distance_to(target_pos))
-	if not _arena.empty():
+	if not _havens.empty():
 		safe_distance = INF
-		for station in _arena.get("refuges", {}).get(body.get("faction"), []):
+		for station in _havens.get("refuges", {}).get(body.get("faction"), []):
 			if is_instance_valid(station):
 				safe_distance = min(safe_distance, target_pos.distance_to(station.get_undock_position()))
 	return (safe_distance / max(runner_speed, 1.0)) / (gap / closing)
@@ -830,7 +846,7 @@ func is_sparing(body) -> bool:
 	return is_instance_valid(body) and _spared.has(body.get_instance_id())
 
 
-# --- Arena: stations, docking, staying in the arena ---
+# --- Havens: stations, docking, staying in the play area ---
 
 # Heading for _station (fleeing or hauling): docks on arrival.
 func _process_run_home() -> void:
@@ -840,14 +856,19 @@ func _process_run_home() -> void:
 		_change_state(AIState.PATROL)
 		return
 	var dock_point: Vector3 = _station.get_undock_position()
-	if agent_script.global_transform.origin.distance_to(dock_point) <= Constants.ARENA_DOCK_DISTANCE:
+	if agent_script.global_transform.origin.distance_to(dock_point) <= Constants.HAVEN_DOCK_DISTANCE:
 		if _current_state == AIState.FLEE:
 			_note("escaped")
 		_dock(_station, true)
 		return
-	if _repath_timer <= 0.0:
+	if _trip.empty() or _trip.back() != dock_point:
+		_set_trip(dock_point)
+	elif _trip.size() > 1 and agent_script.global_transform.origin.distance_to(_trip[0]) <= Constants.ROUTE_WAYPOINT_REACHED:
+		_trip.pop_front()
+		agent_script.command_move_to(_trip[0])
+	elif _repath_timer <= 0.0:
 		_repath_timer = Constants.AI_REPATH_INTERVAL * 4.0
-		agent_script.command_move_to(dock_point)
+		agent_script.command_move_to(_trip[0])
 
 
 # Into the station: out of the world until it undocks. `service`: sells the hold and repairs (it
@@ -856,18 +877,18 @@ func _dock(station: Spatial, service: bool) -> void:
 	_station = station
 	agent_script.dock_at(station)
 	_change_state(AIState.DOCKED)
-	_dock_timer = Constants.ARENA_DOCK_TIME
+	_dock_timer = Constants.HAVEN_DOCK_TIME
 	if service and Evolution.on_docked(agent_script, str(station.get("location_id"))):
 		agent_script.despawn()  # Retired: its record is in the log
 
 
-# Undocks once its dock time is up and no enemy waits outside (Constants ARENA_UNDOCK_CLEAR_RADIUS),
-# or once it has waited ARENA_DOCK_MAX_WAIT s more for one to leave.
+# Undocks once its dock time is up and no enemy waits outside (Constants HAVEN_UNDOCK_CLEAR_RADIUS),
+# or once it has waited HAVEN_DOCK_MAX_WAIT s more for one to leave.
 func _process_docked(delta: float) -> void:
 	_dock_timer -= delta
 	if _dock_timer > 0.0:
 		return
-	if _dock_timer > -Constants.ARENA_DOCK_MAX_WAIT and is_station_watched():
+	if _dock_timer > -Constants.HAVEN_DOCK_MAX_WAIT and is_station_watched():
 		return
 	agent_script.undock()
 	_change_state(AIState.PATROL)
@@ -880,7 +901,7 @@ func is_station_watched() -> bool:
 	var station_pos: Vector3 = _station.get_undock_position()
 	for body in get_tree().get_nodes_in_group("agent_body"):
 		if body != agent_script and _is_live_target(body) and agent_script.is_enemy_of(body) \
-				and body.global_transform.origin.distance_to(station_pos) <= Constants.ARENA_UNDOCK_CLEAR_RADIUS:
+				and body.global_transform.origin.distance_to(station_pos) <= Constants.HAVEN_UNDOCK_CLEAR_RADIUS:
 			return true
 	return false
 
@@ -890,7 +911,7 @@ func _pick_refuge(threat) -> Spatial:
 	var best: Spatial = null
 	var best_score: float = INF
 	var own_pos: Vector3 = agent_script.global_transform.origin
-	for station in _arena.get("stations", []):
+	for station in _havens.get("stations", []):
 		if not is_instance_valid(station):
 			continue
 		var score: float = own_pos.distance_to(station.global_transform.origin)
@@ -902,9 +923,42 @@ func _pick_refuge(threat) -> Spatial:
 	return best
 
 
-# Within the arena (Constants ARENA_RADIUS, times `slack`) or not an arena NPC.
-func _in_arena(point: Vector3, slack: float = 1.0) -> bool:
-	return _arena.empty() or point.distance_to(_arena.beacon) <= Constants.ARENA_RADIUS * slack
+# Within its sector's play area (Constants SECTOR_LAYOUTS play_radius, times `slack`) or not a haven NPC.
+func _in_play_area(point: Vector3, slack: float = 1.0) -> bool:
+	return _havens.empty() or point.distance_to(_havens.get("centre", point)) <= float(_havens.get("radius", INF)) * slack
+
+
+# The way to `point` (BeaconNetwork.route: round hazards and hot spots as its caution goes; straight
+# without a network), and off along it.
+func _set_trip(point: Vector3) -> void:
+	var network = BeaconNetwork.of(agent_script)
+	_trip = network.route(agent_script.global_transform.origin, point, max(agent_script.get_top_speed(), 1.0), _caution, agent_script.hull_max) if network != null else [point]
+	_repath_timer = Constants.AI_REPATH_INTERVAL * 4.0
+	agent_script.command_move_to(_trip[0])
+
+
+# Where to sell the hold: the welcoming station that pays most for it against the time to get
+# there (route cost: danger counts as time); the nearest refuge if none buys any of it.
+func _pick_market() -> Spatial:
+	var network = BeaconNetwork.of(agent_script)
+	if network == null or agent_script.get_cargo_value() <= 0.0:
+		return _pick_refuge(null)
+	var planned: Dictionary = network.plan(agent_script.global_transform.origin, max(agent_script.get_top_speed(), 1.0), _caution, agent_script.hull_max)
+	var best: Spatial = null
+	var best_score := 0.0
+	for station in _havens.get("stations", []):
+		if not is_instance_valid(station):
+			continue
+		var index: int = -1
+		for i in range(network.beacons.size()):
+			if network.beacons[i].haven == station:
+				index = i
+		var cost: float = planned.cost[index] if index >= 0 else INF
+		var score: float = float(Market.hold_value(agent_script, str(station.get("location_id"))).value) / (cost + Constants.ROUTE_TIME_FLOOR)
+		if score > best_score:
+			best = station
+			best_score = score
+	return best if best != null else _pick_refuge(null)
 
 
 # --- Behaviour genes, as desperation bends them (Constants AI block: desperation) ---
@@ -946,13 +1000,13 @@ func _should_retreat() -> bool:
 	return _retreat_level() > 0.0 and agent_script.get_hull_fraction() < _retreat_level()
 
 
-# Counts a run-and-chase event in an arena NPC's life (Evolution.note).
+# Counts a run-and-chase event in a haven NPC's life (Evolution.note).
 func _note(event: String) -> void:
-	if not _arena.empty():
+	if not _havens.empty():
 		Evolution.note(str(agent_script.evo_uid), event)
 
 
-# An old arena NPC goes home to retire (Evolution, Constants ARENA_MAX_LIFETIME).
+# An old haven NPC goes home to retire (Evolution, Constants NPC_MAX_LIFETIME).
 # Its hold is worth its haul gene's share of its ship: worth taking home before it is lost with it.
 func hold_worth_hauling() -> bool:
 	var cargo_value: float = agent_script.get_cargo_value()
@@ -960,7 +1014,7 @@ func hold_worth_hauling() -> bool:
 
 
 func _due_home() -> bool:
-	return not _arena.empty() and Evolution.is_old(agent_script.evo_uid)
+	return not _havens.empty() and Evolution.is_old(agent_script.evo_uid)
 
 
 # The nearest detected wreck with something left on it for this ship that nobody else has
@@ -971,7 +1025,7 @@ func scan_for_wreck() -> RigidBody:
 	var best_distance: float = Constants.AI_SALVAGE_SEARCH_RANGE
 	var own_pos: Vector3 = agent_script.global_transform.origin
 	for body in get_tree().get_nodes_in_group("agent_body"):
-		if not (body.get("is_wreck") and _worth_salvaging(body) and agent_script.detects(body) and _in_arena(body.global_transform.origin)):
+		if not (body.get("is_wreck") and _worth_salvaging(body) and agent_script.detects(body) and _in_play_area(body.global_transform.origin)):
 			continue
 		var distance: float = own_pos.distance_to(body.global_transform.origin)
 		if body.recoverable_lances_for(agent_script) > 0 or _recoverable_ammo(body) > 0:
@@ -991,7 +1045,7 @@ func _lance_to_collect():
 	var best_distance: float = Constants.AI_SALVAGE_SEARCH_RANGE
 	var own_pos: Vector3 = agent_script.global_transform.origin
 	for body in get_tree().get_nodes_in_group("loose_lance"):
-		if body.recoverable_lances_for(agent_script) <= 0 or not agent_script.detects(body) or not _in_arena(body.global_transform.origin) or _is_claimed(body):
+		if body.recoverable_lances_for(agent_script) <= 0 or not agent_script.detects(body) or not _in_play_area(body.global_transform.origin) or _is_claimed(body):
 			continue
 		var distance: float = own_pos.distance_to(body.global_transform.origin)
 		if distance < best_distance:
@@ -1041,7 +1095,7 @@ func scan_for_target() -> RigidBody:
 			continue
 		if is_sparing(body):
 			continue
-		if not _in_arena(body.global_transform.origin):
+		if not _in_play_area(body.global_transform.origin):
 			continue
 		if not agent_script.detects(body):
 			continue
@@ -1074,8 +1128,9 @@ func _is_live_target(body) -> bool:
 	return is_instance_valid(body) and body.is_inside_tree() and not body.get("is_wreck") and not body.get("is_docked")
 
 
-# A point near home (near its leader, if its group has one: Evolution.leader_of), not inside a rock (a
-# few tries; the autopilot steers round the rest).
+# A point near home (near its leader, if its group has one: Evolution.leader_of; a haven NPC: the
+# next waypoint to its beacon, or a point round the beacon while it stays there), not inside a rock
+# (a few tries; the autopilot steers round the rest).
 func _pick_patrol_destination() -> Vector3:
 	var centre: Vector3 = _home_position
 	var radius: float = Constants.AI_PATROL_RADIUS
@@ -1083,6 +1138,14 @@ func _pick_patrol_destination() -> Vector3:
 	if leader != null:
 		centre = leader.global_transform.origin
 		radius = Constants.AI_FOLLOW_RADIUS
+	elif roams():
+		if _route.empty() and not (is_instance_valid(_beacon) and _loiter_left > 0.0):
+			_choose_beacon()
+		if not _route.empty():
+			return _route.pop_front()
+		if is_instance_valid(_beacon):
+			centre = _beacon.global_transform.origin
+			radius = Constants.BEACON_LOITER_RADIUS
 	var point: Vector3 = centre
 	for _try in range(8):
 		var direction = Vector3(rand_range(-1, 1), rand_range(-1, 1), rand_range(-1, 1)).normalized()
@@ -1095,6 +1158,47 @@ func _pick_patrol_destination() -> Vector3:
 		if not inside:
 			return point
 	return point
+
+
+# Goes about the sector by its beacons: a haven NPC in a sector with a network, but not a hive's
+# drone (they keep near their hive).
+func roams() -> bool:
+	return not _havens.empty() and not _havens.get("territorial", false) and BeaconNetwork.of(agent_script) != null
+
+
+# What it is out for (BeaconNetwork.choose): mining, if it can; hunting, a raider; scavenging, unarmed;
+# patrolling otherwise.
+func get_job() -> String:
+	if can_mine():
+		return "mine"
+	if agent_script.get_damage_per_second() <= 0.0 and not can_ram():
+		return "scavenge"
+	if agent_script.faction == "raiders":
+		return "hunt"
+	return "patrol"
+
+
+# The next beacon to go to (BeaconNetwork.choose by its job; a miner with nothing worth mining
+# patrols), the way there, and how long to stay.
+func _choose_beacon() -> void:
+	var network = BeaconNetwork.of(agent_script)
+	var ship := {"from": agent_script.global_transform.origin, "speed": max(agent_script.get_top_speed(), 1.0), "caution": _caution,
+		"hull_max": agent_script.hull_max, "faction": agent_script.faction, "keen": Constants.AI_ENGAGE_DESIRE / max(_engage_level(), 0.01), "job": get_job()}
+	var choice: Dictionary = network.choose(ship)
+	if choice.empty() and ship.job == "mine":
+		ship.job = "patrol"
+		choice = network.choose(ship)
+	_loiter_left = rand_range(Constants.BEACON_LOITER_TIME[0], Constants.BEACON_LOITER_TIME[1])
+	if choice.empty():
+		_beacon = null
+		_route = []
+		return
+	_beacon = choice.beacon
+	_route = choice.path
+
+
+func get_beacon() -> Node:
+	return _beacon if is_instance_valid(_beacon) else null
 
 
 func _on_agent_disabled(agent_body) -> void:
@@ -1125,7 +1229,7 @@ func _assist(friend, source) -> void:
 		return
 	if friend.global_transform.origin.distance_to(agent_script.global_transform.origin) > Constants.AI_ASSIST_RADIUS:
 		return
-	if not _in_arena(source.global_transform.origin):
+	if not _in_play_area(source.global_transform.origin):
 		return
 	if not _pending.empty() and _pending.kind == "assist" and _pending.target == source:
 		return

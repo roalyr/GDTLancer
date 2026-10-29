@@ -13,7 +13,8 @@
 #            per second times OFFSCREEN_HIT_SHARE through apply_damage (kills, wrecks, bounties and
 #            standing as in a flown fight);
 #   mine   - a prospector (ShipControllerAI.can_mine) near a rock gains OFFSCREEN_ORE_PER_SECOND;
-#   patrol - back toward the middle of its patrol.
+#   patrol - to the beacon it chose (a haven NPC: BeaconNetwork; another when it has stayed
+#            long enough), otherwise back toward the middle of its patrol.
 # It moves at OFFSCREEN_SPEED_SHARE of its top speed. These rules are first guesses, to be fitted to
 # what flown fights and runs do (the evolution logs). A life resolved off-screen in part is not
 # scored by Evolution (mark_offscreen): the rules must not shape the presets.
@@ -161,18 +162,29 @@ func _resolve_ship(body: RigidBody, ai: Node, entry: Dictionary, dt: float) -> v
 					body.add_cargo(rock.deposit_id if rock.get("deposit_id") != null else Constants.MINING_DEPOSIT, units)
 					entry.ore -= units
 			return
+	var beacon = ai.get_beacon() if ai.has_method("get_beacon") else null
+	if beacon != null:  # A haven NPC: to the beacon it chose, then on to the next
+		if body.global_transform.origin.distance_to(beacon.global_transform.origin) <= Constants.BEACON_LOITER_RADIUS:
+			ai._loiter_left -= dt
+			if ai._loiter_left <= 0.0:
+				ai._route = []
+				ai._choose_beacon()
+		_move(body, entry, beacon.global_transform.origin, dt, Constants.BEACON_LOITER_RADIUS)
+		return
+	if ai.has_method("roams") and ai.roams():
+		ai._choose_beacon()
 	_move(body, entry, ai._home_position, dt, Constants.OFFSCREEN_PATROL_RADIUS)
 
 
-# To its station and docked there (an arena NPC), or out through its jump point (a traveller).
+# To its station and docked there (a haven NPC), or out through its jump point (a traveller).
 func _go_home(body: RigidBody, ai: Node, entry: Dictionary, dt: float, threat) -> void:
-	if not ai._arena.empty():
+	if not ai._havens.empty():
 		var station = ai._pick_refuge(threat)
 		if not is_instance_valid(station):
 			_move(body, entry, ai._home_position, dt, 0.0)
 			return
 		var dock_point: Vector3 = station.get_undock_position()
-		if body.global_transform.origin.distance_to(dock_point) <= Constants.ARENA_DOCK_DISTANCE:
+		if body.global_transform.origin.distance_to(dock_point) <= Constants.HAVEN_DOCK_DISTANCE:
 			ai._dock(station, true)  # Sells, repairs or retires, as when flown
 			if is_instance_valid(body) and body.is_inside_tree() and body.get("is_docked"):
 				restore(body)  # Docked ships keep their AI (it undocks them)

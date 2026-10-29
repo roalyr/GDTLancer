@@ -4,11 +4,13 @@
 # (Standing): standing 1 buys PRICE_STANDING_SHARE cheaper and sells as much dearer, -1 the reverse.
 # A station pays PRICE_CARGO_SELL_SHARE of its price for cargo, PRICE_PART_SELL_SHARE for parts; the
 # spread keeps buying and selling at one station from paying. Stations differ, so carrying cargo from
-# one to another can.
+# one to another can. A haven (Havens) pays its own factor on that per commodity, and buys nothing
+# it does not list.
 
 extends Reference
 
 const Standing = preload("res://src/core/systems/standing.gd")
+const Havens = preload("res://src/core/systems/havens.gd")
 
 
 static func markup(location_id: String) -> float:
@@ -43,33 +45,43 @@ static func part_sale_price(value: float, location_id: String, faction: String =
 	return int(Constants.PRICE_PART_SELL_SHARE * price(value, location_id, faction))
 
 
-# What the hold fetches at the station, all but the fuel, at a stranger's price (no standing: NPCs).
-# Returns {"value", "units", "mass" (kg)}; the hold is left as it is.
+# What one unit of `commodity_id` fetches at the station (0: it does not buy it).
+static func commodity_sale_price(commodity_id: String, location_id: String, faction: String = "") -> int:
+	var commodity = TemplateDatabase.get_template(commodity_id)
+	var share: float = Havens.buys(location_id, commodity_id)
+	if not (commodity is CommodityTemplate) or share <= 0.0:
+		return 0
+	return cargo_sale_price(float(commodity.base_value) * share, location_id, faction)
+
+
+# What the hold fetches at the station, all but the fuel and what it does not buy, at a stranger's
+# price (no standing: NPCs). Returns {"value", "units", "mass" (kg), "sold": [commodity ids]}; the
+# hold is left as it is.
 static func hold_value(ship: Node, location_id: String) -> Dictionary:
-	var result := {"value": 0, "units": 0, "mass": 0.0}
+	var result := {"value": 0, "units": 0, "mass": 0.0, "sold": []}
 	for commodity_id in ship.cargo:
-		if commodity_id == Constants.FUEL_COMMODITY:
+		if commodity_id == Constants.FUEL_COMMODITY or Havens.buys(location_id, commodity_id) <= 0.0:
 			continue
 		var commodity = TemplateDatabase.get_template(commodity_id)
 		var units: int = int(ship.cargo[commodity_id])
 		result.units += units
+		result.sold.append(commodity_id)
+		result.value += units * commodity_sale_price(commodity_id, location_id)
 		if commodity is CommodityTemplate:
-			result.value += units * cargo_sale_price(float(commodity.base_value), location_id)
 			result.mass += units * float(commodity.unit_mass)
 	return result
 
 
-# Sells the hold to the station into the bank, all but the fuel. Returns {"banked", "units"}.
+# Sells the hold to the station into the bank, all but the fuel and what it does not buy. Returns
+# {"banked", "units"}.
 static func sell_hold(ship: Node, location_id: String, faction: String = "") -> Dictionary:
 	var result := {"banked": 0, "units": 0}
 	for commodity_id in ship.cargo.keys():
-		if commodity_id == Constants.FUEL_COMMODITY:
+		if commodity_id == Constants.FUEL_COMMODITY or Havens.buys(location_id, commodity_id) <= 0.0:
 			continue
-		var commodity = TemplateDatabase.get_template(commodity_id)
 		var units: int = int(ship.cargo[commodity_id])
 		result.units += units
-		if commodity is CommodityTemplate:
-			result.banked += units * cargo_sale_price(float(commodity.base_value), location_id, faction)
+		result.banked += units * commodity_sale_price(commodity_id, location_id, faction)
 		ship.remove_cargo(commodity_id, units)
 	GameState.player_bank += result.banked
 	return result

@@ -6,7 +6,7 @@ const Traffic = preload("res://src/core/systems/traffic.gd")
 const Offscreen = preload("res://src/core/systems/offscreen.gd")
 
 var populate_sectors: bool = true  # Tests switch this off to spawn only the player.
-var run_traffic: bool = true  # The evolution sim switches this off: no travellers in the arenas
+var run_traffic: bool = true  # The evolution sim switches this off: no travellers among the evolving NPCs
 
 var _player_agent_body: RigidBody = null
 var _next_agent_uid: int = 0  # Counter for generating unique agent UIDs
@@ -14,7 +14,7 @@ var _npc_bodies: Array = []  # Live NPCs in the current sector
 var _respawn_timer: Timer = null
 var traffic: Node = null  # The travelling NPCs (Traffic)
 var offscreen: Node = null  # Far ships resolved by rule (Offscreen)
-var _arena_slots: Array = []  # [{"zone", "faction", "body", "ready_at"}], reset per sector
+var _haven_slots: Array = []  # [{"haven", "faction", "body", "ready_at", "extra"}], reset per sector
 
 
 func _ready():
@@ -46,7 +46,7 @@ func _on_Zone_Loaded(_zone_instance, _zone_path, agent_container_node):
 		if not is_instance_valid(_player_agent_body):
 			spawn_player()
 		_npc_bodies.clear()
-		_arena_slots = []
+		_haven_slots = []
 		Evolution.suspend_all()  # Ships left behind with the last sector fly again when it is back
 		if populate_sectors:
 			_top_up_population(true)
@@ -211,46 +211,49 @@ func _get_jump_in_distance_for_sector(sector_id: String) -> float:
 			return 5000.0
 
 
-# --- NPC Population: the arenas (see Arena, Evolution, Constants ARENA AND EVOLUTION) ---
+# --- NPC Population: the havens (see SectorLayout, Evolution, Constants SECTOR_LAYOUTS) ---
 
-# Every arena slot (zone, faction, index) keeps one NPC flying from Evolution's gene pool: when
-# its NPC dies or retires, a replacement undocks ARENA_RESPAWN_DELAY later. A xenohive has extra
+# Every haven slot (haven, faction, index) keeps one NPC flying from Evolution's gene pool: when
+# its NPC dies or retires, a replacement undocks HAVEN_RESPAWN_DELAY later. A xenohive has extra
 # slots that fill as it grows (Evolution.grown_drones). Called every second
 # by the respawn timer; also clears old wrecks.
 func _top_up_population(_fill: bool = false) -> void:
 	if not is_instance_valid(GlobalRefs.agent_container) or not is_instance_valid(_player_agent_body):
 		return
-	var arena = _find_arena()
-	Evolution.active = arena != null
-	if arena == null:
+	var layout = _find_layout()
+	Evolution.active = layout != null and not layout.havens.empty()
+	if not Evolution.active:
 		return
-	if _arena_slots.empty():
-		for zone in arena.zones:
-			for faction in zone.factions:
-				for index in range(int(zone.factions[faction]) + (Constants.XENOHIVE_DRONES_MAX if Constants.FACTIONS.get(faction, {}).has("territory") else 0)):
-					_arena_slots.append({"zone": zone, "faction": faction, "body": null, "ready_at": 0.0, "extra": int(max(0, index - int(zone.factions[faction]) + 1))})
+	if _haven_slots.empty():
+		for haven in layout.havens:
+			for faction in haven.factions:
+				for index in range(int(haven.factions[faction]) + (Constants.XENOHIVE_DRONES_MAX if Constants.FACTIONS.get(faction, {}).has("territory") else 0)):
+					_haven_slots.append({"haven": haven, "faction": faction, "body": null, "ready_at": 0.0, "extra": int(max(0, index - int(haven.factions[faction]) + 1))})
 	var now: float = Evolution.game_time
-	for slot in _arena_slots:
+	for slot in _haven_slots:
 		var body = slot.body
 		if is_instance_valid(body) and body.is_inside_tree() and not body.is_wreck:
 			continue
 		if body != null:  # Lost or retired: the replacement waits a little
 			slot.body = null
-			slot.ready_at = now + Constants.ARENA_RESPAWN_DELAY
+			slot.ready_at = now + Constants.HAVEN_RESPAWN_DELAY
 		if slot.extra > Evolution.grown_drones(slot.faction):
 			continue  # The hive has not grown that far yet
 		if now >= slot.ready_at:
-			slot.body = _spawn_arena_npc(slot.zone, slot.faction)
+			slot.body = _spawn_haven_npc(layout, slot.haven, slot.faction)
 	clear_old_wrecks()
 
 
-# A new life for an arena slot, spawned docked at one of its faction's stations in the zone.
-func _spawn_arena_npc(zone: Dictionary, faction: String) -> RigidBody:
-	var life: Dictionary = Evolution.begin_life(faction, zone.id)
+# A new life for a haven slot, spawned docked at its haven. It may dock wherever it is welcome
+# (SectorLayout.refuges_for) and roams the sector's play area by its beacons.
+func _spawn_haven_npc(layout: Node, haven: Dictionary, faction: String) -> RigidBody:
+	var life: Dictionary = Evolution.begin_life(faction, haven.id)
 	if life.empty():
 		return null
-	var stations: Array = zone.stations[faction]
-	var station: Spatial = stations[randi() % stations.size()]
+	var station: Spatial = haven.station
+	var refuges := {}
+	for other in Constants.FACTIONS:
+		refuges[other] = layout.refuges_for(other)
 	var npc = spawn_npc_from_template(Constants.NPC_BASE_TEMPLATE_PATH, station.get_undock_position(), {
 		"faction": faction,
 		"ship_template_id": life.ship_template_id,
@@ -258,9 +261,10 @@ func _spawn_arena_npc(zone: Dictionary, faction: String) -> RigidBody:
 		"evo_uid": life.uid,
 		"skill": life.skill,
 		"behavior": life.behavior,
-		"patrol_center": station.global_transform.origin if Constants.FACTIONS.get(faction, {}).has("territory") else zone.beacon.global_transform.origin,  # A hive's drones keep near it
+		"patrol_center": station.global_transform.origin,
 		"home_point": station.global_transform.origin,
-		"arena": {"zone_id": zone.id, "beacon": zone.beacon.global_transform.origin, "stations": stations, "refuges": zone.stations},
+		"havens": {"zone_id": haven.id, "stations": refuges[faction], "refuges": refuges,
+			"centre": layout.network.play_center, "radius": layout.network.play_radius, "territorial": Constants.FACTIONS.get(faction, {}).has("territory")},
 		"docked_at": station,
 	})
 	if is_instance_valid(npc):
@@ -269,10 +273,10 @@ func _spawn_arena_npc(zone: Dictionary, faction: String) -> RigidBody:
 	return npc
 
 
-func _find_arena() -> Node:
-	for arena in get_tree().get_nodes_in_group("arena"):
-		if is_instance_valid(GlobalRefs.current_zone) and GlobalRefs.current_zone.is_a_parent_of(arena):
-			return arena
+func _find_layout() -> Node:
+	for layout in get_tree().get_nodes_in_group("sector_layout"):
+		if is_instance_valid(GlobalRefs.current_zone) and GlobalRefs.current_zone.is_a_parent_of(layout):
+			return layout
 	return null
 
 

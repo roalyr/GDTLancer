@@ -734,6 +734,8 @@ func describe_target_stats(player) -> String:
 			lines.append("SLAG COOLING %ds  ORE %d" % [int(ceil(_current_target.heat)), _current_target.get_salvage_units()])
 		else:
 			lines.append("SLAG: HARPOON IT  ORE %d" % _current_target.get_salvage_units())
+	elif _current_target.has_method("get_beacon_cues"):  # A beacon (SectorLayout): what goes on round it
+		lines.append(PoolStringArray(_current_target.get_beacon_cues()).join("  "))
 	elif _current_target.get("is_wreck"):
 		lines.append("WRECK  SALVAGE %d" % _current_target.get_salvage_units())
 	elif _current_target.has_method("get_deposit") and _current_target.mineable:  # A rock

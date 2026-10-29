@@ -14,7 +14,7 @@ class Ship extends "res://src/core/agents/agent.gd":
 
 
 class StubAI extends Node:
-	var _arena: Dictionary = {}
+	var _havens: Dictionary = {}
 	var _home_position: Vector3 = Vector3.ZERO
 	var _home_point: Vector3 = Vector3.ZERO
 	var retreat: bool = false

@@ -20,7 +20,7 @@
 [ext_resource path="res://scenes/levels/sectors/sector_elace/planet_elace_b/planet_elace_b.tscn" type="PackedScene" id=22]
 [ext_resource path="res://scenes/levels/sectors/sector_elace/planet_elace_c/planet_elace_c.tscn" type="PackedScene" id=23]
 [ext_resource path="res://scenes/levels/sectors/sector_elace/moon_elace_c1/moon_elace_c1.tscn" type="PackedScene" id=24]
-[ext_resource path="res://src/scenes/game_world/arena/arena.gd" type="Script" id=25]
+[ext_resource path="res://src/scenes/game_world/sector_layout/sector_layout.gd" type="Script" id=25]
 
 [sub_resource type="SpatialMaterial" id=1]
 flags_unshaded = true
@@ -60,33 +60,34 @@ __meta__ = {
 [node name="Star Elace" parent="SceneAssets" instance=ExtResource( 4 )]
 
 [node name="EntryPoint" type="Spatial" parent="SceneAssets"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -20000, 0, 2000 )
 
 [node name="Planet Elace A" parent="SceneAssets" instance=ExtResource( 19 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 225000, 0, 0 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 6000, 0, 22000 )
 
 [node name="Moon Elace A1" parent="SceneAssets" instance=ExtResource( 20 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 233000, 0, 0 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -2000, 0, 28000 )
 
-[node name="Moon Elace A2" parent="SceneAssets" instance=ExtResource( 21 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 217000, 0, 5000 )
+[node name="Moon Elace B1" parent="SceneAssets" instance=ExtResource( 21 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 31000, 0, 0 )
 
 [node name="Planet Elace B" parent="SceneAssets" instance=ExtResource( 22 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 75000, 0, 50000 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 25000, 0, 0 )
 
 [node name="Planet Elace C" parent="SceneAssets" instance=ExtResource( 23 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 100000, 0, -75000 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 6000, 0, -22000 )
 
 [node name="Moon Elace C1" parent="SceneAssets" instance=ExtResource( 24 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 92000, 0, -80000 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -2000, 0, -28000 )
 
 [node name="ElaceHomeStation" parent="SceneAssets" instance=ExtResource( 5 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -8500, 1500, 5278 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -22000, 0, 0 )
 
-[node name="Arena" type="Spatial" parent="SceneAssets"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1500, 20000 )
+[node name="SectorLayout" type="Spatial" parent="SceneAssets"]
 script = ExtResource( 25 )
 
 [node name="Asteroids" type="Spatial" parent="SceneAssets"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 42000, -1700, -20500 )
 
 [node name="Asteroid01" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
 transform = Transform( 32.3952, -8.42021, -18.5775, 12.7308, -18.8944, 30.7636, -15.9358, -32.2114, -13.1889, -853.015, 1756.44, 16731.7 )

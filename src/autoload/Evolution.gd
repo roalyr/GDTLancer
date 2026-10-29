@@ -1,5 +1,5 @@
-# Evolution: the arena NPCs' gene pools, their lives, and the record of every life (see Constants
-# ARENA AND EVOLUTION). Each faction has its own pool: an archive of niches (Genome.niche), each
+# Evolution: the evolving NPCs' gene pools (they live from the havens of Constants EVO_SECTOR_ID: SectorLayout), their lives, and the record of every life (see Constants
+# EVOLUTION). Each faction has its own pool: an archive of niches (Genome.niche), each
 # holding the best genome found for it. A spawn (begin_life) picks a niche softly by fitness and
 # flies its genome again or a mutant; the life's end (death or retirement) scores the genome and
 # may make it its niche's best. In proving mode (Constants EVO_PROVING) it mostly re-flies the leading
@@ -13,11 +13,12 @@ extends Node
 const Genome = preload("res://src/core/evolution/genome.gd")
 const PresetExporter = preload("res://src/core/evolution/preset_exporter.gd")
 const Market = preload("res://src/core/systems/market.gd")
+const Havens = preload("res://src/core/systems/havens.gd")
 const SAVE_VERSION = 1
 
 var run_id: String = ""  # Names the log file; a new game starts a new run
-var game_time: float = 0.0  # s of simulated time with the arenas running
-var real_time: float = 0.0  # s of wall-clock time with the arenas running
+var game_time: float = 0.0  # s of simulated time with the havens populated
+var real_time: float = 0.0  # s of wall-clock time with the havens populated
 var totals: Dictionary = {}  # "births", "deaths", "retired"
 var pools: Dictionary = {}  # Faction -> {"cells": {niche: genome id}, "lives": lives ended}
 var genomes: Dictionary = {}  # Genome id -> {"genome", "faction", "parent", "born", "lives", "fitness_sum", "kills", "deaths", "earned"}
@@ -27,7 +28,7 @@ var _next_uid: int = 0
 var _next_genome: int = 0
 var _bodies: Dictionary = {}  # NPC uid -> its AgentBody
 var _report_due: float = 0.0
-var active: bool = false  # Arenas populated (AgentSystem); time only counts then
+var active: bool = false  # Havens populated (AgentSystem); time only counts then
 
 
 func _ready():
@@ -57,7 +58,7 @@ func new_run() -> void:
 	real_time = 0.0
 	totals = {"births": 0, "deaths": 0, "retired": 0}
 	pools = {}
-	for faction in Constants.ARENA_FACTIONS:
+	for faction in Constants.EVO_FACTIONS:
 		pools[faction] = {"cells": {}, "lives": 0}
 	genomes = {}
 	live = {}
@@ -116,19 +117,15 @@ func deserialize(data: Dictionary) -> bool:
 	real_time = float(data.get("real_time", 0.0))
 	totals = data.get("totals", totals)
 	pools = data.get("pools", pools)
-	for faction in Constants.ARENA_FACTIONS:
+	for faction in Constants.EVO_FACTIONS:
 		if not pools.has(faction):
 			pools[faction] = {"cells": {}, "lives": 0}
 	genomes = data.get("genomes", {})
 	for genome_id in genomes:
 		Genome.retire_parts(genomes[genome_id].genome)  # Capacitor modules became power cells
 	resume = data.get("lives", [])
-	var zones: Array = []
-	for zone in Constants.ARENA_ZONES:
-		zones.append(zone.id)
 	for record in resume:
-		if not record.get("zone") in zones:
-			record.zone = zones.back()  # Its zone is gone (3v3 became 4v4): it flies in the biggest
+		record.zone = _haven_for(str(record.get("faction", "")), str(record.get("zone", "")))  # The arenas' zones became havens
 	_next_uid = int(data.get("next_uid", 0))
 	_next_genome = int(data.get("next_genome", genomes.size()))
 	plant_seeds()
@@ -160,7 +157,7 @@ func suspend_all() -> void:
 
 # --- Lives ---
 
-# A new life for an arena slot: a saved one for this faction and zone if there is one, otherwise a
+# A new life for a haven slot: a saved one for this faction and zone if there is one, otherwise a
 # genome from the pool. Returns the life record ("uid", "genome_id", "ship_template_id", "fit",
 # "behavior", "skill", ...) or {} if none.
 func begin_life(faction: String, zone_id: String) -> Dictionary:
@@ -223,38 +220,25 @@ func get_record(uid: String) -> Dictionary:
 
 
 # Docked at one of its stations: sells the hold, repairs. Returns true if the ship retires here
-# (Constants ARENA_MAX_LIFETIME): its life ends, and the caller removes it.
+# (Constants NPC_MAX_LIFETIME): its life ends, and the caller removes it.
 func on_docked(body: Node, location_id: String = "") -> bool:
 	var uid: String = str(body.get("evo_uid"))
 	if not live.has(uid):
 		return false
 	var record: Dictionary = live[uid]
-	var sale: Dictionary = Market.hold_value(body, location_id)  # At the station's cargo price, as the player
+	var sale: Dictionary = Market.hold_value(body, location_id)  # At the station's cargo price, as the player; what it buys (Havens)
 	var value: int = int(sale.value)
 	var units: int = int(sale.units)
 	var delivered: float = float(sale.mass)
-	body.clear_cargo()
+	for commodity_id in sale.sold:
+		body.remove_cargo(commodity_id, int(body.cargo.get(commodity_id, 0)))
 	var pool: Dictionary = pools.get(record.faction, {})
 	pool["delivered"] = float(pool.get("delivered", 0.0)) + delivered
 	var hull_max: float = max(float(body.hull_max), 1.0)
-	var repaired: float = body.repair_hull()
+	var repaired: float = body.repair_hull() if Havens.offers(location_id, "repair") else 0.0
 	var repair_cost: float = Constants.EVO_REPAIR_COST_SHARE * float(record.get("hull_value", record.cost)) * repaired / hull_max
-	var rearmed := false
-	for lance in (body.get_lances() if body.has_method("get_lances") else []):
-		var lances: int = lance.restock()
-		repair_cost += lances * float(lance.lance.nail_value)  # Lances used are bought anew
-		rearmed = rearmed or lances > 0
-	if rearmed:
-		note(uid, "rearmed")
-	var tools = body.get_node_or_null("ToolController")
-	if tools != null and tools.has_method("restock_ammo"):
-		var added: Dictionary = tools.restock_ammo()
-		for index in added:
-			repair_cost += int(added[index]) * float(tools.get_tool(index).round_value)  # Rounds fired are bought anew
-		if not added.empty():
-			note(uid, "reloaded")
-	if body.has_method("restock_decoys"):
-		repair_cost += body.restock_decoys() * Constants.LAW_DECOY_VALUE
+	if Havens.offers(location_id, "rearm"):
+		repair_cost += _rearm(uid, body)
 	record.earned = int(record.earned) + value
 	record.spent = float(record.get("spent", 0.0)) + repair_cost
 	record.docks = int(record.docks) + 1
@@ -263,6 +247,28 @@ func on_docked(body: Node, location_id: String = "") -> bool:
 		_end_life(uid, false, "")
 		return true
 	return false
+
+
+# Lances, rounds and decoys used are bought anew at their value; returns what that cost.
+func _rearm(uid: String, body: Node) -> float:
+	var cost := 0.0
+	var rearmed := false
+	for lance in (body.get_lances() if body.has_method("get_lances") else []):
+		var lances: int = lance.restock()
+		cost += lances * float(lance.lance.nail_value)
+		rearmed = rearmed or lances > 0
+	if rearmed:
+		note(uid, "rearmed")
+	var tools = body.get_node_or_null("ToolController")
+	if tools != null and tools.has_method("restock_ammo"):
+		var added: Dictionary = tools.restock_ammo()
+		for index in added:
+			cost += int(added[index]) * float(tools.get_tool(index).round_value)
+		if not added.empty():
+			note(uid, "reloaded")
+	if body.has_method("restock_decoys"):
+		cost += body.restock_decoys() * Constants.LAW_DECOY_VALUE
+	return cost
 
 
 # A run-and-chase event in a life, counted in its record and log: "fled" (broke off or ran),
@@ -282,7 +288,7 @@ func is_old(uid: String) -> bool:
 	return live.has(uid) and game_time - float(live[uid].born) >= lifetime_of(uid)
 
 
-# --- Rank: renown within a group (a faction's ships in one arena zone; Constants RENOWN_*) ---
+# --- Rank: renown within a group (a faction's ships living from one haven; Constants RENOWN_*) ---
 
 static func renown_of(record: Dictionary) -> float:
 	return Constants.RENOWN_PER_KILL * int(record.get("kills", 0)) \
@@ -293,7 +299,7 @@ static func renown_of(record: Dictionary) -> float:
 # How long it flies before it retires: longer the more renown it has won.
 func lifetime_of(uid: String) -> float:
 	var renown: float = renown_of(live.get(uid, {}))
-	return Constants.ARENA_MAX_LIFETIME * min(Constants.ARENA_LIFETIME_MAX_FACTOR, 1.0 + renown * Constants.ARENA_LIFETIME_PER_RENOWN)
+	return Constants.NPC_MAX_LIFETIME * min(Constants.NPC_LIFETIME_MAX_FACTOR, 1.0 + renown * Constants.NPC_LIFETIME_PER_RENOWN)
 
 
 # The group's lives, most renowned first (the older first on a tie).
@@ -314,7 +320,7 @@ func _ranks_above(a: String, b: String) -> bool:
 	return float(live[a].born) < float(live[b].born)
 
 
-# 1 for the first in its group; 0 if not a live arena NPC.
+# 1 for the first in its group; 0 if not a live evolving NPC.
 func rank_of(uid: String) -> int:
 	if not live.has(uid):
 		return 0
@@ -345,7 +351,8 @@ func _on_agent_damaged(body, amount, source) -> void:
 			live[source_uid].destroyed = float(live[source_uid].get("destroyed", 0.0)) + share * float(live[victim_uid].cost)
 	if live.has(victim_uid):
 		live[victim_uid].damage_taken = float(live[victim_uid].damage_taken) + float(amount)
-		live[victim_uid].last_hit_by = source_uid
+		if source_uid != "":  # Radiation and the like credit no one and keep the last attacker's credit
+			live[victim_uid].last_hit_by = source_uid
 
 
 func _on_agent_disabled(body) -> void:
@@ -391,7 +398,7 @@ static func net_of(record: Dictionary, age: float) -> float:
 	return float(record.earned) + float(record.bounty) - float(record.get("spent", 0.0)) - upkeep
 
 
-# What a live arena pilot has (WP): its stake (Constants EVO_PILOT_STAKE_SHARE) plus its takings.
+# What a live evolving pilot has (WP): its stake (Constants EVO_PILOT_STAKE_SHARE) plus its takings.
 func wallet_of(uid: String) -> float:
 	if not live.has(uid):
 		return 0.0
@@ -452,22 +459,36 @@ func _place_in_archive(genome_id: String) -> String:
 	return "below best of " + niche
 
 
-# A zone can favour a role (Constants ARENA_ZONES prefer_role, prefer_share): this spawn picks among
-# that role's niches only, if the pool has any. Returns the role, or "".
+# `zone_id` if it is one of the sector's populated havens that `faction` lives from, otherwise the
+# first such haven (a saved life from before, or from a zone that is gone).
+func _haven_for(faction: String, zone_id: String) -> String:
+	var first := ""
+	for haven in Havens.populated(Constants.EVO_SECTOR_ID):
+		if not haven.ships.has(faction):
+			continue
+		if haven.id == zone_id:
+			return zone_id
+		if first == "":
+			first = haven.id
+	return first
+
+
+# A haven can favour a role (Constants SECTOR_LAYOUTS prefer_role, prefer_share): this spawn picks
+# among that role's niches only, if the pool has any. Returns the role, or "".
 func _preferred_role(faction: String, zone_id: String) -> String:
-	for zone in Constants.ARENA_ZONES:
-		if zone.id == zone_id and zone.has("prefer_role") and randf() < float(zone.get("prefer_share", 0.0)):
-			var role: String = "|%s|" % zone.prefer_role
-			for niche in pools.get(faction, {}).get("cells", {}):
-				if niche.find(role) >= 0:
-					return role
+	var haven: Dictionary = Havens.spec(zone_id)
+	if haven.has("prefer_role") and randf() < float(haven.get("prefer_share", 0.0)):
+		var role: String = "|%s|" % haven.prefer_role
+		for niche in pools.get(faction, {}).get("cells", {}):
+			if niche.find(role) >= 0:
+				return role
 	return ""
 
 
 # A spawn's genome. Its family first (Genome.family; drifters only when there is nothing else), each
 # as likely as the others whatever their fitness, so every family keeps evolving; within it, a leading
 # genome short of its proving lives, or a parent picked by fitness, re-flown or mutated. A zone's
-# preferred `role` (Constants ARENA_ZONES) takes the family's place.
+# preferred `role` (Constants SECTOR_LAYOUTS) takes the family's place.
 func _pick_genome(faction: String, role: String = "") -> Dictionary:
 	var pool: Dictionary = pools[faction]
 	var family: String = "" if role != "" else _pick_family(pool)

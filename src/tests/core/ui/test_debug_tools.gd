@@ -82,7 +82,7 @@ func test_go_to_puts_the_ship_at_typed_coordinates_stopped():
 
 func test_go_to_lists_places_nearest_first_and_stops_short_of_them():
 	var far := Spatial.new()
-	far.add_to_group("arena_beacon")
+	far.add_to_group("beacon")
 	far.translation = Vector3(50000, 0, 0)
 	add_child_autofree(far)
 	var near := Spatial.new()

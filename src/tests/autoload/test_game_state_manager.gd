@@ -119,7 +119,7 @@ func test_losing_the_ship_keeps_the_bank_and_storage_and_wakes_at_home():
 func test_save_carries_the_evolution_and_a_summary():
 	_populate_game_state()
 	Evolution.new_run()
-	var life: Dictionary = Evolution.begin_life("verdant", "1v1")
+	var life: Dictionary = Evolution.begin_life("verdant", "verdant_post")
 	Evolution.game_time = 1234.0
 	GameState.play_time = 7200.0
 	assert_true(GameStateManager.save_game(TEST_SLOT))
@@ -130,7 +130,7 @@ func test_save_carries_the_evolution_and_a_summary():
 	assert_true(GameStateManager.load_game(TEST_SLOT))
 	assert_almost_eq(Evolution.game_time, 1234.0, 0.01)
 	assert_almost_eq(GameState.play_time, 7200.0, 0.01)
-	assert_eq(Evolution.begin_life("verdant", "1v1").uid, life.uid, "The ship flying at the save flies again")
+	assert_eq(Evolution.begin_life("verdant", "verdant_post").uid, life.uid, "The ship flying at the save flies again")
 	Evolution.new_run()
 	TemplateDatabase.evolved = {}
 

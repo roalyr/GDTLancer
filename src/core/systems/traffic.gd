@@ -1,12 +1,12 @@
 # Traffic: persistent NPCs that travel the sector graph (Constants TRAFFIC_*), the population of the
-# world outside the arenas. Each traveller is a record in GameState.travelers:
+# world besides the evolving NPCs. Each traveller is a record in GameState.travelers:
 #   {"id", "faction", "role", "genome", "sector", "status" ("dwell" or "transit"), "until" (world
 #    time), "from" (the sector it came from), "next" (the one it leaves for), "fuel" (units), "bank"
 #    (WP), "cargo" {commodity: units}, "hull" (share, 1 = whole)}
 # Off-screen it keeps a timetable: it stays in a sector until "until", then jumps to "next", burning a
 # jump's fuel (ceil(mass / FUEL_MASS_PER_UNIT), as everyone), and arrives TRAFFIC_TRANSIT_TIME later.
 # Without fuel for a jump it stays put. In Elace it sells its cargo (home station prices) into its bank, buys
-# fuel and is repaired. In the player's sector it is a ship (its genome, built as an arena NPC's is):
+# fuel and is repaired. In the player's sector it is a ship (its genome, built as an evolving NPC's is):
 # its AI mines, raids or patrols round its work point (prospectors: the nearest minable thing), and
 # when its time is up, or its hold full, it flies out toward "next" and jumps. A traveller that dies is
 # gone; another takes its place in Elace TRAFFIC_REPLACE_TIME later, from the best design of its kind.

@@ -165,7 +165,7 @@ func test_lasers_shoot_down_missiles_coming_at_their_ship():
 
 
 func test_missiles_and_cannons_hold_fire_behind_a_rock():
-	var rock = load(Constants.ARENA_ROCK_SCENE).instance()
+	var rock = load(Constants.FIELD_ROCK_SCENE).instance()
 	rock.transform = Transform(Basis().scaled(Vector3.ONE * 40.0), Vector3(0, 0, -400))
 	add_child_autofree(rock)
 	yield(get_tree(), "physics_frame")

@@ -1,4 +1,4 @@
-# GameStateManager: new game reset and save/load of GameState and the arenas' evolution.
+# GameStateManager: new game reset and save/load of GameState and the havens' evolution.
 # Saves carry SAVE_FORMAT_VERSION; older ones are deleted at start (they lack the evolution data),
 # and a summary for the load prompt (get_save_summary).
 

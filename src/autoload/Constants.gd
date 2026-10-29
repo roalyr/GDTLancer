@@ -412,7 +412,7 @@ const AI_FLEE_DISTANCE = 6000.0  # m from the threat at which a fleeing ship res
 # to get the runner in reach) * PURSUIT >= 1, and lets one go that has not hit it for
 # RETURN_FIRE_WINDOW s with chance MERCY; a ship let go is left alone for SPARE_TIME s unless it
 # shoots. A runner shoots back with chance RETURN_FIRE (rolled per flight). Defaults for NPCs
-# without behaviour genes (the arena genes start from the same).
+# without behaviour genes (the evolving genes start from the same).
 const AI_PURSUIT = 1.0
 const AI_MERCY = 0.5
 const AI_RETURN_FIRE = 0.5
@@ -422,8 +422,8 @@ const AI_SPARE_TIME = 60.0  # s
 # Desperation (Agent.get_desperation): 1 - wallet / (the ship's value * DESPERATION_COMFORT), 0..1.
 # A broke pilot takes worse odds: engage and break-off levels * (1 - DESPERATION_NERVE * d); it
 # spares less (mercy * (1 - d)), chases harder (pursuit * (1 + d)), shoots back more (return fire
-# toward 1 by d) and runs home later (retreat hull * (1 - d)). NPCs outside the arenas start with a
-# random wallet of up to WALLET_MAX_SHARE of their ship's value; arena pilots, see EVO_PILOT_STAKE_SHARE.
+# toward 1 by d) and runs home later (retreat hull * (1 - d)). NPCs that do not evolve start with a
+# random wallet of up to WALLET_MAX_SHARE of their ship's value; evolving pilots, see EVO_PILOT_STAKE_SHARE.
 const AI_DESPERATION_COMFORT = 1.0
 const AI_HAUL_SHARE = 0.25  # An NPC goes home to sell once its hold is worth this share of its ship (behaviour gene "haul")
 const AI_DESPERATION_NERVE = 0.5
@@ -558,7 +558,7 @@ const THREAT_RING_RADIUS_SHARE = 0.25  # Ring radius, of the screen's shorter si
 const THREAT_ARROW_SIZE = [28.0, 56.0]  # px, far to near
 const THREAT_COLOR = Color(1.0, 0.36, 0.12, 1.0)  # Red-orange, as hostile brackets
 
-# Traffic (Traffic): persistent NPCs travelling the sector graph, the population outside the arenas.
+# Traffic (Traffic): persistent NPCs travelling the sector graph, the population besides the evolving NPCs.
 const TRAFFIC_ROSTER = [  # Kind (faction, niche role; "" any) and how many
 	{"faction": "verdant", "role": "prospector", "count": 2},
 	{"faction": "violet", "role": "prospector", "count": 2},
@@ -844,81 +844,155 @@ const HARPOON_TEMPLATE_ID = "tool_harpoon"  # Not evolved: the same harpoon for 
 
 
 # ==================================================================================================
-# ARENA AND EVOLUTION (Arena, Evolution)
+# SECTOR LAYOUT, HAVENS, BEACONS AND HAZARDS (SectorLayout, Havens, Beacon, BeaconNetwork, Hazard)
 # ==================================================================================================
 
-# Three arenas in the Elace system, far enough apart that nothing in one notices another: a beacon
-# in the middle, each faction's two stations on its own side. NPCs spawn docked at their stations,
-# patrol round the beacon, dock to sell loot and to escape, and never leave their arena.
-const ARENA_SECTOR_ID = "sector_elace"
-# The frontier is the mixed one: a wide field of rocks to mine, both factions' stations, a raider
-# outpost on one end (the raiders' only market) and a xenohive on the other (ARENA_STATION_PLACES).
-const ARENA_ZONES = [  # Offset from the Arena node, ships per faction, terrain (ARENA_ROCK_FIELDS)
-	{"id": "1v1", "offset": Vector3(20000, 0, 0), "factions": {"verdant": 1, "violet": 1}, "terrain": "open"},
-	{"id": "2v2", "offset": Vector3(-10000, 0, 17320), "factions": {"verdant": 2, "violet": 2}, "terrain": "belt"},
-	{"id": "4v4", "offset": Vector3(-10000, 0, -17320), "factions": {"verdant": 4, "violet": 4}, "terrain": "scatter"},
-	{"id": "frontier", "offset": Vector3(-30000, 0, 0), "factions": {"verdant": 3, "violet": 3, "raiders": 3, "xenohive": 2}, "terrain": "field",
-		"prefer_role": "prospector", "prefer_share": 0.5},  # Half the factions' spawns here fly a prospector niche (Evolution._pick_genome)
-]
-# Rocks per terrain (Arena builds them from a seed, so every load has the same field). They stop
-# ships, laser fire, missiles and shells: cover to fight from or run behind. A belt runs across the
-# middle, between the two sides (half as thick as ARENA_ROCK_BELT_WIDTH); a scatter fills the field.
-const ARENA_ROCK_FIELDS = {"open": 0, "belt": 22, "scatter": 26, "field": 40}
-const ARENA_ROCK_FIELD_RADIUS = 3000.0  # m from the beacon
-const ARENA_ROCK_BELT_WIDTH = 1000.0  # m, across the line between the two sides
-const ARENA_ROCK_HEIGHT = 600.0  # m above and below the arena's plane
-const ARENA_ROCK_CLEARANCE = 600.0  # m kept clear round the beacon and each station
-const ARENA_ROCK_SCALE = [30.0, 70.0]  # Most rocks
-const ARENA_ROCK_BIG_SCALE = [120.0, 200.0]  # and some big ones (ARENA_ROCK_BIG_CHANCE)
-const ARENA_ROCK_BIG_CHANCE = 0.2
-const ARENA_ROCK_MODELS = [
+# A sector's layout (SECTOR_LAYOUTS, by sector id) is built on load by SectorLayout: its havens, its
+# beacons, its rock fields and its hazards. Positions are in m from the sector's middle; planets and
+# moons stand in the sector scene, and havens and beacons are placed round them.
+#
+# Haven: a station NPCs live from. "faction" ("" neutral); "ships" per faction living from it (the
+# evolving NPCs: each haven's are a group, with their own ranks and leader; "prefer_role" and
+# "prefer_share" bend what flies there). "services": "repair", "rearm" (lances, rounds, decoys) and
+# "buys": commodity id (or "*" for any) -> price factor on its cargo price; it buys nothing else.
+# "station": a station already in the scene (the free port, by node name), otherwise one is built.
+# NPCs dock where they are welcome (Havens.welcome): their own faction's havens, and neutral ones
+# unless they are raiders or the xenohive. Every haven is a beacon too (kind "haven").
+# Beacon kinds: "patrol" (a faction's: its patrol ships go round them, its safe zone), "field" (a
+# rock field to mine: "rocks" of them within "radius", "ring": only the outer share past it, round a
+# planet), "landmark" (a point routes go through; every planet and moon is one too).
+# Hazard "radiation": round a star, from "core" (its surface) out to "radius"; hull damage a second
+# rises from 0 at the edge to HAZARD_RADIATION_DPS at the surface, as the square of the depth.
+const SECTOR_LAYOUTS = {
+	"sector_elace": {
+		"play_radius": 60000.0,  # m from the middle: NPCs do not chase, salvage or patrol beyond it
+		"hazards": [{"kind": "radiation", "at": Vector3(0, 0, 0), "core": 5000.0, "radius": 15000.0}],  # Three star diameters across
+		"havens": [
+			{"id": "station_elace_home", "name": "Elace Free Port", "faction": "", "station": "ElaceHomeStation",
+				"services": {"repair": true, "rearm": true, "buys": {"*": 1.0}}},
+			{"id": "verdant_haven", "name": "Verdant Haven", "faction": "verdant", "at": Vector3(6000, 0, 25000), "ships": {"verdant": 5},
+				"services": {"repair": true, "rearm": true, "buys": {"*": 0.9}}},
+			{"id": "verdant_post", "name": "Verdant Post", "faction": "verdant", "at": Vector3(-2000, 0, 29500), "ships": {"verdant": 2},
+				"prefer_role": "prospector", "prefer_share": 0.7, "services": {"repair": true, "buys": {"commodity_ore": 0.8}}},
+			{"id": "violet_haven", "name": "Violet Haven", "faction": "violet", "at": Vector3(6000, 0, -25000), "ships": {"violet": 5},
+				"services": {"repair": true, "rearm": true, "buys": {"*": 0.9}}},
+			{"id": "violet_post", "name": "Violet Post", "faction": "violet", "at": Vector3(-2000, 0, -29500), "ships": {"violet": 2},
+				"prefer_role": "prospector", "prefer_share": 0.7, "services": {"repair": true, "buys": {"commodity_ore": 0.8}}},
+			{"id": "elace_refinery", "name": "Elace Refinery", "faction": "", "at": Vector3(32500, 0, 0),
+				"services": {"buys": {"commodity_ore": 1.4, "commodity_relic": 1.2}}},
+			{"id": "raider_den", "name": "Raider Den", "faction": "raiders", "at": Vector3(0, 24000, 0), "ships": {"raiders": 4},
+				"services": {"repair": true, "rearm": true, "buys": {"*": 0.7}}},
+			{"id": "xenohive", "name": "Xenohive", "faction": "xenohive", "at": Vector3(48000, 0, 0), "ships": {"xenohive": 3},
+				"services": {"buys": {"*": 1.0}}},
+		],
+		"beacons": [
+			{"kind": "patrol", "owner": "verdant", "name": "Verdant Picket West", "at": Vector3(-8000, 0, 20000)},
+			{"kind": "patrol", "owner": "verdant", "name": "Verdant Picket East", "at": Vector3(16000, 0, 16000)},
+			{"kind": "patrol", "owner": "verdant", "name": "Verdant Picket North", "at": Vector3(6000, 0, 33000)},
+			{"kind": "patrol", "owner": "violet", "name": "Violet Picket West", "at": Vector3(-8000, 0, -20000)},
+			{"kind": "patrol", "owner": "violet", "name": "Violet Picket East", "at": Vector3(16000, 0, -16000)},
+			{"kind": "patrol", "owner": "violet", "name": "Violet Picket South", "at": Vector3(6000, 0, -33000)},
+			{"kind": "field", "name": "Verdant Home Field", "at": Vector3(14000, 0, 28000), "radius": 2000.0, "rocks": 14},
+			{"kind": "field", "name": "Violet Home Field", "at": Vector3(14000, 0, -28000), "radius": 2000.0, "rocks": 14},
+			{"kind": "field", "name": "Elace B Belt", "at": Vector3(25000, 0, 0), "radius": 5000.0, "ring": 0.5, "rocks": 30},
+			{"kind": "field", "name": "Deep Field", "at": Vector3(42000, 0, 0), "radius": 4000.0, "rocks": 12},  # And the scene's old rocks
+			{"kind": "landmark", "name": "West Pass North", "at": Vector3(-18000, 0, 11000)},
+			{"kind": "landmark", "name": "West Pass South", "at": Vector3(-18000, 0, -11000)},
+			{"kind": "landmark", "name": "East Pass North", "at": Vector3(20000, 0, 11000)},
+			{"kind": "landmark", "name": "East Pass South", "at": Vector3(20000, 0, -11000)},
+		],
+	},
+}
+const HAZARD_RADIATION_DPS = 12.0  # Hull a second at a star's surface (a Phoenix Light has 120)
+const HAZARD_TICK = 0.5  # s between hazard damage steps
+# Beacons (BeaconNetwork) remember what goes on round them: heat (hull lost to enemy fire within
+# BEACON_HEAT_RADIUS, as shares of the victims' hulls, a kill counting BEACON_HEAT_PER_KILL more) and
+# traffic (ships passing within BEACON_TRAFFIC_RADIUS), each halving every *_HALF_LIFE s; and when
+# each faction's ships were last there. Fields know the ore left in them.
+const BEACON_HEAT_RADIUS = 6000.0  # m
+const BEACON_HEAT_PER_KILL = 1.0
+const BEACON_HEAT_HALF_LIFE = 300.0  # s
+const BEACON_TRAFFIC_RADIUS = 3000.0  # m
+const BEACON_TRAFFIC_HALF_LIFE = 600.0  # s
+const BEACON_UPDATE_INTERVAL = 2.0  # s between traffic and decay steps
+const BEACON_FIELD_VALUE_INTERVAL = 10.0  # s between recounts of a field's ore
+const BEACON_LOITER_RADIUS = 1500.0  # m round a beacon a ship picks points to go to while there
+const BEACON_LOITER_TIME = [30.0, 90.0]  # s a ship stays at a beacon before choosing again
+# Words for the player (target info), as heat and traffic pass these.
+const BEACON_HEAT_WORDS = [[0.3, "CALM"], [1.5, "TENSE"], [INF, "HOT"]]
+const BEACON_TRAFFIC_WORDS = [[1.0, "QUIET"], [4.0, "BUSY"], [INF, "CROWDED"]]
+# Routes (BeaconNetwork.route): beacons within ROUTE_LINK_RANGE of each other are linked, and the
+# start and the goal to each other too. A link costs its flying time plus, for a ship of caution c
+# (relative to the default, AI_AVOID_SHARE), c * (ROUTE_HEAT_COST s per unit of heat at its ends,
+# ROUTE_DAMAGE_COST s per share of the hull a hazard would take on the way). Fearless ships go
+# straight; careful ones go round.
+const ROUTE_LINK_RANGE = 24000.0  # m
+const ROUTE_HEAT_COST = 60.0  # s
+const ROUTE_DAMAGE_COST = 600.0  # s per whole hull
+const ROUTE_SAMPLES = 16  # Points a link is sampled at for hazards
+const ROUTE_WAYPOINT_REACHED = 1500.0  # m from a waypoint at which the next is flown to
+# Where an NPC goes (BeaconNetwork.choose): interest / (route time + ROUTE_TIME_FLOOR), by its job.
+# Patrol (armed faction ships): its own patrol beacons, fields and landmarks (CHOICE_* interest),
+# times 1 + time since its faction was there / CHOICE_STALE_TIME, times 1 + heat (trouble draws it);
+# enemy patrol beacons too, as much as it is keen to fight (a raid). Hunt (raiders): traffic, less
+# where its enemies are there now. Scavenge (unarmed): heat. Mine (prospectors): a field's ore over
+# CHOICE_FIELD_VALUE, less where it is hot (e^(-c * heat)).
+const ROUTE_TIME_FLOOR = 60.0  # s
+const CHOICE_OWN_PATROL = 1.0
+const CHOICE_FIELD = 0.5
+const CHOICE_LANDMARK = 0.2
+const CHOICE_RAID = 0.4  # Enemy patrol beacons, times how keen it is to fight
+const CHOICE_STALE_TIME = 300.0  # s
+const CHOICE_FIELD_VALUE = 100.0  # Units of ore
+const CHOICE_HUNT_FLOOR = 0.2  # Traffic it reckons even a quiet beacon has
+const HAVEN_RESPAWN_DELAY = 8.0  # s between a loss and its replacement undocking
+const HAVEN_DOCK_TIME = 10.0  # s an NPC stays docked (selling, repairs) before undocking
+const HAVEN_UNDOCK_CLEAR_RADIUS = 3500.0  # m: with an enemy this near its undock point (past a heavy laser's reach), a docked NPC waits
+const HAVEN_DOCK_MAX_WAIT = 90.0  # s, at most, past its dock time (upkeep runs on meanwhile)
+const HAVEN_DOCK_DISTANCE = 250.0  # m from a station's undock point at which an NPC docks
+const HAVEN_BEACON_RADIUS = 3000.0  # m: a haven's beacon
+# Rock fields (SectorLayout), the same on every load: rocks of FIELD_ROCK_SCALE m, some big
+# (FIELD_ROCK_BIG_CHANCE), within FIELD_ROCK_HEIGHT of the plane, clear of havens and each other.
+const FIELD_ROCK_HEIGHT = 600.0  # m above and below the field's plane
+const FIELD_ROCK_CLEARANCE = 600.0  # m kept clear round each station
+const FIELD_ROCK_SCALE = [30.0, 70.0]
+const FIELD_ROCK_BIG_SCALE = [120.0, 200.0]
+const FIELD_ROCK_BIG_CHANCE = 0.2
+const FIELD_ROCK_MODELS = [
 	"res://assets/models/rocks/rock_01_6k.glb", "res://assets/models/rocks/rock_02_3k.glb",
 	"res://assets/models/rocks/rock_03_4k.glb", "res://assets/models/rocks/rock_04_3k.glb",
 	"res://assets/models/rocks/rock_05_4k.glb",
 ]
-const ARENA_ROCK_SCENE = "res://scenes/prefabs/celestial/asteroid.tscn"
-const ARENA_FACTIONS = ["verdant", "violet", "raiders", "xenohive"]  # Each keeps a gene pool
-# Where a faction's stations stand in a zone: "sides" (two, on opposite sides of the beacon, in
-# ARENA_FACTIONS order), "outpost" (one, out along the zone's radial line), "hive" (one, back toward the Arena).
-const ARENA_STATION_PLACES = {"verdant": "sides", "violet": "sides", "raiders": "outpost", "xenohive": "hive"}
-const ARENA_OUTPOST_DISTANCE = 4500.0  # m from the beacon
+const FIELD_ROCK_SCENE = "res://scenes/prefabs/celestial/asteroid.tscn"
+const EVO_SECTOR_ID = "sector_elace"  # The evolving NPCs live in this sector's havens
+const EVO_FACTIONS = ["verdant", "violet", "raiders", "xenohive"]  # Each keeps a gene pool
 # The xenohive's drones grow with what they bring home: one more per XENOHIVE_MASS_PER_DRONE kg of cargo
-# delivered (all zones, all time), up to XENOHIVE_DRONES_MAX extra. A fixed spawner for now; the hive does not grow.
+# delivered (all time), up to XENOHIVE_DRONES_MAX extra. A fixed spawner for now; the hive does not grow.
 const XENOHIVE_MASS_PER_DRONE = 5000.0  # kg
 const XENOHIVE_DRONES_MAX = 3
-const ARENA_STATION_DISTANCE = 4000.0  # m from the beacon to a faction's side
-const ARENA_STATION_SPREAD = 1500.0  # m between a faction's two stations, either side of its line
-const ARENA_RADIUS = 7000.0  # m from the beacon: NPCs do not chase, salvage or patrol beyond it
-const ARENA_RESPAWN_DELAY = 8.0  # s between a loss and its replacement undocking
-const ARENA_DOCK_TIME = 10.0  # s an NPC stays docked (selling, repairs) before undocking
-const ARENA_UNDOCK_CLEAR_RADIUS = 3500.0  # m: with an enemy this near its undock point (past a heavy laser's reach), a docked NPC waits
-const ARENA_DOCK_MAX_WAIT = 90.0  # s, at most, past its dock time (upkeep runs on meanwhile)
-const ARENA_DOCK_DISTANCE = 250.0  # m from a station's undock point at which an NPC docks
 const PRESETS_DIR = "res://database/presets"  # Exported designs (tools/export_presets.gd): the home station sells them
 const PRESET_WEIGHT_CLASSES = [["light", -0.5], ["medium", 1.0], ["heavy", INF]]  # Preset export: niche size class up to this
-const ARENA_MAX_LIFETIME = 900.0  # s; after this an NPC retires at its next dock (its record is kept)
-# Rank (Evolution): a faction's ships in one arena zone are a group, ranked by renown, what they have
+const NPC_MAX_LIFETIME = 900.0  # s; after this an NPC retires at its next dock (its record is kept)
+# Rank (Evolution): a faction's ships living from one haven are a group, ranked by renown, what they have
 # won in this life (RENOWN_PER_KILL a kill, RENOWN_PER_ASSIST going to help a friend, RENOWN_PER_DAMAGE
 # per hull point dealt). The first, with RENOWN_LEADER_MIN and a group to lead, is its leader: the
 # others patrol near it (AI_FOLLOW_RADIUS) and join its fights. Renown can also put off retiring: the
-# lifetime grows by ARENA_LIFETIME_PER_RENOWN of itself per point, at most ARENA_LIFETIME_MAX_FACTOR
+# lifetime grows by NPC_LIFETIME_PER_RENOWN of itself per point, at most NPC_LIFETIME_MAX_FACTOR
 # times (a ship that dies still dies).
 const RENOWN_PER_KILL = 10.0
 const RENOWN_PER_ASSIST = 2.0
 const RENOWN_PER_DAMAGE = 0.02  # 500 hull dealt: as much as a kill
 const RENOWN_LEADER_MIN = 10.0
-const ARENA_LIFETIME_PER_RENOWN = 0.05  # A kill: half as long again
-const ARENA_LIFETIME_MAX_FACTOR = 1.0  # Off (1): long lives slowed the turnover by a quarter; templates are the point
+const NPC_LIFETIME_PER_RENOWN = 0.05  # A kill: half as long again
+const NPC_LIFETIME_MAX_FACTOR = 1.0  # Off (1): long lives slowed the turnover by a quarter; templates are the point
 const AI_FOLLOW_RADIUS = 1000.0  # m round its leader a follower patrols
 const AI_FOLLOW_MIN_TEAMWORK = 0.5  # A loner (teamwork gene under this) patrols on its own
-const ARENA_FACTION_MATERIALS = {  # Station paint by faction
+const FACTION_STATION_MATERIALS = {  # Station paint by faction
 	"verdant": "res://assets/art/materials_generic/mat_hull_faction_verdant.tres",
 	"violet": "res://assets/art/materials_generic/mat_hull_faction_violet.tres",
 	"raiders": "res://assets/art/materials_generic/mat_hull_faction_raiders.tres",
 	"xenohive": "res://assets/art/materials_generic/mat_hull_faction_xenohive.tres",
 }
-const ARENA_STATION_SCENE = "res://scenes/prefabs/station/arena_station.tscn"
-const ARENA_BEACON_SCENE = "res://scenes/prefabs/station/arena_beacon.tscn"
 
 # Evolution: each faction keeps its own gene pool, so the two drift apart. A genome is a ship
 # (type, size, mass shares), its parts per slot, and (later) behaviour. Fitness is return on cost:
@@ -947,7 +1021,7 @@ const EVO_SLOT_SHARE_SIGMA = 0.1  # Step on a hull's tool_share (how its slots s
 const EVO_GENE_MUTATION_CHANCE = 0.4  # Per gene
 const EVO_MACRO_MUTATION_CHANCE = 0.03  # A mutation with 5x the step
 const EVO_PART_SWAP_CHANCE = 0.08  # Per slot: a different part (another kind or type, or empty)
-const EVO_PILOT_STAKE_SHARE = 1.0  # An arena pilot's wallet: this share of its ship's cost, plus its life's net takings (comfortable at first; losses make it desperate)
+const EVO_PILOT_STAKE_SHARE = 1.0  # An evolving pilot's wallet: this share of its ship's cost, plus its life's net takings (comfortable at first; losses make it desperate)
 const EVO_EMPTY_SLOT_CHANCE = 0.15  # When a slot's part is picked anew, the chance it is left empty
 const EVO_HARPOON_CHANCE = 0.15  # and that a tool slot gets a harpoon (a weapon otherwise)
 const EVO_EXTRA_HARPOON_CHANCE = 0.05  # on a ship that has a harpoon already

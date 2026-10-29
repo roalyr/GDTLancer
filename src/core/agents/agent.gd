@@ -15,8 +15,8 @@ var bounty_paid: float = 0.0  # A wreck: what its killer was paid for it (Bounty
 var _last_hit_by = null  # weakref to the ship that hit it last: the killer, when it becomes a wreck
 var ship_template = null  # ShipTemplate this agent flies
 var evo_uid: String = ""  # Arena NPCs: their life in Evolution
-var wallet: float = 0.0  # WP an NPC outside the arenas has (random at spawn; see get_wallet)
-var _fit_override: Dictionary = {}  # A fit given at spawn (arena NPCs' genomes); otherwise random
+var wallet: float = 0.0  # WP a non-evolving NPC has (random at spawn; see get_wallet)
+var _fit_override: Dictionary = {}  # A fit given at spawn (evolving NPCs' genomes); otherwise random
 
 # --- Hull & Power ---
 var hull: float = 0.0
@@ -160,7 +160,7 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 			"patrol_center": overrides.get("patrol_center", global_transform.origin),
 			"home_point": overrides.get("home_point", global_transform.origin),
 			"skill": float(overrides.get("skill", template.skill)),
-			"arena": overrides.get("arena", {}),
+			"havens": overrides.get("havens", {}),
 			"behavior": overrides.get("behavior", template.behavior),
 			"docked_at": overrides.get("docked_at", null),
 		})
@@ -264,7 +264,7 @@ func get_hull_point_facing(from_global: Vector3) -> Vector3:
 
 
 # The player keeps their fit in GameState (new runs start from the hull's default fit);
-# NPCs fly the fit they spawn with (arena genomes) or a random one (ShipFit.random_fit).
+# NPCs fly the fit they spawn with (evolving NPCs' genomes) or a random one (ShipFit.random_fit).
 func _init_fit() -> void:
 	if not is_instance_valid(ship_template):
 		fit = {"tools": [], "modules": []}
@@ -545,7 +545,7 @@ func in_territory(other) -> bool:
 	var territory: float = float(Constants.FACTIONS.get(faction, {}).get("territory", 0.0))
 	if territory <= 0.0 or other.get("faction") == faction or not is_inside_tree():
 		return false
-	for station in get_tree().get_nodes_in_group("arena_station"):
+	for station in get_tree().get_nodes_in_group("faction_station"):
 		if station.get("faction") == faction and other.global_transform.origin.distance_to(station.global_transform.origin) <= territory:
 			return true
 	return false
@@ -935,7 +935,7 @@ func detects(other) -> bool:
 
 # --- Wealth (desperation; Constants AI block) ---
 
-# WP the pilot has: the player's bank, an arena pilot's stake and takings (Evolution), or `wallet`.
+# WP the pilot has: the player's bank, an evolving pilot's stake and takings (Evolution), or `wallet`.
 func get_wallet() -> float:
 	if is_player():
 		return float(GameState.player_bank)

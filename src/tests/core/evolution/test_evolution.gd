@@ -17,6 +17,12 @@ class FakeBody extends Node:
 	func clear_cargo() -> void:
 		cargo = {}
 
+	func remove_cargo(commodity_id: String, units: int) -> int:
+		cargo[commodity_id] = int(cargo.get(commodity_id, 0)) - units
+		if cargo[commodity_id] <= 0:
+			cargo.erase(commodity_id)
+		return units
+
 	func repair_hull() -> float:
 		var restored: float = hull_max - hull
 		hull = hull_max
@@ -85,7 +91,7 @@ func _body(uid: String) -> FakeBody:
 
 
 func test_first_life_is_an_immigrant_with_a_buildable_ship():
-	var life: Dictionary = Evolution.begin_life("verdant", "1v1")
+	var life: Dictionary = Evolution.begin_life("verdant", "verdant_post")
 	assert_eq(life.how, "immigrant")
 	assert_true(TemplateDatabase.get_template(life.ship_template_id) is ShipTemplate)
 	assert_true(Evolution.live.has(life.uid))
@@ -134,7 +140,7 @@ func test_fitness_is_return_on_cost_less_a_lost_ship():
 
 
 func test_run_and_chase_events_are_counted_per_life():
-	var life: Dictionary = Evolution.begin_life("verdant", "1v1")
+	var life: Dictionary = Evolution.begin_life("verdant", "verdant_post")
 	Evolution.note(life.uid, "fled")
 	Evolution.note(life.uid, "fled")
 	Evolution.note(life.uid, "let_go")
@@ -143,8 +149,8 @@ func test_run_and_chase_events_are_counted_per_life():
 
 
 func test_a_kill_pays_a_bounty_and_ends_the_victims_life_in_the_archive():
-	var hunter: Dictionary = Evolution.begin_life("verdant", "1v1")
-	var prey: Dictionary = Evolution.begin_life("violet", "1v1")
+	var hunter: Dictionary = Evolution.begin_life("verdant", "verdant_post")
+	var prey: Dictionary = Evolution.begin_life("violet", "violet_post")
 	Evolution._on_agent_damaged(_body(prey.uid), 10.0, _body(hunter.uid))
 	var wreck := _body(prey.uid)
 	wreck.bounty_paid = 123.0  # What Bounty.on_kill paid the killer
@@ -157,7 +163,7 @@ func test_a_kill_pays_a_bounty_and_ends_the_victims_life_in_the_archive():
 
 
 func test_docking_sells_the_hold_and_charges_repairs():
-	var life: Dictionary = Evolution.begin_life("verdant", "2v2")
+	var life: Dictionary = Evolution.begin_life("verdant", "verdant_post")
 	var body := _body(life.uid)
 	body.cargo = {"commodity_tech": 2}
 	body.hull = 25.0
@@ -169,8 +175,8 @@ func test_docking_sells_the_hold_and_charges_repairs():
 
 
 func test_old_ships_retire_at_the_dock():
-	var life: Dictionary = Evolution.begin_life("verdant", "4v4")
-	Evolution.game_time += Constants.ARENA_MAX_LIFETIME + 1.0
+	var life: Dictionary = Evolution.begin_life("verdant", "verdant_haven")
+	Evolution.game_time += Constants.NPC_MAX_LIFETIME + 1.0
 	assert_true(Evolution.on_docked(_body(life.uid)))
 	assert_eq(int(Evolution.totals.retired), 1)
 
@@ -187,23 +193,23 @@ func test_a_fitter_genome_takes_its_niche():
 
 
 func test_saved_lives_fly_again_after_loading():
-	var life: Dictionary = Evolution.begin_life("violet", "2v2")
+	var life: Dictionary = Evolution.begin_life("violet", "violet_post")
 	Evolution.live[life.uid].kills = 2
 	var data: Dictionary = Evolution.serialize()
 	Evolution.new_run()
 	assert_true(Evolution.deserialize(data))
-	var again: Dictionary = Evolution.begin_life("violet", "2v2")
+	var again: Dictionary = Evolution.begin_life("violet", "violet_post")
 	assert_eq(again.uid, life.uid, "The same ship, not a new one")
 	assert_eq(int(again.kills), 2)
 
 
 func test_suspended_lives_resume_by_zone_and_faction():
-	var life: Dictionary = Evolution.begin_life("verdant", "1v1")
+	var life: Dictionary = Evolution.begin_life("verdant", "verdant_post")
 	Evolution.suspend_all()
 	assert_true(Evolution.live.empty())
-	var other: Dictionary = Evolution.begin_life("verdant", "4v4")
+	var other: Dictionary = Evolution.begin_life("verdant", "verdant_haven")
 	assert_ne(other.uid, life.uid, "Another zone's slot gets a new life")
-	assert_eq(Evolution.begin_life("verdant", "1v1").uid, life.uid)
+	assert_eq(Evolution.begin_life("verdant", "verdant_post").uid, life.uid)
 
 
 func test_presets_export_the_fittest_of_each_archetype_whatever_the_faction():
@@ -252,29 +258,29 @@ func _remove_tree(path: String) -> void:
 
 
 func test_groups_rank_by_renown_and_the_first_leads():
-	var first: Dictionary = Evolution.begin_life("verdant", "4v4")
-	var second: Dictionary = Evolution.begin_life("verdant", "4v4")
-	Evolution.begin_life("violet", "4v4")
+	var first: Dictionary = Evolution.begin_life("verdant", "verdant_haven")
+	var second: Dictionary = Evolution.begin_life("verdant", "verdant_haven")
+	Evolution.begin_life("violet", "violet_haven")
 	assert_eq(Evolution.rank_of(first.uid), 1, "No renown yet: the older first")
 	Evolution.live[second.uid].kills = 1
 	assert_eq(Evolution.rank_of(second.uid), 1, "A kill puts it first")
-	assert_eq(Evolution.group_of("verdant", "4v4").size(), 2, "Only its faction in its zone")
+	assert_eq(Evolution.group_of("verdant", "verdant_haven").size(), 2, "Only its faction in its zone")
 	var body := _body(second.uid)
 	body.set("is_docked", false)
 	Evolution.attach_body(second.uid, body)
-	assert_eq(Evolution.leader_of("verdant", "4v4"), body, "and makes it the leader")
-	assert_null(Evolution.leader_of("violet", "4v4"), "No one to lead, no leader")
+	assert_eq(Evolution.leader_of("verdant", "verdant_haven"), body, "and makes it the leader")
+	assert_null(Evolution.leader_of("violet", "violet_haven"), "No one to lead, no leader")
 
 
 func test_renown_puts_off_retiring():
-	var life: Dictionary = Evolution.begin_life("verdant", "4v4")
+	var life: Dictionary = Evolution.begin_life("verdant", "verdant_haven")
 	Evolution.live[life.uid].kills = 2
-	var longer: float = min(2.0, Constants.ARENA_LIFETIME_MAX_FACTOR)
-	assert_almost_eq(Evolution.lifetime_of(life.uid), Constants.ARENA_MAX_LIFETIME * longer, 0.01, "Two kills: twice as long (if on)")
-	Evolution.game_time += Constants.ARENA_MAX_LIFETIME * longer - 1.0
+	var longer: float = min(2.0, Constants.NPC_LIFETIME_MAX_FACTOR)
+	assert_almost_eq(Evolution.lifetime_of(life.uid), Constants.NPC_MAX_LIFETIME * longer, 0.01, "Two kills: twice as long (if on)")
+	Evolution.game_time += Constants.NPC_MAX_LIFETIME * longer - 1.0
 	assert_false(Evolution.on_docked(_body(life.uid)), "Not old yet")
 	Evolution.live[life.uid].kills = 100
-	assert_almost_eq(Evolution.lifetime_of(life.uid), Constants.ARENA_MAX_LIFETIME * Constants.ARENA_LIFETIME_MAX_FACTOR, 0.01, "At most this long")
+	assert_almost_eq(Evolution.lifetime_of(life.uid), Constants.NPC_MAX_LIFETIME * Constants.NPC_LIFETIME_MAX_FACTOR, 0.01, "At most this long")
 
 
 func test_presets_come_in_three_weights_per_role():

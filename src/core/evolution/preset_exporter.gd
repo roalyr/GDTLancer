@@ -1,5 +1,5 @@
 # PresetExporter: writes a saved evolution's best genomes as template files (tools/export_presets.gd).
-# Presets are what the arenas evolve for, whatever the faction: the factions' pools are ranked as one.
+# Presets are what the evolution is for, whatever the faction: the factions' pools are ranked as one.
 # Each archetype (a niche's role: "lance-missile-raider", "scavenger", ...) in each weight class
 # (light, medium, heavy: PRESET_WEIGHT_CLASSES) gives its fittest genome with at least `min_lives`
 # lives, fittest first, `top` of them. Each becomes a

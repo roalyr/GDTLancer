@@ -1,4 +1,4 @@
-# Headless evolution run: plays the game with the player docked at home, the arenas running sped
+# Headless evolution run: plays the game with the player docked at home, the sector's havens populated (SectorLayout) and running sped
 # up, and saves to the real save slot as it goes, so the game can load and carry on from it (and
 # this can carry on from the game's save). The console gets Evolution's EVO lines and reports.
 #     godot --no-window -s tools/evolution_sim.gd -- --hours=4 --speed=8
@@ -50,8 +50,8 @@ func _run():
 		manager.save_dir = save_dir
 	change_scene("res://scenes/levels/game_world/main_game_scene.tscn")
 	yield(_wait(1.0), "completed")
-	refs.agent_spawner.run_traffic = false  # No travellers in the arenas
-	refs.agent_spawner.offscreen.enabled = false  # Every arena flown: fitness from real fights only
+	refs.agent_spawner.run_traffic = false  # No travellers among the evolving NPCs
+	refs.agent_spawner.offscreen.enabled = false  # Every NPC flown: fitness from real fights only
 	if not fresh and manager.has_save_file(0):
 		print("EVOSIM loading the saved game")
 		manager.load_game(0)
@@ -72,7 +72,7 @@ func _run():
 	var end_time: float = start_time + hours * 3600.0
 	var next_save: float = start_time + save_every * 60.0
 	var t0 = OS.get_ticks_msec()
-	print("EVOSIM running %.1f h of arena time at x%.0f, from t=%.0fs" % [hours, speed, start_time])
+	print("EVOSIM running %.1f h of evolution time at x%.0f, from t=%.0fs" % [hours, speed, start_time])
 	while evolution.game_time < end_time:
 		yield(_wait(5.0), "completed")
 		if paused:

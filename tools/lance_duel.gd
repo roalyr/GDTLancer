@@ -1,4 +1,4 @@
-# Duels: ships of two designs fight one on one, well away from the arenas, sped up; prints
+# Duels: ships of two designs fight one on one, well away from the havens, sped up; prints
 # who won, how long it took and what the lance did (strikes, glances, damage, closing speeds).
 # A throwaway save folder; never the real save. DUEL_TRACE=1 in the environment prints the first
 # ship's state every second (distance, speed, activity, lance, run-up).
@@ -35,7 +35,7 @@ const DESIGNS = {
 const MATCHES_WEAPONS = [["missileer", "laser"], ["gunner", "laser"], ["missileer", "gunner"], ["gunner", "lancer_fast"], ["missileer", "lancer_fast"], ["missileer", "laser_heavy"]]
 const MATCHES = [["lancer", "hauler"], ["lancer", "laser"], ["lancer_fast", "laser"], ["lancer_fast", "laser_heavy"], ["lance_laser", "laser"], ["lance_laser", "laser_heavy"]]
 const DUEL_TIME = 180.0  # s of game time before a duel is called a draw
-const ARENA_OFFSET = Vector3(0, 15000, 0)  # From the home station (in the 4v4 arena): well above every arena
+const ARENA_OFFSET = Vector3(0, 15000, 0)  # From the home station : well above the sector's plane
 
 var duels := 6
 var matches: Array = MATCHES

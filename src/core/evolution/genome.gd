@@ -1,4 +1,4 @@
-# Genome: what an arena NPC is made of, as plain data (saved as is), and how it varies.
+# Genome: what an evolving NPC is made of, as plain data (saved as is), and how it varies.
 #   {"ship": ShipLaws ship genes (and "tool_share": how its slots split between hardpoints and bays,
 #    ShipLaws.slot_counts; absent until it first mutates), "tools": [part per hardpoint],
 #    "modules": [part per bay],
