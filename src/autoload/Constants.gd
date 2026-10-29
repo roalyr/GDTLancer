@@ -480,7 +480,7 @@ const FACTIONS = {
 	# Aliens: no standing or bounties; they react on the spot, and take any ship within `territory` m of
 	# their hive for an enemy. Their carcasses hold biotech (`salvage_as`: a wreck's salvage, all of it).
 	"xenohive": {"name": "Xenohive", "color": Color(0.35, 0.95, 0.75, 1.0), "enemies": [], "no_standing": true,
-		"territory": 2500.0, "salvage_as": "commodity_biotech"},
+		"territory": 5000.0, "salvage_as": "commodity_biotech"},
 }
 
 # Standing (Standing): the player's name with each faction, -1 to 1, as in Freelancer.
@@ -882,7 +882,7 @@ const SECTOR_LAYOUTS = {
 				"services": {"buys": {"commodity_ore": 1.4, "commodity_relic": 1.2}}},
 			{"id": "raider_den", "name": "Raider Den", "faction": "raiders", "at": Vector3(0, 24000, 0), "ships": {"raiders": 4},
 				"services": {"repair": true, "rearm": true, "buys": {"*": 0.7}}},
-			{"id": "xenohive", "name": "Xenohive", "faction": "xenohive", "at": Vector3(6000, -24000, 0), "ships": {"xenohive": 3},  # Under the star at the deep field's east edge: as far from either faction
+			{"id": "xenohive", "name": "Xenohive", "faction": "xenohive", "at": Vector3(3000, -24000, 0), "ships": {"xenohive": 3},  # In the deep field under the star, its territory most of it: as far from either faction
 				"services": {"buys": {"*": 1.0}}},
 		],
 		"beacons": [

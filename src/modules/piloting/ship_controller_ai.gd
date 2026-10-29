@@ -1138,6 +1138,8 @@ func _pick_patrol_destination() -> Vector3:
 	if leader != null:
 		centre = leader.global_transform.origin
 		radius = Constants.AI_FOLLOW_RADIUS
+	elif _havens.get("territorial", false):
+		radius = float(Constants.FACTIONS.get(agent_script.faction, {}).get("territory", radius))  # A drone: its hive's whole territory
 	elif roams():
 		if _route.empty() and not (is_instance_valid(_beacon) and _loiter_left > 0.0):
 			_choose_beacon()
