@@ -195,14 +195,15 @@ func get_focus() -> Node:
 # Distance the AI tries to fight at: a cannon's optimal range if it has one with rounds (a gunner
 # keeps out of laser reach, its lasers firing when they reach), otherwise the shortest optimal range
 # among the weapons that work on the target (and have rounds left), so all of them reach; times its
-# range gene.
+# range gene. Never beyond where its weapons lock through the target's jamming.
 func get_engagement_range() -> float:
 	if not is_instance_valid(_tool_controller) or not is_instance_valid(_target_agent):
 		return 0.0
 	var cannon: int = _tool_controller.find_cannon_for(_target_agent)
 	if cannon >= 0:
-		return _tool_controller.get_tool(cannon).optimal_range * _range_factor
+		return min(_tool_controller.get_tool(cannon).optimal_range * _range_factor, _tool_controller.reach_on(cannon, _target_agent))
 	var best: float = INF
+	var lock: float = INF
 	for index in range(_tool_controller.get_tool_count()):
 		var tool_template = _tool_controller.get_tool(index)
 		if tool_template.tool_type == "harpoon" or not _tool_controller.can_target(tool_template, _target_agent):
@@ -210,7 +211,8 @@ func get_engagement_range() -> float:
 		if _tool_controller.has_magazine(index) and _tool_controller.get_ammo(index) <= 0:
 			continue
 		best = min(best, tool_template.optimal_range)
-	return best * _range_factor if best < INF else 0.0
+		lock = min(lock, _tool_controller.reach_on(index, _target_agent))
+	return min(best * _range_factor, lock) if best < INF else 0.0
 
 
 func _get_attack_tool_index() -> int:
@@ -444,7 +446,7 @@ func _fire_at(target) -> void:
 		var tool_template = _tool_controller.get_tool(index)
 		if not _tool_controller.can_target(tool_template, target):
 			continue
-		var in_reach: bool = distance <= tool_template.get_max_range()
+		var in_reach: bool = distance <= _tool_controller.reach_on(index, target)
 		var enough_power: bool = agent_script.power >= tool_template.power_per_cycle
 		if in_reach and enough_power and not _tool_controller.is_active(index):
 			_tool_controller.activate(index, target)

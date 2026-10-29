@@ -232,6 +232,15 @@ func can_target(tool_template, target) -> bool:
 	return false
 
 
+# How far the tool at `index` reaches `target`: its max range, less what the target's sensor dampers
+# jam (Agent.lock_range_for).
+func reach_on(index: int, target) -> float:
+	var reach: float = _tools[index].get_max_range()
+	if is_instance_valid(target) and target.has_method("lock_range_for"):
+		return target.lock_range_for(_agent_body, reach)
+	return reach
+
+
 func is_active(index: int) -> bool:
 	return _targets.has(index)
 
@@ -439,8 +448,8 @@ func _process_missile(index: int, target: Node) -> void:
 		return
 	var tool_template = _tools[index]
 	var from_pos: Vector3 = _agent_body.global_transform.origin
-	if from_pos.distance_to(target.global_transform.origin) > tool_template.get_max_range():
-		return
+	if from_pos.distance_to(target.global_transform.origin) > reach_on(index, target):
+		return  # Out of reach, or jammed: no lock yet
 	if inbound_damage(target) >= float(target.get("hull")):
 		return  # Enough on its way already
 	if rock_in_the_way(target):
@@ -479,7 +488,7 @@ func _process_cannon(index: int, target: Node) -> void:
 	var tool_template = _tools[index]
 	var from_pos: Vector3 = _agent_body.global_transform.origin
 	var distance: float = from_pos.distance_to(target.global_transform.origin)
-	if distance > tool_template.get_max_range():
+	if distance > reach_on(index, target):
 		return
 	var nose: Vector3 = -_agent_body.global_transform.basis.z.normalized()
 	var aim: Vector3 = cannon_aim_direction(index, target)
@@ -511,8 +520,8 @@ func _process_laser(index: int, target: Node) -> void:
 	var from_pos: Vector3 = _agent_body.global_transform.origin
 	var to_pos: Vector3 = target.global_transform.origin
 	var distance: float = from_pos.distance_to(to_pos)
-	if distance > tool_template.get_max_range():
-		return  # Stays switched on; cycles resume once back in range.
+	if distance > reach_on(index, target):
+		return  # Stays switched on; cycles resume once back in range (or near enough to lock through jamming).
 	if not _agent_body.try_spend_power(tool_template.power_per_cycle):
 		return  # Stays switched on: fires again once the capacitor has the charge
 

@@ -20,7 +20,7 @@ tool_slots_medium = 0
 tool_slots_large = 0
 module_slots = 1
 equipped_tools = [ "preset_laser_1_150_21" ]
-equipped_modules = [ "preset_capacitor_3_384" ]
+equipped_modules = [  ]
 salvage_yield = {
 "commodity_scrap": 7,
 "commodity_tech": 1

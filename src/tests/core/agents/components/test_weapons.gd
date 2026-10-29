@@ -204,15 +204,15 @@ func test_a_decoy_takes_a_missile_off():
 	assert_eq(target.hull, 300.0, "which took it, and burst on it")
 
 
-func test_afterburner_and_damper_on_the_signature():
+func test_afterburner_on_the_signature_and_a_damper_off_it():
 	var body = _make_body(Vector3(0, 0, 500))
 	body.fit_stats = {"sensor_strength": 1.0, "signature": 1000.0, "linear_thrust": 300000.0}
 	assert_false(body.set_afterburner(true), "None fitted: nothing to light")
 	body.fit_stats["afterburner_thrust"] = 500000.0
 	assert_true(body.set_afterburner(true), "Lit")
 	var quiet: float = body.get_signature()
-	body.fit_stats["signature_damping"] = 0.3
-	assert_almost_eq(body.get_signature(), quiet * 0.7, 0.01, "A damper hides 30% of it")
+	body.fit_stats["jamming"] = 0.3
+	assert_almost_eq(body.get_signature(), quiet, 0.01, "A sensor damper jams locks, not sight: still seen")
 	body.power = 0.0
 	body.set_afterburner(false)
 	assert_false(body.set_afterburner(true), "No power: it will not light")

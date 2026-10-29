@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource( 1 )
 template_id = "module_signature_damper"
-module_name = "Signature Damper"
-description = "Hides a share of the ship's signature (more on a smaller hull)."
+module_name = "Sensor Damper"
+description = "Jams enemy weapons' lock: they reach a share less far (more on a smaller hull, less against strong sensors), never below sight. Draws power."
 base_value = 75
 mass = 300.0
 stat_modifiers = {

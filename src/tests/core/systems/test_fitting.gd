@@ -318,7 +318,15 @@ func test_a_small_reactor_runs_quieter():
 	assert_eq(ShipFit.reactor_signature_factor(6000.0, 0.0, 0.0), 1.0, "No reactor law: as it is")
 
 
-func test_a_damper_hides_more_of_a_small_hull():
+func test_a_damper_jams_and_draws_power():
+	TemplateDatabase.assets_modules["m_damper"] = _module("m_damper", 75, 300.0, {"damper_mass": 300.0})
+	ship.power_regen = 10.0
+	var stats: Dictionary = ShipFit.compute_stats(ship, {"tools": [], "modules": ["m_damper"]})
+	assert_almost_eq(stats.jamming, ShipFit.damper_share(300.0, 6000.0), 0.0001)
+	assert_almost_eq(stats.power_regen, 10.0 - 300.0 * Constants.LAW_DAMPER_POWER_PER_KG, 0.0001, "Active: it runs off the reactor")
+
+
+func test_a_damper_jams_more_for_a_small_hull():
 	assert_almost_eq(ShipFit.damper_share(300.0, 6000.0), Constants.LAW_DAMPER_SHARE, 0.001, "5% of the hull's mass: the reference share")
 	assert_lt(ShipFit.damper_share(300.0, 24000.0), ShipFit.damper_share(300.0, 6000.0), "The same damper hides less of a bigger ship")
 	assert_eq(ShipFit.damper_share(5000.0, 6000.0), Constants.LAW_DAMPER_MAX, "and never all of it")

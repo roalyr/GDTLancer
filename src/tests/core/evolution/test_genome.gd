@@ -38,6 +38,15 @@ func test_random_genomes_and_their_mutants_are_lawful():
 			_assert_lawful(genome)
 
 
+func test_saved_capacitors_become_power_cells():
+	var genome: Dictionary = Genome.random_genome()
+	genome.modules = [{"kind": "capacitor", "type": 2, "genes": {"mass": 200.0}}, {}]
+	assert_true(Genome.retire_parts(genome))
+	assert_eq(genome.modules[0].kind, "power_cell")
+	assert_eq(genome.modules[0].genes.mass, 200.0, "The same mass")
+	assert_false(Genome.retire_parts(genome), "Nothing left to retire")
+
+
 func test_mutation_leaves_the_parent_alone():
 	var genome: Dictionary = Genome.random_genome()
 	var before: String = to_json(genome)

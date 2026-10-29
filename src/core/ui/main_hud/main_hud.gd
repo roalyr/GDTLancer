@@ -743,6 +743,9 @@ func describe_target_stats(player) -> String:
 		var cues: Array = _target_projector.get_ship_cues(_current_target)
 		if not cues.empty():
 			lines.append(PoolStringArray(cues).join("  "))
+		var reach: float = player.weapon_reach_of(player)
+		if reach > 0.0 and _current_target.has_method("get_jamming") and _current_target.get_jamming() > 0.0:
+			lines.append("JAMMING: LOCK WITHIN %s" % _format_distance(_current_target.lock_range_for(player, reach)))
 	if _current_target.has_method("get_apparent_radius"):
 		lines.append("%s across" % _format_distance(_current_target.get_apparent_radius() * 2.0))
 	lines.append("DIST %s" % _format_distance(player.global_transform.origin.distance_to(_current_target.global_transform.origin)))

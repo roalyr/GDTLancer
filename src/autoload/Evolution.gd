@@ -120,6 +120,8 @@ func deserialize(data: Dictionary) -> bool:
 		if not pools.has(faction):
 			pools[faction] = {"cells": {}, "lives": 0}
 	genomes = data.get("genomes", {})
+	for genome_id in genomes:
+		Genome.retire_parts(genomes[genome_id].genome)  # Capacitor modules became power cells
 	resume = data.get("lives", [])
 	var zones: Array = []
 	for zone in Constants.ARENA_ZONES:

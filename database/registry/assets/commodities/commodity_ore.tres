@@ -6,5 +6,5 @@
 script = ExtResource( 1 )
 template_id = "commodity_ore"
 commodity_name = "Ore"
-base_value = 40
+base_value = 90
 unit_mass = 100.0

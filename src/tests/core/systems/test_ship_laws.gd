@@ -71,11 +71,10 @@ func test_module_laws_match_the_ship_subsystems():
 	assert_eq(ShipLaws.module_stats("plating", {"mass": 3300.0}).stat_modifiers.hull, int(Constants.LAW_HULL[1]))
 	assert_almost_eq(ShipLaws.module_stats("thruster", {"mass": 1200.0}).stat_modifiers.linear_thrust, 450000.0, 1.0)
 	assert_almost_eq(ShipLaws.module_stats("power_cell", {"mass": 600.0}).stat_modifiers.power_regen, 10.0, 0.001)
-	assert_almost_eq(ShipLaws.module_stats("capacitor", {"mass": 300.0}).stat_modifiers.power_capacity, 100.0, 0.001)
 
 
 func test_registry_parts_follow_their_genes():
-	for template_id in ["tools/tool_ablative_laser", "tools/tool_ablative_laser_long_range", "assets/modules/module_hull_plating", "assets/modules/module_thruster", "assets/modules/module_power_cell", "assets/modules/module_capacitor", "assets/ships/ship_default", "assets/ships/ship_hostile_default"]:
+	for template_id in ["tools/tool_ablative_laser", "tools/tool_ablative_laser_long_range", "assets/modules/module_hull_plating", "assets/modules/module_thruster", "assets/modules/module_power_cell", "assets/ships/ship_default", "assets/ships/ship_hostile_default"]:
 		var template = load("res://database/registry/%s.tres" % template_id)
 		assert_not_null(template, template_id)
 		if template == null:
@@ -115,3 +114,4 @@ func test_special_modules():
 	var thruster: Dictionary = ShipLaws.module_stats("thruster", {"mass": 400.0})
 	assert_almost_eq(burner.stat_modifiers.afterburner_thrust, thruster.stat_modifiers.linear_thrust * Constants.LAW_AFTERBURNER_FACTOR, 1.0, "Three thrusters' worth, while lit")
 	assert_eq(ShipLaws.module_stats("damper", {"mass": 300.0}).stat_modifiers.damper_mass, 300.0)
+	assert_false("capacitor" in ShipLaws.MODULE_KINDS, "Power cells only: no capacitor modules")

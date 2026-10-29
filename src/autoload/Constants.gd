@@ -448,7 +448,7 @@ const AI_RAM_HOLD_OFF = 1.2
 const AI_TEAM_RADIUS = 3000.0  # m: friends this near a ship count on its side of a fight (CombatAssessment.side_of)
 const AI_ASSIST_RADIUS = 4000.0  # m: an NPC this near a friend under fire considers going to help
 const AI_ENEMY_DESIRE_FACTOR = 1.5
-# Seeing first (signature dampers, sensor boosters): a target that cannot see this ship is a first
+# Seeing first (sensor boosters, quiet hulls): a target that cannot see this ship is a first
 # strike, AI_UNSEEN_DESIRE_FACTOR times as tempting; an enemy it sees but that cannot see it, under
 # AI_AVOID_SHARE of the fight it would take on, it keeps clear of while it can ("avoided").
 const AI_UNSEEN_DESIRE_FACTOR = 1.3
@@ -643,13 +643,19 @@ const LAW_LASER_ENERGY_RANGE = [0.5, 60.0]
 const LAW_MODULE_MASS_RANGE = [50.0, 5000.0]
 # Modules that do more than add a stat (ShipLaws.module_stats, ShipFit, Agent):
 # Sensor booster: sees farther (sensor strength, 1 for a bare hull, multiplies every detection range).
+# It also steadies the ship's targeting against sensor dampers (below): their jamming is divided by it.
 const LAW_SENSOR = [250.0, 0.5, 0.5]  # Module mass -> sensor strength added (0.3 lagged: -0.10 fitness over rounds 34-37)
-# Signature damper: hides a share of the ship's whole signature (hull, engines, firing), more the
-# bigger it is against the hull: LAW_DAMPER_SHARE at LAW_DAMPER_REF_SHARE of the hull's mass, as the
-# square root, at most LAW_DAMPER_MAX.
-const LAW_DAMPER_SHARE = 0.3
+# Sensor damper (electronic warfare): the ship is still seen, but enemy weapons fail to lock on it
+# from afar. It jams a share of their reach (lasers, missiles, cannons), more the bigger it is
+# against the hull: LAW_DAMPER_SHARE at LAW_DAMPER_REF_SHARE of the hull's mass, as the square root,
+# at most LAW_DAMPER_MAX; divided by the attacker's sensor strength. Never below the range at which
+# the ship is seen well by eye, EWAR_SIGHT_PER_METRE times its apparent radius (a Phoenix Light,
+# 12 m: 960 m). Active: it draws LAW_DAMPER_POWER_PER_KG power a second per kg off the reactor.
+const LAW_DAMPER_SHARE = 0.5
 const LAW_DAMPER_REF_SHARE = 0.05
-const LAW_DAMPER_MAX = 0.6
+const LAW_DAMPER_MAX = 0.75
+const LAW_DAMPER_POWER_PER_KG = 0.007  # The reference 300 kg damper: 2.1 a second (a Phoenix Light makes 10)
+const EWAR_SIGHT_PER_METRE = 80.0
 # Decoy launcher: a charge per LAW_DECOY_CHARGE_MASS kg. A missile coming at the ship within
 # DECOY_TRIGGER_TIME s of impact draws a decoy (one each); DECOY_SEDUCE_CHANCE of them take the missile
 # off after the flare, which drifts off at DECOY_EJECT_SPEED and burns DECOY_LIFETIME s. Refilled at a
@@ -657,7 +663,7 @@ const LAW_DAMPER_MAX = 0.6
 const LAW_DECOY_CHARGE_MASS = 50.0
 const LAW_DECOY_VALUE = 15
 const DECOY_TRIGGER_TIME = 2.5
-const DECOY_SEDUCE_CHANCE = 0.7
+const DECOY_SEDUCE_CHANCE = 0.85  # 0.7 lagged (-0.39 fitness over era 45, against dominant missiles)
 const DECOY_EJECT_SPEED = 80.0
 const DECOY_LIFETIME = 5.0
 const DECOY_BURST_DISTANCE = 25.0  # m: a missile this near its decoy bursts on it
@@ -692,8 +698,8 @@ const LAW_LANCE_PROW_SHARE = 1.0  # The module armours the bow: hull as plating 
 const LAW_LANCE_NAIL_MASS_RANGE = [30.0, 1500.0]
 const LAW_LANCE_COUNT_RANGE = [1.0, 12.0]
 
-# Weapon archetypes. Lasers: turrets, no ammunition, drain power (sustained fire needs a big reactor,
-# power cells or capacitors). Lances: melee, recoverable, no power. Missiles: guided heavy hitters,
+# Weapon archetypes. Lasers: turrets, no ammunition, drain power (sustained fire needs a big reactor
+# or power cells). Lances: melee, recoverable, no power. Missiles: guided heavy hitters,
 # one use each; more only from a base or a missile ship's wreck. Cannons (rail drives): fixed
 # forward, the ship aims; rounds fly at a finite speed (lead the target), a magazine of them, little
 # power. Laws below are [reference, value there, exponent], as LAW_HULL.
@@ -824,7 +830,6 @@ const PART_TYPE_SEEDS = {  # Part kind -> type -> genes
 	"plating": {1: {"mass": 500.0}, 2: {"mass": 1000.0}, 3: {"mass": 2000.0}},
 	"thruster": {1: {"mass": 200.0}, 2: {"mass": 400.0}, 3: {"mass": 800.0}},
 	"power_cell": {1: {"mass": 150.0}, 2: {"mass": 300.0}, 3: {"mass": 600.0}},
-	"capacitor": {1: {"mass": 100.0}, 2: {"mass": 200.0}, 3: {"mass": 400.0}},
 	"lance": {1: {"nail_mass": 100.0, "count": 3.0}, 2: {"nail_mass": 200.0, "count": 3.0}, 3: {"nail_mass": 350.0, "count": 4.0}},
 	"missile": {1: {"round_mass": 40.0, "count": 4.0}, 2: {"round_mass": 100.0, "count": 4.0}, 3: {"round_mass": 250.0, "count": 4.0}},
 	"cannon": {1: {"mass": 150.0, "round_mass": 2.0, "count": 80.0}, 2: {"mass": 300.0, "round_mass": 5.0, "count": 60.0}, 3: {"mass": 700.0, "round_mass": 15.0, "count": 40.0}},
@@ -833,7 +838,7 @@ const PART_TYPE_SEEDS = {  # Part kind -> type -> genes
 	"decoy": {1: {"mass": 100.0}, 2: {"mass": 200.0}, 3: {"mass": 400.0}},
 	"afterburner": {1: {"mass": 200.0}, 2: {"mass": 400.0}, 3: {"mass": 800.0}},
 }
-const PART_NAMES = {"laser": "Laser", "plating": "Hull Plating", "thruster": "Thruster", "power_cell": "Power Cell", "capacitor": "Capacitor", "harpoon": "Harpoon", "lance": "Kinetic Lance", "missile": "Missile Rack", "cannon": "Rail Cannon", "sensor": "Sensor Booster", "damper": "Signature Damper", "decoy": "Decoy Launcher", "afterburner": "Afterburner"}
+const PART_NAMES = {"laser": "Laser", "plating": "Hull Plating", "thruster": "Thruster", "power_cell": "Power Cell", "harpoon": "Harpoon", "lance": "Kinetic Lance", "missile": "Missile Rack", "cannon": "Rail Cannon", "sensor": "Sensor Booster", "damper": "Sensor Damper", "decoy": "Decoy Launcher", "afterburner": "Afterburner"}
 const PART_TYPE_NAMES = {1: "I", 2: "II", 3: "III"}
 const HARPOON_TEMPLATE_ID = "tool_harpoon"  # Not evolved: the same harpoon for everyone
 

@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource( 1 )
 template_id = "preset_damper_1_150"
-module_name = "Signature Damper I"
+module_name = "Sensor Damper I"
 description = "150 kg."
 base_value = 38
 mass = 150.0

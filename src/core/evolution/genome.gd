@@ -109,6 +109,18 @@ static func _random_weapon_kind() -> String:
 	return "laser"
 
 
+# A saved genome's parts of a retired kind (ShipLaws.RETIRED_MODULE_KINDS) become their successor,
+# the same mass; true if any did.
+static func retire_parts(genome: Dictionary) -> bool:
+	var changed := false
+	for part in genome.get("modules", []):
+		if not part.empty() and ShipLaws.RETIRED_MODULE_KINDS.has(part.kind):
+			part.kind = ShipLaws.RETIRED_MODULE_KINDS[part.kind]
+			part.genes = ShipLaws.clamp_module_genes(part.genes, part.kind)
+			changed = true
+	return changed
+
+
 # A part of `kind` ("" for an empty slot) of a random type, from that type's seed genes, varied.
 static func random_part(kind: String, max_mass: float = INF) -> Dictionary:
 	if kind == "":

@@ -20,7 +20,7 @@ tool_slots_medium = 4
 tool_slots_large = 0
 module_slots = 3
 equipped_tools = [ "tool_harpoon", "tool_harpoon", "tool_harpoon" ]
-equipped_modules = [ "preset_capacitor_3_573", "preset_capacitor_2_200", "preset_plating_1_566" ]
+equipped_modules = [ "preset_plating_1_566" ]
 salvage_yield = {
 "commodity_scrap": 58,
 "commodity_tech": 9

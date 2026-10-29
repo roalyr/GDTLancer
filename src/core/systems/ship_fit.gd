@@ -162,11 +162,13 @@ static func compute_stats(ship, fit: Dictionary) -> Dictionary:
 				if stats.has(stat):
 					stats[stat] += float(module.stat_modifiers[stat])
 	stats.signature *= reactor_signature_factor(float(ship.mass), float(ship.power_regen), stats.power_regen)
-	stats["signature_damping"] = damper_share(stats.damper_mass, float(ship.mass))
+	stats["jamming"] = damper_share(stats.damper_mass, float(ship.mass))
+	stats.power_regen = max(0.0, stats.power_regen - Constants.LAW_DAMPER_POWER_PER_KG * stats.damper_mass)  # A damper runs off the reactor
 	return stats
 
 
-# Share of a ship's signature its dampers hide (Constants LAW_DAMPER_*).
+# Share of enemy weapons' reach a ship's sensor dampers jam (Constants LAW_DAMPER_*), before the
+# attacker's sensor strength.
 static func damper_share(damper_mass: float, ship_mass: float) -> float:
 	if damper_mass <= 0.0 or ship_mass <= 0.0:
 		return 0.0

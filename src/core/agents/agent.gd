@@ -837,7 +837,6 @@ func get_signature() -> float:
 			signature += Constants.SIG_PER_LEAK * leak.get_pressure()
 	if afterburner_lit:
 		signature += Constants.SIG_AFTERBURNER * _engine_activity
-	signature *= 1.0 - float(fit_stats.get("signature_damping", 0.0))  # A damper hides a share of it all
 	return max(Constants.SIG_MIN, signature)
 
 
@@ -905,6 +904,23 @@ func _launch_decoys() -> void:
 
 func get_sensor_strength() -> float:
 	return float(fit_stats.get("sensor_strength", ship_template.sensor_strength if is_instance_valid(ship_template) else 1.0))
+
+
+# Share of enemy weapons' reach this ship's sensor dampers jam, before the attacker's sensors.
+func get_jamming() -> float:
+	return 0.0 if is_wreck else float(fit_stats.get("jamming", 0.0))
+
+
+# How far `attacker`'s weapon reaching `reach` m locks on this ship (Constants LAW_DAMPER_*): its
+# dampers jam a share of that, less against strong sensors, but never below the range at which the
+# ship is seen well by eye.
+func lock_range_for(attacker, reach: float) -> float:
+	var jamming: float = get_jamming()
+	if jamming <= 0.0:
+		return reach
+	var sensors: float = attacker.get_sensor_strength() if is_instance_valid(attacker) and attacker.has_method("get_sensor_strength") else 1.0
+	var sight: float = Constants.EWAR_SIGHT_PER_METRE * get_apparent_radius()
+	return min(reach, max(sight, reach * (1.0 - jamming / max(sensors, 1.0))))
 
 
 # Whether this ship's sensors see `other`: ships, wrecks, celestials and stations all have a

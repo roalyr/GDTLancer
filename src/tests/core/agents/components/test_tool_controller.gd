@@ -94,6 +94,37 @@ func test_out_of_range_stays_on_but_idles():
 	assert_eq(shooter.power, 100.0, "No power is spent while out of range.")
 
 
+func test_a_sensor_damper_jams_the_lock_down_to_sight():
+	shooter.fit_stats = {"sensor_strength": 1.0}
+	target.fit_stats = {"jamming": 0.5}
+	var sight: float = Constants.EWAR_SIGHT_PER_METRE * target.get_apparent_radius()
+	assert_almost_eq(target.lock_range_for(shooter, 4000.0), max(sight, 2000.0), 0.01, "Half the reach jammed")
+	assert_almost_eq(target.lock_range_for(shooter, 10.0), 10.0, 0.01, "Never past the weapon's own reach")
+	shooter.fit_stats = {"sensor_strength": 2.0}
+	assert_almost_eq(target.lock_range_for(shooter, 4000.0), max(sight, 3000.0), 0.01, "Strong sensors halve the jamming")
+	target.fit_stats = {"jamming": 0.99}
+	assert_almost_eq(target.lock_range_for(shooter, 40000.0), max(sight, 40000.0 * (1.0 - 0.99 / 2.0)), 0.01)
+	shooter.fit_stats = {"sensor_strength": 1.0}
+	assert_almost_eq(target.lock_range_for(shooter, 10000.0), max(sight, 100.0), 0.01, "Seen well by eye: locked whatever the jamming")
+	assert_gt(sight, 100.0, "(which is what holds here)")
+
+
+func test_jammed_laser_stays_on_but_idles_until_near_enough():
+	shooter.fit_stats = {"sensor_strength": 1.0}
+	target.fit_stats = {"jamming": 0.75}
+	var sight: float = Constants.EWAR_SIGHT_PER_METRE * target.get_apparent_radius()
+	var lock: float = target.lock_range_for(shooter, laser.get_max_range())
+	assert_lt(lock, laser.get_max_range(), "Jammed: the lock is nearer than the laser reaches")
+	target.global_transform.origin = Vector3(0, 0, -(lock + max(1.0, (laser.get_max_range() - lock) * 0.5)))
+	controller.activate(0, target)
+	controller._physics_process(0.016)
+	assert_true(controller.is_active(0), "Switched on")
+	assert_eq(target.hull, 50.0, "but no lock beyond the jammed range")
+	target.global_transform.origin = Vector3(0, 0, -max(1.0, min(lock, sight) - 5.0))
+	controller._physics_process(1.1)
+	assert_lt(target.hull, 50.0, "Within the lock it fires")
+
+
 func test_zero_hull_makes_wreck_and_stops_tool():
 	watch_signals(EventBus)
 	target.hull = 5.0

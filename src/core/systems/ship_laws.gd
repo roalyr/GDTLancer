@@ -8,8 +8,10 @@
 extends Reference
 
 const SHARE_KEYS = ["structure", "engine", "reactor", "capacitor", "hold"]
-const MODULE_KINDS = ["plating", "thruster", "power_cell", "capacitor", "lance", "sensor", "damper", "decoy", "afterburner"]
-const MODULE_LAWS = {"plating": "hull", "thruster": "linear_thrust", "power_cell": "power_regen", "capacitor": "power_capacity"}
+# The hull's own capacitor stores power; there is no capacitor module (power cells only, era 46).
+const MODULE_KINDS = ["plating", "thruster", "power_cell", "lance", "sensor", "damper", "decoy", "afterburner"]
+const MODULE_LAWS = {"plating": "hull", "thruster": "linear_thrust", "power_cell": "power_regen"}
+const RETIRED_MODULE_KINDS = {"capacitor": "power_cell"}  # A retired kind -> what a saved genome's one becomes
 
 
 # amount = law[1] * (mass / law[0]) ^ law[2]; nothing for no mass.
@@ -343,7 +345,7 @@ static func module_stats(kind: String, genes: Dictionary) -> Dictionary:
 		"sensor":
 			special = {"sensor_strength": apply_law(Constants.LAW_SENSOR, mass)}
 		"damper":
-			special = {"damper_mass": mass}  # ShipFit turns it into a share against the hull's mass
+			special = {"damper_mass": mass}  # ShipFit turns it into a jamming share against the hull's mass, and a power draw
 		"decoy":
 			special = {"decoy_charges": int(max(1, round(mass / Constants.LAW_DECOY_CHARGE_MASS)))}
 		"afterburner":
