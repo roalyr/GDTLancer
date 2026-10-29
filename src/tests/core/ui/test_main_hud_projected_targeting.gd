@@ -346,30 +346,34 @@ func test_projected_target_bracket_ships_are_bright_when_they_see_the_player_dim
 	hostile.sees = true
 	bracket.refresh_style()
 	assert_eq(normal_bracket.modulate, red, "Sees the player: bright red")
-	assert_eq(normal_bracket.rect_scale, Vector2.ONE * 4.0, "A hostile's dot twice everyone else's")
+	var marker = normal_bracket.get_node("Marker")
+	assert_true(marker.hostile, "A hostile's mark is bigger")
+	assert_eq(marker.kind, "ship")
 	hostile.hostile = false
 	hostile.sees = false
 	bracket.refresh_style()
-	assert_eq(normal_bracket.modulate, Color(dim, dim, dim, Constants.UI_UNAWARE_ALPHA), "A neutral too: its colour, dimmed")
-	assert_eq(normal_bracket.rect_scale, Vector2.ONE * 2.0)
-	assert_eq(bracket.get_node("InfoPanel/InfoLabel").get_color("font_color"), Color.white, "but not its label")
+	var blue: Color = Constants.COLOR_UI_TARGET_SIDE_NEUTRAL
+	assert_eq(normal_bracket.modulate, Color(blue.r * dim, blue.g * dim, blue.b * dim, blue.a * Constants.UI_UNAWARE_ALPHA), "A neutral is blue, not its faction's colour; dimmed too")
+	assert_false(marker.hostile)
+	assert_eq(bracket.get_node("InfoPanel/InfoLabel").get_color("font_color"), blue, "but not its label")
 	GlobalRefs.player_agent_body = saved_player
 
 
-func test_projected_target_bracket_crosses_are_doubled_and_celestials_fainter() -> void:
+func test_projected_target_bracket_marks_by_kind_and_celestials_fainter() -> void:
 	var bracket = _create_projected_target_bracket()
 	var normal_bracket = bracket.get_node("BracketNormal")
 	var rock = Spatial.new()
+	rock.add_to_group("asteroid")
 	add_child_autofree(rock)
 	bracket.configure_target(rock, "Rock")
-	assert_eq(normal_bracket.rect_scale, Vector2.ONE * 2.0, "Every cross twice the size")
-	assert_almost_eq(normal_bracket.modulate.a, Constants.COLOR_UI_TARGET_NEUTRAL.a * Constants.UI_CELESTIAL_ALPHA, 0.001, "Celestials fainter")
+	assert_eq(normal_bracket.get_node("Marker").kind, "rock")
+	assert_almost_eq(normal_bracket.modulate.a, Constants.COLOR_UI_ROCK.a * Constants.UI_CELESTIAL_ALPHA, 0.001, "Celestials fainter")
 	var station = StaticBody.new()
 	station.set_script(DockableStationScript)
 	add_child_autofree(station)
 	bracket.configure_target(station, "Station")
-	assert_eq(normal_bracket.rect_scale, Vector2.ONE * 2.0)
-	assert_eq(normal_bracket.modulate.a, Constants.COLOR_UI_TARGET_NEUTRAL.a, "Stations as they were")
+	assert_eq(normal_bracket.get_node("Marker").kind, "station")
+	assert_eq(normal_bracket.modulate, Constants.COLOR_UI_TARGET_SIDE_NEUTRAL, "A neutral station is blue, at full strength")
 
 
 func test_projected_target_bracket_distance_formatter_matches_requested_magnitudes() -> void:
@@ -614,7 +618,7 @@ func test_detected_ship_in_view_gets_a_visible_bracket_undetected_one_does_not()
 	assert_false(hud._world_target_buttons[far.get_instance_id()].visible, "Beyond its signature: no bracket.")
 
 
-func test_unselected_ship_brackets_take_their_faction_colour():
+func test_unselected_ship_brackets_take_their_side_colour():
 	var player = AgentScript.new()
 	player.faction = "player"
 	add_child_autofree(player)
@@ -626,7 +630,7 @@ func test_unselected_ship_brackets_take_their_faction_colour():
 	ship.faction = "verdant"
 	ship.hull = 10.0
 	bracket.configure_target(ship, "Verdant Fighter")
-	assert_eq(bracket.get_node("BracketNormal").modulate, Constants.FACTIONS.verdant.color, "Neutral to you: its faction colour.")
+	assert_eq(bracket.get_node("BracketNormal").modulate, Constants.COLOR_UI_TARGET_SIDE_NEUTRAL, "Neutral to you: blue, not its faction colour.")
 	ship.apply_damage(1.0, player)
 	bracket.refresh_style()
 	assert_eq(bracket.get_node("BracketNormal").modulate, Constants.COLOR_UI_TARGET_HOSTILE, "Shot by you: hostile.")

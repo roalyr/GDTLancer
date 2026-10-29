@@ -1133,13 +1133,23 @@ const ANNOUNCE_ANCHOR = 0.62  # The newest's bottom edge, as a share of the scre
 const ANNOUNCE_GAP = 4.0  # px between two
 const ANNOUNCE_PADDING = Vector2(14, 6)  # px round the text
 const ANNOUNCE_SLIDE_RATE = 12.0  # How fast pushed ones slide up to their places (1/s)
-const COLOR_UI_TARGET_SELECTED = Color(1.0, 0.9, 0.35, 1.0)  # Yellow: anything not hostile, wrecks included
-const COLOR_UI_TARGET_HOSTILE = Color(1.0, 0.22, 0.12, 1.0)  # Red, a touch of orange: a live ship hostile to the player
+const COLOR_UI_TARGET_SELECTED = Color(1.0, 0.9, 0.35, 1.0)  # Yellow: the selected target, anything not hostile, wrecks included
+# Unselected targets' marks and labels. Ships and stations by their side to the player only, not
+# their factions' colours: green allied (standing friendly), blue neutral, red hostile (attacking it
+# on sight, a refused dock, a territorial alien). Everything else by its kind.
+const COLOR_UI_TARGET_HOSTILE = Color(1.0, 0.22, 0.12, 1.0)  # Red
+const COLOR_UI_TARGET_ALLIED = Color(0.35, 1.0, 0.45, 1.0)  # Green
+const COLOR_UI_TARGET_SIDE_NEUTRAL = Color(0.35, 0.65, 1.0, 1.0)  # Blue
+const COLOR_UI_BEACON = Color(1.0, 0.75, 0.3, 1.0)  # Amber: beacons (SectorLayout)
+const COLOR_UI_BODY = Color(0.95, 0.92, 0.8, 1.0)  # Pale sand: stars, planets, moons
+const COLOR_UI_ROCK = Color(0.8, 0.65, 0.5, 1.0)  # Tan: rocks
+const COLOR_UI_PICKUP = Color(1.0, 0.5, 0.9, 1.0)  # Pink: ore chunks and loose lances
+const COLOR_UI_TARGET_NEUTRAL = Color(0.85, 0.85, 0.85, 0.95)  # Light grey: anything else
+const COLOR_UI_WRECK = Color(0.55, 0.55, 0.55, 0.9)  # Grey: wrecks
 const UI_UNAWARE_DIM = 0.55  # A live ship that has not detected the player shows its colour this bright
-const UI_UNAWARE_ALPHA = 0.85  # and this opaque (its dot only: labels stay readable)
-const UI_CELESTIAL_ALPHA = 0.45  # Dots on rocks, planets and the like are this faint
-const COLOR_UI_TARGET_NEUTRAL = Color(0.35, 0.95, 1.0, 0.95)  # Cyan: brackets of things without a faction
-const COLOR_UI_WRECK = Color(0.6, 0.6, 0.6, 0.9)  # Grey: wreck brackets
+const UI_UNAWARE_ALPHA = 0.85  # and this opaque (its mark only: labels stay readable)
+const UI_CELESTIAL_ALPHA = 0.45  # Marks on rocks, planets and the like are this faint
+const HUD_MARKER_STYLES = ["shapes", "ring", "ticks", "dot"]  # TargetMarker; the debug overlay's MARKERS cycles them, the first by default
 
 # Jump route brackets, by sector type.
 const COLOR_UI_JUMP_ROUTE = Color(0.0, 0.7, 1.0, 1.0)  # Fallback

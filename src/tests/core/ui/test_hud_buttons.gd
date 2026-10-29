@@ -188,3 +188,19 @@ func test_docking_view_shows_the_power_flow_too() -> void:
 	var text: String = load("res://src/core/ui/fitting_window/fitting_window.gd").describe_stats(ship)
 	assert_string_contains(text, "POWER FLOW   REACTOR +10.0/s   TOOLS ON -")
 
+
+
+func test_markers_button_cycles_the_styles() -> void:
+	var hud = MainHUDScene.instance()
+	add_child_autofree(hud)
+	yield(get_tree(), "idle_frame")
+	var button: Button = hud.get_node("ScreenControls/DebugOverlay/RightColumn/ButtonDebugMarkers")
+	var styles: Array = Constants.HUD_MARKER_STYLES
+	var first: String = Engine.get_meta("hud_marker_style")
+	button.emit_signal("pressed")
+	var second: String = Engine.get_meta("hud_marker_style")
+	assert_eq(second, styles[(styles.find(first) + 1) % styles.size()], "The next style")
+	assert_eq(button.text, "MARKERS: " + second.to_upper())
+	for _i in range(styles.size() - 1):
+		button.emit_signal("pressed")
+	assert_eq(Engine.get_meta("hud_marker_style"), first, "and round to the first")

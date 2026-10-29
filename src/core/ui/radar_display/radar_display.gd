@@ -2,10 +2,9 @@
 
 extends Control
 
+const TargetKinds = preload("res://src/core/ui/main_hud/target_kinds.gd")
+
 # --- Color Constants ---
-const COLOR_FRIENDLY := Color(0.33, 1.0, 0.33)   # #55FF55
-const COLOR_NEUTRAL := Color(1.0, 1.0, 0.33)      # #FFFF55
-const COLOR_HOSTILE := Color(1.0, 0.33, 0.33)      # #FF5555
 const COLOR_BG := Color(0.1, 0.1, 0.12, 0.85)
 
 # --- Node References ---
@@ -64,8 +63,7 @@ func _create_contact_entry(agent_body: Node) -> void:
 	# Disposition color dot
 	var dot := ColorRect.new()
 	dot.rect_min_size = Vector2(12, 12)
-	var hostile: bool = agent_body.has_method("is_enemy_of") and agent_body.is_enemy_of(GlobalRefs.player_agent_body)
-	dot.color = _get_disposition_color("hostile") if hostile else (agent_body.get_faction_color() if agent_body.has_method("get_faction_color") else _get_disposition_color("neutral"))
+	dot.color = TargetKinds.side_color(TargetKinds.side_of(agent_body, GlobalRefs.player_agent_body))  # As the HUD's marks: side, not faction
 	row.add_child(dot)
 
 	var name_label := Label.new()
@@ -76,12 +74,3 @@ func _create_contact_entry(agent_body: Node) -> void:
 
 	contact_list.add_child(row)
 
-
-func _get_disposition_color(category: String) -> Color:
-	match category:
-		"friendly":
-			return COLOR_FRIENDLY
-		"hostile":
-			return COLOR_HOSTILE
-		_:
-			return COLOR_NEUTRAL

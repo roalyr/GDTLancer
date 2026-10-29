@@ -4,10 +4,8 @@
 extends Button
 
 const BRACKET_TEXTURE_RECT_SIZE = Vector2(150, 150)
-const BRACKET_CROSS_SCALE = 2.0  # The unselected dot, drawn this many times its texture's size
-const BRACKET_HOSTILE_CROSS_SCALE = 4.0  # A live hostile's: twice everyone else's
-const BRACKET_DOT_RADIUS = 3.0  # px of the dot's texture (a cross cluttered the view)
-const BRACKET_DOT_SIZE = 16  # px square
+const TargetMarker = preload("res://src/core/ui/main_hud/target_marker.gd")
+const TargetKinds = preload("res://src/core/ui/main_hud/target_kinds.gd")
 const DISTANCE_KILOUNIT_SCALE = 1000.0
 const DISTANCE_PLAIN_THRESHOLD = 2000.0
 const DISTANCE_DECIMAL_K_THRESHOLD = 10000.0
@@ -16,7 +14,8 @@ const DISTANCE_FAR_THRESHOLD = 1000000.0
 
 var target_ref = null
 var _is_selected: bool = false
-var _normal_bracket: TextureRect = null
+var _normal_bracket: TextureRect = null  # Holds the unselected mark (TargetMarker) and tints it
+var _marker: Control = null
 var _selected_bracket: TextureRect = null
 var _distance_panel: Control = null
 var _distance_label: Label = null
@@ -31,6 +30,7 @@ var _distance_fade_alpha: float = 1.0
 
 
 func _ready() -> void:
+	add_to_group("projected_target_bracket")
 	flat = true
 	focus_mode = Control.FOCUS_NONE
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -83,23 +83,9 @@ func set_distance_fade_alpha(distance_fade_alpha: float) -> void:
 	_apply_distance_fade_alpha()
 
 
-# A soft-edged white dot, made once and shared by every bracket (tinted by modulate).
-static func dot_texture() -> Texture:
-	if Engine.has_meta("hud_bracket_dot"):
-		return Engine.get_meta("hud_bracket_dot")
-	var image := Image.new()
-	image.create(BRACKET_DOT_SIZE, BRACKET_DOT_SIZE, false, Image.FORMAT_RGBA8)
-	image.lock()
-	var centre: float = BRACKET_DOT_SIZE * 0.5
-	for x in range(BRACKET_DOT_SIZE):
-		for y in range(BRACKET_DOT_SIZE):
-			var distance: float = Vector2(x + 0.5 - centre, y + 0.5 - centre).length()
-			image.set_pixel(x, y, Color(1, 1, 1, clamp(BRACKET_DOT_RADIUS + 0.5 - distance, 0.0, 1.0)))
-	image.unlock()
-	var texture := ImageTexture.new()
-	texture.create_from_image(image, Texture.FLAG_FILTER)
-	Engine.set_meta("hud_bracket_dot", texture)
-	return texture
+# The marks' style for every bracket (Constants HUD_MARKER_STYLES; the debug overlay's MARKERS).
+static func marker_style() -> String:
+	return str(Engine.get_meta("hud_marker_style")) if Engine.has_meta("hud_marker_style") else Constants.HUD_MARKER_STYLES[0]
 
 
 func _cache_scene_nodes() -> void:
@@ -113,7 +99,10 @@ func _cache_scene_nodes() -> void:
 	if is_instance_valid(_normal_bracket):
 		_normal_bracket.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		_normal_bracket.focus_mode = Control.FOCUS_NONE
-		_normal_bracket.texture = dot_texture()
+		_normal_bracket.texture = null  # A cross cluttered the view: a TargetMarker instead
+		_marker = TargetMarker.new()
+		_marker.name = "Marker"
+		_normal_bracket.add_child(_marker)
 
 	if is_instance_valid(_selected_bracket):
 		_selected_bracket.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -139,17 +128,18 @@ func _cache_scene_nodes() -> void:
 func _apply_bracket_style() -> void:
 	if is_instance_valid(_normal_bracket):
 		_normal_bracket.visible = not _is_selected
+		var kind: String = TargetKinds.kind_of(target_ref)
 		if _is_route_target(target_ref) or _is_jump_point_target(target_ref):
 			_normal_bracket.modulate = _get_jump_route_color()
 		elif _is_live_ship():
 			_normal_bracket.modulate = _awareness_shade(_get_ship_color())
 		else:
 			_normal_bracket.modulate = _get_ship_color()
-			if _is_celestial():
+			if kind in ["rock", "body"]:
 				_normal_bracket.modulate.a *= Constants.UI_CELESTIAL_ALPHA
-		_normal_bracket.rect_pivot_offset = BRACKET_TEXTURE_RECT_SIZE * 0.5
-		var hostile: bool = _is_live_ship() and _is_hostile_to_player()
-		_normal_bracket.rect_scale = Vector2.ONE * (BRACKET_HOSTILE_CROSS_SCALE if hostile else BRACKET_CROSS_SCALE)
+		var hostile: bool = kind in ["ship", "station"] and TargetKinds.side_of(target_ref, GlobalRefs.player_agent_body) == "hostile"
+		if is_instance_valid(_marker):
+			_marker.set_mark(marker_style(), kind, hostile)
 	if is_instance_valid(_selected_bracket):
 		_selected_bracket.visible = _is_selected
 		_apply_selected_color()
@@ -165,25 +155,15 @@ func _apply_selected_color() -> void:
 
 func refresh_style() -> void:
 	_apply_bracket_style()
-	if _is_live_ship() or is_instance_valid(target_ref) and target_ref.get("is_wreck"):
+	if _is_live_ship() or is_instance_valid(target_ref) and (target_ref.get("is_wreck") or _is_dockable_target(target_ref)):
 		_sync_label()  # Label colour follows the bracket's
 
 
-# Unselected: red-orange for a live ship hostile to the player, its faction's colour otherwise, grey
-# for wrecks. The dot dims it while the ship has not detected the player (_awareness_shade); the
-# label does not.
+# Unselected (TargetKinds.color_of): ships and stations green, blue or red by their side to the
+# player, everything else by its kind. A ship's mark dims while it has not detected the player
+# (_awareness_shade); its label does not.
 func _get_ship_color() -> Color:
-	if not (is_instance_valid(target_ref) and target_ref.has_method("get_faction_color")):
-		return Constants.COLOR_UI_TARGET_NEUTRAL
-	if target_ref.get("is_wreck"):
-		return Constants.COLOR_UI_WRECK
-	return Constants.COLOR_UI_TARGET_HOSTILE if _is_hostile_to_player() else target_ref.get_faction_color()
-
-
-# A rock, a planet or the like: no side, not a station, a wreck or a route.
-func _is_celestial() -> bool:
-	return is_instance_valid(target_ref) and not target_ref.has_method("get_faction_color") and not target_ref.get("is_wreck") \
-			and not _is_dockable_target(target_ref) and not _is_route_target(target_ref) and not _is_jump_point_target(target_ref)
+	return TargetKinds.color_of(target_ref, GlobalRefs.player_agent_body) if is_instance_valid(target_ref) else Constants.COLOR_UI_TARGET_NEUTRAL
 
 
 # `color` as it is if the ship detects the player, dimmed (Constants UI_UNAWARE_*) if not.
@@ -216,7 +196,7 @@ func _sync_label() -> void:
 	var color = null  # Color, or null for the theme's
 	if _is_route_target(target_ref) or _is_jump_point_target(target_ref):
 		color = _get_jump_route_color()
-	elif _is_live_ship():
+	elif _is_live_ship() or _is_dockable_target(target_ref):
 		color = _get_ship_color()  # Sides read at a glance
 	if _label_synced and label_text == _shown_text and typeof(color) == typeof(_shown_color) and (typeof(color) == TYPE_NIL or color == _shown_color):
 		return
