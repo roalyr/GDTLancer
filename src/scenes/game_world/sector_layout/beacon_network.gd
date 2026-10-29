@@ -2,10 +2,11 @@
 # their numbers (heat from fire near them, traffic from ships passing, each faction's last visit
 # and presence, a field's ore), plans routes over them and chooses where an NPC goes next.
 #
-# Routes: beacons within ROUTE_LINK_RANGE of each other are linked. A link costs its flying time
-# plus, by the ship's caution, its ends' heat and the hull a hazard would take on the way, so
-# fearless ships go straight and careful ones go round a star or a fight. One plan (Dijkstra from
-# the ship) gives the cost to every beacon, and the path to the one chosen.
+# Routes: every beacon is linked to every other (no distance cut-off). A link costs its flying time
+# plus, by the ship's caution, its ends' heat and the hull a hazard would take on the way, so a
+# clear straight line always wins: fearless ships go straight and careful ones go round a star or
+# a fight. One plan (Dijkstra from the ship) gives the cost to every beacon, and the path to the
+# one chosen.
 # Choices, by job: "patrol" (armed faction ships), "hunt" (raiders), "scavenge" (unarmed), "mine"
 # (prospectors); see Constants CHOICE_*. Each beacon's interest over its route cost: the best one.
 # Simple rules, so the patterns are the AI's own: patrols drawn to trouble, raiders to busy
@@ -143,8 +144,7 @@ func _link(i: int, j: int) -> Array:
 	if not _links.has(key):
 		var a: Vector3 = beacons[i].global_transform.origin
 		var b: Vector3 = beacons[j].global_transform.origin
-		var length: float = a.distance_to(b)
-		_links[key] = [length, exposure(a, b) if length <= Constants.ROUTE_LINK_RANGE else 0.0]
+		_links[key] = [a.distance_to(b), exposure(a, b)]
 	return _links[key]
 
 
@@ -156,28 +156,17 @@ static func link_cost(length: float, hazard: float, heat: float, speed: float, c
 
 
 # Dijkstra from `from` over the beacons: {"cost": [s to each beacon], "prev": [index before it, -1:
-# from the start]}. The start links to every beacon within ROUTE_LINK_RANGE, and to the nearest
-# one whatever its distance.
+# from the start]}. The start links to every beacon.
 func plan(from: Vector3, speed: float, caution: float, hull_max: float) -> Dictionary:
 	var n: int = beacons.size()
 	var cost: Array = []
 	var prev: Array = []
 	var done: Array = []
-	var nearest_index: int = -1
-	var nearest_distance: float = INF
 	for i in range(n):
 		var at: Vector3 = beacons[i].global_transform.origin
-		var length: float = from.distance_to(at)
-		if length < nearest_distance:
-			nearest_distance = length
-			nearest_index = i
-		var linked: bool = length <= Constants.ROUTE_LINK_RANGE
-		cost.append(link_cost(length, exposure(from, at), beacons[i].heat * 0.5, speed, caution, hull_max) if linked else INF)
+		cost.append(link_cost(from.distance_to(at), exposure(from, at), beacons[i].heat * 0.5, speed, caution, hull_max))
 		prev.append(-1)
 		done.append(false)
-	if nearest_index >= 0 and cost[nearest_index] == INF:
-		var at: Vector3 = beacons[nearest_index].global_transform.origin
-		cost[nearest_index] = link_cost(nearest_distance, exposure(from, at), beacons[nearest_index].heat * 0.5, speed, caution, hull_max)
 	for _step in range(n):
 		var u: int = -1
 		for i in range(n):
@@ -190,8 +179,6 @@ func plan(from: Vector3, speed: float, caution: float, hull_max: float) -> Dicti
 			if done[v]:
 				continue
 			var link: Array = _link(u, v)
-			if link[0] > Constants.ROUTE_LINK_RANGE:
-				continue
 			var through: float = cost[u] + link_cost(link[0], link[1], (beacons[u].heat + beacons[v].heat) * 0.5, speed, caution, hull_max)
 			if through < cost[v]:
 				cost[v] = through

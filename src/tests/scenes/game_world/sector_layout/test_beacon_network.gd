@@ -95,3 +95,15 @@ func test_jobs_choose_their_beacons():
 	assert_eq(network.choose(_ship("scavenge")).beacon, field, "Scavengers to the fight's leavings")
 	var hot_field_score: float = network.interest(field, _ship("mine", "verdant", 4.0 * Constants.AI_AVOID_SHARE))
 	assert_lt(hot_field_score, network.interest(field, _ship("mine", "verdant", 0.0)), "A hot field draws careful miners less")
+
+
+func test_no_beacon_is_cut_off_by_distance():
+	var near = _beacon("landmark", Vector3(1000, 0, 0))
+	var far = _beacon("field", Vector3(0, -90000, 0))
+	far.value = 5.0 * Constants.CHOICE_FIELD_VALUE
+	var planned: Dictionary = network.plan(Vector3.ZERO, 150.0, Constants.AI_AVOID_SHARE, 120.0)
+	assert_lt(planned.cost[1], INF, "However far")
+	assert_almost_eq(planned.cost[1], 90000.0 / 150.0, 1.0, "Straight there: nothing in the way")
+	assert_eq(network.choose(_ship("mine")).beacon, far, "and worth going to")
+	assert_eq(network.choose(_ship("mine")).path, [far.global_transform.origin], "directly")
+	assert_ne(near, far)

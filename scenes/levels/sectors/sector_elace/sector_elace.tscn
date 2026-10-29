@@ -87,7 +87,7 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -22000, 0, 0 )
 script = ExtResource( 25 )
 
 [node name="Asteroids" type="Spatial" parent="SceneAssets"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 42000, -1700, -20500 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -25700, -20500 )
 
 [node name="Asteroid01" parent="SceneAssets/Asteroids" instance=ExtResource( 6 )]
 transform = Transform( 32.3952, -8.42021, -18.5775, 12.7308, -18.8944, 30.7636, -15.9358, -32.2114, -13.1889, -853.015, 1756.44, 16731.7 )

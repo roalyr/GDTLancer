@@ -882,7 +882,7 @@ const SECTOR_LAYOUTS = {
 				"services": {"buys": {"commodity_ore": 1.4, "commodity_relic": 1.2}}},
 			{"id": "raider_den", "name": "Raider Den", "faction": "raiders", "at": Vector3(0, 24000, 0), "ships": {"raiders": 4},
 				"services": {"repair": true, "rearm": true, "buys": {"*": 0.7}}},
-			{"id": "xenohive", "name": "Xenohive", "faction": "xenohive", "at": Vector3(48000, 0, 0), "ships": {"xenohive": 3},
+			{"id": "xenohive", "name": "Xenohive", "faction": "xenohive", "at": Vector3(6000, -24000, 0), "ships": {"xenohive": 3},  # Under the star at the deep field's east edge: as far from either faction
 				"services": {"buys": {"*": 1.0}}},
 		],
 		"beacons": [
@@ -895,7 +895,7 @@ const SECTOR_LAYOUTS = {
 			{"kind": "field", "name": "Verdant Home Field", "at": Vector3(14000, 0, 28000), "radius": 2000.0, "rocks": 14},
 			{"kind": "field", "name": "Violet Home Field", "at": Vector3(14000, 0, -28000), "radius": 2000.0, "rocks": 14},
 			{"kind": "field", "name": "Elace B Belt", "at": Vector3(25000, 0, 0), "radius": 5000.0, "ring": 0.5, "rocks": 30},
-			{"kind": "field", "name": "Deep Field", "at": Vector3(42000, 0, 0), "radius": 4000.0, "rocks": 12},  # And the scene's old rocks
+			{"kind": "field", "name": "Deep Field", "at": Vector3(0, -24000, 0), "radius": 4000.0, "rocks": 12},  # And the scene's old rocks. Under the star: contested, open to all alike
 			{"kind": "landmark", "name": "West Pass North", "at": Vector3(-18000, 0, 11000), "player_visible": true},  # Nothing else marks these
 			{"kind": "landmark", "name": "West Pass South", "at": Vector3(-18000, 0, -11000), "player_visible": true},
 			{"kind": "landmark", "name": "East Pass North", "at": Vector3(20000, 0, 11000), "player_visible": true},
@@ -921,12 +921,13 @@ const BEACON_LOITER_TIME = [30.0, 90.0]  # s a ship stays at a beacon before cho
 # Words for the player (target info), as heat and traffic pass these.
 const BEACON_HEAT_WORDS = [[0.3, "CALM"], [1.5, "TENSE"], [INF, "HOT"]]
 const BEACON_TRAFFIC_WORDS = [[1.0, "QUIET"], [4.0, "BUSY"], [INF, "CROWDED"]]
-# Routes (BeaconNetwork.route): beacons within ROUTE_LINK_RANGE of each other are linked, and the
-# start and the goal to each other too. A link costs its flying time plus, for a ship of caution c
-# (relative to the default, AI_AVOID_SHARE), c * (ROUTE_HEAT_COST s per unit of heat at its ends,
-# ROUTE_DAMAGE_COST s per share of the hull a hazard would take on the way). Fearless ships go
-# straight; careful ones go round.
-const ROUTE_LINK_RANGE = 24000.0  # m
+# Routes (BeaconNetwork.route): every beacon is linked to every other, and the start and the goal
+# to all of them (no distance cut-off: a missed overlap would cut a place off, and complex
+# geography would need beacons only to bridge gaps). A link costs its flying time plus, for a ship
+# of caution c (relative to the default, AI_AVOID_SHARE), c * (ROUTE_HEAT_COST s per unit of heat at
+# its ends, ROUTE_DAMAGE_COST s per share of the hull a hazard would take on the way). So a clear
+# straight line always wins, and a way through beacons only when it goes round a hazard or a hot
+# spot: fearless ships go straight, careful ones go round.
 const ROUTE_HEAT_COST = 60.0  # s
 const ROUTE_DAMAGE_COST = 600.0  # s per whole hull
 const ROUTE_SAMPLES = 16  # Points a link is sampled at for hazards
