@@ -93,18 +93,38 @@ func test_each_tool_button_toggles_only_its_own_tool_on_a_valid_target():
 	controller.free()
 
 
-func test_double_click_on_a_target_issues_approach():
+func test_double_click_approaches_and_the_buttons_toggle_to_a_coast():
 	var Agent = load("res://src/core/agents/agent.gd")
+	var Nav = load("res://src/core/agents/components/navigation_system.gd")
 	var ship = Agent.new()
 	add_child_autofree(ship)
+	var nav = NavStub.new()
+	nav.name = "NavigationSystem"
+	ship.add_child(nav)
+	var enemy = Agent.new()
+	add_child_autofree(enemy)
 	var controller = PlayerControllerScript.new()
+	var recorder = CommandRecorder.new()
 	controller.agent_body = ship
-	controller.agent_script = ship
-	watch_signals(EventBus)
+	controller.agent_script = recorder
+	controller._selected_target = enemy
 
 	controller.handle_target_double_click()
-
-	assert_signal_emitted(EventBus, "player_approach_pressed", "As the Approach button does.")
+	assert_eq(recorder.last, "approach", "As the Approach button does")
+	nav._current_command = {"target_node": enemy}
+	nav.type = Nav.CommandType.APPROACH
+	controller.handle_target_double_click()
+	assert_eq(recorder.last, "approach", "A double click never lets go")
+	controller._on_Player_Approach_Pressed()
+	assert_eq(recorder.last, "idle", "Pressed again: lets go (still, so it drifts)")
+	ship.linear_velocity = Vector3(0, 0, -50)
+	nav.type = Nav.CommandType.FLEE
+	controller._on_Player_Flee_Pressed()
+	assert_eq(recorder.last, "move_direction", "Moving: it keeps going that way")
+	nav.type = Nav.CommandType.ORBIT
+	nav._current_command = {"target_node": ship}
+	controller._on_Player_Orbit_Pressed()
+	assert_eq(recorder.last, "orbit", "Another target: a new course")
 	controller.free()
 
 
@@ -117,6 +137,12 @@ class CommandRecorder:
 		last = "approach"
 	func command_stop():
 		last = "stop"
+	func command_idle():
+		last = "idle"
+	func command_move_direction(_direction):
+		last = "move_direction"
+	func command_orbit(_target):
+		last = "orbit"
 
 
 class NavStub:

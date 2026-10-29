@@ -164,6 +164,46 @@ func test_aim_command_points_the_nose_at_the_lead():
 	assert_eq(controller.find_cannon_for(target), -1, "Empty: no cannon to aim")
 
 
+class MovementStub:
+	extends Node
+	var velocity := Vector3.ZERO
+	func request_rotation_to_pid(_direction, _delta, _gain = 1.0):
+		pass
+	func request_velocity_pid(wanted, _delta):
+		velocity = wanted
+
+
+class NavStub:
+	extends Node
+	var agent_body = null
+	var movement_system = null
+	var _current_command := {}
+
+
+func test_aim_presses_in_until_fired_at_then_drifts_back_to_its_range():
+	controller = _arm(shooter, "cannon", Constants.PART_TYPE_SEEDS.cannon[2])
+	var nav = NavStub.new()
+	nav.agent_body = shooter
+	nav.movement_system = MovementStub.new()
+	add_child_autofree(nav)
+	add_child_autofree(nav.movement_system)
+	var aim = load("res://src/core/agents/components/navigation_system/command_aim.gd").new()
+	add_child_autofree(aim)
+	aim.initialize(nav)
+	target.global_transform.origin = Vector3(0, 0, -1000)  # Right at the range it was given
+	nav._current_command = {"target_node": target, "range": 1000.0, "side": Vector3.RIGHT}
+	aim.execute(0.016)
+	assert_lt(nav.movement_system.velocity.z, -1.0, "Not fired at: closes in")
+	assert_false(shooter.is_under_fire())
+	shooter.apply_damage(1.0, target)
+	assert_true(shooter.is_under_fire(), "Hit")
+	aim.execute(0.016)
+	assert_almost_eq(nav.movement_system.velocity.z, 0.0, 0.01, "Under fire: holds its range, dodging sideways")
+	target.global_transform.origin = Vector3(0, 0, -500)
+	aim.execute(0.016)
+	assert_gt(nav.movement_system.velocity.z, 1.0, "and drifts back out to it")
+
+
 func test_lasers_shoot_down_missiles_coming_at_their_ship():
 	controller = _arm(shooter, "missile", Constants.PART_TYPE_SEEDS.missile[2])
 	var laser: UtilityToolTemplate = ShipLaws.build_laser_template(Constants.PART_TYPE_SEEDS.laser[3], 3, "test_pd")  # A heavy laser

@@ -13,6 +13,7 @@ var _hit_by_player: bool = false  # The player has hit it (its faction's standin
 var bounties: Dictionary = {}  # Bounty postings on this ship: faction -> WP (the player's are in GameState)
 var bounty_paid: float = 0.0  # A wreck: what its killer was paid for it (Bounty.on_kill)
 var _last_hit_by = null  # weakref to the ship that hit it last: the killer, when it becomes a wreck
+var _under_fire_left := 0.0  # s it still counts as under fire (UNDER_FIRE_TIME after each hit by another)
 var ship_template = null  # ShipTemplate this agent flies
 var evo_uid: String = ""  # Arena NPCs: their life in Evolution
 var wallet: float = 0.0  # WP a non-evolving NPC has (random at spawn; see get_wallet)
@@ -577,6 +578,7 @@ func apply_damage(amount: float, source: Node = null) -> void:
 	_hold_grudge(source)
 	if is_instance_valid(source) and source != self:
 		_last_hit_by = weakref(source)
+		_under_fire_left = Constants.UNDER_FIRE_TIME
 		if not _hit_by_player and source.has_method("is_player") and source.is_player():
 			_hit_by_player = true
 			Standing.on_player_attacked(faction)
@@ -585,6 +587,11 @@ func apply_damage(amount: float, source: Node = null) -> void:
 	EventBus.emit_signal("agent_damaged", self, amount, source)
 	if hull <= 0.0:
 		become_wreck()
+
+
+# Hit by another within UNDER_FIRE_TIME s: a gunner pressing in drifts back to its range (command_aim).
+func is_under_fire() -> bool:
+	return _under_fire_left > 0.0
 
 
 func become_wreck() -> void:
@@ -1163,6 +1170,7 @@ func _apply_leak_thrust() -> void:
 
 # --- RigidBody Physics Integration ---
 func _integrate_forces(state: PhysicsDirectBodyState):
+	_under_fire_left = max(0.0, _under_fire_left - state.step)
 	if is_docked:
 		state.linear_velocity = Vector3.ZERO
 		state.angular_velocity = Vector3.ZERO

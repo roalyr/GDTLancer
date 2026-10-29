@@ -290,7 +290,7 @@ func _on_tool_deactivated(index: int, reason: String) -> void:
 	if tool_template.tool_type == "cannon" and _tool_controller.find_cannon_for(_tool_controller.get_target(index)) < 0:
 		var nav = agent_body.get_node_or_null("NavigationSystem")
 		if is_instance_valid(nav) and nav.get_current_command_type() == NavigationSystem.CommandType.AIM and not _cannon_on():
-			agent_script.command_stop()
+			_coast()
 
 
 func _cannon_on() -> bool:
@@ -442,9 +442,14 @@ func set_free_flight(active: bool) -> void:
 
 
 # Double click on a target's bracket (PointerRouter has just selected it): approach it, as the
-# Approach button does.
+# Approach button does (but never toggles it off).
 func handle_target_double_click():
-	_issue_approach_command()
+	_clear_queued_jump()
+	if not is_instance_valid(agent_script):
+		return
+	_approach_selected()
+	if _current_input_state is StateFreeFlight:
+		_change_state("default")
 
 
 # Double click on empty space flies toward that point.
@@ -680,13 +685,43 @@ func _on_Player_Stop_Pressed():
 	_issue_stop_command()
 
 
+# Orbit, approach and flee toggle: pressed again on the course already flown, they let go of it
+# and the ship coasts on (_coast).
 func _on_Player_Orbit_Pressed():
+	if _toggled_off([NavigationSystem.CommandType.ORBIT]):
+		return
 	if is_instance_valid(_selected_target) and _selected_target is Spatial:
 		agent_script.command_orbit(_selected_target)
 
 
+# Whether the ship is flying one of `types` on the selected target; if so, it lets go and coasts on.
+func _toggled_off(types: Array) -> bool:
+	var nav = agent_body.get_node_or_null("NavigationSystem") if is_instance_valid(agent_body) else null
+	if not is_instance_valid(nav) or not nav.get_current_command_type() in types:
+		return false
+	if nav._current_command.get("target_node", null) != _selected_target:
+		return false
+	_coast()
+	return true
+
+
+# No course: the ship keeps going the way it is moving, at the throttle set (still: it drifts).
+func _coast() -> void:
+	var velocity: Vector3 = agent_body.linear_velocity if is_instance_valid(agent_body) else Vector3.ZERO
+	if velocity.length() > 1.0:
+		agent_script.command_move_direction(velocity.normalized())
+	else:
+		agent_script.command_idle()
+
+
 # APPROACH: with the lance armed, at a ship or a rock with ore, the pass that throws it (command_ram).
 func _on_Player_Approach_Pressed():
+	if _toggled_off([NavigationSystem.CommandType.APPROACH, NavigationSystem.CommandType.RAM]):
+		return
+	_approach_selected()
+
+
+func _approach_selected() -> void:
 	if is_instance_valid(_selected_target) and _selected_target is Spatial:
 		if is_ram_ready(_selected_target):
 			agent_script.command_ram(_selected_target)
@@ -728,6 +763,8 @@ func _sync_ram_command() -> void:
 
 
 func _on_Player_Flee_Pressed():
+	if _toggled_off([NavigationSystem.CommandType.FLEE]):
+		return
 	if is_instance_valid(_selected_target) and _selected_target is Spatial:
 		agent_script.command_flee(_selected_target)
 
