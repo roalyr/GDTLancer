@@ -1,0 +1,33 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_x13928"
+agent_type = "npc"
+ship_template_id = "preset_ship_x13928"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.464393,
+"caution": 0.588924,
+"disengage": 0.192165,
+"engage": 3.9275,
+"haul": 0.309102,
+"mercy": 0.478692,
+"prospect": 0.0,
+"pursuit": 1.59097,
+"range": 0.3,
+"retreat_hull": 0.8,
+"return_fire": 0.0730357,
+"teamwork": 1.45702
+}
+role = "cannon-raider"
+family = "raider"
+weight_class = "light"
+archetype = "cannon-raider light"
+temperament = "cautious"
+traits = [ "picks its fights", "stubborn", "close-in", "skittish", "runs silent" ]
+lives = 9
+fitness = 0.740655

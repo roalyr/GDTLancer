@@ -1,0 +1,33 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_r13691"
+agent_type = "npc"
+ship_template_id = "preset_ship_r13691"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.3,
+"caution": 0.739077,
+"disengage": 0.285,
+"engage": 0.3,
+"haul": 0.291509,
+"mercy": 0.195802,
+"prospect": 0.014428,
+"pursuit": 2.1472,
+"range": 1.12949,
+"retreat_hull": 0.0822351,
+"return_fire": 0.608079,
+"teamwork": 1.07347
+}
+role = "cannon-fighter"
+family = "fighter"
+weight_class = "light"
+archetype = "cannon-fighter light"
+temperament = "aggressive"
+traits = [ "quick to fight", "stubborn", "ruthless" ]
+lives = 10
+fitness = 0.871777
