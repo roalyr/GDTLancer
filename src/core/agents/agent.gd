@@ -1220,10 +1220,8 @@ func command_approach(target: Spatial):
 		printerr("AgentBody: Cannot command_approach - NavigationSystem invalid.")
 
 
-# MODIFIED: This function now captures the ship's current distance to the target
-# as the desired orbit distance, preventing the navigation system from
-# immediately trying to correct to a different, pre-calculated minimum.
-func command_orbit(target: Spatial):
+# Circles `target` at `distance` m, or (none given) at the distance it is at now.
+func command_orbit(target: Spatial, distance: float = -1.0):
 	if not is_instance_valid(target):
 		printerr("AgentBody: command_orbit - Invalid target node provided.")
 		if is_instance_valid(navigation_system):
@@ -1236,7 +1234,7 @@ func command_orbit(target: Spatial):
 
 		# Always capture the current distance. The NavigationSystem will handle
 		# gently pushing the agent out if this distance is too close.
-		var captured_orbit_dist = global_transform.origin.distance_to(
+		var captured_orbit_dist = distance if distance > 0.0 else global_transform.origin.distance_to(
 			target.global_transform.origin
 		)
 

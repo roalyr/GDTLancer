@@ -376,7 +376,7 @@ static func build_module_template(kind: String, genes: Dictionary, part_type: in
 	module.description = "%.0f kg." % stats.mass
 	if kind == "lance":
 		module.lance = stats.lance
-		module.description = "%.0f kg: %d lances of %.0f kg, %.0f damage at %.0f m/s (none under %.0f m/s); an armoured prow, +%d hull. One per ship." % [
+		module.description = "%.0f kg: %d lances of %.0f kg, %.0f damage at %.0f m/s (none under %.0f m/s); an armoured prow, +%d hull." % [
 			stats.mass, stats.lance.count, stats.lance.nail_mass, stats.lance.damage, Constants.LAW_LANCE_REF_SPEED, Constants.LAW_LANCE_MIN_SPEED, stats.stat_modifiers.hull]
 	module.module_kind = kind
 	module.variant_type = part_type

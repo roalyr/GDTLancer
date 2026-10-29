@@ -492,8 +492,8 @@ func _process_combat() -> void:
 		return
 
 	var distance: float = agent_script.global_transform.origin.distance_to(_target_agent.global_transform.origin)
-	# Close to optimal range, then orbit there; re-approach if pushed out. A cannon on holds the nose
-	# on its lead meanwhile (MovementSystem.facing).
+	# Close to optimal range, then orbit at it (closing in or easing out to it); re-approach if
+	# pushed out. A cannon on holds the nose on its lead meanwhile (MovementSystem.facing).
 	var engagement_range: float = get_engagement_range()
 	if distance > engagement_range * 1.2:
 		if _orbiting or _repath_timer <= 0.0:
@@ -502,7 +502,7 @@ func _process_combat() -> void:
 			agent_script.command_approach(_target_agent)
 	elif not _orbiting:
 		_orbiting = true
-		agent_script.command_orbit(_target_agent)
+		agent_script.command_orbit(_target_agent, engagement_range)
 
 	_fire_at(_target_agent)
 
