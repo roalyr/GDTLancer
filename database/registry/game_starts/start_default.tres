@@ -8,3 +8,13 @@ template_id = "start_default"
 player_ship_template = "ship_default"
 player_starting_location = "station_elace_home"
 starting_bank = 3000
+starting_storage = {
+"module_afterburner": 1,
+"module_decoy_launcher": 1,
+"module_extended_magazine": 1,
+"module_hull_plating": 1,
+"module_sensor_booster": 1,
+"tool_ablative_laser": 1,
+"tool_missile_rack": 1,
+"tool_rail_cannon": 1
+}

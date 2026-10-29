@@ -101,6 +101,7 @@ func test_lances_are_lawful_parts_with_their_own_niche():
 	var template = TemplateDatabase.get_template(Genome.ensure_part_template(part))
 	assert_true(template is ModuleTemplate and not template.lance.empty())
 	assert_eq(template.lance.count, int(round(part.genes.count)))
+	genome.ship["size"] = 2.5  # Bays for both
 	genome.modules = [part, part.duplicate(true)]
 	var twins := 0
 	for _i in range(20):
