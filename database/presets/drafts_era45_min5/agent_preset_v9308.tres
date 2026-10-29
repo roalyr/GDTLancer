@@ -28,5 +28,5 @@ weight_class = "medium"
 archetype = "raider medium"
 temperament = "cautious"
 traits = [  ]
-lives = 5
-fitness = 0.287972
+lives = 10
+fitness = 0.717909

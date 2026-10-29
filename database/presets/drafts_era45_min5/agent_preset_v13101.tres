@@ -29,5 +29,5 @@ weight_class = "medium"
 archetype = "lance-cannon-fighter medium"
 temperament = "cautious"
 traits = [ "picks its fights", "standoff", "lets runners go", "ruthless", "runs silent", "team player", "sells often" ]
-lives = 5
-fitness = 1.31919
+lives = 11
+fitness = 0.796139

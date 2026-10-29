@@ -26,5 +26,5 @@ weight_class = "medium"
 archetype = "lance-raider medium"
 temperament = "measured"
 traits = [ "quick to fight" ]
-lives = 5
-fitness = 0.643115
+lives = 6
+fitness = 0.449086

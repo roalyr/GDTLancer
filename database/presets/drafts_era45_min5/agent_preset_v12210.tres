@@ -28,5 +28,5 @@ weight_class = "medium"
 archetype = "cannon-raider medium"
 temperament = "cautious"
 traits = [ "standoff", "lets runners go" ]
-lives = 9
-fitness = 0.697976
+lives = 10
+fitness = 0.675734
