@@ -12,8 +12,9 @@
 #   missile - targets live ships; each cycle launches a guided Missile (Projectile) from the rack's
 #             magazine, unless the ones already on their way would finish the target. One use each.
 #   cannon  - targets live ships; fixed forward, so it fires only when the nose points where the
-#             target will be by the time a Shell gets there (the ship aims: NavigationSystem's aim
-#             command). Rounds from a magazine.
+#             target will be by the time a Shell gets there. While one is on, the ship holds its
+#             nose there whatever course it flies (cannon_facing, MovementSystem.facing). Rounds
+#             from a magazine.
 #   Magazines (missiles, cannon rounds) refill at a base, or from a wreck's (harpoon salvage). An
 #             extended magazine or rack (module) adds rounds to every cannon or rack fitted.
 #   harpoon - targets wrecks; one launch attaches a tether that reels in to a safe towing distance,
@@ -392,6 +393,15 @@ func find_cannon_for(target) -> int:
 		if _tools[index].tool_type == "cannon" and get_ammo(index) > 0 and can_target(_tools[index], target):
 			return index
 	return -1
+
+
+# Where the nose must point for the first active cannon with rounds to hit its target (its lead
+# direction), or ZERO with none on. MovementSystem.facing: it holds the nose there whatever the course.
+func cannon_facing() -> Vector3:
+	for index in _targets:
+		if _tools[index].tool_type == "cannon" and get_ammo(index) > 0 and is_instance_valid(_targets[index]):
+			return cannon_aim_direction(index, _targets[index])
+	return Vector3.ZERO
 
 
 # Where the cannon at `index` must point for a round to meet `target`: its lead direction (rounds

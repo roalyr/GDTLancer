@@ -61,7 +61,6 @@ var _has_patrol_destination: bool = false
 var _repath_timer: float = 0.0
 var _scan_timer: float = 0.0
 var _orbiting: bool = false
-var _aiming: bool = false  # On command_aim (a cannon on the target)
 var _provoked: bool = false  # Shot at: chase the attacker from any distance
 var skill: float = 0.5  # 0 novice .. 1 veteran: decision speed
 var _pending: Dictionary = {}  # A decision being made: {"kind", "target", "timer"}
@@ -318,7 +317,6 @@ func _change_state(new_state: int) -> void:
 	_orbiting = false
 	if _quiet_now:
 		_set_quiet(false)
-	_aiming = false
 	var keeps_fighting: bool = new_state == AIState.HESITATE and _resume_state == AIState.COMBAT
 	if not keeps_fighting:
 		_stop_ramming()
@@ -494,23 +492,16 @@ func _process_combat() -> void:
 		return
 
 	var distance: float = agent_script.global_transform.origin.distance_to(_target_agent.global_transform.origin)
-	# Close to optimal range, then orbit there (a cannon: aim, holding the range); re-approach if pushed out.
+	# Close to optimal range, then orbit there; re-approach if pushed out. A cannon on holds the nose
+	# on its lead meanwhile (MovementSystem.facing).
 	var engagement_range: float = get_engagement_range()
-	var gunner: bool = is_instance_valid(_tool_controller) and _tool_controller.find_cannon_for(_target_agent) >= 0
-	if gunner and distance <= engagement_range * 1.2:
-		if not _aiming:
-			_aiming = true
-			_orbiting = false
-			agent_script.command_aim(_target_agent, engagement_range)
-	elif distance > engagement_range * 1.2:
-		_aiming = false
+	if distance > engagement_range * 1.2:
 		if _orbiting or _repath_timer <= 0.0:
 			_orbiting = false
 			_repath_timer = Constants.AI_REPATH_INTERVAL
 			agent_script.command_approach(_target_agent)
 	elif not _orbiting:
 		_orbiting = true
-		_aiming = false
 		agent_script.command_orbit(_target_agent)
 
 	_fire_at(_target_agent)
@@ -696,7 +687,6 @@ func _ram(target) -> bool:
 		if _ramming:
 			_stop_ramming()
 			_orbiting = false
-			_aiming = false
 			_repath_timer = 0.0
 		return false
 	if not _ramming:
@@ -740,7 +730,6 @@ func _hold_off(target) -> void:
 		return
 	_repath_timer = Constants.AI_REPATH_INTERVAL * 2.0
 	_orbiting = false
-	_aiming = false
 	var away: Vector3 = agent_script.global_transform.origin - target.global_transform.origin
 	away = away.normalized() if away.length_squared() > 1.0 else Vector3.BACK
 	var reach: float = max(agent_script.weapon_reach_of(target), Constants.LANCE_RELEASE_RANGE)

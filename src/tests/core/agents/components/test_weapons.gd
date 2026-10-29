@@ -164,44 +164,26 @@ func test_aim_command_points_the_nose_at_the_lead():
 	assert_eq(controller.find_cannon_for(target), -1, "Empty: no cannon to aim")
 
 
-class MovementStub:
-	extends Node
-	var velocity := Vector3.ZERO
-	func request_rotation_to_pid(_direction, _delta, _gain = 1.0):
-		pass
-	func request_velocity_pid(wanted, _delta):
-		velocity = wanted
-
-
-class NavStub:
-	extends Node
-	var agent_body = null
-	var movement_system = null
-	var _current_command := {}
-
-
-func test_aim_presses_in_until_fired_at_then_drifts_back_to_its_range():
+func test_a_cannon_on_holds_the_nose_on_its_lead_whatever_the_course():
 	controller = _arm(shooter, "cannon", Constants.PART_TYPE_SEEDS.cannon[2])
-	var nav = NavStub.new()
-	nav.agent_body = shooter
-	nav.movement_system = MovementStub.new()
-	add_child_autofree(nav)
-	add_child_autofree(nav.movement_system)
-	var aim = load("res://src/core/agents/components/navigation_system/command_aim.gd").new()
-	add_child_autofree(aim)
-	aim.initialize(nav)
-	target.global_transform.origin = Vector3(0, 0, -1000)  # Right at the range it was given
-	nav._current_command = {"target_node": target, "range": 1000.0, "side": Vector3.RIGHT}
-	aim.execute(0.016)
-	assert_lt(nav.movement_system.velocity.z, -1.0, "Not fired at: closes in")
-	assert_false(shooter.is_under_fire())
-	shooter.apply_damage(1.0, target)
-	assert_true(shooter.is_under_fire(), "Hit")
-	aim.execute(0.016)
-	assert_almost_eq(nav.movement_system.velocity.z, 0.0, 0.01, "Under fire: holds its range, dodging sideways")
-	target.global_transform.origin = Vector3(0, 0, -500)
-	aim.execute(0.016)
-	assert_gt(nav.movement_system.velocity.z, 1.0, "and drifts back out to it")
+	assert_eq(controller.cannon_facing(), Vector3.ZERO, "Off: the nose is the course's")
+	target.linear_velocity = Vector3(100, 0, 0)
+	controller.activate(0, target)
+	var lead: Vector3 = controller.cannon_facing()
+	assert_almost_eq(lead.distance_to(controller.cannon_aim_direction(0, target)), 0.0, 0.001, "On: its lead")
+	var movement = load("res://src/core/agents/components/movement_system.gd").new()
+	shooter.add_child(movement)
+	movement.facing = lead
+	movement.request_rotation_to_pid(Vector3.RIGHT, 0.016)
+	assert_eq(movement._accumulated_torque, Vector3.ZERO, "The course does not turn the nose")
+	assert_true(movement.is_aligned_to(Vector3.RIGHT), "but steers its heading")
+	movement.request_thrust_forward()
+	assert_almost_eq(movement._accumulated_force.normalized().distance_to(Vector3.RIGHT), 0.0, 0.001, "and thrusts along it")
+	movement.apply_facing(0.016)
+	assert_ne(movement._accumulated_torque, Vector3.ZERO, "The nose turns to the lead")
+	movement.facing = Vector3.ZERO
+	movement.apply_facing(0.016)
+	assert_almost_eq(movement.get_forward().distance_to(Vector3.FORWARD), 0.0, 0.001, "Cannon off: the nose is the course's again")
 
 
 func test_lasers_shoot_down_missiles_coming_at_their_ship():

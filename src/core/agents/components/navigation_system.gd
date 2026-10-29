@@ -6,7 +6,7 @@ const FrameProfiler = preload("res://src/core/utils/frame_profiler.gd")
 const OBSTACLES_META = "nav_obstacles"
 
 # --- Enums and Constants ---
-enum CommandType { IDLE, STOPPING, MOVE_TO, MOVE_DIRECTION, APPROACH, ORBIT, FLEE, ALIGN_TO, WATCH, RAM, AIM }
+enum CommandType { IDLE, STOPPING, MOVE_TO, MOVE_DIRECTION, APPROACH, ORBIT, FLEE, ALIGN_TO, WATCH, RAM }
 
 # --- References ---
 var agent_body: RigidBody = null
@@ -55,7 +55,6 @@ func _initialize_command_handlers():
 		CommandType.ALIGN_TO: load(command_path + "command_align_to.gd").new(),
 		CommandType.WATCH: load(command_path + "command_watch.gd").new(),
 		CommandType.RAM: load(command_path + "command_ram.gd").new(),
-		CommandType.AIM: load(command_path + "command_aim.gd").new(),
 	}
 
 	for handler_script in _command_handlers.values():
@@ -125,13 +124,6 @@ func set_command_ram(target: Spatial):
 	_current_command = {"type": CommandType.RAM, "target_node": target, "is_new": true}
 
 
-func set_command_aim(target: Spatial, keep_range: float):
-	if not is_instance_valid(target):
-		set_command_stopping()
-		return
-	_current_command = {"type": CommandType.AIM, "target_node": target, "range": keep_range}
-
-
 func set_command_align_to(
 	direction: Vector3,
 	apply_forward_thrust: bool = false,
@@ -174,10 +166,16 @@ func _update_navigation(delta: float):
 	var cmd_type = _current_command.get("type", CommandType.IDLE)
 	var target_node = _current_command.get("target_node", null)
 
-	var is_target_cmd = cmd_type in [CommandType.APPROACH, CommandType.ORBIT, CommandType.FLEE, CommandType.WATCH, CommandType.RAM, CommandType.AIM]
+	var is_target_cmd = cmd_type in [CommandType.APPROACH, CommandType.ORBIT, CommandType.FLEE, CommandType.WATCH, CommandType.RAM]
 	if is_target_cmd and not is_instance_valid(target_node):
 		set_command_stopping()
 		cmd_type = CommandType.STOPPING
+
+	# An active cannon holds the nose on its lead; the course below steers a heading of its own. Not
+	# while ramming: a lance is thrown along the nose (LanceController), so the ram keeps it.
+	var tools = agent_body.get_node_or_null("ToolController")
+	var cannon_ok: bool = cmd_type != CommandType.RAM and tools != null and tools.has_method("cannon_facing")
+	movement_system.facing = tools.cannon_facing() if cannon_ok else Vector3.ZERO
 
 	if _command_handlers.has(cmd_type):
 		var handler = _command_handlers[cmd_type]
@@ -188,6 +186,7 @@ func _update_navigation(delta: float):
 
 	if not cmd_type in [CommandType.IDLE, CommandType.MOVE_DIRECTION]:
 		_apply_obstacle_avoidance(target_node, delta)
+	movement_system.apply_facing(delta)
 
 
 # Sidesteps obstacles (group "obstacle") in the way of the current velocity, except the command's

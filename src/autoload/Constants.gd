@@ -69,13 +69,7 @@ const NAV_APPROACH_RESUME_MARGIN = 30.0  # m past the hold distance before a hol
 # distance / closing speed, at least MIN_LEAD_SPEED, at most MAX_LEAD_TIME s), thrusting while the
 # nose is within acos(THRUST_ALIGNMENT) of the heading; too close to reach strike speed (less the
 # throw), it runs straight away until it has the room for that plus TURN_ROOM m to turn in.
-const NAV_AIM_PID_GAIN = 2.0  # Rotation PID gain while aiming a cannon
-const NAV_AIM_RANGE_TIME = 5.0  # s to make up a range error: closing speed = error / this
-const NAV_AIM_MAX_CLOSING = 80.0  # m/s at most, closing or opening
-const NAV_AIM_PRESS_SHARE = 0.4  # Not under fire: a gunner presses in to this share of its range (closer rounds lead less, and hit)
-const NAV_AIM_PRESS_MIN = 250.0  # m, never nearer
-const UNDER_FIRE_TIME = 6.0  # s a hit by another counts as being under fire (Agent.is_under_fire)
-const NAV_AIM_STRAFE_SPEED = 90.0  # m/s sideways while aiming: at 1.8 km, 0.05 rad/s for the target's turrets to track
+const NAV_AIM_PID_GAIN = 2.0  # Rotation PID gain while a cannon holds the nose on its lead (MovementSystem.facing)
 const NAV_RAM_TURN_ROOM = 150.0  # m
 const NAV_RAM_WEAVE_ANGLE = 35.0  # degrees off the line a charge at a ship comes in at from afar: turrets must track it (command_ram)
 const NAV_RAM_WEAVE_FULL = 400.0  # m: the full angle from here out

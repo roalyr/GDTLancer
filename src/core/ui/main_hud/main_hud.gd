@@ -450,7 +450,7 @@ func _on_ButtonInteract_pressed():
 # centred rows of at most TOOL_ROW_MAX, the last row lowest; the rows above are made as needed.
 const TOOL_ROW_MAX = 8
 const TOOL_ROW_STEP = 120.0  # px between rows: a button and the gap
-const TOOL_ACTIONS = {"laser": ["FIRE", "CEASE"], "missile": ["LAUNCH", "HOLD"], "cannon": ["AIM+FIRE", "CEASE"], "harpoon": ["LAUNCH", "RELEASE"]}
+const TOOL_ACTIONS = {"laser": ["FIRE", "CEASE"], "missile": ["LAUNCH", "HOLD"], "cannon": ["FIRE", "CEASE"], "harpoon": ["LAUNCH", "RELEASE"]}
 
 
 func _update_tool_buttons() -> void:
@@ -853,8 +853,9 @@ func describe_world_stats(player) -> String:
 	var nav = player.get("navigation_system")
 	if is_instance_valid(nav) and nav.has_method("get_current_command_type"):
 		lines.append("AUTOPILOT %s" % nav.CommandType.keys()[nav.get_current_command_type()])
-		if nav.get_current_command_type() == nav.CommandType.AIM:  # A cannon: the autopilot points the nose at the lead, holds the range, strafes
-			lines.append("  HOLDING %s, STRAFING" % _format_distance(float(nav._current_command.get("range", 0.0))))
+		var movement = player.get("movement_system")
+		if is_instance_valid(movement) and movement.facing != Vector3.ZERO:  # A cannon holds the nose on its lead
+			lines.append("  NOSE ON THE LEAD, %d deg off" % int(round(rad2deg((-player.global_transform.basis.z).angle_to(movement.facing)))))
 	var ships_seen := 0
 	var ships := 0
 	var npcs := {"active": 0, "docked": 0, "wrecks": 0, "awake": 0}  # Bodies in the scene, by what physics does with them

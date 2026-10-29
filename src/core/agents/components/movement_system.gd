@@ -20,6 +20,14 @@ var _external_force := Vector3.ZERO  # From tethers, leaks and other bodies; not
 var _external_torque := Vector3.ZERO  # From forces acting off the centre of mass (leaks)
 var last_thrust_fraction := 0.0  # Engine thrust used in the last physics step, 0..1 (drives signature)
 
+# --- Facing (a cannon's aim) ---
+# While `facing` is set (NavigationSystem, from ToolController.cannon_facing), the nose turns to it
+# and the course commands steer a heading instead: what they ask to face. Their thrust "forward"
+# pushes along that heading (thrust is the same in every direction), and they are aligned once they
+# ask for it. ZERO: the nose is the commands' again.
+var facing := Vector3.ZERO
+var _heading := Vector3.ZERO
+
 # Reference to the parent AgentBody RigidBody
 var agent_body: RigidBody = null
 
@@ -82,6 +90,21 @@ func reset_pid_states():
 	_position_error_prev = Vector3.ZERO
 
 
+# Turns the nose to `facing` (after the command has run); nothing without one.
+func apply_facing(delta: float) -> void:
+	if facing == Vector3.ZERO:
+		_heading = Vector3.ZERO
+		return
+	_rotate_pid(facing, delta, Constants.NAV_AIM_PID_GAIN)
+
+
+# The way the course points: its heading while a cannon has the nose, the nose otherwise.
+func _course_forward() -> Vector3:
+	if facing != Vector3.ZERO and _heading != Vector3.ZERO:
+		return _heading
+	return -agent_body.global_transform.basis.z.normalized()
+
+
 # --- Called by AgentBody in _integrate_forces ---
 func integrate_forces(state: PhysicsDirectBodyState):
 	if not is_instance_valid(agent_body):
@@ -135,15 +158,14 @@ func request_thrust_direction(direction: Vector3, magnitude_scale: float = 1.0):
 func request_thrust_forward(magnitude_scale: float = 1.0):
 	if not is_instance_valid(agent_body):
 		return
-	var forward = -agent_body.global_transform.basis.z.normalized()
-	_accumulated_force += forward * linear_thrust * clamp(magnitude_scale, 0.0, 1.0)
+	_accumulated_force += _course_forward() * linear_thrust * clamp(magnitude_scale, 0.0, 1.0)
 
 
 # Request thrust along the ship's backward axis (rear thrusters)
 func request_thrust_backward(magnitude_scale: float = 1.0):
 	if not is_instance_valid(agent_body):
 		return
-	var backward = agent_body.global_transform.basis.z.normalized()
+	var backward = -_course_forward()
 	_accumulated_force += backward * linear_thrust * clamp(magnitude_scale, 0.0, 1.0)
 
 
@@ -158,7 +180,7 @@ func request_thrust_brake():
 		return
 	
 	var velocity_dir = velocity / speed
-	var forward = -agent_body.global_transform.basis.z.normalized()
+	var forward = _course_forward()
 	var backward = -forward
 	
 	# Check alignment with velocity for efficient braking
@@ -182,6 +204,21 @@ func request_thrust_brake():
 # `gain` scales the proportional term: above 1 the ship swings harder at small errors (fine aim,
 # as when ramming), at the cost of some overshoot.
 func request_rotation_to_pid(target_direction: Vector3, delta: float, gain: float = 1.0):
+	if _steer_heading(target_direction):
+		return
+	_rotate_pid(target_direction, delta, gain)
+
+
+# A cannon has the nose: the requested direction becomes the course's heading. True if so.
+func _steer_heading(target_direction: Vector3) -> bool:
+	if facing == Vector3.ZERO:
+		return false
+	if target_direction.length_squared() >= 0.001:
+		_heading = target_direction.normalized()
+	return true
+
+
+func _rotate_pid(target_direction: Vector3, delta: float, gain: float) -> void:
 	if not is_instance_valid(agent_body):
 		return
 	if target_direction.length_squared() < 0.001:
@@ -242,6 +279,8 @@ func request_rotation_to_pid(target_direction: Vector3, delta: float, gain: floa
 
 # Simple proportional rotation (for non-PID cases)
 func request_rotation_to(target_direction: Vector3):
+	if _steer_heading(target_direction):
+		return
 	if not is_instance_valid(agent_body):
 		return
 	if target_direction.length_squared() < 0.001:
@@ -270,7 +309,7 @@ func request_rotation_to(target_direction: Vector3):
 
 # PID-controlled damping for stopping rotation precisely
 func request_rotation_damping_pid(delta: float):
-	if not is_instance_valid(agent_body):
+	if facing != Vector3.ZERO or not is_instance_valid(agent_body):
 		return
 	if delta <= 0.0:
 		return
@@ -300,7 +339,7 @@ func request_rotation_damping_pid(delta: float):
 
 # Dampen angular velocity (used by stop command)
 func request_rotation_damping():
-	if not is_instance_valid(agent_body):
+	if facing != Vector3.ZERO or not is_instance_valid(agent_body):
 		return
 	var angular_vel = agent_body.angular_velocity
 	if angular_vel.length_squared() < 0.01:
@@ -349,7 +388,7 @@ func is_aligned_to(target_direction: Vector3) -> bool:
 		return true
 	
 	var target_dir = target_direction.normalized()
-	var current_forward = -agent_body.global_transform.basis.z.normalized()
+	var current_forward = _course_forward()
 	var angle = current_forward.angle_to(target_dir)
 	return angle <= _alignment_threshold_rad
 
@@ -386,4 +425,4 @@ func get_velocity() -> Vector3:
 func get_forward() -> Vector3:
 	if not is_instance_valid(agent_body):
 		return -Vector3.FORWARD
-	return -agent_body.global_transform.basis.z.normalized()
+	return _course_forward()

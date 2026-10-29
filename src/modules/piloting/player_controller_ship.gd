@@ -269,8 +269,6 @@ func _on_tool_button_pressed(index: int) -> void:
 	var result: Dictionary = _tool_controller.activate(index, target)
 	if not result.get("success", false):
 		EventBus.emit_signal("attack_action_feedback", false, _describe_tool_failure(result.get("reason", "")))
-	elif tool_template.tool_type == "cannon":
-		agent_script.command_aim(target, tool_template.optimal_range)  # A cannon fires where the nose points: the autopilot aims it
 
 
 # The player's missiles go one per press (their stock is limited): a launch switches the rack off.
@@ -280,24 +278,11 @@ func _on_projectile_fired(index: int, _projectile) -> void:
 		_tool_controller.deactivate(index, "fired")
 
 
-# A magazine ran dry, or a cannon stopped: the aim it held goes with it.
+# A magazine ran dry.
 func _on_tool_deactivated(index: int, reason: String) -> void:
 	var tool_template = _tool_controller.get_tool(index) if is_instance_valid(_tool_controller) else null
-	if tool_template == null:
-		return
-	if reason == "empty":
+	if tool_template != null and reason == "empty":
 		EventBus.emit_signal("attack_action_feedback", false, _empty_message(tool_template))
-	if tool_template.tool_type == "cannon" and _tool_controller.find_cannon_for(_tool_controller.get_target(index)) < 0:
-		var nav = agent_body.get_node_or_null("NavigationSystem")
-		if is_instance_valid(nav) and nav.get_current_command_type() == NavigationSystem.CommandType.AIM and not _cannon_on():
-			_coast()
-
-
-func _cannon_on() -> bool:
-	for index in range(_tool_controller.get_tool_count()):
-		if _tool_controller.get_tool(index).tool_type == "cannon" and _tool_controller.is_active(index):
-			return true
-	return false
 
 
 func _empty_message(tool_template) -> String:

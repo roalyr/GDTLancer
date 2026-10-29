@@ -40,7 +40,7 @@ Complete the engine, then freeze it. After the freeze, work is content, tuning a
 12. Feel pass on camera, HUD, docking and jumps
 
 **Decisions so far:**
-- Combat has no manual aim, EVE-style: you fly the ship (distance, relative velocity) and tools resolve on their own; a cannon's aim is the autopilot's.
+- Combat has no manual aim, EVE-style: you fly the ship (distance, relative velocity) and tools resolve on their own; a cannon on holds the nose on its lead whatever course you fly.
 - Damage is hull only.
 - Running out of power stops the tool, nothing more.
 - A run is the hand-built sector graph with free travel. Spawns are uniform everywhere until the layout of space is final.
@@ -54,7 +54,7 @@ Complete the engine, then freeze it. After the freeze, work is content, tuning a
 | Input | Action |
 |---|---|
 | Left mouse | Select target (a click on empty space keeps it; a target out of sensor range is lost, and commands on it stop) |
-| Tool buttons (one per fitted tool) | That tool on the selected target, or off (laser: FIRE / CEASE, missiles: LAUNCH one / HOLD, cannon: AIM+FIRE / CEASE, harpoon: LAUNCH / RELEASE); racks and cannons show rounds left |
+| Tool buttons (one per fitted tool) | That tool on the selected target, or off (laser: FIRE / CEASE, missiles: LAUNCH one / HOLD, cannon: FIRE / CEASE, harpoon: LAUNCH / RELEASE); racks and cannons show rounds left |
 | Dock button | DOCK at a selected station, UNDOCK, or TRAVEL along a selected route |
 | Ship button (docked at home) | Fitting: buy, sell, fit and unfit parts |
 | Space | Shortcut: the tool that fits the selected target on or off; otherwise dock or jump |
