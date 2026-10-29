@@ -51,11 +51,11 @@ func is_projected_target_overlay_enabled(overlay_kind: String) -> bool:
 		_:
 			return true
 
-# Celestial objects: stars, planets, moons, asteroids and wrecks (the stellar overlay toggle). A ship
+# Celestial objects: stars, planets, moons, asteroids, beacons and wrecks (the stellar overlay toggle). A ship
 # turns into one when it is wrecked: brackets re-check every refresh.
 func is_stellar_target(target_node: Node) -> bool:
-	if target_node.is_in_group("asteroid") or target_node.is_in_group("celestial") or target_node.get("is_wreck"):
-		return true
+	if target_node.is_in_group("asteroid") or target_node.is_in_group("celestial") or target_node.is_in_group("beacon") or target_node.get("is_wreck"):
+		return true  # Beacons too, for now
 	if not (target_node is StaticBody):
 		return false
 	if target_node.is_in_group("dockable_station") or target_node.is_in_group("jump_point"):
@@ -229,6 +229,8 @@ func is_world_projectable_target(node: Node) -> bool:
 		return false
 	if node.is_in_group("jump_point"):
 		return false
+	if node.is_in_group("beacon") and not node.get("player_visible"):
+		return false  # The NPCs' (Beacon.player_visible)
 	if node is RigidBody:
 		if node.has_method("is_player") and node.is_player():
 			return false

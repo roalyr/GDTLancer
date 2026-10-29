@@ -42,3 +42,11 @@ func test_kinds_get_their_own_colours():
 	assert_eq(TargetKinds.color_of(planet, null), Constants.COLOR_UI_BODY)
 	beacon.free()
 	planet.free()
+
+
+func test_marks_fade_with_distance_but_never_out():
+	var Bracket = load("res://src/core/ui/main_hud/projected_target_bracket.gd")
+	assert_eq(Bracket.mark_fade(100.0), 1.0, "Near: full strength")
+	assert_eq(Bracket.mark_fade(Constants.HUD_MARK_FADE_FAR * 10.0), Constants.HUD_MARK_FADE_MIN, "Far: faint, not gone")
+	var middle: float = Bracket.mark_fade((Constants.HUD_MARK_FADE_NEAR + Constants.HUD_MARK_FADE_FAR) * 0.5)
+	assert_true(middle < 1.0 and middle > Constants.HUD_MARK_FADE_MIN, "Between: in between")

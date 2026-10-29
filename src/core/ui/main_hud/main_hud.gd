@@ -7,7 +7,6 @@ const FrameProfiler = preload("res://src/core/utils/frame_profiler.gd")
 const Announcements = preload("res://src/core/ui/main_hud/announcements.gd")
 const RouteTargetProviderScript = preload("res://src/core/targeting/route_target_provider.gd")
 const ProjectedTargetBracketScene = preload("res://scenes/ui/hud/projected_target_bracket.tscn")
-const ProjectedTargetBracketScript = preload("res://src/core/ui/main_hud/projected_target_bracket.gd")
 const BUTTON_ACTIVE_MODULATE = Color8(255, 230, 89, 255)
 const BUTTON_INACTIVE_MODULATE = Color8(255, 255, 255, 255)
 const PROJECTED_TARGET_EDGE_ALPHA = 0.1
@@ -206,8 +205,6 @@ func _ready():
 	debug_map = DebugMapScene.instance()
 	add_child(debug_map)
 	$ScreenControls/DebugOverlay/RightColumn/ButtonDebugMap.connect("pressed", debug_map, "open")
-	$ScreenControls/DebugOverlay/RightColumn/ButtonDebugMarkers.connect("pressed", self, "_on_ButtonDebugMarkers_pressed")
-	_load_marker_style()
 	threat_ring = ThreatRing.new()
 	threat_ring.name = "ThreatRing"
 	add_child(threat_ring)
@@ -953,36 +950,6 @@ func _on_ButtonParticlesToggle_pressed() -> void:
 	if is_instance_valid(world_rendering):
 		world_rendering.toggle_particles()
 	_update_particles_label()
-
-
-# MARKERS (debug overlay): cycles the unselected targets' marks (Constants HUD_MARKER_STYLES,
-# TargetMarker), to compare them on the device; the choice is kept in MARKER_SETTINGS_PATH.
-const MARKER_SETTINGS_PATH = "user://hud.cfg"
-
-
-func _on_ButtonDebugMarkers_pressed() -> void:
-	var styles: Array = Constants.HUD_MARKER_STYLES
-	var next: String = styles[(styles.find(ProjectedTargetBracketScript.marker_style()) + 1) % styles.size()]
-	_set_marker_style(next)
-	var settings := ConfigFile.new()
-	settings.load(MARKER_SETTINGS_PATH)
-	settings.set_value("hud", "marker_style", next)
-	settings.save(MARKER_SETTINGS_PATH)
-
-
-func _load_marker_style() -> void:
-	var settings := ConfigFile.new()
-	var style: String = Constants.HUD_MARKER_STYLES[0]
-	if settings.load(MARKER_SETTINGS_PATH) == OK:
-		style = str(settings.get_value("hud", "marker_style", style))
-	_set_marker_style(style if style in Constants.HUD_MARKER_STYLES else Constants.HUD_MARKER_STYLES[0])
-
-
-func _set_marker_style(style: String) -> void:
-	Engine.set_meta("hud_marker_style", style)
-	$ScreenControls/DebugOverlay/RightColumn/ButtonDebugMarkers.text = "MARKERS: " + style.to_upper()
-	if is_inside_tree():
-		get_tree().call_group("projected_target_bracket", "refresh_style")
 
 
 func _update_particles_label() -> void:

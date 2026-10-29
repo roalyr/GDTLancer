@@ -896,10 +896,10 @@ const SECTOR_LAYOUTS = {
 			{"kind": "field", "name": "Violet Home Field", "at": Vector3(14000, 0, -28000), "radius": 2000.0, "rocks": 14},
 			{"kind": "field", "name": "Elace B Belt", "at": Vector3(25000, 0, 0), "radius": 5000.0, "ring": 0.5, "rocks": 30},
 			{"kind": "field", "name": "Deep Field", "at": Vector3(42000, 0, 0), "radius": 4000.0, "rocks": 12},  # And the scene's old rocks
-			{"kind": "landmark", "name": "West Pass North", "at": Vector3(-18000, 0, 11000)},
-			{"kind": "landmark", "name": "West Pass South", "at": Vector3(-18000, 0, -11000)},
-			{"kind": "landmark", "name": "East Pass North", "at": Vector3(20000, 0, 11000)},
-			{"kind": "landmark", "name": "East Pass South", "at": Vector3(20000, 0, -11000)},
+			{"kind": "landmark", "name": "West Pass North", "at": Vector3(-18000, 0, 11000), "player_visible": true},  # Nothing else marks these
+			{"kind": "landmark", "name": "West Pass South", "at": Vector3(-18000, 0, -11000), "player_visible": true},
+			{"kind": "landmark", "name": "East Pass North", "at": Vector3(20000, 0, 11000), "player_visible": true},
+			{"kind": "landmark", "name": "East Pass South", "at": Vector3(20000, 0, -11000), "player_visible": true},
 		],
 	},
 }
@@ -1149,7 +1149,10 @@ const COLOR_UI_WRECK = Color(0.55, 0.55, 0.55, 0.9)  # Grey: wrecks
 const UI_UNAWARE_DIM = 0.55  # A live ship that has not detected the player shows its colour this bright
 const UI_UNAWARE_ALPHA = 0.85  # and this opaque (its mark only: labels stay readable)
 const UI_CELESTIAL_ALPHA = 0.45  # Marks on rocks, planets and the like are this faint
-const HUD_MARKER_STYLES = ["shapes", "ring", "ticks", "dot"]  # TargetMarker; the debug overlay's MARKERS cycles them, the first by default
+# Unselected marks fade with distance from the player, never out of sight.
+const HUD_MARK_FADE_NEAR = 3000.0  # m: full strength within
+const HUD_MARK_FADE_FAR = 40000.0  # m: HUD_MARK_FADE_MIN beyond
+const HUD_MARK_FADE_MIN = 0.35
 
 # Jump route brackets, by sector type.
 const COLOR_UI_JUMP_ROUTE = Color(0.0, 0.7, 1.0, 1.0)  # Fallback

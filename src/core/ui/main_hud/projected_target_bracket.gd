@@ -30,7 +30,6 @@ var _distance_fade_alpha: float = 1.0
 
 
 func _ready() -> void:
-	add_to_group("projected_target_bracket")
 	flat = true
 	focus_mode = Control.FOCUS_NONE
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -83,9 +82,11 @@ func set_distance_fade_alpha(distance_fade_alpha: float) -> void:
 	_apply_distance_fade_alpha()
 
 
-# The marks' style for every bracket (Constants HUD_MARKER_STYLES; the debug overlay's MARKERS).
-static func marker_style() -> String:
-	return str(Engine.get_meta("hud_marker_style")) if Engine.has_meta("hud_marker_style") else Constants.HUD_MARKER_STYLES[0]
+# How strong an unselected mark is at `distance` m from the player: full within HUD_MARK_FADE_NEAR,
+# fading to HUD_MARK_FADE_MIN (never gone) by HUD_MARK_FADE_FAR.
+static func mark_fade(distance: float) -> float:
+	var t: float = clamp((distance - Constants.HUD_MARK_FADE_NEAR) / (Constants.HUD_MARK_FADE_FAR - Constants.HUD_MARK_FADE_NEAR), 0.0, 1.0)
+	return lerp(1.0, Constants.HUD_MARK_FADE_MIN, t)
 
 
 func _cache_scene_nodes() -> void:
@@ -139,7 +140,10 @@ func _apply_bracket_style() -> void:
 				_normal_bracket.modulate.a *= Constants.UI_CELESTIAL_ALPHA
 		var hostile: bool = kind in ["ship", "station"] and TargetKinds.side_of(target_ref, GlobalRefs.player_agent_body) == "hostile"
 		if is_instance_valid(_marker):
-			_marker.set_mark(marker_style(), kind, hostile)
+			_marker.set_mark(kind, hostile)
+			var player = GlobalRefs.player_agent_body
+			var near: bool = not (target_ref is Spatial and is_instance_valid(player) and player.is_inside_tree() and target_ref.is_inside_tree())
+			_marker.modulate.a = 1.0 if near else mark_fade(player.global_transform.origin.distance_to(target_ref.global_transform.origin))
 	if is_instance_valid(_selected_bracket):
 		_selected_bracket.visible = _is_selected
 		_apply_selected_color()

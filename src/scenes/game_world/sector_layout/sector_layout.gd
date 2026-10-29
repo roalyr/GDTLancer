@@ -48,6 +48,7 @@ func _ready():
 	call_deferred("_add_landmarks")  # The scene's planets and moons are ready by then
 	for spec in layout.get("beacons", []):
 		var beacon = _add_beacon(spec.kind, str(spec.get("owner", "")), spec.name, spec.at, float(spec.get("radius", Constants.BEACON_TRAFFIC_RADIUS)))
+		beacon.player_visible = spec.kind == "field" or bool(spec.get("player_visible", false))  # Fields always: a ring of rocks has no one name
 		if spec.kind == "field":
 			_build_rocks(spec, keep_clear)
 

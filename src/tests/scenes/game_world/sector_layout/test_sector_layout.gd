@@ -66,3 +66,15 @@ func test_who_is_welcome_where():
 	for station in layout.refuges_for("raiders"):
 		raider_ids.append(station.name)
 	assert_eq(raider_ids, ["raider_den"], "Raiders have only their den")
+
+
+func test_only_fields_and_lone_landmarks_show_to_the_player():
+	var layout = _layout()
+	for beacon in layout.network.beacons:
+		var lone: bool = beacon.beacon_name.find("Pass") >= 0
+		assert_eq(beacon.player_visible, beacon.kind == "field" or lone, "%s %s" % [beacon.kind, beacon.beacon_name])
+	var projector = load("res://src/core/ui/main_hud/hud_target_projector.gd").new(null)
+	for beacon in layout.network.beacons:
+		assert_eq(projector.is_world_projectable_target(beacon), beacon.player_visible, "Bracketed only if shown: " + beacon.beacon_name)
+		if beacon.player_visible:
+			assert_true(projector.is_stellar_target(beacon), "with the celestials")

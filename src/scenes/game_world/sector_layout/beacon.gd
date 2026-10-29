@@ -2,8 +2,11 @@
 # their numbers). Kinds: "haven" (a station's), "patrol" (a faction's picket), "field" (a rock
 # field), "landmark" (a point to route through: planets, moons, passes). It remembers heat (hull lost
 # to fire near it, fading), traffic (ships passing, fading), when each faction's ships were last
-# there and how many are there now, and a field the ore left in it. Seen from anywhere, like a
-# star; the player reads its numbers as words (target info).
+# there and how many are there now, and a field the ore left in it. Most are the NPCs' alone (a
+# haven's, a picket, a planet's: the player has the station or the planet to go by); only those
+# marked `player_visible` (fields, landmarks with nothing else there) get a bracket on the HUD,
+# with the celestials (seen from anywhere, like a star). The player reads their numbers as words
+# (target info).
 
 extends StaticBody
 
@@ -11,6 +14,7 @@ export var kind: String = "landmark"
 export var faction: String = ""  # Its faction, "" for none
 export var beacon_name: String = ""
 export var radius: float = Constants.BEACON_TRAFFIC_RADIUS  # m it covers (a field: its rocks)
+export var player_visible: bool = false  # Bracketed on the player's HUD
 var heat: float = 0.0
 var traffic: float = 0.0
 var value: float = 0.0  # A field's ore left (units)
