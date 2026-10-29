@@ -29,5 +29,5 @@ weight_class = "medium"
 archetype = "lance-fighter medium"
 temperament = "aggressive"
 traits = [ "quick to fight", "stubborn", "standoff", "loner", "sells often" ]
-lives = 6
-fitness = 0.167299
+lives = 10
+fitness = 0.706409

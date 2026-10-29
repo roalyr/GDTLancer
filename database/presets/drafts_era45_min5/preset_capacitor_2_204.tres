@@ -1,0 +1,21 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/asset_module_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_capacitor_2_204"
+module_name = "Capacitor II"
+description = "204 kg."
+base_value = 51
+mass = 203.677
+stat_modifiers = {
+"power_capacity": 67.8923
+}
+lance = {
+}
+module_kind = "capacitor"
+variant_type = 2
+law_genes = {
+"mass": 203.677
+}

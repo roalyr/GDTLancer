@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/phoenix_light.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_x10752"
+ship_model_name = "Phoenix I X10752"
+base_value = 671
+ship_scene = ExtResource( 2 )
+hull_integrity = 76
+cargo_capacity = 13
+interaction_radius = 13.1328
+apparent_radius = 10.5062
+signature = 1313.28
+sensor_strength = 1.0
+tool_slots_small = 2
+tool_slots_medium = 0
+tool_slots_large = 0
+module_slots = 2
+equipped_tools = [ "preset_missile_3_2500_2" ]
+equipped_modules = [  ]
+salvage_yield = {
+"commodity_scrap": 13,
+"commodity_tech": 8
+}
+power_capacity = 59.0006
+power_regen = 6.65924
+mass = 4026.66
+linear_thrust = 459679.0
+angular_thrust = 446727.0
+alignment_threshold_angle_deg = 45.0
+model_scale = 0.875517
+panel_material = "res://assets/art/materials_generic/mat_hull_panel_offwhite.tres"
+variant_type = 1
+law_genes = {
+"shares": {
+"capacitor": 0.0439575,
+"engine": 0.305144,
+"hold": 0.0959529,
+"reactor": 0.0948443,
+"structure": 0.460101
+},
+"size": 0.67111,
+"tool_share": 0.475623,
+"type": 1
+}
