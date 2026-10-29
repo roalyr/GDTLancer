@@ -28,5 +28,5 @@ weight_class = "heavy"
 archetype = "cannon-raider heavy"
 temperament = "measured"
 traits = [ "standoff", "lets runners go", "bold" ]
-lives = 6
-fitness = 1.61662
+lives = 7
+fitness = 1.56064

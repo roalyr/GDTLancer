@@ -29,5 +29,5 @@ weight_class = "medium"
 archetype = "prospector medium"
 temperament = "cautious"
 traits = [ "lets runners go" ]
-lives = 9
-fitness = -0.118771
+lives = 10
+fitness = -0.242718

@@ -29,5 +29,5 @@ weight_class = "light"
 archetype = "missile-raider light"
 temperament = "cautious"
 traits = [ "picks its fights", "standoff", "lets runners go", "ruthless", "runs silent", "team player", "bold" ]
-lives = 14
-fitness = 2.15057
+lives = 21
+fitness = 2.03557

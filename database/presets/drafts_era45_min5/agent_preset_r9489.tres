@@ -28,5 +28,5 @@ weight_class = "medium"
 archetype = "missile-fighter medium"
 temperament = "measured"
 traits = [  ]
-lives = 8
-fitness = 2.04063
+lives = 10
+fitness = 2.10583

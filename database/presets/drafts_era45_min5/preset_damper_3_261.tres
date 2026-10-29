@@ -1,0 +1,21 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/asset_module_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_damper_3_261"
+module_name = "Signature Damper III"
+description = "261 kg."
+base_value = 65
+mass = 261.304
+stat_modifiers = {
+"damper_mass": 261.304
+}
+lance = {
+}
+module_kind = "damper"
+variant_type = 3
+law_genes = {
+"mass": 261.304
+}

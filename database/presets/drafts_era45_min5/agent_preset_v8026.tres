@@ -28,5 +28,5 @@ weight_class = "light"
 archetype = "cannon-raider light"
 temperament = "cautious"
 traits = [  ]
-lives = 5
-fitness = 1.68158
+lives = 6
+fitness = 1.37679

@@ -28,5 +28,5 @@ weight_class = "light"
 archetype = "lancer light"
 temperament = "cautious"
 traits = [  ]
-lives = 9
-fitness = 0.315923
+lives = 10
+fitness = 0.284302

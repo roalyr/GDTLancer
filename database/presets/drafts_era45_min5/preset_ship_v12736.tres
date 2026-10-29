@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/phoenix_light.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_v12736"
+ship_model_name = "Phoenix III V12736"
+base_value = 2605
+ship_scene = ExtResource( 2 )
+hull_integrity = 291
+cargo_capacity = 38
+interaction_radius = 20.6398
+apparent_radius = 16.5119
+signature = 2063.98
+sensor_strength = 1.0
+tool_slots_small = 0
+tool_slots_medium = 2
+tool_slots_large = 0
+module_slots = 5
+equipped_tools = [ "preset_laser_3_738_275", "tool_harpoon" ]
+equipped_modules = [ "preset_lance_2_354_3", "preset_thruster_2_400", "preset_decoy_3_457" ]
+salvage_yield = {
+"commodity_scrap": 52,
+"commodity_tech": 21
+}
+power_capacity = 117.005
+power_regen = 25.3739
+mass = 15631.3
+linear_thrust = 858990.0
+angular_thrust = 1.31198e+06
+alignment_threshold_angle_deg = 45.0
+model_scale = 1.37599
+panel_material = "res://assets/art/materials_generic/mat_hull_accent_orange.tres"
+variant_type = 3
+law_genes = {
+"shares": {
+"capacitor": 0.022456,
+"engine": 0.157456,
+"hold": 0.073443,
+"reactor": 0.108013,
+"structure": 0.638632
+},
+"size": 2.60522,
+"tool_share": 0.336403,
+"type": 3
+}

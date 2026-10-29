@@ -28,5 +28,5 @@ weight_class = "heavy"
 archetype = "lancer heavy"
 temperament = "measured"
 traits = [ "stubborn", "close-in", "lets runners go", "shoots back" ]
-lives = 5
-fitness = -0.415404
+lives = 9
+fitness = -0.538191

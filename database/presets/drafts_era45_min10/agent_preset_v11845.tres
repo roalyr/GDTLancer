@@ -29,5 +29,5 @@ weight_class = "light"
 archetype = "lance-missile-cannon-raider light"
 temperament = "measured"
 traits = [ "stubborn" ]
-lives = 11
-fitness = 1.60598
+lives = 13
+fitness = 1.43354

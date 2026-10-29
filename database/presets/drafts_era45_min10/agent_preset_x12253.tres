@@ -1,0 +1,32 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_x12253"
+agent_type = "npc"
+ship_template_id = "preset_ship_x12253"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.245682,
+"caution": 0.5,
+"disengage": 0.8,
+"engage": 2.5,
+"mercy": 0.519904,
+"prospect": 0.068023,
+"pursuit": 0.790282,
+"range": 1.0,
+"retreat_hull": 0.475388,
+"return_fire": 0.4193,
+"teamwork": 1.13801
+}
+role = "lancer"
+family = "lance"
+weight_class = "light"
+archetype = "lancer light"
+temperament = "cautious"
+traits = [  ]
+lives = 10
+fitness = 0.284302
