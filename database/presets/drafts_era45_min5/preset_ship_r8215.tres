@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/phoenix_light.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_r8215"
+ship_model_name = "Phoenix I R8215"
+base_value = 440
+ship_scene = ExtResource( 2 )
+hull_integrity = 53
+cargo_capacity = 9
+interaction_radius = 11.4116
+apparent_radius = 9.12924
+signature = 1141.16
+sensor_strength = 1.0
+tool_slots_small = 1
+tool_slots_medium = 0
+tool_slots_large = 0
+module_slots = 1
+equipped_tools = [ "preset_cannon_3_425_162_23" ]
+equipped_modules = [ "preset_afterburner_3_777" ]
+salvage_yield = {
+"commodity_scrap": 9,
+"commodity_tech": 5
+}
+power_capacity = 48.1175
+power_regen = 4.19448
+mass = 2641.87
+linear_thrust = 315313.0
+angular_thrust = 266268.0
+alignment_threshold_angle_deg = 45.0
+model_scale = 0.76077
+panel_material = "res://assets/art/materials_generic/mat_hull_panel_offwhite.tres"
+variant_type = 1
+law_genes = {
+"shares": {
+"capacitor": 0.0546403,
+"engine": 0.30594,
+"hold": 0.0990167,
+"reactor": 0.0864953,
+"structure": 0.453908
+},
+"size": 0.440312,
+"tool_share": 0.574636,
+"type": 1
+}

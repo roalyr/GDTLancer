@@ -29,5 +29,5 @@ weight_class = "medium"
 archetype = "lancer medium"
 temperament = "measured"
 traits = [  ]
-lives = 8
-fitness = -0.0308416
+lives = 9
+fitness = 0.00167077

@@ -12,12 +12,12 @@ tool_type = "laser"
 mount_size = "small"
 base_value = 49
 mass = 150.0
-damage = 3.25492
-optimal_range = 655.621
-falloff = 163.905
+damage = 3.27164
+optimal_range = 656.672
+falloff = 164.168
 tracking = 0.141421
-cycle_time = 0.658417
-power_per_cycle = 3.49178
+cycle_time = 0.662648
+power_per_cycle = 3.51422
 reel_speed = 15.0
 launch_speed = 0.0
 strip_interval = 1.0
@@ -30,6 +30,6 @@ turn_rate = 0.0
 flight_time = 0.0
 variant_type = 1
 law_genes = {
-"energy": 2.32785,
+"energy": 2.34281,
 "mass": 150.0
 }

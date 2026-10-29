@@ -1,0 +1,30 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_v6604"
+agent_type = "npc"
+ship_template_id = "preset_ship_v6604"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.350869,
+"disengage": 0.449892,
+"engage": 0.488383,
+"mercy": 0.431105,
+"pursuit": 0.559889,
+"range": 0.803895,
+"retreat_hull": 0.0,
+"return_fire": 0.322714,
+"teamwork": 0.965281
+}
+role = "lance-raider"
+family = "lance"
+weight_class = "medium"
+archetype = "lance-raider medium"
+temperament = "measured"
+traits = [ "quick to fight" ]
+lives = 5
+fitness = 0.643115

@@ -29,5 +29,5 @@ weight_class = "light"
 archetype = "lance-cannon-fighter light"
 temperament = "cautious"
 traits = [ "picks its fights", "skittish", "wary" ]
-lives = 7
-fitness = 0.334172
+lives = 8
+fitness = 0.213769

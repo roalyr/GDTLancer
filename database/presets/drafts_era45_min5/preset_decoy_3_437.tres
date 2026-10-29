@@ -1,0 +1,21 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/asset_module_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_decoy_3_437"
+module_name = "Decoy Launcher III"
+description = "437 kg."
+base_value = 109
+mass = 437.027
+stat_modifiers = {
+"decoy_charges": 9
+}
+lance = {
+}
+module_kind = "decoy"
+variant_type = 3
+law_genes = {
+"mass": 437.027
+}
