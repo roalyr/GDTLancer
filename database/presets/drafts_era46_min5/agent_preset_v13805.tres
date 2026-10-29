@@ -1,0 +1,32 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_v13805"
+agent_type = "npc"
+ship_template_id = "preset_ship_v13805"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.178526,
+"caution": 0.440158,
+"disengage": 0.598649,
+"engage": 0.64458,
+"mercy": 0.394172,
+"prospect": 0.0,
+"pursuit": 1.51525,
+"range": 0.762339,
+"retreat_hull": 0.0,
+"return_fire": 0.469877,
+"teamwork": 0.649188
+}
+role = "missile-cannon-fighter"
+family = "fighter"
+weight_class = "medium"
+archetype = "missile-cannon-fighter medium"
+temperament = "measured"
+traits = [  ]
+lives = 8
+fitness = 0.650008

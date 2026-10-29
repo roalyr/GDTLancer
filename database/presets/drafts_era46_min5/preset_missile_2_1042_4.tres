@@ -1,0 +1,35 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/utility_tool_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_missile_2_1042_4"
+tool_name = "Missile Rack II"
+hud_label = "MISSILE II"
+description = "521 kg: 4 missiles of 104 kg, 52 damage, 319 m/s, 3213 m reach. Guided; more only at a base or from a missile ship's wreck."
+tool_type = "missile"
+mount_size = "small"
+base_value = 130
+mass = 521.094
+damage = 51.8945
+optimal_range = 3213.25
+falloff = 0.0
+tracking = 0.0
+cycle_time = 3.03742
+power_per_cycle = 2.0
+reel_speed = 15.0
+launch_speed = 0.0
+strip_interval = 1.0
+ammo = 4
+round_mass = 104.219
+round_value = 26
+projectile_speed = 318.68
+projectile_accel = 119.012
+turn_rate = 1.18767
+flight_time = 20.166
+variant_type = 2
+law_genes = {
+"count": 4.0,
+"round_mass": 104.219
+}
