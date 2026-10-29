@@ -9,10 +9,14 @@
 # one chosen.
 # Choices, by job: "patrol" (armed faction ships), "hunt" (raiders), "scavenge" (unarmed), "mine"
 # (prospectors); see Constants CHOICE_*. Each beacon's interest over its route cost: the best one.
+# Distress: a mayday (call_distress) is a beacon for a while; its faction's patrols are drawn to it,
+# its enemies too, as to a raid. Patrolling ships choose again when one is called (distress_serial).
 # Simple rules, so the patterns are the AI's own: patrols drawn to trouble, raiders to busy
 # beacons patrols have left, miners to rich fields that are not hot, careful haulers round danger.
 
 extends Node
+
+const BeaconScript = preload("res://src/scenes/game_world/sector_layout/beacon.gd")
 
 var time: float = 0.0  # s this network has run
 var beacons: Array = []
@@ -23,6 +27,7 @@ var _since_update: float = 0.0
 var _since_values: float = INF
 var _at: Dictionary = {}  # Ship instance id -> the beacon it was last counted at
 var _links: Dictionary = {}  # "i,j" -> [length, hazard exposure] between beacons (fixed: beacons do not move)
+var distress_serial: int = 0  # Counts maydays called: a patrol that has not seen the latest chooses again
 
 
 func _ready() -> void:
@@ -64,6 +69,9 @@ func _physics_process(delta: float) -> void:
 
 
 func _update(dt: float) -> void:
+	for beacon in beacons.duplicate():
+		if beacon.expires <= time:
+			_remove(beacon)
 	var heat_keep: float = pow(0.5, dt / Constants.BEACON_HEAT_HALF_LIFE)
 	var traffic_keep: float = pow(0.5, dt / Constants.BEACON_TRAFFIC_HALF_LIFE)
 	for beacon in beacons:
@@ -126,6 +134,39 @@ func nearest(point: Vector3, within: float = INF, by_radius: bool = false):
 			best = beacon
 			best_distance = distance
 	return best
+
+
+# --- Distress ---
+
+# A mayday from a ship of `faction` at `at` (Constants DISTRESS_*): a distress beacon there, or the
+# one already near it renewed. Returns it.
+func call_distress(faction: String, at: Vector3, caller_name: String) -> Node:
+	distress_serial += 1
+	for beacon in beacons:
+		if beacon.kind == "distress" and beacon.faction == faction and beacon.global_transform.origin.distance_to(at) <= Constants.DISTRESS_MERGE:
+			beacon.expires = time + Constants.DISTRESS_TIME
+			return beacon
+	var beacon = BeaconScript.new()
+	beacon.name = "Beacon_Distress_%d" % distress_serial
+	beacon.kind = "distress"
+	beacon.faction = faction
+	beacon.beacon_name = "Mayday " + caller_name
+	beacon.player_visible = true  # Heard on the common frequency
+	beacon.expires = time + Constants.DISTRESS_TIME
+	var holder: Node = get_parent() if get_parent() is Spatial else self
+	holder.add_child(beacon)
+	beacon.global_transform.origin = at
+	register(beacon)
+	return beacon
+
+
+func _remove(beacon: Node) -> void:
+	beacons.erase(beacon)
+	_links.clear()  # Keyed by index
+	for id in _at.keys():
+		if _at[id] == beacon:
+			_at.erase(id)
+	beacon.queue_free()
 
 
 # --- Routes ---
@@ -235,6 +276,13 @@ func choose(ship: Dictionary) -> Dictionary:
 func interest(beacon: Node, ship: Dictionary) -> float:
 	var faction: String = ship.faction
 	var stale: float = 1.0 + (time - float(beacon.last_visit.get(faction, 0.0))) / Constants.CHOICE_STALE_TIME
+	if beacon.kind == "distress":  # Fresh trouble, fading as it ages: patrols only
+		var fresh: float = clamp((beacon.expires - time) / Constants.DISTRESS_TIME, 0.0, 1.0) * float(ship.get("keen", 1.0)) * (1.0 + beacon.heat)
+		if ship.job != "patrol":
+			return 0.0
+		if beacon.faction == faction:
+			return Constants.CHOICE_DISTRESS * fresh
+		return Constants.CHOICE_RAID * fresh if _at_war(faction, beacon.faction) else 0.0
 	match ship.job:
 		"mine":
 			if beacon.kind != "field":

@@ -1,6 +1,7 @@
 # Beacon: a point of a sector's map the AI goes by (Constants SECTOR_LAYOUTS; BeaconNetwork keeps
 # their numbers). Kinds: "haven" (a station's), "patrol" (a faction's picket), "field" (a rock
-# field), "landmark" (a point to route through: planets, moons, passes). It remembers heat (hull lost
+# field), "landmark" (a point to route through: planets, moons, passes), "distress" (a mayday: gone
+# once it `expires`, BeaconNetwork.call_distress). It remembers heat (hull lost
 # to fire near it, fading), traffic (ships passing, fading), when each faction's ships were last
 # there and how many are there now, and a field the ore left in it. Most are the NPCs' alone (a
 # haven's, a picket, a planet's: the player has the station or the planet to go by); only those
@@ -21,6 +22,7 @@ var value: float = 0.0  # A field's ore left (units)
 var last_visit: Dictionary = {}  # Faction -> BeaconNetwork time a ship of it was last here
 var presence: Dictionary = {}  # Faction -> its ships here at the last count
 var haven: Node = null  # A haven's station
+var expires: float = INF  # BeaconNetwork time a distress beacon goes
 
 
 func _ready() -> void:

@@ -24,6 +24,7 @@ const PRESET_TRAITS = {
 	"teamwork": ["loner", "team player"],
 	"caution": ["bold", "wary"],
 	"haul": ["sells often", "hoards"],
+	"quiet": ["loud", "sneaky"],
 }
 const PRESET_TRAIT_SHARE = 0.6
 # Gene -> sign: + makes it more aggressive as the gene rises, - less.

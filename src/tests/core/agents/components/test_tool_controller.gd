@@ -1,4 +1,5 @@
-# Tests for ToolController: hit quality, cycling, the power gate, wrecks, harpoon towing and salvage.
+# Tests for ToolController: hit quality, cycling, the power gate, holding fire past friends, wrecks,
+# harpoon towing and salvage.
 
 extends GutTest
 
@@ -82,6 +83,24 @@ func test_out_of_power_waits_without_effect():
 	assert_true(controller.is_active(0), "Stays on when a cycle cannot be paid for: it fires once the capacitor has the charge.")
 	assert_eq(target.hull, 50.0)
 	assert_eq(shooter.power, 5.0)
+
+
+func test_holds_fire_while_a_friend_is_in_the_line():
+	shooter.faction = "verdant"
+	target.faction = "violet"
+	var friend: RigidBody = _make_body(Vector3(0, 0, -200))
+	friend.faction = "verdant"
+	controller.activate(0, target)
+	controller._physics_process(0.016)
+	assert_eq(target.hull, 50.0, "Held: the friend is in the way")
+	assert_eq(friend.hull, 50.0, "and not hit")
+	assert_eq(shooter.power, 100.0, "No power spent on a held shot")
+	friend.faction = "raiders"
+	assert_false(controller.friend_in_the_way(target), "Anyone else in the way is no friend")
+	friend.faction = "verdant"
+	friend.global_transform.origin = Vector3(300, 0, -200)
+	controller._physics_process(0.016)
+	assert_almost_eq(target.hull, 40.0, 0.001, "Clear line: fires")
 
 
 func test_out_of_range_stays_on_but_idles():

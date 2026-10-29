@@ -474,12 +474,12 @@ const AI_THINK_INTERVAL = 0.1  # s between an NPC's thinks (its commands and too
 # Factions: who is at war with whom. "player" is the player's faction; NPCs treat the player by
 # standing (Standing: the faction's "standing" to start with, 0 if none) or a grudge (the player shot them).
 const FACTIONS = {
-	"verdant": {"name": "Verdant", "color": Color(0.45, 1.0, 0.35, 1.0), "enemies": ["violet"]},
-	"violet": {"name": "Violet", "color": Color(0.85, 0.45, 1.0, 1.0), "enemies": ["verdant"]},
+	"verdant": {"name": "Verdant", "color": Color(0.45, 1.0, 0.35, 1.0), "enemies": ["violet"], "distress": true},
+	"violet": {"name": "Violet", "color": Color(0.85, 0.45, 1.0, 1.0), "enemies": ["verdant"], "distress": true},
 	"raiders": {"name": "Raiders", "color": Color(1.0, 0.55, 0.3, 1.0), "enemies": ["verdant", "violet"], "standing": -1.0},
 	# Aliens: no standing or bounties; they react on the spot, and take any ship within `territory` m of
 	# their hive for an enemy. Their carcasses hold biotech (`salvage_as`: a wreck's salvage, all of it).
-	"xenohive": {"name": "Xenohive", "color": Color(0.35, 0.95, 0.75, 1.0), "enemies": [], "no_standing": true,
+	"xenohive": {"name": "Xenohive", "color": Color(0.35, 0.95, 0.75, 1.0), "enemies": [], "no_standing": true, "silent": true,
 		"territory": 5000.0, "salvage_as": "commodity_biotech"},
 }
 
@@ -748,6 +748,11 @@ const SHELL_MODEL_LENGTH = 12.0  # m: the tracer streak a cannon round draws (it
 const SHELL_MODEL_RADIUS = 0.25
 const SHELL_COLOR = Color(1.0, 0.85, 0.5)
 const POINT_DEFENCE_RANGE_SHARE = 0.6  # Lasers fire at missiles coming at their ship within this share of their optimal range
+# A ship holds a laser, missile or cannon shot while a ship of its own faction is near the line to
+# its target and nearer than it: within its size plus SHOT_FRIEND_CLEARANCE m, plus SHOT_FRIEND_CONE
+# of the distance along the line (rounds lead and missiles turn, so the line is only roughly theirs).
+const SHOT_FRIEND_CLEARANCE = 30.0  # m
+const SHOT_FRIEND_CONE = 0.05
 const CANNON_AIM_SHARE = 0.6  # Fires when the round, aimed as the nose points, would pass within this share of the target's size
 const AMMO_RECOVER_SHARE = 0.1  # Cannon rounds a harpoon strip takes out of a wreck: this share of a magazine (missiles: one)
 const AMMO_RECOVER_MASS_TOLERANCE = 0.15  # A wreck's rounds fit a launcher whose round mass is within this share of theirs
@@ -903,6 +908,12 @@ const SECTOR_LAYOUTS = {
 		],
 	},
 }
+# Radio (Radio): NPCs say what they do and mean to on a common frequency, heard within RADIO_RANGE
+# m of the speaker; one ship speaks at most every RADIO_SPEAKER_COOLDOWN s (a mayday always goes
+# out). Factions with "silent" (FACTIONS) say nothing.
+const RADIO_RANGE = 20000.0  # m
+const RADIO_SPEAKER_COOLDOWN = 15.0  # s
+const RADIO_LOG_LINES = 8  # Lines the debug overlay keeps
 const HAZARD_RADIATION_DPS = 12.0  # Hull a second at a star's surface (a Phoenix Light has 120)
 const HAZARD_TICK = 0.5  # s between hazard damage steps
 # Beacons (BeaconNetwork) remember what goes on round them: heat (hull lost to enemy fire within
@@ -946,6 +957,14 @@ const CHOICE_RAID = 0.4  # Enemy patrol beacons, times how keen it is to fight
 const CHOICE_STALE_TIME = 300.0  # s
 const CHOICE_FIELD_VALUE = 100.0  # Units of ore
 const CHOICE_HUNT_FLOOR = 0.2  # Traffic it reckons even a quiet beacon has
+# Distress (BeaconNetwork.call_distress): a ship of a faction with "distress" (FACTIONS) that runs
+# from a fight calls a mayday; a beacon of kind "distress" marks the spot for DISTRESS_TIME s (one
+# within DISTRESS_MERGE m is renewed instead). Its faction's patrols weigh it at CHOICE_DISTRESS, as
+# keen as they are to fight, fading as it ages; patrolling ships choose again when one is called.
+const DISTRESS_TIME = 120.0  # s
+const DISTRESS_MERGE = 3000.0  # m
+const DISTRESS_COOLDOWN = 60.0  # s between one ship's calls
+const CHOICE_DISTRESS = 3.0
 const HAVEN_RESPAWN_DELAY = 8.0  # s between a loss and its replacement undocking
 const HAVEN_DOCK_TIME = 10.0  # s an NPC stays docked (selling, repairs) before undocking
 const HAVEN_UNDOCK_CLEAR_RADIUS = 3500.0  # m: with an enemy this near its undock point (past a heavy laser's reach), a docked NPC waits
@@ -1040,6 +1059,7 @@ const EVO_BEHAVIOR_RANGES = {  # Gene -> [min, max, default]
 	"burn": [0.0, 0.8, 0.3],  # Share of its power kept from the afterburner for its weapons (AI_AFTERBURNER_RESERVE)
 	"prospect": [0.0, 1.0, 0.0],  # At 0.5 or more, with a laser, a lance and a harpoon, it mines when it has nothing else to do
 	"haul": [0.05, 1.0, 0.25],  # Goes home to sell once its hold is worth this share of its ship (AI_HAUL_SHARE)
+	"quiet": [0.0, 0.9, 0.3],  # Share of its thrust it cuts while keeping clear of an enemy that has not seen it (a lower signature)
 }
 # Starting designs, guessed, planted in each pool's empty niches (Evolution.plant_seeds; Genome.seed_genome):
 # prospectors and escorts for the factions, raiders, and the xenohive's drones, gatherers and wardens.

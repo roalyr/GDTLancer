@@ -12,6 +12,7 @@ const AIScript = preload("res://src/modules/piloting/ship_controller_ai.gd")
 const ToolControllerScript = preload("res://src/core/agents/components/tool_controller.gd")
 const LanceScript = preload("res://src/core/agents/components/lance_controller.gd")
 const ShipLaws = preload("res://src/core/systems/ship_laws.gd")
+const Radio = preload("res://src/core/systems/radio.gd")
 
 var hostile: RigidBody = null
 var ai: Node = null
@@ -761,6 +762,41 @@ func test_keeps_clear_of_a_strong_enemy_that_has_not_seen_it():
 	brute.fit_stats = {"sensor_strength": 1.0}
 	ai.scan_for_target()
 	assert_null(ai._threat, "Seen already: hiding is no use")
+
+
+func test_lies_low_while_keeping_clear_by_its_quiet_gene():
+	ai.initialize({"patrol_center": Vector3.ZERO, "behavior": {"quiet": 0.6}})
+	ai._change_state(AIScript.AIState.PATROL)
+	var brute = _make_ship(Vector3(0, 0, -1000), "verdant", 5000.0)
+	brute.fit_stats = {"sensor_strength": 0.1}
+	ai._scan_timer = 0.0
+	ai._process_patrol()
+	assert_true(ai._quiet_now, "Throttled down")
+	assert_eq(ai.get_activity_label(), "LYING LOW", "and the player can read that")
+	brute.fit_stats = {"sensor_strength": 1.0}
+	ai._scan_timer = 0.0
+	ai._process_patrol()
+	assert_false(ai._quiet_now, "Seen: full thrust again")
+	ai.initialize({"patrol_center": Vector3.ZERO, "behavior": {"quiet": 0.0}})
+	brute.fit_stats = {"sensor_strength": 0.1}
+	ai._scan_timer = 0.0
+	ai._process_patrol()
+	assert_false(ai._quiet_now, "A loud one keeps clear at full thrust")
+
+
+func test_says_what_it_does_on_the_radio_and_the_hive_says_nothing():
+	watch_signals(EventBus)
+	var prey = _make_ship(Vector3(0, 0, -800), "verdant", 50.0)
+	ai._target_agent = prey
+	ai._change_state(AIScript.AIState.COMBAT)
+	assert_signal_emitted(EventBus, "radio_message")
+	var line: Array = get_signal_parameters(EventBus, "radio_message")
+	assert_eq(line[0], hostile)
+	assert_string_contains(line[1], "Engaging")
+	ai._change_state(AIScript.AIState.MINE)
+	assert_signal_emit_count(EventBus, "radio_message", 1, "One line a while: no chatter")
+	var drone = _make_ship(Vector3(0, 0, 800), "xenohive", 50.0)
+	assert_false(Radio.say(drone, "Hello"), "The hive is silent")
 
 
 func test_loners_help_no_one_and_the_reckless_keep_clear_of_no_one():

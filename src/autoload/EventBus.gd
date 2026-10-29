@@ -53,6 +53,7 @@ signal player_undocked
 signal dock_action_feedback(success, message)  # Feedback from dock button press
 signal attack_action_feedback(success, message)  # Feedback from attack button press
 signal announcement(message, level)  # A HUD announcement: level "info", "warning" or "danger" (threats)
+signal radio_message(speaker, text)  # An NPC on the common frequency (Radio.say): heard within RADIO_RANGE of the speaker
 
 # --- Jumping ---
 signal jump_available(target_sector_id, target_sector_name)

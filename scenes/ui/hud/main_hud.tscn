@@ -1092,6 +1092,16 @@ custom_fonts/font = SubResource( 1 )
 align = 2
 autowrap = true
 
+[node name="LabelRadio" type="Label" parent="ScreenControls/DebugOverlay"]
+anchor_right = 1.0
+margin_left = 395.0
+margin_top = 210.0
+margin_right = -395.0
+margin_bottom = 420.0
+theme = ExtResource( 9 )
+custom_fonts/font = SubResource( 1 )
+autowrap = true
+
 [connection signal="pressed" from="ScreenControls/CenterLeftZone/ButtonMenu" to="." method="_on_ButtonMenu_pressed"]
 [connection signal="pressed" from="ScreenControls/CenterLeftZone/ButtonDebug" to="." method="_on_ButtonDebug_pressed"]
 [connection signal="value_changed" from="ScreenControls/CenterLeftZone/SliderControlLeft" to="." method="_on_SliderControlLeft_value_changed"]

@@ -34,6 +34,7 @@ const FrameProfiler = preload("res://src/core/utils/frame_profiler.gd")
 const CombatAssessment = preload("res://src/core/systems/combat_assessment.gd")
 const BeaconNetwork = preload("res://src/scenes/game_world/sector_layout/beacon_network.gd")
 const Market = preload("res://src/core/systems/market.gd")
+const Radio = preload("res://src/core/systems/radio.gd")
 const NavigationSystem = preload("res://src/core/agents/components/navigation_system.gd")
 
 enum AIState { IDLE, PATROL, COMBAT, FLEE, DISABLED, SALVAGE, DEPART, HESITATE, DOCKED, MINE }
@@ -72,6 +73,9 @@ var _threat = null  # The latest scan's enemy too strong for it that has not see
 var _avoided = null  # The one it last kept clear of
 var _havens: Dictionary = {}  # Haven NPCs: {"zone_id" (its haven), "stations" (where it is welcome), "refuges" (faction -> those), "centre", "radius" (the play area), "territorial"}
 var _beacon: Node = null  # The beacon it is going to or staying at (BeaconNetwork)
+var _distress_seen: int = 0  # The BeaconNetwork distress_serial it last chose by
+var _next_distress: float = 0.0  # Evolution.game_time from which it may call a mayday again
+var _quiet_now: bool = false  # Throttled down to keep clear of an enemy that has not seen it
 var _route: Array = []  # Waypoints still to fly to it, the next first
 var _loiter_left: float = 0.0  # s it stays at _beacon before choosing again
 var _trip: Array = []  # Waypoints to the station it runs or hauls to, the station's last
@@ -85,6 +89,7 @@ var _pursuit: float = Constants.AI_PURSUIT  # Chases a runner while catch time *
 var _mercy: float = Constants.AI_MERCY  # Chance of letting a runner go that is not shooting back
 var _return_fire: float = Constants.AI_RETURN_FIRE  # Chance, per flight, that it shoots back running
 var _teamwork: float = 1.0  # Times its desire to help friends and join its leader (gene)
+var _quiet: float = 0.3  # Share of its thrust it cuts while keeping clear of an unseen enemy (gene)
 var _caution: float = Constants.AI_AVOID_SHARE  # Keeps clear of unseen enemies this much stronger (gene)
 var _burn_reserve: float = Constants.AI_AFTERBURNER_RESERVE  # Power share kept from the afterburner (gene)
 var _shooting_back: bool = true  # This flight's roll of _return_fire
@@ -132,6 +137,7 @@ func initialize(config: Dictionary) -> void:
 	_burn_reserve = float(behavior.get("burn", Constants.AI_AFTERBURNER_RESERVE))
 	_prospect = float(behavior.get("prospect", 0.0))
 	_haul = float(behavior.get("haul", Constants.AI_HAUL_SHARE))
+	_quiet = float(behavior.get("quiet", Constants.EVO_BEHAVIOR_RANGES.quiet[2]))
 	if is_instance_valid(_tool_controller) and not _tool_controller.is_connected("lance_recovered", self, "_on_lance_recovered"):
 		_tool_controller.connect("lance_recovered", self, "_on_lance_recovered")
 		_tool_controller.connect("ammo_recovered", self, "_on_ammo_recovered")
@@ -153,6 +159,8 @@ func get_state() -> int:
 func get_activity_label() -> String:
 	if _ramming and _current_state == AIState.COMBAT:
 		return "RAMMING"
+	if _quiet_now and _current_state == AIState.PATROL:
+		return "LYING LOW"
 	return ACTIVITY_LABELS.get(_current_state, "")
 
 
@@ -169,6 +177,16 @@ func _keep_clear(threat) -> void:
 	_patrol_destination = point
 	_has_patrol_destination = true
 	agent_script.command_move_to(point)
+	_set_quiet(true)
+
+
+# Throttles its engines down by its quiet gene (a lower signature: Agent.get_signature) while it
+# keeps clear of an enemy that has not seen it; full thrust again otherwise.
+func _set_quiet(on: bool) -> void:
+	_quiet_now = on and _quiet > 0.0
+	var movement = agent_script.get("movement_system")
+	if is_instance_valid(movement):
+		movement.thrust_throttle = 1.0 - _quiet if _quiet_now else 1.0
 
 
 # Its group's leader (Evolution ranks; Constants RENOWN_*), unless it leads or has none.
@@ -298,6 +316,8 @@ func _change_state(new_state: int) -> void:
 	_current_state = new_state
 	_repath_timer = 0.0
 	_orbiting = false
+	if _quiet_now:
+		_set_quiet(false)
 	_aiming = false
 	var keeps_fighting: bool = new_state == AIState.HESITATE and _resume_state == AIState.COMBAT
 	if not keeps_fighting:
@@ -353,6 +373,46 @@ func _change_state(new_state: int) -> void:
 		AIState.MINE:
 			_mine_time = 0.0
 			_ramming = false
+	_announce(new_state)
+
+
+# Says on the radio what it is doing now (Radio; the player reads what NPCs mean), and a ship of a
+# faction with distress (FACTIONS) running from a fight calls a mayday.
+func _announce(state: int) -> void:
+	match state:
+		AIState.COMBAT:
+			if is_instance_valid(_target_agent):
+				Radio.say(agent_script, ("Returning fire on %s." if _provoked else "Engaging %s.") % Radio.name_of(_target_agent))
+		AIState.FLEE:
+			if _call_distress():
+				return
+			var refuge: String = (" for " + Radio.name_of(_station)) if is_instance_valid(_station) and not _havens.empty() else ""
+			Radio.say(agent_script, "Breaking off, running%s." % refuge)
+		AIState.DEPART:
+			if is_instance_valid(_station) and not _havens.empty():
+				Radio.say(agent_script, ("Taking my hold to %s." if agent_script.get_cargo_value() > 0.0 else "Heading in to %s.") % Radio.name_of(_station))
+		AIState.SALVAGE:
+			if is_instance_valid(_target_agent) and _target_agent.get("is_wreck"):
+				Radio.say(agent_script, "Stripping a wreck.")
+		AIState.MINE:
+			Radio.say(agent_script, "Working a rock.")
+
+
+# A mayday (BeaconNetwork.call_distress), at most every DISTRESS_COOLDOWN s; true if it called one.
+func _call_distress() -> bool:
+	if not Constants.FACTIONS.get(agent_script.faction, {}).get("distress", false) or Evolution.game_time < _next_distress:
+		return false
+	var network = BeaconNetwork.of(agent_script)
+	if network == null:
+		return false
+	_next_distress = Evolution.game_time + Constants.DISTRESS_COOLDOWN
+	var at: Vector3 = agent_script.global_transform.origin
+	var near = network.nearest(at)
+	var place: String = (" near " + near.get_display_name()) if near != null and near.kind != "distress" else ""
+	network.call_distress(agent_script.faction, at, Radio.call_sign(agent_script))
+	var by: String = (" by " + Radio.name_of(_target_agent)) if _is_live_target(_target_agent) else ""
+	Radio.say(agent_script, "Mayday, mayday! Under attack%s%s!" % [by, place], true)
+	return true
 
 
 func _process_patrol() -> void:
@@ -364,6 +424,10 @@ func _process_patrol() -> void:
 			_change_state(AIState.SALVAGE)
 			return
 		var target = scan_for_target()
+		if _quiet_now and not is_instance_valid(_threat):
+			_set_quiet(false)
+		if _heard_distress():
+			return
 		if is_instance_valid(target):
 			_consider("engage", target, desire_against(target), _engage_level())
 			return
@@ -1195,8 +1259,45 @@ func _choose_beacon() -> void:
 		_beacon = null
 		_route = []
 		return
+	if choice.beacon != _beacon:
+		_say_going(choice.beacon, ship.job)
 	_beacon = choice.beacon
 	_route = choice.path
+
+
+# On the radio, where it is off to and why (Radio).
+func _say_going(beacon: Node, job: String) -> void:
+	var place: String = beacon.get_display_name()
+	if beacon.kind == "distress":
+		Radio.say(agent_script, ("Responding to %s." if beacon.faction == agent_script.faction else "Heard %s. Going to see.") % place, true)
+		return
+	match job:
+		"mine":
+			Radio.say(agent_script, "Off to mine %s." % place)
+		"hunt":
+			Radio.say(agent_script, "Hunting round %s." % place)
+		"scavenge":
+			Radio.say(agent_script, "Looking for pickings at %s." % place)
+		_:
+			Radio.say(agent_script, "Patrolling %s." % place)
+
+
+# A mayday called since it last chose (BeaconNetwork distress_serial): a patrolling ship that roams
+# chooses again at once, and goes if the mayday wins. True if it is now on its way to one.
+func _heard_distress() -> bool:
+	if not roams():
+		return false
+	var network = BeaconNetwork.of(agent_script)
+	if network == null or network.distress_serial == _distress_seen:
+		return false
+	_distress_seen = network.distress_serial
+	if get_job() != "patrol" or (is_instance_valid(_beacon) and _beacon.kind == "distress"):
+		return false
+	_choose_beacon()
+	if not (is_instance_valid(_beacon) and _beacon.kind == "distress"):
+		return false
+	_has_patrol_destination = false
+	return true
 
 
 func get_beacon() -> Node:
@@ -1343,6 +1444,7 @@ func _tick_decision(delta: float) -> void:
 			if _should_let_go(target):
 				_spared[target.get_instance_id()] = Constants.AI_SPARE_TIME
 				_note("let_go")
+				Radio.say(agent_script, "Letting %s go." % Radio.name_of(target))
 				var spared_uid = target.get("evo_uid")
 				if spared_uid is String and spared_uid != "":
 					Evolution.note(spared_uid, "spared")

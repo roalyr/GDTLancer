@@ -1,5 +1,5 @@
 # Tests for BeaconNetwork, Beacon and Hazard: heat from fire, routes round a hazard for the careful
-# only, and choices by job.
+# only, choices by job, and maydays.
 
 extends GutTest
 
@@ -107,3 +107,21 @@ func test_no_beacon_is_cut_off_by_distance():
 	assert_eq(network.choose(_ship("mine")).beacon, far, "and worth going to")
 	assert_eq(network.choose(_ship("mine")).path, [far.global_transform.origin], "directly")
 	assert_ne(near, far)
+
+
+func test_a_mayday_draws_its_patrols_and_their_enemies_then_goes():
+	_beacon("patrol", Vector3(2000, 0, 0), "verdant")
+	var mayday = network.call_distress("verdant", Vector3(8000, 0, 0), "Verdant VE-1")
+	assert_eq(mayday.kind, "distress")
+	assert_true(mayday.player_visible, "Heard on the common frequency")
+	assert_eq(network.choose(_ship("patrol")).beacon, mayday, "Its patrols go to help")
+	assert_gt(network.interest(mayday, _ship("patrol", "violet")), 0.0, "Its enemies weigh it as a raid")
+	assert_eq(network.interest(mayday, _ship("patrol", "raiders")), Constants.CHOICE_RAID * (1.0 + mayday.heat), "raiders too (patrolling ones)")
+	assert_eq(network.interest(mayday, _ship("mine")), 0.0, "Miners keep to their rocks")
+	var serial: int = network.distress_serial
+	assert_eq(network.call_distress("verdant", Vector3(9000, 0, 0), "Verdant VE-2"), mayday, "One near it is renewed")
+	assert_gt(network.distress_serial, serial, "Patrols hear it again")
+	network.time += Constants.DISTRESS_TIME + 1.0
+	network._update(Constants.BEACON_UPDATE_INTERVAL)
+	assert_false(mayday in network.beacons, "Gone once it expires")
+	assert_eq(network.choose(_ship("patrol")).beacon.kind, "patrol", "Back to the pickets")

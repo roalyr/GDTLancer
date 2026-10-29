@@ -25,6 +25,7 @@ const FittingWindowScene = preload("res://scenes/ui/menus/fitting_window.tscn")
 const FittingWindowScript = preload("res://src/core/ui/fitting_window/fitting_window.gd")
 const DebugMapScene = preload("res://scenes/ui/menus/debug_map.tscn")
 const DebugTools = preload("res://src/core/ui/debug_tools/debug_tools.gd")
+const RadioScript = preload("res://src/core/systems/radio.gd")
 const ThreatRing = preload("res://src/core/ui/main_hud/threat_ring.gd")
 const HUDTargetProjectorClass = preload("res://src/core/ui/main_hud/hud_target_projector.gd")
 
@@ -52,6 +53,7 @@ onready var _debug_label_target: Label = $ScreenControls/DebugOverlay/RightColum
 onready var _debug_label_world: Label = $ScreenControls/DebugOverlay/RightColumn/LabelWorld
 onready var _debug_label_render: Label = $ScreenControls/DebugOverlay/LabelRender
 onready var _debug_label_frame: Label = $ScreenControls/DebugOverlay/LabelFrame
+onready var _debug_label_radio: Label = $ScreenControls/DebugOverlay/LabelRadio
 onready var button_render_scale: TextureButton = $ScreenControls/CenterRightZone/ButtonRenderScale
 onready var label_render_scale: Label = $ScreenControls/CenterRightZone/ButtonRenderScale/LabelButtonScale
 onready var button_particles: TextureButton = $ScreenControls/CenterLeftZone/ButtonParticlesToggle
@@ -62,6 +64,7 @@ onready var button_afterburner: TextureButton = $ScreenControls/TemporaryToolZon
 var fitting_window: Control = null
 var debug_map: Control = null
 var debug_tools: Control = null
+var radio_lines: Array = []  # The radio lines heard last (Radio), oldest first: in the debug overlay until the HUD has a place for them
 var threat_ring: Control = null
 var _tool_rows: Array = []  # Rows of tool buttons above TemporaryToolZone (_layout_tool_rows)
 var _tool_rows_key: String = ""
@@ -185,6 +188,8 @@ func _ready():
 			button_debug.connect("pressed", self, "_on_ButtonDebug_pressed")
 	if is_instance_valid(debug_overlay):
 		debug_overlay.visible = false  # Until the debug button shows it
+	if not EventBus.is_connected("radio_message", self, "_on_radio_message"):
+		EventBus.connect("radio_message", self, "_on_radio_message")
 
 	_connect_overlay_toggle_button(button_overlay_structures, "_on_ButtonOverlayStructures_pressed")
 	_connect_overlay_toggle_button(button_overlay_stellar, "_on_ButtonOverlayStellar_pressed")
@@ -741,6 +746,23 @@ func _update_debug_overlay() -> void:
 	_debug_label_world.text = describe_world_stats(player) if has_player else "WORLD\nno ship"
 	_debug_label_render.text = describe_render_stats()
 	_debug_label_frame.text = describe_frame_stats()
+	_debug_label_radio.text = PoolStringArray(["RADIO"] + radio_lines).join("\n")
+
+
+# A radio line said within RADIO_RANGE of the player: kept (the last RADIO_LOG_LINES), with the
+# game time and the speaker's call sign.
+func _on_radio_message(speaker, text: String) -> void:
+	var player = GlobalRefs.player_agent_body
+	if not (is_instance_valid(player) and is_instance_valid(speaker) and player.is_inside_tree()):
+		return
+	if speaker.global_transform.origin.distance_to(player.global_transform.origin) > Constants.RADIO_RANGE:
+		return
+	var seconds: int = int(Evolution.game_time)
+	radio_lines.append("%02d:%02d %s: %s" % [(seconds / 60) % 60, seconds % 60, RadioScript.call_sign(speaker), text])
+	while radio_lines.size() > Constants.RADIO_LOG_LINES:
+		radio_lines.pop_front()
+	if is_instance_valid(debug_overlay) and debug_overlay.visible:
+		_debug_label_radio.text = PoolStringArray(["RADIO"] + radio_lines).join("\n")
 
 
 static func describe_ship_stats(player) -> String:
@@ -831,6 +853,8 @@ func describe_world_stats(player) -> String:
 	var nav = player.get("navigation_system")
 	if is_instance_valid(nav) and nav.has_method("get_current_command_type"):
 		lines.append("AUTOPILOT %s" % nav.CommandType.keys()[nav.get_current_command_type()])
+		if nav.get_current_command_type() == nav.CommandType.AIM:  # A cannon: the autopilot points the nose at the lead, holds the range, strafes
+			lines.append("  HOLDING %s, STRAFING" % _format_distance(float(nav._current_command.get("range", 0.0))))
 	var ships_seen := 0
 	var ships := 0
 	var npcs := {"active": 0, "docked": 0, "wrecks": 0, "awake": 0}  # Bodies in the scene, by what physics does with them

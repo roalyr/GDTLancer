@@ -454,6 +454,8 @@ func _process_missile(index: int, target: Node) -> void:
 		return  # Enough on its way already
 	if rock_in_the_way(target):
 		return  # It would only fly into the rock
+	if friend_in_the_way(target):
+		return  # Holds fire: a friend is in the line
 	if not _agent_body.try_spend_power(tool_template.power_per_cycle):
 		return  # Waits for power
 	var direction: Vector3 = (target.global_transform.origin - from_pos).normalized()
@@ -497,6 +499,8 @@ func _process_cannon(index: int, target: Node) -> void:
 		return  # Not pointing where it will be
 	if rock_in_the_way(target):
 		return  # The round would only hit the rock
+	if friend_in_the_way(target):
+		return  # Holds fire: a friend is in the line
 	if not _agent_body.try_spend_power(tool_template.power_per_cycle):
 		return  # Waits for power
 	var shell = ShellScript.new()
@@ -522,6 +526,8 @@ func _process_laser(index: int, target: Node) -> void:
 	var distance: float = from_pos.distance_to(to_pos)
 	if distance > reach_on(index, target):
 		return  # Stays switched on; cycles resume once back in range (or near enough to lock through jamming).
+	if friend_in_the_way(target):
+		return  # Holds fire (and power) while a friend is in the line
 	if not _agent_body.try_spend_power(tool_template.power_per_cycle):
 		return  # Stays switched on: fires again once the capacitor has the charge
 
@@ -561,6 +567,30 @@ func find_blocker(target: Spatial):
 func rock_in_the_way(target: Spatial) -> bool:
 	var blocker = find_blocker(target)
 	return blocker != null and blocker is Node and blocker.is_in_group("asteroid")
+
+
+# A live ship of this ship's faction near the line to `target` and nearer than it (Constants
+# SHOT_FRIEND_*): lasers, missiles and cannons hold fire, the player's as anyone's.
+func friend_in_the_way(target: Spatial) -> bool:
+	var faction = _agent_body.get("faction")
+	if faction == null or str(faction) == "" or not _agent_body.is_inside_tree():
+		return false
+	var from: Vector3 = _agent_body.global_transform.origin
+	var line: Vector3 = target.global_transform.origin - from
+	var length: float = line.length()
+	if length < 1.0:
+		return false
+	var direction: Vector3 = line / length
+	for body in _agent_body.get_tree().get_nodes_in_group("agent_body"):
+		if body == _agent_body or body == target or body.get("faction") != faction or body.get("is_wreck") != false or body.get("is_docked"):
+			continue
+		var along: float = (body.global_transform.origin - from).dot(direction)
+		if along <= 0.0 or along >= length:
+			continue
+		var size: float = body.get_apparent_radius() if body.has_method("get_apparent_radius") else 10.0
+		if (from + direction * along).distance_to(body.global_transform.origin) < size + Constants.SHOT_FRIEND_CLEARANCE + along * Constants.SHOT_FRIEND_CONE:
+			return true
+	return false
 
 
 # Damages (if it can be damaged) and flashes whatever the shot lands on; a faint beam shows the
