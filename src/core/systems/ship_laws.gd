@@ -9,7 +9,7 @@ extends Reference
 
 const SHARE_KEYS = ["structure", "engine", "reactor", "capacitor", "hold"]
 # The hull's own capacitor stores power; there is no capacitor module (power cells only, era 46).
-const MODULE_KINDS = ["plating", "thruster", "power_cell", "lance", "sensor", "damper", "decoy", "afterburner"]
+const MODULE_KINDS = ["plating", "thruster", "power_cell", "lance", "sensor", "damper", "decoy", "afterburner", "magazine", "rack"]
 const MODULE_LAWS = {"plating": "hull", "thruster": "linear_thrust", "power_cell": "power_regen"}
 const RETIRED_MODULE_KINDS = {"capacitor": "power_cell"}  # A retired kind -> what a saved genome's one becomes
 
@@ -350,6 +350,10 @@ static func module_stats(kind: String, genes: Dictionary) -> Dictionary:
 			special = {"decoy_charges": int(max(1, round(mass / Constants.LAW_DECOY_CHARGE_MASS)))}
 		"afterburner":
 			special = {"afterburner_thrust": Constants.LAW_AFTERBURNER_FACTOR * apply_law(Constants.LAW_THRUST, mass)}
+		"magazine":
+			special = {"shell_load": Constants.LAW_BAY_LOAD_SHARE * mass}  # kg of cannon rounds (ToolController)
+		"rack":
+			special = {"missile_load": Constants.LAW_BAY_LOAD_SHARE * mass}  # kg of missiles
 	if not special.empty():
 		return {"mass": mass, "stat_modifiers": special, "base_value": int(round(Constants.LAW_PART_VALUE_PER_KG * mass))}
 	var stat: String = MODULE_LAWS.get(kind, "hull")

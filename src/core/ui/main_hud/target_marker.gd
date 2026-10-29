@@ -36,11 +36,11 @@ func _shape(centre: Vector2, grow: float) -> void:
 	var size: float = SIZE
 	match kind:
 		"ship":
-			_polygon(centre, [Vector2(0, -1), Vector2(1, 0), Vector2(0, 1), Vector2(-1, 0)], 7.0 * grow, hostile)
+			_polygon(centre, [Vector2(0, -1), Vector2(1, 0), Vector2(0, 1), Vector2(-1, 0)], 5.0 * grow, hostile)
 		"station":
 			_polygon(centre, [Vector2(-1, -1), Vector2(1, -1), Vector2(1, 1), Vector2(-1, 1)], 6.0 * grow, hostile)
 		"beacon":
-			_polygon(centre, [Vector2(0, -1.15), Vector2(1, 0.7), Vector2(-1, 0.7)], 7.0 * size, false)
+			_polygon(centre, [Vector2(0, -1.15), Vector2(1, 0.7), Vector2(-1, 0.7)], 5.0 * size, false)
 		"body", "jump":
 			_ring(centre, 6.0 * size, LINE)
 		"rock":

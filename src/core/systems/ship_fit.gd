@@ -149,6 +149,8 @@ static func compute_stats(ship, fit: Dictionary) -> Dictionary:
 		"decoy_charges": 0.0,
 		"afterburner_thrust": 0.0,
 		"damper_mass": 0.0,
+		"shell_load": 0.0,
+		"missile_load": 0.0,
 	}
 	for tool_id in fit.get("tools", []):
 		var tool_template = TemplateDatabase.get_template(str(tool_id))

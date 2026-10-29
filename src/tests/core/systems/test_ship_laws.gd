@@ -114,4 +114,6 @@ func test_special_modules():
 	var thruster: Dictionary = ShipLaws.module_stats("thruster", {"mass": 400.0})
 	assert_almost_eq(burner.stat_modifiers.afterburner_thrust, thruster.stat_modifiers.linear_thrust * Constants.LAW_AFTERBURNER_FACTOR, 1.0, "Three thrusters' worth, while lit")
 	assert_eq(ShipLaws.module_stats("damper", {"mass": 300.0}).stat_modifiers.damper_mass, 300.0)
+	assert_almost_eq(ShipLaws.module_stats("magazine", {"mass": 200.0}).stat_modifiers.shell_load, 200.0 * Constants.LAW_BAY_LOAD_SHARE, 0.01, "Rounds are most of a bay")
+	assert_almost_eq(ShipLaws.module_stats("rack", {"mass": 300.0}).stat_modifiers.missile_load, 300.0 * Constants.LAW_BAY_LOAD_SHARE, 0.01)
 	assert_false("capacitor" in ShipLaws.MODULE_KINDS, "Power cells only: no capacitor modules")

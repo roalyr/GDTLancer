@@ -136,6 +136,27 @@ func test_magazines_lighten_the_ship_refill_and_salvage():
 	assert_eq(controller.get_ammo(0), 60)
 
 
+func test_extended_magazine_and_rack_share_their_load_between_the_guns():
+	var magazine: Dictionary = ShipLaws.module_stats("magazine", Constants.PART_TYPE_SEEDS.magazine[2])
+	var rack: Dictionary = ShipLaws.module_stats("rack", Constants.PART_TYPE_SEEDS.rack[2])
+	shooter.fit_stats = {"sensor_strength": 10.0, "shell_load": magazine.stat_modifiers.shell_load, "missile_load": rack.stat_modifiers.missile_load}
+	controller = ToolControllerScript.new()
+	controller.name = "ToolController"
+	shooter.add_child(controller)
+	var gun = ShipLaws.build_weapon_template("cannon", Constants.PART_TYPE_SEEDS.cannon[2], 2, "test_cannon")
+	var launcher = ShipLaws.build_weapon_template("missile", Constants.PART_TYPE_SEEDS.missile[2], 2, "test_missile")
+	controller.set_tools([gun, gun, launcher])
+	assert_eq(controller.get_capacity(0), 60 + 17, "170 kg of 5 kg rounds, half each")
+	assert_eq(controller.get_ammo(1), 77, "and loaded")
+	assert_eq(controller.get_capacity(2), 4 + 2, "255 kg of 100 kg missiles")
+	controller._set_ammo(0, 0)
+	assert_almost_eq(controller.spent_ammo_mass(), 77 * 5.0, 0.01, "The bay's rounds weigh too")
+	assert_eq_deep(controller.restock_ammo(), {0: 77})
+	shooter.fit_stats = {"sensor_strength": 10.0}
+	controller.set_tools([gun])
+	assert_eq(controller.get_capacity(0), 60, "No bay: the gun's own")
+
+
 func test_aim_command_points_the_nose_at_the_lead():
 	controller = _arm(shooter, "cannon", Constants.PART_TYPE_SEEDS.cannon[2])
 	assert_true(controller.find_cannon_for(target) >= 0)

@@ -37,7 +37,7 @@ static func service(ship: Node) -> Dictionary:
 				continue
 			var tool_template = tools.get_tool(index)
 			var price: int = int(max(1, Market.price(float(tool_template.round_value), GameState.home_location_id)))
-			var room: int = int(tool_template.ammo) - tools.get_ammo(index)
+			var room: int = tools.get_capacity(index) - tools.get_ammo(index)
 			var take: int = int(min(room, max(0, GameState.player_bank / price)))
 			if take <= 0:
 				continue

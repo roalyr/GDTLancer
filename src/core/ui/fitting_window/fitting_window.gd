@@ -125,6 +125,8 @@ const STAT_LABELS = {
 	"sensor_strength": ["%+.1f sensors", 1.0],
 	"decoy_charges": ["%d decoys", 1.0],
 	"afterburner_thrust": ["%+d kN thrust lit", 0.001],
+	"shell_load": ["%d kg more cannon rounds", 1.0],
+	"missile_load": ["%d kg more missiles", 1.0],
 }
 
 

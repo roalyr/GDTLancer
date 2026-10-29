@@ -675,6 +675,10 @@ const DECOY_MODEL_RADIUS = 1.5  # m
 const LAW_AFTERBURNER_FACTOR = 3.0
 const LAW_AFTERBURNER_POWER_PER_KN = 0.03
 const SIG_AFTERBURNER = 3000.0
+# Extended magazine and extended rack (modules "magazine", "rack"): more cannon rounds, more missiles.
+# LAW_BAY_LOAD_SHARE of the bay's mass is rounds, shared evenly between the cannons (racks) fitted:
+# each takes as many of its own rounds as its share weighs. Refilled at a base like the tool's own.
+const LAW_BAY_LOAD_SHARE = 0.85
 
 # Kinetic lance (module "lance"): a seat that strikes like a hammer, and a quiver of lances (nails)
 # fixed on the hull. An armed lance strikes a ship its tip meets at a closing speed along the lance
@@ -842,8 +846,10 @@ const PART_TYPE_SEEDS = {  # Part kind -> type -> genes
 	"damper": {1: {"mass": 150.0}, 2: {"mass": 300.0}, 3: {"mass": 600.0}},
 	"decoy": {1: {"mass": 100.0}, 2: {"mass": 200.0}, 3: {"mass": 400.0}},
 	"afterburner": {1: {"mass": 200.0}, 2: {"mass": 400.0}, 3: {"mass": 800.0}},
+	"magazine": {1: {"mass": 100.0}, 2: {"mass": 200.0}, 3: {"mass": 400.0}},
+	"rack": {1: {"mass": 150.0}, 2: {"mass": 300.0}, 3: {"mass": 600.0}},
 }
-const PART_NAMES = {"laser": "Laser", "plating": "Hull Plating", "thruster": "Thruster", "power_cell": "Power Cell", "harpoon": "Harpoon", "lance": "Kinetic Lance", "missile": "Missile Rack", "cannon": "Rail Cannon", "sensor": "Sensor Booster", "damper": "Sensor Damper", "decoy": "Decoy Launcher", "afterburner": "Afterburner"}
+const PART_NAMES = {"laser": "Laser", "plating": "Hull Plating", "thruster": "Thruster", "power_cell": "Power Cell", "harpoon": "Harpoon", "lance": "Kinetic Lance", "missile": "Missile Rack", "cannon": "Rail Cannon", "sensor": "Sensor Booster", "damper": "Sensor Damper", "decoy": "Decoy Launcher", "afterburner": "Afterburner", "magazine": "Extended Magazine", "rack": "Extended Rack"}
 const PART_TYPE_NAMES = {1: "I", 2: "II", 3: "III"}
 const HARPOON_TEMPLATE_ID = "tool_harpoon"  # Not evolved: the same harpoon for everyone
 

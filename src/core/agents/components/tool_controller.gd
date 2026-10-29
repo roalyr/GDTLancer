@@ -14,7 +14,8 @@
 #   cannon  - targets live ships; fixed forward, so it fires only when the nose points where the
 #             target will be by the time a Shell gets there (the ship aims: NavigationSystem's aim
 #             command). Rounds from a magazine.
-#   Magazines (missiles, cannon rounds) refill at a base, or from a wreck's (harpoon salvage).
+#   Magazines (missiles, cannon rounds) refill at a base, or from a wreck's (harpoon salvage). An
+#             extended magazine or rack (module) adds rounds to every cannon or rack fitted.
 #   harpoon - targets wrecks; one launch attaches a tether that reels in to a safe towing distance,
 #             then strips salvage into the hold one unit per strip_interval. Off (or the hook tears
 #             free) = the hook lets go and the cable winches in; it cannot fire again until it is in.
@@ -51,6 +52,7 @@ var _tethers: Dictionary = {}  # tool_index -> Tether node while a harpoon is at
 var _retracting: Dictionary = {}  # tool_index -> Tether node winching its cable in
 var _last_cycle_ms: int = -1000000  # When a tool last cycled (drives the firing signature)
 var _ammo: Dictionary = {}  # tool_index -> rounds left, for tools with a magazine
+var _capacity: Dictionary = {}  # tool_index -> rounds its magazine holds, bays included
 var _in_flight: Array = []  # Missiles launched and still flying
 
 
@@ -97,10 +99,35 @@ func load_tools_from_ship() -> void:
 # Full magazines, except where `ammo` (rounds per tool, -1 full) says otherwise.
 func _fill_magazines(ammo: Array) -> void:
 	_ammo.clear()
+	_size_magazines()
+	for index in _capacity:
+		var left: int = int(ammo[index]) if index < ammo.size() and int(ammo[index]) >= 0 else int(_capacity[index])
+		_ammo[index] = int(clamp(left, 0, int(_capacity[index])))
+
+
+# Each magazine's size: the tool's own rounds, and its even share of the ship's bays (fit_stats
+# shell_load, missile_load: kg; Constants LAW_BAY_LOAD_SHARE) in rounds of its own mass.
+func _size_magazines() -> void:
+	_capacity.clear()
+	var stats = _agent_body.get("fit_stats") if is_instance_valid(_agent_body) else null
+	var loads := {"cannon": 0.0, "missile": 0.0}
+	if stats is Dictionary:
+		loads.cannon = float(stats.get("shell_load", 0.0))
+		loads.missile = float(stats.get("missile_load", 0.0))
+	var sharing := {}
+	for tool_template in _tools:
+		if int(tool_template.ammo) > 0:
+			sharing[tool_template.tool_type] = int(sharing.get(tool_template.tool_type, 0)) + 1
 	for index in range(_tools.size()):
-		if int(_tools[index].ammo) > 0:
-			var left: int = int(ammo[index]) if index < ammo.size() and int(ammo[index]) >= 0 else int(_tools[index].ammo)
-			_ammo[index] = int(clamp(left, 0, int(_tools[index].ammo)))
+		var tool_template = _tools[index]
+		if int(tool_template.ammo) <= 0:
+			continue
+		var share: float = float(loads.get(tool_template.tool_type, 0.0)) / int(sharing[tool_template.tool_type])
+		_capacity[index] = int(tool_template.ammo) + int(floor(share / max(float(tool_template.round_mass), 0.001)))
+
+
+func get_capacity(index: int) -> int:
+	return int(_capacity.get(index, 0))
 
 
 # The player's magazines as last left (GameState.player_tool_ammo: [[tool id, rounds] per slot]),
@@ -128,7 +155,7 @@ func has_magazine(index: int) -> bool:
 func restock_ammo(rounds: int = -1) -> Dictionary:
 	var added := {}
 	for index in _ammo.keys():
-		var room: int = int(_tools[index].ammo) - int(_ammo[index])
+		var room: int = get_capacity(index) - int(_ammo[index])
 		var take: int = room if rounds < 0 else int(min(room, rounds))
 		if take <= 0:
 			continue
@@ -153,7 +180,7 @@ func _set_ammo(index: int, rounds: int) -> void:
 func spent_ammo_mass() -> float:
 	var total := 0.0
 	for index in _ammo:
-		total += float(_tools[index].round_mass) * (int(_tools[index].ammo) - int(_ammo[index]))
+		total += float(_tools[index].round_mass) * (get_capacity(index) - int(_ammo[index]))
 	return total
 
 
@@ -162,7 +189,7 @@ func spent_ammo_mass() -> float:
 func recoverable_ammo_for(salvager_tools) -> int:
 	var total := 0
 	for pair in _ammo_pairs(salvager_tools):
-		total += int(min(int(_ammo[pair[1]]), int(salvager_tools._tools[pair[0]].ammo) - int(salvager_tools._ammo[pair[0]])))
+		total += int(min(int(_ammo[pair[1]]), salvager_tools.get_capacity(pair[0]) - int(salvager_tools._ammo[pair[0]])))
 	return total
 
 
@@ -171,8 +198,8 @@ func recoverable_ammo_for(salvager_tools) -> int:
 func recover_ammo_into(salvager_tools) -> Dictionary:
 	for pair in _ammo_pairs(salvager_tools):
 		var own_tool = salvager_tools._tools[pair[0]]
-		var batch: int = 1 if own_tool.tool_type == "missile" else int(max(1, ceil(int(own_tool.ammo) * Constants.AMMO_RECOVER_SHARE)))
-		var rounds: int = int(min(batch, min(int(_ammo[pair[1]]), int(own_tool.ammo) - int(salvager_tools._ammo[pair[0]]))))
+		var batch: int = 1 if own_tool.tool_type == "missile" else int(max(1, ceil(salvager_tools.get_capacity(pair[0]) * Constants.AMMO_RECOVER_SHARE)))
+		var rounds: int = int(min(batch, min(int(_ammo[pair[1]]), salvager_tools.get_capacity(pair[0]) - int(salvager_tools._ammo[pair[0]]))))
 		if rounds <= 0:
 			continue
 		_set_ammo(pair[1], int(_ammo[pair[1]]) - rounds)
@@ -187,7 +214,7 @@ func _ammo_pairs(salvager_tools) -> Array:
 		return pairs
 	for own_index in salvager_tools._ammo:
 		var own_tool = salvager_tools._tools[own_index]
-		if int(salvager_tools._ammo[own_index]) >= int(own_tool.ammo):
+		if int(salvager_tools._ammo[own_index]) >= salvager_tools.get_capacity(own_index):
 			continue
 		for index in _ammo:
 			var tool_template = _tools[index]
