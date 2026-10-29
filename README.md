@@ -20,19 +20,7 @@ A raw, early-stage frontier. There are no sprawling empires or massive navies, o
 
 ## Status
 
-The project is pruned back to its flight core. What works now (details live in the code comments and `Constants`):
-
-- 6DOF flight with PID autopilot commands (approach, orbit, flee, align, move, stop), targeting, the orbit camera and the flight HUD
-- Docking, jumping between handcrafted sectors, new game, save and load
-- Combat without manual aim: lasers, missiles, cannons, kinetic lances; hull, power, wrecks and hull damage marks
-- Fitting at the home station from data-driven parts; ships and parts follow power laws (`ShipLaws`)
-- Sector layouts (`SectorLayout`): havens, beacons, rock fields and hazards; NPCs route and choose by beacon (`BeaconNetwork`)
-- Factions, raiders and the xenohive; standing (`Standing`), bounties (`Bounty`), prices (`Market`), fuel (`Fuel`)
-- Mining with a lance, laser and harpoon; salvage and towing
-- NPC AI with behaviour genes, signatures and detection, ranks, assists and runners; off-screen resolution (`Offscreen`)
-- Travellers between sectors; megastructures in Cob and Lywin
-- Evolution of NPC designs into presets (`Evolution`, `PresetClassifier`)
-- Debug overlay (the bug button): refit, go to, jump
+Early development: the flight core works, and everything else is changing.
 
 ## Roadmap
 
@@ -92,23 +80,6 @@ Complete the engine, then freeze it. After the freeze, work is content, tuning a
 | `database/registry/` | Template data (`.tres`); new content goes here |
 | `scenes/` | Levels, sectors, prefabs and UI scenes |
 | `docs/godot/` | Godot 3.6 shader reference |
-
-## Evolution Runs
-
-The havens' NPCs evolve while you play, or headless and sped up:
-
-```sh
-godot --no-window -s tools/evolution_sim.gd -- --hours=4 --speed=6
-```
-
-Useful tools:
-
-- `--new` starts a new game, `--new-era` restarts every genome's record after a rule change
-- Each finished life is written to `user://evolution_logs/run_<id>.jsonl`; `python3 tools/evolution_report.py [log]` summarises it
-- `godot --no-window -s tools/export_presets.gd -- --min-lives=10` exports the best design per archetype to `database/presets/`
-- `godot --no-window -s tools/classify_presets.gd` rebuilds `database/presets/CATALOG.md`
-- `godot --no-window -s tools/apply_laws.gd` brings registry parts in line after a law change
-- `godot --no-window -s tools/lance_duel.gd -- --duels=6` duels lance designs (`--weapons` for missiles and cannons)
 
 ## Running Tests
 
