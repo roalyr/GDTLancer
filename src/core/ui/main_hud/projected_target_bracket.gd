@@ -4,8 +4,10 @@
 extends Button
 
 const BRACKET_TEXTURE_RECT_SIZE = Vector2(150, 150)
-const BRACKET_CROSS_SCALE = 2.0  # The unselected cross, drawn this many times its texture's size
+const BRACKET_CROSS_SCALE = 2.0  # The unselected dot, drawn this many times its texture's size
 const BRACKET_HOSTILE_CROSS_SCALE = 4.0  # A live hostile's: twice everyone else's
+const BRACKET_DOT_RADIUS = 3.0  # px of the dot's texture (a cross cluttered the view)
+const BRACKET_DOT_SIZE = 16  # px square
 const DISTANCE_KILOUNIT_SCALE = 1000.0
 const DISTANCE_PLAIN_THRESHOLD = 2000.0
 const DISTANCE_DECIMAL_K_THRESHOLD = 10000.0
@@ -81,6 +83,25 @@ func set_distance_fade_alpha(distance_fade_alpha: float) -> void:
 	_apply_distance_fade_alpha()
 
 
+# A soft-edged white dot, made once and shared by every bracket (tinted by modulate).
+static func dot_texture() -> Texture:
+	if Engine.has_meta("hud_bracket_dot"):
+		return Engine.get_meta("hud_bracket_dot")
+	var image := Image.new()
+	image.create(BRACKET_DOT_SIZE, BRACKET_DOT_SIZE, false, Image.FORMAT_RGBA8)
+	image.lock()
+	var centre: float = BRACKET_DOT_SIZE * 0.5
+	for x in range(BRACKET_DOT_SIZE):
+		for y in range(BRACKET_DOT_SIZE):
+			var distance: float = Vector2(x + 0.5 - centre, y + 0.5 - centre).length()
+			image.set_pixel(x, y, Color(1, 1, 1, clamp(BRACKET_DOT_RADIUS + 0.5 - distance, 0.0, 1.0)))
+	image.unlock()
+	var texture := ImageTexture.new()
+	texture.create_from_image(image, Texture.FLAG_FILTER)
+	Engine.set_meta("hud_bracket_dot", texture)
+	return texture
+
+
 func _cache_scene_nodes() -> void:
 	_normal_bracket = get_node_or_null("BracketNormal")
 	_selected_bracket = get_node_or_null("BracketSelected")
@@ -92,6 +113,7 @@ func _cache_scene_nodes() -> void:
 	if is_instance_valid(_normal_bracket):
 		_normal_bracket.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		_normal_bracket.focus_mode = Control.FOCUS_NONE
+		_normal_bracket.texture = dot_texture()
 
 	if is_instance_valid(_selected_bracket):
 		_selected_bracket.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -148,7 +170,7 @@ func refresh_style() -> void:
 
 
 # Unselected: red-orange for a live ship hostile to the player, its faction's colour otherwise, grey
-# for wrecks. The cross dims it while the ship has not detected the player (_awareness_shade); the
+# for wrecks. The dot dims it while the ship has not detected the player (_awareness_shade); the
 # label does not.
 func _get_ship_color() -> Color:
 	if not (is_instance_valid(target_ref) and target_ref.has_method("get_faction_color")):

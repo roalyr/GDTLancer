@@ -62,6 +62,8 @@ var fitting_window: Control = null
 var debug_map: Control = null
 var debug_tools: Control = null
 var threat_ring: Control = null
+var _tool_rows: Array = []  # Rows of tool buttons above TemporaryToolZone (_layout_tool_rows)
+var _tool_rows_key: String = ""
 var _world_rebuild_queued: bool = false  # A bracket rebuild is due at the end of the frame
 
 # --- Game Over UI ---
@@ -243,6 +245,7 @@ func _update_hud() -> void:
 	_update_tool_buttons()
 	_update_lance_button()
 	_update_afterburner_button()
+	_layout_tool_rows()
 	_update_dock_button_label()
 
 
@@ -435,9 +438,12 @@ func _on_ButtonInteract_pressed():
 		EventBus.emit_signal("player_interact_pressed")
 
 
-# One button per fitted tool (placeholders in TemporaryToolZone), two states each: the tool's
-# action while off (FIRE, LAUNCH), CEASE / RELEASE while on, highlighted then. Buttons past the
-# fitted tools are hidden; the row is centred, so it stays centred whatever the tool count.
+# One button per fitted tool (TemporaryToolZone; more are made as a ship needs them), two states
+# each: the tool's action while off (FIRE, LAUNCH), CEASE / RELEASE while on, highlighted then.
+# Buttons past the fitted tools are hidden. The buttons (tools, then LANCE and AFTERBURNER) sit in
+# centred rows of at most TOOL_ROW_MAX, the last row lowest; the rows above are made as needed.
+const TOOL_ROW_MAX = 8
+const TOOL_ROW_STEP = 120.0  # px between rows: a button and the gap
 const TOOL_ACTIONS = {"laser": ["FIRE", "CEASE"], "missile": ["LAUNCH", "HOLD"], "cannon": ["AIM+FIRE", "CEASE"], "harpoon": ["LAUNCH", "RELEASE"]}
 
 
@@ -445,6 +451,12 @@ func _update_tool_buttons() -> void:
 	var player = GlobalRefs.player_agent_body
 	var tools = player.get_node_or_null("ToolController") if is_instance_valid(player) else null
 	var count: int = tools.get_tool_count() if is_instance_valid(tools) else 0
+	while tool_buttons.size() < count:
+		var button: TextureButton = tool_buttons[0].duplicate(Node.DUPLICATE_GROUPS | Node.DUPLICATE_SCRIPTS)  # Not its signals: it gets its own index
+		button.name = "ButtonTool%d" % (tool_buttons.size() + 1)
+		button.connect("pressed", self, "_on_tool_button_pressed", [tool_buttons.size()])
+		tool_buttons.back().get_parent().add_child_below_node(tool_buttons.back(), button)
+		tool_buttons.append(button)
 	for index in range(tool_buttons.size()):
 		var button: TextureButton = tool_buttons[index]
 		button.visible = index < count
@@ -465,13 +477,55 @@ func _update_tool_buttons() -> void:
 		_apply_button_toggle_state(button, active)
 
 
+# Spreads the shown buttons over rows of at most TOOL_ROW_MAX, the first ones highest; only when
+# what is shown changes.
+func _layout_tool_rows() -> void:
+	var items: Array = tool_buttons + [button_lance, button_afterburner]
+	var shown: Array = []
+	for item in items:
+		if item.visible:
+			shown.append(item)
+	var key := ""
+	for item in items:
+		key += "1" if item.visible else "0"
+	if key == _tool_rows_key:
+		return
+	_tool_rows_key = key
+	var rows: int = int(max(1, ceil(float(shown.size()) / TOOL_ROW_MAX)))
+	var zone: Control = $ScreenControls/TemporaryToolZone
+	while _tool_rows.size() < rows - 1:  # Rows above the zone, the nearest first
+		var row := HBoxContainer.new()
+		row.name = "TemporaryToolRow%d" % (_tool_rows.size() + 2)
+		for property in ["anchor_left", "anchor_top", "anchor_right", "anchor_bottom", "margin_left", "margin_right", "mouse_filter", "alignment"]:
+			row.set(property, zone.get(property))
+		row.add_constant_override("separation", zone.get_constant("separation"))
+		row.margin_top = zone.margin_top - TOOL_ROW_STEP * (_tool_rows.size() + 1)
+		row.margin_bottom = zone.margin_bottom - TOOL_ROW_STEP * (_tool_rows.size() + 1)
+		zone.get_parent().add_child(row)
+		_tool_rows.append(row)
+	var last_row_size: int = shown.size() - (rows - 1) * TOOL_ROW_MAX
+	var position := 0
+	for item in items:  # Hidden ones go with the next shown one, keeping the order
+		var row_index: int = 0
+		if position < shown.size() - last_row_size:
+			row_index = rows - 1 - int(position / TOOL_ROW_MAX)
+		var parent: Control = zone if row_index == 0 else _tool_rows[row_index - 1]
+		if item.get_parent() != parent:
+			item.get_parent().remove_child(item)
+			parent.add_child(item)
+		else:
+			parent.move_child(item, parent.get_child_count() - 1)
+		if item.visible:
+			position += 1
+
+
 func _on_tool_button_pressed(index: int) -> void:
 	EventBus.emit_signal("player_tool_pressed", index)
 
 
 func _tool_button_nodes() -> Array:
 	var buttons: Array = []
-	for child in $ScreenControls/TemporaryToolZone.get_children():
+	for child in get_node("ScreenControls/TemporaryToolZone").get_children():
 		if child.name.begins_with("ButtonTool"):
 			buttons.append(child)
 	return buttons
@@ -692,7 +746,8 @@ static func describe_ship_stats(player) -> String:
 	return PoolStringArray([
 		"SHIP",
 		"HULL  %d / %d" % [ceil(player.hull), player.hull_max],
-		"POWER %d / %d  +%.1f/s" % [floor(player.power), player.power_max, player.power_regen],
+		"POWER %d / %d" % [floor(player.power), player.power_max],
+		describe_power_flow(player),
 		"CARGO %d / %d  %d WP, %d%% of ship" % [player.get_cargo_units(), player.cargo_capacity, player.get_cargo_value(), round(100.0 * player.get_cargo_value() / max(1.0, player.get_value()))],  # NPCs take it home at their haul gene's share
 		"BANK  %d WP" % GameState.player_bank,
 		"SPEED %d / %d m/s" % [player.linear_velocity.length(), player.get_top_speed()],
@@ -700,6 +755,33 @@ static func describe_ship_stats(player) -> String:
 		describe_signature(player),
 		"SIG %s  SENSORS x%.2f" % [_format_distance(player.get_signature()), player.get_sensor_strength()],
 	]).join("\n")
+
+
+# Where the power goes, from the fit: the reactor's charge (less what sensor dampers run off it),
+# the draw of every tool working at once (harpoons draw per launch, not counted), the afterburner's
+# at full thrust, and the net with the tools on: what a long fight costs or leaves.
+static func describe_power_flow(player) -> String:
+	var stats: Dictionary = player.get("fit_stats") if player.get("fit_stats") != null else {}
+	var damper: float = Constants.LAW_DAMPER_POWER_PER_KG * float(stats.get("damper_mass", 0.0))
+	var parts: Array = ["  REACTOR +%.1f/s" % (player.power_regen + damper)]
+	if damper > 0.0:
+		parts.append("DAMPER -%.1f/s" % damper)
+	var tools_draw := 0.0
+	var tools = player.get_node_or_null("ToolController")
+	if is_instance_valid(tools):
+		for index in range(tools.get_tool_count()):
+			var tool_template = tools.get_tool(index)
+			if tool_template != null and tool_template.tool_type != "harpoon" and tool_template.cycle_time > 0.0:
+				tools_draw += tool_template.power_per_cycle / tool_template.cycle_time
+	var lines: Array = [PoolStringArray(parts).join("  ")]
+	if tools_draw > 0.0:
+		var net: float = player.power_regen - tools_draw
+		lines.append("  TOOLS ON -%.1f/s  NET %s%.1f/s%s" % [tools_draw, "+" if net >= 0.0 else "-", abs(net),
+			"" if net >= 0.0 else "  FULL TO EMPTY %ds" % int(player.power_max / -net)])
+	var afterburner: float = float(stats.get("afterburner_thrust", 0.0)) / 1000.0 * Constants.LAW_AFTERBURNER_POWER_PER_KN
+	if afterburner > 0.0:
+		lines.append("  AFTERBURNER -%.1f/s at full thrust" % afterburner)
+	return PoolStringArray(lines).join("\n")
 
 
 func describe_tool_stats(player) -> String:

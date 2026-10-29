@@ -104,3 +104,71 @@ func test_main_hud_dock_button_requests_dock_from_player_controller() -> void:
 	assert_eq(hud.label_button_dock.text, "UNDOCK", "Docked: the button undocks (mouse-only players need a way out).")
 	hud._on_ButtonDock_pressed()
 	assert_signal_emitted(EventBus, "player_undocked")
+
+
+class FakeTools extends Node:
+	var count := 11
+
+	func get_tool_count() -> int:
+		return count
+
+	func get_tool(_index: int) -> Resource:
+		var laser = UtilityToolTemplate.new()
+		laser.tool_name = "Laser"
+		return laser
+
+	func is_active(_index: int) -> bool:
+		return false
+
+
+func test_every_tool_gets_a_button_in_rows_of_eight() -> void:
+	var hud = MainHUDScene.instance()
+	add_child_autofree(hud)
+	yield(get_tree(), "idle_frame")
+	var player := Spatial.new()
+	add_child_autofree(player)
+	var tools := FakeTools.new()
+	tools.name = "ToolController"
+	player.add_child(tools)
+	GlobalRefs.player_agent_body = player
+	hud._update_tool_buttons()
+	hud.button_lance.visible = false
+	hud.button_afterburner.visible = false
+	hud._layout_tool_rows()
+	GlobalRefs.player_agent_body = null  # Before the HUD's next frame asks the fake ship for more
+	assert_eq(hud.tool_buttons.size(), 11, "A button per tool, however many")
+	var zone: Control = hud.get_node("ScreenControls/TemporaryToolZone")
+	var upper: Control = hud.get_node("ScreenControls/TemporaryToolRow2")
+	assert_eq(upper.get_child_count(), 8, "The first eight in the row above")
+	assert_eq(hud.tool_buttons[0].get_parent(), upper)
+	assert_eq(hud.tool_buttons[10].get_parent(), zone, "the rest in the bottom row")
+	watch_signals(EventBus)
+	hud.tool_buttons[10].emit_signal("pressed")
+	assert_signal_emitted_with_parameters(EventBus, "player_tool_pressed", [10])  # The eleventh button works the eleventh tool
+	tools.count = 2
+	GlobalRefs.player_agent_body = player
+	hud._update_tool_buttons()
+	hud._layout_tool_rows()
+	GlobalRefs.player_agent_body = null
+	assert_eq(hud.tool_buttons[0].get_parent(), zone, "Back to one row")
+
+
+func test_ship_info_shows_the_power_flow() -> void:
+	var player := Spatial.new()
+	var script := GDScript.new()
+	script.source_code = "extends Spatial\nvar power_regen = 10.0\nvar power_max = 100.0\nvar fit_stats = {\"damper_mass\": 100.0, \"afterburner_thrust\": 100000.0}\n"
+	script.reload()
+	player.set_script(script)
+	add_child_autofree(player)
+	var tools := FakeTools.new()
+	tools.count = 2
+	tools.name = "ToolController"
+	player.add_child(tools)
+	var text: String = load("res://src/core/ui/main_hud/main_hud.gd").describe_power_flow(player)
+	var laser = UtilityToolTemplate.new()
+	var draw: float = 2.0 * laser.power_per_cycle / laser.cycle_time
+	assert_string_contains(text, "REACTOR +%.1f/s" % (10.0 + Constants.LAW_DAMPER_POWER_PER_KG * 100.0))
+	assert_string_contains(text, "DAMPER -%.1f/s" % (Constants.LAW_DAMPER_POWER_PER_KG * 100.0))
+	assert_string_contains(text, "TOOLS ON -%.1f/s" % draw)
+	assert_string_contains(text, "NET -%.1f/s" % (draw - 10.0))
+	assert_string_contains(text, "AFTERBURNER -%.1f/s" % (100.0 * Constants.LAW_AFTERBURNER_POWER_PER_KN))
