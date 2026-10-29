@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/phoenix_light.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_v9400"
+ship_model_name = "Phoenix III V9400"
+base_value = 4037
+ship_scene = ExtResource( 2 )
+hull_integrity = 268
+cargo_capacity = 112
+interaction_radius = 23.885
+apparent_radius = 19.108
+signature = 2388.5
+sensor_strength = 1.0
+tool_slots_small = 0
+tool_slots_medium = 1
+tool_slots_large = 0
+module_slots = 8
+equipped_tools = [  ]
+equipped_modules = [ "preset_lance_2_251_2", "preset_plating_2_1005", "preset_plating_3_2449", "preset_thruster_1_190" ]
+salvage_yield = {
+"commodity_scrap": 81,
+"commodity_tech": 49
+}
+power_capacity = 668.022
+power_regen = 67.4644
+mass = 24224.5
+linear_thrust = 1.58249e+06
+angular_thrust = 2.79704e+06
+alignment_threshold_angle_deg = 45.0
+model_scale = 1.59234
+panel_material = "res://assets/art/materials_generic/mat_hull_accent_orange.tres"
+variant_type = 3
+law_genes = {
+"shares": {
+"capacitor": 0.0827288,
+"engine": 0.200325,
+"hold": 0.139169,
+"reactor": 0.206581,
+"structure": 0.371196
+},
+"size": 4.03742,
+"tool_share": 0.0583131,
+"type": 3
+}

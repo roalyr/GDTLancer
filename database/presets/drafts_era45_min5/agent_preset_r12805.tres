@@ -1,0 +1,33 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_r12805"
+agent_type = "npc"
+ship_template_id = "preset_ship_r12805"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.3,
+"caution": 0.5,
+"disengage": 0.8,
+"engage": 1.0,
+"haul": 0.369868,
+"mercy": 0.5,
+"prospect": 0.0,
+"pursuit": 1.0,
+"range": 0.998523,
+"retreat_hull": 0.0,
+"return_fire": 0.488863,
+"teamwork": 1.32909
+}
+role = "scavenger"
+family = "scavenger"
+weight_class = "medium"
+archetype = "scavenger medium"
+temperament = "measured"
+traits = [  ]
+lives = 5
+fitness = 0.345844

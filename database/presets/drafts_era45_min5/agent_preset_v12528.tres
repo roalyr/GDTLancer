@@ -1,0 +1,32 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_v12528"
+agent_type = "npc"
+ship_template_id = "preset_ship_v12528"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.288045,
+"caution": 0.744468,
+"disengage": 0.666255,
+"engage": 1.63249,
+"mercy": 0.459584,
+"prospect": 0.993274,
+"pursuit": 0.781288,
+"range": 1.13924,
+"retreat_hull": 0.252771,
+"return_fire": 0.583683,
+"teamwork": 1.1672
+}
+role = "prospector"
+family = "prospector"
+weight_class = "medium"
+archetype = "prospector medium"
+temperament = "cautious"
+traits = [  ]
+lives = 5
+fitness = -0.215047

@@ -28,5 +28,5 @@ weight_class = "medium"
 archetype = "scavenger medium"
 temperament = "measured"
 traits = [  ]
-lives = 13
-fitness = 0.150369
+lives = 14
+fitness = 0.188727

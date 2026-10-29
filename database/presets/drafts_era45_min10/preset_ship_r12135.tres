@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/phoenix_light.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_r12135"
+ship_model_name = "Phoenix II R12135"
+base_value = 1075
+ship_scene = ExtResource( 2 )
+hull_integrity = 140
+cargo_capacity = 16
+interaction_radius = 15.3671
+apparent_radius = 12.2937
+signature = 1536.71
+sensor_strength = 1.0
+tool_slots_small = 3
+tool_slots_medium = 0
+tool_slots_large = 0
+module_slots = 1
+equipped_tools = [ "preset_missile_3_2500_2", "preset_missile_1_551_4" ]
+equipped_modules = [ "preset_lance_2_210_3" ]
+salvage_yield = {
+"commodity_scrap": 22,
+"commodity_tech": 8
+}
+power_capacity = 95.2792
+power_regen = 9.29116
+mass = 6451.4
+linear_thrust = 428189.0
+angular_thrust = 486922.0
+alignment_threshold_angle_deg = 45.0
+model_scale = 1.02447
+panel_material = "res://assets/art/materials_generic/mat_hull_panel_dark.tres"
+variant_type = 2
+law_genes = {
+"shares": {
+"capacitor": 0.0443063,
+"engine": 0.176016,
+"hold": 0.0730524,
+"reactor": 0.0857076,
+"structure": 0.620917
+},
+"size": 1.07523,
+"tool_share": 0.69032,
+"type": 2
+}
