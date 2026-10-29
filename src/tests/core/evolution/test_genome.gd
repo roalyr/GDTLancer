@@ -102,11 +102,13 @@ func test_lances_are_lawful_parts_with_their_own_niche():
 	assert_true(template is ModuleTemplate and not template.lance.empty())
 	assert_eq(template.lance.count, int(round(part.genes.count)))
 	genome.modules = [part, part.duplicate(true)]
-	var child: Dictionary = Genome.mutate(genome, false)
-	var lances := 0
-	for module in child.modules:
-		lances += 1 if not module.empty() and module.kind == "lance" else 0
-	assert_true(lances <= 1, "One lance per ship")
+	var twins := 0
+	for _i in range(20):
+		var lances := 0
+		for module in Genome.mutate(genome, false).modules:
+			lances += 1 if not module.empty() and module.kind == "lance" else 0
+		twins += 1 if lances == 2 else 0
+	assert_gt(twins, 0, "A second launcher is kept (a ship may carry several)")
 
 
 func test_missiles_and_cannons_are_lawful_weapons_on_their_own_branches():

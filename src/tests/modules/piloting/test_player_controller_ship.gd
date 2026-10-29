@@ -242,3 +242,34 @@ func test_a_missile_rack_launches_once_per_press():
 	controller._on_projectile_fired(1, null)
 	assert_true(tools.is_active(1), "Other tools keep at it")
 	controller.free()
+
+
+func test_a_wrecked_target_hands_over_to_the_nearest_hostile_it_sees():
+	var Agent = load("res://src/core/agents/agent.gd")
+	var ship = Agent.new()
+	add_child_autofree(ship)
+	var dead = Agent.new()
+	var near = Agent.new()
+	var far = Agent.new()
+	var friend = Agent.new()
+	var places = [[dead, 100.0], [near, 300.0], [far, 600.0], [friend, 200.0]]
+	for entry in places:
+		add_child_autofree(entry[0])
+		entry[0].global_transform.origin = Vector3(entry[1], 0, 0)
+	for hostile in [dead, near, far]:
+		hostile._grudges[ship.get_instance_id()] = true
+	var controller = PlayerControllerScript.new()
+	controller.agent_body = ship
+	controller._selected_target = dead
+
+	assert_eq(controller.nearest_hostile(), dead)
+	dead.is_wreck = true
+	controller._on_agent_disabled(dead)
+	assert_eq(controller._selected_target, near, "The nearest live hostile, not the nearer friend")
+	controller._on_agent_disabled(far)
+	assert_eq(controller._selected_target, near, "Another ship's end changes nothing")
+	near.is_wreck = true
+	far.is_wreck = true
+	controller._on_agent_disabled(near)
+	assert_eq(controller._selected_target, near, "None left: the wreck stays selected")
+	controller.free()

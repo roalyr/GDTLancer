@@ -5,6 +5,7 @@ extends Node
 # --- References ---
 const ScreenSpace = preload("res://src/core/ui/screen_space.gd")
 const NavigationSystem = preload("res://src/core/agents/components/navigation_system.gd")
+const TargetKinds = preload("res://src/core/ui/main_hud/target_kinds.gd")
 var agent_script: Node = null
 var agent_body: RigidBody = null
 var movement_system: Node = null
@@ -756,6 +757,33 @@ func _on_Player_Flee_Pressed():
 func _on_player_target_selection_requested(target_ref) -> void:
 	_set_selected_target(target_ref)
 
+
+# The selected ship is wrecked: the nearest live hostile the sensors see becomes the target, so the
+# fight (and the camera tracking the target) carries on; with none, the wreck stays selected.
+func _on_agent_disabled(body) -> void:
+	if body != _selected_target or not is_instance_valid(agent_body) or body == agent_body:
+		return
+	var next = nearest_hostile()
+	if next != null:
+		_set_selected_target(next)
+
+
+# The nearest live, undocked ship hostile to the player (TargetKinds: as its mark shows) that its
+# sensors see, or null.
+func nearest_hostile():
+	var best = null
+	var best_distance: float = INF
+	for body in agent_body.get_tree().get_nodes_in_group("agent_body"):
+		if not is_instance_valid(body) or body == agent_body or body.get("is_wreck") != false or body.get("is_docked"):
+			continue
+		if not agent_body.detects(body) or TargetKinds.side_of(body, agent_body) != "hostile":
+			continue
+		var distance: float = agent_body.global_transform.origin.distance_to(body.global_transform.origin)
+		if distance < best_distance:
+			best_distance = distance
+			best = body
+	return best
+
 func _on_Player_Ship_Speed_Slider_Changed_By_HUD(slider_ui_value: float):
 	current_thrust_throttle = (100.0 - slider_ui_value) / 100.0
 	_update_throttle_and_slider_visuals()
@@ -769,6 +797,7 @@ func _connect_eventbus_signals():
 	EventBus.connect("player_orbit_pressed", self, "_on_Player_Orbit_Pressed")
 	EventBus.connect("player_approach_pressed", self, "_on_Player_Approach_Pressed")
 	EventBus.connect("player_flee_pressed", self, "_on_Player_Flee_Pressed")
+	EventBus.connect("agent_disabled", self, "_on_agent_disabled")
 	EventBus.connect(
 		"player_ship_speed_changed", self, "_on_Player_Ship_Speed_Slider_Changed_By_HUD"
 	)
@@ -792,6 +821,8 @@ func _notification(what):
 			EventBus.disconnect("player_approach_pressed", self, "_on_Player_Approach_Pressed")
 		if EventBus.is_connected("player_flee_pressed", self, "_on_Player_Flee_Pressed"):
 			EventBus.disconnect("player_flee_pressed", self, "_on_Player_Flee_Pressed")
+		if EventBus.is_connected("agent_disabled", self, "_on_agent_disabled"):
+			EventBus.disconnect("agent_disabled", self, "_on_agent_disabled")
 		if EventBus.is_connected(
 			"player_ship_speed_changed", self, "_on_Player_Ship_Speed_Slider_Changed_By_HUD"
 		):
