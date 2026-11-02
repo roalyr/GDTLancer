@@ -74,7 +74,10 @@ var _havens: Dictionary = {}  # Haven NPCs: {"zone_id" (its haven), "stations" (
 var _beacon: Node = null  # The beacon it is going to or staying at (BeaconNetwork)
 var _distress_seen: int = 0  # The BeaconNetwork distress_serial it last chose by
 var _next_distress: float = 0.0  # Evolution.game_time from which it may call a mayday again
-var _quiet_now: bool = false  # Throttled down to keep clear of an enemy that has not seen it
+var _quiet_now: bool = false  # Throttled down: keeping clear of, or stalking, a ship that has not seen it, or running dark
+var _stalking: bool = false  # Closing quiet on a target that has not seen it (Constants AI tactics)
+var _dark: bool = false  # Running dark: out of its pursuer's reach, coasting quiet, holding fire
+var _covering = null  # The friend whose attacker it took on, drawing that attacker's fire (sturdier than the friend)
 var _route: Array = []  # Waypoints still to fly to it, the next first
 var _loiter_left: float = 0.0  # s it stays at _beacon before choosing again
 var _trip: Array = []  # Waypoints to the station it runs or hauls to, the station's last
@@ -160,6 +163,12 @@ func get_activity_label() -> String:
 		return "RAMMING"
 	if _quiet_now and _current_state == AIState.PATROL:
 		return "LYING LOW"
+	if _stalking and _current_state == AIState.COMBAT:
+		return "STALKING"
+	if _dark and _current_state == AIState.FLEE:
+		return "RUNNING DARK"
+	if _covering != null and _current_state == AIState.COMBAT:
+		return "COVERING"
 	return ACTIVITY_LABELS.get(_current_state, "")
 
 
@@ -222,8 +231,46 @@ func get_focus() -> Node:
 # Distance the AI tries to fight at: a cannon's optimal range if it has one with rounds (a gunner
 # keeps out of laser reach, its lasers firing when they reach), otherwise the shortest optimal range
 # among the weapons that work on the target (and have rounds left), so all of them reach; times its
-# range gene. Never beyond where its weapons lock through the target's jamming.
+# range gene. Never beyond where its weapons lock through the target's jamming. Covering a friend it
+# presses in (AI_COVER_RANGE_SHARE); otherwise it keeps to its lock window if it has one.
 func get_engagement_range() -> float:
+	var engagement: float = _base_engagement_range()
+	if engagement <= 0.0:
+		return engagement
+	if _covering != null:
+		return engagement * Constants.AI_COVER_RANGE_SHARE
+	var own_lock: float = _own_lock_on(_target_agent)
+	var floor_range: float = lock_range_of(_target_agent) * Constants.AI_LOCK_WINDOW_MARGIN
+	if floor_range > 0.0 and own_lock * Constants.AI_LOCK_WINDOW_INNER > floor_range:
+		return clamp(engagement, floor_range, own_lock * Constants.AI_LOCK_WINDOW_INNER)
+	return engagement
+
+
+# How far `body`'s weapons lock on this ship (its dampers jam them: Agent.lock_range_for); 0 if
+# it has no weapon that works on this ship, or does not see it.
+func lock_range_of(body) -> float:
+	var tools = body.get_node_or_null("ToolController") if is_instance_valid(body) else null
+	if tools == null or not tools.has_method("get_tool_count"):
+		return 0.0
+	var lock := 0.0
+	for index in range(tools.get_tool_count()):
+		var tool_template = tools.get_tool(index)
+		if tool_template.tool_type != "harpoon" and tools.can_target(tool_template, agent_script):
+			lock = max(lock, agent_script.lock_range_for(body, tool_template.get_max_range()))
+	return lock
+
+
+# The furthest any of its weapons that work on `target` lock on it.
+func _own_lock_on(target) -> float:
+	var lock := 0.0
+	for index in range(_tool_controller.get_tool_count()):
+		var tool_template = _tool_controller.get_tool(index)
+		if tool_template.tool_type != "harpoon" and _tool_controller.can_target(tool_template, target):
+			lock = max(lock, _tool_controller.reach_on(index, target))
+	return lock
+
+
+func _base_engagement_range() -> float:
 	if not is_instance_valid(_tool_controller) or not is_instance_valid(_target_agent):
 		return 0.0
 	var cannon: int = _tool_controller.find_cannon_for(_target_agent)
@@ -300,7 +347,9 @@ func _update_afterburner() -> void:
 	if not agent_script.has_method("has_afterburner") or not agent_script.has_afterburner():
 		return
 	var want := false
-	if _current_state == AIState.FLEE:
+	if _quiet_now:
+		want = false  # Stalking or running dark: the plume would give it away
+	elif _current_state == AIState.FLEE:
 		want = true
 	elif _current_state == AIState.COMBAT and _is_live_target(_target_agent):
 		var distance: float = agent_script.global_transform.origin.distance_to(_target_agent.global_transform.origin)
@@ -317,7 +366,11 @@ func _change_state(new_state: int) -> void:
 	_orbiting = false
 	if _quiet_now:
 		_set_quiet(false)
+	_stalking = false
+	_dark = false
 	var keeps_fighting: bool = new_state == AIState.HESITATE and _resume_state == AIState.COMBAT
+	if not keeps_fighting and new_state != AIState.COMBAT:
+		_covering = null
 	if not keeps_fighting:
 		_stop_ramming()
 	if is_instance_valid(_tool_controller) and not keeps_fighting:
@@ -463,8 +516,8 @@ func _process_combat() -> void:
 	if not _is_live_target(_target_agent):
 		_change_state(AIState.PATROL)
 		return
-	if not _provoked and not agent_script.detects(_target_agent):
-		_change_state(AIState.PATROL)  # Lost contact
+	if not agent_script.detects(_target_agent) and (not _provoked or _since_hit > Constants.AI_LOST_CONTACT_GRACE):
+		_change_state(AIState.PATROL)  # Lost contact (one that shot it: once it has stopped for a while)
 		return
 	if not _in_play_area(agent_script.global_transform.origin, 1.1):
 		_change_state(AIState.PATROL)  # Chased out of the play area: back to its beacons
@@ -495,6 +548,7 @@ func _process_combat() -> void:
 	# Close to optimal range, then orbit at it (closing in or easing out to it); re-approach if
 	# pushed out. A cannon on holds the nose on its lead meanwhile (MovementSystem.facing).
 	var engagement_range: float = get_engagement_range()
+	_stalk(distance > engagement_range and not _ramming)
 	if distance > engagement_range * 1.2:
 		if _orbiting or _repath_timer <= 0.0:
 			_orbiting = false
@@ -505,6 +559,18 @@ func _process_combat() -> void:
 		agent_script.command_orbit(_target_agent, engagement_range)
 
 	_fire_at(_target_agent)
+
+
+# Closing on a target that has not seen it: throttled down by its quiet gene, no afterburner, until
+# it is within its fighting range or the target sees it (Constants AI tactics).
+func _stalk(closing: bool) -> void:
+	var stalk: bool = closing and not _provoked and _quiet > 0.0 and _target_agent.has_method("detects") and not _target_agent.detects(agent_script)
+	if stalk == _stalking:
+		return
+	_stalking = stalk
+	_set_quiet(stalk)
+	if stalk:
+		_note("stalked")
 
 
 # Keeps every weapon that works on `target` and reaches it on it; ToolController stops each on its
@@ -524,9 +590,10 @@ func _fire_at(target) -> void:
 
 
 func _process_flee() -> void:
+	_run_dark()
 	if not _havens.empty():
 		_process_run_home()
-		if _shooting_back and _is_live_target(_target_agent):
+		if _shooting_back and not _dark and _is_live_target(_target_agent):
 			_fire_at(_target_agent)  # Running, but shooting back at whatever reaches
 		return
 	if not _is_live_target(_target_agent):
@@ -539,8 +606,27 @@ func _process_flee() -> void:
 	if _repath_timer <= 0.0:
 		_repath_timer = Constants.AI_REPATH_INTERVAL
 		agent_script.command_flee(_target_agent)
-	if _shooting_back:
+	if _shooting_back and not _dark:
 		_fire_at(_target_agent)  # Running, but shooting back at whatever reaches
+
+
+# Running dark (Constants AI tactics): out of its pursuer's reach, and quiet enough there to drop off
+# its sensors, it holds fire and throttles down by its quiet gene; back in reach, it runs flat out.
+func _run_dark() -> void:
+	var dark := false
+	if _quiet > 0.0 and _is_live_target(_target_agent) and _target_agent.has_method("get_sensor_strength"):
+		var distance: float = agent_script.global_transform.origin.distance_to(_target_agent.global_transform.origin)
+		var their_reach: float = agent_script.lock_range_for(_target_agent, agent_script.weapon_reach_of(_target_agent))
+		var hidden_beyond: float = agent_script.get_signature_coasting(1.0 - _quiet) * _target_agent.get_sensor_strength()
+		dark = distance > their_reach * Constants.AI_DARK_REACH_MARGIN and distance > hidden_beyond
+	if dark == _dark:
+		return
+	_dark = dark
+	_set_quiet(dark)
+	if dark:
+		_note("went_dark")
+		if is_instance_valid(_tool_controller):
+			_tool_controller.deactivate_all("dark")
 
 
 # Close in on a wreck, harpoon it (with every harpoon it has: each strips on its own cycle) and strip
@@ -1309,7 +1395,7 @@ func _on_agent_damaged(agent_body, _amount, source) -> void:
 
 # A friend (its faction, within AI_ASSIST_RADIUS) shot at while this ship is not fighting: it weighs
 # going to help (a decision, as any other: veterans make it sooner), and goes if its side, the friend
-# included, wants that fight. The attacker becomes its enemy too.
+# included, wants that fight; the sturdier of the two wants it more and covers the friend (cover_factor). The attacker becomes its enemy too.
 func _assist(friend, source) -> void:
 	if not _is_live_target(source) or source == agent_script or not _is_live_target(friend):
 		return
@@ -1329,7 +1415,17 @@ func _assist(friend, source) -> void:
 		return  # A loner: helps no one
 	if is_mining_work():
 		return  # A prospector at work leaves fights to others
-	_consider("assist", source, desire_against(source) * _teamwork, _engage_level())
+	_consider("assist", source, desire_against(source) * _teamwork * cover_factor(friend), _engage_level(), friend)
+
+
+# How much more a ship wants to take on the attacker of `friend` for being the sturdier of the two
+# (hull plating): its hull share over the friend's, from AI_COVER_HULL_RATIO, at most AI_COVER_MAX; 1 if not.
+func cover_factor(friend) -> float:
+	var theirs: float = float(friend.get("hull_max")) if friend.get("hull_max") else 0.0
+	var ours: float = float(agent_script.get("hull_max")) if agent_script.get("hull_max") else 0.0
+	if theirs <= 0.0 or ours < theirs * Constants.AI_COVER_HULL_RATIO:
+		return 1.0
+	return min(ours / theirs, Constants.AI_COVER_MAX)
 
 
 # Charged at with a lance (seen coming, see LanceController.is_charging): as good as shot at. It holds
@@ -1367,7 +1463,7 @@ func _react_to_attack(source) -> void:
 # Starts making a decision, and hesitates while it does. A decision already under way stands, except
 # that being shot (a "respond") takes over: about the same ship it keeps the time already spent
 # thinking, about another it starts over.
-func _consider(kind: String, target, desire: float, threshold: float) -> void:
+func _consider(kind: String, target, desire: float, threshold: float, friend = null) -> void:
 	var delay: float = decision_delay(desire, threshold)
 	if not _pending.empty():
 		if DECISION_PRIORITY.get(kind, 0) <= DECISION_PRIORITY.get(_pending.kind, 0):
@@ -1375,8 +1471,9 @@ func _consider(kind: String, target, desire: float, threshold: float) -> void:
 		if _pending.target == target:
 			_pending.kind = kind
 			_pending.timer = min(_pending.timer, delay)
+			_pending.friend = friend
 			return
-	_pending = {"kind": kind, "target": target, "timer": delay}
+	_pending = {"kind": kind, "target": target, "timer": delay, "friend": friend}
 	if _current_state != AIState.HESITATE:
 		_resume_state = _current_state
 		_resume_target = _target_agent
@@ -1445,7 +1542,11 @@ func _tick_decision(delta: float) -> void:
 			if desire >= _engage_level() and not _should_retreat():
 				agent_script._hold_grudge(target)
 				_note("assisted")
+				var friend = decision.get("friend")
 				_start_combat(target, true)
+				if _is_live_target(friend) and cover_factor(friend) > 1.0:
+					_covering = friend
+					_note("covered")
 			else:
 				_resume()
 		"respond":
@@ -1463,6 +1564,7 @@ func _start_combat(target, provoked: bool) -> void:
 	_since_hit = 0.0 if provoked else INF
 	_runner_judged = false
 	_spared.erase(target.get_instance_id())
+	_covering = null
 	_current_state = AIState.IDLE  # Re-enter combat so the approach starts toward the target
 	_change_state(AIState.COMBAT)
 

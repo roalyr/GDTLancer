@@ -809,3 +809,83 @@ func test_loners_help_no_one_and_the_reckless_keep_clear_of_no_one():
 	brute.fit_stats = {"sensor_strength": 0.1}
 	ai.scan_for_target()
 	assert_null(ai._threat, "and the reckless keep clear of no one")
+
+
+# --- Tactics the parts open up (Constants AI tactics) ---
+
+func test_stalks_a_target_that_has_not_seen_it_by_its_quiet_gene():
+	hostile.fit_stats = {"sensor_strength": 5.0}
+	var reach: float = hostile.get_node("ToolController").get_tool(0).get_max_range()
+	var prey = _make_ship(Vector3(0, 0, -(reach + 3000.0)), "verdant", 50.0)
+	prey.fit_stats = {"sensor_strength": 0.1}
+	ai.initialize({"patrol_center": Vector3.ZERO, "behavior": {"quiet": 0.5}})
+	ai._start_combat(prey, false)
+	ai._process_combat()
+	assert_eq(ai.get_activity_label(), "STALKING", "Closing on it unseen, and the player can read that")
+	assert_true(ai._quiet_now, "throttled down by its quiet gene")
+	prey.fit_stats = {"sensor_strength": 5.0}
+	ai._process_combat()
+	assert_false(ai._stalking or ai._quiet_now, "Seen: full thrust again")
+
+
+func test_a_jamming_ship_fights_from_beyond_the_targets_lock():
+	var prey = _make_ship(Vector3(0, 0, -300), "verdant", 50.0)
+	var reach: float = hostile.get_node("ToolController").get_tool(0).get_max_range()
+	ai.initialize({"patrol_center": Vector3.ZERO})
+	ai._start_combat(prey, false)
+	var plain: float = ai.get_engagement_range()
+	assert_almost_eq(ai.lock_range_of(prey), reach, 0.001, "No dampers: its lock reaches as far as its weapons")
+	hostile.fit_stats = {"jamming": 0.6}
+	hostile.ship_template.apparent_radius = 2.0  # Small: not seen by eye from where the jamming leaves the target's lock
+	var their_lock: float = ai.lock_range_of(prey)
+	assert_lt(their_lock, reach, "Jammed: the target locks on it from nearer")
+	assert_almost_eq(ai.get_engagement_range(), clamp(plain, their_lock * Constants.AI_LOCK_WINDOW_MARGIN, reach * Constants.AI_LOCK_WINDOW_INNER), 0.001,
+		"It keeps in the window where it locks on and the target does not")
+	assert_gt(ai.get_engagement_range(), their_lock)
+
+
+func test_runs_dark_out_of_its_pursuers_reach_and_holds_fire():
+	hostile.fit_stats = {"sensor_strength": 5.0}
+	hostile.power_max = 100.0
+	hostile.power = 100.0
+	var reach: float = hostile.get_node("ToolController").get_tool(0).get_max_range()
+	var pursuer = _make_ship(Vector3(0, 0, -max(reach * 1.2, 2500.0)), "verdant", 1000.0)
+	ai.initialize({"patrol_center": Vector3.ZERO, "behavior": {"quiet": 0.8, "return_fire": 1.0}})
+	ai._target_agent = pursuer
+	ai._change_state(AIScript.AIState.FLEE)
+	ai._process_flee()
+	assert_eq(ai.get_activity_label(), "RUNNING DARK", "Out of reach and quiet enough to drop off its sensors")
+	assert_true(ai._quiet_now, "throttled down")
+	assert_false(hostile.get_node("ToolController").is_active(0), "holding fire")
+	pursuer.global_transform.origin = Vector3(0, 0, -300)
+	ai._process_flee()
+	assert_false(ai._dark or ai._quiet_now, "Back in reach: runs flat out")
+
+
+func test_a_pursuer_that_lost_sight_of_its_attacker_gives_up_after_a_while():
+	var runner = _make_ship(Vector3(0, 0, -800), "verdant", 50.0)
+	ai.initialize({"patrol_center": Vector3.ZERO})
+	ai._start_combat(runner, true)
+	runner.fit_stats = {"sensor_strength": 1.0, "signature": 200.0}
+	assert_false(hostile.detects(runner))
+	ai._process_combat()
+	assert_eq(ai.get_state(), AIScript.AIState.COMBAT, "Just shot: chases on where it last was")
+	ai._since_hit = Constants.AI_LOST_CONTACT_GRACE + 1.0
+	ai._process_combat()
+	assert_eq(ai.get_state(), AIScript.AIState.PATROL, "Then gives up")
+
+
+func test_the_sturdier_ship_covers_a_friend_under_fire_and_presses_in():
+	ai.initialize({"patrol_center": Vector3.ZERO})
+	var frail = _make_ship(Vector3(0, 0, -1500), "violet", 20.0)
+	var attacker = _make_ship(Vector3(0, 0, -2500), "verdant", 30.0)
+	assert_almost_eq(ai.cover_factor(frail), Constants.AI_COVER_MAX, 0.001, "Its hull is 2.5 times the friend's")
+	var equal = _make_ship(Vector3(0, 0, -1500), "violet", 50.0)
+	assert_eq(ai.cover_factor(equal), 1.0, "No sturdier than this one")
+	frail.apply_damage(1.0, attacker)
+	ai._tick_decision(100.0)
+	assert_eq(ai.get_state(), AIScript.AIState.COMBAT)
+	assert_eq(ai.get_activity_label(), "COVERING", "and the player can read that")
+	var pressed: float = ai.get_engagement_range()
+	ai._covering = null
+	assert_almost_eq(pressed, ai.get_engagement_range() * Constants.AI_COVER_RANGE_SHARE, 0.001, "It closes in to draw the fire")

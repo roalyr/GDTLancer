@@ -831,6 +831,12 @@ func describe_target_stats(player) -> String:
 		var reach: float = player.weapon_reach_of(player)
 		if reach > 0.0 and _current_target.has_method("get_jamming") and _current_target.get_jamming() > 0.0:
 			lines.append("JAMMING: LOCK WITHIN %s" % _format_distance(_current_target.lock_range_for(player, reach)))
+		var their_reach: float = player.weapon_reach_of(_current_target)
+		if their_reach > 0.0 and player.has_method("get_jamming") and player.get_jamming() > 0.0:
+			lines.append("YOUR JAMMING: THEY LOCK WITHIN %s" % _format_distance(player.lock_range_for(_current_target, their_reach)))
+		if _current_target.has_method("get_sensor_strength"):  # How far off it spots the player, now and coasting cold
+			var sensors: float = _current_target.get_sensor_strength()
+			lines.append("SPOTS YOU WITHIN %s  COASTING %s" % [_format_distance(player.get_signature() * sensors), _format_distance(player.get_signature_coasting(0.0) * sensors)])
 	if _current_target.has_method("get_apparent_radius"):
 		lines.append("%s across" % _format_distance(_current_target.get_apparent_radius() * 2.0))
 	lines.append("DIST %s" % _format_distance(player.global_transform.origin.distance_to(_current_target.global_transform.origin)))

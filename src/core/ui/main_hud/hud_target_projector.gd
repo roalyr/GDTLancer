@@ -355,8 +355,7 @@ func get_ship_cues(target_ref, detailed: bool = true) -> Array:
 			cues.append("RANK %d/%d" % [rank, Evolution.group_of(target_ref.faction, str(record.zone)).size()])
 	if detailed or hostile:
 		cues.append(CombatAssessment.difficulty_label(CombatAssessment.team_advantage(player, target_ref)))
-		if target_ref.detects(player):
-			cues.append("SEES YOU")
+		cues.append("SEES YOU" if target_ref.detects(player) else "UNAWARE")
 	return cues
 
 func update_world_target_selection_state() -> void:

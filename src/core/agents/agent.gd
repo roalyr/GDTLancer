@@ -902,6 +902,17 @@ func _launch_decoys() -> void:
 			Evolution.note(evo_uid, "decoyed" if taken else "decoy_failed")
 
 
+# The signature it would have with its engines at `engine_share` of full thrust, the afterburner out
+# and its tools cold (what a ship running dark counts on; leaks still show).
+func get_signature_coasting(engine_share: float) -> float:
+	var base: float = float(fit_stats.get("signature", ship_template.signature if is_instance_valid(ship_template) else 1500.0))
+	var signature: float = base + Constants.SIG_ENGINE_FULL * clamp(engine_share, 0.0, 1.0)
+	for leak in _leaks:
+		if is_instance_valid(leak):
+			signature += Constants.SIG_PER_LEAK * leak.get_pressure()
+	return max(Constants.SIG_MIN, signature)
+
+
 func get_sensor_strength() -> float:
 	return float(fit_stats.get("sensor_strength", ship_template.sensor_strength if is_instance_valid(ship_template) else 1.0))
 

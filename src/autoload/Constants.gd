@@ -451,7 +451,27 @@ const AI_ENEMY_DESIRE_FACTOR = 1.5
 const AI_UNSEEN_DESIRE_FACTOR = 1.3
 const AI_AVOID_SHARE = 0.5
 const AI_AFTERBURNER_RESERVE = 0.3  # Share of its power an NPC keeps for its weapons (it burns on past it only to run)
-const AI_AFTERBURNER_CLOSE_FACTOR = 2.0  # Burns to close in from beyond this many times its fighting range  # Ships at war (or holding a grudge) want the fight this much more
+const AI_AFTERBURNER_CLOSE_FACTOR = 2.0  # Burns to close in from beyond this many times its fighting range
+# Tactics the parts open up; every ship follows them, its fit decides how often they apply.
+# Stalking: closing on a target that cannot see it, a ship throttles down by its quiet gene (no
+# afterburner) until it is within its fighting range, so the first shot is its own.
+# Lock window: where its weapons lock on the target from further than the target's lock on it
+# (its sensor dampers jam them), it fights from AI_LOCK_WINDOW_MARGIN times beyond their lock, inside
+# AI_LOCK_WINDOW_INNER of its own.
+const AI_LOCK_WINDOW_MARGIN = 1.15
+const AI_LOCK_WINDOW_INNER = 0.95
+# Running dark: a runner out of its pursuer's reach (AI_DARK_REACH_MARGIN times it) that would drop
+# off the pursuer's sensors coasting quiet holds fire and throttles down by its quiet gene, the
+# afterburner out; back in reach, it burns again. A pursuer that loses sight of a ship that shot it
+# chases on for AI_LOST_CONTACT_GRACE s after the last hit, then gives up.
+const AI_DARK_REACH_MARGIN = 1.1
+const AI_LOST_CONTACT_GRACE = 10.0  # s
+# Covering: a ship going to help a friend under fire whose hull is AI_COVER_HULL_RATIO times the
+# friend's or more (hull plating) wants that fight its hull share more (at most AI_COVER_MAX times),
+# and presses in to AI_COVER_RANGE_SHARE of its fighting range to draw the attacker's fire.
+const AI_COVER_HULL_RATIO = 1.25
+const AI_COVER_MAX = 2.0
+const AI_COVER_RANGE_SHARE = 0.6
 const AI_SALVAGE_SEARCH_RANGE = 6000.0  # m; wrecks further than this are not worth the trip
 const AI_MINE_SEARCH_RANGE = 6000.0  # m; rocks further than this are not worth the trip
 const AI_MINE_GIVE_UP = 120.0  # s on one rock without a chunk before it tries another
