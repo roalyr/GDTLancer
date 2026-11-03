@@ -286,3 +286,19 @@ func test_avoidance_is_more_urgent_for_closer_rocks():
 	var near: Vector3 = Nav.compute_avoidance(Vector3.ZERO, velocity, 12.0, [[Vector3(10, 0, -100), 40.0]])
 	var far: Vector3 = Nav.compute_avoidance(Vector3.ZERO, velocity, 12.0, [[Vector3(10, 0, -350), 40.0]])
 	assert_gt(near.length(), far.length())
+
+
+func test_planets_are_obstacles_the_autopilot_steers_round():
+	var Nav = load("res://src/core/agents/components/navigation_system.gd")
+	var planet = load("res://src/scenes/game_world/celestial/celestial_body.gd").new()
+	var shape = CollisionShape.new()
+	shape.name = "CollisionShape"
+	shape.shape = SphereShape.new()
+	shape.shape.radius = 1000.0
+	planet.add_child(shape)
+	add_child_autofree(planet)
+	planet.global_transform.origin = Vector3(300, 0, -3000)
+	assert_true(planet.is_in_group("obstacle"))
+	assert_almost_eq(planet.get_obstacle_radius(), 1000.0, 0.001, "Its size")
+	var push: Vector3 = Nav.compute_avoidance(Vector3.ZERO, Vector3(0, 0, -300), 12.0, [[planet.global_transform.origin, planet.get_obstacle_radius(), planet]])
+	assert_lt(push.x, 0.0, "A leg heading into it is pushed off to the side")
