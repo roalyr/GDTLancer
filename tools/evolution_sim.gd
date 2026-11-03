@@ -9,6 +9,9 @@
 #   --save-every=M simulated minutes between saves (default 15)
 #   --save-dir=D   save folder (default the game's); use another to keep a run apart
 #   --new-era      the rules changed: every genome's record starts over (Evolution.new_era)
+#   --backup-every=H simulated hours between copies of the save into user://save_backups/ (with
+#                  --save-dir, its backups/ folder), and at the end (default 2; the newest
+#                  EVOSIM_BACKUPS_KEPT are kept): a blackout loses at most that much
 #   --probe        every 10 simulated minutes, list NPCs stuck in one activity for 30 minutes or more
 #                  (state, target, throttle, speed): for finding ships that never finish a life
 # Vsync is switched off: with it, a monitor gone to sleep (DPMS) stalls every frame and the run with it.
@@ -21,6 +24,8 @@ var save_every := 15.0
 var save_dir := ""
 var new_era := false
 var probe := false
+var backup_every := 2.0
+const EVOSIM_BACKUPS_KEPT = 3
 var _since: Dictionary = {}  # Probe: evo uid -> [activity, game time it began]
 
 
@@ -40,6 +45,8 @@ func _initialize():
 			new_era = true
 		elif arg == "--probe":
 			probe = true
+		elif arg.begins_with("--backup-every="):
+			backup_every = max(0.25, float(arg.split("=")[1]))
 	OS.vsync_enabled = false
 	call_deferred("_run")
 
@@ -78,6 +85,7 @@ func _run():
 	var end_time: float = start_time + hours * 3600.0
 	var next_save: float = start_time + save_every * 60.0
 	var next_probe: float = start_time + 600.0
+	var next_backup: float = start_time + backup_every * 3600.0
 	var t0 = OS.get_ticks_msec()
 	print("EVOSIM running %.1f h of evolution time at x%.0f, from t=%.0fs" % [hours, speed, start_time])
 	while evolution.game_time < end_time:
@@ -95,11 +103,37 @@ func _run():
 				Performance.get_monitor(Performance.OBJECT_NODE_COUNT), Performance.get_monitor(Performance.OBJECT_ORPHAN_NODE_COUNT),
 				Performance.get_monitor(Performance.OBJECT_COUNT), get_nodes_in_group("agent_body").size(),
 				root.get_node("TemplateDatabase").evolved.size(), evolution.genomes.size(), OS.get_static_memory_usage() / 1048576.0])
+			if evolution.game_time >= next_backup:
+				next_backup = evolution.game_time + backup_every * 3600.0
+				_backup(manager, evolution.game_time)
 	Engine.time_scale = 1.0
 	Engine.iterations_per_second = 60
 	evolution.print_report()
 	print("EVOSIM done, saved=%s" % manager.save_game(0))
+	_backup(manager, evolution.game_time)
 	quit()
+
+
+# Copies the save just written to user://save_backups/auto_t<simulated hour>.sav and keeps the newest
+# EVOSIM_BACKUPS_KEPT of those.
+func _backup(manager, now: float) -> void:
+	var folder: String = "user://save_backups/" if save_dir == "" else save_dir.plus_file("backups/")  # A run of its own keeps its own
+	var dir := Directory.new()
+	dir.make_dir_recursive(folder)
+	var target: String = folder + "auto_t%06.2fh.sav" % (now / 3600.0)
+	var err: int = dir.copy(manager._get_save_path(0), target)
+	print("EVOSIM backup %s -> %s" % ["ok" if err == OK else "FAILED %d" % err, target])
+	var autos: Array = []
+	if dir.open(folder) == OK:
+		dir.list_dir_begin(true, true)
+		var name: String = dir.get_next()
+		while name != "":
+			if name.begins_with("auto_t") and name.ends_with(".sav"):
+				autos.append(name)
+			name = dir.get_next()
+	autos.sort()  # Zero-padded hours: oldest first
+	while autos.size() > EVOSIM_BACKUPS_KEPT:
+		dir.remove(folder + autos.pop_front())
 
 
 func _probe(now: float) -> void:

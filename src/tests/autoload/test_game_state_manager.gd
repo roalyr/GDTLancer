@@ -156,3 +156,22 @@ func test_reset_keeps_the_evolution_only_when_asked():
 	assert_almost_eq(Evolution.game_time, 50.0, 0.01)
 	GameStateManager.reset_to_defaults()
 	assert_almost_eq(Evolution.game_time, 0.0, 0.01, "The next reset starts it over")
+
+
+func test_a_save_broken_mid_write_falls_back_to_the_one_before():
+	_populate_game_state()
+	GameStateManager.save_game(TEST_SLOT)
+	GameState.current_sector_id = "sector_elace"
+	GameStateManager.save_game(TEST_SLOT)
+	var path: String = GameStateManager._get_save_path(TEST_SLOT)
+	assert_true(File.new().file_exists(path + GameStateManager.SAVE_BACKUP_EXT), "The save before is kept")
+	assert_false(File.new().file_exists(path + GameStateManager.SAVE_TMP_EXT), "Nothing left half-written")
+	var file := File.new()
+	file.open(path, File.WRITE)  # A power cut halfway through writing it
+	file.store_string("garbage")
+	file.close()
+	GameState.reset_state()
+	assert_true(GameStateManager.load_game(TEST_SLOT), "Loads the save before")
+	assert_eq(GameState.current_sector_id, "sector_cob")
+	GameStateManager.delete_save(TEST_SLOT)
+	assert_false(GameStateManager.has_save_file(TEST_SLOT), "Deleted with its backup: it does not come back")

@@ -9,6 +9,8 @@ const SAVE_DIR = "user://savegames/"
 var save_dir: String = SAVE_DIR  # Tests point this at their own folder so real saves are never touched
 const SAVE_FILE_PREFIX = "save_"
 const SAVE_FILE_EXT = ".sav"
+const SAVE_TMP_EXT = ".tmp"  # Being written (save_game)
+const SAVE_BACKUP_EXT = ".bak"  # The save before the last
 const SAVE_FORMAT_VERSION = 2  # 2: evolution, play time and a summary
 
 var keep_evolution: bool = false  # The next reset keeps the evolution running (a new run in the same world)
@@ -52,8 +54,9 @@ func delete_outdated_saves() -> void:
 func delete_save(slot_id: int = 0) -> void:
 	var dir := Directory.new()
 	var path: String = _get_save_path(slot_id)
-	if dir.file_exists(path):
-		dir.remove(path)
+	for file_path in [path, path + SAVE_BACKUP_EXT, path + SAVE_TMP_EXT]:  # Its backup too, or the slot would come back from it
+		if dir.file_exists(file_path):
+			dir.remove(file_path)
 
 
 # Every save slot.
@@ -64,7 +67,7 @@ func delete_all_saves() -> void:
 	dir.list_dir_begin(true, true)
 	var file_name: String = dir.get_next()
 	while file_name != "":
-		if file_name.begins_with(SAVE_FILE_PREFIX) and file_name.ends_with(SAVE_FILE_EXT):
+		if file_name.begins_with(SAVE_FILE_PREFIX) and (file_name.ends_with(SAVE_FILE_EXT) or file_name.ends_with(SAVE_FILE_EXT + SAVE_BACKUP_EXT) or file_name.ends_with(SAVE_FILE_EXT + SAVE_TMP_EXT)):
 			dir.remove(save_dir.plus_file(file_name))
 		file_name = dir.get_next()
 
@@ -105,13 +108,24 @@ func save_game(slot_id: int = 0) -> bool:
 
 	var save_data = _serialize_game_state()
 
+	# Written whole beside the slot, then swapped in, the old save kept as .bak: a power cut mid-write
+	# leaves the last good save (and _read_save_data falls back to the .bak if the slot is bad).
 	var file = File.new()
 	var path = _get_save_path(slot_id)
-	var err = file.open(path, File.WRITE)
+	var err = file.open(path + SAVE_TMP_EXT, File.WRITE)
 
 	if err == OK:
 		file.store_var(save_data, true)
 		file.close()
+		var dir = Directory.new()
+		if dir.file_exists(path):
+			if dir.file_exists(path + SAVE_BACKUP_EXT):
+				dir.remove(path + SAVE_BACKUP_EXT)
+			dir.rename(path, path + SAVE_BACKUP_EXT)
+		err = dir.rename(path + SAVE_TMP_EXT, path)
+		if err != OK:
+			printerr("Error saving game to path: ", path, " Error code: ", err)
+			return false
 		if Constants.VERBOSE_RUNTIME_LOGS:
 			print("Game saved successfully to: ", path)
 		return true
@@ -149,6 +163,17 @@ func _get_save_path(slot_id: int) -> String:
 
 func _read_save_data(slot_id: int):
 	var path = _get_save_path(slot_id)
+	var save_data = _read_save_file(path)
+	if save_data is Dictionary and _is_save_data_valid(save_data):
+		return save_data
+	var backup = _read_save_file(path + SAVE_BACKUP_EXT)  # The slot is missing or broken: the save before it
+	if backup is Dictionary and _is_save_data_valid(backup):
+		printerr("Save slot ", slot_id, " unreadable; loading its backup")
+		return backup
+	return save_data
+
+
+func _read_save_file(path: String):
 	var file = File.new()
 	if not file.file_exists(path):
 		return null
