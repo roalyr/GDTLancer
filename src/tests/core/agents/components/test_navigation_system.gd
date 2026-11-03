@@ -302,3 +302,11 @@ func test_planets_are_obstacles_the_autopilot_steers_round():
 	assert_almost_eq(planet.get_obstacle_radius(), 1000.0, 0.001, "Its size")
 	var push: Vector3 = Nav.compute_avoidance(Vector3.ZERO, Vector3(0, 0, -300), 12.0, [[planet.global_transform.origin, planet.get_obstacle_radius(), planet]])
 	assert_lt(push.x, 0.0, "A leg heading into it is pushed off to the side")
+
+
+func test_a_ship_stopped_against_an_obstacle_slides_off_the_way_it_pushes():
+	var Nav = load("res://src/core/agents/components/navigation_system.gd")
+	var planet = [Vector3(300, 0, -1010), 1000.0]  # Pressed against its face, a little off its middle
+	assert_eq(Nav.compute_avoidance(Vector3.ZERO, Vector3.ZERO, 12.0, [planet]), Vector3.ZERO, "Not pushing anywhere: nothing in the way")
+	var push: Vector3 = Nav.compute_avoidance(Vector3.ZERO, Vector3(0, 0, -0.1), 12.0, [planet], Vector3(0, 0, -1000))
+	assert_lt(push.x, 0.0, "Pushing into it: sidesteps along its face")

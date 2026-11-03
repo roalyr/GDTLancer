@@ -146,6 +146,11 @@ func add_external_force_at(force: Vector3, world_point: Vector3) -> void:
 
 
 # Request thrust in a specific world direction (autopilot decides direction)
+# The thrust asked for so far this step (commands add theirs before the autopilot's avoidance).
+func get_requested_force() -> Vector3:
+	return _accumulated_force
+
+
 func request_thrust_direction(direction: Vector3, magnitude_scale: float = 1.0):
 	if not is_instance_valid(agent_body):
 		return

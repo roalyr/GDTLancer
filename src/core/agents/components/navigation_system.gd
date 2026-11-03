@@ -208,7 +208,9 @@ func _compute_obstacle_push(target_node) -> Vector3:
 		if obstacle[2] != target_node:
 			obstacles.append(obstacle)
 	var own_radius: float = agent_body.get_apparent_radius() if agent_body.has_method("get_apparent_radius") else 10.0
-	return compute_avoidance(agent_body.global_transform.origin, agent_body.linear_velocity, own_radius, obstacles)
+	var requested = movement_system.get_requested_force() if movement_system.has_method("get_requested_force") else null
+	var intent: Vector3 = requested if requested is Vector3 else Vector3.ZERO
+	return compute_avoidance(agent_body.global_transform.origin, agent_body.linear_velocity, own_radius, obstacles, intent)
 
 
 # Every obstacle as [centre, radius, node], gathered once per physics step and shared by every
@@ -229,11 +231,18 @@ static func get_obstacles(tree: SceneTree) -> Array:
 
 # Sideways push away from every obstacle ([centre, radius]) whose clearance sphere the straight
 # path ahead would cross within the look-ahead; each scaled by how close and how soon. ZERO if clear.
-static func compute_avoidance(position: Vector3, velocity: Vector3, own_radius: float, obstacles: Array) -> Vector3:
+# Slower than NAV_AVOID_MIN_SPEED, the path ahead is the way it is pushing (`intent`: the thrust its
+# command asks for), so a ship stopped against a planet slides off it rather than pressing on.
+static func compute_avoidance(position: Vector3, velocity: Vector3, own_radius: float, obstacles: Array, intent: Vector3 = Vector3.ZERO) -> Vector3:
 	var speed: float = velocity.length()
-	if speed < Constants.NAV_AVOID_MIN_SPEED:
+	var heading: Vector3
+	if speed >= Constants.NAV_AVOID_MIN_SPEED:
+		heading = velocity / speed
+	elif intent.length_squared() > 0.001:
+		heading = intent.normalized()
+		speed = Constants.NAV_AVOID_MIN_SPEED
+	else:
 		return Vector3.ZERO
-	var heading: Vector3 = velocity / speed
 	var reach: float = speed * Constants.NAV_AVOID_LOOKAHEAD_TIME
 	var push := Vector3.ZERO
 	for obstacle in obstacles:
