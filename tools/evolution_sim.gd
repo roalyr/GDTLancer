@@ -9,6 +9,8 @@
 #   --save-every=M simulated minutes between saves (default 15)
 #   --save-dir=D   save folder (default the game's); use another to keep a run apart
 #   --new-era      the rules changed: every genome's record starts over (Evolution.new_era)
+#   --probe        every 10 simulated minutes, list NPCs stuck in one activity for 30 minutes or more
+#                  (state, target, throttle, speed): for finding ships that never finish a life
 # Vsync is switched off: with it, a monitor gone to sleep (DPMS) stalls every frame and the run with it.
 extends SceneTree
 
@@ -18,6 +20,8 @@ var fresh := false
 var save_every := 15.0
 var save_dir := ""
 var new_era := false
+var probe := false
+var _since: Dictionary = {}  # Probe: evo uid -> [activity, game time it began]
 
 
 func _initialize():
@@ -34,6 +38,8 @@ func _initialize():
 			save_dir = arg.split("=")[1]
 		elif arg == "--new-era":
 			new_era = true
+		elif arg == "--probe":
+			probe = true
 	OS.vsync_enabled = false
 	call_deferred("_run")
 
@@ -71,12 +77,16 @@ func _run():
 	var start_time: float = evolution.game_time
 	var end_time: float = start_time + hours * 3600.0
 	var next_save: float = start_time + save_every * 60.0
+	var next_probe: float = start_time + 600.0
 	var t0 = OS.get_ticks_msec()
 	print("EVOSIM running %.1f h of evolution time at x%.0f, from t=%.0fs" % [hours, speed, start_time])
 	while evolution.game_time < end_time:
 		yield(_wait(5.0), "completed")
 		if paused:
 			paused = false  # Nothing here should pause the run (a menu opened by a stray event)
+		if probe and evolution.game_time >= next_probe:
+			next_probe = evolution.game_time + 600.0
+			_probe(evolution.game_time)
 		if evolution.game_time >= next_save:
 			next_save = evolution.game_time + save_every * 60.0
 			print("EVOSIM saved=%s t=%.0fs wall=%.0fs pace x%.1f nodes=%d orphans=%d objects=%d bodies=%d templates=%d genomes=%d mem=%.0fMB" % [
@@ -90,6 +100,27 @@ func _run():
 	evolution.print_report()
 	print("EVOSIM done, saved=%s" % manager.save_game(0))
 	quit()
+
+
+func _probe(now: float) -> void:
+	var stuck := 0
+	for body in get_nodes_in_group("agent_body"):
+		var ai = body.get_node_or_null("AIController")
+		if ai == null or str(body.get("evo_uid")) == "" or body.get("is_wreck"):
+			continue
+		var activity: String = "%s/%s" % [ai.get_activity_label(), "docked" if body.get("is_docked") else "flying"]
+		var uid: String = str(body.evo_uid)
+		if not _since.has(uid) or _since[uid][0] != activity:
+			_since[uid] = [activity, now]
+		elif now - _since[uid][1] >= 1800.0:
+			stuck += 1
+			var target = ai.get_focus()
+			var movement = body.get("movement_system")
+			print("EVOSIM PROBE %s %s for %.0f min: target=%s pending=%s throttle=%.2f speed=%.1f quiet=%s station=%s at %s" % [
+				uid, activity, (now - _since[uid][1]) / 60.0, target.get("evo_uid") if target != null else "-",
+				ai.get("_pending"), movement.thrust_throttle if movement != null else -1.0, body.linear_velocity.length(),
+				ai.get("_quiet_now"), ai.get("_station").name if is_instance_valid(ai.get("_station")) else "-", body.global_transform.origin.round()])
+	print("EVOSIM PROBE t=%.0fs: %d stuck" % [now, stuck])
 
 
 func _find_menu():

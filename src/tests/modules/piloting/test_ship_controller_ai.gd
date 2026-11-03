@@ -889,3 +889,23 @@ func test_the_sturdier_ship_covers_a_friend_under_fire_and_presses_in():
 	var pressed: float = ai.get_engagement_range()
 	ai._covering = null
 	assert_almost_eq(pressed, ai.get_engagement_range() * Constants.AI_COVER_RANGE_SHARE, 0.001, "It closes in to draw the fire")
+
+
+func test_gives_up_a_wreck_it_gets_nothing_off_and_goes_for_others():
+	ai.initialize({"patrol_center": Vector3.ZERO})
+	hostile.cargo_capacity = 10
+	var wreck = _make_ship(Vector3(0, 0, -200), "verdant", 50.0)
+	wreck.become_wreck()
+	var harpoon = UtilityToolTemplate.new()
+	harpoon.tool_type = "harpoon"
+	harpoon.optimal_range = 300.0
+	hostile.get_node("ToolController").set_tools([hostile.get_node("ToolController").get_tool(0), harpoon])
+	ai._target_agent = wreck
+	ai._change_state(AIScript.AIState.SALVAGE)
+	ai._think(Constants.AI_SALVAGE_GIVE_UP * 0.5)
+	ai._on_salvage_stripped(1, {"test_scrap": 1})
+	ai._think(Constants.AI_SALVAGE_GIVE_UP * 0.75)
+	assert_eq(ai.get_state(), AIScript.AIState.SALVAGE, "Getting something off it: keeps at it")
+	ai._think(Constants.AI_SALVAGE_GIVE_UP * 0.5)
+	assert_eq(ai.get_state(), AIScript.AIState.PATROL, "Nothing off it for too long: gives up")
+	assert_null(ai.scan_for_wreck(), "and does not go back to it")

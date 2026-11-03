@@ -104,7 +104,8 @@ var _prospect: float = 0.0  # Behaviour gene: mines when idle at 0.5 or more (ca
 var _haul: float = Constants.AI_HAUL_SHARE  # Behaviour gene: goes home to sell once its hold is worth this share of its ship
 var _rock: Spatial = null  # The rock it is mining
 var _mine_time: float = 0.0  # s on _rock without a chunk
-var _given_up: Dictionary = {}  # Rocks it gave up on (instance id -> true)
+var _given_up: Dictionary = {}  # Rocks, wrecks, chunks and loose lances it gave up on (instance id -> true)
+var _salvage_time: float = 0.0  # s on its salvage target since it last got something off it
 
 
 func _ready() -> void:
@@ -143,6 +144,7 @@ func initialize(config: Dictionary) -> void:
 	if is_instance_valid(_tool_controller) and not _tool_controller.is_connected("lance_recovered", self, "_on_lance_recovered"):
 		_tool_controller.connect("lance_recovered", self, "_on_lance_recovered")
 		_tool_controller.connect("ammo_recovered", self, "_on_ammo_recovered")
+		_tool_controller.connect("salvage_stripped", self, "_on_salvage_stripped")
 	for lance in (agent_script.get_lances() if agent_script.has_method("get_lances") else []):
 		if not lance.is_connected("struck", self, "_on_lance_struck"):
 			lance.connect("struck", self, "_on_lance_struck")
@@ -329,6 +331,7 @@ func _think(delta: float) -> void:
 		AIState.FLEE:
 			_process_flee()
 		AIState.SALVAGE:
+			_salvage_time += delta
 			_process_salvage()
 		AIState.DEPART:
 			_process_depart()
@@ -403,6 +406,7 @@ func _change_state(new_state: int) -> void:
 			else:
 				agent_script.command_flee(_target_agent)
 		AIState.SALVAGE:
+			_salvage_time = 0.0
 			agent_script.command_approach(_target_agent)
 		AIState.DEPART:
 			_provoked = false
@@ -636,6 +640,14 @@ func _process_salvage() -> void:
 	if not (is_instance_valid(wreck) and wreck.is_inside_tree() and wreck.get("is_wreck") and _worth_salvaging(wreck)):
 		_change_state(AIState.PATROL)
 		return
+	if _due_home():
+		_change_state(AIState.DEPART)  # Its time is up: home to retire, whatever is left here
+		return
+	if _salvage_time > Constants.AI_SALVAGE_GIVE_UP:
+		_given_up[wreck.get_instance_id()] = true  # Nothing off it for a while (out of reach, wedged in a rock)
+		_note("gave_up")
+		_change_state(AIState.PATROL)
+		return
 	if _scan_timer <= 0.0:
 		_scan_timer = Constants.AI_SCAN_INTERVAL
 		var enemy = scan_for_target() if not _collecting_lances(wreck) else null
@@ -829,10 +841,16 @@ func _stop_ramming() -> void:
 
 
 func _on_lance_recovered(_index) -> void:
+	_salvage_time = 0.0
 	_note("lance_recovered")
 
 
+func _on_salvage_stripped(_index, _commodities) -> void:
+	_salvage_time = 0.0
+
+
 func _on_ammo_recovered(_index, _rounds) -> void:
+	_salvage_time = 0.0
 	_note("ammo_recovered")
 
 
@@ -916,6 +934,9 @@ func scan_for_rock() -> Spatial:
 # first.
 func _process_mine(delta: float) -> void:
 	_mine_time += delta
+	if _due_home():
+		_change_state(AIState.DEPART)
+		return
 	if not (is_instance_valid(_rock) and _rock.get_deposit() > 0 and can_mine()) or _mine_time > Constants.AI_MINE_GIVE_UP:
 		if is_instance_valid(_rock) and _mine_time > Constants.AI_MINE_GIVE_UP:
 			_given_up[_rock.get_instance_id()] = true
@@ -1164,7 +1185,7 @@ func scan_for_wreck() -> RigidBody:
 	var best_distance: float = Constants.AI_SALVAGE_SEARCH_RANGE
 	var own_pos: Vector3 = agent_script.global_transform.origin
 	for body in get_tree().get_nodes_in_group("agent_body"):
-		if not (body.get("is_wreck") and _worth_salvaging(body) and agent_script.detects(body) and _in_play_area(body.global_transform.origin)):
+		if _given_up.has(body.get_instance_id()) or not (body.get("is_wreck") and _worth_salvaging(body) and agent_script.detects(body) and _in_play_area(body.global_transform.origin)):
 			continue
 		var distance: float = own_pos.distance_to(body.global_transform.origin)
 		if body.recoverable_lances_for(agent_script) > 0 or _recoverable_ammo(body) > 0:
@@ -1184,7 +1205,7 @@ func _lance_to_collect():
 	var best_distance: float = Constants.AI_SALVAGE_SEARCH_RANGE
 	var own_pos: Vector3 = agent_script.global_transform.origin
 	for body in get_tree().get_nodes_in_group("loose_lance"):
-		if body.recoverable_lances_for(agent_script) <= 0 or not agent_script.detects(body) or not _in_play_area(body.global_transform.origin) or _is_claimed(body):
+		if _given_up.has(body.get_instance_id()) or body.recoverable_lances_for(agent_script) <= 0 or not agent_script.detects(body) or not _in_play_area(body.global_transform.origin) or _is_claimed(body):
 			continue
 		var distance: float = own_pos.distance_to(body.global_transform.origin)
 		if distance < best_distance:

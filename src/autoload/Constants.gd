@@ -475,6 +475,7 @@ const AI_COVER_RANGE_SHARE = 0.6
 const AI_SALVAGE_SEARCH_RANGE = 6000.0  # m; wrecks further than this are not worth the trip
 const AI_MINE_SEARCH_RANGE = 6000.0  # m; rocks further than this are not worth the trip
 const AI_MINE_GIVE_UP = 120.0  # s on one rock without a chunk before it tries another
+const AI_SALVAGE_GIVE_UP = 120.0  # s on one wreck, chunk or loose lance without getting anything off it before it gives that up
 const AI_DEPART_ARRIVAL_DISTANCE = 300.0  # m from its spawn point at which a hauler leaves the sector
 
 # NPCs hesitate like people: a decision the rule calls for (engage, break off, answer being shot)
