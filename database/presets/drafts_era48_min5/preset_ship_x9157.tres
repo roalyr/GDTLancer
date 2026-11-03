@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/phoenix_light.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_x9157"
+ship_model_name = "Phoenix III X9157"
+base_value = 3511
+ship_scene = ExtResource( 2 )
+hull_integrity = 379
+cargo_capacity = 29
+interaction_radius = 22.7985
+apparent_radius = 18.2388
+signature = 2279.85
+sensor_strength = 1.0
+tool_slots_small = 0
+tool_slots_medium = 2
+tool_slots_large = 0
+module_slots = 7
+equipped_tools = [ "preset_missile_1_504_4" ]
+equipped_modules = [ "preset_damper_1_150", "preset_decoy_1_100", "preset_power_cell_3_432", "preset_power_cell_2_213", "preset_afterburner_2_400", "preset_power_cell_2_309", "preset_decoy_2_190" ]
+salvage_yield = {
+"commodity_scrap": 70,
+"commodity_tech": 29
+}
+power_capacity = 171.931
+power_regen = 27.3829
+mass = 21066.8
+linear_thrust = 1.30988e+06
+angular_thrust = 2.20989e+06
+alignment_threshold_angle_deg = 45.0
+model_scale = 1.5199
+panel_material = "res://assets/art/materials_generic/mat_hull_accent_orange.tres"
+variant_type = 3
+law_genes = {
+"shares": {
+"capacitor": 0.0244838,
+"engine": 0.186707,
+"hold": 0.0413891,
+"reactor": 0.0872252,
+"structure": 0.660195
+},
+"size": 3.51113,
+"tool_share": 0.251403,
+"type": 3
+}
