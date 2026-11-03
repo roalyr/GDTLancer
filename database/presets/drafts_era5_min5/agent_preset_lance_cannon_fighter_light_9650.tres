@@ -1,0 +1,32 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_lance_cannon_fighter_light_9650"
+agent_type = "npc"
+ship_template_id = "preset_ship_lance_cannon_fighter_light_9650"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.0326288,
+"caution": 0.169104,
+"disengage": 1.18441,
+"engage": 3.73343,
+"mercy": 0.184746,
+"prospect": 0.730407,
+"pursuit": 0.0,
+"range": 1.46665,
+"retreat_hull": 0.36803,
+"return_fire": 0.42792,
+"teamwork": 1.90909
+}
+role = "lance-cannon-fighter"
+family = "lance"
+weight_class = "light"
+archetype = "lance-cannon-fighter light"
+temperament = "cautious"
+traits = [ "picks its fights", "standoff", "lets runners go", "ruthless", "team player", "bold" ]
+lives = 7
+fitness = -0.549008

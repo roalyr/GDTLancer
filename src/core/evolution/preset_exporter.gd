@@ -4,8 +4,9 @@
 # (light, medium, heavy: PRESET_WEIGHT_CLASSES) gives its fittest genome with at least `min_lives`
 # lives, fittest first, `top` of them. Each becomes a
 # ShipTemplate (its default fit the genome's parts, one harpoon at most), the part templates it names,
-# and a faction-free AgentTemplate with the behaviour genes. Ids are stable for the same genes, so
-# exporting again overwrites rather than duplicates.
+# and a faction-free AgentTemplate with the behaviour genes. Ids and names are generic (design_id: the
+# archetype and the genome's number, never its faction's letter), as the factions are not known yet;
+# they are stable for the same genes, so exporting again overwrites rather than duplicates.
 
 extends Reference
 
@@ -32,6 +33,14 @@ static func weight_class(size_class: float) -> String:
 		if size_class <= weight[1]:
 			return weight[0]
 	return Constants.PRESET_WEIGHT_CLASSES.back()[0]
+
+
+# A design's id: its archetype and its genome's number ("missile_raider_light_12085"), no faction.
+static func design_id(genome_id: String, niche: String) -> String:
+	var number: String = genome_id
+	while number != "" and not number[0].is_valid_integer():
+		number = number.substr(1)
+	return ("%s_%s" % [archetype(niche), number]).replace("-", "_").replace(" ", "_").to_lower()
 
 
 # Returns a line per preset written.
@@ -78,18 +87,19 @@ static func write_preset(genome: Dictionary, genome_id: String, dir_path: String
 	var modules: Array = []
 	for part in genome.modules:
 		modules.append(_write_part(part, dir_path))
-	var ship_id: String = "preset_ship_%s" % genome_id.to_lower()
-	var ship = ShipLaws.build_ship_template(genome.ship, ship_id, "Phoenix %s %s" % [Constants.PART_TYPE_NAMES.get(int(genome.ship.type), ""), genome_id], "")
+	var niche: String = Genome.niche(genome)
+	var design: String = design_id(genome_id, niche)
+	var ship_id: String = "preset_ship_%s" % design
+	var ship = ShipLaws.build_ship_template(genome.ship, ship_id, "Phoenix %s %s" % [Constants.PART_TYPE_NAMES.get(int(genome.ship.type), ""), design.capitalize()], "")
 	ship.equipped_tools = _filled(tools)
 	ship.equipped_modules = _filled(modules)
 	ResourceSaver.save(dir_path.plus_file(ship_id + ".tres"), ship)
 	var agent = load("res://database/definitions/agent_template.gd").new()
-	agent.template_id = "agent_preset_%s" % genome_id.to_lower()
+	agent.template_id = "agent_preset_%s" % design
 	agent.agent_type = "npc"
 	agent.ship_template_id = ship_id
 	agent.faction = ""  # Archetypes belong to no faction; the spawner gives one
 	agent.behavior = genome.get("behavior", {}).duplicate()
-	var niche: String = Genome.niche(genome)
 	apply_classification(agent, PresetClassifier.classify(ship, agent.behavior, niche.split("|")[1] if niche.count("|") >= 2 else ""))
 	agent.lives = int(record.get("lives", 0))
 	agent.fitness = float(record.get("fitness", 0.0))

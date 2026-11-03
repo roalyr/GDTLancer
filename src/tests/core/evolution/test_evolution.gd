@@ -225,12 +225,16 @@ func test_presets_export_the_fittest_of_each_archetype_whatever_the_faction():
 	Evolution._place_in_archive(untried)
 	var folder := "user://test_presets/"
 	var lines: Array = Exporter.export_all(Evolution.serialize(), 5, 3, folder)
-	var agent = load(folder + "agent_preset_%s.tres" % genome_id.to_lower())
+	var design: String = Exporter.design_id(genome_id, Evolution.Genome.niche(genome))
+	assert_false(design.begins_with(genome_id.substr(0, 1).to_lower()), "Named by archetype, not by the faction it evolved in")
+	assert_true(design.ends_with("_" + genome_id.substr(1)), "and the genome's number")
+	var agent = load(folder + "agent_preset_%s.tres" % design)
 	assert_true(agent is AgentTemplate, str(lines))
 	if agent is AgentTemplate:
 		assert_eq(agent.faction, "", "No faction: an archetype")
 		var ship = load(folder + "%s.tres" % agent.ship_template_id)
 		assert_true(ship is ShipTemplate)
+		assert_eq(ship.ship_model_name.to_lower().find("violet"), -1, "Its name says nothing of a faction")
 		assert_eq(ship.equipped_tools.count(Constants.HARPOON_TEMPLATE_ID), 1, "One harpoon: the spare is junk")
 		for part_id in ship.equipped_tools + ship.equipped_modules:
 			if part_id != Constants.HARPOON_TEMPLATE_ID:
@@ -238,7 +242,7 @@ func test_presets_export_the_fittest_of_each_archetype_whatever_the_faction():
 				assert_not_null(part, part_id)
 				if part_id.begins_with("preset_missile"):
 					assert_true(part is UtilityToolTemplate, "A missile rack is a tool, not a module")
-	assert_false(Directory.new().file_exists(folder + "agent_preset_%s.tres" % untried.to_lower()), "Too few lives to trust")
+	assert_false(Directory.new().file_exists(folder + "agent_preset_%s.tres" % Exporter.design_id(untried, Evolution.Genome.niche(Evolution.genomes[untried].genome))), "Too few lives to trust")
 	_remove_tree(folder)
 
 
