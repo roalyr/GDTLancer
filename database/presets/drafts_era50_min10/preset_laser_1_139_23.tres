@@ -1,0 +1,35 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/utility_tool_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_laser_1_139_23"
+tool_name = "Laser I"
+hud_label = "LASER I"
+description = "139 kg, 3.5 per shot."
+tool_type = "laser"
+mount_size = "small"
+base_value = 46
+mass = 139.264
+damage = 3.25772
+optimal_range = 639.763
+falloff = 159.941
+tracking = 0.146771
+cycle_time = 0.68406
+power_per_cycle = 3.49554
+reel_speed = 15.0
+launch_speed = 0.0
+strip_interval = 1.0
+ammo = 0
+round_mass = 0.0
+round_value = 0
+projectile_speed = 0.0
+projectile_accel = 0.0
+turn_rate = 0.0
+flight_time = 0.0
+variant_type = 1
+law_genes = {
+"energy": 2.33036,
+"mass": 139.264
+}

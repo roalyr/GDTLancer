@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/phoenix_light.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_lance_missile_fighter_heavy_13863"
+ship_model_name = "Phoenix III Lance Missile Fighter Heavy 13863"
+base_value = 2559
+ship_scene = ExtResource( 2 )
+hull_integrity = 311
+cargo_capacity = 29
+interaction_radius = 20.5162
+apparent_radius = 16.4129
+signature = 2051.62
+sensor_strength = 1.0
+tool_slots_small = 0
+tool_slots_medium = 1
+tool_slots_large = 0
+module_slots = 6
+equipped_tools = [ "preset_missile_1_408_4" ]
+equipped_modules = [ "preset_decoy_3_400", "preset_power_cell_1_135", "preset_lance_3_350_4", "preset_damper_2_287", "preset_afterburner_3_825" ]
+salvage_yield = {
+"commodity_scrap": 51,
+"commodity_tech": 16
+}
+power_capacity = 158.166
+power_regen = 22.5852
+mass = 15352.1
+linear_thrust = 602315.0
+angular_thrust = 914434.0
+alignment_threshold_angle_deg = 45.0
+model_scale = 1.36775
+panel_material = "res://assets/art/materials_generic/mat_hull_accent_orange.tres"
+variant_type = 3
+law_genes = {
+"shares": {
+"capacitor": 0.0309077,
+"engine": 0.108067,
+"hold": 0.0564019,
+"reactor": 0.0966321,
+"structure": 0.707991
+},
+"size": 2.55868,
+"tool_share": 0.0092012,
+"type": 3
+}

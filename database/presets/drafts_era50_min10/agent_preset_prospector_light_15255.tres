@@ -1,0 +1,34 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_prospector_light_15255"
+agent_type = "npc"
+ship_template_id = "preset_ship_prospector_light_15255"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.346113,
+"caution": 0.936773,
+"disengage": 0.562404,
+"engage": 2.95145,
+"haul": 0.204118,
+"mercy": 0.69957,
+"prospect": 0.61017,
+"pursuit": 2.43658,
+"quiet": 0.295055,
+"range": 0.944843,
+"retreat_hull": 0.620725,
+"return_fire": 0.0847668,
+"teamwork": 0.454206
+}
+role = "prospector"
+family = "prospector"
+weight_class = "light"
+archetype = "prospector light"
+temperament = "cautious"
+traits = [ "picks its fights", "skittish", "relentless", "runs silent", "wary" ]
+lives = 10
+fitness = 0.139839

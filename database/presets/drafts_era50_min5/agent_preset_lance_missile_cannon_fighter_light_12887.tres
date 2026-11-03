@@ -1,0 +1,33 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_lance_missile_cannon_fighter_light_12887"
+agent_type = "npc"
+ship_template_id = "preset_ship_lance_missile_cannon_fighter_light_12887"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.381396,
+"caution": 0.332223,
+"disengage": 1.61127,
+"engage": 3.23181,
+"haul": 0.203308,
+"mercy": 0.174613,
+"prospect": 0.775602,
+"pursuit": 1.10104,
+"range": 1.44761,
+"retreat_hull": 0.155785,
+"return_fire": 0.0,
+"teamwork": 1.62509
+}
+role = "lance-missile-cannon-fighter"
+family = "lance"
+weight_class = "light"
+archetype = "lance-missile-cannon-fighter light"
+temperament = "measured"
+traits = [ "picks its fights", "standoff", "ruthless", "runs silent", "team player" ]
+lives = 7
+fitness = 0.486348

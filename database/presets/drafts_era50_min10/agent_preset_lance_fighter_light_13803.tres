@@ -1,0 +1,33 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_lance_fighter_light_13803"
+agent_type = "npc"
+ship_template_id = "preset_ship_lance_fighter_light_13803"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.276972,
+"caution": 0.70444,
+"disengage": 0.866749,
+"engage": 2.59559,
+"haul": 0.416869,
+"mercy": 0.5,
+"prospect": 0.130434,
+"pursuit": 0.299408,
+"range": 1.09633,
+"retreat_hull": 0.535779,
+"return_fire": 0.647263,
+"teamwork": 0.826351
+}
+role = "lance-fighter"
+family = "lance"
+weight_class = "light"
+archetype = "lance-fighter light"
+temperament = "cautious"
+traits = [ "skittish", "lets runners go" ]
+lives = 11
+fitness = 0.628252

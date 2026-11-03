@@ -1,0 +1,33 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_missile_fighter_light_14955"
+agent_type = "npc"
+ship_template_id = "preset_ship_missile_fighter_light_14955"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.246604,
+"caution": 0.339653,
+"disengage": 0.15785,
+"engage": 2.86499,
+"haul": 0.244112,
+"mercy": 0.531054,
+"prospect": 0.169803,
+"pursuit": 0.0,
+"range": 1.14484,
+"retreat_hull": 0.64494,
+"return_fire": 0.204218,
+"teamwork": 0.856487
+}
+role = "missile-fighter"
+family = "fighter"
+weight_class = "light"
+archetype = "missile-fighter light"
+temperament = "cautious"
+traits = [ "picks its fights", "stubborn", "skittish", "lets runners go" ]
+lives = 10
+fitness = 0.887348
