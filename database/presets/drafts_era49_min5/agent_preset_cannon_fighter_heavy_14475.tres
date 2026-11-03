@@ -1,0 +1,34 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_cannon_fighter_heavy_14475"
+agent_type = "npc"
+ship_template_id = "preset_ship_cannon_fighter_heavy_14475"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.134638,
+"caution": 0.543732,
+"disengage": 0.867415,
+"engage": 0.913069,
+"haul": 0.268417,
+"mercy": 0.735641,
+"prospect": 0.0,
+"pursuit": 1.03366,
+"quiet": 0.170795,
+"range": 0.688671,
+"retreat_hull": 0.0151096,
+"return_fire": 0.376999,
+"teamwork": 1.04199
+}
+role = "cannon-fighter"
+family = "fighter"
+weight_class = "heavy"
+archetype = "cannon-fighter heavy"
+temperament = "measured"
+traits = [  ]
+lives = 9
+fitness = 0.388539

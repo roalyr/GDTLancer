@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/phoenix_light.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_scavenger_medium_14549"
+ship_model_name = "Phoenix I Scavenger Medium 14549"
+base_value = 877
+ship_scene = ExtResource( 2 )
+hull_integrity = 75
+cargo_capacity = 29
+interaction_radius = 14.3572
+apparent_radius = 11.4858
+signature = 1435.72
+sensor_strength = 1.0
+tool_slots_small = 3
+tool_slots_medium = 0
+tool_slots_large = 0
+module_slots = 1
+equipped_tools = [ "tool_harpoon" ]
+equipped_modules = [  ]
+salvage_yield = {
+"commodity_scrap": 18,
+"commodity_tech": 12
+}
+power_capacity = 86.3007
+power_regen = 8.64955
+mass = 5261.27
+linear_thrust = 645756.0
+angular_thrust = 686074.0
+alignment_threshold_angle_deg = 45.0
+model_scale = 0.957149
+panel_material = "res://assets/art/materials_generic/mat_hull_panel_offwhite.tres"
+variant_type = 1
+law_genes = {
+"shares": {
+"capacitor": 0.0492091,
+"engine": 0.340702,
+"hold": 0.162879,
+"reactor": 0.097063,
+"structure": 0.350146
+},
+"size": 0.876878,
+"tool_share": 0.86297,
+"type": 1
+}

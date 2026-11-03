@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/phoenix_light.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_scavenger_heavy_13989"
+ship_model_name = "Phoenix III Scavenger Heavy 13989"
+base_value = 2545
+ship_scene = ExtResource( 2 )
+hull_integrity = 361
+cargo_capacity = 9
+interaction_radius = 20.4803
+apparent_radius = 16.3843
+signature = 2048.03
+sensor_strength = 1.0
+tool_slots_small = 0
+tool_slots_medium = 5
+tool_slots_large = 0
+module_slots = 2
+equipped_tools = [ "tool_harpoon" ]
+equipped_modules = [ "preset_power_cell_2_259" ]
+salvage_yield = {
+"commodity_scrap": 51,
+"commodity_tech": 8
+}
+power_capacity = 131.588
+power_regen = 12.9323
+mass = 15271.7
+linear_thrust = 287633.0
+angular_thrust = 435921.0
+alignment_threshold_angle_deg = 45.0
+model_scale = 1.36535
+panel_material = "res://assets/art/materials_generic/mat_hull_accent_orange.tres"
+variant_type = 3
+law_genes = {
+"shares": {
+"capacitor": 0.0258494,
+"engine": 0.0477885,
+"hold": 0.0174215,
+"reactor": 0.0522814,
+"structure": 0.856659
+},
+"size": 2.54529,
+"tool_share": 0.688521,
+"type": 3
+}

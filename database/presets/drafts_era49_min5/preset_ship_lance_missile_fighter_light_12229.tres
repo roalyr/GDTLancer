@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/phoenix_light.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_lance_missile_fighter_light_12229"
+ship_model_name = "Phoenix I Lance Missile Fighter Light 12229"
+base_value = 748
+ship_scene = ExtResource( 2 )
+hull_integrity = 84
+cargo_capacity = 18
+interaction_radius = 13.6148
+apparent_radius = 10.8918
+signature = 1361.48
+sensor_strength = 1.0
+tool_slots_small = 2
+tool_slots_medium = 0
+tool_slots_large = 0
+module_slots = 2
+equipped_tools = [ "preset_laser_3_600_120", "preset_missile_3_2317_2" ]
+equipped_modules = [ "preset_afterburner_1_204", "preset_lance_2_235_2" ]
+salvage_yield = {
+"commodity_scrap": 15,
+"commodity_tech": 8
+}
+power_capacity = 75.4584
+power_regen = 9.47559
+mass = 4486.5
+linear_thrust = 395663.0
+angular_thrust = 398627.0
+alignment_threshold_angle_deg = 45.0
+model_scale = 0.907651
+panel_material = "res://assets/art/materials_generic/mat_hull_panel_offwhite.tres"
+variant_type = 1
+law_genes = {
+"shares": {
+"capacitor": 0.0504569,
+"engine": 0.231834,
+"hold": 0.117469,
+"reactor": 0.125965,
+"structure": 0.474275
+},
+"size": 0.74775,
+"tool_share": 0.486715,
+"type": 1
+}
