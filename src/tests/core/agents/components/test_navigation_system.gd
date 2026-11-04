@@ -310,3 +310,25 @@ func test_a_ship_stopped_against_an_obstacle_slides_off_the_way_it_pushes():
 	assert_eq(Nav.compute_avoidance(Vector3.ZERO, Vector3.ZERO, 12.0, [planet]), Vector3.ZERO, "Not pushing anywhere: nothing in the way")
 	var push: Vector3 = Nav.compute_avoidance(Vector3.ZERO, Vector3(0, 0, -0.1), 12.0, [planet], Vector3(0, 0, -1000))
 	assert_lt(push.x, 0.0, "Pushing into it: sidesteps along its face")
+
+
+
+func test_against_a_planet_only_planets_and_moons_count_as_contact():
+	var Nav = load("res://src/core/agents/components/navigation_system.gd")
+	var planet := Spatial.new()
+	planet.add_to_group("celestial")
+	var rock := Spatial.new()
+	add_child_autofree(planet)
+	add_child_autofree(rock)
+	var found: Array = Nav.contacts(Vector3.ZERO, 12.0, [[Vector3(0, 0, -1020), 1000.0, planet], [Vector3(0, -150, 0), 140.0, rock]])
+	assert_eq(found.size(), 1, "The planet it touches, not the rock it works by")
+	assert_almost_eq(found[0].z, -1.0, 0.001)
+	assert_eq(Nav.contacts(Vector3.ZERO, 12.0, [[Vector3(0, 0, -3000), 1000.0, planet]]).size(), 0, "Clear of it")
+
+
+func test_thrust_off_the_way_it_moves_is_checked_too():
+	var Nav = load("res://src/core/agents/components/navigation_system.gd")
+	var planet = [Vector3(0, 0, -1700), 1000.0]
+	var moving := Vector3(50, 0, 0)  # Clear along its way
+	assert_eq(Nav.compute_avoidance(Vector3.ZERO, moving, 12.0, [planet]), Vector3.ZERO)
+	assert_gt(Nav.compute_avoidance(Vector3.ZERO, moving, 12.0, [planet], Vector3(0, 0, -1000)).length(), 0.0, "But it thrusts toward the planet: pushed")

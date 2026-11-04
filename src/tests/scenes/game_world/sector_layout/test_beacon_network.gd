@@ -140,4 +140,12 @@ func test_every_ship_goes_round_a_planet_by_the_beacons_beside_it():
 
 func test_a_leg_ending_inside_a_solid_is_let_be():
 	network.register_solid(Vector3.ZERO, 5000.0)
-	assert_false(network.blocked(Vector3(-20000, 0, 0), Vector3(4000, 0, 0)), "Nothing to go round")
+	assert_false(network.blocked(Vector3(20000, 0, 0), Vector3(4000, 0, 0)), "Reached from its near side: nothing to go round")
+
+
+func test_from_against_a_planet_a_leg_may_leave_but_not_go_deeper():
+	network.register_solid(Vector3.ZERO, 1000.0)
+	var pinned := Vector3(0, -1020, 0)  # Under it
+	assert_true(network.blocked(pinned, Vector3(0, 20000, 0)), "Up through it")
+	assert_false(network.blocked(pinned, Vector3(0, -20000, 0)), "Away")
+	assert_false(network.blocked(pinned, Vector3(20000, -1100, 0)), "Off along its face")

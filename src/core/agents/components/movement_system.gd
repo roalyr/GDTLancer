@@ -159,6 +159,14 @@ func request_thrust_direction(direction: Vector3, magnitude_scale: float = 1.0):
 	_accumulated_force += direction.normalized() * linear_thrust * clamp(magnitude_scale, 0.0, 1.0)
 
 
+# Drops the part of the thrust asked for so far this step that points along `direction` (a planet
+# the ship is up against: NavigationSystem), so it slides off rather than pressing on.
+func cancel_thrust_toward(direction: Vector3) -> void:
+	var into: float = _accumulated_force.dot(direction)
+	if into > 0.0:
+		_accumulated_force -= direction * into
+
+
 # Request thrust along the ship's forward axis
 func request_thrust_forward(magnitude_scale: float = 1.0):
 	if not is_instance_valid(agent_body):

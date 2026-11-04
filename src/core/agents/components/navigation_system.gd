@@ -16,6 +16,7 @@ var movement_system: Node = null
 var _current_command = {}
 var _avoid_timer: float = randf() * Constants.NAV_AVOID_INTERVAL  # Staggers ships' avoidance checks
 var _avoid_push := Vector3.ZERO  # Last avoidance push, applied every step until the next check
+var _avoid_contacts: Array = []  # Directions to the planets it is up against (contacts), as of the last push
 
 # --- Child Components ---
 var _command_handlers = {}
@@ -198,6 +199,10 @@ func _apply_obstacle_avoidance(target_node, delta: float) -> void:
 	if _avoid_timer <= 0.0:
 		_avoid_timer += Constants.NAV_AVOID_INTERVAL
 		_avoid_push = _compute_obstacle_push(target_node)
+		_avoid_contacts = contacts(agent_body.global_transform.origin, agent_body.get_apparent_radius() if agent_body.has_method("get_apparent_radius") else 10.0, get_obstacles(get_tree()))
+	if movement_system.has_method("cancel_thrust_toward"):
+		for inward in _avoid_contacts:
+			movement_system.cancel_thrust_toward(inward)  # Against a planet: no pressing on into it
 	if _avoid_push != Vector3.ZERO:
 		movement_system.request_thrust_direction(_avoid_push, min(1.0, _avoid_push.length()) * Constants.NAV_AVOID_THRUST)
 
@@ -231,18 +236,22 @@ static func get_obstacles(tree: SceneTree) -> Array:
 
 # Sideways push away from every obstacle ([centre, radius]) whose clearance sphere the straight
 # path ahead would cross within the look-ahead; each scaled by how close and how soon. ZERO if clear.
-# Slower than NAV_AVOID_MIN_SPEED, the path ahead is the way it is pushing (`intent`: the thrust its
-# command asks for), so a ship stopped against a planet slides off it rather than pressing on.
+# The path ahead is the way it moves and, when its command pushes another way (`intent`: the thrust
+# asked for), that way too: the stronger push wins, so a ship sliding slowly along a planet it is
+# thrusting into turns off it rather than pressing on. Slower than NAV_AVOID_MIN_SPEED, only `intent`.
 static func compute_avoidance(position: Vector3, velocity: Vector3, own_radius: float, obstacles: Array, intent: Vector3 = Vector3.ZERO) -> Vector3:
+	var push := Vector3.ZERO
 	var speed: float = velocity.length()
-	var heading: Vector3
 	if speed >= Constants.NAV_AVOID_MIN_SPEED:
-		heading = velocity / speed
-	elif intent.length_squared() > 0.001:
-		heading = intent.normalized()
-		speed = Constants.NAV_AVOID_MIN_SPEED
-	else:
-		return Vector3.ZERO
+		push = _push_along(position, velocity / speed, speed, own_radius, obstacles)
+	if intent.length_squared() > 0.001 and (speed < Constants.NAV_AVOID_MIN_SPEED or intent.normalized().dot(velocity / speed) < Constants.NAV_AVOID_INTENT_DOT):
+		var pushing: Vector3 = _push_along(position, intent.normalized(), max(speed, Constants.NAV_AVOID_MIN_SPEED), own_radius, obstacles)
+		if pushing.length_squared() > push.length_squared():
+			push = pushing
+	return push
+
+
+static func _push_along(position: Vector3, heading: Vector3, speed: float, own_radius: float, obstacles: Array) -> Vector3:
 	var reach: float = speed * Constants.NAV_AVOID_LOOKAHEAD_TIME
 	var push := Vector3.ZERO
 	for obstacle in obstacles:
@@ -259,6 +268,19 @@ static func compute_avoidance(position: Vector3, velocity: Vector3, own_radius: 
 		var urgency: float = (1.0 - miss / clearance) * (1.0 - clamp(along / (reach + clearance), 0.0, 1.0))
 		push += away * urgency
 	return push
+
+
+# Directions (unit) to the planets and moons a ship at `position` is up against (within
+# NAV_CONTACT_MARGIN of touching). Rocks and stations are left out: ships work right by those.
+static func contacts(position: Vector3, own_radius: float, obstacles: Array) -> Array:
+	var found: Array = []
+	for obstacle in obstacles:
+		if not (is_instance_valid(obstacle[2]) and obstacle[2].is_in_group("celestial")):
+			continue
+		var to_centre: Vector3 = obstacle[0] - position
+		if to_centre.length() < obstacle[1] + own_radius + Constants.NAV_CONTACT_MARGIN and to_centre.length_squared() > 0.01:
+			found.append(to_centre.normalized())
+	return found
 
 
 static func _any_perpendicular(direction: Vector3) -> Vector3:

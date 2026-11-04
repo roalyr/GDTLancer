@@ -144,3 +144,13 @@ func test_force_at_a_point_off_centre_adds_torque():
 	assert_eq(movement_system._external_torque, Vector3(0, -500, 0), "Torque is r x F about the centre of mass.")
 	movement_system.add_external_force_at(Vector3(0, 0, 100), agent_body.global_transform.origin)
 	assert_eq(movement_system._external_torque, Vector3(0, -500, 0), "A force through the centre adds no torque.")
+
+
+func test_thrust_into_a_planet_it_is_against_is_dropped():
+	movement_system.request_thrust_direction(Vector3(1, 0, -1), 1.0)
+	movement_system.cancel_thrust_toward(Vector3(0, 0, -1))
+	var left: Vector3 = movement_system.get_requested_force()
+	assert_almost_eq(left.z, 0.0, 0.001, "None into it")
+	assert_gt(left.x, 0.0, "The sideways part stays: it slides off")
+	movement_system.cancel_thrust_toward(Vector3(-1, 0, 0))
+	assert_gt(movement_system.get_requested_force().x, 0.0, "Thrust away from one is let be")

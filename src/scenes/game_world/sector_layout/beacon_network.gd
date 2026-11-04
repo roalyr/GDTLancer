@@ -53,17 +53,21 @@ func register_solid(centre: Vector3, radius: float) -> void:
 	_links.clear()
 
 
-# Whether the straight leg from `from` to `to` passes through a solid (one either end is inside of
-# is let be: there is no going round it).
+# Whether the straight leg from `from` to `to` passes through a solid. An end already close to one
+# (a ship pinned against a planet) may leave or reach it along any leg that comes no deeper in.
 func blocked(from: Vector3, to: Vector3) -> bool:
 	var leg: Vector3 = to - from
 	var length_squared: float = leg.length_squared()
 	for solid in solids:
 		var keep: float = solid[1] * Constants.ROUTE_SOLID_MARGIN
-		if from.distance_to(solid[0]) < keep or to.distance_to(solid[0]) < keep:
-			continue
 		var along: float = clamp((solid[0] - from).dot(leg) / length_squared, 0.0, 1.0) if length_squared > 0.0 else 0.0
-		if (from + leg * along).distance_to(solid[0]) < keep:
+		var closest: float = (from + leg * along).distance_to(solid[0])
+		var from_distance: float = from.distance_to(solid[0])
+		var to_distance: float = to.distance_to(solid[0])
+		if from_distance < keep or to_distance < keep:
+			if closest < min(from_distance, to_distance) - 1.0:
+				return true
+		elif closest < keep:
 			return true
 	return false
 

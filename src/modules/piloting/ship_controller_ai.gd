@@ -1028,7 +1028,11 @@ func _process_run_home() -> void:
 		agent_script.command_move_to(_trip[0])
 	elif _repath_timer <= 0.0:
 		_repath_timer = Constants.AI_REPATH_INTERVAL * 4.0
-		agent_script.command_move_to(_trip[0])
+		var network = BeaconNetwork.of(agent_script)
+		if network != null and network.blocked(agent_script.global_transform.origin, _trip[0]):
+			_set_trip(dock_point)  # A planet in the way of this leg (pushed off course): a new way round
+		else:
+			agent_script.command_move_to(_trip[0])
 
 
 # Into the station: out of the world until it undocks. `service`: sells the hold and repairs (it

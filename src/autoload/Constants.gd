@@ -102,6 +102,8 @@ const NAV_WATCH_BRAKE_SHARE = 0.3  # Watching a target (an NPC hesitating): ease
 const NAV_AVOID_LOOKAHEAD_TIME = 8.0  # s of travel checked ahead
 const NAV_AVOID_CLEARANCE = 1.6  # Keep (obstacle radius + own radius) * this between path and centre
 const NAV_AVOID_THRUST = 1.0  # Share of linear thrust used to sidestep at full urgency
+const NAV_AVOID_INTENT_DOT = 0.9  # Thrust asked for further off the way it moves than this (cosine): checked too
+const NAV_CONTACT_MARGIN = 30.0  # m from touching a planet or moon at which thrust into it is dropped
 const NAV_AVOID_MIN_SPEED = 2.0  # m/s; slower than this, nothing to avoid
 const NAV_AVOID_INTERVAL = 0.1  # s between a ship's avoidance checks (the push holds in between)
 
