@@ -21,5 +21,5 @@ func _ready():
 	while not stack.empty():
 		var node = stack.pop_back()
 		stack += node.get_children()
-		if node is GeometryInstance and node.name in PAINTED_PARTS:
+		if node is GeometryInstance and (node.name in PAINTED_PARTS or node.name.begins_with("Paint")):  # Placeholder forms' painted parts too
 			node.material_override = material

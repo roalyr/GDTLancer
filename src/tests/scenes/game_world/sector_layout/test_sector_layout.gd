@@ -4,6 +4,7 @@
 extends GutTest
 
 const LayoutScript = preload("res://src/scenes/game_world/sector_layout/sector_layout.gd")
+const PrimitiveForm = preload("res://src/scenes/game_world/primitive_form.gd")
 
 
 func _layout() -> Node:
@@ -78,3 +79,17 @@ func test_only_fields_and_lone_landmarks_show_to_the_player():
 		assert_eq(projector.is_world_projectable_target(beacon), beacon.player_visible, "Bracketed only if shown: " + beacon.beacon_name)
 		if beacon.player_visible:
 			assert_true(projector.is_stellar_target(beacon), "with the celestials")
+
+
+func test_havens_wear_their_placeholder_forms():
+	var layout = _layout()
+	for spec in Constants.SECTOR_LAYOUTS.sector_elace.havens:
+		if not spec.has("form"):
+			continue
+		var station: Node = layout.get_haven(spec.id).station
+		var form: Node = station.get_node("Model").get_child(0)
+		assert_eq(form.name, "PrimitiveForm", "%s is built from primitives" % spec.id)
+		var length: float = Constants.STATION_FORMS[spec.form].length
+		assert_true(station.obstacle_radius > length * 0.3 and station.obstacle_radius < length, "%s: kept clear by its size (%.0f m)" % [spec.id, station.obstacle_radius])
+		assert_gt(station.undock_offset.y, PrimitiveForm.extent(form)[1], "%s: ships undock above it" % spec.id)
+		assert_true(station.get_node("CollisionShape").shape is ConvexPolygonShape, "%s: its hull collides" % spec.id)

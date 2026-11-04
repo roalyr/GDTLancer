@@ -125,6 +125,9 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 			if model_node:
 				model_node.scale = Vector3.ONE * ship_template.model_scale  # Before the collision hull, which takes the scale
 				_apply_panel_material(ship_visual, ship_template.panel_material)  # Before MeshLod, whose levels copy it
+				if ship_visual.has_method("paint"):  # Placeholder hulls: the faction's colour, also before MeshLod
+					var paint_path: String = Constants.FACTION_HULL_MATERIALS.get(faction, "")
+					ship_visual.paint(load(paint_path) if paint_path != "" else null)
 				model_node.add_child(ship_visual)
 				if ship_visual is Spatial:
 					ship_visual.visible = true

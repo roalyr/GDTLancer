@@ -851,6 +851,100 @@ const XENO_VESSEL_LENGTH = 17.0  # m at model scale 1, like the other hull model
 const XENO_VESSEL_SEED = 5
 const XENO_HIVE_LENGTH = 240.0  # m
 const XENO_HIVE_SEED = 13
+# Placeholder hulls (PlaceholderHull, PrimitiveForm: the part fields are described there), one
+# silhouette per preset family: fighter a swept dart, lance a spear with coils, prospector a round
+# hull with claws, raider a flat wedge with prongs, scavenger a box frame with a crane. `engines`:
+# exhaust nozzles, shares of the length (one off the centre line gets a twin across).
+const HULL_FORM_LENGTH = 17.0  # m at model scale 1, like the other hull models
+const HULL_FORM_GIRTH = {"light": 0.85, "medium": 1.0, "heavy": 1.25}  # Across, by weight class
+const HULL_FORM_EXHAUST_SCALE = 0.7
+const HULL_FORMS = {
+	"fighter": {"engines": [Vector3(0.07, 0, 0.47)], "parts": [
+		{"shape": "box", "size": Vector3(0.12, 0.08, 0.6), "at": Vector3(0, 0, 0.05), "look": "paint"},
+		{"shape": "cone", "size": Vector3(0.12, 0.08, 0.3), "at": Vector3(0, 0, -0.4), "look": "paint"},
+		{"shape": "sphere", "size": Vector3(0.07, 0.05, 0.16), "at": Vector3(0, 0.05, -0.18), "look": "glow"},
+		{"shape": "box", "size": Vector3(0.34, 0.015, 0.22), "at": Vector3(0.19, 0, 0.14), "turn": Vector3(0, -25, 0), "look": "paint", "mirror": true},
+		{"shape": "box", "size": Vector3(0.012, 0.12, 0.15), "at": Vector3(0, 0.08, 0.28), "turn": Vector3(-20, 0, 0)},
+		{"shape": "cylinder", "size": Vector3(0.07, 0.07, 0.16), "at": Vector3(0.07, 0, 0.38), "mirror": true},
+		{"shape": "box", "size": Vector3(0.24, 0.015, 0.14), "at": Vector3(0.14, -0.05, 0.26), "turn": Vector3(0, -30, 10), "mirror": true, "from": "medium"},
+		{"shape": "cylinder", "size": Vector3(0.04, 0.04, 0.32), "at": Vector3(0.33, 0, 0.08), "mirror": true, "from": "heavy"},
+	]},
+	"lance": {"engines": [Vector3(0.11, 0, 0.44)], "parts": [
+		{"shape": "cylinder", "size": Vector3(0.06, 0.06, 0.8), "at": Vector3(0, 0, -0.05)},
+		{"shape": "cone", "size": Vector3(0.06, 0.06, 0.12), "at": Vector3(0, 0, -0.51), "look": "glow"},
+		{"shape": "box", "size": Vector3(0.16, 0.1, 0.34), "at": Vector3(0, 0, 0.2), "look": "paint"},
+		{"shape": "cylinder", "size": Vector3(0.2, 0.2, 0.03), "at": Vector3(0, 0, -0.12), "look": "paint"},
+		{"shape": "cylinder", "size": Vector3(0.06, 0.06, 0.3), "at": Vector3(0.11, 0, 0.27), "mirror": true},
+		{"shape": "box", "size": Vector3(0.012, 0.1, 0.12), "at": Vector3(0, 0.08, 0.3), "turn": Vector3(-25, 0, 0), "from": "medium"},
+		{"shape": "cylinder", "size": Vector3(0.16, 0.16, 0.03), "at": Vector3(0, 0, -0.24), "look": "paint", "from": "heavy"},
+	]},
+	"prospector": {"engines": [Vector3(0, 0, 0.43)], "parts": [
+		{"shape": "sphere", "size": Vector3(0.32, 0.24, 0.5), "at": Vector3(0, 0, 0.05), "look": "paint"},
+		{"shape": "box", "size": Vector3(0.14, 0.1, 0.18), "at": Vector3(0, 0.1, -0.14)},
+		{"shape": "sphere", "size": Vector3(0.1, 0.05, 0.06), "at": Vector3(0, 0.12, -0.23), "look": "glow"},
+		{"shape": "box", "size": Vector3(0.04, 0.04, 0.3), "at": Vector3(0.09, -0.04, -0.3), "turn": Vector3(0, 12, 0), "mirror": true},
+		{"shape": "cylinder", "size": Vector3(0.1, 0.1, 0.12), "at": Vector3(0, 0, 0.35)},
+		{"shape": "box", "size": Vector3(0.12, 0.12, 0.2), "at": Vector3(0.2, 0, 0.15), "look": "paint", "mirror": true, "from": "medium"},
+		{"shape": "box", "size": Vector3(0.2, 0.1, 0.3), "at": Vector3(0, -0.14, 0.1), "from": "heavy"},
+	]},
+	"raider": {"engines": [Vector3(0, 0, 0.46)], "parts": [
+		{"shape": "box", "size": Vector3(0.22, 0.06, 0.6), "at": Vector3(0, 0, 0.05), "look": "paint"},
+		{"shape": "box", "size": Vector3(0.03, 0.04, 0.4), "at": Vector3(0.09, 0, -0.35), "turn": Vector3(0, -6, 0), "mirror": true},
+		{"shape": "box", "size": Vector3(0.012, 0.14, 0.35), "at": Vector3(0, 0.08, 0.15), "turn": Vector3(-15, 0, 0)},
+		{"shape": "box", "size": Vector3(0.3, 0.012, 0.15), "at": Vector3(0.15, 0.02, 0.25), "turn": Vector3(0, -40, -15), "look": "paint", "mirror": true},
+		{"shape": "sphere", "size": Vector3(0.05, 0.03, 0.06), "at": Vector3(0, 0.04, -0.2), "look": "glow"},
+		{"shape": "cylinder", "size": Vector3(0.08, 0.08, 0.15), "at": Vector3(0, 0, 0.38)},
+		{"shape": "box", "size": Vector3(0.06, 0.06, 0.2), "at": Vector3(0, -0.05, -0.1), "from": "medium"},
+		{"shape": "box", "size": Vector3(0.08, 0.08, 0.35), "at": Vector3(0.14, -0.02, 0.05), "look": "paint", "mirror": true, "from": "heavy"},
+	]},
+	"scavenger": {"engines": [Vector3(0.06, 0, 0.43)], "parts": [
+		{"shape": "box", "size": Vector3(0.18, 0.14, 0.55), "at": Vector3(0, 0, 0.08)},
+		{"shape": "box", "size": Vector3(0.2, 0.16, 0.18), "at": Vector3(0, 0.02, -0.28), "look": "paint"},
+		{"shape": "sphere", "size": Vector3(0.14, 0.05, 0.05), "at": Vector3(0, 0.05, -0.37), "look": "glow"},
+		{"shape": "box", "size": Vector3(0.03, 0.03, 0.4), "at": Vector3(0, 0.16, -0.12), "turn": Vector3(25, 0, 0)},
+		{"shape": "cone", "size": Vector3(0.06, 0.06, 0.06), "at": Vector3(0, 0.25, -0.32), "turn": Vector3(-90, 0, 0)},
+		{"shape": "cylinder", "size": Vector3(0.07, 0.07, 0.12), "at": Vector3(0.06, 0, 0.36), "mirror": true},
+		{"shape": "box", "size": Vector3(0.12, 0.12, 0.15), "at": Vector3(0.16, 0, 0.02), "look": "paint", "mirror": true, "from": "medium"},
+		{"shape": "box", "size": Vector3(0.12, 0.12, 0.15), "at": Vector3(0.16, 0, 0.2), "look": "paint", "mirror": true, "from": "heavy"},
+	]},
+}
+const FACTION_HULL_MATERIALS = {  # Placeholder hulls' paint by faction (the player's: its own off-white)
+	"verdant": "res://assets/art/materials_generic/mat_hull_faction_verdant.tres",
+	"violet": "res://assets/art/materials_generic/mat_hull_faction_violet.tres",
+	"raiders": "res://assets/art/materials_generic/mat_hull_faction_raiders.tres",
+	"xenohive": "res://assets/art/materials_generic/mat_hull_faction_xenohive.tres",
+}
+# Placeholder havens (SECTOR_LAYOUTS "form"), PrimitiveForms like the hulls: a haven a hub in a ring,
+# a post a rock with silos, a refinery a spine of tanks and stacks, a den a spiked rock.
+const STATION_FORMS = {
+	"haven": {"length": 220.0, "parts": [
+		{"shape": "cylinder", "size": Vector3(0.14, 0.14, 0.5), "at": Vector3(0, 0, 0), "turn": Vector3(90, 0, 0), "look": "paint"},
+		{"shape": "box", "size": Vector3(0.3, 0.05, 0.07), "at": Vector3(0, 0, 0.4), "around": 8, "look": "paint"},
+		{"shape": "box", "size": Vector3(0.025, 0.025, 0.36), "at": Vector3(0, 0, 0.2), "around": 4},
+		{"shape": "sphere", "size": Vector3(0.05, 0.05, 0.05), "at": Vector3(0, 0, 0.44), "around": 4, "look": "glow"},
+		{"shape": "cone", "size": Vector3(0.03, 0.03, 0.15), "at": Vector3(0, 0.32, 0), "turn": Vector3(90, 0, 0)},
+	]},
+	"post": {"length": 160.0, "parts": [
+		{"shape": "sphere", "size": Vector3(0.4, 0.32, 0.4), "at": Vector3(0, 0, 0)},
+		{"shape": "cylinder", "size": Vector3(0.1, 0.1, 0.28), "at": Vector3(0, 0.05, 0.22), "turn": Vector3(90, 0, 0), "around": 3, "look": "paint"},
+		{"shape": "box", "size": Vector3(0.05, 0.05, 0.3), "at": Vector3(0, 0, -0.32)},
+		{"shape": "sphere", "size": Vector3(0.05, 0.05, 0.05), "at": Vector3(0, 0, -0.48), "look": "glow"},
+	]},
+	"refinery": {"length": 260.0, "parts": [
+		{"shape": "box", "size": Vector3(0.07, 0.07, 0.9), "at": Vector3(0, 0, 0)},
+		{"shape": "sphere", "size": Vector3(0.18, 0.18, 0.18), "at": Vector3(0.13, 0, -0.25), "look": "paint", "mirror": true},
+		{"shape": "sphere", "size": Vector3(0.18, 0.18, 0.18), "at": Vector3(0.13, 0, 0.0), "look": "paint", "mirror": true},
+		{"shape": "cylinder", "size": Vector3(0.06, 0.06, 0.22), "at": Vector3(0, 0.12, 0.25), "turn": Vector3(90, 0, 0)},
+		{"shape": "cylinder", "size": Vector3(0.05, 0.05, 0.18), "at": Vector3(0.08, 0.1, 0.32), "turn": Vector3(90, 0, 0), "mirror": true},
+		{"shape": "sphere", "size": Vector3(0.12, 0.08, 0.12), "at": Vector3(0, -0.05, 0.38), "look": "glow"},
+	]},
+	"den": {"length": 200.0, "parts": [
+		{"shape": "sphere", "size": Vector3(0.42, 0.3, 0.42), "at": Vector3(0, 0, 0)},
+		{"shape": "cone", "size": Vector3(0.07, 0.07, 0.3), "at": Vector3(0, 0, -0.3), "turn": Vector3(-20, 0, 0), "around": 7, "look": "paint"},
+		{"shape": "box", "size": Vector3(0.2, 0.06, 0.12), "at": Vector3(0, 0.14, 0), "look": "paint"},
+		{"shape": "sphere", "size": Vector3(0.06, 0.04, 0.06), "at": Vector3(0, 0.05, -0.2), "look": "glow"},
+	]},
+}
 const SHIP_DEFAULT_SCENE = "res://scenes/prefabs/ships/phoenix_light.tscn"
 const PART_TYPE_SEEDS = {  # Part kind -> type -> genes
 	"laser": {1: {"mass": 150.0, "energy": 2.5}, 2: {"mass": 300.0, "energy": 5.0}, 3: {"mass": 600.0, "energy": 12.0}},
@@ -899,17 +993,17 @@ const SECTOR_LAYOUTS = {
 		"havens": [
 			{"id": "station_elace_home", "name": "Elace Free Port", "faction": "", "station": "ElaceHomeStation",
 				"services": {"repair": true, "rearm": true, "buys": {"*": 1.0}}},
-			{"id": "verdant_haven", "name": "Verdant Haven", "faction": "verdant", "at": Vector3(6000, 0, 25000), "ships": {"verdant": 5},
+			{"id": "verdant_haven", "form": "haven", "name": "Verdant Haven", "faction": "verdant", "at": Vector3(6000, 0, 25000), "ships": {"verdant": 5},
 				"services": {"repair": true, "rearm": true, "buys": {"*": 0.9}}},
-			{"id": "verdant_post", "name": "Verdant Post", "faction": "verdant", "at": Vector3(-2000, 0, 29500), "ships": {"verdant": 2},
+			{"id": "verdant_post", "form": "post", "name": "Verdant Post", "faction": "verdant", "at": Vector3(-2000, 0, 29500), "ships": {"verdant": 2},
 				"prefer_role": "prospector", "prefer_share": 0.7, "services": {"repair": true, "buys": {"commodity_ore": 0.8}}},
-			{"id": "violet_haven", "name": "Violet Haven", "faction": "violet", "at": Vector3(6000, 0, -25000), "ships": {"violet": 5},
+			{"id": "violet_haven", "form": "haven", "name": "Violet Haven", "faction": "violet", "at": Vector3(6000, 0, -25000), "ships": {"violet": 5},
 				"services": {"repair": true, "rearm": true, "buys": {"*": 0.9}}},
-			{"id": "violet_post", "name": "Violet Post", "faction": "violet", "at": Vector3(-2000, 0, -29500), "ships": {"violet": 2},
+			{"id": "violet_post", "form": "post", "name": "Violet Post", "faction": "violet", "at": Vector3(-2000, 0, -29500), "ships": {"violet": 2},
 				"prefer_role": "prospector", "prefer_share": 0.7, "services": {"repair": true, "buys": {"commodity_ore": 0.8}}},
-			{"id": "elace_refinery", "name": "Elace Refinery", "faction": "", "at": Vector3(32500, 0, 0),
+			{"id": "elace_refinery", "form": "refinery", "name": "Elace Refinery", "faction": "", "at": Vector3(32500, 0, 0),
 				"services": {"buys": {"commodity_ore": 1.4, "commodity_relic": 1.2}}},
-			{"id": "raider_den", "name": "Raider Den", "faction": "raiders", "at": Vector3(0, 24000, 0), "ships": {"raiders": 4},
+			{"id": "raider_den", "form": "den", "name": "Raider Den", "faction": "raiders", "at": Vector3(0, 24000, 0), "ships": {"raiders": 4},
 				"services": {"repair": true, "rearm": true, "buys": {"*": 0.7}}},
 			{"id": "xenohive", "name": "Xenohive", "faction": "xenohive", "at": Vector3(3000, -24000, 0), "ships": {"xenohive": 3},  # In the deep field under the star, its territory most of it: as far from either faction
 				"services": {"buys": {"*": 1.0}}},
@@ -993,6 +1087,7 @@ const HAVEN_RESPAWN_DELAY = 8.0  # s between a loss and its replacement undockin
 const HAVEN_DOCK_TIME = 10.0  # s an NPC stays docked (selling, repairs) before undocking
 const HAVEN_UNDOCK_CLEAR_RADIUS = 3500.0  # m: with an enemy this near its undock point (past a heavy laser's reach), a docked NPC waits
 const HAVEN_DOCK_MAX_WAIT = 90.0  # s, at most, past its dock time (upkeep runs on meanwhile)
+const STATION_UNDOCK_CLEARANCE = 40.0  # m over a placeholder haven's top where ships undock
 const HAVEN_DOCK_DISTANCE = 250.0  # m from a station's undock point at which an NPC docks
 const HAVEN_BEACON_RADIUS = 3000.0  # m: a haven's beacon
 # Rock fields (SectorLayout), the same on every load: rocks of FIELD_ROCK_SCALE m, some big

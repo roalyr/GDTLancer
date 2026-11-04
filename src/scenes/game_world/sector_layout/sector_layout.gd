@@ -13,6 +13,7 @@ const BeaconScript = preload("res://src/scenes/game_world/sector_layout/beacon.g
 const BeaconNetworkScript = preload("res://src/scenes/game_world/sector_layout/beacon_network.gd")
 const HazardScript = preload("res://src/scenes/game_world/sector_layout/hazard.gd")
 const XenoForm = preload("res://src/scenes/game_world/xeno_form.gd")
+const PrimitiveForm = preload("res://src/scenes/game_world/primitive_form.gd")
 const CollisionHull = preload("res://src/core/agents/components/collision_hull.gd")
 const Havens = preload("res://src/core/systems/havens.gd")
 
@@ -69,7 +70,10 @@ func _build_haven(spec: Dictionary) -> Dictionary:
 		station.station_name = spec.name
 		station.transform.origin = spec.at
 		if station.faction == "xenohive":
-			_dress_as_hive(station)
+			_dress(station, XenoForm.build(Constants.XENO_FORMS.hive, Constants.XENO_HIVE_LENGTH, Constants.XENO_HIVE_SEED))
+		elif Constants.STATION_FORMS.has(str(spec.get("form", ""))):
+			var form: Dictionary = Constants.STATION_FORMS[spec.form]
+			_dress(station, PrimitiveForm.build(form.parts, float(form.length)))
 		add_child(station)
 	var faction: String = str(spec.get("faction", ""))
 	var beacon = _add_beacon("haven", faction, spec.name, station.global_transform.origin, Constants.HAVEN_BEACON_RADIUS)
@@ -108,19 +112,23 @@ func _add_landmarks() -> void:
 		_add_beacon("landmark", "", display, at + Vector3.UP * (body.get_apparent_radius() + 2000.0), Constants.BEACON_TRAFFIC_RADIUS)
 
 
-# The xenohive's station is grown, not built: a XenoForm in place of the cargo ship, its convex hull
-# for collision.
-func _dress_as_hive(station: Node) -> void:
+# A haven's own look in place of the cargo ship: the xenohive's grown XenoForm, or a placeholder
+# PrimitiveForm (Constants STATION_FORMS). Its convex hull for collision; the autopilot keeps clear of
+# its far corner, and ships undock above its top.
+func _dress(station: Node, form: Spatial) -> void:
 	var old: Node = station.get_node("Model")
 	station.remove_child(old)
 	old.free()
 	var model := Spatial.new()
 	model.name = "Model"
-	model.add_child(XenoForm.build(Constants.XENO_FORMS.hive, Constants.XENO_HIVE_LENGTH, Constants.XENO_HIVE_SEED))
+	model.add_child(form)
 	station.add_child(model)
 	var shape: Shape = CollisionHull.shape_for(model, Transform.IDENTITY)
 	if shape != null:
 		station.get_node("CollisionShape").shape = shape
+	var extent: Array = PrimitiveForm.extent(form)
+	station.obstacle_radius = extent[0]
+	station.undock_offset.y = max(station.undock_offset.y, extent[1] + Constants.STATION_UNDOCK_CLEARANCE)
 
 
 # A field's rocks, the same on every load: within its radius (a ring: only past `ring` of it), clear
