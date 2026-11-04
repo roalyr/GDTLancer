@@ -31,3 +31,4 @@ temperament = "aggressive"
 traits = [ "quick to fight", "stubborn", "standoff", "relentless", "shoots back" ]
 lives = 5
 fitness = 0.00465924
+origin = ""

@@ -1,0 +1,35 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_archetype_lance_heavy"
+agent_type = "npc"
+ship_template_id = "preset_ship_archetype_lance_heavy"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.3,
+"caution": 0.478169,
+"disengage": 0.721008,
+"engage": 1.0,
+"haul": 0.368054,
+"mercy": 0.418732,
+"prospect": 0.0,
+"pursuit": 1.0,
+"quiet": 0.350719,
+"range": 0.982634,
+"retreat_hull": 0.152037,
+"return_fire": 0.400262,
+"teamwork": 0.656456
+}
+role = "lance-missile-cannon-fighter"
+family = "lance"
+weight_class = "heavy"
+archetype = "lance-missile-cannon-fighter heavy"
+temperament = "measured"
+traits = [  ]
+lives = 11
+fitness = 0.173521
+origin = "lance_missile_cannon_fighter_heavy_16100 (era 51)"

@@ -31,3 +31,4 @@ temperament = "measured"
 traits = [  ]
 lives = 10
 fitness = 0.394077
+origin = ""

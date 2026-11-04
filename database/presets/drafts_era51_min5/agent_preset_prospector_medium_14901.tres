@@ -31,3 +31,4 @@ temperament = "cautious"
 traits = [  ]
 lives = 11
 fitness = 0.305259
+origin = ""

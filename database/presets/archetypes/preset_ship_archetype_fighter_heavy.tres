@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/phoenix_light.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_archetype_fighter_heavy"
+ship_model_name = "Phoenix III Heavy Fighter"
+base_value = 7272
+ship_scene = ExtResource( 2 )
+hull_integrity = 612
+cargo_capacity = 17
+interaction_radius = 29.0606
+apparent_radius = 23.2485
+signature = 2906.06
+sensor_strength = 1.0
+tool_slots_small = 0
+tool_slots_medium = 0
+tool_slots_large = 12
+module_slots = 1
+equipped_tools = [ "preset_laser_1_460_30", "preset_laser_1_150_25", "preset_cannon_2_791_73_74", "preset_cannon_3_546_235_37", "preset_laser_3_963_168", "preset_laser_3_1208_51", "preset_laser_2_310_53", "preset_missile_2_1000_4", "preset_missile_3_2741_4", "preset_laser_3_676_114" ]
+equipped_modules = [ "preset_plating_1_512" ]
+salvage_yield = {
+"commodity_scrap": 145,
+"commodity_tech": 77
+}
+power_capacity = 836.769
+power_regen = 88.0511
+mass = 43630.6
+linear_thrust = 2.64833e+06
+angular_thrust = 5.6952e+06
+alignment_threshold_angle_deg = 45.0
+model_scale = 1.93737
+panel_material = "res://assets/art/materials_generic/mat_hull_accent_orange.tres"
+variant_type = 3
+law_genes = {
+"shares": {
+"capacitor": 0.0575355,
+"engine": 0.197096,
+"hold": 0.0114298,
+"reactor": 0.154193,
+"structure": 0.579745
+},
+"size": 7.27177,
+"tool_share": 1.0,
+"type": 3
+}

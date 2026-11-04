@@ -31,3 +31,4 @@ temperament = "measured"
 traits = [ "stubborn", "merciful" ]
 lives = 10
 fitness = -0.200968
+origin = ""

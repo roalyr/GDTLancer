@@ -41,7 +41,7 @@ func _scan_presets(path: String) -> void:
 			if template is ShipTemplate or template is UtilityToolTemplate or template is ModuleTemplate:
 				if not TemplateDatabase.presets.has(template.template_id) and TemplateDatabase.get_template(template.template_id) == null:
 					TemplateDatabase.presets[template.template_id] = template
-				if template is ShipTemplate and path.ends_with("min10"):
+				if template is ShipTemplate and (path.ends_with("min10") or path.ends_with("archetypes")):  # Proven drafts, and the picked archetypes
 					TemplateDatabase.proven_presets[template.template_id] = true
 		file_name = dir.get_next()
 

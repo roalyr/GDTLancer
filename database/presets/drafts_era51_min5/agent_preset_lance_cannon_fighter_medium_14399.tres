@@ -32,3 +32,4 @@ temperament = "measured"
 traits = [ "quick to fight", "ruthless" ]
 lives = 8
 fitness = 0.203969
+origin = ""

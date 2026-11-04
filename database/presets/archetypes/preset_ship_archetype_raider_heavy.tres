@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/phoenix_light.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_archetype_raider_heavy"
+ship_model_name = "Phoenix III Heavy Raider"
+base_value = 3947
+ship_scene = ExtResource( 2 )
+hull_integrity = 404
+cargo_capacity = 42
+interaction_radius = 23.706
+apparent_radius = 18.9648
+signature = 2370.6
+sensor_strength = 1.0
+tool_slots_small = 0
+tool_slots_medium = 8
+tool_slots_large = 0
+module_slots = 1
+equipped_tools = [ "preset_laser_3_739_117", "tool_harpoon", "preset_missile_1_382_3", "preset_laser_3_626_124", "preset_cannon_3_702_162_39" ]
+equipped_modules = [ "preset_damper_1_150" ]
+salvage_yield = {
+"commodity_scrap": 79,
+"commodity_tech": 32
+}
+power_capacity = 342.528
+power_regen = 34.7829
+mass = 23683.9
+linear_thrust = 1.31425e+06
+angular_thrust = 2.30552e+06
+alignment_threshold_angle_deg = 45.0
+model_scale = 1.5804
+panel_material = "res://assets/art/materials_generic/mat_hull_accent_orange.tres"
+variant_type = 3
+law_genes = {
+"shares": {
+"capacitor": 0.0433875,
+"engine": 0.166691,
+"hold": 0.0534246,
+"reactor": 0.101208,
+"structure": 0.635288
+},
+"size": 3.94731,
+"tool_share": 0.888889,
+"type": 3
+}

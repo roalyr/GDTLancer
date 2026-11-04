@@ -10,6 +10,7 @@ extends SceneTree
 var PresetClassifier = null  # Loaded at run time: they use autoloads, not there yet when this parses
 var PresetExporter = null
 const ROOT = "res://database/presets"
+const ARCHETYPES = "archetypes"  # The folder of picked designs
 const Consts = preload("res://src/autoload/Constants.gd")
 
 
@@ -24,6 +25,7 @@ func _run():
 	root.add_child(indexer)
 	indexer.index_all_templates()  # The presets' parts, which roles are read from
 	var designs := {}  # Ship id -> {agent, folder, proven}
+	var archetypes: Array = []  # The picked designs (archetypes/), listed first
 	for path in _agent_files(ROOT):
 		var agent = load(path)
 		var folder: String = path.get_base_dir().get_file()
@@ -34,12 +36,15 @@ func _run():
 			continue
 		PresetExporter.apply_classification(agent, PresetClassifier.classify(ship, agent.behavior, agent.role))  # The exporter's role (from the genome) stands
 		ResourceSaver.save(path, agent)
+		if folder == ARCHETYPES:
+			archetypes.append({"agent": agent, "ship": ship})
+			continue
 		var known: Dictionary = designs.get(agent.ship_template_id, {})
 		if known.empty() or (int(known.agent.lives) == 0 and agent.lives > 0):
 			designs[agent.ship_template_id] = {"agent": agent, "ship": ship, "folder": folder, "proven": folder.ends_with("min10") or known.get("proven", false)}
 		elif folder.ends_with("min10"):
 			known.proven = true
-	_write_catalog(designs)
+	_write_catalog(designs, archetypes)
 	print("CLASSIFY %d designs -> %s/CATALOG.md" % [designs.size(), ROOT])
 	quit()
 
@@ -54,13 +59,13 @@ func _agent_files(path: String) -> Array:
 	while name != "":
 		if dir.current_is_dir():
 			found += _agent_files(path.plus_file(name))
-		elif name.begins_with("agent_preset_") and name.ends_with(".tres"):
+		elif (name.begins_with("agent_preset_") or name.begins_with("agent_archetype_")) and name.ends_with(".tres"):
 			found.append(path.plus_file(name))
 		name = dir.get_next()
 	return found
 
 
-func _write_catalog(designs: Dictionary) -> void:
+func _write_catalog(designs: Dictionary, archetypes: Array) -> void:
 	var by_family := {}
 	for ship_id in designs:
 		var agent = designs[ship_id].agent
@@ -78,7 +83,19 @@ func _write_catalog(designs: Dictionary) -> void:
 		"- **Proven**: flew 10 lives or more. **Lives / fitness**: when exported (blank: exported before these were kept). Fitness is return on cost, less 1 for a lost ship; combat roles add the enemy value they destroyed.",
 		"- The ship file is `preset_ship_<id>.tres`, the pilot `agent_preset_<id>.tres`, in the folder named.",
 		"",
+		"## Archetypes",
+		"",
+		"The picked designs, one per family and weight class (`archetypes/`: ship `preset_ship_archetype_<name>.tres`, pilot `agent_archetype_<name>.tres`). Factions are built from these; **Origin** is the evolved design each was picked from.",
+		"",
+		"| Archetype | Role | Temperament | Equipment | Modules | Lives | Fitness | Hull WP | Origin |",
+		"|---|---|---|---|---|---|---|---|---|",
 	]
+	archetypes.sort_custom(self, "_family_then_weight")
+	for design in archetypes:
+		var agent = design.agent
+		lines.append("| %s | %s | %s | %s | %s | %d | %+.2f | %d | %s |" % [agent.template_id.replace("agent_archetype_", ""), agent.role, agent.temperament,
+			_parts(design.ship.equipped_tools), _parts(design.ship.equipped_modules), agent.lives, agent.fitness, design.ship.base_value, agent.origin])
+	lines.append("")
 	var families: Array = by_family.keys()
 	families.sort()
 	for family in families:
@@ -107,6 +124,19 @@ func _write_catalog(designs: Dictionary) -> void:
 	file.open(ROOT.plus_file("CATALOG.md"), File.WRITE)
 	file.store_string(PoolStringArray(lines).join("\n"))
 	file.close()
+
+
+func _family_then_weight(a: Dictionary, b: Dictionary) -> bool:
+	if a.agent.family != b.agent.family:
+		return a.agent.family < b.agent.family
+	return _weight_index(a.agent.weight_class) < _weight_index(b.agent.weight_class)
+
+
+func _weight_index(weight: String) -> int:
+	for i in range(Consts.PRESET_WEIGHT_CLASSES.size()):
+		if Consts.PRESET_WEIGHT_CLASSES[i][0] == weight:
+			return i
+	return -1
 
 
 # Part names, a repeated one counted ("Laser II x2").

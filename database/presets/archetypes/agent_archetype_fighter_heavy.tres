@@ -1,0 +1,33 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_archetype_fighter_heavy"
+agent_type = "npc"
+ship_template_id = "preset_ship_archetype_fighter_heavy"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.409424,
+"caution": 0.232141,
+"disengage": 0.335401,
+"engage": 0.683688,
+"haul": 0.234894,
+"mercy": 1.0,
+"pursuit": 0.711454,
+"range": 0.908077,
+"retreat_hull": 0.0061511,
+"return_fire": 1.0,
+"teamwork": 0.368828
+}
+role = "missile-cannon-fighter"
+family = "fighter"
+weight_class = "heavy"
+archetype = "missile-cannon-fighter heavy"
+temperament = "measured"
+traits = [ "stubborn", "merciful", "shoots back", "loner" ]
+lives = 10
+fitness = 0.416701
+origin = "missile_cannon_fighter_heavy_15260 (era 51)"

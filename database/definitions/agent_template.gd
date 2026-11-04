@@ -18,3 +18,4 @@ export var temperament: String = ""  # "aggressive", "measured", "cautious"
 export var traits: Array = []  # Stand-out genes in words ("relentless", "loner", ...)
 export var lives: int = 0  # Arena lives the design flew when exported (0: unknown)
 export var fitness: float = 0.0  # Its mean fitness then (Evolution.shrunk_fitness)
+export var origin: String = ""  # The evolved design an archetype was picked from (database/presets/archetypes/)

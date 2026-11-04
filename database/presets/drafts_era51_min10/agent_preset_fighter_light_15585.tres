@@ -32,3 +32,4 @@ temperament = "cautious"
 traits = [ "skittish", "runs silent" ]
 lives = 10
 fitness = 0.301738
+origin = ""
