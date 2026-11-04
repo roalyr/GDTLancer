@@ -12,6 +12,8 @@
 #   --backup-every=H simulated hours between copies of the save into user://save_backups/ (with
 #                  --save-dir, its backups/ folder), and at the end (default 2; the newest
 #                  EVOSIM_BACKUPS_KEPT are kept): a blackout loses at most that much
+#   --frozen       fly the frozen world (the archetypes, as the game does) instead of evolving:
+#                  for watching how the game's world plays out; use with --save-dir and --new
 #   --probe        every 10 simulated minutes, list NPCs stuck in one activity for 30 minutes or more
 #                  (state, target, throttle, speed): for finding ships that never finish a life
 # Vsync is switched off: with it, a monitor gone to sleep (DPMS) stalls every frame and the run with it.
@@ -24,6 +26,7 @@ var save_every := 15.0
 var save_dir := ""
 var new_era := false
 var probe := false
+var frozen := false
 var backup_every := 2.0
 const EVOSIM_BACKUPS_KEPT = 3
 var _since: Dictionary = {}  # Probe: evo uid -> [activity, game time it began]
@@ -45,6 +48,8 @@ func _initialize():
 			new_era = true
 		elif arg == "--probe":
 			probe = true
+		elif arg == "--frozen":
+			frozen = true
 		elif arg.begins_with("--backup-every="):
 			backup_every = max(0.25, float(arg.split("=")[1]))
 	OS.vsync_enabled = false
@@ -59,6 +64,7 @@ func _run():
 	var refs = root.get_node("GlobalRefs")
 	var manager = root.get_node("GameStateManager")
 	var evolution = root.get_node("Evolution")
+	evolution.frozen = frozen  # The game's world is frozen; the arena evolves
 	if save_dir != "":
 		manager.save_dir = save_dir
 	change_scene("res://scenes/levels/game_world/main_game_scene.tscn")

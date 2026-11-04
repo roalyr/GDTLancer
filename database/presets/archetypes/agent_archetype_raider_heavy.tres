@@ -32,3 +32,76 @@ traits = [  ]
 lives = 10
 fitness = 0.642085
 origin = "missile_cannon_raider_heavy_15583 (era 51)"
+genome = {
+"behavior": {
+"burn": 0.437868,
+"caution": 0.309027,
+"disengage": 0.415482,
+"engage": 0.99763,
+"mercy": 0.566621,
+"prospect": 0.0801066,
+"pursuit": 0.977555,
+"quiet": 0.237463,
+"range": 0.883487,
+"retreat_hull": 0.0513635,
+"return_fire": 0.329298,
+"teamwork": 0.70685
+},
+"modules": [ {
+"genes": {
+"mass": 150.0
+},
+"kind": "damper",
+"type": 1
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.0433875,
+"engine": 0.166691,
+"hold": 0.0534246,
+"reactor": 0.101208,
+"structure": 0.635288
+},
+"size": 3.94731,
+"tool_share": 0.888889,
+"type": 3
+},
+"tools": [ {
+"genes": {
+"energy": 11.7185,
+"mass": 738.99
+},
+"kind": "laser",
+"type": 3
+}, {
+"genes": {
+},
+"kind": "harpoon",
+"type": 0
+}, {
+"genes": {
+"count": 3.0,
+"round_mass": 38.1745
+},
+"kind": "missile",
+"type": 1
+}, {
+"genes": {
+"energy": 12.4175,
+"mass": 626.326
+},
+"kind": "laser",
+"type": 3
+}, {
+}, {
+"genes": {
+"count": 39.0,
+"mass": 702.203,
+"round_mass": 16.1583
+},
+"kind": "cannon",
+"type": 3
+}, {
+}, {
+} ]
+}

@@ -32,3 +32,59 @@ traits = [  ]
 lives = 11
 fitness = 0.305259
 origin = "prospector_medium_14901 (era 51)"
+genome = {
+"behavior": {
+"burn": 0.0644289,
+"caution": 0.714102,
+"disengage": 0.751272,
+"engage": 1.81644,
+"haul": 0.543165,
+"mercy": 0.469665,
+"prospect": 0.82111,
+"pursuit": 1.04666,
+"range": 0.896798,
+"retreat_hull": 0.352187,
+"return_fire": 0.21924,
+"teamwork": 1.29047
+},
+"modules": [ {
+"genes": {
+"count": 2.48446,
+"nail_mass": 109.333
+},
+"kind": "lance",
+"type": 1
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.069485,
+"engine": 0.284373,
+"hold": 0.092663,
+"reactor": 0.0672567,
+"structure": 0.486222
+},
+"size": 0.989953,
+"tool_share": 0.724,
+"type": 2
+},
+"tools": [ {
+"genes": {
+"energy": 16.5597,
+"mass": 700.797
+},
+"kind": "laser",
+"type": 3
+}, {
+"genes": {
+},
+"kind": "harpoon",
+"type": 0
+}, {
+"genes": {
+"energy": 5.0,
+"mass": 300.0
+},
+"kind": "laser",
+"type": 2
+} ]
+}

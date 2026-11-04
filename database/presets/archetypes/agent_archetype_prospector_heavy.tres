@@ -33,3 +33,69 @@ traits = [ "quick to fight", "stubborn", "shoots back", "wary" ]
 lives = 6
 fitness = 0.350589
 origin = "prospector_heavy_16070 (era 51)"
+genome = {
+"behavior": {
+"burn": 0.546519,
+"caution": 1.0,
+"disengage": 0.31578,
+"engage": 0.3324,
+"haul": 0.617815,
+"mercy": 0.329552,
+"prospect": 0.871497,
+"pursuit": 0.907096,
+"quiet": 0.343858,
+"range": 1.05234,
+"retreat_hull": 0.0,
+"return_fire": 0.882435,
+"teamwork": 1.21747
+},
+"modules": [ {
+"genes": {
+"count": 3.10222,
+"nail_mass": 365.031
+},
+"kind": "lance",
+"type": 2
+}, {
+"genes": {
+"mass": 345.283
+},
+"kind": "afterburner",
+"type": 2
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.0254534,
+"engine": 0.171991,
+"hold": 0.0546426,
+"reactor": 0.102849,
+"structure": 0.645064
+},
+"size": 2.50063,
+"tool_share": 0.755033,
+"type": 3
+},
+"tools": [ {
+"genes": {
+"energy": 10.7462,
+"mass": 613.538
+},
+"kind": "laser",
+"type": 3
+}, {
+"genes": {
+},
+"kind": "harpoon",
+"type": 0
+}, {
+}, {
+"genes": {
+"count": 59.0,
+"mass": 310.645,
+"round_mass": 5.0
+},
+"kind": "cannon",
+"type": 2
+}, {
+} ]
+}

@@ -33,3 +33,75 @@ traits = [  ]
 lives = 11
 fitness = 0.173521
 origin = "lance_missile_cannon_fighter_heavy_16100 (era 51)"
+genome = {
+"behavior": {
+"burn": 0.3,
+"caution": 0.478169,
+"disengage": 0.721008,
+"engage": 1.0,
+"haul": 0.368054,
+"mercy": 0.418732,
+"prospect": 0.0,
+"pursuit": 1.0,
+"quiet": 0.350719,
+"range": 0.982634,
+"retreat_hull": 0.152037,
+"return_fire": 0.400262,
+"teamwork": 0.656456
+},
+"modules": [ {
+"genes": {
+"mass": 400.0
+},
+"kind": "decoy",
+"type": 3
+}, {
+"genes": {
+"mass": 124.313
+},
+"kind": "power_cell",
+"type": 1
+}, {
+}, {
+"genes": {
+"count": 3.79333,
+"nail_mass": 110.745
+},
+"kind": "lance",
+"type": 1
+}, {
+"genes": {
+"mass": 300.0
+},
+"kind": "damper",
+"type": 2
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.0317803,
+"engine": 0.100706,
+"hold": 0.0572025,
+"reactor": 0.0913034,
+"structure": 0.719008
+},
+"size": 2.47898,
+"tool_share": 0.299169,
+"type": 3
+},
+"tools": [ {
+"genes": {
+"count": 4.0,
+"round_mass": 39.885
+},
+"kind": "missile",
+"type": 1
+}, {
+"genes": {
+"count": 40.0,
+"mass": 700.0,
+"round_mass": 14.5713
+},
+"kind": "cannon",
+"type": 3
+} ]
+}

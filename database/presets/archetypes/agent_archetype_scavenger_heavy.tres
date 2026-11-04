@@ -32,3 +32,49 @@ traits = [ "stubborn", "merciful" ]
 lives = 10
 fitness = -0.200968
 origin = "scavenger_heavy_14132 (era 51)"
+genome = {
+"behavior": {
+"burn": 0.299284,
+"caution": 0.220583,
+"disengage": 0.178543,
+"engage": 0.984647,
+"haul": 0.219038,
+"mercy": 0.827233,
+"prospect": 0.0836844,
+"pursuit": 2.0861,
+"range": 1.28616,
+"retreat_hull": 0.0766705,
+"return_fire": 0.566965,
+"teamwork": 1.33664
+},
+"modules": [ {
+}, {
+"genes": {
+"mass": 145.433
+},
+"kind": "damper",
+"type": 1
+}, {
+}, {
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.072696,
+"engine": 0.186872,
+"hold": 0.100536,
+"reactor": 0.11896,
+"structure": 0.520936
+},
+"size": 2.92734,
+"tool_share": 0.392514,
+"type": 3
+},
+"tools": [ {
+}, {
+"genes": {
+},
+"kind": "harpoon",
+"type": 0
+}, {
+} ]
+}

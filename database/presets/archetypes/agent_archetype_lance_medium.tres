@@ -32,3 +32,52 @@ traits = [  ]
 lives = 10
 fitness = 0.394077
 origin = "lancer_medium_15466 (era 51)"
+genome = {
+"behavior": {
+"burn": 0.106898,
+"caution": 0.518856,
+"disengage": 0.57,
+"engage": 0.6,
+"haul": 0.375259,
+"mercy": 0.507764,
+"prospect": 0.0,
+"pursuit": 1.07811,
+"range": 0.869498,
+"retreat_hull": 0.0657708,
+"return_fire": 0.59052,
+"teamwork": 1.29245
+},
+"modules": [ {
+"genes": {
+"count": 3.03099,
+"nail_mass": 109.378
+},
+"kind": "lance",
+"type": 1
+}, {
+"genes": {
+"mass": 981.078
+},
+"kind": "plating",
+"type": 2
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.0453837,
+"engine": 0.169052,
+"hold": 0.087271,
+"reactor": 0.0848382,
+"structure": 0.613455
+},
+"size": 1.14805,
+"tool_share": 0.43969,
+"type": 2
+},
+"tools": [ {
+"genes": {
+},
+"kind": "harpoon",
+"type": 0
+}, {
+} ]
+}

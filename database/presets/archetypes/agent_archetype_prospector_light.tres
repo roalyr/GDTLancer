@@ -33,3 +33,53 @@ traits = [ "picks its fights", "skittish", "relentless", "runs silent", "loner",
 lives = 11
 fitness = 0.266833
 origin = "prospector_light_15008 (era 51)"
+genome = {
+"behavior": {
+"burn": 0.382834,
+"caution": 0.928897,
+"disengage": 0.553141,
+"engage": 2.95145,
+"haul": 0.05,
+"mercy": 0.69957,
+"prospect": 0.61017,
+"pursuit": 2.43658,
+"quiet": 0.295055,
+"range": 0.944843,
+"retreat_hull": 0.607582,
+"return_fire": 0.0847668,
+"teamwork": 0.381621
+},
+"modules": [ {
+"genes": {
+"count": 2.79901,
+"nail_mass": 104.101
+},
+"kind": "lance",
+"type": 1
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.0654416,
+"engine": 0.286729,
+"hold": 0.151598,
+"reactor": 0.120715,
+"structure": 0.375517
+},
+"size": 0.59057,
+"tool_share": 1.0,
+"type": 1
+},
+"tools": [ {
+"genes": {
+"energy": 3.15637,
+"mass": 175.914
+},
+"kind": "laser",
+"type": 1
+}, {
+"genes": {
+},
+"kind": "harpoon",
+"type": 0
+} ]
+}

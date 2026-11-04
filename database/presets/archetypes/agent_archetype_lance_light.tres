@@ -32,3 +32,54 @@ traits = [ "quick to fight", "stubborn", "relentless", "ruthless" ]
 lives = 7
 fitness = 0.824356
 origin = "lance_missile_fighter_light_12178 (era 51)"
+genome = {
+"behavior": {
+"burn": 0.3,
+"caution": 0.739077,
+"disengage": 0.335842,
+"engage": 0.353518,
+"haul": 0.291509,
+"mercy": 0.137941,
+"prospect": 0.014428,
+"pursuit": 2.26609,
+"range": 1.12949,
+"retreat_hull": 0.0822351,
+"return_fire": 0.599862,
+"teamwork": 0.958576
+},
+"modules": [ {
+"genes": {
+"mass": 167.938
+},
+"kind": "afterburner",
+"type": 1
+}, {
+"genes": {
+"count": 2.46061,
+"nail_mass": 235.445
+},
+"kind": "lance",
+"type": 2
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.0518538,
+"engine": 0.236688,
+"hold": 0.103327,
+"reactor": 0.129452,
+"structure": 0.478679
+},
+"size": 0.675831,
+"tool_share": 0.486715,
+"type": 1
+},
+"tools": [ {
+}, {
+"genes": {
+"count": 2.0,
+"round_mass": 231.704
+},
+"kind": "missile",
+"type": 3
+} ]
+}

@@ -33,3 +33,50 @@ traits = [ "team player", "sells often" ]
 lives = 11
 fitness = 0.810165
 origin = "missile_fighter_medium_14708 (era 51)"
+genome = {
+"behavior": {
+"burn": 0.14264,
+"caution": 0.418055,
+"disengage": 0.78064,
+"engage": 2.2286,
+"haul": 0.108878,
+"mercy": 0.53316,
+"prospect": 0.0265035,
+"pursuit": 1.33003,
+"quiet": 0.211251,
+"range": 1.10923,
+"retreat_hull": 0.344844,
+"return_fire": 0.538748,
+"teamwork": 1.81541
+},
+"modules": [ {
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.0463181,
+"engine": 0.338145,
+"hold": 0.0947861,
+"reactor": 0.100151,
+"structure": 0.420599
+},
+"size": 0.864887,
+"tool_share": 0.760016,
+"type": 1
+},
+"tools": [ {
+"genes": {
+"count": 2.0,
+"round_mass": 207.68
+},
+"kind": "missile",
+"type": 3
+}, {
+"genes": {
+"energy": 2.36646,
+"mass": 140.719
+},
+"kind": "laser",
+"type": 1
+}, {
+} ]
+}

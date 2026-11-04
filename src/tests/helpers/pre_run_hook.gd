@@ -8,3 +8,4 @@ extends GutHookScript
 func run() -> void:
 	GameStateManager.save_dir = "user://test_savegames/"
 	Evolution.log_lives = false
+	Evolution.frozen = false  # The tests exercise evolving; frozen worlds have their own

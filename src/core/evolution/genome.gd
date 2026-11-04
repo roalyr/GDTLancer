@@ -289,7 +289,14 @@ static func build(genome: Dictionary, genome_id: String, faction: String) -> Dic
 	var ship_id: String = "evo_ship_%s" % genome_id
 	if not TemplateDatabase.evolved.has(ship_id):
 		var name: String = "Phoenix %s %s" % [Constants.PART_TYPE_NAMES.get(int(genome.ship.type), ""), genome_id]  # The genome shows on the HUD
-		TemplateDatabase.register_evolved(ShipLaws.build_ship_template(genome.ship, ship_id, name, faction))
+		var model: String = str(genome.get("model", ""))  # An archetype ("fighter_light"): its placeholder hull and name
+		if model != "":
+			var words: PoolStringArray = model.split("_")
+			name = "Phoenix %s %s %s" % [Constants.PART_TYPE_NAMES.get(int(genome.ship.type), ""), words[-1].capitalize(), words[0].capitalize()]
+		var ship = ShipLaws.build_ship_template(genome.ship, ship_id, name, faction)
+		if model != "" and not Constants.FACTIONS.get(faction, {}).get("own_hull", false):
+			ship.ship_scene = load(Constants.PLACEHOLDER_HULLS_DIR.plus_file(model + ".tscn"))
+		TemplateDatabase.register_evolved(ship)
 	var fit := {"tools": [], "modules": []}
 	for part in genome.tools:
 		fit.tools.append(ensure_part_template(part))

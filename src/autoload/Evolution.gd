@@ -4,6 +4,10 @@
 # flies its genome again or a mutant; the life's end (death or retirement) scores the genome and
 # may make it its niche's best. In proving mode (Constants EVO_PROVING) it mostly re-flies the leading
 # genomes of each archetype until they have enough lives to be presets (_unproven).
+# A frozen world (`frozen`, the game: Constants EVO_WORLD_FROZEN) evolves nothing: its havens fly the
+# picked archetypes (database/presets/archetypes/, Constants FACTION_ROSTERS) again as they are, on
+# their placeholder hulls; their lives are recorded as any, but never enter the pools. The arena
+# sim (tools/evolution_sim.gd) and the tests evolve.
 # Saved with the game (serialize / deserialize).
 # Console: lines start with "EVO " (Constants EVO_LOG_LEVEL), a report every EVO_REPORT_INTERVAL.
 # File: every finished life in full, one JSON line each, under Constants EVO_LOG_DIR.
@@ -29,6 +33,7 @@ var _next_genome: int = 0
 var _bodies: Dictionary = {}  # NPC uid -> its AgentBody
 var _report_due: float = 0.0
 var active: bool = false  # Havens populated (AgentSystem); time only counts then
+var frozen: bool = Constants.EVO_WORLD_FROZEN  # Havens fly the archetypes, nothing evolves (see above)
 var log_lives: bool = true  # Writes the life log (off in tests: GUT pre-run hook)
 
 
@@ -169,7 +174,9 @@ func begin_life(faction: String, zone_id: String) -> Dictionary:
 			_start(saved)
 			_log(2, "EVO BACK %s %s zone=%s age=%.0fs" % [saved.uid, saved.genome_id, zone_id, game_time - float(saved.born)])
 			return saved
-	var pick: Dictionary = _pick_genome(faction, _preferred_role(faction, zone_id))
+	var pick: Dictionary = _pick_archetype(faction, zone_id) if frozen else {}
+	if pick.empty():
+		pick = _pick_genome(faction, _preferred_role(faction, zone_id))
 	var genome_id: String = pick.genome_id
 	var entry: Dictionary = genomes[genome_id]
 	var prefix: String = Constants.FACTIONS.get(faction, {}).get("name", faction).substr(0, 2).to_upper()
@@ -424,7 +431,7 @@ func _end_life(uid: String, died: bool, killer: String) -> void:
 		entry.kills = int(entry.kills) + int(record.kills)
 		entry.deaths = int(entry.deaths) + (1 if died else 0)
 		entry.earned = int(entry.earned) + int(record.earned)
-		verdict = _place_in_archive(record.genome_id)
+		verdict = "archetype: not archived" if entry.get("archetype", false) else _place_in_archive(record.genome_id)
 	var pool: Dictionary = pools[record.faction]
 	pool.lives = int(pool.lives) + 1
 	_log(1, "EVO %s %s %s zone=%s age=%.0fs kills=%d earned=%d bounty=%.0f spent=%.0f dealt=%.0f taken=%.0f docks=%d %s renown=%.0f cost=%.0f fitness=%+.2f genome_mean=%+.2f (n=%d) %s%s" % [
@@ -484,6 +491,42 @@ func _preferred_role(faction: String, zone_id: String) -> String:
 			if niche.find(role) >= 0:
 				return role
 	return ""
+
+
+# A frozen world's spawn: one of the faction's archetypes (Constants FACTION_ROSTERS), each as likely;
+# a zone's preferred role (a family name, Constants SECTOR_LAYOUTS) as often as it asks. {} if the
+# faction has no roster.
+func _pick_archetype(faction: String, zone_id: String) -> Dictionary:
+	var roster: Array = Constants.FACTION_ROSTERS.get(faction, [])
+	var haven: Dictionary = Havens.spec(zone_id)
+	if haven.has("prefer_role") and randf() < float(haven.get("prefer_share", 0.0)):
+		var preferred: Array = []
+		for name in roster:
+			if name.begins_with(str(haven.prefer_role) + "_"):
+				preferred.append(name)
+		if not preferred.empty():
+			roster = preferred
+	if roster.empty():
+		return {}
+	var genome_id: String = archetype_genome(faction, roster[randi() % roster.size()])
+	return {} if genome_id == "" else {"genome_id": genome_id, "how": "archetype"}
+
+
+# The genome id an archetype flies as for `faction` ("verdant-fighter_light"), registered from its
+# template's genome (AgentTemplate.genome) the first time; "" if there is none.
+func archetype_genome(faction: String, name: String) -> String:
+	var genome_id: String = "%s-%s" % [faction, name]
+	if genomes.has(genome_id):
+		return genome_id
+	var path: String = Constants.ARCHETYPES_DIR.plus_file("agent_archetype_%s.tres" % name)
+	var agent = load(path) if ResourceLoader.exists(path) else null
+	if agent == null or agent.genome.empty():
+		printerr("Evolution: no archetype genome for ", name)
+		return ""
+	var genome: Dictionary = agent.genome.duplicate(true)
+	genome["model"] = name  # Its placeholder hull (Genome.build)
+	genomes[genome_id] = {"genome": genome, "faction": faction, "parent": "", "born": game_time, "lives": 0, "fitness_sum": 0.0, "kills": 0, "deaths": 0, "earned": 0, "archetype": true}
+	return genome_id
 
 
 # A spawn's genome. Its family first (Genome.family; drifters only when there is nothing else), each

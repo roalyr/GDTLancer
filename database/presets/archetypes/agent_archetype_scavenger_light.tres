@@ -33,3 +33,42 @@ traits = [ "picks its fights", "stubborn", "skittish", "lets runners go" ]
 lives = 13
 fitness = 1.57817
 origin = "scavenger_light_15723 (era 51)"
+genome = {
+"behavior": {
+"burn": 0.246604,
+"caution": 0.298234,
+"disengage": 0.15785,
+"engage": 2.86499,
+"haul": 0.165785,
+"mercy": 0.487901,
+"prospect": 0.17309,
+"pursuit": 0.186212,
+"quiet": 0.289838,
+"range": 1.14484,
+"retreat_hull": 0.64494,
+"return_fire": 0.228825,
+"teamwork": 0.856487
+},
+"modules": [ {
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.0649828,
+"engine": 0.340182,
+"hold": 0.160614,
+"reactor": 0.0789356,
+"structure": 0.355286
+},
+"size": 0.726689,
+"tool_share": 0.803284,
+"type": 1
+},
+"tools": [ {
+"genes": {
+},
+"kind": "harpoon",
+"type": 0
+}, {
+}, {
+} ]
+}

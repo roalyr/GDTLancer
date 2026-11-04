@@ -33,3 +33,50 @@ traits = [ "skittish" ]
 lives = 10
 fitness = 1.24364
 origin = "cannon_fighter_light_15958 (era 51)"
+genome = {
+"behavior": {
+"burn": 0.349153,
+"caution": 0.342074,
+"disengage": 1.07722,
+"engage": 2.60604,
+"haul": 0.246,
+"mercy": 0.723985,
+"prospect": 0.0907599,
+"pursuit": 1.35649,
+"quiet": 0.273286,
+"range": 0.864134,
+"retreat_hull": 0.709746,
+"return_fire": 0.560175,
+"teamwork": 1.15317
+},
+"modules": [ {
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.0476154,
+"engine": 0.285649,
+"hold": 0.0954282,
+"reactor": 0.0922441,
+"structure": 0.479063
+},
+"size": 0.591245,
+"tool_share": 0.500011,
+"type": 1
+},
+"tools": [ {
+"genes": {
+"count": 60.0,
+"mass": 308.101,
+"round_mass": 5.17241
+},
+"kind": "cannon",
+"type": 2
+}, {
+"genes": {
+"energy": 11.8346,
+"mass": 617.853
+},
+"kind": "laser",
+"type": 3
+} ]
+}

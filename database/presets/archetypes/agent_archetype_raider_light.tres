@@ -33,3 +33,48 @@ traits = [ "stubborn", "skittish", "runs silent" ]
 lives = 10
 fitness = 1.77908
 origin = "raider_light_15543 (era 51)"
+genome = {
+"behavior": {
+"burn": 0.333796,
+"caution": 0.284003,
+"disengage": 0.340164,
+"engage": 2.69687,
+"haul": 0.435101,
+"mercy": 0.505384,
+"prospect": 0.0389306,
+"pursuit": 0.569927,
+"quiet": 0.302763,
+"range": 0.875387,
+"retreat_hull": 0.794093,
+"return_fire": 0.0904804,
+"teamwork": 0.678183
+},
+"modules": [ {
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.0469072,
+"engine": 0.343865,
+"hold": 0.131629,
+"reactor": 0.0964109,
+"structure": 0.381189
+},
+"size": 0.81795,
+"tool_share": 0.86297,
+"type": 1
+},
+"tools": [ {
+"genes": {
+},
+"kind": "harpoon",
+"type": 0
+}, {
+"genes": {
+"energy": 5.15071,
+"mass": 297.661
+},
+"kind": "laser",
+"type": 2
+}, {
+} ]
+}

@@ -33,3 +33,42 @@ traits = [ "stubborn", "skittish", "runs silent" ]
 lives = 14
 fitness = 1.40622
 origin = "scavenger_medium_15607 (era 51)"
+genome = {
+"behavior": {
+"burn": 0.259348,
+"caution": 0.427899,
+"disengage": 0.204576,
+"engage": 2.5646,
+"haul": 0.414498,
+"mercy": 0.488189,
+"prospect": 0.149424,
+"pursuit": 0.870419,
+"quiet": 0.274163,
+"range": 0.699211,
+"retreat_hull": 0.711066,
+"return_fire": 0.14298,
+"teamwork": 0.479365
+},
+"modules": [ {
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.0542183,
+"engine": 0.34196,
+"hold": 0.142452,
+"reactor": 0.0959772,
+"structure": 0.365393
+},
+"size": 0.990633,
+"tool_share": 0.86297,
+"type": 1
+},
+"tools": [ {
+"genes": {
+},
+"kind": "harpoon",
+"type": 0
+}, {
+}, {
+} ]
+}

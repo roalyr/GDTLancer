@@ -500,7 +500,7 @@ const FACTIONS = {
 	# Aliens: no standing or bounties; they react on the spot, and take any ship within `territory` m of
 	# their hive for an enemy. Their carcasses hold biotech (`salvage_as`: a wreck's salvage, all of it).
 	"xenohive": {"name": "Xenohive", "color": Color(0.35, 0.95, 0.75, 1.0), "enemies": [], "no_standing": true, "silent": true,
-		"territory": 5000.0, "salvage_as": "commodity_biotech"},
+		"territory": 5000.0, "salvage_as": "commodity_biotech", "own_hull": true},  # own_hull: grown, flies no placeholder hull
 }
 
 # Standing (Standing): the player's name with each faction, -1 to 1, as in Freelancer.
@@ -858,6 +858,7 @@ const XENO_HIVE_SEED = 13
 # silhouette per preset family: fighter a swept dart, lance a spear with coils, prospector a round
 # hull with claws, raider a flat wedge with prongs, scavenger a box frame with a crane. `engines`:
 # exhaust nozzles, shares of the length (one off the centre line gets a twin across).
+const PLACEHOLDER_HULLS_DIR = "res://scenes/prefabs/ships/placeholders/"  # <family>_<weight>.tscn
 const HULL_FORM_LENGTH = 17.0  # m at model scale 1, like the other hull models
 const HULL_FORM_GIRTH = {"light": 0.85, "medium": 1.0, "heavy": 1.25}  # Across, by weight class
 const HULL_FORM_EXHAUST_SCALE = 0.7
@@ -910,6 +911,18 @@ const HULL_FORMS = {
 		{"shape": "box", "size": Vector3(0.12, 0.12, 0.15), "at": Vector3(0.16, 0, 0.02), "look": "paint", "mirror": true, "from": "medium"},
 		{"shape": "box", "size": Vector3(0.12, 0.12, 0.15), "at": Vector3(0.16, 0, 0.2), "look": "paint", "mirror": true, "from": "heavy"},
 	]},
+}
+# A frozen world (Evolution.frozen, the game; the arena sim evolves): what each faction's havens fly,
+# archetypes (database/presets/archetypes/agent_archetype_<name>.tres) each as likely.
+const EVO_WORLD_FROZEN = true
+const ARCHETYPES_DIR = "res://database/presets/archetypes/"
+const FACTION_ROSTERS = {
+	"verdant": ["fighter_light", "fighter_medium", "fighter_heavy", "lance_light", "lance_medium", "lance_heavy",
+		"prospector_light", "prospector_medium", "prospector_heavy", "scavenger_light", "scavenger_medium", "scavenger_heavy"],
+	"violet": ["fighter_light", "fighter_medium", "fighter_heavy", "lance_light", "lance_medium", "lance_heavy",
+		"prospector_light", "prospector_medium", "prospector_heavy", "scavenger_light", "scavenger_medium", "scavenger_heavy"],
+	"raiders": ["raider_light", "raider_medium", "raider_heavy", "fighter_light", "lance_light"],
+	"xenohive": ["fighter_light", "fighter_medium", "fighter_heavy", "lance_light", "lance_medium", "lance_heavy", "scavenger_light"],
 }
 const FACTION_HULL_MATERIALS = {  # Placeholder hulls' paint by faction (the player's: its own off-white)
 	"verdant": "res://assets/art/materials_generic/mat_hull_faction_verdant.tres",

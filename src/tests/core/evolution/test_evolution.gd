@@ -307,3 +307,64 @@ func test_proving_reflies_the_leading_unproven_of_each_archetype():
 	var unproven: Array = Evolution._unproven("verdant")
 	assert_eq(unproven, [ids[2]], "The top three raider heavies but the proven one and the other faction's; not the fourth, nor a drifter")
 	assert_eq(Evolution._unproven("violet"), [ids[1]])
+
+
+
+func test_a_frozen_world_flies_its_factions_archetypes_on_their_hulls():
+	Evolution.new_run()
+	Evolution.frozen = true
+	var cells_before: String = to_json(Evolution.pools.verdant.cells)
+	var record: Dictionary = Evolution.begin_life("verdant", "verdant_haven")
+	Evolution.frozen = false
+	assert_eq(record.how, "archetype")
+	assert_true(record.genome_id.begins_with("verdant-"), "Its own faction's (violet shares the initial)")
+	var name: String = record.genome_id.split("-")[1]
+	assert_has(Constants.FACTION_ROSTERS.verdant, name, "One of its roster")
+	var ship = TemplateDatabase.get_template(record.ship_template_id)
+	assert_eq(ship.ship_scene.resource_path, Constants.PLACEHOLDER_HULLS_DIR.plus_file(name + ".tscn"), "On its placeholder hull")
+	var agent = load(Constants.ARCHETYPES_DIR.plus_file("agent_archetype_%s.tres" % name))
+	assert_eq_deep(record.behavior, agent.genome.behavior)
+	Evolution._end_life(record.uid, true, "")
+	assert_eq(to_json(Evolution.pools.verdant.cells), cells_before, "Nothing archived")
+
+
+func test_every_roster_archetype_has_its_genome():
+	for faction in Constants.FACTION_ROSTERS:
+		for name in Constants.FACTION_ROSTERS[faction]:
+			assert_ne(Evolution.archetype_genome(faction, name), "", "%s: %s" % [faction, name])
+
+
+func test_xenohive_archetypes_keep_their_grown_hull():
+	Evolution.new_run()
+	var genome_id: String = Evolution.archetype_genome("xenohive", "fighter_light")
+	var built: Dictionary = Genome.build(Evolution.genomes[genome_id].genome, genome_id, "xenohive")
+	var ship = TemplateDatabase.get_template(built.ship_template_id)
+	assert_eq(ship.ship_scene.resource_path, Constants.SHIP_FACTION_SCENES.xenohive)
+
+
+class Assets extends Node:
+	func get_ship_template(template_id: String) -> Resource:
+		return TemplateDatabase.get_template(template_id)
+
+
+func test_an_archetype_ship_spawns_in_its_factions_paint():
+	Evolution.new_run()
+	var saved_assets = GlobalRefs.asset_system
+	GlobalRefs.asset_system = autofree(Assets.new())
+	var genome_id: String = Evolution.archetype_genome("violet", "raider_medium")
+	var built: Dictionary = Genome.build(Evolution.genomes[genome_id].genome, genome_id, "violet")
+	var root: Node = load(Constants.NPC_AGENT_SCENE_PATH).instance()
+	add_child_autofree(root)
+	var body = root.get_node(Constants.AGENT_BODY_NODE_NAME)
+	body.initialize(load(Constants.NPC_BASE_TEMPLATE_PATH), {"agent_type": "npc", "template_id": "npc", "faction": "violet", "ship_template_id": built.ship_template_id, "fit": built.fit})
+	var paint = load(Constants.FACTION_HULL_MATERIALS.violet)
+	var painted := 0
+	var stack: Array = [body.get_node("Model")]
+	while not stack.empty():
+		var node: Node = stack.pop_back()
+		stack += node.get_children()
+		if node is MeshInstance and node.name.begins_with("Paint"):
+			assert_eq(node.material_override, paint, node.name)
+			painted += 1
+	assert_gt(painted, 0, "Its hull wears violet")
+	GlobalRefs.asset_system = saved_assets
