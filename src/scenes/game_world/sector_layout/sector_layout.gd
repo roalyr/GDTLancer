@@ -103,6 +103,7 @@ func _add_landmarks() -> void:
 		if not (get_parent() != null and get_parent().is_a_parent_of(body)) or not body.has_method("get_apparent_radius"):
 			continue
 		var at: Vector3 = body.global_transform.origin
+		network.register_solid(at, body.get_apparent_radius())
 		var inside := false
 		for hazard in network.hazards:
 			inside = inside or at.distance_to(hazard.global_transform.origin) < hazard.radius

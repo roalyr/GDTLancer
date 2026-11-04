@@ -4,6 +4,7 @@
 extends GutTest
 
 const Offscreen = preload("res://src/core/systems/offscreen.gd")
+const NavigationSystem = preload("res://src/core/agents/components/navigation_system.gd")
 
 
 class Ship extends "res://src/core/agents/agent.gd":
@@ -71,12 +72,15 @@ func test_far_ships_leave_the_physics_and_near_ones_fly_again_at_their_speed():
 	assert_false(offscreen.is_offscreen(near))
 	assert_eq(far.mode, RigidBody.MODE_STATIC)
 	assert_false(far.get_node(Constants.AI_CONTROLLER_NODE_NAME).is_physics_processing(), "Its AI rests")
+	assert_false(far.visible, "Not drawn: zoomed in on, it would show frozen")
+	assert_true(near.visible)
 	assert_eq(offscreen.count(), 1)
 	far.translation = Vector3(Constants.OFFSCREEN_FULL_RADIUS - 100.0, 0, 0)
 	offscreen.check()
 	assert_false(offscreen.is_offscreen(far))
 	assert_eq(far.mode, RigidBody.MODE_RIGID)
 	assert_eq(far.linear_velocity, Vector3(0, 0, 40), "At the speed it had")
+	assert_true(far.visible, "Drawn again")
 
 
 func test_an_off_screen_ship_closes_on_an_enemy_it_detects_and_damages_it_by_rule():
@@ -109,3 +113,59 @@ func test_docked_ships_are_out_of_the_physics_and_back_in_on_undocking():
 	assert_eq(ship.mode, RigidBody.MODE_STATIC)
 	ship.undock()
 	assert_eq(ship.mode, RigidBody.MODE_RIGID)
+
+
+func test_a_ship_that_docked_off_screen_stays_hidden_when_restored():
+	var player = _ship("player", Vector3.ZERO, "player")
+	GlobalRefs.player_agent_body = player
+	var ship = _ship("verdant", Vector3(50000, 0, 0))
+	offscreen.check()
+	ship.dock_at(null)
+	offscreen.restore(ship)
+	assert_false(ship.visible, "Inside its station")
+
+
+class Solid extends Spatial:
+	var radius: float = 0.0
+	func get_obstacle_radius() -> float:
+		return radius
+
+
+func _solid(at: Vector3, radius: float) -> Spatial:
+	var solid := Solid.new()
+	solid.radius = radius
+	solid.translation = at
+	solid.add_to_group("obstacle")
+	add_child_autofree(solid)
+	if get_tree().has_meta(NavigationSystem.OBSTACLES_META):
+		get_tree().remove_meta(NavigationSystem.OBSTACLES_META)  # Gathered once a step: not this one's yet
+	return solid
+
+
+func test_an_off_screen_ship_goes_round_a_planet_in_its_way_never_through_it():
+	var player = _ship("player", Vector3.ZERO, "player")
+	GlobalRefs.player_agent_body = player
+	var ship = _ship("verdant", Vector3(50000, 0, 0))
+	var planet = _solid(Vector3(55000, 0, 0), 2000.0)
+	offscreen.check()
+	var entry: Dictionary = offscreen._entries[ship.get_instance_id()]
+	var goal := Vector3(60000, 0, 0)
+	var closest: float = INF
+	for _step in range(400):
+		offscreen._move(ship, entry, goal, 1.0, 0.0)
+		closest = min(closest, ship.global_transform.origin.distance_to(planet.translation))
+	assert_gt(closest, 2000.0, "Never inside the planet (closest %.0f m from its centre)" % closest)
+	assert_lt(ship.global_transform.origin.distance_to(goal), 10.0, "And there in the end")
+
+
+func test_an_off_screen_ship_reaches_a_dock_point_inside_its_stations_radius():
+	var player = _ship("player", Vector3.ZERO, "player")
+	GlobalRefs.player_agent_body = player
+	var ship = _ship("verdant", Vector3(50000, 0, 0))
+	_solid(Vector3(51000, 0, 0), 110.0)
+	offscreen.check()
+	var entry: Dictionary = offscreen._entries[ship.get_instance_id()]
+	var dock := Vector3(51000, 70, 0)
+	for _step in range(40):
+		offscreen._move(ship, entry, dock, 1.0, 0.0)
+	assert_lt(ship.global_transform.origin.distance_to(dock), 10.0, "The station round its own dock point is let be")

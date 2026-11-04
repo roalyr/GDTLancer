@@ -562,6 +562,7 @@ const OFFSCREEN_RADIUS = 12000.0  # m from the player past which a ship is resol
 const OFFSCREEN_FULL_RADIUS = 10000.0  # m within which it is flown again (the gap stops flicker)
 const OFFSCREEN_CHECK_INTERVAL = 0.5  # s between looks at who is near and far
 const OFFSCREEN_TICK = 1.0  # s per resolution step
+const OFFSCREEN_AVOID_GAIN = 2.0  # How hard an off-screen ship turns from the obstacle push (NavigationSystem.compute_avoidance)
 const OFFSCREEN_SPEED_SHARE = 0.6  # Of its top speed it moves at (to be fitted to flown runs)
 const OFFSCREEN_ENGAGE_RANGE = 1500.0  # m at which an off-screen fight is resolved
 const OFFSCREEN_HIT_SHARE = 0.35  # Of its damage per second that lands (to be fitted to flown fights)
@@ -1057,6 +1058,7 @@ const BEACON_TRAFFIC_WORDS = [[1.0, "QUIET"], [4.0, "BUSY"], [INF, "CROWDED"]]
 # its ends, ROUTE_DAMAGE_COST s per share of the hull a hazard would take on the way). So a clear
 # straight line always wins, and a way through beacons only when it goes round a hazard or a hot
 # spot: fearless ships go straight, careful ones go round.
+const ROUTE_SOLID_MARGIN = 1.1  # A route leg keeps this many radii from a planet's or moon's centre
 const ROUTE_HEAT_COST = 60.0  # s
 const ROUTE_DAMAGE_COST = 600.0  # s per whole hull
 const ROUTE_SAMPLES = 16  # Points a link is sampled at for hazards

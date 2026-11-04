@@ -125,3 +125,19 @@ func test_a_mayday_draws_its_patrols_and_their_enemies_then_goes():
 	network._update(Constants.BEACON_UPDATE_INTERVAL)
 	assert_false(mayday in network.beacons, "Gone once it expires")
 	assert_eq(network.choose(_ship("patrol")).beacon.kind, "patrol", "Back to the pickets")
+
+
+func test_every_ship_goes_round_a_planet_by_the_beacons_beside_it():
+	network.register_solid(Vector3.ZERO, 5000.0)
+	_beacon("landmark", Vector3(0, 7000, 0))  # Over the planet, as SectorLayout sets its landmark
+	var from := Vector3(-20000, 0, 0)
+	var to := Vector3(20000, 0, 0)
+	assert_true(network.blocked(from, to))
+	assert_false(network.blocked(from, Vector3(0, 7000, 0)), "Over it is clear")
+	var fearless: Array = network.route(from, to, 150.0, 0.0, 120.0)
+	assert_eq(fearless, [Vector3(0, 7000, 0), to], "No ship flies through a planet, fearless or not")
+
+
+func test_a_leg_ending_inside_a_solid_is_let_be():
+	network.register_solid(Vector3.ZERO, 5000.0)
+	assert_false(network.blocked(Vector3(-20000, 0, 0), Vector3(4000, 0, 0)), "Nothing to go round")

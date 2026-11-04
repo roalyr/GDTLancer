@@ -5,7 +5,8 @@
 # Routes: every beacon is linked to every other (no distance cut-off). A link costs its flying time
 # plus, by the ship's caution, its ends' heat and the hull a hazard would take on the way, so a
 # clear straight line always wins: fearless ships go straight and careful ones go round a star or
-# a fight. One plan (Dijkstra from the ship) gives the cost to every beacon, and the path to the
+# a fight. A link straight through a planet or moon (register_solid) is no link at all: routes go
+# round by the beacons beside it (the landmarks over every body). One plan (Dijkstra from the ship) gives the cost to every beacon, and the path to the
 # one chosen.
 # Choices, by job: "patrol" (armed faction ships), "hunt" (raiders), "scavenge" (unarmed), "mine"
 # (prospectors); see Constants CHOICE_*. Each beacon's interest over its route cost: the best one.
@@ -21,6 +22,7 @@ const BeaconScript = preload("res://src/scenes/game_world/sector_layout/beacon.g
 var time: float = 0.0  # s this network has run
 var beacons: Array = []
 var hazards: Array = []
+var solids: Array = []  # [centre, radius] of the planets and moons a straight leg must not cross
 var play_center: Vector3 = Vector3.ZERO
 var play_radius: float = INF
 var _since_update: float = 0.0
@@ -44,6 +46,26 @@ func register(beacon: Node) -> void:
 func register_hazard(hazard: Node) -> void:
 	hazards.append(hazard)
 	_links.clear()
+
+
+func register_solid(centre: Vector3, radius: float) -> void:
+	solids.append([centre, radius])
+	_links.clear()
+
+
+# Whether the straight leg from `from` to `to` passes through a solid (one either end is inside of
+# is let be: there is no going round it).
+func blocked(from: Vector3, to: Vector3) -> bool:
+	var leg: Vector3 = to - from
+	var length_squared: float = leg.length_squared()
+	for solid in solids:
+		var keep: float = solid[1] * Constants.ROUTE_SOLID_MARGIN
+		if from.distance_to(solid[0]) < keep or to.distance_to(solid[0]) < keep:
+			continue
+		var along: float = clamp((solid[0] - from).dot(leg) / length_squared, 0.0, 1.0) if length_squared > 0.0 else 0.0
+		if (from + leg * along).distance_to(solid[0]) < keep:
+			return true
+	return false
 
 
 # The network of the sector `node` is in, or null.
@@ -185,7 +207,7 @@ func _link(i: int, j: int) -> Array:
 	if not _links.has(key):
 		var a: Vector3 = beacons[i].global_transform.origin
 		var b: Vector3 = beacons[j].global_transform.origin
-		_links[key] = [a.distance_to(b), exposure(a, b)]
+		_links[key] = [a.distance_to(b), exposure(a, b), blocked(a, b)]
 	return _links[key]
 
 
@@ -205,7 +227,7 @@ func plan(from: Vector3, speed: float, caution: float, hull_max: float) -> Dicti
 	var done: Array = []
 	for i in range(n):
 		var at: Vector3 = beacons[i].global_transform.origin
-		cost.append(link_cost(from.distance_to(at), exposure(from, at), beacons[i].heat * 0.5, speed, caution, hull_max))
+		cost.append(INF if blocked(from, at) else link_cost(from.distance_to(at), exposure(from, at), beacons[i].heat * 0.5, speed, caution, hull_max))
 		prev.append(-1)
 		done.append(false)
 	for _step in range(n):
@@ -220,6 +242,8 @@ func plan(from: Vector3, speed: float, caution: float, hull_max: float) -> Dicti
 			if done[v]:
 				continue
 			var link: Array = _link(u, v)
+			if link[2]:
+				continue
 			var through: float = cost[u] + link_cost(link[0], link[1], (beacons[u].heat + beacons[v].heat) * 0.5, speed, caution, hull_max)
 			if through < cost[v]:
 				cost[v] = through
@@ -238,18 +262,28 @@ func path(planned: Dictionary, index: int) -> Array:
 
 
 # Waypoints from `from` to `to`: through the beacons when that is cheaper than going straight
-# (round a hazard, a hot beacon), straight otherwise; `to` last.
+# (round a hazard, a hot beacon, a planet in the way), straight otherwise; `to` last. The way in
+# leaves from whichever beacon makes the whole route cheapest.
 func route(from: Vector3, to: Vector3, speed: float, caution: float, hull_max: float) -> Array:
-	var straight: float = link_cost(from.distance_to(to), exposure(from, to), 0.0, speed, caution, hull_max)
-	var goal = nearest(to)
-	if goal == null:
+	var straight: float = INF if blocked(from, to) else link_cost(from.distance_to(to), exposure(from, to), 0.0, speed, caution, hull_max)
+	if beacons.empty():
 		return [to]
 	var planned: Dictionary = plan(from, speed, caution, hull_max)
-	var index: int = beacons.find(goal)
-	var via: float = planned.cost[index] + link_cost(goal.global_transform.origin.distance_to(to), exposure(goal.global_transform.origin, to), 0.0, speed, caution, hull_max)
-	if via >= straight:
+	var best: int = -1
+	var best_cost: float = straight
+	for index in range(beacons.size()):
+		if planned.cost[index] >= best_cost:
+			continue
+		var at: Vector3 = beacons[index].global_transform.origin
+		if blocked(at, to):
+			continue
+		var via: float = planned.cost[index] + link_cost(at.distance_to(to), exposure(at, to), 0.0, speed, caution, hull_max)
+		if via < best_cost:
+			best = index
+			best_cost = via
+	if best < 0:
 		return [to]
-	var points: Array = path(planned, index)
+	var points: Array = path(planned, best)
 	points.append(to)
 	return points
 

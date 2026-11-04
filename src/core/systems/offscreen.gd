@@ -1,7 +1,8 @@
 # Offscreen: ships far from the player are resolved cheaply instead of flown (Constants OFFSCREEN_*).
 # Past OFFSCREEN_RADIUS a ship leaves the physics (a static body: no integration, no navigation) and
-# its AI, tools and lance stop; it keeps its place in the world, so it is still a marker that sensors
-# pick up (Agent.detects, by its signature, as any ship) and brackets show. Back within
+# its AI, tools and lance stop, and its model and effects are not drawn; it keeps its place in the
+# world, so it is still a marker that sensors pick up (Agent.detects, by its signature, as any ship)
+# and brackets show. Back within
 # OFFSCREEN_FULL_RADIUS it flies again, at the velocity it was given. Wrecks and ore chunks are only
 # frozen. Docked ships are out of the physics anyway (Agent.dock_at) and keep their AI, so they undock
 # on time, and are abstracted again once out.
@@ -21,6 +22,8 @@
 # A child of AgentSystem; off in the evolution sim (everything is flown there).
 
 extends Node
+
+const NavigationSystem = preload("res://src/core/agents/components/navigation_system.gd")
 
 var enabled: bool = true
 var _entries: Dictionary = {}  # Instance id -> {"body": WeakRef, "velocity": Vector3}
@@ -86,6 +89,7 @@ func _can_abstract(body: Node) -> bool:
 func abstract(body: RigidBody) -> void:
 	_entries[body.get_instance_id()] = {"body": weakref(body), "velocity": body.linear_velocity}
 	body.mode = RigidBody.MODE_STATIC
+	body.visible = false  # Not drawn either: zoomed in on, it would show frozen where it was
 	_set_flown(body, false)
 	var uid: String = str(body.get("evo_uid")) if body.get("evo_uid") != null else ""
 	if uid != "":
@@ -99,6 +103,7 @@ func restore(body: RigidBody) -> void:
 		body.mode = RigidBody.MODE_RIGID
 		body.sleeping = false
 		body.linear_velocity = entry.get("velocity", Vector3.ZERO)
+	body.visible = not body.get("is_docked")  # Docked while off-screen: stays hidden (Agent.dock_at)
 	_set_flown(body, true)
 
 
@@ -199,18 +204,43 @@ func _go_home(body: RigidBody, ai: Node, entry: Dictionary, dt: float, threat) -
 
 
 # Toward `point` at OFFSCREEN_SPEED_SHARE of top speed, stopping `short` m from it; faces its way.
+# It steers round obstacles as a flown ship does (NavigationSystem.compute_avoidance) and never ends
+# a step inside one; an obstacle round the point itself (a station round its dock point) is let be.
 func _move(body: RigidBody, entry: Dictionary, point: Vector3, dt: float, short: float) -> void:
-	var offset: Vector3 = point - body.global_transform.origin
+	var here: Vector3 = body.global_transform.origin
+	var offset: Vector3 = point - here
 	var distance: float = offset.length() - short
 	if distance <= 1.0:
 		entry.velocity = Vector3.ZERO
 		return
 	var speed: float = min(body.get_top_speed() * Constants.OFFSCREEN_SPEED_SHARE, distance / max(dt, 0.001))
-	var velocity: Vector3 = offset.normalized() * speed
-	var origin: Vector3 = body.global_transform.origin + velocity * dt
-	var up: Vector3 = Vector3.UP if abs(offset.normalized().dot(Vector3.UP)) < 0.98 else Vector3.RIGHT
-	body.global_transform = Transform(Basis(), origin).looking_at(origin + velocity, up)
+	var own_radius: float = body.get_apparent_radius() if body.has_method("get_apparent_radius") else 10.0
+	var obstacles: Array = []
+	for obstacle in NavigationSystem.get_obstacles(get_tree()):
+		if obstacle[2] != body and point.distance_to(obstacle[0]) > obstacle[1] + own_radius:
+			obstacles.append(obstacle)
+	var heading: Vector3 = offset.normalized()
+	var push: Vector3 = NavigationSystem.compute_avoidance(here, heading * max(speed, Constants.NAV_AVOID_MIN_SPEED), own_radius, obstacles)
+	heading = (heading + push * Constants.OFFSCREEN_AVOID_GAIN).normalized()
+	var origin: Vector3 = _outside_obstacles(here + heading * speed * dt, own_radius, obstacles)
+	var velocity: Vector3 = (origin - here) / max(dt, 0.001)
+	if velocity.length_squared() < 0.0001:
+		entry.velocity = Vector3.ZERO
+		return
+	var facing: Vector3 = velocity.normalized()
+	var up: Vector3 = Vector3.UP if abs(facing.dot(Vector3.UP)) < 0.98 else Vector3.RIGHT
+	body.global_transform = Transform(Basis(), origin).looking_at(origin + facing, up)
 	entry.velocity = velocity
+
+
+# `at`, moved out onto the surface of any obstacle it is inside (by the ship's own radius too).
+static func _outside_obstacles(at: Vector3, own_radius: float, obstacles: Array) -> Vector3:
+	for obstacle in obstacles:
+		var from_centre: Vector3 = at - obstacle[0]
+		var keep: float = obstacle[1] + own_radius
+		if from_centre.length() < keep:
+			at = obstacle[0] + (from_centre.normalized() if from_centre.length_squared() > 0.01 else Vector3.UP) * keep
+	return at
 
 
 func _nearest_enemy(body: RigidBody) -> Node:

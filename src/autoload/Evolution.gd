@@ -29,6 +29,7 @@ var _next_genome: int = 0
 var _bodies: Dictionary = {}  # NPC uid -> its AgentBody
 var _report_due: float = 0.0
 var active: bool = false  # Havens populated (AgentSystem); time only counts then
+var log_lives: bool = true  # Writes the life log (off in tests: GUT pre-run hook)
 
 
 func _ready():
@@ -603,6 +604,8 @@ func _clock() -> String:
 
 
 func _write_life(record: Dictionary, died: bool, killer: String, fitness: float, age: float) -> void:
+	if not log_lives:
+		return
 	var dir := Directory.new()
 	if not dir.dir_exists(Constants.EVO_LOG_DIR):
 		dir.make_dir_recursive(Constants.EVO_LOG_DIR)
