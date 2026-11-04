@@ -1,0 +1,34 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_raider_medium_15609"
+agent_type = "npc"
+ship_template_id = "preset_ship_raider_medium_15609"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.8,
+"caution": 0.571426,
+"disengage": 1.40107,
+"engage": 2.93608,
+"haul": 0.05,
+"mercy": 0.524241,
+"prospect": 0.584678,
+"pursuit": 0.0954619,
+"quiet": 0.181086,
+"range": 0.3,
+"retreat_hull": 0.674003,
+"return_fire": 0.481831,
+"teamwork": 0.895418
+}
+role = "raider"
+family = "raider"
+weight_class = "medium"
+archetype = "raider medium"
+temperament = "cautious"
+traits = [ "picks its fights", "close-in", "skittish", "lets runners go", "sells often" ]
+lives = 10
+fitness = 0.651312

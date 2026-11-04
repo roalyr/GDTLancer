@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/phoenix_light.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_prospector_light_15008"
+ship_model_name = "Phoenix I Prospector Light 15008"
+base_value = 591
+ship_scene = ExtResource( 2 )
+hull_integrity = 58
+cargo_capacity = 18
+interaction_radius = 12.5849
+apparent_radius = 10.0679
+signature = 1258.49
+sensor_strength = 1.0
+tool_slots_small = 2
+tool_slots_medium = 0
+tool_slots_large = 0
+module_slots = 1
+equipped_tools = [ "preset_laser_1_176_32", "tool_harpoon" ]
+equipped_modules = [ "preset_lance_1_104_3" ]
+salvage_yield = {
+"commodity_scrap": 12,
+"commodity_tech": 7
+}
+power_capacity = 77.2956
+power_regen = 7.37443
+mass = 3543.42
+linear_thrust = 387394.0
+angular_thrust = 360772.0
+alignment_threshold_angle_deg = 45.0
+model_scale = 0.83899
+panel_material = "res://assets/art/materials_generic/mat_hull_panel_offwhite.tres"
+variant_type = 1
+law_genes = {
+"shares": {
+"capacitor": 0.0654416,
+"engine": 0.286729,
+"hold": 0.151598,
+"reactor": 0.120715,
+"structure": 0.375517
+},
+"size": 0.59057,
+"tool_share": 1.0,
+"type": 1
+}

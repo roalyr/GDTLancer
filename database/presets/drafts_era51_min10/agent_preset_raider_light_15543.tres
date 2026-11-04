@@ -1,0 +1,34 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_raider_light_15543"
+agent_type = "npc"
+ship_template_id = "preset_ship_raider_light_15543"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.333796,
+"caution": 0.284003,
+"disengage": 0.340164,
+"engage": 2.69687,
+"haul": 0.435101,
+"mercy": 0.505384,
+"prospect": 0.0389306,
+"pursuit": 0.569927,
+"quiet": 0.302763,
+"range": 0.875387,
+"retreat_hull": 0.794093,
+"return_fire": 0.0904804,
+"teamwork": 0.678183
+}
+role = "raider"
+family = "raider"
+weight_class = "light"
+archetype = "raider light"
+temperament = "cautious"
+traits = [ "stubborn", "skittish", "runs silent" ]
+lives = 10
+fitness = 1.77908

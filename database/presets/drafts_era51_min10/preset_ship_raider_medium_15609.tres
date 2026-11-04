@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/phoenix_light.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_raider_medium_15609"
+ship_model_name = "Phoenix I Raider Medium 15609"
+base_value = 1615
+ship_scene = ExtResource( 2 )
+hull_integrity = 144
+cargo_capacity = 23
+interaction_radius = 17.5986
+apparent_radius = 14.0789
+signature = 1759.86
+sensor_strength = 1.0
+tool_slots_small = 5
+tool_slots_medium = 0
+tool_slots_large = 0
+module_slots = 1
+equipped_tools = [ "tool_harpoon", "preset_laser_1_140_24" ]
+equipped_modules = [ "preset_sensor_1_119" ]
+salvage_yield = {
+"commodity_scrap": 32,
+"commodity_tech": 23
+}
+power_capacity = 105.222
+power_regen = 16.1677
+mass = 9689.75
+linear_thrust = 1.18521e+06
+angular_thrust = 1.54349e+06
+alignment_threshold_angle_deg = 45.0
+model_scale = 1.17324
+panel_material = "res://assets/art/materials_generic/mat_hull_panel_offwhite.tres"
+variant_type = 1
+law_genes = {
+"shares": {
+"capacitor": 0.0325772,
+"engine": 0.36323,
+"hold": 0.072322,
+"reactor": 0.105602,
+"structure": 0.42627
+},
+"size": 1.61496,
+"tool_share": 1.0,
+"type": 1
+}

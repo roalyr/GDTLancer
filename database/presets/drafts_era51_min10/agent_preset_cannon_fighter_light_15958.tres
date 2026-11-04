@@ -1,0 +1,34 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_cannon_fighter_light_15958"
+agent_type = "npc"
+ship_template_id = "preset_ship_cannon_fighter_light_15958"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.349153,
+"caution": 0.342074,
+"disengage": 1.07722,
+"engage": 2.60604,
+"haul": 0.246,
+"mercy": 0.723985,
+"prospect": 0.0907599,
+"pursuit": 1.35649,
+"quiet": 0.273286,
+"range": 0.864134,
+"retreat_hull": 0.709746,
+"return_fire": 0.560175,
+"teamwork": 1.15317
+}
+role = "cannon-fighter"
+family = "fighter"
+weight_class = "light"
+archetype = "cannon-fighter light"
+temperament = "cautious"
+traits = [ "skittish" ]
+lives = 10
+fitness = 1.24364

@@ -1,0 +1,34 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_missile_cannon_raider_light_16193"
+agent_type = "npc"
+ship_template_id = "preset_ship_missile_cannon_raider_light_16193"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.104431,
+"caution": 0.426218,
+"disengage": 1.88144,
+"engage": 3.47252,
+"haul": 0.331155,
+"mercy": 0.204213,
+"prospect": 0.736383,
+"pursuit": 0.571667,
+"quiet": 0.342971,
+"range": 1.12955,
+"retreat_hull": 0.576963,
+"return_fire": 0.0705764,
+"teamwork": 1.04459
+}
+role = "missile-cannon-raider"
+family = "raider"
+weight_class = "light"
+archetype = "missile-cannon-raider light"
+temperament = "cautious"
+traits = [ "picks its fights", "skittish", "runs silent" ]
+lives = 6
+fitness = 0.854947

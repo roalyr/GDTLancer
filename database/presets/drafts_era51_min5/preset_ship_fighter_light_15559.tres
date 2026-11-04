@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/phoenix_light.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_fighter_light_15559"
+ship_model_name = "Phoenix I Fighter Light 15559"
+base_value = 351
+ship_scene = ExtResource( 2 )
+hull_integrity = 44
+cargo_capacity = 8
+interaction_radius = 10.5822
+apparent_radius = 8.46577
+signature = 1058.22
+sensor_strength = 1.0
+tool_slots_small = 1
+tool_slots_medium = 0
+tool_slots_large = 0
+module_slots = 1
+equipped_tools = [ "preset_laser_2_300_43" ]
+equipped_modules = [ "preset_plating_1_533" ]
+salvage_yield = {
+"commodity_scrap": 7,
+"commodity_tech": 4
+}
+power_capacity = 29.5405
+power_regen = 3.78682
+mass = 2106.72
+linear_thrust = 246271.0
+angular_thrust = 192851.0
+alignment_threshold_angle_deg = 45.0
+model_scale = 0.705481
+panel_material = "res://assets/art/materials_generic/mat_hull_panel_offwhite.tres"
+variant_type = 1
+law_genes = {
+"shares": {
+"capacitor": 0.0420662,
+"engine": 0.291533,
+"hold": 0.119318,
+"reactor": 0.096819,
+"structure": 0.450264
+},
+"size": 0.35112,
+"tool_share": 0.198641,
+"type": 1
+}

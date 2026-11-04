@@ -1,0 +1,21 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/asset_module_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_damper_1_137"
+module_name = "Sensor Damper I"
+description = "137 kg."
+base_value = 34
+mass = 137.208
+stat_modifiers = {
+"damper_mass": 137.208
+}
+lance = {
+}
+module_kind = "damper"
+variant_type = 1
+law_genes = {
+"mass": 137.208
+}

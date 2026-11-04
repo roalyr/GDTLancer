@@ -1,0 +1,32 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_fighter_light_15559"
+agent_type = "npc"
+ship_template_id = "preset_ship_fighter_light_15559"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.361767,
+"caution": 0.665348,
+"disengage": 0.681193,
+"engage": 1.0,
+"mercy": 0.470366,
+"prospect": 0.0244537,
+"pursuit": 1.0,
+"range": 1.02843,
+"retreat_hull": 0.0,
+"return_fire": 0.438412,
+"teamwork": 1.0
+}
+role = "fighter"
+family = "fighter"
+weight_class = "light"
+archetype = "fighter light"
+temperament = "measured"
+traits = [  ]
+lives = 6
+fitness = 0.320881

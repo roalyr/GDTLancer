@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/phoenix_light.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_missile_cannon_raider_light_16193"
+ship_model_name = "Phoenix I Missile Cannon Raider Light 16193"
+base_value = 801
+ship_scene = ExtResource( 2 )
+hull_integrity = 97
+cargo_capacity = 16
+interaction_radius = 13.9329
+apparent_radius = 11.1463
+signature = 1393.29
+sensor_strength = 1.0
+tool_slots_small = 3
+tool_slots_medium = 0
+tool_slots_large = 0
+module_slots = 1
+equipped_tools = [ "preset_missile_1_365_4", "tool_harpoon", "preset_cannon_2_300_46_60" ]
+equipped_modules = [  ]
+salvage_yield = {
+"commodity_scrap": 16,
+"commodity_tech": 7
+}
+power_capacity = 101.522
+power_regen = 5.39854
+mass = 4808.37
+linear_thrust = 446765.0
+angular_thrust = 460629.0
+alignment_threshold_angle_deg = 45.0
+model_scale = 0.928857
+panel_material = "res://assets/art/materials_generic/mat_hull_panel_offwhite.tres"
+variant_type = 1
+law_genes = {
+"shares": {
+"capacitor": 0.0633406,
+"engine": 0.247572,
+"hold": 0.0997129,
+"reactor": 0.0629045,
+"structure": 0.52647
+},
+"size": 0.801395,
+"tool_share": 0.949882,
+"type": 1
+}

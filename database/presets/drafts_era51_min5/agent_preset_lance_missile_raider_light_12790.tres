@@ -1,0 +1,33 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_lance_missile_raider_light_12790"
+agent_type = "npc"
+ship_template_id = "preset_ship_lance_missile_raider_light_12790"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.26899,
+"caution": 0.498661,
+"disengage": 1.22011,
+"engage": 2.5,
+"haul": 0.242393,
+"mercy": 0.388628,
+"prospect": 0.0,
+"pursuit": 1.0,
+"range": 1.0,
+"retreat_hull": 0.566871,
+"return_fire": 0.512443,
+"teamwork": 0.242037
+}
+role = "lance-missile-raider"
+family = "lance"
+weight_class = "light"
+archetype = "lance-missile-raider light"
+temperament = "cautious"
+traits = [ "skittish", "loner" ]
+lives = 5
+fitness = 0.859665

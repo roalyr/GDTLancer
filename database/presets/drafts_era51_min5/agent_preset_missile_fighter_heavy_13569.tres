@@ -1,0 +1,33 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_missile_fighter_heavy_13569"
+agent_type = "npc"
+ship_template_id = "preset_ship_missile_fighter_heavy_13569"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.118538,
+"caution": 0.543732,
+"disengage": 0.867415,
+"engage": 0.913069,
+"haul": 0.261004,
+"mercy": 0.739793,
+"prospect": 0.014035,
+"pursuit": 1.03366,
+"range": 0.688671,
+"retreat_hull": 0.0151096,
+"return_fire": 0.504435,
+"teamwork": 1.04199
+}
+role = "missile-fighter"
+family = "fighter"
+weight_class = "heavy"
+archetype = "missile-fighter heavy"
+temperament = "measured"
+traits = [  ]
+lives = 5
+fitness = 0.146165

@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/phoenix_light.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_cannon_fighter_medium_14678"
+ship_model_name = "Phoenix II Cannon Fighter Medium 14678"
+base_value = 1138
+ship_scene = ExtResource( 2 )
+hull_integrity = 130
+cargo_capacity = 25
+interaction_radius = 15.6595
+apparent_radius = 12.5276
+signature = 1565.95
+sensor_strength = 1.0
+tool_slots_small = 3
+tool_slots_medium = 0
+tool_slots_large = 0
+module_slots = 1
+equipped_tools = [ "preset_laser_1_130_21", "preset_laser_1_145_29", "preset_cannon_3_357_152_27" ]
+equipped_modules = [ "preset_damper_2_300" ]
+salvage_yield = {
+"commodity_scrap": 23,
+"commodity_tech": 10
+}
+power_capacity = 104.489
+power_regen = 12.0256
+mass = 6826.68
+linear_thrust = 503501.0
+angular_thrust = 583458.0
+alignment_threshold_angle_deg = 45.0
+model_scale = 1.04397
+panel_material = "res://assets/art/materials_generic/mat_hull_panel_dark.tres"
+variant_type = 2
+law_genes = {
+"shares": {
+"capacitor": 0.0459179,
+"engine": 0.19915,
+"hold": 0.111803,
+"reactor": 0.107882,
+"structure": 0.535247
+},
+"size": 1.13778,
+"tool_share": 0.892992,
+"type": 2
+}
