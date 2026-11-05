@@ -1,7 +1,7 @@
 # UI shots: starts a new game (docked at home: the fitting window), screenshots each store tab and
 # a prompt, for before/after checks of UI changes. Runs the project's autoloads, so as a scene:
 #     godot res://tools/ui_shots.tscn out=/abs/dir
-# Writes fitting_<tab>.png and prompt.png there, and beside each a .txt of every control shown
+# Writes fitting_<tab>.png, announcement.png and prompt.png there, and beside each a .txt of every control shown
 # (type, rect, colours, styles; no text: prices vary), then quits. Nothing is saved.
 extends Node
 
@@ -26,6 +26,9 @@ func _ready() -> void:
 		fitting._on_tab(tab)
 		yield(_wait(0.5), "completed")
 		_shot("fitting_%s" % tab)
+	EventBus.emit_signal("announcement", "UI shots: an announcement", "warning")
+	yield(_wait(0.2), "completed")
+	_shot("announcement")
 	PromptDialog.ask(fitting.get_parent(), "Save before exiting?", "UNSAVED PLAY IS LOST ON EXIT.", [["save", "SAVE AND EXIT"], ["exit", "EXIT"], ["cancel", "CANCEL"]])
 	yield(_wait(0.5), "completed")
 	_shot("prompt")

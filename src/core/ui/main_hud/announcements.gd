@@ -1,5 +1,5 @@
 # Announcements: short HUD messages (dock and attack feedback, warnings) as labels instead of
-# windows. Each sits on a flat 25% black strip (the HUD button style), coloured by how much attention
+# windows. Each sits on a flat 25% black strip (the HUD button style; scenes/ui/hud/announcement.tscn), coloured by how much attention
 # it needs (Constants ANNOUNCE_COLORS: info, warning, danger), holds for ANNOUNCE_HOLD seconds and
 # fades out over ANNOUNCE_FADE. A new one takes the slot at ANNOUNCE_ANCHOR and pushes the older ones
 # up, just enough to fit, where they keep fading; at most ANNOUNCE_MAX show, the oldest dropped
@@ -7,6 +7,8 @@
 # Drawn above the other HUD panels; clicks pass through (mouse_filter ignore).
 
 extends Control
+
+const AnnouncementScene = preload("res://scenes/ui/hud/announcement.tscn")
 
 var _entries: Array = []  # [{"panel", "label", "age", "y"}], newest first
 
@@ -29,22 +31,10 @@ func announce(message: String, level: String = "info") -> void:
 			_entries.erase(entry)
 			_entries.push_front(entry)
 			return
-	var panel := PanelContainer.new()
-	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0, 0, 0, 0.25)
-	style.content_margin_left = Constants.ANNOUNCE_PADDING.x
-	style.content_margin_right = Constants.ANNOUNCE_PADDING.x
-	style.content_margin_top = Constants.ANNOUNCE_PADDING.y
-	style.content_margin_bottom = Constants.ANNOUNCE_PADDING.y
-	panel.add_stylebox_override("panel", style)
-	var label := Label.new()
+	var panel: PanelContainer = AnnouncementScene.instance()
+	var label: Label = panel.get_node("Label")
 	label.text = message
-	label.align = Label.ALIGN_CENTER
-	label.autowrap = false
-	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	label.add_color_override("font_color", _color(level))
-	panel.add_child(label)
 	add_child(panel)
 	var entry := {"panel": panel, "label": label, "age": 0.0, "y": INF}
 	_entries.push_front(entry)

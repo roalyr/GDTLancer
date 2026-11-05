@@ -1215,7 +1215,6 @@ const ANNOUNCE_FADE = 1.5  # s fading out
 const ANNOUNCE_MAX = 5  # Shown at once; the oldest goes first
 const ANNOUNCE_ANCHOR = 0.62  # The newest's bottom edge, as a share of the screen height
 const ANNOUNCE_GAP = 4.0  # px between two
-const ANNOUNCE_PADDING = Vector2(14, 6)  # px round the text
 const ANNOUNCE_SLIDE_RATE = 12.0  # How fast pushed ones slide up to their places (1/s)
 const COLOR_UI_TARGET_SELECTED = Color(1.0, 0.9, 0.35, 1.0)  # Yellow: the selected target, anything not hostile, wrecks included
 # Unselected targets' marks and labels. Ships and stations by their side to the player only, not
