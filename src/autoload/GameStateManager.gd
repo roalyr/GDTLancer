@@ -13,7 +13,6 @@ const SAVE_TMP_EXT = ".tmp"  # Being written (save_game)
 const SAVE_BACKUP_EXT = ".bak"  # The save before the last
 const SAVE_FORMAT_VERSION = 2  # 2: evolution, play time and a summary
 
-var keep_evolution: bool = false  # The next reset keeps the evolution running (a new run in the same world)
 
 
 func _ready() -> void:
@@ -94,10 +93,7 @@ func lose_ship() -> void:
 
 func reset_to_defaults() -> void:
 	GameState.reset_state()
-	if keep_evolution:
-		keep_evolution = false
-	else:
-		Evolution.new_run()
+	Evolution.new_run()
 
 
 func save_game(slot_id: int = 0) -> bool:

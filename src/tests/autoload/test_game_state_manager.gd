@@ -148,14 +148,11 @@ func test_outdated_saves_are_removed():
 	assert_false(file.file_exists(path))
 
 
-func test_reset_keeps_the_evolution_only_when_asked():
+func test_reset_starts_the_world_over():
 	Evolution.new_run()
 	Evolution.game_time = 50.0
-	GameStateManager.keep_evolution = true
 	GameStateManager.reset_to_defaults()
-	assert_almost_eq(Evolution.game_time, 50.0, 0.01)
-	GameStateManager.reset_to_defaults()
-	assert_almost_eq(Evolution.game_time, 0.0, 0.01, "The next reset starts it over")
+	assert_almost_eq(Evolution.game_time, 0.0, 0.01, "A new game, a new world")
 
 
 func test_a_save_broken_mid_write_falls_back_to_the_one_before():
