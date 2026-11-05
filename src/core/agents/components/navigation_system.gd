@@ -73,6 +73,9 @@ func set_command_stopping():
 	_current_command = {"type": CommandType.STOPPING}
 
 
+var cruise_speed: float = INF  # m/s a MOVE_TO thrusts up to (the AI's cruising; INF: flat out)
+
+
 func set_command_move_to(position: Vector3):
 	_current_command = {"type": CommandType.MOVE_TO, "target_pos": position}
 

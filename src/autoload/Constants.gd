@@ -416,6 +416,11 @@ const AI_PURSUIT = 1.0
 const AI_MERCY = 0.5
 const AI_RETURN_FIRE = 0.5
 const AI_RUNNER_SPEED_SHARE = 0.5
+# Cruising: an NPC patrolling, or heading home in no hurry (hull above AI_CRUISE_MIN_HULL), flies at
+# most a share of its top speed, its own between these (picked once a life); fights, flights,
+# chases, salvage and escorting are flown flat out (NavigationSystem.cruise_speed, MOVE_TO).
+const AI_CRUISE_SPEED_SHARE = [0.45, 0.65]
+const AI_CRUISE_MIN_HULL = 0.5  # Share of its hull below which it heads home flat out
 const AI_RETURN_FIRE_WINDOW = 4.0  # s
 const AI_SPARE_TIME = 60.0  # s
 # Desperation (Agent.get_desperation): 1 - wallet / (the ship's value * DESPERATION_COMFORT), 0..1.

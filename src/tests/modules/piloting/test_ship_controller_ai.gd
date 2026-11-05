@@ -909,3 +909,48 @@ func test_gives_up_a_wreck_it_gets_nothing_off_and_goes_for_others():
 	ai._think(Constants.AI_SALVAGE_GIVE_UP * 0.5)
 	assert_eq(ai.get_state(), AIScript.AIState.PATROL, "Nothing off it for too long: gives up")
 	assert_null(ai.scan_for_wreck(), "and does not go back to it")
+
+
+func test_patrols_and_unhurried_trips_home_are_cruised_fights_are_flat_out():
+	_set_speed(hostile, 200.0, false)
+	ai.initialize({"patrol_center": Vector3.ZERO})
+	ai._current_state = AIScript.AIState.PATROL
+	assert_true(ai.is_cruising(), "On patrol: relaxed")
+	assert_between(ai.cruise_speed(), 200.0 * Constants.AI_CRUISE_SPEED_SHARE[0] - 0.01, 200.0 * Constants.AI_CRUISE_SPEED_SHARE[1] + 0.01, "at its own share of top speed")
+	ai._current_state = AIScript.AIState.DEPART
+	assert_true(ai.is_cruising(), "Home in no hurry: relaxed")
+	hostile.hull = hostile.hull_max * Constants.AI_CRUISE_MIN_HULL * 0.5
+	assert_false(ai.is_cruising(), "Badly hurt: home flat out")
+	for state in [AIScript.AIState.COMBAT, AIScript.AIState.FLEE, AIScript.AIState.SALVAGE]:
+		ai._current_state = state
+		assert_false(ai.is_cruising(), "Fighting, fleeing, salvaging: flat out")
+
+
+class NavStub:
+	extends Node
+	var agent_body
+	var movement_system
+	var cruise_speed: float = INF
+	var _current_command: Dictionary = {}
+
+
+func test_a_move_coasts_once_at_its_cruising_speed():
+	_set_speed(hostile, 200.0, false)
+	var movement = hostile.movement_system
+	movement.agent_body = hostile
+	var nav = NavStub.new()
+	nav.agent_body = hostile
+	nav.movement_system = movement
+	add_child_autofree(nav)
+	var command = load("res://src/core/agents/components/navigation_system/command_move_to.gd").new()
+	command.initialize(nav)
+	var ahead: Vector3 = movement.get_forward() * 50000.0  # Far, straight ahead: no braking yet
+	nav._current_command = {"target_pos": hostile.global_transform.origin + ahead}
+	hostile.linear_velocity = movement.get_forward() * 100.0
+	command.execute(0.016)
+	assert_gt(movement._accumulated_force.length(), 0.0, "Flat out: thrusts on")
+	movement._accumulated_force = Vector3.ZERO
+	nav.cruise_speed = 90.0
+	command.execute(0.016)
+	assert_almost_eq(movement._accumulated_force.length(), 0.0, 0.001, "At its cruise: coasts")
+	command.free()

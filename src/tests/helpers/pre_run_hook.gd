@@ -4,8 +4,10 @@
 
 extends GutHookScript
 
+const TEST_SAVE_DIR = "user://test_savegames/"  # Tests that change the folder put it back to this, never to a real one
+
 
 func run() -> void:
-	GameStateManager.save_dir = "user://test_savegames/"
+	GameStateManager.save_dir = TEST_SAVE_DIR
 	Evolution.log_lives = false
 	Evolution.frozen = false  # The tests exercise evolving; frozen worlds have their own

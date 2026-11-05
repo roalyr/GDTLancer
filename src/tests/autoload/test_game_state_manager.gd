@@ -3,17 +3,20 @@
 extends GutTest
 
 const TEST_SLOT = 999
+const TEST_SAVE_DIR = "user://test_savegames/"  # The pre-run hook's: the real folders are never written
 
 
 func before_each():
 	GameState.reset_state()
-	GameStateManager.save_dir = "user://test_savegames/"  # Never the player's real saves
+	GameStateManager.save_dir = TEST_SAVE_DIR  # Never the player's real saves
 
 
 func after_each():
 	GameState.reset_state()
+	GameStateManager.mode = GameStateManager.MODE_PLAY
+	GameStateManager.save_dir = TEST_SAVE_DIR  # Set by the mode to the real folder: back to the test one first
+	Evolution.frozen = false  # As the pre-run hook leaves it
 	GameStateManager.delete_all_saves()  # Only the test folder
-	GameStateManager.save_dir = GameStateManager.PLAY_SAVE_DIR
 
 
 func _populate_game_state() -> void:
@@ -177,7 +180,7 @@ func test_a_save_broken_mid_write_falls_back_to_the_one_before():
 # Switches mode but keeps the test folder (set_mode points save_dir at the mode's real folder).
 func _as_mode(mode: String) -> void:
 	GameStateManager.mode = mode
-	GameStateManager.save_dir = "user://test_savegames/"
+	GameStateManager.save_dir = TEST_SAVE_DIR
 	Evolution.frozen = false  # As the tests run it (pre-run hook)
 
 

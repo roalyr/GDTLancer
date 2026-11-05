@@ -15,6 +15,7 @@ func _ready() -> void:
 		if a.begins_with("out="):
 			out = a.trim_prefix("out=")
 	Directory.new().make_dir_recursive(out)
+	GameStateManager.save_dir = "user://ui_shots_saves/"  # A respawn saves: never into the player's saves
 	add_child(load(ProjectSettings.get_setting("application/run/main_scene")).instance())
 	yield(_wait(2.0), "completed")
 	var menu: Node = _find(get_tree().root, "_on_new_game_pressed")

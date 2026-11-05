@@ -77,5 +77,6 @@ func execute(delta: float):
 			_movement_system.request_thrust_forward()  # Retrograde burn
 		else:
 			_movement_system.request_thrust_brake()  # Generic brake while rotating
-	else:
+	elif closing_speed < _nav_sys.cruise_speed:
 		_movement_system.request_thrust_forward()
+	# At its cruising speed: coasts (drag holds it there) instead of thrusting harder

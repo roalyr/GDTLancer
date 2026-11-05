@@ -203,7 +203,7 @@ func _go_home(body: RigidBody, ai: Node, entry: Dictionary, dt: float, threat) -
 	_move(body, entry, ai._home_point, dt, 0.0)
 
 
-# Toward `point` at OFFSCREEN_SPEED_SHARE of top speed, stopping `short` m from it; faces its way.
+# Toward `point` at OFFSCREEN_SPEED_SHARE of top speed (at most its cruise when cruising), stopping `short` m from it; faces its way.
 # It steers round obstacles as a flown ship does (NavigationSystem.compute_avoidance) and never ends
 # a step inside one; an obstacle round the point itself (a station round its dock point) is let be.
 func _move(body: RigidBody, entry: Dictionary, point: Vector3, dt: float, short: float) -> void:
@@ -213,7 +213,11 @@ func _move(body: RigidBody, entry: Dictionary, point: Vector3, dt: float, short:
 	if distance <= 1.0:
 		entry.velocity = Vector3.ZERO
 		return
-	var speed: float = min(body.get_top_speed() * Constants.OFFSCREEN_SPEED_SHARE, distance / max(dt, 0.001))
+	var ai = body.get_node_or_null("AIController")
+	var top: float = body.get_top_speed() * Constants.OFFSCREEN_SPEED_SHARE
+	if ai != null and ai.has_method("is_cruising") and ai.is_cruising():
+		top = min(top, ai.cruise_speed())  # In no hurry, as flown (ShipControllerAI.is_cruising)
+	var speed: float = min(top, distance / max(dt, 0.001))
 	var own_radius: float = body.get_apparent_radius() if body.has_method("get_apparent_radius") else 10.0
 	var obstacles: Array = []
 	for obstacle in NavigationSystem.get_obstacles(get_tree()):

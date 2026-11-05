@@ -96,6 +96,7 @@ var _mercy: float = Constants.AI_MERCY  # Chance of letting a runner go that is 
 var _return_fire: float = Constants.AI_RETURN_FIRE  # Chance, per flight, that it shoots back running
 var _teamwork: float = 1.0  # Times its desire to help friends and join its leader (gene)
 var _quiet: float = 0.3  # Share of its thrust it cuts while keeping clear of an unseen enemy (gene)
+var _cruise_share: float = rand_range(Constants.AI_CRUISE_SPEED_SHARE[0], Constants.AI_CRUISE_SPEED_SHARE[1])  # Of its top speed, when in no hurry
 var _caution: float = Constants.AI_AVOID_SHARE  # Keeps clear of unseen enemies this much stronger (gene)
 var _burn_reserve: float = Constants.AI_AFTERBURNER_RESERVE  # Power share kept from the afterburner (gene)
 var _shooting_back: bool = true  # This flight's roll of _return_fire
@@ -291,6 +292,27 @@ func _set_quiet(on: bool) -> void:
 		movement.thrust_throttle = 1.0 - _quiet if _quiet_now else 1.0
 
 
+# Cruising or flat out (Constants AI_CRUISE_*): relaxed on patrol and on an unhurried way home; flat
+# out to fight, flee, chase, salvage or keep by a ward.
+func _set_cruise() -> void:
+	var nav = agent_script.navigation_system
+	if not is_instance_valid(nav):
+		return
+	nav.cruise_speed = cruise_speed() if is_cruising() else INF
+
+
+func is_cruising() -> bool:
+	if _current_state == AIState.PATROL:
+		return get_ward() == null
+	if _current_state == AIState.DEPART:
+		return float(agent_script.hull) >= Constants.AI_CRUISE_MIN_HULL * max(float(agent_script.hull_max), 1.0)
+	return false
+
+
+func cruise_speed() -> float:
+	return _cruise_share * max(agent_script.get_top_speed(), 1.0)
+
+
 # Its group's leader (Evolution ranks; Constants RENOWN_*), unless it leads or has none.
 func get_leader() -> Node:
 	if _havens.empty() or agent_script.evo_uid == "" or _teamwork < Constants.AI_FOLLOW_MIN_TEAMWORK:
@@ -415,6 +437,7 @@ func _think(delta: float) -> void:
 			and agent_script.global_transform.origin.distance_to(_beacon.global_transform.origin) <= max(_beacon.radius, Constants.BEACON_LOITER_RADIUS) + Constants.ROUTE_WAYPOINT_REACHED:
 		_loiter_left -= delta
 	_tick_decision(delta)
+	_set_cruise()
 	match _current_state:
 		AIState.PATROL:
 			_process_patrol()
