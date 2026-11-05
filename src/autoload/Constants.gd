@@ -843,9 +843,10 @@ const XENO_HIVE_SEED = 13
 # silhouette per preset family: fighter a swept dart, lance a spear with coils, prospector a round
 # hull with claws, raider a flat wedge with prongs, scavenger a box frame with a crane. `engines`:
 # exhaust nozzles, shares of the length (one off the centre line gets a twin across).
-# Ship models (ShipModel) are this long nose to tail at model scale 1; a ship's model_scale stretches it.
+# Ship models (ShipModel) are this long nose to tail at model scale 1 (tools/import_model.sh scales a
+# model made at any size to it); a ship's model_scale stretches it.
 const SHIP_MODEL_LENGTH = 17.0  # m
-const SHIP_MODEL_LENGTH_TOLERANCE = 0.2  # The content test lets a model be this share longer or shorter (the squat scavenger is 0.18 short)
+const SHIP_MODEL_LENGTH_TOLERANCE = 0.2  # The content test lets a model be this share longer or shorter (imported models fit exactly; the squat scavenger placeholder is 0.18 short)
 const PLACEHOLDER_HULLS_DIR = "res://scenes/prefabs/ships/placeholders/"  # <family>_<weight>.tscn
 const HULL_FORM_GIRTH = {"light": 0.85, "medium": 1.0, "heavy": 1.25}  # Across, by weight class
 const HULL_FORM_EXHAUST_SCALE = 0.7

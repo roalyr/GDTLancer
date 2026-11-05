@@ -55,10 +55,10 @@ New designs reach the game only when you export them as presets (`tools/export_p
 
 A model is made in Blender and imported with one command. The game needs nothing else from it: it builds the collision hull, the hit surface and the levels of detail itself.
 
-**Start from a starter:** copy `assets/models/starters/ship_starter.blend` (or `station_starter.blend`). It holds a small model that already keeps the rules below, every library material by its game name (coloured roughly as the game draws it), the engine empties, and a `Guides` collection (the 17 m length box, the nose arrow, a ship for scale) that is never exported. Its Text Editor has a README. After adding a library material, rebuild the starters: `tools/blender -b -P tools/make_starters.py`.
+**Start from a starter:** copy `assets/models/starters/ship_starter.blend` (or `station_starter.blend`). It holds a small model that already keeps the rules below, every library material by its game name (coloured roughly as the game draws it), the engine empties, and a `Guides` collection (the nose arrow and a box of the game's ship length for ships, a ship for scale for stations) that is never exported. Its Text Editor has a README. After adding a library material, rebuild the starters: `tools/blender -b -P tools/make_starters.py`.
 
 **In Blender**
-- **Ships are 17 m nose to tail**, nose toward **+Y**, top toward **+Z**. A ship's size comes from its preset (`model_scale`), so every ship model is made at this one length.
+- **Ships: any size**, nose toward **+Y**, top toward **+Z**. The import scales every ship model to 17 m nose to tail (`Constants.SHIP_MODEL_LENGTH`), and the game sizes each ship from its preset (`model_scale`: a light fighter is about 14 m, a heavy one 33 m). Only the proportions count; engine empties scale with the rest.
 - **Stations** can be any size. Ships undock above their top.
 - **Materials are picked by name.** Name a material after a file in `assets/art/materials_generic/` (`hull_dark_metal` for `mat_hull_dark_metal.tres`; case and spaces don't matter, so "Hull Dark Metal" works). Short names: `glow`, `metal`, `dark`, `light`. Name it **`paint`** for the surfaces that take the faction's paint. Blender's colours don't reach the game: the library's materials replace them. To add a new look, add a `mat_<name>.tres` to the library.
 - **Engines:** add an empty named `Engine` at each nozzle, unrotated. Its scale sets the size of the exhaust. Exhausts trail aft.
@@ -68,7 +68,7 @@ A model is made in Blender and imported with one command. The game needs nothing
     tools/import_model.sh assets/models/ships/<name>/<name>.blend
     tools/import_model.sh --station assets/models/stations/<name>/<name>.blend
 
-It exports the `.glb` beside the `.blend` itself, leaving `Guides` out. A `.glb` exported by hand works too.
+It exports the `.glb` beside the `.blend` itself, leaving `Guides` out, and scales a ship's `.glb` to 17 m. A `.glb` exported by hand works too.
 
 It makes the levels of detail (`lod/`) and the hit surface (`hit/`) beside the model, imports them, and writes the scene `scenes/prefabs/ships/<name>.tscn` (or `scenes/prefabs/station/<name>.tscn`). A scene that already exists is kept. Last, it checks the scene against these rules and lists any problems. Run it again after every change.
 

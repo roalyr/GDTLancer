@@ -17,7 +17,7 @@ static func ship_problems(scene_path: String) -> Array:
 		return problems
 	var length: float = ModelLooks.bounds(root).size.z
 	if abs(length - Constants.SHIP_MODEL_LENGTH) > Constants.SHIP_MODEL_LENGTH * Constants.SHIP_MODEL_LENGTH_TOLERANCE:
-		problems.append("%.1f m nose to tail: ship models are %.0f m (the preset's model_scale sizes the ship)" % [length, Constants.SHIP_MODEL_LENGTH])
+		problems.append("%.1f m nose to tail: ship models are %.0f m (re-run tools/import_model.sh, which fits them; the preset's model_scale sizes the ship)" % [length, Constants.SHIP_MODEL_LENGTH])
 	var engines: Array = []
 	var own: Node = root.get_node_or_null("Engines")
 	if own != null:

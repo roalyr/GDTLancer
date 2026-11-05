@@ -8,8 +8,8 @@ Each holds:
 - every library material (assets/art/materials_generic/mat_*.tres, the faction colours aside), named
   the way the game looks them up and coloured like the game draws them, plus "Paint";
 - for ships, two "Engine" empties at the nozzles;
-- a "Guides" collection the export leaves out: the 17 m ship length box and a nose arrow (ships), a
-  ship-sized box for scale (stations);
+- a "Guides" collection the export leaves out: a box of the game's ship length and a nose arrow
+  (ships; any length works, the import fits ships to it), a ship-sized box for scale (stations);
 - a "README" text (Blender's Text Editor) with the rules.
 
 Re-run after adding a library material:
@@ -34,7 +34,8 @@ README = """GDTLancer model starter
 =======================
 Full rules: CONTENT.md, "Models". In short:
 
-- Ships are 17 m nose to tail, nose toward +Y, top toward +Z (the Guides box).
+- Ships: any size, nose toward +Y, top toward +Z. The import scales a ship to 17 m nose to tail
+  (the Guides box) and the game sizes it from its preset; only the proportions count.
 - Stations can be any size; ships undock above their top. The guide box is one ship for scale.
 - Materials are picked by NAME. Use the ones in this file; Blender's colours here only preview the
   game's. "Paint" takes the owner's faction paint. A new look = a new mat_<name>.tres in
@@ -176,7 +177,7 @@ def ship_starter(materials):
     for side, x in (("L", -0.7), ("R", 0.7)):
         empty("Engine.%s" % side, (x, -half, 0.0), 0.8)
     guides = guides_collection()
-    guide_box("Ship length 17 m", (6.0, SHIP_LENGTH, 4.0), (0.0, 0.0, 0.0), guides)
+    guide_box("Game ship length 17 m (any size works)", (6.0, SHIP_LENGTH, 4.0), (0.0, 0.0, 0.0), guides)
     arrow = empty("Nose +Y", (0.0, half, 0.0), 3.0, "SINGLE_ARROW")
     arrow.rotation_euler = (-math.pi * 0.5, 0.0, 0.0)  # The arrow points along its +Z: tip it to +Y
     move_to(arrow, guides)
