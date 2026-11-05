@@ -1,0 +1,5 @@
+[gd_scene format=2]
+
+[node name="Note" type="Label"]
+custom_colors/font_color = Color( 1, 1, 1, 0.6 )
+autowrap = true

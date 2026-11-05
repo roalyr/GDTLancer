@@ -3,7 +3,8 @@
 # sells every ship (the one flown is traded in; preset designs come fitted), part and commodity
 # (bought into the hold, sold back from it). The store shows one tab at a time (STORE_TABS), its
 # goods under headings (weight class, part kind), each a two-line row: name over what it is, its
-# price on the button beside it. The frame is the scene; rows are rebuilt after every change.
+# price on the button beside it. The frame is the scene, and so is each piece of the lists
+# (scenes/ui/menus/fitting/: row, heading, note, buttons); the lists are rebuilt after every change.
 
 extends Control
 
@@ -22,9 +23,12 @@ onready var _status: Label = $Panel/Layout/Body/Content/Status
 
 const STORE_TABS = ["ships", "weapons", "equipment", "modules", "cargo"]
 const WEAPON_TYPES = ["laser", "missile", "cannon"]
-const DETAIL_COLOR = Color(1, 1, 1, 0.6)
-const HEADING_COLOR = Color(1.0, 0.82, 0.45)
-const ROW_SHADE = Color(1, 1, 1, 0.05)
+const RowScene = preload("res://scenes/ui/menus/fitting/fitting_row.tscn")
+const RowButtonScene = preload("res://scenes/ui/menus/fitting/fitting_row_button.tscn")
+const ButtonScene = preload("res://scenes/ui/menus/fitting/fitting_button.tscn")
+const GroupHeadingScene = preload("res://scenes/ui/menus/fitting/fitting_group_heading.tscn")
+const HeadingScene = preload("res://scenes/ui/menus/fitting/fitting_heading.tscn")
+const NoteScene = preload("res://scenes/ui/menus/fitting/fitting_note.tscn")
 const GROUP_OPEN_MAX = 12  # A part heading over more rows than this starts folded (tap it to unfold)
 
 var _tab: String = "ships"
@@ -325,13 +329,10 @@ func _parts_first(a: String, b: String) -> bool:
 
 
 func _add_heading(container: Node, text: String) -> void:
-	var heading := Label.new()
-	heading.text = text
-	heading.add_color_override("font_color", HEADING_COLOR)
 	if container.get_child_count() > 0:
-		var gap := Control.new()
-		gap.rect_min_size = Vector2(0, 10)
-		container.add_child(gap)
+		_add_gap(container, 10)
+	var heading: Label = HeadingScene.instance()
+	heading.text = text
 	container.add_child(heading)
 
 
@@ -340,66 +341,42 @@ func _add_group_heading(title: String, count: int) -> bool:
 	var key: String = _tab + "/" + title
 	var folded: bool = _folded.get(key, _tab != "ships" and count > GROUP_OPEN_MAX)
 	if _store.get_child_count() > 0:
-		var gap := Control.new()
-		gap.rect_min_size = Vector2(0, 6)
-		_store.add_child(gap)
-	var button: Button = _add_button(_store, "%s  (%d)  %s" % [title, count, "+" if folded else "-"], false, "_on_fold", [key, not folded])
-	button.add_color_override("font_color", HEADING_COLOR)
-	button.add_color_override("font_color_hover", HEADING_COLOR)
-	button.add_color_override("font_color_pressed", HEADING_COLOR)
+		_add_gap(_store, 6)
+	_add_button(_store, "%s  (%d)  %s" % [title, count, "+" if folded else "-"], false, "_on_fold", [key, not folded], GroupHeadingScene)
 	return not folded
 
 
+func _add_gap(container: Node, height: float) -> void:
+	var gap := Control.new()
+	gap.rect_min_size = Vector2(0, height)
+	container.add_child(gap)
+
+
 func _add_note(container: Node, text: String) -> void:
-	var note := Label.new()
+	var note: Label = NoteScene.instance()
 	note.text = text
-	note.autowrap = true
-	note.add_color_override("font_color", DETAIL_COLOR)
 	container.add_child(note)
 
 
 # A row: `title` over `detail` (dimmer, wrapping), and its buttons ([text, disabled, method, binds])
 # beside them. Every other row is shaded, so rows read apart.
 func _add_row(container: Node, index: int, title: String, detail: String, buttons: Array) -> void:
-	var panel := PanelContainer.new()
-	var style := StyleBoxFlat.new()
-	style.bg_color = ROW_SHADE if index % 2 == 0 else Color(0, 0, 0, 0)
-	style.content_margin_left = 8
-	style.content_margin_right = 4
-	style.content_margin_top = 4
-	style.content_margin_bottom = 4
-	panel.add_stylebox_override("panel", style)
+	var panel: PanelContainer = RowScene.instance()
+	if index % 2 != 0:
+		panel.self_modulate = Color(1, 1, 1, 0)  # Unshaded: the panel's own look only, not its contents
 	container.add_child(panel)
-	var row := HBoxContainer.new()
-	row.add_constant_override("separation", 8)
-	panel.add_child(row)
-	var text := VBoxContainer.new()
-	text.size_flags_horizontal = SIZE_EXPAND_FILL
-	text.add_constant_override("separation", 0)
-	row.add_child(text)
-	var name_label := Label.new()
-	name_label.text = title.to_upper()
-	name_label.clip_text = true
-	text.add_child(name_label)
-	if detail != "":
-		var detail_label := Label.new()
-		detail_label.text = detail
-		detail_label.autowrap = true
-		detail_label.add_color_override("font_color", DETAIL_COLOR)
-		text.add_child(detail_label)
+	panel.get_node("Row/Text/Name").text = title.to_upper()
+	var detail_label: Label = panel.get_node("Row/Text/Detail")
+	detail_label.text = detail
+	detail_label.visible = detail != ""
 	for spec in buttons:
-		var button: Button = _add_button(row, spec[0], spec[1], spec[2], spec[3])
-		button.align = Button.ALIGN_CENTER
-		button.rect_min_size = Vector2(120, 48)
-		button.size_flags_vertical = SIZE_SHRINK_CENTER
+		_add_button(panel.get_node("Row"), spec[0], spec[1], spec[2], spec[3], RowButtonScene)
 
 
-func _add_button(container: Node, text: String, disabled: bool, method: String, binds: Array) -> Button:
-	var button := Button.new()
+func _add_button(container: Node, text: String, disabled: bool, method: String, binds: Array, scene: PackedScene = ButtonScene) -> Button:
+	var button: Button = scene.instance()
 	button.text = text.to_upper()  # Like the HUD buttons
 	button.disabled = disabled
-	button.align = Button.ALIGN_LEFT
-	button.rect_min_size = Vector2(0, 40)
 	button.connect("pressed", self, method, binds)
 	container.add_child(button)
 	return button

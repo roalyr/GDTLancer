@@ -1,0 +1,25 @@
+[gd_scene load_steps=2 format=2]
+
+[sub_resource type="StyleBoxFlat" id=1]
+content_margin_left = 8.0
+content_margin_right = 4.0
+content_margin_top = 4.0
+content_margin_bottom = 4.0
+bg_color = Color( 1, 1, 1, 0.05 )
+
+[node name="Row" type="PanelContainer"]
+custom_styles/panel = SubResource( 1 )
+
+[node name="Row" type="HBoxContainer" parent="."]
+custom_constants/separation = 8
+
+[node name="Text" type="VBoxContainer" parent="Row"]
+size_flags_horizontal = 3
+custom_constants/separation = 0
+
+[node name="Name" type="Label" parent="Row/Text"]
+clip_text = true
+
+[node name="Detail" type="Label" parent="Row/Text"]
+custom_colors/font_color = Color( 1, 1, 1, 0.6 )
+autowrap = true
