@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource( 1 )
 template_id = "preset_ship_archetype_scavenger_light"
-ship_model_name = "Phoenix I Light Scavenger"
+ship_model_name = "Mk I Light Scavenger"
 base_value = 727
 ship_scene = ExtResource( 2 )
 hull_integrity = 66
@@ -32,7 +32,6 @@ linear_thrust = 544551.0
 angular_thrust = 543431.0
 alignment_threshold_angle_deg = 45.0
 model_scale = 0.899048
-panel_material = "res://assets/art/materials_generic/mat_hull_panel_offwhite.tres"
 variant_type = 1
 law_genes = {
 "shares": {

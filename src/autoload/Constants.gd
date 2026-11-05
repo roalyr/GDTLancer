@@ -250,8 +250,8 @@ const SHOT_BLOCK_MASK = 0x7FFFFFFF & ~HIT_SURFACE_LAYER  # What blocks a line of
 
 # Hull scars (HullScars): every hit on a ship's plating leaves a glowing blob that cools to a dark
 # lump, sunk into the plating. Sizes are in metres, not scaled with the ship (a beam is a beam).
-# Scar and slag counts are for a ship of interaction radius HULL_SCAR_REFERENCE_RADIUS (the Phoenix
-# Light) and scale with it: a heavy of twice the radius carries twice as many.
+# Scar and slag counts are for a ship of interaction radius HULL_SCAR_REFERENCE_RADIUS (the reference
+# ship) and scale with it: a heavy of twice the radius carries twice as many.
 const HULL_SCAR_REFERENCE_RADIUS = 15.0  # m
 const HULL_SCAR_MAX_PER_SHIP = 36  # The oldest scar gives way beyond this
 const HULL_SCAR_SIZE_PER_SQRT_DAMAGE = 0.6  # m across; a 5-damage hit leaves about 1.3 m
@@ -611,7 +611,7 @@ const WRECK_MAX: int = 16  # Past this, the oldest are removed even with salvage
 # Every ship and part stat follows from a few physical quantities (masses, a laser's shot energy)
 # by power laws: amount = REF_AMOUNT * (quantity / REF_QUANTITY) ^ EXPONENT. Exponents under 1:
 # returns diminish, so piling up one stat never pays and the best designs sit somewhere in the
-# middle. The reference points are the Phoenix Light and the Ablative Laser: their genes give
+# middle. The reference points are the reference ship and the Ablative Laser: their genes give
 # their old numbers. A ship's own subsystems follow the same laws as the modules that add to them.
 # Laws as [reference mass kg, amount at that mass, exponent].
 const LAW_HULL = [3300.0, 120.0, 0.8]  # Structure or plating mass -> hull points
@@ -622,10 +622,10 @@ const LAW_HOLD = [600.0, 20.0, 1.0]  # Hold mass -> cargo units
 
 # Ships: size factor s = mass / LAW_SHIP_REF_MASS; length grows as s^(1/3), surface as s^(2/3).
 # The mass splits into structure, engines, reactor, capacitor and hold by the ship's shares.
-const LAW_SHIP_REF_MASS = 6000.0  # kg (the Phoenix Light)
+const LAW_SHIP_REF_MASS = 6000.0  # kg (the reference ship)
 const LAW_SHIP_SIZE_MIN = 0.2
 const LAW_SHIP_SIZE_MAX = 8.0
-const LAW_SHIP_SHARES = {"structure": 0.55, "engine": 0.2, "reactor": 0.1, "capacitor": 0.05, "hold": 0.1}  # The Phoenix Light's
+const LAW_SHIP_SHARES = {"structure": 0.55, "engine": 0.2, "reactor": 0.1, "capacitor": 0.05, "hold": 0.1}  # The reference ship's
 const LAW_SHIP_SHARE_MIN = {"structure": 0.2, "engine": 0.03, "reactor": 0.02, "capacitor": 0.01, "hold": 0.0}
 const LAW_SHIP_RADIUS = 12.0  # m apparent radius at s = 1, times length
 const LAW_SHIP_INTERACTION_RADIUS = 15.0  # m at s = 1, times length
@@ -667,12 +667,12 @@ const LAW_SENSOR = [250.0, 0.5, 0.5]  # Module mass -> sensor strength added (0.
 # from afar. It jams a share of their reach (lasers, missiles, cannons), more the bigger it is
 # against the hull: LAW_DAMPER_SHARE at LAW_DAMPER_REF_SHARE of the hull's mass, as the square root,
 # at most LAW_DAMPER_MAX; divided by the attacker's sensor strength. Never below the range at which
-# the ship is seen well by eye, EWAR_SIGHT_PER_METRE times its apparent radius (a Phoenix Light,
+# the ship is seen well by eye, EWAR_SIGHT_PER_METRE times its apparent radius (a reference ship,
 # 12 m: 960 m). Active: it draws LAW_DAMPER_POWER_PER_KG power a second per kg off the reactor.
 const LAW_DAMPER_SHARE = 0.5
 const LAW_DAMPER_REF_SHARE = 0.05
 const LAW_DAMPER_MAX = 0.75
-const LAW_DAMPER_POWER_PER_KG = 0.007  # The reference 300 kg damper: 2.1 a second (a Phoenix Light makes 10)
+const LAW_DAMPER_POWER_PER_KG = 0.007  # The reference 300 kg damper: 2.1 a second (a reference ship makes 10)
 const EWAR_SIGHT_PER_METRE = 80.0
 # Decoy launcher: a charge per LAW_DECOY_CHARGE_MASS kg. A missile coming at the ship within
 # DECOY_TRIGGER_TIME s of impact draws a decoy (one each); DECOY_SEDUCE_CHANCE of them take the missile
@@ -705,7 +705,7 @@ const LAW_BAY_LOAD_SHARE = 0.85
 # Genes: lance (nail) mass m and count n.
 #   damage = DAMAGE * (m/m0)^a * (v / REF_SPEED)^SPEED_EXP, past the nose LENGTH * (m/m0)^(1/3) m,
 #   reload RELOAD * (m/m0)^b s, module mass m * (n + SEAT_NAILS) (the seat weighs as much as that).
-const LAW_LANCE_DAMAGE = [200.0, 120.0, 0.8]  # A 200 kg lance kills a Phoenix Light at 200 m/s
+const LAW_LANCE_DAMAGE = [200.0, 120.0, 0.8]  # A 200 kg lance kills a reference ship at 200 m/s
 const LAW_LANCE_LENGTH = [200.0, 12.0, 1.0 / 3.0]
 const LAW_LANCE_RELOAD = [200.0, 4.0, 0.5]
 const LAW_LANCE_REF_SPEED = 200.0  # m/s
@@ -725,11 +725,11 @@ const LAW_LANCE_COUNT_RANGE = [1.0, 12.0]
 # one use each; more only from a base or a missile ship's wreck. Cannons (rail drives): fixed
 # forward, the ship aims; rounds fly at a finite speed (lead the target), a magazine of them, little
 # power. Laws below are [reference, value there, exponent], as LAW_HULL.
-const LAW_LASER_POWER_PER_ENERGY = 1.5  # Power drawn per unit of shot energy: two reference lasers outdraw a Phoenix Light's reactor
+const LAW_LASER_POWER_PER_ENERGY = 1.5  # Power drawn per unit of shot energy: two reference lasers outdraw a reference ship's reactor
 
 # Missiles (genes: round_mass kg, count). The rack holds count missiles, plus RACK_ROUNDS' mass of frame.
 const LAW_MISSILE_REF_MASS = 100.0  # kg
-const LAW_MISSILE_DAMAGE = [100.0, 50.0, 0.9]  # Round mass -> warhead damage: three reference missiles kill a Phoenix Light
+const LAW_MISSILE_DAMAGE = [100.0, 50.0, 0.9]  # Round mass -> warhead damage: three reference missiles kill a reference ship
 const LAW_MISSILE_SPEED = [100.0, 320.0, -0.1]  # -> top speed, m/s past the launcher's
 const LAW_MISSILE_ACCEL = [100.0, 120.0, -0.2]  # -> m/s^2
 const LAW_MISSILE_TURN = [100.0, 1.2, -0.25]  # -> rad/s: heavy missiles turn wide, so an agile ship can make them overshoot
@@ -815,16 +815,11 @@ const LANCE_SCOOP_INTERVAL = 0.25  # s
 const LANCE_QUIVER_RING = 0.25  # Spares sit round the stern this share of the nose distance off the axis
 const LANCE_QUIVER_SCALE = 0.6  # and are drawn this much shorter (stowed)
 
-# Ship types and part types (lineages 1-3): seeds evolution starts from, and how they look.
+# Ship types and part types (lineages 1-3): seeds evolution starts from.
 const SHIP_TYPE_SEEDS = {
 	1: {"size": 0.5, "shares": {"structure": 0.45, "engine": 0.3, "reactor": 0.1, "capacitor": 0.05, "hold": 0.1}},
 	2: {"size": 1.0, "shares": {"structure": 0.55, "engine": 0.2, "reactor": 0.1, "capacitor": 0.05, "hold": 0.1}},
 	3: {"size": 2.5, "shares": {"structure": 0.65, "engine": 0.15, "reactor": 0.1, "capacitor": 0.04, "hold": 0.06}},
-}
-const SHIP_TYPE_PANEL_MATERIALS = {  # Hull panel material (surface 1 of the Phoenix hull) by ship type
-	1: "res://assets/art/materials_generic/mat_hull_panel_offwhite.tres",
-	2: "res://assets/art/materials_generic/mat_hull_panel_dark.tres",
-	3: "res://assets/art/materials_generic/mat_hull_accent_orange.tres",
 }
 # The xenohive's forms (XenoForm): rings of petals, spikes and glowing cells round a spindle, at odd
 # counts, leaning `lean` degrees off the tail-ward axis (over 90: forward) and twisted `twist` about
@@ -841,7 +836,6 @@ const XENO_FORMS = {
 		{"shape": "petal", "count": 3, "lean": 70.0, "twist": -20.0, "size": 0.4, "z": 0.3, "out": 0.05},
 	]},
 }
-const XENO_VESSEL_LENGTH = 17.0  # m at model scale 1, like the other hull models
 const XENO_VESSEL_SEED = 5
 const XENO_HIVE_LENGTH = 240.0  # m
 const XENO_HIVE_SEED = 13
@@ -849,8 +843,10 @@ const XENO_HIVE_SEED = 13
 # silhouette per preset family: fighter a swept dart, lance a spear with coils, prospector a round
 # hull with claws, raider a flat wedge with prongs, scavenger a box frame with a crane. `engines`:
 # exhaust nozzles, shares of the length (one off the centre line gets a twin across).
+# Ship models (ShipModel) are this long nose to tail at model scale 1; a ship's model_scale stretches it.
+const SHIP_MODEL_LENGTH = 17.0  # m
+const SHIP_MODEL_LENGTH_TOLERANCE = 0.2  # The content test lets a model be this share longer or shorter (the squat scavenger is 0.18 short)
 const PLACEHOLDER_HULLS_DIR = "res://scenes/prefabs/ships/placeholders/"  # <family>_<weight>.tscn
-const HULL_FORM_LENGTH = 17.0  # m at model scale 1, like the other hull models
 const HULL_FORM_GIRTH = {"light": 0.85, "medium": 1.0, "heavy": 1.25}  # Across, by weight class
 const HULL_FORM_EXHAUST_SCALE = 0.7
 const HULL_FORMS = {
@@ -907,7 +903,8 @@ const HULL_FORMS = {
 # archetypes of its roster (FactionTemplate.roster), each as likely.
 const EVO_WORLD_FROZEN = true
 const ARCHETYPES_DIR = "res://database/presets/archetypes/"
-# Placeholder havens (HavenMarker.form), PrimitiveForms like the hulls: a haven a hub in a ring,
+# Placeholder stations (PlaceholderStation, scenes/prefabs/station/placeholders/<form>.tscn: a
+# HavenMarker's `model`), PrimitiveForms like the hulls: a haven a hub in a ring,
 # a post a rock with silos, a refinery a spine of tanks and stacks, a den a spiked rock.
 const STATION_FORMS = {
 	"haven": {"length": 220.0, "parts": [
@@ -938,7 +935,8 @@ const STATION_FORMS = {
 		{"shape": "sphere", "size": Vector3(0.06, 0.04, 0.06), "at": Vector3(0, 0.05, -0.2), "look": "glow"},
 	]},
 }
-const SHIP_DEFAULT_SCENE = "res://scenes/prefabs/ships/phoenix_light.tscn"
+const SHIP_DEFAULT_SCENE = "res://scenes/prefabs/ships/placeholders/fighter_medium.tscn"  # Hull of a ship built from genes before it gets its own
+const STATION_DEFAULT_MODEL = "res://scenes/prefabs/station/placeholders/haven.tscn"  # A haven with no model of its own
 const PART_TYPE_SEEDS = {  # Part kind -> type -> genes
 	"laser": {1: {"mass": 150.0, "energy": 2.5}, 2: {"mass": 300.0, "energy": 5.0}, 3: {"mass": 600.0, "energy": 12.0}},
 	"plating": {1: {"mass": 500.0}, 2: {"mass": 1000.0}, 3: {"mass": 2000.0}},
@@ -975,7 +973,7 @@ const SECTOR_LAYOUT_SUFFIX = "_layout.tscn"
 const RADIO_RANGE = 20000.0  # m
 const RADIO_SPEAKER_COOLDOWN = 15.0  # s
 const RADIO_LOG_LINES = 8  # Lines the debug overlay keeps
-const HAZARD_RADIATION_DPS = 12.0  # Hull a second at a star's surface (a Phoenix Light has 120)
+const HAZARD_RADIATION_DPS = 12.0  # Hull a second at a star's surface (a reference ship has 120)
 const HAZARD_TICK = 0.5  # s between hazard damage steps
 # Beacons (BeaconNetwork) remember what goes on round them: heat (hull lost to enemy fire within
 # BEACON_HEAT_RADIUS, as shares of the victims' hulls, a kill counting BEACON_HEAT_PER_KILL more) and

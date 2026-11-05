@@ -32,7 +32,6 @@ linear_thrust = 364394.0
 angular_thrust = 404477.0
 alignment_threshold_angle_deg = 45.0
 model_scale = 1.0
-panel_material = ""
 variant_type = 2
 law_genes = {
 "shares": {

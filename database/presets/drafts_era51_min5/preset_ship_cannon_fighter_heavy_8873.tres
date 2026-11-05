@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource( 1 )
 template_id = "preset_ship_cannon_fighter_heavy_8873"
-ship_model_name = "Phoenix III Cannon Fighter Heavy 8873"
+ship_model_name = "Mk III Cannon Fighter Heavy 8873"
 base_value = 3263
 ship_scene = ExtResource( 2 )
 hull_integrity = 370
@@ -32,7 +32,6 @@ linear_thrust = 828692.0
 angular_thrust = 1.36436e+06
 alignment_threshold_angle_deg = 45.0
 model_scale = 1.48324
-panel_material = "res://assets/art/materials_generic/mat_hull_accent_orange.tres"
 variant_type = 3
 law_genes = {
 "shares": {

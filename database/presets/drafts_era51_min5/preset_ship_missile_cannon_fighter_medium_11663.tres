@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource( 1 )
 template_id = "preset_ship_missile_cannon_fighter_medium_11663"
-ship_model_name = "Phoenix II Missile Cannon Fighter Medium 11663"
+ship_model_name = "Mk II Missile Cannon Fighter Medium 11663"
 base_value = 845
 ship_scene = ExtResource( 2 )
 hull_integrity = 103
@@ -32,7 +32,6 @@ linear_thrust = 398778.0
 angular_thrust = 418496.0
 alignment_threshold_angle_deg = 45.0
 model_scale = 0.945448
-panel_material = "res://assets/art/materials_generic/mat_hull_panel_dark.tres"
 variant_type = 2
 law_genes = {
 "shares": {

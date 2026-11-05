@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource( 1 )
 template_id = "preset_ship_lancer_light_15618"
-ship_model_name = "Phoenix I Lancer Light 15618"
+ship_model_name = "Mk I Lancer Light 15618"
 base_value = 635
 ship_scene = ExtResource( 2 )
 hull_integrity = 71
@@ -32,7 +32,6 @@ linear_thrust = 414360.0
 angular_thrust = 395398.0
 alignment_threshold_angle_deg = 45.0
 model_scale = 0.859672
-panel_material = "res://assets/art/materials_generic/mat_hull_panel_offwhite.tres"
 variant_type = 1
 law_genes = {
 "shares": {

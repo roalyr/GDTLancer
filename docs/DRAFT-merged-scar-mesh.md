@@ -20,7 +20,7 @@ Replaced by view bands in the next draft: see `docs/DRAFT-view-detail.md`. `Scre
 
   | Ship | Scar chunks | Slag chunks | Total |
   |---|---|---|---|
-  | Light Phoenix (36 scars + 56 slag) | 3 | 4 | 7 |
+  | Light hull (36 scars + 56 slag) | 3 | 4 | 7 |
   | Heavy (72 + 112) | 5 | 7 | 12 |
 
   Lightly damaged ships use 1 + 1. The upload per change is at most one chunk: about 16 × 66 vertices, 50 KB.
@@ -46,4 +46,4 @@ Replaced by view bands in the next draft: see `docs/DRAFT-view-detail.md`. `Scre
 - [ ] **Looks unchanged:** lumps, cooling over 20 s, slag flaring every 5–10 s (each blob on its own period, from `UV2.y`), dither and posterize.
 - [ ] **Mobile GPU:** `UV2` and `COLOR` arrive as full floats. If cooling looks stepped after long sessions, something is compressing them or lowering their precision.
 - [ ] **Culling:** each chunk's AABB covers its blobs, so off-screen scars cull per chunk.
-- [ ] **Slag at zero hull:** up to 56 on the light Phoenix, but only with 28 or more scars. Check that two slag blobs on one scar don't look crowded; tune `HULL_SLAG_SIZE_SHARE` and `HULL_SLAG_MAX_SIZE` if they do.
+- [ ] **Slag at zero hull:** up to 56 on a light hull, but only with 28 or more scars. Check that two slag blobs on one scar don't look crowded; tune `HULL_SLAG_SIZE_SHARE` and `HULL_SLAG_MAX_SIZE` if they do.

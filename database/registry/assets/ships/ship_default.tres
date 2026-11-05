@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource( 1 )
 template_id = "ship_default"
-ship_model_name = "Phoenix Light"
+ship_model_name = "Stock Hull"
 base_value = 1000
 ship_scene = ExtResource( 2 )
 hull_integrity = 120
@@ -32,7 +32,6 @@ linear_thrust = 450000.0
 angular_thrust = 499500.0
 alignment_threshold_angle_deg = 45.0
 model_scale = 1.0
-panel_material = ""
 variant_type = 2
 law_genes = {
 "shares": {

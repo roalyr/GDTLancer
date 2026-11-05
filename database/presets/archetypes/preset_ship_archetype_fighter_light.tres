@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource( 1 )
 template_id = "preset_ship_archetype_fighter_light"
-ship_model_name = "Phoenix I Light Fighter"
+ship_model_name = "Mk I Light Fighter"
 base_value = 591
 ship_scene = ExtResource( 2 )
 hull_integrity = 71
@@ -32,7 +32,6 @@ linear_thrust = 386479.0
 angular_thrust = 360057.0
 alignment_threshold_angle_deg = 45.0
 model_scale = 0.83931
-panel_material = "res://assets/art/materials_generic/mat_hull_panel_offwhite.tres"
 variant_type = 1
 law_genes = {
 "shares": {

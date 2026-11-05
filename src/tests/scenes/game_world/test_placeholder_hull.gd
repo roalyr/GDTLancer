@@ -4,7 +4,8 @@
 
 extends GutTest
 
-const PrimitiveForm = preload("res://src/scenes/game_world/primitive_form.gd")
+const PrimitiveForm = preload("res://src/scenes/game_world/models/primitive_form.gd")
+const ModelLooks = preload("res://src/scenes/game_world/models/model_looks.gd")
 const ARCHETYPES = "res://database/presets/archetypes/"
 
 
@@ -27,8 +28,8 @@ func test_every_archetype_flies_its_placeholder_hull():
 			assert_gt(hull.get_node("Model/PrimitiveForm").get_child_count(), 4, "%s %s: a model as it instances" % [family, weight])
 			assert_gt(hull.get_node("Engines").get_child_count(), 0, "Engines")
 			assert_not_null(hull.get_node_or_null("CollisionShape"), "A collision shape for the ship to take")
-			var radius: float = PrimitiveForm.extent(hull.get_node("Model/PrimitiveForm"))[0]
-			assert_true(radius > 6.0 and radius < 13.0, "About a 17 m hull (%.1f m to its far corner)" % radius)
+			var length: float = ModelLooks.bounds(hull).size.z
+			assert_almost_eq(length, Constants.SHIP_MODEL_LENGTH, Constants.SHIP_MODEL_LENGTH * Constants.SHIP_MODEL_LENGTH_TOLERANCE, "%s %s: a ship model's length" % [family, weight])
 
 
 func test_heavier_hulls_are_wider_and_carry_more():

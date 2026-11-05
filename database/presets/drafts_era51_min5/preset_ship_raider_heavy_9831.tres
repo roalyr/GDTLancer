@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource( 2 )
 template_id = "preset_ship_raider_heavy_9831"
-ship_model_name = "Phoenix III Raider Heavy 9831"
+ship_model_name = "Mk III Raider Heavy 9831"
 base_value = 6854
 ship_scene = ExtResource( 1 )
 hull_integrity = 728
@@ -32,7 +32,6 @@ linear_thrust = 1.88369e+06
 angular_thrust = 3.97173e+06
 alignment_threshold_angle_deg = 45.0
 model_scale = 1.89954
-panel_material = "res://assets/art/materials_generic/mat_hull_accent_orange.tres"
 variant_type = 3
 law_genes = {
 "shares": {

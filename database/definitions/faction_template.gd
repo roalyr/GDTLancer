@@ -18,10 +18,9 @@ export var territory: float = 0.0  # m round its haven where any ship is its ene
 export var salvage_as: String = ""  # Its wrecks hold this commodity instead, all their salvage (aliens: biotech)
 export var escorts: bool = false  # Its workers take escorts, who share their sales (Wages)
 export var patrol_wages: bool = false  # Pays armed ships docking at its havens for their time out (Wages)
-export var own_hull: bool = false  # Its archetypes keep its own hull (ship_scene) rather than their placeholder
-export(String, FILE, "*.tres") var hull_material: String = ""  # Paint on placeholder hulls' painted parts
-export(String, FILE, "*.tres") var station_material: String = ""  # Paint on its stations
-export(String, FILE, "*.tscn") var ship_scene: String = ""  # Hull model of its evolved (arena) ships
+export(String, FILE, "*.tres") var hull_material: String = ""  # Paint on its ships' painted surfaces (ModelLooks)
+export(String, FILE, "*.tres") var station_material: String = ""  # Paint on its stations' painted surfaces
+export(String, FILE, "*.tscn") var ship_scene: String = ""  # A hull of its own its ships fly instead of their archetype's (aliens); "" none
 export var roster: Array = []  # What its havens fly in a frozen world: archetype names (database/presets/archetypes/agent_archetype_<name>.tres)
 
 
@@ -31,7 +30,7 @@ func to_spec() -> Dictionary:
 	var spec := {
 		"name": display_name, "color": color, "enemies": enemies.duplicate(), "standing": starting_standing,
 		"no_standing": no_standing, "distress": distress, "silent": silent, "escorts": escorts,
-		"patrol_wages": patrol_wages, "own_hull": own_hull, "hull_material": hull_material,
+		"patrol_wages": patrol_wages, "hull_material": hull_material,
 		"station_material": station_material, "ship_scene": ship_scene, "roster": roster.duplicate(),
 	}
 	if territory > 0.0:

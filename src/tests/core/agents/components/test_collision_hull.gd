@@ -4,7 +4,7 @@
 extends GutTest
 
 const CollisionHull = preload("res://src/core/agents/components/collision_hull.gd")
-const PHOENIX = "res://assets/models/ships/Phoenix_light.glb"
+const TEST_HULL = "res://src/tests/fixtures/models/test_hull/test_hull.glb"  # A small model made for the tests (lod/ and hit/ beside it)
 
 
 func _box_instance(size: Vector3) -> MeshInstance:
@@ -46,7 +46,7 @@ func test_plain_meshes_give_a_hull_placed_in_the_body():
 func test_models_use_their_lowest_level_of_detail_and_skip_effects():
 	var root = Spatial.new()
 	add_child_autofree(root)
-	var model: Spatial = load(PHOENIX).instance()
+	var model: Spatial = load(TEST_HULL).instance()
 	root.add_child(model)
 	var plume = _box_instance(Vector3(1, 1, 200))  # An engine plume: not a model file, so not hull
 	root.add_child(plume)
@@ -105,7 +105,7 @@ func test_asteroids_collide_as_their_outline():
 
 
 func test_baked_surfaces_live_beside_the_model():
-	assert_eq(CollisionHull.baked_surface_path(PHOENIX), "res://assets/models/ships/hit/Phoenix_light_hit.res")
+	assert_eq(CollisionHull.baked_surface_path(TEST_HULL), "res://src/tests/fixtures/models/test_hull/hit/test_hull_hit.res")
 
 
 func _ship_with_hit_surface() -> StaticBody:
@@ -115,7 +115,7 @@ func _ship_with_hit_surface() -> StaticBody:
 	add_child_autofree(ship)
 	var root = Spatial.new()
 	ship.add_child(root)
-	root.add_child(load(PHOENIX).instance())
+	root.add_child(load(TEST_HULL).instance())
 	hull_shape.shape = CollisionHull.shape_for(root, Transform.IDENTITY)
 	CollisionHull.add_hit_surface(ship, root)
 	return ship
@@ -158,4 +158,4 @@ func test_a_grown_hull_of_primitive_meshes_is_its_body_not_its_exhaust_plume():
 	var box := AABB(shape.points[0], Vector3.ZERO)
 	for point in shape.points:
 		box = box.expand(point)
-	assert_gt(box.size.z, Constants.XENO_VESSEL_LENGTH * 0.8, "Nose to tail, not the 1 m engine plume model")
+	assert_gt(box.size.z, Constants.SHIP_MODEL_LENGTH * 0.8, "Nose to tail, not the 1 m engine plume model")

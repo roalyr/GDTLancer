@@ -16,7 +16,6 @@ territory = 5000.0
 salvage_as = "commodity_biotech"
 escorts = false
 patrol_wages = false
-own_hull = true
 hull_material = "res://assets/art/materials_generic/mat_hull_faction_xenohive.tres"
 station_material = "res://assets/art/materials_generic/mat_hull_faction_xenohive.tres"
 ship_scene = "res://scenes/prefabs/ships/xenohive_vessel.tscn"

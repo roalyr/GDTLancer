@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=2]
 
-[ext_resource path="res://src/scenes/game_world/xenohive_vessel.gd" type="Script" id=1]
+[ext_resource path="res://src/scenes/game_world/models/xenohive_vessel.gd" type="Script" id=1]
 [ext_resource path="res://scenes/prefabs/effects/engine_exhaust.tscn" type="PackedScene" id=2]
 [ext_resource path="res://src/core/agents/effects/engine_exhaust_set.gd" type="Script" id=3]
 

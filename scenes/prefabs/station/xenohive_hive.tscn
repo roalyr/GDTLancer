@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://src/scenes/game_world/models/xenohive_hive.gd" type="Script" id=1]
+
+[node name="xenohive_hive" type="Spatial"]
+script = ExtResource( 1 )

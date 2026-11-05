@@ -9,7 +9,7 @@ export var haven_id: String = ""  # Its location id (docking, prices, saves): un
 export var display_name: String = ""
 export var faction: String = ""  # Its owner's faction id (database/factions/); "" neutral
 export var station: String = ""  # A station already in the sector scene (by node name); "" builds one here
-export var form: String = ""  # Its placeholder look (Constants.STATION_FORMS: haven, post, refinery, den); "" the cargo ship
+export(PackedScene) var model: PackedScene = null  # Its look (a StationModel scene: scenes/prefabs/station/); none: Constants.STATION_DEFAULT_MODEL
 export var ships: Dictionary = {}  # Faction id -> ships living from it (each haven's are a group, with ranks and a leader)
 export var prefer_role: String = ""  # A family its ships are more often (Evolution), prefer_share of the time
 export var prefer_share: float = 0.0
@@ -33,8 +33,8 @@ func to_spec(at: Vector3) -> Dictionary:
 	}
 	if station != "":
 		spec["station"] = station
-	if form != "":
-		spec["form"] = form
+	if model != null:
+		spec["model"] = model.resource_path
 	if prefer_role != "":
 		spec["prefer_role"] = prefer_role
 		spec["prefer_share"] = prefer_share

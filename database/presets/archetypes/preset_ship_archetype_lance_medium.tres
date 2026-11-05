@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource( 1 )
 template_id = "preset_ship_archetype_lance_medium"
-ship_model_name = "Phoenix II Medium Lance"
+ship_model_name = "Mk II Medium Lance"
 base_value = 1148
 ship_scene = ExtResource( 2 )
 hull_integrity = 146
@@ -32,7 +32,6 @@ linear_thrust = 437993.0
 angular_thrust = 509069.0
 alignment_threshold_angle_deg = 45.0
 model_scale = 1.0471
-panel_material = "res://assets/art/materials_generic/mat_hull_panel_dark.tres"
 variant_type = 2
 law_genes = {
 "shares": {

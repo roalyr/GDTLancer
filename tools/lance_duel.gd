@@ -5,8 +5,8 @@
 #     godot --no-window -s tools/lance_duel.gd -- --duels=8 --speed=6 [--weapons: missile and cannon designs]
 #         [--match=lancer,laser: that one match only]
 # Designs (Genome genomes, see DESIGNS): "lancer" (small and fast: lance and harpoon), "lance_laser"
-# (Phoenix Light sized, engine-heavy: lance and a laser), "laser" (the Phoenix Light, two lasers),
-# "laser_heavy" (a big slow three-laser ship), "hauler" (an unarmed Phoenix Light), "lancer_fast"
+# (reference ship sized, engine-heavy: lance and a laser), "laser" (the reference ship, two lasers),
+# "laser_heavy" (a big slow three-laser ship), "hauler" (an unarmed reference ship), "lancer_fast"
 # (engine-heavy, a 200 kg lance and a light laser), "lance_twin" (lance_laser with a second launcher
 # beside the first). See MATCHES.
 extends SceneTree

@@ -1,9 +1,14 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://src/scenes/game_world/sector_layout/markers/haven_marker.gd" type="Script" id=1]
 [ext_resource path="res://src/scenes/game_world/sector_layout/markers/sector_layout_markers.gd" type="Script" id=2]
 [ext_resource path="res://src/scenes/game_world/sector_layout/markers/beacon_marker.gd" type="Script" id=3]
 [ext_resource path="res://src/scenes/game_world/sector_layout/markers/hazard_marker.gd" type="Script" id=4]
+[ext_resource path="res://scenes/prefabs/station/placeholders/den.tscn" type="PackedScene" id=5]
+[ext_resource path="res://scenes/prefabs/station/placeholders/haven.tscn" type="PackedScene" id=6]
+[ext_resource path="res://scenes/prefabs/station/placeholders/post.tscn" type="PackedScene" id=7]
+[ext_resource path="res://scenes/prefabs/station/placeholders/refinery.tscn" type="PackedScene" id=8]
+[ext_resource path="res://scenes/prefabs/station/xenohive_hive.tscn" type="PackedScene" id=9]
 
 [node name="Layout" type="Spatial"]
 script = ExtResource( 2 )
@@ -26,7 +31,6 @@ haven_id = "station_elace_home"
 display_name = "Elace Free Port"
 faction = ""
 station = "ElaceHomeStation"
-form = ""
 ships = {
 }
 prefer_role = ""
@@ -44,7 +48,7 @@ haven_id = "verdant_haven"
 display_name = "Verdant Haven"
 faction = "verdant"
 station = ""
-form = "haven"
+model = ExtResource( 6 )
 ships = {
 "verdant": 5
 }
@@ -63,7 +67,7 @@ haven_id = "verdant_post"
 display_name = "Verdant Post"
 faction = "verdant"
 station = ""
-form = "post"
+model = ExtResource( 7 )
 ships = {
 "verdant": 2
 }
@@ -82,7 +86,7 @@ haven_id = "violet_haven"
 display_name = "Violet Haven"
 faction = "violet"
 station = ""
-form = "haven"
+model = ExtResource( 6 )
 ships = {
 "violet": 5
 }
@@ -101,7 +105,7 @@ haven_id = "violet_post"
 display_name = "Violet Post"
 faction = "violet"
 station = ""
-form = "post"
+model = ExtResource( 7 )
 ships = {
 "violet": 2
 }
@@ -120,7 +124,7 @@ haven_id = "elace_refinery"
 display_name = "Elace Refinery"
 faction = ""
 station = ""
-form = "refinery"
+model = ExtResource( 8 )
 ships = {
 }
 prefer_role = ""
@@ -139,7 +143,7 @@ haven_id = "raider_den"
 display_name = "Raider Den"
 faction = "raiders"
 station = ""
-form = "den"
+model = ExtResource( 5 )
 ships = {
 "raiders": 4
 }
@@ -158,7 +162,7 @@ haven_id = "xenohive"
 display_name = "Xenohive"
 faction = "xenohive"
 station = ""
-form = ""
+model = ExtResource( 9 )
 ships = {
 "xenohive": 3
 }

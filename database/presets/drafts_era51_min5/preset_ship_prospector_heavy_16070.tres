@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource( 2 )
 template_id = "preset_ship_prospector_heavy_16070"
-ship_model_name = "Phoenix III Prospector Heavy 16070"
+ship_model_name = "Mk III Prospector Heavy 16070"
 base_value = 2501
 ship_scene = ExtResource( 1 )
 hull_integrity = 284
@@ -32,7 +32,6 @@ linear_thrust = 896365.0
 angular_thrust = 1.35049e+06
 alignment_threshold_angle_deg = 45.0
 model_scale = 1.35732
-panel_material = "res://assets/art/materials_generic/mat_hull_accent_orange.tres"
 variant_type = 3
 law_genes = {
 "shares": {

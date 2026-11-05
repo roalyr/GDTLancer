@@ -315,7 +315,7 @@ func test_station_window_is_shown_while_docked_at_home():
 
 func test_a_small_reactor_runs_quieter():
 	var reference: float = ShipLaws.apply_law(Constants.LAW_REGEN, 6000.0 * Constants.LAW_SHIP_SHARES.reactor)
-	assert_almost_eq(ShipFit.reactor_signature_factor(6000.0, reference, reference), 1.0, 0.0001, "A Phoenix Light's own reactor")
+	assert_almost_eq(ShipFit.reactor_signature_factor(6000.0, reference, reference), 1.0, 0.0001, "A reference ship's own reactor")
 	assert_almost_eq(ShipFit.reactor_signature_factor(6000.0, reference, reference * 0.5), 1.0 - Constants.SIG_REACTOR_SHARE * 0.5, 0.0001, "Half the power: quieter")
 	assert_gt(ShipFit.reactor_signature_factor(6000.0, reference, reference * 2.0), 1.0, "Power cells on top: louder")
 	assert_eq(ShipFit.reactor_signature_factor(6000.0, 0.0, 0.0), 1.0, "No reactor law: as it is")

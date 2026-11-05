@@ -1,15 +1,15 @@
-# Tests for ShipLaws: the reference genes give the Phoenix Light and Ablative Laser, and the laws
+# Tests for ShipLaws: the reference genes give the reference ship and Ablative Laser, and the laws
 # trade one stat for another the way the physics says.
 
 extends GutTest
 
 const ShipLaws = preload("res://src/core/systems/ship_laws.gd")
 
-const PHOENIX = {"type": 2, "size": 1.0, "shares": {"structure": 0.55, "engine": 0.2, "reactor": 0.1, "capacitor": 0.05, "hold": 0.1}}
+const REFERENCE_SHIP = {"type": 2, "size": 1.0, "shares": {"structure": 0.55, "engine": 0.2, "reactor": 0.1, "capacitor": 0.05, "hold": 0.1}}
 
 
-func test_reference_ship_is_the_phoenix_light():
-	var stats: Dictionary = ShipLaws.ship_stats(PHOENIX)
+func test_reference_genes_give_the_reference_ship():
+	var stats: Dictionary = ShipLaws.ship_stats(REFERENCE_SHIP)
 	assert_almost_eq(stats.mass, 6000.0, 0.01)
 	assert_eq(stats.hull_integrity, int(Constants.LAW_HULL[1]))
 	assert_almost_eq(stats.linear_thrust, 450000.0, 1.0)
@@ -35,8 +35,8 @@ func test_reference_laser_is_the_ablative_laser():
 
 
 func test_bigger_ships_are_longer_tougher_and_turn_slower():
-	var small: Dictionary = ShipLaws.ship_stats({"size": 0.25, "shares": PHOENIX.shares})
-	var big: Dictionary = ShipLaws.ship_stats({"size": 4.0, "shares": PHOENIX.shares})
+	var small: Dictionary = ShipLaws.ship_stats({"size": 0.25, "shares": REFERENCE_SHIP.shares})
+	var big: Dictionary = ShipLaws.ship_stats({"size": 4.0, "shares": REFERENCE_SHIP.shares})
 	assert_lt(small.hull_integrity, Constants.LAW_HULL[1])
 	assert_gt(big.hull_integrity, Constants.LAW_HULL[1])
 	assert_lt(big.hull_integrity, Constants.LAW_HULL[1] * 4, "Hull grows slower than mass")
@@ -87,11 +87,12 @@ func test_registry_parts_follow_their_genes():
 				assert_almost_eq(float(template.get(field)), stats[field], 0.01 + abs(stats[field]) * 0.0001, "%s.%s (run tools/apply_laws.gd)" % [template_id, field])
 
 
-func test_built_ship_scales_its_model_and_paints_its_type():
-	var ship = ShipLaws.build_ship_template({"type": 3, "size": 2.0, "shares": PHOENIX.shares}, "evo_ship_test", "Phoenix III", "violet")
+func test_built_ship_scales_its_model_on_its_factions_hull():
+	var ship = ShipLaws.build_ship_template({"type": 3, "size": 2.0, "shares": REFERENCE_SHIP.shares}, "evo_ship_test", "Mk III", "violet")
 	assert_almost_eq(ship.model_scale, pow(2.0, 1.0 / 3.0), 0.0001)
-	assert_eq(ship.panel_material, Constants.SHIP_TYPE_PANEL_MATERIALS[3])
-	assert_eq(ship.ship_scene.resource_path, TemplateDatabase.factions.violet.ship_scene)
+	assert_eq(ship.ship_scene.resource_path, Constants.SHIP_DEFAULT_SCENE, "No hull of its own: the default")
+	var xeno = ShipLaws.build_ship_template({"type": 1, "size": 1.0, "shares": REFERENCE_SHIP.shares}, "evo_ship_test_xeno", "Mk I", "xenohive")
+	assert_eq(xeno.ship_scene.resource_path, TemplateDatabase.factions.xenohive.ship_scene, "Its own hull")
 
 
 func test_tool_share_splits_the_slots_keeping_one_of_each():

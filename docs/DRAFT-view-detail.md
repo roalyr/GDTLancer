@@ -49,7 +49,7 @@ Everything goes by **apparent size**, in five bands. An object's *screen share* 
 
 | Object | radius | CLOSE ends | NEAR ends | MID ends | FAR ends |
 |---|---|---|---|---|---|
-| Fighter / light Phoenix | 12 m | 52 m | 143 m | 428 m | 1.3 km |
+| Fighter / light hull | 12 m | 52 m | 143 m | 428 m | 1.3 km |
 | Heavy | 34 m | 147 m | 405 m | 1.2 km | 3.7 km |
 | Rock | 300 m | 1.3 km | 3.6 km | 10.7 km | 33 km |
 | Dust puff | 8 m | — | — | — | 880 m |

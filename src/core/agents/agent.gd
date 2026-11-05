@@ -40,6 +40,7 @@ var salvage: Dictionary = {}  # Wrecks only: commodity id -> units left to strip
 const CollisionHull = preload("res://src/core/agents/components/collision_hull.gd")
 const LanceController = preload("res://src/core/agents/components/lance_controller.gd")
 const MeshLod = preload("res://src/core/agents/components/mesh_lod.gd")
+const ModelLooks = preload("res://src/scenes/game_world/models/model_looks.gd")
 const ViewDetail = preload("res://src/core/agents/components/view_detail.gd")
 const ShipFit = preload("res://src/core/systems/ship_fit.gd")
 const Standing = preload("res://src/core/systems/standing.gd")
@@ -124,25 +125,12 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 			var model_node = get_node_or_null("Model")
 			if model_node:
 				model_node.scale = Vector3.ONE * ship_template.model_scale  # Before the collision hull, which takes the scale
-				_apply_panel_material(ship_visual, ship_template.panel_material)  # Before MeshLod, whose levels copy it
-				if ship_visual.has_method("paint"):  # Placeholder hulls: the faction's colour, also before MeshLod
-					var paint_path: String = TemplateDatabase.factions.get(faction, {}).get("hull_material", "")
-					ship_visual.paint(load(paint_path) if paint_path != "" else null)
+				var paint_path: String = TemplateDatabase.factions.get(faction, {}).get("hull_material", "")
+				ModelLooks.dress(ship_visual, load(paint_path) if paint_path != "" else null)  # The faction's paint; before MeshLod, whose levels copy it
 				model_node.add_child(ship_visual)
 				if ship_visual is Spatial:
 					ship_visual.visible = true
-				
-				# If the ship scene has a CollisionShape, reparent it to the RigidBody, shaped as
-				# the convex hull of the ship's lowest level of detail (the scene's shape stays if
-				# no hull can be built).
-				for child in ship_visual.get_children():
-					if child is CollisionShape:
-						ship_visual.remove_child(child)
-						var hull_shape = CollisionHull.shape_for(ship_visual, model_node.transform * ship_visual.transform)
-						if hull_shape != null:
-							child.shape = hull_shape
-							child.transform = Transform.IDENTITY
-						call_deferred("add_child", child)
+				_add_collision_hull(ship_visual, model_node.transform * ship_visual.transform)
 				_measure_hull_bounds(ship_visual)
 				MeshLod.attach(ship_visual, ViewDetail.attach(self, get_apparent_radius()))  # One view band for the model, scars and effects
 				CollisionHull.add_hit_surface(self, ship_visual)  # Where shots land: the plating, not the hull round it
@@ -180,17 +168,27 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 		)
 
 
-# Paints surface 1 (the hull panels) of every Phoenix hull mesh under `visual_root` (ship types).
-func _apply_panel_material(visual_root: Node, material_path: String) -> void:
-	if material_path == "":
-		return
-	var material = load(material_path)
-	var stack: Array = [visual_root]
-	while not stack.empty():
-		var node = stack.pop_back()
-		stack += node.get_children()
-		if node is MeshInstance and node.name.begins_with("Hull") and node.mesh != null and node.mesh.get_surface_count() > 1:
-			node.set_surface_material(1, material)
+# The body's collision shape: the convex hull of the ship's model (its lowest level of detail),
+# placed by `to_body`. A CollisionShape the ship scene has is moved onto the body (its own shape kept
+# if no hull can be built); a scene without one gets one.
+func _add_collision_hull(ship_visual: Node, to_body: Transform) -> void:
+	var holder: CollisionShape = null
+	for child in ship_visual.get_children():
+		if child is CollisionShape:
+			holder = child
+			ship_visual.remove_child(child)
+			break
+	var hull_shape = CollisionHull.shape_for(ship_visual, to_body)
+	if holder == null:
+		if hull_shape == null:
+			printerr("AgentBody: no collision hull for ", ship_template.template_id)
+			return
+		holder = CollisionShape.new()
+		holder.name = "CollisionShape"
+	if hull_shape != null:
+		holder.shape = hull_shape
+		holder.transform = Transform.IDENTITY
+	call_deferred("add_child", holder)
 
 
 # Resolves and caches the ship template, returning its movement parameters.

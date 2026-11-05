@@ -90,7 +90,7 @@ static func write_preset(genome: Dictionary, genome_id: String, dir_path: String
 	var niche: String = Genome.niche(genome)
 	var design: String = design_id(genome_id, niche)
 	var ship_id: String = "preset_ship_%s" % design
-	var ship = ShipLaws.build_ship_template(genome.ship, ship_id, "Phoenix %s %s" % [Constants.PART_TYPE_NAMES.get(int(genome.ship.type), ""), design.capitalize()], "")
+	var ship = ShipLaws.build_ship_template(genome.ship, ship_id, "Mk %s %s" % [Constants.PART_TYPE_NAMES.get(int(genome.ship.type), ""), design.capitalize()], "")
 	ship.equipped_tools = _filled(tools)
 	ship.equipped_modules = _filled(modules)
 	ResourceSaver.save(dir_path.plus_file(ship_id + ".tres"), ship)

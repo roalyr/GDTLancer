@@ -155,7 +155,7 @@ static func part_detail(part_id: String) -> String:
 		var effects: Array = []
 		for stat in part.stat_modifiers:
 			if stat == "damper_mass":  # Its share depends on the hull: the reference hull's
-				effects.append("jams %d%% of enemy reach on a Phoenix Light, -%.1f power/s" % [
+				effects.append("jams %d%% of enemy reach on a reference ship, -%.1f power/s" % [
 					int(round(100.0 * ShipFit.damper_share(part.stat_modifiers[stat], Constants.LAW_SHIP_REF_MASS))), Constants.LAW_DAMPER_POWER_PER_KG * part.stat_modifiers[stat]])
 				continue
 			var label: Array = STAT_LABELS.get(stat, ["%+d " + stat, 1.0])

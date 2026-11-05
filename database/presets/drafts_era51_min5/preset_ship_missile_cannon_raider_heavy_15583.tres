@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource( 1 )
 template_id = "preset_ship_missile_cannon_raider_heavy_15583"
-ship_model_name = "Phoenix III Missile Cannon Raider Heavy 15583"
+ship_model_name = "Mk III Missile Cannon Raider Heavy 15583"
 base_value = 3947
 ship_scene = ExtResource( 2 )
 hull_integrity = 404
@@ -32,7 +32,6 @@ linear_thrust = 1.31425e+06
 angular_thrust = 2.30552e+06
 alignment_threshold_angle_deg = 45.0
 model_scale = 1.5804
-panel_material = "res://assets/art/materials_generic/mat_hull_accent_orange.tres"
 variant_type = 3
 law_genes = {
 "shares": {

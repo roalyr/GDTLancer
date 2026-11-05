@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource( 2 )
 template_id = "preset_ship_lance_missile_cannon_fighter_heavy_16100"
-ship_model_name = "Phoenix III Lance Missile Cannon Fighter Heavy 16100"
+ship_model_name = "Mk III Lance Missile Cannon Fighter Heavy 16100"
 base_value = 2479
 ship_scene = ExtResource( 1 )
 hull_integrity = 307
@@ -32,7 +32,6 @@ linear_thrust = 549390.0
 angular_thrust = 825331.0
 alignment_threshold_angle_deg = 45.0
 model_scale = 1.35339
-panel_material = "res://assets/art/materials_generic/mat_hull_accent_orange.tres"
 variant_type = 3
 law_genes = {
 "shares": {

@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource( 1 )
 template_id = "preset_ship_cannon_raider_medium_15742"
-ship_model_name = "Phoenix I Cannon Raider Medium 15742"
+ship_model_name = "Mk I Cannon Raider Medium 15742"
 base_value = 1111
 ship_scene = ExtResource( 2 )
 hull_integrity = 154
@@ -32,7 +32,6 @@ linear_thrust = 432779.0
 angular_thrust = 497471.0
 alignment_threshold_angle_deg = 45.0
 model_scale = 1.03557
-panel_material = "res://assets/art/materials_generic/mat_hull_panel_offwhite.tres"
 variant_type = 1
 law_genes = {
 "shares": {

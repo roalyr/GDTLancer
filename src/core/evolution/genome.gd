@@ -295,7 +295,7 @@ static func build(genome: Dictionary, genome_id: String, faction: String) -> Dic
 			return preset
 	var ship_id: String = "evo_ship_%s" % genome_id
 	if not TemplateDatabase.evolved.has(ship_id):
-		var name: String = "Phoenix %s %s" % [Constants.PART_TYPE_NAMES.get(int(genome.ship.type), ""), genome_id]  # The genome shows on the HUD
+		var name: String = "Mk %s %s" % [Constants.PART_TYPE_NAMES.get(int(genome.ship.type), ""), genome_id]  # The genome shows on the HUD
 		var ship = ShipLaws.build_ship_template(genome.ship, ship_id, name, faction)
 		if model == "":
 			model = placeholder_model(family(niche(genome)), load("res://src/core/evolution/preset_classifier.gd").ship_weight(ship))
@@ -352,8 +352,8 @@ static func is_combat_role(niche_name: String) -> bool:
 # harpoon), or the role itself (prospector, scavenger, drifter, and any role a new rule adds).
 # An archetype's preset (database/presets/archetypes/preset_ship_archetype_<model>.tres) as the game
 # flies it: that ship template, its stats, model and fit as the file has them (a hand-made model
-# replaces the placeholder there). A faction with a hull of its own (own_hull: the xenohive) flies a
-# copy on that hull. {} if there is no such preset.
+# replaces the placeholder there). A faction with a hull of its own (its ship_scene: the xenohive)
+# flies a copy on that hull. {} if there is no such preset.
 static func preset_build(model: String, faction: String) -> Dictionary:
 	var ship_id: String = "preset_ship_archetype_" + model
 	var ship = TemplateDatabase.get_template(ship_id)
@@ -365,7 +365,7 @@ static func preset_build(model: String, faction: String) -> Dictionary:
 			return {}
 		TemplateDatabase.register_evolved(ship)  # Found by id from now on (the body looks it up)
 	var spec: Dictionary = TemplateDatabase.factions.get(faction, {})
-	if spec.get("own_hull", false):
+	if str(spec.get("ship_scene", "")) != "":
 		var own_id: String = "%s@%s" % [ship_id, faction]
 		if not TemplateDatabase.evolved.has(own_id):
 			var own = ship.duplicate()
@@ -469,7 +469,7 @@ static func describe(genome: Dictionary) -> String:
 	for part in genome.modules:
 		modules.append(describe_part(part))
 	var b: Dictionary = genome.get("behavior", default_behavior())
-	return "PHOENIX %s s=%.2f %.0fkg hull%d thr%.0fk pwr%.0f/%.1f hold%d [st%.2f en%.2f re%.2f ca%.2f ho%.2f] tools{%s} mods{%s} beh{eng%.2f dis%.2f rng%.2f ret%.2f pur%.2f mer%.2f rf%.2f tw%.2f ca%.2f bu%.2f qu%.2f}" % [
+	return "MK %s s=%.2f %.0fkg hull%d thr%.0fk pwr%.0f/%.1f hold%d [st%.2f en%.2f re%.2f ca%.2f ho%.2f] tools{%s} mods{%s} beh{eng%.2f dis%.2f rng%.2f ret%.2f pur%.2f mer%.2f rf%.2f tw%.2f ca%.2f bu%.2f qu%.2f}" % [
 		Constants.PART_TYPE_NAMES.get(int(ship.type), "?"), ship["size"], stats.mass, stats.hull_integrity, stats.linear_thrust / 1000.0,
 		stats.power_capacity, stats.power_regen, stats.cargo_capacity,
 		sh.structure, sh.engine, sh.reactor, sh.capacitor, sh.hold,

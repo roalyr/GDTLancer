@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource( 1 )
 template_id = "preset_ship_archetype_scavenger_heavy"
-ship_model_name = "Phoenix III Heavy Scavenger"
+ship_model_name = "Mk III Heavy Scavenger"
 base_value = 2927
 ship_scene = ExtResource( 2 )
 hull_integrity = 271
@@ -32,7 +32,6 @@ linear_thrust = 1.11302e+06
 angular_thrust = 1.76732e+06
 alignment_threshold_angle_deg = 45.0
 model_scale = 1.43051
-panel_material = "res://assets/art/materials_generic/mat_hull_accent_orange.tres"
 variant_type = 3
 law_genes = {
 "shares": {

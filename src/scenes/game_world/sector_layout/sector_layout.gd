@@ -12,9 +12,6 @@ const StationScene = preload("res://scenes/prefabs/station/faction_station.tscn"
 const BeaconScript = preload("res://src/scenes/game_world/sector_layout/beacon.gd")
 const BeaconNetworkScript = preload("res://src/scenes/game_world/sector_layout/beacon_network.gd")
 const HazardScript = preload("res://src/scenes/game_world/sector_layout/hazard.gd")
-const XenoForm = preload("res://src/scenes/game_world/xeno_form.gd")
-const PrimitiveForm = preload("res://src/scenes/game_world/primitive_form.gd")
-const CollisionHull = preload("res://src/core/agents/components/collision_hull.gd")
 const Havens = preload("res://src/core/systems/havens.gd")
 
 export var sector_id: String = "sector_elace"
@@ -71,11 +68,12 @@ func _build_haven(spec: Dictionary) -> Dictionary:
 		station.location_id = spec.id
 		station.station_name = spec.name
 		station.transform.origin = spec.at
-		if station.faction == "xenohive":
-			_dress(station, XenoForm.build(Constants.XENO_FORMS.hive, Constants.XENO_HIVE_LENGTH, Constants.XENO_HIVE_SEED))
-		elif Constants.STATION_FORMS.has(str(spec.get("form", ""))):
-			var form: Dictionary = Constants.STATION_FORMS[spec.form]
-			_dress(station, PrimitiveForm.build(form.parts, float(form.length)))
+		var model_path: String = str(spec.get("model", Constants.STATION_DEFAULT_MODEL))
+		var model = load(model_path) if ResourceLoader.exists(model_path) else null
+		if model is PackedScene:
+			station.get_node("Model").add_child(model.instance())  # The station fits itself to it as it enters (DockableStation)
+		else:
+			printerr("SectorLayout: no station model %s for %s" % [model_path, spec.id])
 		add_child(station)
 	var faction: String = str(spec.get("faction", ""))
 	var beacon = _add_beacon("haven", faction, spec.name, station.global_transform.origin, Constants.HAVEN_BEACON_RADIUS)
@@ -113,25 +111,6 @@ func _add_landmarks() -> void:
 			continue
 		var display: String = body.get_display_name() if body.has_method("get_display_name") else str(body.name)
 		_add_beacon("landmark", "", display, at + Vector3.UP * (body.get_apparent_radius() + 2000.0), Constants.BEACON_TRAFFIC_RADIUS)
-
-
-# A haven's own look in place of the cargo ship: the xenohive's grown XenoForm, or a placeholder
-# PrimitiveForm (Constants STATION_FORMS). Its convex hull for collision; the autopilot keeps clear of
-# its far corner, and ships undock above its top.
-func _dress(station: Node, form: Spatial) -> void:
-	var old: Node = station.get_node("Model")
-	station.remove_child(old)
-	old.free()
-	var model := Spatial.new()
-	model.name = "Model"
-	model.add_child(form)
-	station.add_child(model)
-	var shape: Shape = CollisionHull.shape_for(model, Transform.IDENTITY)
-	if shape != null:
-		station.get_node("CollisionShape").shape = shape
-	var extent: Array = PrimitiveForm.extent(form)
-	station.obstacle_radius = extent[0]
-	station.undock_offset.y = max(station.undock_offset.y, extent[1] + Constants.STATION_UNDOCK_CLEARANCE)
 
 
 # A field's rocks, the same on every load: within its radius (a ring: only past `ring` of it), clear

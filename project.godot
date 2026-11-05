@@ -162,6 +162,9 @@ common/drop_mouse_on_gui_input_disabled=true
 
 [importer_defaults]
 
+scene={
+"materials/storage": 0
+}
 texture={
 "detect_3d": false,
 "flags/mipmaps": true,

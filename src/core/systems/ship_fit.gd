@@ -178,7 +178,7 @@ static func damper_share(damper_mass: float, ship_mass: float) -> float:
 
 
 # A reactor runs hot: SIG_REACTOR_SHARE of a hull's signature scales with its power output (power
-# cells included) against a Phoenix Light's share of reactor for that mass. A lancer's small reactor
+# cells included) against a reference ship's share of reactor for that mass. A lancer's small reactor
 # makes it hard to see; a laser boat's big one, easy. 1 for ships without a reactor law (hand-made).
 static func reactor_signature_factor(ship_mass: float, hull_regen: float, total_regen: float) -> float:
 	var reference: float = ShipLaws.apply_law(Constants.LAW_REGEN, ship_mass * Constants.LAW_SHIP_SHARES.reactor)
