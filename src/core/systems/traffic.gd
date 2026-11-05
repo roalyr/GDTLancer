@@ -73,7 +73,21 @@ func _new_traveler(faction: String, role: String) -> Dictionary:
 
 # The fittest design of its kind in Evolution's pools (role: a niche's role, "" for any), or its
 # faction's first seed design.
+# A frozen world (Evolution.frozen): one of the faction's archetypes of that family (any, if it has
+# none), as its havens fly.
 static func best_genome(faction: String, role: String) -> Dictionary:
+	if Evolution.frozen:
+		var roster: Array = TemplateDatabase.factions.get(faction, {}).get("roster", [])
+		var kind: Array = []
+		for name in roster:
+			if role == "" or name.begins_with(role + "_"):
+				kind.append(name)
+		if kind.empty():
+			kind = roster
+		if not kind.empty():
+			var genome_id: String = Evolution.archetype_genome(faction, kind[randi() % kind.size()])
+			if genome_id != "":
+				return Evolution.genomes[genome_id].genome.duplicate(true)
 	var best: Dictionary = {}
 	var best_fitness: float = -INF
 	var marker: String = "|%s|" % role

@@ -33,7 +33,7 @@ static func catalog() -> Array:
 # Ships the home station sells: every hull, and every preset design's hull (bare: its price is the
 # hull's; the presets' parts are in catalog()).
 static func ship_catalog() -> Array:
-	var ids: Array = TemplateDatabase.assets_ships.keys()
+	var ids: Array = []  # Presets only (the archetypes and drafts): every ship flies a design, on its placeholder hull
 	for preset_id in TemplateDatabase.presets:
 		if TemplateDatabase.presets[preset_id] is ShipTemplate:
 			ids.append(preset_id)

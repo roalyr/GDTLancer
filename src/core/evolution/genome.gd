@@ -294,7 +294,9 @@ static func build(genome: Dictionary, genome_id: String, faction: String) -> Dic
 			var words: PoolStringArray = model.split("_")
 			name = "Phoenix %s %s %s" % [Constants.PART_TYPE_NAMES.get(int(genome.ship.type), ""), words[-1].capitalize(), words[0].capitalize()]
 		var ship = ShipLaws.build_ship_template(genome.ship, ship_id, name, faction)
-		if model != "" and not TemplateDatabase.factions.get(faction, {}).get("own_hull", false):
+		if not TemplateDatabase.factions.get(faction, {}).get("own_hull", false):
+			if model == "":  # Not an archetype: the placeholder of its family and weight class
+				model = placeholder_model(family(niche(genome)), load("res://src/core/evolution/preset_classifier.gd").ship_weight(ship))
 			ship.ship_scene = load(Constants.PLACEHOLDER_HULLS_DIR.plus_file(model + ".tscn"))
 		TemplateDatabase.register_evolved(ship)
 	var fit := {"tools": [], "modules": []}
@@ -346,6 +348,15 @@ static func is_combat_role(niche_name: String) -> bool:
 # A niche's family, what a spawn picks first (Evolution._pick_genome, so each gets its share of lives
 # whatever its fitness): "lance" (lancer, lance-*), "raider", "fighter" (guns, with or without a
 # harpoon), or the role itself (prospector, scavenger, drifter, and any role a new rule adds).
+# The placeholder hull ("<family>_<weight>", scenes/prefabs/ships/placeholders/) of a family (family())
+# and weight class (PresetClassifier.ship_weight); a family without its own (a drifter: unarmed, no
+# lance) looks like a scavenger.
+static func placeholder_model(family_name: String, weight: String) -> String:
+	if not Constants.HULL_FORMS.has(family_name):
+		family_name = "scavenger"
+	return "%s_%s" % [family_name, weight]
+
+
 static func family(niche_name: String) -> String:
 	var role: String = niche_name.split("|")[1] if niche_name.count("|") >= 2 else niche_name
 	if role == "lancer" or role.begins_with("lance-"):

@@ -44,7 +44,7 @@ func test_agent_ship_references_resolve():
 		var ship_id: String = TemplateDatabase.agents[agent_id].ship_template_id
 		if ship_id != "":
 			assert_has(TemplateDatabase.assets_ships, ship_id, "%s flies unknown ship '%s'." % [agent_id, ship_id])
-	assert_has(TemplateDatabase.assets_ships, TemplateDatabase.game_starts["start_default"].player_ship_template)
+	assert_true(TemplateDatabase.get_template(TemplateDatabase.game_starts["start_default"].player_ship_template) is ShipTemplate, "The start ship exists (a preset)")
 
 
 func test_sector_connections_resolve():
@@ -59,8 +59,8 @@ func test_sector_connections_resolve():
 func test_hostile_top_speed_is_at_most_ninety_percent_of_player():
 	var ShipFit = load("res://src/core/systems/ship_fit.gd")
 	indexer_instance.index_all_templates()
-	var player_ship = TemplateDatabase.assets_ships[TemplateDatabase.game_starts["start_default"].player_ship_template]
-	var hostile_ship = TemplateDatabase.assets_ships[TemplateDatabase.agents["agent_npc_hostile_default"].ship_template_id]
+	var player_ship = TemplateDatabase.get_template(TemplateDatabase.game_starts["start_default"].player_ship_template)
+	var hostile_ship = TemplateDatabase.get_template(TemplateDatabase.agents["agent_npc_hostile_default"].ship_template_id)
 	var player: Dictionary = ShipFit.compute_stats(player_ship, ShipFit.default_fit(player_ship))
 	var hostile: Dictionary = ShipFit.compute_stats(hostile_ship, ShipFit.default_fit(hostile_ship))
 	assert_lt((hostile.linear_thrust / hostile.mass) / (player.linear_thrust / player.mass), 0.905)

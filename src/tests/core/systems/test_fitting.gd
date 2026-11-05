@@ -184,13 +184,17 @@ class SpawnerStub:
 
 func _with_ships_and_cargo() -> void:
 	_saved["assets_ships"] = TemplateDatabase.assets_ships
+	_saved["presets"] = TemplateDatabase.presets
 	_saved["assets_commodities"] = TemplateDatabase.assets_commodities
 	var heavy = ShipTemplate.new()
 	heavy.template_id = "s_heavy"
 	heavy.base_value = 4000
 	ship.template_id = "s_light"
 	ship.base_value = 1200
-	TemplateDatabase.assets_ships = {"s_light": ship, "s_heavy": heavy}
+	var stock = ShipTemplate.new()
+	stock.template_id = "s_stock"
+	TemplateDatabase.assets_ships = {"s_stock": stock}  # A stock hull: not sold (every ship flies a design)
+	TemplateDatabase.presets = {"s_light": ship, "s_heavy": heavy}
 	var fuel = CommodityTemplate.new()
 	fuel.template_id = "c_fuel"
 	fuel.base_value = 25
@@ -204,18 +208,18 @@ func test_store_sells_every_ship_part_and_commodity():
 	TemplateDatabase.utility_tools["t_drill"] = drill
 	assert_has(Fitting.catalog(), "t_drill", "Every tool, working or not")
 	assert_has(Fitting.catalog(), "m_engine", "every module")
-	assert_eq(Fitting.ship_catalog(), ["s_heavy", "s_light"], "every hull")
+	assert_eq(Fitting.ship_catalog(), ["s_heavy", "s_light"], "every preset hull, no stock one")
 	assert_eq(Fitting.cargo_catalog(), ["c_fuel"], "and every commodity.")
 
 
 func test_store_sells_the_preset_designs_and_their_parts():
 	_with_ships_and_cargo()
-	var saved_presets: Dictionary = TemplateDatabase.presets
 	var design = ShipTemplate.new()
 	design.template_id = "preset_ship_x1"
 	design.base_value = 900
 	var gun = _tool("preset_laser_x1", "small", 80, 500.0)
-	TemplateDatabase.presets = {"preset_ship_x1": design, "preset_laser_x1": gun}
+	TemplateDatabase.presets["preset_ship_x1"] = design
+	TemplateDatabase.presets["preset_laser_x1"] = gun
 	assert_has(Fitting.ship_catalog(), "preset_ship_x1", "Evolved designs are for sale")
 	assert_has(Fitting.catalog(), "preset_laser_x1", "and so are their parts")
 	assert_does_not_have(Fitting.catalog(), "preset_ship_x1", "Ships are not parts")
@@ -232,7 +236,6 @@ func test_store_sells_the_preset_designs_and_their_parts():
 	assert_eq(Fitting.buy_ship("preset_ship_x1"), "")
 	assert_eq_deep(GameState.player_fit, {"tools": [""], "modules": [""]})  # A preset's hull comes bare: its price is the hull's
 	GlobalRefs.agent_spawner = saved_spawner
-	TemplateDatabase.presets = saved_presets
 
 
 func test_buying_a_ship_trades_the_old_one_in_and_stores_its_fit():
@@ -250,7 +253,7 @@ func test_buying_a_ship_trades_the_old_one_in_and_stores_its_fit():
 	assert_eq(GameState.player_bank, 5000 - 3400)
 	assert_eq(GameState.player_ship_template_id, "s_heavy")
 	assert_eq_deep(GameState.player_storage, {"t_small": 1, "m_plate": 1})
-	assert_true(GameState.player_fit.empty(), "the new hull comes with its own")
+	assert_eq_deep(GameState.player_fit, ShipFit.empty_fit(TemplateDatabase.get_template("s_heavy")))  # the new (preset) hull comes bare
 	assert_true(GameState.player_hull_scars.empty(), "unmarked,")
 	assert_eq(spawner.replaced, 1, "and the player's body is rebuilt.")
 	assert_ne(Fitting.buy_ship("s_heavy"), "", "Already flying it")
