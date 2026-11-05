@@ -1,4 +1,4 @@
-# Havens: what a sector's havens (SectorLayoutTemplate) offer and to whom: their services
+# Havens: what a sector's havens (the sector's layout scene) offer and to whom: their services
 # (repair, rearm, what they buy at what price factor) and who is welcome. A station that is no
 # haven (another sector's, a hand-made one) buys everything at its cargo price and serves everyone.
 

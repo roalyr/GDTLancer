@@ -1195,7 +1195,7 @@ func _pick_refuge(threat) -> Spatial:
 	return best
 
 
-# Within its sector's play area (SectorLayoutTemplate play_radius, times `slack`) or not a haven NPC.
+# Within its sector's play area (its layout's play_radius, times `slack`) or not a haven NPC.
 func _in_play_area(point: Vector3, slack: float = 1.0) -> bool:
 	return _havens.empty() or point.distance_to(_havens.get("centre", point)) <= float(_havens.get("radius", INF)) * slack
 

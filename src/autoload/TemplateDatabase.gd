@@ -15,7 +15,7 @@ var presets: Dictionary = {}  # Evolved designs exported to database/presets/ (s
 var preset_agents: Dictionary = {}  # Preset ship id -> its AgentTemplate (behaviour, classification); nothing spawns from these yet
 var factions: Dictionary setget _set_factions, _get_factions  # Faction id -> FactionTemplate.to_spec(), from Constants.FACTIONS_DIR (loaded on first use)
 var _factions: Dictionary = {}
-var sector_layouts: Dictionary setget _set_sector_layouts, _get_sector_layouts  # Sector id -> SectorLayoutTemplate.to_spec(), from Constants.SECTORS_DIR (loaded on first use)
+var sector_layouts: Dictionary setget _set_sector_layouts, _get_sector_layouts  # Sector id -> its layout scene's markers (SectorLayoutMarkers.to_spec; loaded on first use)
 var _sector_layouts: Dictionary = {}
 var proven_presets: Dictionary = {}  # Preset ship ids from a *_min10 folder: designs that flew 10 lives or more
 
@@ -42,15 +42,17 @@ func _set_factions(_value) -> void:
 func _get_sector_layouts() -> Dictionary:
 	if _sector_layouts.empty():
 		var dir := Directory.new()
-		if dir.open(Constants.SECTORS_DIR) == OK:
+		if dir.open(Constants.SECTORS_SCENES_DIR) == OK:
 			dir.list_dir_begin(true, true)
-			var file_name: String = dir.get_next()
-			while file_name != "":
-				if file_name.ends_with(".tres"):
-					var layout = load(Constants.SECTORS_DIR.plus_file(file_name))
-					if layout is SectorLayoutTemplate and layout.template_id != "":
-						_sector_layouts[layout.template_id] = layout.to_spec()
-				file_name = dir.get_next()
+			var sector_id: String = dir.get_next()
+			while sector_id != "":
+				var path: String = Constants.SECTORS_SCENES_DIR.plus_file(sector_id).plus_file(sector_id + Constants.SECTOR_LAYOUT_SUFFIX)
+				if dir.current_is_dir() and ResourceLoader.exists(path):
+					var layout: Node = load(path).instance()
+					if layout.has_method("to_spec"):
+						_sector_layouts[str(layout.sector_id) if str(layout.sector_id) != "" else sector_id] = layout.to_spec()
+					layout.free()
+				sector_id = dir.get_next()
 	return _sector_layouts
 
 

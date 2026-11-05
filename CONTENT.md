@@ -13,19 +13,18 @@ Each file is a `FactionTemplate` that sets:
 
 Aliens set `no_standing`, `territory` and `salvage_as`. To add a faction, add a file, then give it havens.
 
-## Sectors and havens — `database/sectors/`
+## Sectors and havens — `scenes/levels/sectors/<sector>/<sector>_layout.tscn`
 
-- **`<sector id>.tres`** (`SectorLayoutTemplate`) sets:
-  - the play area;
-  - hazards, such as the star's radiation;
-  - beacons: patrol points, rock fields and landmarks;
-  - the list of its havens.
-- **`<sector id>/havens/<id>.tres`** (`HavenTemplate`) is one station NPCs live from. It sets:
-  - its owner and position;
-  - its look (`form`, see below);
+Each sector's layout is a scene of markers, placed among the sector's planets: open the sector scene and the markers sit under `SceneAssets/SectorLayout/Layout`, each drawing its reach as a ring in the editor. Move a marker to move what it stands for. Edit `<sector>_layout.tscn` itself (the instance in the sector scene only shows it). The layout's root sets the play area.
+- **Havens** (`HavenMarker`): stations NPCs live from. Each sets:
+  - its id, name and owner (`faction`);
+  - its look (`form`, see below), or `station`: a station already in the sector scene;
   - how many ships of each faction live there (`ships`), and which kind it favours (`prefer_role`);
-  - its services: repair, rearm, and what it buys at what price.
-- Planets and moons stand in the sector scene (`scenes/levels/sectors/<sector>/`). Routes go round them by themselves.
+  - its services: repair, rearm, and what it buys at what price (`buys`).
+- **Beacons** (`BeaconMarker`): patrol points (`owner_faction`), rock fields (`rocks` within `radius`) and landmarks routes go through. Planets and moons get theirs by themselves.
+- **Hazards** (`HazardMarker`): the star's radiation, from `core` out to `radius`.
+
+Routes go round planets and moons by themselves.
 
 ## Ships: archetypes — `database/presets/archetypes/`
 
@@ -60,4 +59,4 @@ These are indexed by `template_id`. A field the script does not declare is repor
 
 ## Checking your work
 
-Run the tests: `godot --no-window -s addons/gut/gut_cmdln.gd -gexit`. They load every faction, sector, haven and archetype, and fail on a missing roster genome or a broken haven.
+Run the tests: `godot --no-window -s addons/gut/gut_cmdln.gd -gexit`. They load every faction, sector layout, haven and archetype, and fail on a missing roster genome or a broken haven.

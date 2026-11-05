@@ -501,7 +501,7 @@ func _haven_for(faction: String, zone_id: String) -> String:
 	return first
 
 
-# A haven can favour a role (SectorLayoutTemplate prefer_role, prefer_share): this spawn picks
+# A haven can favour a role (HavenMarker prefer_role, prefer_share): this spawn picks
 # among that role's niches only, if the pool has any. Returns the role, or "".
 func _preferred_role(faction: String, zone_id: String) -> String:
 	var haven: Dictionary = Havens.spec(zone_id)
@@ -514,7 +514,7 @@ func _preferred_role(faction: String, zone_id: String) -> String:
 
 
 # A frozen world's spawn: one of the faction's archetypes (FactionTemplate.roster), each as likely;
-# a zone's preferred role (a family name, SectorLayoutTemplate) as often as it asks. {} if the
+# a zone's preferred role (a family name, the sector's layout scene) as often as it asks. {} if the
 # faction has no roster.
 func _pick_archetype(faction: String, zone_id: String) -> Dictionary:
 	var roster: Array = TemplateDatabase.factions.get(faction, {}).get("roster", [])
@@ -552,7 +552,7 @@ func archetype_genome(faction: String, name: String) -> String:
 # A spawn's genome. Its family first (Genome.family; drifters only when there is nothing else), each
 # as likely as the others whatever their fitness, so every family keeps evolving; within it, a leading
 # genome short of its proving lives, or a parent picked by fitness, re-flown or mutated. A zone's
-# preferred `role` (SectorLayoutTemplate) takes the family's place.
+# preferred `role` (the sector's layout scene) takes the family's place.
 func _pick_genome(faction: String, role: String = "") -> Dictionary:
 	var pool: Dictionary = pools[faction]
 	var family: String = "" if role != "" else _pick_family(pool)

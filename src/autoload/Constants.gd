@@ -902,7 +902,7 @@ const HULL_FORMS = {
 # archetypes of its roster (FactionTemplate.roster), each as likely.
 const EVO_WORLD_FROZEN = true
 const ARCHETYPES_DIR = "res://database/presets/archetypes/"
-# Placeholder havens (HavenTemplate.form), PrimitiveForms like the hulls: a haven a hub in a ring,
+# Placeholder havens (HavenMarker.form), PrimitiveForms like the hulls: a haven a hub in a ring,
 # a post a rock with silos, a refinery a spine of tanks and stacks, a den a spiked rock.
 const STATION_FORMS = {
 	"haven": {"length": 220.0, "parts": [
@@ -958,9 +958,12 @@ const HARPOON_TEMPLATE_ID = "tool_harpoon"  # Not evolved: the same harpoon for 
 # SECTOR LAYOUT, HAVENS, BEACONS AND HAZARDS (SectorLayout, Havens, Beacon, BeaconNetwork, Hazard)
 # ==================================================================================================
 
-# A sector's layout is a SectorLayoutTemplate in SECTORS_DIR (<sector id>.tres; its havens one
-# HavenTemplate each beside it), read as TemplateDatabase.sector_layouts and built on load by SectorLayout.
-const SECTORS_DIR = "res://database/sectors/"
+# A sector's layout is its layout scene, SECTORS_SCENES_DIR/<sector id>/<sector id>_layout.tscn:
+# haven, beacon and hazard markers placed among the planets (instanced in the sector scene under
+# its SectorLayout; src/scenes/game_world/sector_layout/markers/), read as
+# TemplateDatabase.sector_layouts and built on load by SectorLayout.
+const SECTORS_SCENES_DIR = "res://scenes/levels/sectors/"
+const SECTOR_LAYOUT_SUFFIX = "_layout.tscn"
 # Radio (Radio): NPCs say what they do and mean to on a common frequency, heard within RADIO_RANGE
 # m of the speaker; one ship speaks at most every RADIO_SPEAKER_COOLDOWN s (a mayday always goes
 # out). Factions with "silent" (FACTIONS) say nothing.

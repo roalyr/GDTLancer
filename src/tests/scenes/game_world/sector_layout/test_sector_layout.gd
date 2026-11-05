@@ -1,5 +1,5 @@
 # Tests for SectorLayout: Elace's havens, beacons and rock fields are built from its
-# SectorLayoutTemplate (database/sectors/), the same every time, rocks clear of the stations; who docks where.
+# layout scene (its markers), the same every time, rocks clear of the stations; who docks where.
 
 extends GutTest
 

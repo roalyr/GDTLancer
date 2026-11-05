@@ -1,4 +1,4 @@
-# SectorLayout: builds a sector's layout on load (SectorLayoutTemplate[sector_id]): its havens
+# SectorLayout: builds a sector's layout on load (its layout scene's markers): its havens
 # (stations NPCs live from; one already in the scene is used as it is), a beacon at each haven, at
 # each planet and moon (a landmark above it) and at each beacon the layout lists, the rock fields
 # round the field beacons (from their names' seeds, the same on every load), its hazards, and the

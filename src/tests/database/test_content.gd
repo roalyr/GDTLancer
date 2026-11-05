@@ -24,9 +24,15 @@ func test_factions_are_complete():
 
 func test_sector_layouts_and_havens_are_complete():
 	var layouts: Dictionary = TemplateDatabase.sector_layouts
-	assert_gt(layouts.size(), 0, "Layouts load from %s" % Constants.SECTORS_DIR)
+	assert_gt(layouts.size(), 0, "Layouts load from %s" % Constants.SECTORS_SCENES_DIR)
 	var seen := {}
 	for sector_id in layouts:
+		var scene_path: String = Constants.SECTORS_SCENES_DIR.plus_file(sector_id).plus_file(sector_id + ".tscn")
+		var file := File.new()
+		assert_eq(file.open(scene_path, File.READ), OK, "%s: its sector scene" % sector_id)
+		if file.is_open():
+			assert_string_contains(file.get_as_text(), sector_id + Constants.SECTOR_LAYOUT_SUFFIX, false)  # Its layout is placed in it
+			file.close()
 		for haven in layouts[sector_id].havens:
 			assert_false(seen.has(haven.id), "%s: one haven by that id" % haven.id)
 			seen[haven.id] = true

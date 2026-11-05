@@ -211,7 +211,7 @@ func _get_jump_in_distance_for_sector(sector_id: String) -> float:
 			return 5000.0
 
 
-# --- NPC Population: the havens (see SectorLayout, Evolution, SectorLayoutTemplate) ---
+# --- NPC Population: the havens (see SectorLayout, Evolution, the sector's layout scene) ---
 
 # Every haven slot (haven, faction, index) keeps one NPC flying from Evolution's gene pool: when
 # its NPC dies or retires, a replacement undocks HAVEN_RESPAWN_DELAY later. A xenohive has extra

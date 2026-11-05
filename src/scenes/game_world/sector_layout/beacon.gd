@@ -1,4 +1,4 @@
-# Beacon: a point of a sector's map the AI goes by (SectorLayoutTemplate; BeaconNetwork keeps
+# Beacon: a point of a sector's map the AI goes by (a BeaconMarker in the sector's layout scene, or a planet's or haven's; BeaconNetwork keeps
 # their numbers). Kinds: "haven" (a station's), "patrol" (a faction's picket), "field" (a rock
 # field), "landmark" (a point to route through: planets, moons, passes), "distress" (a mayday: gone
 # once it `expires`, BeaconNetwork.call_distress). It remembers heat (hull lost

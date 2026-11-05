@@ -1,4 +1,4 @@
-# FactionStation: a haven built by SectorLayout (SectorLayoutTemplate): a faction's, or a neutral
+# FactionStation: a haven built by SectorLayout (the sector's layout scene): a faction's, or a neutral
 # one. NPCs living from it spawn docked here, and dock at havens that welcome them to sell, repair
 # and escape a fight, as far as the haven's services go (Havens). Painted in its faction's colour;
 # the player can dock too (unless its standing is hostile): it buys the hold at its own prices
@@ -7,7 +7,7 @@
 extends "res://src/scenes/game_world/station/dockable_station.gd"
 
 export var faction: String = ""
-export var haven_id: String = ""  # Its entry in SectorLayoutTemplate (Havens)
+export var haven_id: String = ""  # Its HavenMarker's haven_id in the sector's layout scene (Havens)
 const PAINTED_PARTS = ["panels outer", "panels fuel"]  # Cargo ship model parts that take the faction colour
 
 
