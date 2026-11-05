@@ -294,7 +294,7 @@ static func build(genome: Dictionary, genome_id: String, faction: String) -> Dic
 			var words: PoolStringArray = model.split("_")
 			name = "Phoenix %s %s %s" % [Constants.PART_TYPE_NAMES.get(int(genome.ship.type), ""), words[-1].capitalize(), words[0].capitalize()]
 		var ship = ShipLaws.build_ship_template(genome.ship, ship_id, name, faction)
-		if model != "" and not Constants.FACTIONS.get(faction, {}).get("own_hull", false):
+		if model != "" and not TemplateDatabase.factions.get(faction, {}).get("own_hull", false):
 			ship.ship_scene = load(Constants.PLACEHOLDER_HULLS_DIR.plus_file(model + ".tscn"))
 		TemplateDatabase.register_evolved(ship)
 	var fit := {"tools": [], "modules": []}

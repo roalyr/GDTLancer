@@ -1,0 +1,23 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/faction_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "violet"
+display_name = "Violet"
+color = Color( 0.85, 0.45, 1.0, 1.0 )
+enemies = [ "verdant" ]
+starting_standing = 0.0
+no_standing = false
+distress = true
+silent = false
+territory = 0.0
+salvage_as = ""
+escorts = true
+patrol_wages = true
+own_hull = false
+hull_material = "res://assets/art/materials_generic/mat_hull_faction_violet.tres"
+station_material = "res://assets/art/materials_generic/mat_hull_faction_violet.tres"
+ship_scene = "res://scenes/prefabs/ships/phoenix_light_violet.tscn"
+roster = [ "fighter_light", "fighter_medium", "fighter_heavy", "lance_light", "lance_medium", "lance_heavy", "prospector_light", "prospector_medium", "prospector_heavy", "scavenger_light", "scavenger_medium", "scavenger_heavy" ]

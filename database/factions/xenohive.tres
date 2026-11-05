@@ -1,0 +1,23 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/faction_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "xenohive"
+display_name = "Xenohive"
+color = Color( 0.35, 0.95, 0.75, 1.0 )
+enemies = [  ]
+starting_standing = 0.0
+no_standing = true
+distress = false
+silent = true
+territory = 5000.0
+salvage_as = "commodity_biotech"
+escorts = false
+patrol_wages = false
+own_hull = true
+hull_material = "res://assets/art/materials_generic/mat_hull_faction_xenohive.tres"
+station_material = "res://assets/art/materials_generic/mat_hull_faction_xenohive.tres"
+ship_scene = "res://scenes/prefabs/ships/xenohive_vessel.tscn"
+roster = [ "fighter_light", "fighter_medium", "fighter_heavy", "lance_light", "lance_medium", "lance_heavy", "scavenger_light" ]

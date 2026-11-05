@@ -1,0 +1,22 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/haven_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "xenohive"
+display_name = "Xenohive"
+faction = "xenohive"
+station = ""
+form = ""
+position = Vector3( 3000, -24000, 0 )
+ships = {
+"xenohive": 3
+}
+prefer_role = ""
+prefer_share = 0.0
+repair = false
+rearm = false
+buys = {
+"*": 1.0
+}

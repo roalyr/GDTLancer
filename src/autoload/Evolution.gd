@@ -5,7 +5,7 @@
 # may make it its niche's best. In proving mode (Constants EVO_PROVING) it mostly re-flies the leading
 # genomes of each archetype until they have enough lives to be presets (_unproven).
 # A frozen world (`frozen`, the game: Constants EVO_WORLD_FROZEN) evolves nothing: its havens fly the
-# picked archetypes (database/presets/archetypes/, Constants FACTION_ROSTERS) again as they are, on
+# picked archetypes (database/presets/archetypes/, FactionTemplate.roster) again as they are, on
 # their placeholder hulls; their lives are recorded as any, but never enter the pools. The arena
 # sim (tools/evolution_sim.gd) and the tests evolve.
 # Saved with the game (serialize / deserialize).
@@ -18,6 +18,7 @@ const Genome = preload("res://src/core/evolution/genome.gd")
 const PresetExporter = preload("res://src/core/evolution/preset_exporter.gd")
 const Market = preload("res://src/core/systems/market.gd")
 const Havens = preload("res://src/core/systems/havens.gd")
+const Wages = preload("res://src/core/systems/wages.gd")
 const SAVE_VERSION = 1
 
 var run_id: String = ""  # Names the log file; a new game starts a new run
@@ -179,7 +180,7 @@ func begin_life(faction: String, zone_id: String) -> Dictionary:
 		pick = _pick_genome(faction, _preferred_role(faction, zone_id))
 	var genome_id: String = pick.genome_id
 	var entry: Dictionary = genomes[genome_id]
-	var prefix: String = Constants.FACTIONS.get(faction, {}).get("name", faction).substr(0, 2).to_upper()
+	var prefix: String = TemplateDatabase.factions.get(faction, {}).get("name", faction).substr(0, 2).to_upper()
 	var record := {
 		"uid": "%s-%05d" % [prefix, _next_uid], "faction": faction, "zone": zone_id, "genome_id": genome_id,
 		"parent": entry.parent, "how": pick.how, "born": game_time, "skill": rand_range(0.3, 0.8),
@@ -211,7 +212,7 @@ func attach_body(uid: String, body: Node) -> void:
 
 # Extra drones a xenohive has grown from what its drones brought home (Constants XENOHIVE_*).
 func grown_drones(faction: String) -> int:
-	if not Constants.FACTIONS.get(faction, {}).has("territory"):
+	if not TemplateDatabase.factions.get(faction, {}).has("territory"):
 		return 0
 	var delivered: float = float(pools.get(faction, {}).get("delivered", 0.0))
 	return int(min(Constants.XENOHIVE_DRONES_MAX, floor(delivered / Constants.XENOHIVE_MASS_PER_DRONE)))
@@ -247,10 +248,20 @@ func on_docked(body: Node, location_id: String = "") -> bool:
 	var repair_cost: float = Constants.EVO_REPAIR_COST_SHARE * float(record.get("hull_value", record.cost)) * repaired / hull_max
 	if Havens.offers(location_id, "rearm"):
 		repair_cost += _rearm(uid, body)
+	var ai = body.get_node_or_null(Constants.AI_CONTROLLER_NODE_NAME)
+	var escorts: int = ai.get_escorts().size() if ai != null and ai.has_method("get_escorts") else 0
+	var escort_share: int = Wages.pay_escorts(body, value)  # Its escorts' share of the sale
+	value -= escort_share
+	if record.get("combat", false) and Havens.faction_of(location_id) == record.faction:
+		var wage: int = Wages.patrol_wage(record.faction, body.get_value(), game_time - float(record.get("wage_since", record.born)))
+		if wage > 0:
+			value += wage
+			note(uid, "wage_paid")
+	record["wage_since"] = game_time
 	record.earned = int(record.earned) + value
 	record.spent = float(record.get("spent", 0.0)) + repair_cost
 	record.docks = int(record.docks) + 1
-	_log(2, "EVO DOCK %s sold %d units for %d WP (life total %d), repaired %.0f hull for %.0f WP, age %.0fs" % [uid, units, value, record.earned, repaired, repair_cost, game_time - float(record.born)])
+	_log(2, "EVO DOCK %s sold %d units for %d WP (life total %d), repaired %.0f hull for %.0f WP, age %.0fs, escorts %d took %d" % [uid, units, value, record.earned, repaired, repair_cost, game_time - float(record.born), escorts, escort_share])
 	if game_time - float(record.born) >= lifetime_of(uid):
 		_end_life(uid, false, "")
 		return true
@@ -277,6 +288,15 @@ func _rearm(uid: String, body: Node) -> float:
 	if body.has_method("restock_decoys"):
 		cost += body.restock_decoys() * Constants.LAW_DECOY_VALUE
 	return cost
+
+
+# `amount` WP into a life's takings (an escort's share: Wages), with its `event` noted.
+func pay(uid: String, amount: int, event: String = "") -> void:
+	if not live.has(uid) or amount <= 0:
+		return
+	live[uid].earned = int(live[uid].earned) + amount
+	if event != "":
+		note(uid, event)
 
 
 # A run-and-chase event in a life, counted in its record and log: "fled" (broke off or ran),
@@ -481,7 +501,7 @@ func _haven_for(faction: String, zone_id: String) -> String:
 	return first
 
 
-# A haven can favour a role (Constants SECTOR_LAYOUTS prefer_role, prefer_share): this spawn picks
+# A haven can favour a role (SectorLayoutTemplate prefer_role, prefer_share): this spawn picks
 # among that role's niches only, if the pool has any. Returns the role, or "".
 func _preferred_role(faction: String, zone_id: String) -> String:
 	var haven: Dictionary = Havens.spec(zone_id)
@@ -493,11 +513,11 @@ func _preferred_role(faction: String, zone_id: String) -> String:
 	return ""
 
 
-# A frozen world's spawn: one of the faction's archetypes (Constants FACTION_ROSTERS), each as likely;
-# a zone's preferred role (a family name, Constants SECTOR_LAYOUTS) as often as it asks. {} if the
+# A frozen world's spawn: one of the faction's archetypes (FactionTemplate.roster), each as likely;
+# a zone's preferred role (a family name, SectorLayoutTemplate) as often as it asks. {} if the
 # faction has no roster.
 func _pick_archetype(faction: String, zone_id: String) -> Dictionary:
-	var roster: Array = Constants.FACTION_ROSTERS.get(faction, [])
+	var roster: Array = TemplateDatabase.factions.get(faction, {}).get("roster", [])
 	var haven: Dictionary = Havens.spec(zone_id)
 	if haven.has("prefer_role") and randf() < float(haven.get("prefer_share", 0.0)):
 		var preferred: Array = []
@@ -532,7 +552,7 @@ func archetype_genome(faction: String, name: String) -> String:
 # A spawn's genome. Its family first (Genome.family; drifters only when there is nothing else), each
 # as likely as the others whatever their fitness, so every family keeps evolving; within it, a leading
 # genome short of its proving lives, or a parent picked by fitness, re-flown or mutated. A zone's
-# preferred `role` (Constants SECTOR_LAYOUTS) takes the family's place.
+# preferred `role` (SectorLayoutTemplate) takes the family's place.
 func _pick_genome(faction: String, role: String = "") -> Dictionary:
 	var pool: Dictionary = pools[faction]
 	var family: String = "" if role != "" else _pick_family(pool)

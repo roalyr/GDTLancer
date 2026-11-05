@@ -1,0 +1,91 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/sector_layout_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "sector_elace"
+play_radius = 60000.0
+havens = [ "res://database/sectors/sector_elace/havens/station_elace_home.tres", "res://database/sectors/sector_elace/havens/verdant_haven.tres", "res://database/sectors/sector_elace/havens/verdant_post.tres", "res://database/sectors/sector_elace/havens/violet_haven.tres", "res://database/sectors/sector_elace/havens/violet_post.tres", "res://database/sectors/sector_elace/havens/elace_refinery.tres", "res://database/sectors/sector_elace/havens/raider_den.tres", "res://database/sectors/sector_elace/havens/xenohive.tres" ]
+beacons = [ {
+"at": Vector3( -8000, 0, 20000 ),
+"kind": "patrol",
+"name": "Verdant Picket West",
+"owner": "verdant"
+}, {
+"at": Vector3( 16000, 0, 16000 ),
+"kind": "patrol",
+"name": "Verdant Picket East",
+"owner": "verdant"
+}, {
+"at": Vector3( 6000, 0, 33000 ),
+"kind": "patrol",
+"name": "Verdant Picket North",
+"owner": "verdant"
+}, {
+"at": Vector3( -8000, 0, -20000 ),
+"kind": "patrol",
+"name": "Violet Picket West",
+"owner": "violet"
+}, {
+"at": Vector3( 16000, 0, -16000 ),
+"kind": "patrol",
+"name": "Violet Picket East",
+"owner": "violet"
+}, {
+"at": Vector3( 6000, 0, -33000 ),
+"kind": "patrol",
+"name": "Violet Picket South",
+"owner": "violet"
+}, {
+"at": Vector3( 14000, 0, 28000 ),
+"kind": "field",
+"name": "Verdant Home Field",
+"radius": 2000.0,
+"rocks": 14
+}, {
+"at": Vector3( 14000, 0, -28000 ),
+"kind": "field",
+"name": "Violet Home Field",
+"radius": 2000.0,
+"rocks": 14
+}, {
+"at": Vector3( 25000, 0, 0 ),
+"kind": "field",
+"name": "Elace B Belt",
+"radius": 5000.0,
+"ring": 0.5,
+"rocks": 30
+}, {
+"at": Vector3( 0, -24000, 0 ),
+"kind": "field",
+"name": "Deep Field",
+"radius": 4000.0,
+"rocks": 12
+}, {
+"at": Vector3( -18000, 0, 11000 ),
+"kind": "landmark",
+"name": "West Pass North",
+"player_visible": true
+}, {
+"at": Vector3( -18000, 0, -11000 ),
+"kind": "landmark",
+"name": "West Pass South",
+"player_visible": true
+}, {
+"at": Vector3( 20000, 0, 11000 ),
+"kind": "landmark",
+"name": "East Pass North",
+"player_visible": true
+}, {
+"at": Vector3( 20000, 0, -11000 ),
+"kind": "landmark",
+"name": "East Pass South",
+"player_visible": true
+} ]
+hazards = [ {
+"at": Vector3( 0, 0, 0 ),
+"core": 5000.0,
+"kind": "radiation",
+"radius": 15000.0
+} ]

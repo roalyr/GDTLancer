@@ -34,7 +34,7 @@ static func pays(faction, ship) -> bool:
 	var own = ship.get("faction")
 	if own == faction:
 		return true
-	return not (own in Constants.FACTIONS[faction].get("enemies", [])) and not (faction in Constants.FACTIONS.get(own, {}).get("enemies", []))
+	return not (own in TemplateDatabase.factions[faction].get("enemies", [])) and not (faction in TemplateDatabase.factions.get(own, {}).get("enemies", []))
 
 
 # What `hunter` would be paid for killing `ship`: the postings it can claim plus the war bounty.
@@ -51,8 +51,8 @@ static func claimable(hunter, ship) -> float:
 
 static func war_bounty(hunter, ship) -> float:
 	var victim_faction = ship.get("faction")
-	for faction in Constants.FACTIONS:
-		if victim_faction in Constants.FACTIONS[faction].get("enemies", []) and pays(faction, hunter):
+	for faction in TemplateDatabase.factions:
+		if victim_faction in TemplateDatabase.factions[faction].get("enemies", []) and pays(faction, hunter):
 			return Constants.BOUNTY_WAR_SHARE * _value(ship)
 	return 0.0
 
@@ -69,7 +69,7 @@ static func on_kill(killer, victim) -> float:
 		var amount: float = Constants.BOUNTY_POST_SHARE * _value(victim)
 		posted[victim_faction] = float(posted.get(victim_faction, 0.0)) + amount
 		if killer.has_method("is_player") and killer.is_player():
-			EventBus.emit_signal("announcement", "%s posts a bounty on you: %d WP" % [Constants.FACTIONS[victim_faction].get("name", victim_faction), int(posted[victim_faction])], "warning")
+			EventBus.emit_signal("announcement", "%s posts a bounty on you: %d WP" % [TemplateDatabase.factions[victim_faction].get("name", victim_faction), int(posted[victim_faction])], "warning")
 	postings(victim).clear()
 	if paid <= 0.0:
 		return 0.0

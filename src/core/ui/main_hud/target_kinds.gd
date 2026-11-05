@@ -37,7 +37,7 @@ static func side_of(target, player) -> String:
 	if target.has_method("is_enemy_of"):
 		if is_instance_valid(player) and target.is_enemy_of(player):
 			return "hostile"
-	elif faction is String and (Standing.is_hostile(faction) or Constants.FACTIONS.get(faction, {}).has("territory")):
+	elif faction is String and (Standing.is_hostile(faction) or TemplateDatabase.factions.get(faction, {}).has("territory")):
 		return "hostile"
 	if faction is String and Standing.has_standing(faction) and Standing.of(faction) >= Constants.STANDING_FRIENDLY:
 		return "allied"

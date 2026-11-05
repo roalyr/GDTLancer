@@ -211,7 +211,7 @@ func _get_jump_in_distance_for_sector(sector_id: String) -> float:
 			return 5000.0
 
 
-# --- NPC Population: the havens (see SectorLayout, Evolution, Constants SECTOR_LAYOUTS) ---
+# --- NPC Population: the havens (see SectorLayout, Evolution, SectorLayoutTemplate) ---
 
 # Every haven slot (haven, faction, index) keeps one NPC flying from Evolution's gene pool: when
 # its NPC dies or retires, a replacement undocks HAVEN_RESPAWN_DELAY later. A xenohive has extra
@@ -227,7 +227,7 @@ func _top_up_population(_fill: bool = false) -> void:
 	if _haven_slots.empty():
 		for haven in layout.havens:
 			for faction in haven.factions:
-				for index in range(int(haven.factions[faction]) + (Constants.XENOHIVE_DRONES_MAX if Constants.FACTIONS.get(faction, {}).has("territory") else 0)):
+				for index in range(int(haven.factions[faction]) + (Constants.XENOHIVE_DRONES_MAX if TemplateDatabase.factions.get(faction, {}).has("territory") else 0)):
 					_haven_slots.append({"haven": haven, "faction": faction, "body": null, "ready_at": 0.0, "extra": int(max(0, index - int(haven.factions[faction]) + 1))})
 	var now: float = Evolution.game_time
 	for slot in _haven_slots:
@@ -252,7 +252,7 @@ func _spawn_haven_npc(layout: Node, haven: Dictionary, faction: String) -> Rigid
 		return null
 	var station: Spatial = haven.station
 	var refuges := {}
-	for other in Constants.FACTIONS:
+	for other in TemplateDatabase.factions:
 		refuges[other] = layout.refuges_for(other)
 	var npc = spawn_npc_from_template(Constants.NPC_BASE_TEMPLATE_PATH, station.get_undock_position(), {
 		"faction": faction,
@@ -264,7 +264,7 @@ func _spawn_haven_npc(layout: Node, haven: Dictionary, faction: String) -> Rigid
 		"patrol_center": station.global_transform.origin,
 		"home_point": station.global_transform.origin,
 		"havens": {"zone_id": haven.id, "stations": refuges[faction], "refuges": refuges,
-			"centre": layout.network.play_center, "radius": layout.network.play_radius, "territorial": Constants.FACTIONS.get(faction, {}).has("territory")},
+			"centre": layout.network.play_center, "radius": layout.network.play_radius, "territorial": TemplateDatabase.factions.get(faction, {}).has("territory")},
 		"docked_at": station,
 	})
 	if is_instance_valid(npc):

@@ -27,7 +27,8 @@ signal player_orbit_pressed
 signal player_approach_pressed
 signal player_flee_pressed
 signal player_dock_pressed  # Explicit dock button
-signal player_interact_pressed  # Interact button: general interaction with the selected target
+signal player_interact_pressed  # Interact button: general interaction with the selected target (escorting a worker: Wages)
+signal player_escort_changed(ward)  # The worker the player now escorts (null: none)
 signal player_tool_pressed(tool_index)  # A tool button: switch that fitted tool on the selected target, or off
 signal player_lance_pressed  # The LANCE button: arm the kinetic lance, or make it safe
 signal player_afterburner_pressed  # The AFTERBURN button: light the afterburner, or put it out

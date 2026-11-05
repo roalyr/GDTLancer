@@ -1,4 +1,4 @@
-# Havens: what a sector's havens (Constants SECTOR_LAYOUTS) offer and to whom: their services
+# Havens: what a sector's havens (SectorLayoutTemplate) offer and to whom: their services
 # (repair, rearm, what they buy at what price factor) and who is welcome. A station that is no
 # haven (another sector's, a hand-made one) buys everything at its cargo price and serves everyone.
 
@@ -7,8 +7,8 @@ extends Reference
 
 # The haven entry with id `location_id` in any sector's layout, or {}.
 static func spec(location_id: String) -> Dictionary:
-	for sector_id in Constants.SECTOR_LAYOUTS:
-		for haven in Constants.SECTOR_LAYOUTS[sector_id].get("havens", []):
+	for sector_id in TemplateDatabase.sector_layouts:
+		for haven in TemplateDatabase.sector_layouts[sector_id].get("havens", []):
 			if haven.id == location_id:
 				return haven
 	return {}
@@ -17,7 +17,7 @@ static func spec(location_id: String) -> Dictionary:
 # The havens of `sector_id` with ships living from them (the evolving NPCs' groups).
 static func populated(sector_id: String) -> Array:
 	var found: Array = []
-	for haven in Constants.SECTOR_LAYOUTS.get(sector_id, {}).get("havens", []):
+	for haven in TemplateDatabase.sector_layouts.get(sector_id, {}).get("havens", []):
 		if not haven.get("ships", {}).empty():
 			found.append(haven)
 	return found

@@ -28,10 +28,12 @@ var _queued_jump_direction: Vector3 = Vector3.ZERO
 var _queued_jump_selection_token: String = ""
 var _nearest_dock_node: Spatial = null   # Nearest station or jump point in prompt range
 var _nearest_dock_type: String = ""      # "station" or "jump"
+var escort_ward = null  # The worker it escorts (INTERACT on one: Wages), if any
 
 const HomePort = preload("res://src/core/systems/home_port.gd")
 const Market = preload("res://src/core/systems/market.gd")
 const Standing = preload("res://src/core/systems/standing.gd")
+const Wages = preload("res://src/core/systems/wages.gd")
 
 # --- Preload States ---
 const StateBase = preload("res://src/modules/piloting/player_input_states/state_base.gd")
@@ -220,8 +222,36 @@ func toggle_tool_for_selected() -> void:
 
 
 # HUD interact button: general interaction with the selected target. Tools have their own buttons.
+# INTERACT: on a worker it may escort (Wages.can_escort), escorts it or stops; otherwise nothing yet.
 func _on_interact_button_pressed() -> void:
-	EventBus.emit_signal("attack_action_feedback", false, "Nothing to interact with here yet")
+	var target = _selected_target
+	if is_instance_valid(escort_ward) and target == escort_ward:
+		set_escort_ward(null)
+		EventBus.emit_signal("attack_action_feedback", true, "No longer escorting")
+		return
+	if Wages.can_escort(agent_body, target):
+		set_escort_ward(target)
+		EventBus.emit_signal("attack_action_feedback", true, "Escorting: %d%% of its sales while within %.0f km of it" % [int(Constants.ESCORT_SHARE * 100), Constants.ESCORT_PAY_RANGE / 1000.0])
+		return
+	EventBus.emit_signal("attack_action_feedback", false, "Nothing to interact with here: select a friendly worker to escort it")
+
+
+func set_escort_ward(ward) -> void:
+	if is_instance_valid(escort_ward):
+		var old_ai = escort_ward.get_node_or_null(Constants.AI_CONTROLLER_NODE_NAME)
+		if old_ai != null and old_ai.has_method("remove_escort"):
+			old_ai.remove_escort(agent_body)
+	escort_ward = ward if is_instance_valid(ward) else null
+	if escort_ward != null:
+		escort_ward.get_node(Constants.AI_CONTROLLER_NODE_NAME).add_escort(agent_body)
+	EventBus.emit_signal("player_escort_changed", escort_ward)
+
+
+# The ward it escorts while it is still a worker out in space; let go otherwise.
+func get_escort_ward():
+	if escort_ward != null and not Wages.is_worker(escort_ward):
+		set_escort_ward(null)
+	return escort_ward
 
 
 # A HUD tool button: that tool off if it is on, otherwise on against the selected target.
@@ -367,7 +397,7 @@ func request_dock(station: Spatial) -> void:
 		EventBus.emit_signal("dock_action_feedback", false, "Too far to dock: %.0f m to the station, %.0f m needed" % [gap, Constants.DOCKING_ACTION_RADIUS])
 		return
 	if Standing.is_hostile(station.get("faction")):
-		EventBus.emit_signal("dock_action_feedback", false, "%s refuses docking: hostile standing" % Constants.FACTIONS[station.faction].get("name", station.faction))
+		EventBus.emit_signal("dock_action_feedback", false, "%s refuses docking: hostile standing" % TemplateDatabase.factions[station.faction].get("name", station.faction))
 		return
 	EventBus.emit_signal("player_docked", station.location_id)
 
@@ -917,6 +947,7 @@ func _on_player_docked(location_id):
 			EventBus.emit_signal("dock_action_feedback", true, message)
 	else:
 		_sell_hold_at(_find_station(location_id), location_id)
+	_collect_patrol_wage(_find_station(location_id))
 	set_process_unhandled_input(false)
 	set_physics_process(false)
 	# Stop the ship
@@ -929,7 +960,17 @@ func _sell_hold_at(station: Node, location_id: String) -> void:
 	if not Standing.has_standing(faction) or agent_body.get_cargo_units() <= 0:
 		return
 	var sold: Dictionary = Market.sell_hold(agent_body, location_id, faction)
-	EventBus.emit_signal("dock_action_feedback", true, "%s: sold %d units for %d WP (standing %+.2f)" % [Constants.FACTIONS[faction].get("name", faction), sold.units, sold.banked, Standing.of(faction)])
+	EventBus.emit_signal("dock_action_feedback", true, "%s: sold %d units for %d WP (standing %+.2f)" % [TemplateDatabase.factions[faction].get("name", faction), sold.units, sold.banked, Standing.of(faction)])
+
+
+# Docked at a faction's station that pays patrol wages and thinks well of it: paid for the time out.
+func _collect_patrol_wage(station: Node) -> void:
+	var faction = station.get("faction") if is_instance_valid(station) else null
+	if faction == null or str(faction) == "":
+		return
+	var wage: int = Wages.pay_player_patrol(agent_body, str(faction), GameState.world_time - GameState.player_undocked_at)
+	if wage > 0:
+		EventBus.emit_signal("announcement", "%s patrol wage: %d WP" % [TemplateDatabase.factions[faction].get("name", faction), wage], "info")
 
 
 func _on_player_undocked():
@@ -937,6 +978,7 @@ func _on_player_undocked():
 		print("Player undocked")
 	_clear_queued_jump()
 	GameState.player_docked_at = ""
+	GameState.player_undocked_at = GameState.world_time
 	if agent_body.has_method("undock"):
 		agent_body.undock()
 	set_process_unhandled_input(true)

@@ -30,6 +30,7 @@
 extends Node
 
 const FrameProfiler = preload("res://src/core/utils/frame_profiler.gd")
+const Wages = preload("res://src/core/systems/wages.gd")
 
 const CombatAssessment = preload("res://src/core/systems/combat_assessment.gd")
 const BeaconNetwork = preload("res://src/scenes/game_world/sector_layout/beacon_network.gd")
@@ -72,6 +73,9 @@ var _threat = null  # The latest scan's enemy too strong for it that has not see
 var _avoided = null  # The one it last kept clear of
 var _havens: Dictionary = {}  # Haven NPCs: {"zone_id" (its haven), "stations" (where it is welcome), "refuges" (faction -> those), "centre", "radius" (the play area), "territorial"}
 var _beacon: Node = null  # The beacon it is going to or staying at (BeaconNetwork)
+var _ward: Node = null  # The worker it escorts (Wages), if any
+var _orbiting_ward: bool = false
+var _escorts: Array = []  # Ships that have taken it as their ward (NPCs and the player): get_escorts
 var _distress_seen: int = 0  # The BeaconNetwork distress_serial it last chose by
 var _next_distress: float = 0.0  # Evolution.game_time from which it may call a mayday again
 var _quiet_now: bool = false  # Throttled down: keeping clear of, or stalking, a ship that has not seen it, or running dark
@@ -171,7 +175,95 @@ func get_activity_label() -> String:
 		return "RUNNING DARK"
 	if _covering != null and _current_state == AIState.COMBAT:
 		return "COVERING"
+	if _current_state == AIState.PATROL and get_ward() != null:
+		return "ESCORTING"
 	return ACTIVITY_LABELS.get(_current_state, "")
+
+
+# --- Escorts (Wages) ---
+
+# The worker it escorts while that one is out and near enough; otherwise none (and it lets it go).
+func get_ward() -> Node:
+	if _ward == null:
+		return null
+	if not is_instance_valid(_ward) or not _ward.is_inside_tree() or _ward.get("is_wreck"):
+		_note("lost_ward")  # Killed, or gone
+		_drop_ward()
+		return null
+	if _ward.get("is_docked"):
+		_note("ward_docked")
+		_drop_ward()
+		return null
+	if not (Wages.is_worker(_ward) and _ward.global_transform.origin.distance_to(agent_script.global_transform.origin) <= Constants.ESCORT_PICK_RANGE * 2.0):
+		_note("left_ward")  # Too far, or no worker any more
+		_drop_ward()
+		return null
+	return _ward
+
+
+# The ships escorting this one now (an NPC that still has it for its ward, or the player).
+func get_escorts() -> Array:
+	var found: Array = []
+	for escort in _escorts:
+		if not (is_instance_valid(escort) and escort.is_inside_tree()) or escort.get("is_wreck"):
+			continue
+		var ai = escort.get_node_or_null(Constants.AI_CONTROLLER_NODE_NAME)
+		if (escort.has_method("is_player") and escort.is_player()) or (ai != null and ai.has_method("escorts") and ai.escorts(agent_script)):
+			found.append(escort)
+	return found
+
+
+# Whether `ward` is the one it escorts (as taken: a ward just docked is still its own until it lets
+# go, so the sale it docked for pays it).
+func escorts(ward: Node) -> bool:
+	return _ward != null and _ward == ward
+
+
+func add_escort(escort: Node) -> void:
+	if not escort in _escorts:
+		_escorts.append(escort)
+
+
+func remove_escort(escort: Node) -> void:
+	_escorts.erase(escort)
+
+
+# An armed ship with teamwork enough, of a faction that hires escorts, takes the nearest worker of
+# its own that has no NPC escort yet. Returns whether it has one.
+func _take_ward() -> bool:
+	if _teamwork < Constants.AI_ESCORT_MIN_TEAMWORK or is_prospector() or not TemplateDatabase.factions.get(agent_script.faction, {}).get("escorts", false):
+		return false
+	var best: Node = null
+	var best_distance: float = Constants.ESCORT_PICK_RANGE
+	var here: Vector3 = agent_script.global_transform.origin
+	for ship in get_tree().get_nodes_in_group("agent_body"):
+		var distance: float = here.distance_to(ship.global_transform.origin)
+		if distance >= best_distance or not Wages.can_escort(agent_script, ship):
+			continue
+		var ai = ship.get_node_or_null(Constants.AI_CONTROLLER_NODE_NAME)
+		var npc_escorts := 0
+		for escort in ai.get_escorts():
+			npc_escorts += 0 if escort.is_player() else 1
+		if npc_escorts < Constants.ESCORTS_PER_WARD:
+			best = ship
+			best_distance = distance
+	if best == null:
+		return false
+	_ward = best
+	best.get_node(Constants.AI_CONTROLLER_NODE_NAME).add_escort(agent_script)
+	_has_patrol_destination = false
+	_note("took_ward")
+	return true
+
+
+func _drop_ward() -> void:
+	if is_instance_valid(_ward):
+		var ai = _ward.get_node_or_null(Constants.AI_CONTROLLER_NODE_NAME)
+		if ai != null and ai.has_method("remove_escort"):
+			ai.remove_escort(agent_script)
+	_ward = null
+	_orbiting_ward = false
+	_has_patrol_destination = false
 
 
 # Out of the way of an enemy too strong for it that has not seen it: patrols on the far side of home.
@@ -455,7 +547,7 @@ func _announce(state: int) -> void:
 
 # A mayday (BeaconNetwork.call_distress), at most every DISTRESS_COOLDOWN s; true if it called one.
 func _call_distress() -> bool:
-	if not Constants.FACTIONS.get(agent_script.faction, {}).get("distress", false) or Evolution.game_time < _next_distress:
+	if not TemplateDatabase.factions.get(agent_script.faction, {}).get("distress", false) or Evolution.game_time < _next_distress:
 		return false
 	var network = BeaconNetwork.of(agent_script)
 	if network == null:
@@ -491,6 +583,11 @@ func _process_patrol() -> void:
 		elif is_instance_valid(_threat) and _pending.empty():
 			_keep_clear(_threat)
 			return
+		elif _pending.empty() and (get_ward() != null or _take_ward()):
+			if _due_home():
+				_drop_ward()
+				_change_state(AIState.DEPART)
+				return
 		elif _pending.empty():
 			var wreck = scan_for_wreck()
 			var lances_there: bool = is_instance_valid(wreck) and (wreck.recoverable_lances_for(agent_script) > 0 or _recoverable_ammo(wreck) > 0)
@@ -508,6 +605,12 @@ func _process_patrol() -> void:
 					_change_state(AIState.MINE)
 					return
 
+	if get_ward() != null:  # Keeps by its ward, wherever that goes
+		if _repath_timer <= 0.0 or not _orbiting_ward:
+			_repath_timer = Constants.AI_REPATH_INTERVAL
+			_orbiting_ward = true
+			agent_script.command_orbit(_ward, Constants.ESCORT_RADIUS)
+		return
 	var current_pos = agent_script.global_transform.origin
 	var arrival: float = Constants.ROUTE_WAYPOINT_REACHED if not _route.empty() else Constants.AI_PATROL_ARRIVAL_DISTANCE
 	if not _has_patrol_destination or current_pos.distance_to(_patrol_destination) <= arrival:
@@ -895,7 +998,12 @@ func _busy_mining_past(enemy) -> bool:
 
 
 func can_mine() -> bool:
-	if _prospect < 0.5 or not is_instance_valid(_tool_controller) or agent_script.get_free_cargo() <= 0 or not can_ram():
+	return is_prospector() and agent_script.get_free_cargo() > 0
+
+
+# A miner by its genes and kit, whether or not its hold has room now (an escort keeps by it home).
+func is_prospector() -> bool:
+	if _prospect < 0.5 or not is_instance_valid(_tool_controller) or not can_ram():
 		return false
 	return _mining_laser() >= 0 and _has_harpoon()
 
@@ -1087,7 +1195,7 @@ func _pick_refuge(threat) -> Spatial:
 	return best
 
 
-# Within its sector's play area (Constants SECTOR_LAYOUTS play_radius, times `slack`) or not a haven NPC.
+# Within its sector's play area (SectorLayoutTemplate play_radius, times `slack`) or not a haven NPC.
 func _in_play_area(point: Vector3, slack: float = 1.0) -> bool:
 	return _havens.empty() or point.distance_to(_havens.get("centre", point)) <= float(_havens.get("radius", INF)) * slack
 
@@ -1303,7 +1411,7 @@ func _pick_patrol_destination() -> Vector3:
 		centre = leader.global_transform.origin
 		radius = Constants.AI_FOLLOW_RADIUS
 	elif _havens.get("territorial", false):
-		radius = float(Constants.FACTIONS.get(agent_script.faction, {}).get("territory", radius))  # A drone: its hive's whole territory
+		radius = float(TemplateDatabase.factions.get(agent_script.faction, {}).get("territory", radius))  # A drone: its hive's whole territory
 	elif roams():
 		if _route.empty() and not (is_instance_valid(_beacon) and _loiter_left > 0.0):
 			_choose_beacon()
@@ -1440,7 +1548,8 @@ func _assist(friend, source) -> void:
 		return  # A loner: helps no one
 	if is_mining_work():
 		return  # A prospector at work leaves fights to others
-	_consider("assist", source, desire_against(source) * _teamwork * cover_factor(friend), _engage_level(), friend)
+	var guard: float = Constants.AI_ESCORT_GUARD_FACTOR if friend == _ward else 1.0  # Its ward: what it is paid for
+	_consider("assist", source, desire_against(source) * _teamwork * cover_factor(friend) * guard, _engage_level(), friend)
 
 
 # How much more a ship wants to take on the attacker of `friend` for being the sturdier of the two

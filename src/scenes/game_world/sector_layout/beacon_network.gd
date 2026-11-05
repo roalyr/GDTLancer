@@ -349,4 +349,4 @@ func interest(beacon: Node, ship: Dictionary) -> float:
 
 
 static func _at_war(faction: String, other: String) -> bool:
-	return other in Constants.FACTIONS.get(faction, {}).get("enemies", []) or faction in Constants.FACTIONS.get(other, {}).get("enemies", [])
+	return other in TemplateDatabase.factions.get(faction, {}).get("enemies", []) or faction in TemplateDatabase.factions.get(other, {}).get("enemies", [])

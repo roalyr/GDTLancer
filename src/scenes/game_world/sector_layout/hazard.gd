@@ -1,4 +1,4 @@
-# Hazard: a region that hurts ships in it (Constants SECTOR_LAYOUTS "hazards"). "radiation" round a
+# Hazard: a region that hurts ships in it (SectorLayoutTemplate "hazards"). "radiation" round a
 # star: from `core` (its surface) out to `radius`; hull damage a second rises from 0 at the edge to
 # HAZARD_RADIATION_DPS at the surface, as the square of the depth. Ships flown or resolved off-screen
 # alike take it every HAZARD_TICK s (no attacker: nobody is credited). Routes count it

@@ -319,7 +319,7 @@ func test_a_frozen_world_flies_its_factions_archetypes_on_their_hulls():
 	assert_eq(record.how, "archetype")
 	assert_true(record.genome_id.begins_with("verdant-"), "Its own faction's (violet shares the initial)")
 	var name: String = record.genome_id.split("-")[1]
-	assert_has(Constants.FACTION_ROSTERS.verdant, name, "One of its roster")
+	assert_has(TemplateDatabase.factions.verdant.roster, name, "One of its roster")
 	var ship = TemplateDatabase.get_template(record.ship_template_id)
 	assert_eq(ship.ship_scene.resource_path, Constants.PLACEHOLDER_HULLS_DIR.plus_file(name + ".tscn"), "On its placeholder hull")
 	var agent = load(Constants.ARCHETYPES_DIR.plus_file("agent_archetype_%s.tres" % name))
@@ -329,8 +329,8 @@ func test_a_frozen_world_flies_its_factions_archetypes_on_their_hulls():
 
 
 func test_every_roster_archetype_has_its_genome():
-	for faction in Constants.FACTION_ROSTERS:
-		for name in Constants.FACTION_ROSTERS[faction]:
+	for faction in TemplateDatabase.factions:
+		for name in TemplateDatabase.factions[faction].roster:
 			assert_ne(Evolution.archetype_genome(faction, name), "", "%s: %s" % [faction, name])
 
 
@@ -339,7 +339,7 @@ func test_xenohive_archetypes_keep_their_grown_hull():
 	var genome_id: String = Evolution.archetype_genome("xenohive", "fighter_light")
 	var built: Dictionary = Genome.build(Evolution.genomes[genome_id].genome, genome_id, "xenohive")
 	var ship = TemplateDatabase.get_template(built.ship_template_id)
-	assert_eq(ship.ship_scene.resource_path, Constants.SHIP_FACTION_SCENES.xenohive)
+	assert_eq(ship.ship_scene.resource_path, TemplateDatabase.factions.xenohive.ship_scene)
 
 
 class Assets extends Node:
@@ -357,7 +357,7 @@ func test_an_archetype_ship_spawns_in_its_factions_paint():
 	add_child_autofree(root)
 	var body = root.get_node(Constants.AGENT_BODY_NODE_NAME)
 	body.initialize(load(Constants.NPC_BASE_TEMPLATE_PATH), {"agent_type": "npc", "template_id": "npc", "faction": "violet", "ship_template_id": built.ship_template_id, "fit": built.fit})
-	var paint = load(Constants.FACTION_HULL_MATERIALS.violet)
+	var paint = load(TemplateDatabase.factions.violet.hull_material)
 	var painted := 0
 	var stack: Array = [body.get_node("Model")]
 	while not stack.empty():

@@ -1,5 +1,5 @@
-# Tests for SectorLayout: Elace's havens, beacons and rock fields are built from Constants
-# SECTOR_LAYOUTS, the same every time, rocks clear of the stations; who docks where.
+# Tests for SectorLayout: Elace's havens, beacons and rock fields are built from its
+# SectorLayoutTemplate (database/sectors/), the same every time, rocks clear of the stations; who docks where.
 
 extends GutTest
 
@@ -28,7 +28,7 @@ func _rocks(layout: Node, field: String) -> Array:
 
 func test_every_haven_and_beacon_is_built():
 	var layout = _layout()
-	var spec: Dictionary = Constants.SECTOR_LAYOUTS.sector_elace
+	var spec: Dictionary = TemplateDatabase.sector_layouts.sector_elace
 	assert_eq(layout.havens.size(), spec.havens.size(), "Every haven")
 	assert_eq(layout.get_haven("station_elace_home").station.name, "ElaceHomeStation", "The scene's station is the free port")
 	assert_eq_deep(layout.get_haven("verdant_haven").factions, {"verdant": 5})
@@ -40,7 +40,7 @@ func test_every_haven_and_beacon_is_built():
 func test_fields_are_the_same_every_time_and_clear_of_stations():
 	var first = _layout()
 	var second = _layout()
-	for spec in Constants.SECTOR_LAYOUTS.sector_elace.beacons:
+	for spec in TemplateDatabase.sector_layouts.sector_elace.beacons:
 		if spec.kind != "field":
 			continue
 		var a: Array = _rocks(first, spec.name)
@@ -83,7 +83,7 @@ func test_only_fields_and_lone_landmarks_show_to_the_player():
 
 func test_havens_wear_their_placeholder_forms():
 	var layout = _layout()
-	for spec in Constants.SECTOR_LAYOUTS.sector_elace.havens:
+	for spec in TemplateDatabase.sector_layouts.sector_elace.havens:
 		if not spec.has("form"):
 			continue
 		var station: Node = layout.get_haven(spec.id).station

@@ -1,0 +1,22 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/haven_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "elace_refinery"
+display_name = "Elace Refinery"
+faction = ""
+station = ""
+form = "refinery"
+position = Vector3( 32500, 0, 0 )
+ships = {
+}
+prefer_role = ""
+prefer_share = 0.0
+repair = false
+rearm = false
+buys = {
+"commodity_ore": 1.4,
+"commodity_relic": 1.2
+}

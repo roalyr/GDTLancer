@@ -91,7 +91,7 @@ func test_built_ship_scales_its_model_and_paints_its_type():
 	var ship = ShipLaws.build_ship_template({"type": 3, "size": 2.0, "shares": PHOENIX.shares}, "evo_ship_test", "Phoenix III", "violet")
 	assert_almost_eq(ship.model_scale, pow(2.0, 1.0 / 3.0), 0.0001)
 	assert_eq(ship.panel_material, Constants.SHIP_TYPE_PANEL_MATERIALS[3])
-	assert_eq(ship.ship_scene.resource_path, Constants.SHIP_FACTION_SCENES.violet)
+	assert_eq(ship.ship_scene.resource_path, TemplateDatabase.factions.violet.ship_scene)
 
 
 func test_tool_share_splits_the_slots_keeping_one_of_each():

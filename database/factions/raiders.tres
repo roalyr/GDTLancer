@@ -1,0 +1,23 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/faction_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "raiders"
+display_name = "Raiders"
+color = Color( 1.0, 0.55, 0.3, 1.0 )
+enemies = [ "verdant", "violet" ]
+starting_standing = -1.0
+no_standing = false
+distress = false
+silent = false
+territory = 0.0
+salvage_as = ""
+escorts = false
+patrol_wages = false
+own_hull = false
+hull_material = "res://assets/art/materials_generic/mat_hull_faction_raiders.tres"
+station_material = "res://assets/art/materials_generic/mat_hull_faction_raiders.tres"
+ship_scene = "res://scenes/prefabs/ships/phoenix_light_raiders.tscn"
+roster = [ "raider_light", "raider_medium", "raider_heavy", "fighter_light", "lance_light" ]

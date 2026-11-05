@@ -1,4 +1,4 @@
-# Beacon: a point of a sector's map the AI goes by (Constants SECTOR_LAYOUTS; BeaconNetwork keeps
+# Beacon: a point of a sector's map the AI goes by (SectorLayoutTemplate; BeaconNetwork keeps
 # their numbers). Kinds: "haven" (a station's), "patrol" (a faction's picket), "field" (a rock
 # field), "landmark" (a point to route through: planets, moons, passes), "distress" (a mayday: gone
 # once it `expires`, BeaconNetwork.call_distress). It remembers heat (hull lost
@@ -46,7 +46,7 @@ func get_display_name() -> String:
 # What the player reads off it: its kind and faction, how hot and how busy it is, and a field's ore.
 func get_beacon_cues() -> Array:
 	var cues: Array = []
-	var owner_name: String = Constants.FACTIONS.get(faction, {}).get("name", "")
+	var owner_name: String = TemplateDatabase.factions.get(faction, {}).get("name", "")
 	cues.append(("%s %s" % [owner_name, kind]).strip_edges().to_upper())
 	cues.append(_word(heat, Constants.BEACON_HEAT_WORDS))
 	cues.append(_word(traffic, Constants.BEACON_TRAFFIC_WORDS))

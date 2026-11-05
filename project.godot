@@ -10,6 +10,21 @@ config_version=4
 
 _global_script_classes=[ {
 "base": "Template",
+"class": "HavenTemplate",
+"language": "GDScript",
+"path": "res://database/definitions/haven_template.gd"
+}, {
+"base": "Template",
+"class": "SectorLayoutTemplate",
+"language": "GDScript",
+"path": "res://database/definitions/sector_layout_template.gd"
+}, {
+"base": "Template",
+"class": "FactionTemplate",
+"language": "GDScript",
+"path": "res://database/definitions/faction_template.gd"
+}, {
+"base": "Template",
 "class": "AgentTemplate",
 "language": "GDScript",
 "path": "res://database/definitions/agent_template.gd"
@@ -100,6 +115,9 @@ _global_script_classes=[ {
 "path": "res://database/definitions/utility_tool_template.gd"
 } ]
 _global_script_class_icons={
+"HavenTemplate": "",
+"SectorLayoutTemplate": "",
+"FactionTemplate": "",
 "AgentTemplate": "",
 "AssetSystem": "",
 "AssetTemplate": "",

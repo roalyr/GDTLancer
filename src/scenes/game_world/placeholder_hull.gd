@@ -42,6 +42,6 @@ func set_form(value: String) -> void:
 	add_child(engines)
 
 
-# Takes `material` on the painted parts (Constants FACTION_HULL_MATERIALS).
+# Takes `material` on the painted parts (FactionTemplate.hull_material).
 func paint(material: Material) -> void:
 	PrimitiveForm.paint(self, material)

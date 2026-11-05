@@ -10,7 +10,7 @@ static func say(speaker: Node, text: String, urgent: bool = false) -> bool:
 	if not (is_instance_valid(speaker) and speaker.is_inside_tree()):
 		return false
 	var faction = speaker.get("faction")
-	if faction == null or Constants.FACTIONS.get(faction, {}).get("silent", false):
+	if faction == null or TemplateDatabase.factions.get(faction, {}).get("silent", false):
 		return false
 	var now: float = Evolution.game_time
 	if not urgent and speaker.has_meta("radio_next") and now < float(speaker.get_meta("radio_next")):

@@ -1,0 +1,22 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/haven_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "verdant_post"
+display_name = "Verdant Post"
+faction = "verdant"
+station = ""
+form = "post"
+position = Vector3( -2000, 0, 29500 )
+ships = {
+"verdant": 2
+}
+prefer_role = "prospector"
+prefer_share = 0.7
+repair = true
+rearm = false
+buys = {
+"commodity_ore": 0.8
+}

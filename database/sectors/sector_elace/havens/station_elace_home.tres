@@ -1,0 +1,21 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/haven_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "station_elace_home"
+display_name = "Elace Free Port"
+faction = ""
+station = "ElaceHomeStation"
+form = ""
+position = Vector3( 0, 0, 0 )
+ships = {
+}
+prefer_role = ""
+prefer_share = 0.0
+repair = true
+rearm = true
+buys = {
+"*": 1.0
+}

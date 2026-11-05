@@ -129,9 +129,10 @@ static func build_ship_template(genes: Dictionary, template_id: String, model_na
 	ship.variant_type = int(genes.get("type", 0))
 	ship.law_genes = genes.duplicate(true)
 	ship.panel_material = Constants.SHIP_TYPE_PANEL_MATERIALS.get(ship.variant_type, "")
-	ship.ship_scene = load(Constants.SHIP_FACTION_SCENES.get(faction, Constants.SHIP_DEFAULT_SCENE))
+	var scene_path: String = str(TemplateDatabase.factions.get(faction, {}).get("ship_scene", ""))
+	ship.ship_scene = load(scene_path if scene_path != "" else Constants.SHIP_DEFAULT_SCENE)
 	ship.sensor_strength = 1.0
-	var salvage_as: String = str(Constants.FACTIONS.get(faction, {}).get("salvage_as", ""))
+	var salvage_as: String = str(TemplateDatabase.factions.get(faction, {}).get("salvage_as", ""))
 	if salvage_as != "":  # Aliens: their carcasses hold that instead (as many units)
 		var units := 0
 		for commodity_id in ship.salvage_yield:

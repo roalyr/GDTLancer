@@ -7,7 +7,7 @@ var agent_type: String = ""
 var template_id: String = ""
 var agent_uid = -1
 var interaction_radius: float = 150.0
-var faction: String = ""  # Constants.FACTIONS id; the player's is "player"
+var faction: String = ""  # TemplateDatabase.factions id; the player's is "player"
 var _grudges: Dictionary = {}  # Instance ids of ships that shot this one: enemies whatever their faction
 var _hit_by_player: bool = false  # The player has hit it (its faction's standing paid for that once)
 var bounties: Dictionary = {}  # Bounty postings on this ship: faction -> WP (the player's are in GameState)
@@ -126,7 +126,7 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 				model_node.scale = Vector3.ONE * ship_template.model_scale  # Before the collision hull, which takes the scale
 				_apply_panel_material(ship_visual, ship_template.panel_material)  # Before MeshLod, whose levels copy it
 				if ship_visual.has_method("paint"):  # Placeholder hulls: the faction's colour, also before MeshLod
-					var paint_path: String = Constants.FACTION_HULL_MATERIALS.get(faction, "")
+					var paint_path: String = TemplateDatabase.factions.get(faction, {}).get("hull_material", "")
 					ship_visual.paint(load(paint_path) if paint_path != "" else null)
 				model_node.add_child(ship_visual)
 				if ship_visual is Spatial:
@@ -539,13 +539,13 @@ func is_enemy_of(other) -> bool:
 		return true
 	if other.faction == "player":
 		return Standing.is_hostile(faction)
-	return other.faction in Constants.FACTIONS.get(faction, {}).get("enemies", [])
+	return other.faction in TemplateDatabase.factions.get(faction, {}).get("enemies", [])
 
 
-# A territorial faction's ship (Constants FACTIONS "territory": the xenohive) takes any other ship
+# A territorial faction's ship (FactionTemplate.territory: the xenohive) takes any other ship
 # within that many m of one of its stations (its hive) for an enemy.
 func in_territory(other) -> bool:
-	var territory: float = float(Constants.FACTIONS.get(faction, {}).get("territory", 0.0))
+	var territory: float = float(TemplateDatabase.factions.get(faction, {}).get("territory", 0.0))
 	if territory <= 0.0 or other.get("faction") == faction or not is_inside_tree():
 		return false
 	for station in get_tree().get_nodes_in_group("faction_station"):
@@ -555,11 +555,11 @@ func in_territory(other) -> bool:
 
 
 func get_faction_color() -> Color:
-	return Constants.FACTIONS.get(faction, {}).get("color", Constants.COLOR_UI_TARGET_NEUTRAL)
+	return TemplateDatabase.factions.get(faction, {}).get("color", Constants.COLOR_UI_TARGET_NEUTRAL)
 
 
 func get_faction_name() -> String:
-	return Constants.FACTIONS.get(faction, {}).get("name", "")
+	return TemplateDatabase.factions.get(faction, {}).get("name", "")
 
 
 # Shot by another ship: it is now an enemy. Stray fire from its own side is forgiven.

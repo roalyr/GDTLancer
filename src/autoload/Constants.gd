@@ -491,17 +491,9 @@ const AI_REPATH_INTERVAL = 0.5  # s
 const AI_SCAN_INTERVAL = 1.0  # s
 const AI_THINK_INTERVAL = 0.1  # s between an NPC's thinks (its commands and tools run on in between)
 
-# Factions: who is at war with whom. "player" is the player's faction; NPCs treat the player by
-# standing (Standing: the faction's "standing" to start with, 0 if none) or a grudge (the player shot them).
-const FACTIONS = {
-	"verdant": {"name": "Verdant", "color": Color(0.45, 1.0, 0.35, 1.0), "enemies": ["violet"], "distress": true},
-	"violet": {"name": "Violet", "color": Color(0.85, 0.45, 1.0, 1.0), "enemies": ["verdant"], "distress": true},
-	"raiders": {"name": "Raiders", "color": Color(1.0, 0.55, 0.3, 1.0), "enemies": ["verdant", "violet"], "standing": -1.0},
-	# Aliens: no standing or bounties; they react on the spot, and take any ship within `territory` m of
-	# their hive for an enemy. Their carcasses hold biotech (`salvage_as`: a wreck's salvage, all of it).
-	"xenohive": {"name": "Xenohive", "color": Color(0.35, 0.95, 0.75, 1.0), "enemies": [], "no_standing": true, "silent": true,
-		"territory": 5000.0, "salvage_as": "commodity_biotech", "own_hull": true},  # own_hull: grown, flies no placeholder hull
-}
+# Factions: one FactionTemplate each in FACTIONS_DIR (who is at war with whom, standing, wages,
+# looks, rosters), read as TemplateDatabase.factions.
+const FACTIONS_DIR = "res://database/factions/"
 
 # Standing (Standing): the player's name with each faction, -1 to 1, as in Freelancer.
 const STANDING_HOSTILE = -0.6  # At or below: its ships attack the player on sight, its stations refuse docking
@@ -829,12 +821,6 @@ const SHIP_TYPE_PANEL_MATERIALS = {  # Hull panel material (surface 1 of the Pho
 	2: "res://assets/art/materials_generic/mat_hull_panel_dark.tres",
 	3: "res://assets/art/materials_generic/mat_hull_accent_orange.tres",
 }
-const SHIP_FACTION_SCENES = {  # Hull model by faction (scaled to the ship's size)
-	"verdant": "res://scenes/prefabs/ships/phoenix_light_verdant.tscn",
-	"violet": "res://scenes/prefabs/ships/phoenix_light_violet.tscn",
-	"raiders": "res://scenes/prefabs/ships/phoenix_light_raiders.tscn",
-	"xenohive": "res://scenes/prefabs/ships/xenohive_vessel.tscn",
-}
 # The xenohive's forms (XenoForm): rings of petals, spikes and glowing cells round a spindle, at odd
 # counts, leaning `lean` degrees off the tail-ward axis (over 90: forward) and twisted `twist` about
 # their own. `size`, `z` (along the axis, + aft) and `out` (from it) are shares of the form's length.
@@ -912,25 +898,11 @@ const HULL_FORMS = {
 		{"shape": "box", "size": Vector3(0.12, 0.12, 0.15), "at": Vector3(0.16, 0, 0.2), "look": "paint", "mirror": true, "from": "heavy"},
 	]},
 }
-# A frozen world (Evolution.frozen, the game; the arena sim evolves): what each faction's havens fly,
-# archetypes (database/presets/archetypes/agent_archetype_<name>.tres) each as likely.
+# A frozen world (Evolution.frozen, the game; the arena sim evolves): each faction's havens fly the
+# archetypes of its roster (FactionTemplate.roster), each as likely.
 const EVO_WORLD_FROZEN = true
 const ARCHETYPES_DIR = "res://database/presets/archetypes/"
-const FACTION_ROSTERS = {
-	"verdant": ["fighter_light", "fighter_medium", "fighter_heavy", "lance_light", "lance_medium", "lance_heavy",
-		"prospector_light", "prospector_medium", "prospector_heavy", "scavenger_light", "scavenger_medium", "scavenger_heavy"],
-	"violet": ["fighter_light", "fighter_medium", "fighter_heavy", "lance_light", "lance_medium", "lance_heavy",
-		"prospector_light", "prospector_medium", "prospector_heavy", "scavenger_light", "scavenger_medium", "scavenger_heavy"],
-	"raiders": ["raider_light", "raider_medium", "raider_heavy", "fighter_light", "lance_light"],
-	"xenohive": ["fighter_light", "fighter_medium", "fighter_heavy", "lance_light", "lance_medium", "lance_heavy", "scavenger_light"],
-}
-const FACTION_HULL_MATERIALS = {  # Placeholder hulls' paint by faction (the player's: its own off-white)
-	"verdant": "res://assets/art/materials_generic/mat_hull_faction_verdant.tres",
-	"violet": "res://assets/art/materials_generic/mat_hull_faction_violet.tres",
-	"raiders": "res://assets/art/materials_generic/mat_hull_faction_raiders.tres",
-	"xenohive": "res://assets/art/materials_generic/mat_hull_faction_xenohive.tres",
-}
-# Placeholder havens (SECTOR_LAYOUTS "form"), PrimitiveForms like the hulls: a haven a hub in a ring,
+# Placeholder havens (HavenTemplate.form), PrimitiveForms like the hulls: a haven a hub in a ring,
 # a post a rock with silos, a refinery a spine of tanks and stacks, a den a spiked rock.
 const STATION_FORMS = {
 	"haven": {"length": 220.0, "parts": [
@@ -986,62 +958,9 @@ const HARPOON_TEMPLATE_ID = "tool_harpoon"  # Not evolved: the same harpoon for 
 # SECTOR LAYOUT, HAVENS, BEACONS AND HAZARDS (SectorLayout, Havens, Beacon, BeaconNetwork, Hazard)
 # ==================================================================================================
 
-# A sector's layout (SECTOR_LAYOUTS, by sector id) is built on load by SectorLayout: its havens, its
-# beacons, its rock fields and its hazards. Positions are in m from the sector's middle; planets and
-# moons stand in the sector scene, and havens and beacons are placed round them.
-#
-# Haven: a station NPCs live from. "faction" ("" neutral); "ships" per faction living from it (the
-# evolving NPCs: each haven's are a group, with their own ranks and leader; "prefer_role" and
-# "prefer_share" bend what flies there). "services": "repair", "rearm" (lances, rounds, decoys) and
-# "buys": commodity id (or "*" for any) -> price factor on its cargo price; it buys nothing else.
-# "station": a station already in the scene (the free port, by node name), otherwise one is built.
-# NPCs dock where they are welcome (Havens.welcome): their own faction's havens, and neutral ones
-# unless they are raiders or the xenohive. Every haven is a beacon too (kind "haven").
-# Beacon kinds: "patrol" (a faction's: its patrol ships go round them, its safe zone), "field" (a
-# rock field to mine: "rocks" of them within "radius", "ring": only the outer share past it, round a
-# planet), "landmark" (a point routes go through; every planet and moon is one too).
-# Hazard "radiation": round a star, from "core" (its surface) out to "radius"; hull damage a second
-# rises from 0 at the edge to HAZARD_RADIATION_DPS at the surface, as the square of the depth.
-const SECTOR_LAYOUTS = {
-	"sector_elace": {
-		"play_radius": 60000.0,  # m from the middle: NPCs do not chase, salvage or patrol beyond it
-		"hazards": [{"kind": "radiation", "at": Vector3(0, 0, 0), "core": 5000.0, "radius": 15000.0}],  # Three star diameters across
-		"havens": [
-			{"id": "station_elace_home", "name": "Elace Free Port", "faction": "", "station": "ElaceHomeStation",
-				"services": {"repair": true, "rearm": true, "buys": {"*": 1.0}}},
-			{"id": "verdant_haven", "form": "haven", "name": "Verdant Haven", "faction": "verdant", "at": Vector3(6000, 0, 25000), "ships": {"verdant": 5},
-				"services": {"repair": true, "rearm": true, "buys": {"*": 0.9}}},
-			{"id": "verdant_post", "form": "post", "name": "Verdant Post", "faction": "verdant", "at": Vector3(-2000, 0, 29500), "ships": {"verdant": 2},
-				"prefer_role": "prospector", "prefer_share": 0.7, "services": {"repair": true, "buys": {"commodity_ore": 0.8}}},
-			{"id": "violet_haven", "form": "haven", "name": "Violet Haven", "faction": "violet", "at": Vector3(6000, 0, -25000), "ships": {"violet": 5},
-				"services": {"repair": true, "rearm": true, "buys": {"*": 0.9}}},
-			{"id": "violet_post", "form": "post", "name": "Violet Post", "faction": "violet", "at": Vector3(-2000, 0, -29500), "ships": {"violet": 2},
-				"prefer_role": "prospector", "prefer_share": 0.7, "services": {"repair": true, "buys": {"commodity_ore": 0.8}}},
-			{"id": "elace_refinery", "form": "refinery", "name": "Elace Refinery", "faction": "", "at": Vector3(32500, 0, 0),
-				"services": {"buys": {"commodity_ore": 1.4, "commodity_relic": 1.2}}},
-			{"id": "raider_den", "form": "den", "name": "Raider Den", "faction": "raiders", "at": Vector3(0, 24000, 0), "ships": {"raiders": 4},
-				"services": {"repair": true, "rearm": true, "buys": {"*": 0.7}}},
-			{"id": "xenohive", "name": "Xenohive", "faction": "xenohive", "at": Vector3(3000, -24000, 0), "ships": {"xenohive": 3},  # In the deep field under the star, its territory most of it: as far from either faction
-				"services": {"buys": {"*": 1.0}}},
-		],
-		"beacons": [
-			{"kind": "patrol", "owner": "verdant", "name": "Verdant Picket West", "at": Vector3(-8000, 0, 20000)},
-			{"kind": "patrol", "owner": "verdant", "name": "Verdant Picket East", "at": Vector3(16000, 0, 16000)},
-			{"kind": "patrol", "owner": "verdant", "name": "Verdant Picket North", "at": Vector3(6000, 0, 33000)},
-			{"kind": "patrol", "owner": "violet", "name": "Violet Picket West", "at": Vector3(-8000, 0, -20000)},
-			{"kind": "patrol", "owner": "violet", "name": "Violet Picket East", "at": Vector3(16000, 0, -16000)},
-			{"kind": "patrol", "owner": "violet", "name": "Violet Picket South", "at": Vector3(6000, 0, -33000)},
-			{"kind": "field", "name": "Verdant Home Field", "at": Vector3(14000, 0, 28000), "radius": 2000.0, "rocks": 14},
-			{"kind": "field", "name": "Violet Home Field", "at": Vector3(14000, 0, -28000), "radius": 2000.0, "rocks": 14},
-			{"kind": "field", "name": "Elace B Belt", "at": Vector3(25000, 0, 0), "radius": 5000.0, "ring": 0.5, "rocks": 30},
-			{"kind": "field", "name": "Deep Field", "at": Vector3(0, -24000, 0), "radius": 4000.0, "rocks": 12},  # And the scene's old rocks. Under the star: contested, open to all alike
-			{"kind": "landmark", "name": "West Pass North", "at": Vector3(-18000, 0, 11000), "player_visible": true},  # Nothing else marks these
-			{"kind": "landmark", "name": "West Pass South", "at": Vector3(-18000, 0, -11000), "player_visible": true},
-			{"kind": "landmark", "name": "East Pass North", "at": Vector3(20000, 0, 11000), "player_visible": true},
-			{"kind": "landmark", "name": "East Pass South", "at": Vector3(20000, 0, -11000), "player_visible": true},
-		],
-	},
-}
+# A sector's layout is a SectorLayoutTemplate in SECTORS_DIR (<sector id>.tres; its havens one
+# HavenTemplate each beside it), read as TemplateDatabase.sector_layouts and built on load by SectorLayout.
+const SECTORS_DIR = "res://database/sectors/"
 # Radio (Radio): NPCs say what they do and mean to on a common frequency, heard within RADIO_RANGE
 # m of the speaker; one ship speaks at most every RADIO_SPEAKER_COOLDOWN s (a mayday always goes
 # out). Factions with "silent" (FACTIONS) say nothing.
@@ -1128,6 +1047,17 @@ const XENOHIVE_MASS_PER_DRONE = 5000.0  # kg
 const XENOHIVE_DRONES_MAX = 3
 const PRESETS_DIR = "res://database/presets"  # Exported designs (tools/export_presets.gd): the home station sells them
 const PRESET_WEIGHT_CLASSES = [["light", -0.5], ["medium", 1.0], ["heavy", INF]]  # Preset export: niche size class up to this
+# Wages (Wages): escorts take ESCORT_SHARE of their ward's sales; factions that pay patrol wages pay
+# armed ships PATROL_WAGE_SHARE_PER_HOUR of their value an hour out, up to PATROL_WAGE_MAX_TIME.
+const ESCORT_SHARE = 0.2
+const ESCORT_PAY_RANGE = 3000.0  # m from the ward, when it sells, to be paid
+const ESCORT_RADIUS = 600.0  # m an escort orbits its ward at
+const ESCORT_PICK_RANGE = 4000.0  # m within which an NPC takes a ward
+const ESCORTS_PER_WARD = 1  # NPC escorts a ward takes (the player escorts besides)
+const AI_ESCORT_MIN_TEAMWORK = 0.8  # Teamwork gene from which an armed NPC takes wards
+const AI_ESCORT_GUARD_FACTOR = 2.0  # Times its desire to take on whoever attacks its ward
+const PATROL_WAGE_SHARE_PER_HOUR = 0.4
+const PATROL_WAGE_MAX_TIME = 3600.0  # s
 const NPC_MAX_LIFETIME = 900.0  # s; after this an NPC retires at its next dock (its record is kept)
 # Rank (Evolution): a faction's ships living from one haven are a group, ranked by renown, what they have
 # won in this life (RENOWN_PER_KILL a kill, RENOWN_PER_ASSIST going to help a friend, RENOWN_PER_DAMAGE
@@ -1143,12 +1073,6 @@ const NPC_LIFETIME_PER_RENOWN = 0.05  # A kill: half as long again
 const NPC_LIFETIME_MAX_FACTOR = 1.0  # Off (1): long lives slowed the turnover by a quarter; templates are the point
 const AI_FOLLOW_RADIUS = 1000.0  # m round its leader a follower patrols
 const AI_FOLLOW_MIN_TEAMWORK = 0.5  # A loner (teamwork gene under this) patrols on its own
-const FACTION_STATION_MATERIALS = {  # Station paint by faction
-	"verdant": "res://assets/art/materials_generic/mat_hull_faction_verdant.tres",
-	"violet": "res://assets/art/materials_generic/mat_hull_faction_violet.tres",
-	"raiders": "res://assets/art/materials_generic/mat_hull_faction_raiders.tres",
-	"xenohive": "res://assets/art/materials_generic/mat_hull_faction_xenohive.tres",
-}
 
 # Evolution: each faction keeps its own gene pool, so the two drift apart. A genome is a ship
 # (type, size, mass shares), its parts per slot, and (later) behaviour. Fitness is return on cost:

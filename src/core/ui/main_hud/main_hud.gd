@@ -4,6 +4,7 @@ extends Control
 ## Manages sub-screens (Station Menu) and docking prompts.
 
 const FrameProfiler = preload("res://src/core/utils/frame_profiler.gd")
+const Wages = preload("res://src/core/systems/wages.gd")
 const Announcements = preload("res://src/core/ui/main_hud/announcements.gd")
 const RouteTargetProviderScript = preload("res://src/core/targeting/route_target_provider.gd")
 const ProjectedTargetBracketScene = preload("res://scenes/ui/hud/projected_target_bracket.tscn")
@@ -74,6 +75,7 @@ var _world_rebuild_queued: bool = false  # A bracket rebuild is due at the end o
 
 # --- State ---
 var _current_target = null
+var _escort_ward = null  # The worker the player escorts (player_escort_changed)
 var _main_camera: Camera = null
 var _player_uid: int = -1
 var _announcements: Control = null  # Fading feedback labels (Announcements)
@@ -131,6 +133,7 @@ func _ready():
 		EventBus.connect("dock_available", self, "_on_dock_available")
 		EventBus.connect("dock_unavailable", self, "_on_dock_unavailable")
 		EventBus.connect("player_docked", self, "_on_player_docked")
+		EventBus.connect("player_escort_changed", self, "_on_player_escort_changed")
 		EventBus.connect("player_undocked", self, "_on_player_undocked")
 		EventBus.connect("jump_available", self, "_on_jump_available")
 		EventBus.connect("jump_unavailable", self, "_on_jump_unavailable")
@@ -253,6 +256,25 @@ func _update_hud() -> void:
 	_update_afterburner_button()
 	_layout_tool_rows()
 	_update_dock_button_label()
+	_update_interact_button_label()
+
+
+# INTERACT reads what it would do: ESCORT a friendly worker selected (Wages), STOP ESCORT on the one
+# escorted.
+func _update_interact_button_label() -> void:
+	if not is_instance_valid(label_button_interact):
+		return
+	var text := "INTERACT"
+	if is_instance_valid(_escort_ward) and _current_target == _escort_ward:
+		text = "STOP ESCORT"
+	elif _current_target != null and Wages.can_escort(GlobalRefs.player_agent_body, _current_target):
+		text = "ESCORT"
+	if label_button_interact.text != text:
+		label_button_interact.text = text
+
+
+func _on_player_escort_changed(ward) -> void:
+	_escort_ward = ward
 
 
 # --- Signal Handlers ---
@@ -837,6 +859,13 @@ func describe_target_stats(player) -> String:
 		if _current_target.has_method("get_sensor_strength"):  # How far off it spots the player, now and coasting cold
 			var sensors: float = _current_target.get_sensor_strength()
 			lines.append("SPOTS YOU WITHIN %s  COASTING %s" % [_format_distance(player.get_signature() * sensors), _format_distance(player.get_signature_coasting(0.0) * sensors)])
+	var ai = _current_target.get_node_or_null(Constants.AI_CONTROLLER_NODE_NAME) if _current_target is Node else null
+	if ai != null and ai.has_method("get_escorts"):  # Escorts (Wages): who guards it, and whom it guards
+		var escorts: Array = ai.get_escorts()
+		if player in escorts:
+			lines.append("ESCORTED BY YOU: %d%% OF ITS SALES WITHIN %s" % [int(Constants.ESCORT_SHARE * 100), _format_distance(Constants.ESCORT_PAY_RANGE)])
+		elif not escorts.empty():
+			lines.append("ESCORTED")
 	if _current_target.has_method("get_apparent_radius"):
 		lines.append("%s across" % _format_distance(_current_target.get_apparent_radius() * 2.0))
 	lines.append("DIST %s" % _format_distance(player.global_transform.origin.distance_to(_current_target.global_transform.origin)))

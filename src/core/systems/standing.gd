@@ -1,22 +1,22 @@
 # Standing: the player's name with each faction, -1 (hated) to 1 (trusted), as in Freelancer. It
-# starts at the faction's "standing" (Constants.FACTIONS, 0 if none) and moves with what the player
+# starts at the faction's "standing" (TemplateDatabase.factions, 0 if none) and moves with what the player
 # does to its ships: the first hit on a ship costs STANDING_ATTACK, a kill STANDING_KILL, and a kill
 # earns STANDING_KILL_ENEMY with each faction at war with the victim's. At STANDING_HOSTILE or below
 # its ships attack the player on sight (Agent.is_enemy_of) and its stations refuse docking; its
-# prices follow it too (Market). Factions outside Constants.FACTIONS, or marked no_standing (aliens),
+# prices follow it too (Market). Factions outside TemplateDatabase.factions, or marked no_standing (aliens),
 # have none: they react on the spot. Kept in GameState.player_standing (saved).
 
 extends Reference
 
 
 static func has_standing(faction) -> bool:
-	return faction is String and Constants.FACTIONS.has(faction) and not Constants.FACTIONS[faction].get("no_standing", false)
+	return faction is String and TemplateDatabase.factions.has(faction) and not TemplateDatabase.factions[faction].get("no_standing", false)
 
 
 static func of(faction) -> float:
 	if not has_standing(faction):
 		return 0.0
-	return float(GameState.player_standing.get(faction, Constants.FACTIONS[faction].get("standing", 0.0)))
+	return float(GameState.player_standing.get(faction, TemplateDatabase.factions[faction].get("standing", 0.0)))
 
 
 static func is_hostile(faction) -> bool:
@@ -39,7 +39,7 @@ static func change(faction, amount: float) -> void:
 	GameState.player_standing[faction] = clamp(of(faction) + amount, -1.0, 1.0)
 	var after: String = label(faction)
 	if after != before:
-		var name: String = Constants.FACTIONS[faction].get("name", faction)
+		var name: String = TemplateDatabase.factions[faction].get("name", faction)
 		EventBus.emit_signal("announcement", "%s: %s" % [name, after], "danger" if after == "HOSTILE" else "info")
 
 
@@ -51,6 +51,6 @@ static func on_player_killed(faction) -> void:
 	if not has_standing(faction):
 		return
 	change(faction, -Constants.STANDING_KILL)
-	for other in Constants.FACTIONS:
-		if faction in Constants.FACTIONS[other].get("enemies", []):
+	for other in TemplateDatabase.factions:
+		if faction in TemplateDatabase.factions[other].get("enemies", []):
 			change(other, Constants.STANDING_KILL_ENEMY)
