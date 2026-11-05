@@ -1,7 +1,7 @@
 # UI shots: starts a new game (docked at home: the fitting window), screenshots each store tab and
 # a prompt, for before/after checks of UI changes. Runs the project's autoloads, so as a scene:
 #     godot res://tools/ui_shots.tscn out=/abs/dir
-# Writes fitting_<tab>.png, announcement.png and prompt.png there, and beside each a .txt of every control shown
+# Writes fitting_<tab>.png, fitting_ships_preview.png, announcement.png, prompt.png and notice.png there, and beside each a .txt of every control shown
 # (type, rect, colours, styles; no text: prices vary), then quits. Nothing is saved.
 extends Node
 
@@ -29,9 +29,20 @@ func _ready() -> void:
 	fitting._on_tab("ships")
 	var ids: Array = fitting._ship_rows.keys()
 	ids.sort()
+	for ship_id in ids.slice(0, 6):  # Tapping from row to row: only the last stays marked
+		fitting.preview_ship(ship_id)
 	for ship_id in ids:
 		if ship_id.begins_with("preset_ship_archetype_raider_heavy"):
 			fitting.preview_ship(ship_id)
+	var marked: int = 0
+	var looks := {}
+	for ship_id in ids:
+		var row = fitting._ship_rows[ship_id]
+		var style = row.get_stylebox("panel")
+		var key: String = "%s a%.2f" % [style.bg_color if style is StyleBoxFlat else style.get_class(), row.self_modulate.a]
+		looks[key] = looks.get(key, 0) + 1
+		marked += 1 if row.has_meta("look") else 0
+	print("UI SHOT marked rows: %d, looks: %s" % [marked, looks])
 	yield(_wait(1.0), "completed")
 	_shot("fitting_ships_preview")
 	EventBus.emit_signal("announcement", "UI shots: an announcement", "warning")
@@ -40,6 +51,13 @@ func _ready() -> void:
 	PromptDialog.ask(fitting.get_parent(), "Save before exiting?", "UNSAVED PLAY IS LOST ON EXIT.", [["save", "SAVE AND EXIT"], ["exit", "EXIT"], ["cancel", "CANCEL"]])
 	yield(_wait(0.5), "completed")
 	_shot("prompt")
+	get_tree().call_group("prompt_dialog", "queue_free")
+	for child in fitting.get_parent().get_children():
+		if child.name.begins_with("PromptDialog"):
+			child.queue_free()
+	PromptDialog.tell(fitting.get_parent(), "Saved", "THE GAME IS SAVED.")
+	yield(_wait(0.5), "completed")
+	_shot("notice")
 	get_tree().quit()
 
 

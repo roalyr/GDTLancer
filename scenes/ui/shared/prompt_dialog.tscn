@@ -21,23 +21,30 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
 
-[node name="Box" type="VBoxContainer" parent="Center"]
+[node name="Frame" type="PanelContainer" parent="Center"]
+mouse_filter = 2
+
+[node name="Box" type="VBoxContainer" parent="Center/Frame"]
 mouse_filter = 2
 custom_constants/separation = 24
 
-[node name="Title" type="Label" parent="Center/Box"]
+[node name="Title" type="Label" parent="Center/Frame/Box"]
 mouse_filter = 2
+custom_colors/font_color = Color( 1, 0.82, 0.45, 1 )
 align = 1
 
-[node name="Text" type="Label" parent="Center/Box"]
+[node name="Text" type="Label" parent="Center/Frame/Box"]
+rect_min_size = Vector2( 640, 0 )
 mouse_filter = 2
 align = 1
+autowrap = true
 
-[node name="Choices" type="HBoxContainer" parent="Center/Box"]
+[node name="Choices" type="HBoxContainer" parent="Center/Frame/Box"]
 mouse_filter = 2
 custom_constants/separation = 16
 alignment = 1
 
-[node name="Choice" type="Button" parent="Center/Box/Choices"]
+[node name="Choice" type="Button" parent="Center/Frame/Box/Choices"]
 visible = false
 rect_min_size = Vector2( 260, 64 )
+focus_mode = 0

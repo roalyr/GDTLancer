@@ -13,8 +13,6 @@ onready var btn_close = $ScreenControls/ButtonClose
 
 const PromptDialog = preload("res://src/core/ui/helpers/prompt_dialog.gd")
 
-# Save notification popup (created dynamically)
-var _save_popup: AcceptDialog = null
 
 
 func _ready() -> void:
@@ -106,19 +104,10 @@ func _on_save_game_pressed() -> void:
 
 
 func _show_save_notification(success: bool) -> void:
-	if not is_instance_valid(_save_popup):
-		_save_popup = AcceptDialog.new()
-		_save_popup.pause_mode = Node.PAUSE_MODE_PROCESS
-		add_child(_save_popup)
-	
 	if success:
-		_save_popup.window_title = "Save Complete"
-		_save_popup.dialog_text = "Game saved successfully!"
+		PromptDialog.tell(self, "Saved", "THE GAME IS SAVED.")
 	else:
-		_save_popup.window_title = "Save Failed"
-		_save_popup.dialog_text = "Failed to save game. Check console for details."
-	
-	_save_popup.popup_centered()
+		PromptDialog.tell(self, "Save failed", "THE GAME COULD NOT BE SAVED. THE CONSOLE SAYS WHY.")
 
 
 func _on_exit_game_pressed() -> void:

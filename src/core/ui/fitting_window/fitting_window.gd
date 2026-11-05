@@ -384,18 +384,21 @@ func _add_row(container: Node, index: int, title: String, detail: String, button
 
 # Shows `ship_id`'s hull in the preview and marks its row.
 func preview_ship(ship_id: String) -> void:
-	var previous = _ship_rows.get(_preview.ship_id)
-	if is_instance_valid(previous) and previous.has_meta("shade"):
-		previous.add_stylebox_override("panel", null)  # Back to the scene's shade
-		previous.self_modulate = previous.get_meta("shade")
+	for other_id in _ship_rows:  # Every other row back to its own look (the scene's style, its line's shade)
+		var other = _ship_rows[other_id]
+		if other_id != ship_id and is_instance_valid(other) and other.has_meta("look"):
+			var look: Array = other.get_meta("look")
+			other.add_stylebox_override("panel", look[0])
+			other.self_modulate = look[1]
+			other.remove_meta("look")
 	_preview.show_ship(ship_id)
 	var row = _ship_rows.get(ship_id)
-	if is_instance_valid(row):
-		var style: StyleBoxFlat = row.get_stylebox("panel").duplicate()
+	if is_instance_valid(row) and not row.has_meta("look"):
+		var own: StyleBox = row.get_stylebox("panel")
+		row.set_meta("look", [own, row.self_modulate])
+		var style: StyleBoxFlat = own.duplicate()
 		style.bg_color = SELECTED_SHADE
 		row.add_stylebox_override("panel", style)
-		if not row.has_meta("shade"):
-			row.set_meta("shade", row.self_modulate)
 		row.self_modulate = Color(1, 1, 1, 1)  # Shaded even on an unshaded line
 
 

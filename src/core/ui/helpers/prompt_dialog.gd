@@ -1,8 +1,10 @@
-# PromptDialog: a modal question with a few answers (scenes/ui/shared/prompt_dialog.tscn: the look;
-# its hidden Choice button is the pattern for the answers). Blocks the pointer as a whole while it
-# shows; frees itself once answered.
-#     var prompt = PromptDialog.ask(self, "SAVE BEFORE EXIT?", "...", [["save", "SAVE AND EXIT"], ["cancel", "CANCEL"]])
+# PromptDialog: the game's one prompt for every question and notice: a title, any text, and as many
+# answers as it needs (one, OK, for a notice). scenes/ui/shared/prompt_dialog.tscn is its look, in
+# the main theme (its frame: the theme's PanelContainer style; its hidden Choice button is the
+# pattern for the answers). Blocks the pointer as a whole while it shows; frees itself once answered.
+#     var prompt = PromptDialog.ask(self, "Save before exiting?", "...", [["save", "SAVE AND EXIT"], ["cancel", "CANCEL"]])
 #     prompt.connect("chosen", self, "_on_exit_chosen")
+#     PromptDialog.tell(self, "Saved", "THE GAME IS SAVED.")  # A notice: one OK
 
 extends Control
 
@@ -18,10 +20,16 @@ static func ask(parent: Node, title: String, text: String, choices: Array) -> Co
 	return prompt
 
 
+# A notice: `text` and an OK.
+static func tell(parent: Node, title: String, text: String) -> Control:
+	return ask(parent, title, text, [["ok", "OK"]])
+
+
 func build(title: String, text: String, choices: Array) -> void:
-	$Center/Box/Title.text = title.to_upper()
-	$Center/Box/Text.text = text
-	var pattern: Button = $Center/Box/Choices/Choice
+	$Center/Frame/Box/Title.text = title.to_upper()
+	$Center/Frame/Box/Text.text = text
+	$Center/Frame/Box/Text.visible = text != ""
+	var pattern: Button = $Center/Frame/Box/Choices/Choice
 	for choice in choices:
 		var button: Button = pattern.duplicate()
 		button.name = "Choice_%s" % choice[0]
