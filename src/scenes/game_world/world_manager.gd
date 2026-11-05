@@ -424,7 +424,7 @@ func _on_jump_unavailable():
 
 # The player's jump burns fuel (Fuel) first; without enough it does not happen.
 func _on_player_jump_requested(target_sector_id):
-	if _jump_transition_active:
+	if _jump_transition_active or not Constants.jumps_enabled:
 		return
 	var ship = GlobalRefs.player_agent_body
 	if is_instance_valid(ship):

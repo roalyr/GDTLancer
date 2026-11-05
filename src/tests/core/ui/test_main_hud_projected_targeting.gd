@@ -676,3 +676,41 @@ func test_ship_lost_frames_the_wreck_without_a_popup_or_pausing():
 	assert_eq(camera.get_camera_mode(), 0, "and the camera orbits")
 	assert_eq(camera._position_controller._target, player, "the wreck.")
 	get_tree().paused = false
+
+
+
+func _route_buttons(hud) -> Array:
+	var found: Array = []
+	for child in hud.projected_target_overlay.get_children():
+		if child.name.begins_with("Route_"):
+			found.append(child)
+	return found
+
+
+# 0.x is Elace only: with jumps off the HUD has no routes to other sectors and no jump toggle.
+func test_with_jumps_off_the_hud_shows_no_routes_and_no_jump_toggle() -> void:
+	var camera = Camera.new()
+	add_child_autofree(camera)
+	GlobalRefs.main_camera = camera
+	TemplateDatabase.locations = {
+		"sector_elace": _make_location_template("sector_elace", "Elace", Vector3.ZERO),
+		"sector_cob": _make_location_template("sector_cob", "Cob", Vector3(0, 0, -100)),
+	}
+	TemplateDatabase.locations.sector_elace.connections = PoolStringArray(["sector_cob"])
+	GameState.current_sector_id = "sector_elace"
+	var hud = MainHUDScene.instance()
+	add_child_autofree(hud)
+	yield(get_tree(), "idle_frame")
+	hud._target_projector.rebuild_route_target_overlay()
+	assert_eq(_route_buttons(hud).size(), 1, "With jumps on: a route to Cob")
+	Constants.jumps_enabled = false
+	hud._target_projector.rebuild_route_target_overlay()
+	yield(get_tree(), "idle_frame")
+	var routes: int = _route_buttons(hud).size()
+	var hud_off = MainHUDScene.instance()
+	add_child_autofree(hud_off)
+	yield(get_tree(), "idle_frame")
+	var toggle_visible: bool = hud_off.button_overlay_jump.visible
+	Constants.jumps_enabled = true  # As the pre-run hook leaves it
+	assert_eq(routes, 0, "Jumps off: no routes")
+	assert_false(toggle_visible, "and no jump overlay toggle")

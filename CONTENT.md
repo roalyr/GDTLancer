@@ -64,7 +64,7 @@ Parts marked `"look": "paint"` take the faction's paint. The hull scenes are `sc
 - `tools`: weapons and tools.
 - `assets/commodities`: commodities.
 - `game_starts`: the player's start.
-- `locations`: the sector graph.
+- `locations`: the sector graph. Jumps between sectors are off for 0.x (`Constants.jumps_enabled`): the game is Elace only until the other sectors are laid out.
 
 These are indexed by `template_id`. A field the script does not declare is reported on load.
 

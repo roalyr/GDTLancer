@@ -1171,6 +1171,11 @@ const EVO_LOG_DIR = "user://evolution/logs/"  # One .jsonl per evolution run: ev
 # SECTORS, DOCKING AND JUMPS
 # ==================================================================================================
 
+# Jumps between sectors: off for 0.x (Elace only; the other sectors are not laid out). Off, the HUD
+# shows no routes or jump toggle and a jump request is refused; the debug overlay's JUMP page still
+# works. A var so tests can exercise jumping (pre-run hook).
+var jumps_enabled: bool = false
+
 const DOCKING_PROMPT_RADIUS: float = 500.0  # m; the dock prompt appears
 const DOCKING_ACTION_RADIUS: float = 300.0  # m; dock / jump works
 const SECTOR_JUMP_ARRIVAL_RADIUS: float = 50000.0  # m; arrival shell for route jumps

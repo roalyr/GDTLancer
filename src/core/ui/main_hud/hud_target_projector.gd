@@ -120,7 +120,7 @@ func rebuild_route_target_overlay() -> void:
 	if not is_instance_valid(_hud.projected_target_overlay):
 		return
 	var current_sector_id: String = GameState.current_sector_id
-	if current_sector_id == "":
+	if current_sector_id == "" or not Constants.jumps_enabled:
 		return
 	_hud._route_target_overlay_sector_id = current_sector_id
 	_hud._route_target_overlay_signature = get_route_target_overlay_signature(current_sector_id)

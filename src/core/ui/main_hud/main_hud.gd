@@ -197,6 +197,7 @@ func _ready():
 	_connect_overlay_toggle_button(button_overlay_structures, "_on_ButtonOverlayStructures_pressed")
 	_connect_overlay_toggle_button(button_overlay_stellar, "_on_ButtonOverlayStellar_pressed")
 	_connect_overlay_toggle_button(button_overlay_jump, "_on_ButtonOverlayJump_pressed")
+	button_overlay_jump.visible = Constants.jumps_enabled  # No routes to show while jumps are off
 
 	_pointer_router = PointerRouterClass.new(self)
 	add_child(_pointer_router)
