@@ -963,12 +963,12 @@ func _sell_hold_at(station: Node, location_id: String) -> void:
 	EventBus.emit_signal("dock_action_feedback", true, "%s: sold %d units for %d WP (standing %+.2f)" % [TemplateDatabase.factions[faction].get("name", faction), sold.units, sold.banked, Standing.of(faction)])
 
 
-# Docked at a faction's station that pays patrol wages and thinks well of it: paid for the time out.
+# Docked at a faction's station that pays patrol wages and thinks well of it: paid for the time at its pickets.
 func _collect_patrol_wage(station: Node) -> void:
 	var faction = station.get("faction") if is_instance_valid(station) else null
 	if faction == null or str(faction) == "":
 		return
-	var wage: int = Wages.pay_player_patrol(agent_body, str(faction), GameState.world_time - GameState.player_undocked_at)
+	var wage: int = Wages.pay_player_patrol(agent_body, str(faction), Wages.take_patrol_time(agent_body, str(faction)))
 	if wage > 0:
 		EventBus.emit_signal("announcement", "%s patrol wage: %d WP" % [TemplateDatabase.factions[faction].get("name", faction), wage], "info")
 
@@ -978,7 +978,6 @@ func _on_player_undocked():
 		print("Player undocked")
 	_clear_queued_jump()
 	GameState.player_docked_at = ""
-	GameState.player_undocked_at = GameState.world_time
 	if agent_body.has_method("undock"):
 		agent_body.undock()
 	set_process_unhandled_input(true)

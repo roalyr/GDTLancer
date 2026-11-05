@@ -50,6 +50,8 @@ func _ready():
 	for spec in layout.get("beacons", []):
 		var beacon = _add_beacon(spec.kind, str(spec.get("owner", "")), spec.name, spec.at, float(spec.get("radius", Constants.BEACON_TRAFFIC_RADIUS)))
 		beacon.player_visible = spec.kind == "field" or bool(spec.get("player_visible", false))  # Fields always: a ring of rocks has no one name
+		if spec.kind == "patrol" and TemplateDatabase.factions.get(beacon.faction, {}).get("patrol_wages", false):
+			beacon.player_visible = true  # Where the player earns that faction's patrol wage (Wages)
 		if spec.kind == "field":
 			_build_rocks(spec, keep_clear)
 

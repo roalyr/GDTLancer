@@ -226,7 +226,6 @@ func _serialize_game_state() -> Dictionary:
 		"player_hull_scars": GameState.player_hull_scars.duplicate(true),
 		"current_sector_id": GameState.current_sector_id,
 		"player_docked_at": GameState.player_docked_at,
-		"player_undocked_at": GameState.player_undocked_at,
 		"player_position": _serialize_vector3(GameState.player_position),
 		"player_rotation": _serialize_vector3(GameState.player_rotation),
 		"player_arrived_from_sector": GameState.player_arrived_from_sector,
@@ -290,7 +289,6 @@ func _deserialize_and_apply_game_state(save_data: Dictionary) -> void:
 			GameState.player_cargo[str(commodity_id)] = int(saved_cargo[commodity_id])
 	GameState.current_sector_id = str(save_data.get("current_sector_id", ""))
 	GameState.player_docked_at = str(save_data.get("player_docked_at", ""))
-	GameState.player_undocked_at = float(save_data.get("player_undocked_at", GameState.world_time))
 	GameState.player_position = _deserialize_vector3(save_data.get("player_position", {}))
 	GameState.player_rotation = _deserialize_vector3(save_data.get("player_rotation", {}))
 	GameState.player_arrived_from_sector = str(save_data.get("player_arrived_from_sector", ""))

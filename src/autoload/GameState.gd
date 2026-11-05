@@ -58,7 +58,6 @@ var current_sector_id: String = ""
 
 ## Location ID the player is docked at, or empty string if in space.
 var player_docked_at: String = ""
-var player_undocked_at: float = 0.0  # world_time it last undocked: its patrol wage counts from then (Wages)
 
 ## Player spatial position in the active zone.
 var player_position: Vector3 = Vector3.ZERO
@@ -99,7 +98,6 @@ func reset_state() -> void:
 	current_zone_instance = null
 	current_sector_id = ""
 	player_docked_at = ""
-	player_undocked_at = 0.0
 	player_position = Vector3.ZERO
 	player_rotation = Vector3.ZERO
 	player_arrived_from_sector = ""

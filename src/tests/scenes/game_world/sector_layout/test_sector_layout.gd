@@ -69,11 +69,12 @@ func test_who_is_welcome_where():
 	assert_eq(raider_ids, ["raider_den"], "Raiders have only their den")
 
 
-func test_only_fields_and_lone_landmarks_show_to_the_player():
+func test_only_fields_lone_landmarks_and_paid_pickets_show_to_the_player():
 	var layout = _layout()
 	for beacon in layout.network.beacons:
 		var lone: bool = beacon.beacon_name.find("Pass") >= 0
-		assert_eq(beacon.player_visible, beacon.kind == "field" or lone, "%s %s" % [beacon.kind, beacon.beacon_name])
+		var paid: bool = beacon.kind == "patrol" and TemplateDatabase.factions[beacon.faction].patrol_wages  # Where the player earns patrol wages
+		assert_eq(beacon.player_visible, beacon.kind == "field" or lone or paid, "%s %s" % [beacon.kind, beacon.beacon_name])
 	var projector = load("res://src/core/ui/main_hud/hud_target_projector.gd").new(null)
 	for beacon in layout.network.beacons:
 		assert_eq(projector.is_world_projectable_target(beacon), beacon.player_visible, "Bracketed only if shown: " + beacon.beacon_name)

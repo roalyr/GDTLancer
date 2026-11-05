@@ -1051,7 +1051,8 @@ const XENOHIVE_DRONES_MAX = 3
 const PRESETS_DIR = "res://database/presets"  # Exported designs (tools/export_presets.gd): the home station sells them
 const PRESET_WEIGHT_CLASSES = [["light", -0.5], ["medium", 1.0], ["heavy", INF]]  # Preset export: niche size class up to this
 # Wages (Wages): escorts take ESCORT_SHARE of their ward's sales; factions that pay patrol wages pay
-# armed ships PATROL_WAGE_SHARE_PER_HOUR of their value an hour out, up to PATROL_WAGE_MAX_TIME.
+# armed ships PATROL_WAGE_SHARE_PER_HOUR of their value an hour spent at their pickets, up to
+# PATROL_WAGE_MAX_TIME between dockings.
 const ESCORT_SHARE = 0.2
 const ESCORT_PAY_RANGE = 3000.0  # m from the ward, when it sells, to be paid
 const ESCORT_RADIUS = 600.0  # m an escort orbits its ward at
@@ -1059,7 +1060,7 @@ const ESCORT_PICK_RANGE = 4000.0  # m within which an NPC takes a ward
 const ESCORTS_PER_WARD = 1  # NPC escorts a ward takes (the player escorts besides)
 const AI_ESCORT_MIN_TEAMWORK = 0.8  # Teamwork gene from which an armed NPC takes wards
 const AI_ESCORT_GUARD_FACTOR = 2.0  # Times its desire to take on whoever attacks its ward
-const PATROL_WAGE_SHARE_PER_HOUR = 0.4
+const PATROL_WAGE_SHARE_PER_HOUR = 0.6
 const PATROL_WAGE_MAX_TIME = 3600.0  # s
 const NPC_MAX_LIFETIME = 900.0  # s; after this an NPC retires at its next dock (its record is kept)
 # Rank (Evolution): a faction's ships living from one haven are a group, ranked by renown, what they have

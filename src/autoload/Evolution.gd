@@ -252,16 +252,16 @@ func on_docked(body: Node, location_id: String = "") -> bool:
 	var escorts: int = ai.get_escorts().size() if ai != null and ai.has_method("get_escorts") else 0
 	var escort_share: int = Wages.pay_escorts(body, value)  # Its escorts' share of the sale
 	value -= escort_share
+	var wage: int = 0
 	if record.get("combat", false) and Havens.faction_of(location_id) == record.faction:
-		var wage: int = Wages.patrol_wage(record.faction, body.get_value(), game_time - float(record.get("wage_since", record.born)))
+		wage = Wages.patrol_wage(record.faction, body.get_value(), Wages.take_patrol_time(body, record.faction))
 		if wage > 0:
 			value += wage
 			note(uid, "wage_paid")
-	record["wage_since"] = game_time
 	record.earned = int(record.earned) + value
 	record.spent = float(record.get("spent", 0.0)) + repair_cost
 	record.docks = int(record.docks) + 1
-	_log(2, "EVO DOCK %s sold %d units for %d WP (life total %d), repaired %.0f hull for %.0f WP, age %.0fs, escorts %d took %d" % [uid, units, value, record.earned, repaired, repair_cost, game_time - float(record.born), escorts, escort_share])
+	_log(2, "EVO DOCK %s sold %d units for %d WP (life total %d), repaired %.0f hull for %.0f WP, age %.0fs, escorts %d took %d, wage %d" % [uid, units, value, record.earned, repaired, repair_cost, game_time - float(record.born), escorts, escort_share, wage])
 	if game_time - float(record.born) >= lifetime_of(uid):
 		_end_life(uid, false, "")
 		return true

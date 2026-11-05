@@ -115,3 +115,37 @@ func test_a_ward_docking_to_sell_still_pays_its_escort():
 	worker.dock_at(null)  # Docks, then sells (ShipControllerAI._dock, Evolution.on_docked)
 	assert_eq(Wages.pay_escorts(worker, 1000), int(1000 * Constants.ESCORT_SHARE), "The escort that brought it in is paid")
 	assert_null(_ai(escort).get_ward(), "Then it lets the docked ward go")
+
+
+class Picket:
+	var kind := "patrol"
+	var faction := "verdant"
+	func get_display_name() -> String:
+		return "Picket"
+
+
+func test_patrol_time_counts_only_at_a_paying_factions_pickets():
+	var own = _ship(Vector3.ZERO, "verdant", true)
+	var picket = Picket.new()
+	Wages.on_patrol(own, picket, 10.0, true)
+	Wages.on_patrol(own, picket, 5.0, false)
+	var raider = _ship(Vector3.ZERO, "raiders", true)
+	Wages.on_patrol(raider, picket, 10.0, true)
+	var unarmed = _ship(Vector3.ZERO, "verdant", false)
+	Wages.on_patrol(unarmed, picket, 10.0, true)
+	picket.kind = "field"
+	Wages.on_patrol(own, picket, 100.0, false)
+	assert_almost_eq(Wages.take_patrol_time(own, "verdant"), 15.0, 0.01, "Its own picket, armed: on patrol")
+	assert_almost_eq(Wages.take_patrol_time(own, "verdant"), 0.0, 0.01, "Taken: the count starts over")
+	assert_almost_eq(Wages.take_patrol_time(raider, "verdant"), 0.0, 0.01, "Not its faction's")
+	assert_almost_eq(Wages.take_patrol_time(unarmed, "verdant"), 0.0, 0.01, "Unarmed patrols nothing")
+
+
+func test_the_player_patrols_only_as_a_friend():
+	var player = _ship(Vector3.ZERO, "", true, "player")
+	var picket = Picket.new()
+	Wages.on_patrol(player, picket, 10.0, true)
+	assert_almost_eq(Wages.take_patrol_time(player, "verdant"), 0.0, 0.01, "Not friendly yet")
+	GameState.player_standing["verdant"] = Constants.STANDING_FRIENDLY
+	Wages.on_patrol(player, picket, 10.0, true)
+	assert_almost_eq(Wages.take_patrol_time(player, "verdant"), 10.0, 0.01, "Friendly: its patrol")

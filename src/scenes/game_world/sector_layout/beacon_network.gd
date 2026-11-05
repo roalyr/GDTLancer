@@ -17,6 +17,7 @@
 
 extends Node
 
+const Wages = preload("res://src/core/systems/wages.gd")
 const BeaconScript = preload("res://src/scenes/game_world/sector_layout/beacon.gd")
 
 var time: float = 0.0  # s this network has run
@@ -115,9 +116,11 @@ func _update(dt: float) -> void:
 			continue
 		beacon.presence[faction] = int(beacon.presence.get(faction, 0)) + 1
 		beacon.last_visit[faction] = time
-		if _at.get(id) != beacon:
+		var arrived: bool = _at.get(id) != beacon
+		if arrived:
 			_at[id] = beacon
 			beacon.traffic += 1.0
+		Wages.on_patrol(body, beacon, dt, arrived)
 
 
 func _count_fields() -> void:

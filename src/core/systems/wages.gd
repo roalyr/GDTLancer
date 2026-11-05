@@ -5,8 +5,10 @@
 #   the INTERACT button). When the worker sells its hold, ESCORT_SHARE of the sale goes to its escorts
 #   within ESCORT_PAY_RANGE, split between them.
 # - Patrols: a faction that pays patrol wages pays an armed ship that docks at one of its havens for
-#   the time it was out (up to PATROL_WAGE_MAX_TIME), PATROL_WAGE_SHARE_PER_HOUR of its value an
-#   hour: its own ships, and the player once its standing with the faction is friendly.
+#   the time it spent at its pickets since it last docked (BeaconNetwork counts it: on_patrol; up
+#   to PATROL_WAGE_MAX_TIME), PATROL_WAGE_SHARE_PER_HOUR of its value an hour: its own ships, and
+#   the player once its standing with the faction is friendly (its pickets are on the HUD, and
+#   arriving at one says so).
 # Paid into the bank (the player) or the life's takings (Evolution).
 
 extends Reference
@@ -58,15 +60,45 @@ static func pay_escorts(ward, value: int) -> int:
 	return each * near.size()
 
 
-# What `faction` pays a ship of `value` for `seconds` out on patrol (0 if it pays no wages).
+# `ship` was counted at `beacon` (BeaconNetwork, every `seconds`): at a picket of a faction that
+# pays wages, armed, and its own or (the player) a friend of it, that is time on its patrol.
+static func on_patrol(ship, beacon, seconds: float, arrived: bool) -> void:
+	if beacon.kind != "patrol" or not TemplateDatabase.factions.get(beacon.faction, {}).get("patrol_wages", false):
+		return
+	if not (ship.has_method("get_damage_per_second") and ship.get_damage_per_second() > 0.0):
+		return
+	var is_player: bool = ship.has_method("is_player") and ship.is_player()
+	if is_player:
+		if not Standing.has_standing(beacon.faction) or Standing.of(beacon.faction) < Constants.STANDING_FRIENDLY:
+			return
+	elif str(ship.get("faction")) != beacon.faction:
+		return
+	var time: Dictionary = ship.get_meta("patrol_time") if ship.has_meta("patrol_time") else {}
+	time[beacon.faction] = float(time.get(beacon.faction, 0.0)) + seconds
+	ship.set_meta("patrol_time", time)
+	if is_player and arrived:
+		EventBus.emit_signal("announcement", "%s: on %s patrol, paid at its havens" % [beacon.get_display_name(), TemplateDatabase.factions[beacon.faction].get("name", beacon.faction)], "info")
+
+
+# The time `ship` has patrolled for `faction` since it last took it, and starts the count over.
+static func take_patrol_time(ship, faction: String) -> float:
+	if not (is_instance_valid(ship) and ship.has_meta("patrol_time")):
+		return 0.0
+	var time: Dictionary = ship.get_meta("patrol_time")
+	var seconds: float = float(time.get(faction, 0.0))
+	time.erase(faction)
+	return seconds
+
+
+# What `faction` pays a ship of `value` for `seconds` on patrol (0 if it pays no wages).
 static func patrol_wage(faction: String, value: float, seconds: float) -> int:
 	if not TemplateDatabase.factions.get(faction, {}).get("patrol_wages", false):
 		return 0
 	return int(round(value * Constants.PATROL_WAGE_SHARE_PER_HOUR * clamp(seconds, 0.0, Constants.PATROL_WAGE_MAX_TIME) / 3600.0))
 
 
-# The player docked at `faction`'s station after `seconds` out: its patrol wage, if the faction
-# thinks well enough of it and its ship is armed. Returns what was paid.
+# The player docked at `faction`'s station after `seconds` at its pickets: its patrol wage, if the
+# faction thinks well enough of it and its ship is armed. Returns what was paid.
 static func pay_player_patrol(ship, faction: String, seconds: float) -> int:
 	if not Standing.has_standing(faction) or Standing.of(faction) < Constants.STANDING_FRIENDLY:
 		return 0
