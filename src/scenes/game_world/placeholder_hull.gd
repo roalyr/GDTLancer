@@ -3,10 +3,12 @@
 # until real models land. 17 m nose to tail like the other hull models (the ship's model_scale
 # stretches it). Built when the scene sets `form` ("<family>_<weight>"), as it instances, so the
 # collision hull, made as the ship instances it, already has its meshes. Painted in the faction's
-# colour at spawn (paint()).
+# colour at spawn (paint()). A tool script: the editor shows the hull too (unpainted, no exhausts).
 
+tool
 extends Spatial
 
+const Defaults = preload("res://src/autoload/Constants.gd")  # Read in the editor too, where autoloads are not
 const PrimitiveForm = preload("res://src/scenes/game_world/primitive_form.gd")
 const ExhaustScene = preload("res://scenes/prefabs/effects/engine_exhaust.tscn")
 const ExhaustSet = preload("res://src/core/agents/effects/engine_exhaust_set.gd")
@@ -21,23 +23,25 @@ func set_form(value: String) -> void:
 			remove_child(old)
 			old.free()
 	var parts: PoolStringArray = value.split("_")
-	if parts.size() != 2 or not Constants.HULL_FORMS.has(parts[0]):
+	if parts.size() != 2 or not Defaults.HULL_FORMS.has(parts[0]):
 		printerr("PlaceholderHull: no hull form ", value)
 		return
-	var spec: Dictionary = Constants.HULL_FORMS[parts[0]]
-	var girth: float = float(Constants.HULL_FORM_GIRTH.get(parts[1], 1.0))
-	var length: float = Constants.HULL_FORM_LENGTH
+	var spec: Dictionary = Defaults.HULL_FORMS[parts[0]]
+	var girth: float = float(Defaults.HULL_FORM_GIRTH.get(parts[1], 1.0))
+	var length: float = Defaults.HULL_FORM_LENGTH
 	var model := Spatial.new()
 	model.name = "Model"
 	model.add_child(PrimitiveForm.build(spec.parts, length, girth, parts[1]))
 	add_child(model)
+	if Engine.editor_hint:
+		return  # The look only
 	var engines := Spatial.new()
 	engines.name = "Engines"
 	engines.set_script(ExhaustSet)
 	for at in spec.engines:
 		for side in ([1.0, -1.0] if at.x != 0.0 else [1.0]):
 			var exhaust: Spatial = ExhaustScene.instance()
-			exhaust.transform = Transform(Basis().scaled(Vector3.ONE * Constants.HULL_FORM_EXHAUST_SCALE * girth), Vector3(at.x * side * girth, at.y * girth, at.z) * length)
+			exhaust.transform = Transform(Basis().scaled(Vector3.ONE * Defaults.HULL_FORM_EXHAUST_SCALE * girth), Vector3(at.x * side * girth, at.y * girth, at.z) * length)
 			engines.add_child(exhaust)
 	add_child(engines)
 

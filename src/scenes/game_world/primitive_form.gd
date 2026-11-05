@@ -11,6 +11,7 @@
 #   from   "medium" or "heavy": only on hulls of that weight class or heavier
 # `girth` scales the form across (x and y), so weight classes share one silhouette.
 
+tool
 extends Reference
 
 const PAINT_PREFIX = "Paint"  # Parts named so take the faction colour
