@@ -285,19 +285,21 @@ static func build_part_template(part: Dictionary, template_id: String) -> Resour
 
 
 # Registers the ship and parts of a genome; returns {"ship_template_id", "fit"} (ShipFit fit).
+# Play (Evolution.frozen) flies an archetype as its preset says (preset_build). Evolution builds the
+# ship from the genes, on the placeholder hull of its family and weight class, whatever its faction.
 static func build(genome: Dictionary, genome_id: String, faction: String) -> Dictionary:
+	var model: String = str(genome.get("model", ""))  # An archetype ("fighter_light")
+	if Evolution.frozen and model != "":
+		var preset: Dictionary = preset_build(model, faction)
+		if not preset.empty():
+			return preset
 	var ship_id: String = "evo_ship_%s" % genome_id
 	if not TemplateDatabase.evolved.has(ship_id):
 		var name: String = "Phoenix %s %s" % [Constants.PART_TYPE_NAMES.get(int(genome.ship.type), ""), genome_id]  # The genome shows on the HUD
-		var model: String = str(genome.get("model", ""))  # An archetype ("fighter_light"): its placeholder hull and name
-		if model != "":
-			var words: PoolStringArray = model.split("_")
-			name = "Phoenix %s %s %s" % [Constants.PART_TYPE_NAMES.get(int(genome.ship.type), ""), words[-1].capitalize(), words[0].capitalize()]
 		var ship = ShipLaws.build_ship_template(genome.ship, ship_id, name, faction)
-		if not TemplateDatabase.factions.get(faction, {}).get("own_hull", false):
-			if model == "":  # Not an archetype: the placeholder of its family and weight class
-				model = placeholder_model(family(niche(genome)), load("res://src/core/evolution/preset_classifier.gd").ship_weight(ship))
-			ship.ship_scene = load(Constants.PLACEHOLDER_HULLS_DIR.plus_file(model + ".tscn"))
+		if model == "":
+			model = placeholder_model(family(niche(genome)), load("res://src/core/evolution/preset_classifier.gd").ship_weight(ship))
+		ship.ship_scene = load(Constants.PLACEHOLDER_HULLS_DIR.plus_file(model + ".tscn"))
 		TemplateDatabase.register_evolved(ship)
 	var fit := {"tools": [], "modules": []}
 	for part in genome.tools:
@@ -348,6 +350,32 @@ static func is_combat_role(niche_name: String) -> bool:
 # A niche's family, what a spawn picks first (Evolution._pick_genome, so each gets its share of lives
 # whatever its fitness): "lance" (lancer, lance-*), "raider", "fighter" (guns, with or without a
 # harpoon), or the role itself (prospector, scavenger, drifter, and any role a new rule adds).
+# An archetype's preset (database/presets/archetypes/preset_ship_archetype_<model>.tres) as the game
+# flies it: that ship template, its stats, model and fit as the file has them (a hand-made model
+# replaces the placeholder there). A faction with a hull of its own (own_hull: the xenohive) flies a
+# copy on that hull. {} if there is no such preset.
+static func preset_build(model: String, faction: String) -> Dictionary:
+	var ship_id: String = "preset_ship_archetype_" + model
+	var ship = TemplateDatabase.get_template(ship_id)
+	if not ship is ShipTemplate:  # Not indexed yet: straight from its file
+		var path: String = Constants.ARCHETYPES_DIR.plus_file(ship_id + ".tres")
+		ship = load(path) if ResourceLoader.exists(path) else null
+		if not ship is ShipTemplate:
+			printerr("Genome: no preset ship ", ship_id)
+			return {}
+		TemplateDatabase.register_evolved(ship)  # Found by id from now on (the body looks it up)
+	var spec: Dictionary = TemplateDatabase.factions.get(faction, {})
+	if spec.get("own_hull", false):
+		var own_id: String = "%s@%s" % [ship_id, faction]
+		if not TemplateDatabase.evolved.has(own_id):
+			var own = ship.duplicate()
+			own.template_id = own_id
+			own.ship_scene = load(spec.ship_scene)
+			TemplateDatabase.register_evolved(own)
+		ship_id = own_id
+	return {"ship_template_id": ship_id, "fit": {"tools": ship.equipped_tools.duplicate(), "modules": ship.equipped_modules.duplicate()}}
+
+
 # The placeholder hull ("<family>_<weight>", scenes/prefabs/ships/placeholders/) of a family (family())
 # and weight class (PresetClassifier.ship_weight); a family without its own (a drifter: unarmed, no
 # lance) looks like a scavenger.

@@ -1,6 +1,7 @@
-# MainMenu: new game, save, load and exit. At start it offers to load the saved game (with a summary
-# of it); exiting a game in progress (the button or closing the window) asks whether to save first;
-# a new game starts a fresh world (its havens fly the archetypes: Evolution.frozen).
+# MainMenu: new game, save, load and exit; it asks nothing at start. Load reads the game's own save
+# only (GameStateManager mode "play": never evolution's); exiting a game in progress (the button or
+# closing the window) asks whether to save first; a new game starts a fresh world, its havens flying
+# the presets.
 
 extends Control
 
@@ -14,7 +15,6 @@ const PromptDialog = preload("res://src/core/ui/helpers/prompt_dialog.gd")
 
 # Save notification popup (created dynamically)
 var _save_popup: AcceptDialog = null
-var _offered_load: bool = false  # The load prompt shows once, at start
 
 
 func _ready() -> void:
@@ -40,7 +40,6 @@ func _ready() -> void:
 	get_tree().set_auto_accept_quit(false)  # Closing the window asks first (_notification)
 	# If nothing else requests it, show menu on boot.
 	call_deferred("_show_menu")
-	call_deferred("_offer_load")
 
 
 func _notification(what: int) -> void:
@@ -49,31 +48,6 @@ func _notification(what: int) -> void:
 
 
 # --- Prompts ---
-
-func _offer_load() -> void:
-	if _offered_load:
-		return
-	_offered_load = true
-	var summary: Dictionary = GameStateManager.get_save_summary() if is_instance_valid(GameStateManager) else {}
-	if summary.empty():
-		return
-	var prompt = PromptDialog.ask(self, "Continue the saved game?", describe_save(summary), [["load", "LOAD GAME"], ["no", "NOT NOW"]])
-	prompt.connect("chosen", self, "_on_load_offer_chosen")
-
-
-func _on_load_offer_chosen(choice) -> void:
-	if choice == "load":
-		_on_load_game_pressed()
-
-
-static func describe_save(summary: Dictionary) -> String:
-	return PoolStringArray([
-		"SAVED %s" % summary.get("saved_at", "?"),
-		"PLAYED %.1f H" % (float(summary.get("play_time", 0.0)) / 3600.0),
-		"THE SECTOR HAS RUN %.1f H: %d PILOTS CAME AND WENT" % [float(summary.get("game_time", 0.0)) / 3600.0, int(summary.get("lives", 0))],
-		"BANK %d WP" % int(summary.get("bank", 0)),
-	]).join("\n")
-
 
 func _request_exit() -> void:
 	if not _has_active_game_session():

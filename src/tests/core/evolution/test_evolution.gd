@@ -334,12 +334,39 @@ func test_every_roster_archetype_has_its_genome():
 			assert_ne(Evolution.archetype_genome(faction, name), "", "%s: %s" % [faction, name])
 
 
-func test_xenohive_archetypes_keep_their_grown_hull():
+func test_play_flies_the_preset_file_and_evolution_only_placeholders():
+	Evolution.frozen = true  # Play
 	Evolution.new_run()
-	var genome_id: String = Evolution.archetype_genome("xenohive", "fighter_light")
-	var built: Dictionary = Genome.build(Evolution.genomes[genome_id].genome, genome_id, "xenohive")
-	var ship = TemplateDatabase.get_template(built.ship_template_id)
-	assert_eq(ship.ship_scene.resource_path, TemplateDatabase.factions.xenohive.ship_scene)
+	var genome_id: String = Evolution.archetype_genome("verdant", "fighter_light")
+	var built: Dictionary = Genome.build(Evolution.genomes[genome_id].genome, genome_id, "verdant")
+	var preset = load(Constants.ARCHETYPES_DIR.plus_file("preset_ship_archetype_fighter_light.tres"))
+	assert_eq(built.ship_template_id, "preset_ship_archetype_fighter_light", "Play: the preset ship itself")
+	assert_eq_deep(built.fit, {"tools": preset.equipped_tools, "modules": preset.equipped_modules})
+	var xeno_id: String = Evolution.archetype_genome("xenohive", "fighter_light")
+	var xeno = TemplateDatabase.get_template(Genome.build(Evolution.genomes[xeno_id].genome, xeno_id, "xenohive").ship_template_id)
+	assert_eq(xeno.ship_scene.resource_path, TemplateDatabase.factions.xenohive.ship_scene, "The xenohive's preset on its grown hull")
+	assert_eq(xeno.hull_integrity, preset.hull_integrity, "and the preset's numbers")
+	Evolution.frozen = false  # Evolution
+	Evolution.new_run()
+	for faction in ["verdant", "xenohive"]:
+		var genome: Dictionary = Genome.random_genome()
+		var ship = TemplateDatabase.get_template(Genome.build(genome, "T%s" % faction, faction).ship_template_id)
+		assert_string_starts_with(ship.ship_scene.resource_path, Constants.PLACEHOLDER_HULLS_DIR, "Evolution: %s on a placeholder" % faction)
+
+
+func test_a_play_save_holds_no_evolution_and_reloads_archetypes_from_their_presets():
+	Evolution.frozen = true
+	Evolution.new_run()
+	assert_true(Evolution.pools.verdant.cells.empty(), "Play plants no seeds")
+	var life: Dictionary = Evolution.begin_life("verdant", "verdant_haven")
+	var data: Dictionary = Evolution.serialize()
+	assert_false(data.has("genomes") or data.has("pools"), "No evolution tree in a play save")
+	data.lives.append({"uid": "VE-99999", "faction": "verdant", "zone": "verdant_haven", "genome_id": "X123"})  # Not an archetype
+	Evolution.deserialize(data)
+	assert_eq(Evolution.resume.size(), 1, "Only the archetype's life flies again")
+	assert_eq(Evolution.resume[0].genome_id, life.genome_id)
+	assert_true(Evolution.genomes[life.genome_id].get("archetype", false), "read again from its preset")
+	Evolution.frozen = false
 
 
 class Assets extends Node:

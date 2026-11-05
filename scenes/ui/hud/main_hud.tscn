@@ -994,6 +994,12 @@ focus_mode = 0
 theme = ExtResource( 9 )
 text = "REFIT"
 
+[node name="ButtonDebugEvolution" type="Button" parent="ScreenControls/DebugOverlay/LeftColumn"]
+rect_min_size = Vector2( 0, 64 )
+focus_mode = 0
+theme = ExtResource( 9 )
+text = "EVOLUTION"
+
 [node name="LabelShip" type="Label" parent="ScreenControls/DebugOverlay/LeftColumn"]
 margin_top = 80.0
 margin_right = 255.0

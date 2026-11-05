@@ -5,11 +5,15 @@
 # - TO TARGET: straight to the selected target, TARGET_STANDOFF off its edge, at its speed.
 # - REFIT: every tool slot and module slot of the ship; pick one, then any part that fits it (or
 #   none). Free and at once, without docking or storage.
+# - EVOLUTION (desktop, from the project: EvolutionRunner): pauses the game and runs evolution mode as
+#   a process of its own, writing only its own data, while the page shows how it goes; STOP has it
+#   save and end, then the game goes on. The page stays up while it runs.
 
 extends Control
 
 const ShipFit = preload("res://src/core/systems/ship_fit.gd")
 const Fitting = preload("res://src/core/systems/fitting.gd")
+const EvolutionRunner = preload("res://src/core/evolution/evolution_runner.gd")
 const MainTheme = preload("res://assets/themes/main_theme.tres")
 const BUTTON_HEIGHT = 64
 const STANDOFF_MIN = 1500.0  # m off a place's edge the ship is put
@@ -22,6 +26,10 @@ var _list: VBoxContainer = null
 var _coords: HBoxContainer = null
 var _coord_edits: Array = []  # LineEdits: x, y, z in km
 var _target: WeakRef = weakref(null)  # The player's selected target
+var _evolution_pid: int = -1  # The evolution run started here, while it runs
+var _evolution_label: Label = null
+var _evolution_stop_at: float = -1.0  # Ticks (s) STOP was pressed; -1 not yet
+var _evolution_timer: Timer = null
 
 
 func _ready() -> void:
@@ -86,6 +94,9 @@ func _ready() -> void:
 
 
 func close() -> void:
+	if _evolution_pid > 0:
+		_status.text = "EVOLUTION IS RUNNING: STOP IT FIRST"
+		return
 	visible = false
 
 
@@ -308,3 +319,83 @@ func refit(kind: String, slot: int, part_id: String) -> void:
 
 static func _part_label(part_id: String) -> String:
 	return "-" if part_id == "" else Fitting.part_name(part_id).to_upper()
+
+
+# --- EVOLUTION ---
+
+func open_evolution() -> void:
+	_show("EVOLUTION", false)
+	if _evolution_pid > 0:
+		_show_evolution()
+		return
+	if not EvolutionRunner.available():
+		_status.text = "EVOLUTION RUNS FROM THE PROJECT ON A DESKTOP ONLY"
+		return
+	_status.text = "PAUSES THE GAME AND RUNS EVOLUTION IN ITS OWN PROCESS. IT READS AND WRITES ONLY ITS OWN DATA, NEVER THIS GAME OR ITS SAVES."
+	_list.add_child(_button("START EVOLUTION", self, "start_evolution"))
+
+
+func start_evolution() -> void:
+	_evolution_pid = EvolutionRunner.start()
+	if _evolution_pid <= 0:
+		_evolution_pid = -1
+		_status.text = "EVOLUTION DID NOT START"
+		return
+	_evolution_stop_at = -1.0
+	get_tree().paused = true
+	_show_evolution()
+
+
+func _show_evolution() -> void:
+	_clear_list()
+	_status.text = "EVOLUTION RUNNING (PROCESS %d). THE GAME IS PAUSED." % _evolution_pid
+	_evolution_label = Label.new()
+	_evolution_label.autowrap = true
+	_list.add_child(_evolution_label)
+	_list.add_child(_button("STOP EVOLUTION", self, "stop_evolution"))
+	if _evolution_timer == null:
+		_evolution_timer = Timer.new()
+		_evolution_timer.wait_time = 1.0
+		_evolution_timer.pause_mode = PAUSE_MODE_PROCESS
+		_evolution_timer.connect("timeout", self, "_on_evolution_tick")
+		add_child(_evolution_timer)
+	_evolution_timer.start()
+	_on_evolution_tick()
+
+
+func stop_evolution() -> void:
+	if _evolution_pid <= 0 or _evolution_stop_at >= 0.0:
+		return
+	EvolutionRunner.request_stop()
+	_evolution_stop_at = OS.get_ticks_msec() / 1000.0
+	_status.text = "STOPPING: EVOLUTION SAVES, THEN ENDS"
+
+
+func _on_evolution_tick() -> void:
+	var status: Dictionary = EvolutionRunner.status()
+	var ours: bool = int(status.get("pid", -1)) == _evolution_pid
+	if is_instance_valid(_evolution_label):
+		_evolution_label.text = EvolutionRunner.describe(status if ours else {}, OS.get_unix_time())
+	if _evolution_stop_at < 0.0:
+		return
+	if ours and status.get("state") == "done":
+		_evolution_ended("EVOLUTION SAVED AND ENDED. THE GAME GOES ON.")
+	elif OS.get_ticks_msec() / 1000.0 - _evolution_stop_at > Constants.EVOLUTION_STOP_WAIT:
+		EvolutionRunner.kill(_evolution_pid)
+		_evolution_ended("EVOLUTION DID NOT ANSWER AND WAS ENDED; ITS LAST SAVE HOLDS. THE GAME GOES ON.")
+
+
+func _evolution_ended(message: String) -> void:
+	_evolution_pid = -1
+	_evolution_stop_at = -1.0
+	_evolution_timer.stop()
+	get_tree().paused = false
+	_clear_list()
+	_status.text = message
+	_list.add_child(_button("START EVOLUTION", self, "start_evolution"))
+
+
+# Quitting the game while evolution runs ends the run too (it saves first).
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_PREDELETE and _evolution_pid > 0:
+		EvolutionRunner.request_stop()

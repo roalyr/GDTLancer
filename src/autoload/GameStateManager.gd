@@ -1,12 +1,21 @@
-# GameStateManager: new game reset and save/load of GameState and the havens' evolution.
-# Saves carry SAVE_FORMAT_VERSION; older ones are deleted at start (they lack the evolution data),
-# and a summary for the load prompt (get_save_summary).
+# GameStateManager: new game reset and save/load of GameState and the world's NPCs.
+# Two modes, their data kept apart (`mode`, set_mode):
+# - "play", the game: saves to PLAY_SAVE_DIR; its world flies the presets only (Evolution.frozen),
+#   and a save holds no evolution data, only the NPCs flying (by archetype);
+# - "evolution", the arena (tools/evolution_sim.gd, started from the debug overlay): saves to
+#   Constants EVOLUTION_DIR, with the whole evolution (pools, genomes, every life).
+# Every save is stamped with its mode, and a mode loads only its own (a save from before the stamp
+# counts as evolution's: they all carried the evolution). Saves carry SAVE_FORMAT_VERSION too;
+# older ones are deleted at start. get_save_summary: what the load button says about a save.
 
 extends Node
 
-const SAVE_DIR = "user://savegames/"
+const MODE_PLAY = "play"
+const MODE_EVOLUTION = "evolution"
+const PLAY_SAVE_DIR = "user://savegames/"
 
-var save_dir: String = SAVE_DIR  # Tests point this at their own folder so real saves are never touched
+var mode: String = MODE_PLAY setget set_mode
+var save_dir: String = PLAY_SAVE_DIR  # Set by the mode; tests point this at their own folder so real saves are never touched
 const SAVE_FILE_PREFIX = "save_"
 const SAVE_FILE_EXT = ".sav"
 const SAVE_TMP_EXT = ".tmp"  # Being written (save_game)
@@ -17,6 +26,13 @@ const SAVE_FORMAT_VERSION = 2  # 2: evolution, play time and a summary
 
 func _ready() -> void:
 	delete_outdated_saves()
+
+
+# Play or evolution: where saves go, which ones load, and whether the world evolves.
+func set_mode(value: String) -> void:
+	mode = value
+	save_dir = PLAY_SAVE_DIR if mode == MODE_PLAY else Constants.EVOLUTION_DIR
+	Evolution.frozen = mode == MODE_PLAY
 
 
 func _process(delta: float) -> void:
@@ -40,7 +56,7 @@ func delete_outdated_saves() -> void:
 			if file.open(save_dir.plus_file(file_name), File.READ) == OK:
 				data = file.get_var(true)
 				file.close()
-			if not (data is Dictionary and _is_save_data_valid(data)):
+			if not (data is Dictionary and _is_current_format(data)):  # Never for its mode: the other mode's save is kept
 				outdated.append(file_name)
 		file_name = dir.get_next()
 	for name in outdated:
@@ -181,7 +197,13 @@ func _read_save_file(path: String):
 	return save_data
 
 
+# A save this mode loads: its own mode's, of the current format.
 func _is_save_data_valid(save_data: Dictionary) -> bool:
+	var saved_mode: String = str(save_data.get("mode", MODE_EVOLUTION))  # Unstamped: from before the modes, evolution's
+	return saved_mode == mode and _is_current_format(save_data)
+
+
+func _is_current_format(save_data: Dictionary) -> bool:
 	return (
 		int(save_data.get("format_version", 0)) == SAVE_FORMAT_VERSION
 		and str(save_data.get("player_ship_template_id", "")) != ""
@@ -232,7 +254,8 @@ func _serialize_game_state() -> Dictionary:
 		"player_arrival_direction": _serialize_vector3(GameState.player_arrival_direction),
 		"play_time": GameState.play_time,
 		"format_version": SAVE_FORMAT_VERSION,
-		"evolution": Evolution.serialize(),
+		"mode": mode,
+		"evolution": Evolution.serialize(),  # Play: only the NPCs flying
 		"summary": _make_summary(),
 	}
 

@@ -224,6 +224,7 @@ func _ready():
 	$ScreenControls/DebugOverlay/RightColumn/ButtonDebugGoTo.connect("pressed", debug_tools, "open_go_to")
 	$ScreenControls/DebugOverlay/RightColumn/ButtonDebugToTarget.connect("pressed", debug_tools, "go_to_target")
 	$ScreenControls/DebugOverlay/LeftColumn/ButtonDebugRefit.connect("pressed", debug_tools, "open_refit")
+	$ScreenControls/DebugOverlay/LeftColumn/ButtonDebugEvolution.connect("pressed", debug_tools, "open_evolution")
 	_refresh_toggle_button_states()
 
 	pause_mode = PAUSE_MODE_PROCESS

@@ -5,11 +5,11 @@
 # from a *_min10 folder are marked PROVEN); NPCs do not fly them until the files are moved into
 # database/registry/ (parts first: ships name them by id).
 #     godot --no-window -s tools/export_presets.gd -- --top=60 --min-lives=10 --clean
-# Options: --save=PATH (default user://savegames/save_0.sav), --top=N archetypes, --min-lives=N,
+# Options: --save=PATH (default user://evolution/save_0.sav: evolution mode's save), --top=N archetypes, --min-lives=N,
 # --out=PATH (default res://database/presets/), --clean (remove the presets there first).
 extends SceneTree
 
-var save_path := "user://savegames/save_0.sav"
+var save_path := "user://evolution/save_0.sav"
 var out_dir := "res://database/presets/"
 var top := 60
 var min_lives := 10

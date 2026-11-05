@@ -1149,7 +1149,17 @@ const EVO_SEEDS = {
 const EVO_GENOME_MEMORY = 3000  # Genomes whose records are kept (elites and live ones always are)
 const EVO_REPORT_INTERVAL = 300.0  # s of game time between console reports
 const EVO_LOG_LEVEL = 2  # Console: 0 nothing, 1 deaths and reports, 2 every birth, dock, sale and kill
-const EVO_LOG_DIR = "user://evolution_logs/"  # One .jsonl per evolution run: every life, in full
+# Evolution mode's data, all of it under EVOLUTION_DIR and nothing of it anywhere else: its save
+# (GameStateManager, mode "evolution"), backups, life logs and the status the debug overlay reads.
+# The game (mode "play") saves to GameStateManager.PLAY_SAVE_DIR and never reads any of it.
+const EVOLUTION_DIR = "user://evolution/"
+const EVOLUTION_BACKUPS_DIR = "user://evolution/backups/"
+const EVOLUTION_STATUS_FILE = "user://evolution/status.json"  # Written by tools/evolution_sim.gd as it runs
+const EVOLUTION_STOP_FILE = "user://evolution/stop"  # Its presence asks the run to save and end (the overlay's STOP)
+const EVOLUTION_SIM_SCRIPT = "res://tools/evolution_sim.gd"
+const EVOLUTION_SIM_SPEED = 8.0  # Time scale the overlay runs it at
+const EVOLUTION_STOP_WAIT = 60.0  # s the overlay waits for a stopped run to save and end before killing it
+const EVO_LOG_DIR = "user://evolution/logs/"  # One .jsonl per evolution run: every life, in full
 
 
 # ==================================================================================================

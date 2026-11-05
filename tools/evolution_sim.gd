@@ -1,19 +1,23 @@
-# Headless evolution run: plays the game with the player docked at home, the sector's havens populated (SectorLayout) and running sped
-# up, and saves to the real save slot as it goes, so the game can load and carry on from it (and
-# this can carry on from the game's save). The console gets Evolution's EVO lines and reports.
+# Evolution mode, headless: the sector with the player docked at home, its havens populated
+# (SectorLayout) and evolving, sped up. Its data is evolution's alone (GameStateManager mode
+# "evolution"): it loads and saves Constants EVOLUTION_DIR (save, backups/, logs/), never the
+# game's saves, and the game never reads it. It writes EVOLUTION_STATUS_FILE as it goes (what the
+# debug overlay shows; the overlay's EVOLUTION button starts this, its STOP ends it: saves are
+# atomic, so a stop at any time loses at most the time since the last save). The console gets
+# Evolution's EVO lines and reports. Every ship flies a placeholder hull.
 #     godot --no-window -s tools/evolution_sim.gd -- --hours=4 --speed=8
 # Options (after --):
-#   --hours=H      simulated hours to run (default 1)
+#   --hours=H      simulated hours to run (default 1; 0: until stopped)
 #   --speed=X      time scale; physics steps per second scale with it, so the physics is unchanged (default 6)
 #   --new          start a new evolution even if a save exists (otherwise the save is loaded)
 #   --save-every=M simulated minutes between saves (default 15)
-#   --save-dir=D   save folder (default the game's); use another to keep a run apart
+#   --save-dir=D   save folder (default Constants EVOLUTION_DIR); another keeps a run apart
 #   --new-era      the rules changed: every genome's record starts over (Evolution.new_era)
-#   --backup-every=H simulated hours between copies of the save into user://save_backups/ (with
+#   --backup-every=H simulated hours between copies of the save into EVOLUTION_BACKUPS_DIR (with
 #                  --save-dir, its backups/ folder), and at the end (default 2; the newest
 #                  EVOSIM_BACKUPS_KEPT are kept): a blackout loses at most that much
-#   --frozen       fly the frozen world (the archetypes, as the game does) instead of evolving:
-#                  for watching how the game's world plays out; use with --save-dir and --new
+#   --frozen       play mode instead: the game's world (the presets) headless, for watching how it
+#                  plays out; needs --save-dir (never the game's saves), use with --new
 #   --probe        every 10 simulated minutes, list NPCs stuck in one activity for 30 minutes or more
 #                  (state, target, throttle, speed): for finding ships that never finish a life
 # Vsync is switched off: with it, a monitor gone to sleep (DPMS) stalls every frame and the run with it.
@@ -29,6 +33,11 @@ var probe := false
 var frozen := false
 var backup_every := 2.0
 const EVOSIM_BACKUPS_KEPT = 3
+const Defaults = preload("res://src/autoload/Constants.gd")  # A -s script: no autoloads by name here
+var _status_path := ""
+var _saved_at := 0  # Unix time of the last save
+var _t0 := 0
+var _start_time := 0.0
 var _since: Dictionary = {}  # Probe: evo uid -> [activity, game time it began]
 
 
@@ -36,6 +45,8 @@ func _initialize():
 	for arg in OS.get_cmdline_args():
 		if arg.begins_with("--hours="):
 			hours = float(arg.split("=")[1])
+			if hours <= 0.0:
+				hours = INF  # Until stopped
 		elif arg.begins_with("--speed="):
 			speed = max(1.0, float(arg.split("=")[1]))
 		elif arg == "--new":
@@ -64,9 +75,15 @@ func _run():
 	var refs = root.get_node("GlobalRefs")
 	var manager = root.get_node("GameStateManager")
 	var evolution = root.get_node("Evolution")
-	evolution.frozen = frozen  # The game's world is frozen; the arena evolves
+	if frozen and save_dir == "":
+		printerr("EVOSIM --frozen plays the game's world: give it a --save-dir of its own")
+		quit(1)
+		return
+	manager.mode = manager.MODE_PLAY if frozen else manager.MODE_EVOLUTION  # Where it saves, what it loads, whether it evolves
 	if save_dir != "":
 		manager.save_dir = save_dir
+	_status_path = Defaults.EVOLUTION_STATUS_FILE if save_dir == "" else save_dir.plus_file("status.json")
+	Directory.new().remove(Defaults.EVOLUTION_STOP_FILE)  # A stale request from a run that died
 	change_scene("res://scenes/levels/game_world/main_game_scene.tscn")
 	yield(_wait(1.0), "completed")
 	refs.agent_spawner.run_traffic = false  # No travellers among the evolving NPCs
@@ -94,8 +111,16 @@ func _run():
 	var next_backup: float = start_time + backup_every * 3600.0
 	var t0 = OS.get_ticks_msec()
 	print("EVOSIM running %.1f h of evolution time at x%.0f, from t=%.0fs" % [hours, speed, start_time])
+	_t0 = t0
+	_start_time = start_time
 	while evolution.game_time < end_time:
 		yield(_wait(5.0), "completed")
+		_write_status(evolution, "running")
+		var stop := Directory.new()
+		if stop.file_exists(Defaults.EVOLUTION_STOP_FILE):  # The overlay's STOP: save and end
+			stop.remove(Defaults.EVOLUTION_STOP_FILE)
+			print("EVOSIM asked to stop")
+			break
 		if paused:
 			paused = false  # Nothing here should pause the run (a menu opened by a stray event)
 		if probe and evolution.game_time >= next_probe:
@@ -103,8 +128,11 @@ func _run():
 			_probe(evolution.game_time)
 		if evolution.game_time >= next_save:
 			next_save = evolution.game_time + save_every * 60.0
+			var saved: bool = manager.save_game(0)
+			if saved:
+				_saved_at = OS.get_unix_time()
 			print("EVOSIM saved=%s t=%.0fs wall=%.0fs pace x%.1f nodes=%d orphans=%d objects=%d bodies=%d templates=%d genomes=%d mem=%.0fMB" % [
-				manager.save_game(0), evolution.game_time, (OS.get_ticks_msec() - t0) / 1000.0,
+				saved, evolution.game_time, (OS.get_ticks_msec() - t0) / 1000.0,
 				(evolution.game_time - start_time) / max(0.001, (OS.get_ticks_msec() - t0) / 1000.0),
 				Performance.get_monitor(Performance.OBJECT_NODE_COUNT), Performance.get_monitor(Performance.OBJECT_ORPHAN_NODE_COUNT),
 				Performance.get_monitor(Performance.OBJECT_COUNT), get_nodes_in_group("agent_body").size(),
@@ -115,15 +143,37 @@ func _run():
 	Engine.time_scale = 1.0
 	Engine.iterations_per_second = 60
 	evolution.print_report()
-	print("EVOSIM done, saved=%s" % manager.save_game(0))
+	var saved_last: bool = manager.save_game(0)
+	if saved_last:
+		_saved_at = OS.get_unix_time()
+	print("EVOSIM done, saved=%s" % saved_last)
 	_backup(manager, evolution.game_time)
+	_write_status(evolution, "done")
 	quit()
 
 
-# Copies the save just written to user://save_backups/auto_t<simulated hour>.sav and keeps the newest
+# What the debug overlay shows of the run (EVOLUTION_STATUS_FILE): this process, its state
+# ("running", "done"), the evolution's time, lives and genomes, the pace, and when it last saved.
+func _write_status(evolution, state: String) -> void:
+	var wall: float = (OS.get_ticks_msec() - _t0) / 1000.0
+	var status := {
+		"pid": OS.get_process_id(), "state": state, "updated": OS.get_unix_time(), "saved": _saved_at,
+		"game_time": evolution.game_time, "lives": evolution.lives_ended(), "births": int(evolution.totals.get("births", 0)),
+		"genomes": evolution.genomes.size(), "run_id": evolution.run_id, "pace": (evolution.game_time - _start_time) / max(wall, 0.001),
+	}
+	var dir := Directory.new()
+	dir.make_dir_recursive(_status_path.get_base_dir())
+	var file := File.new()
+	if file.open(_status_path + ".tmp", File.WRITE) == OK:
+		file.store_string(to_json(status))
+		file.close()
+		dir.rename(_status_path + ".tmp", _status_path)
+
+
+# Copies the save just written to EVOLUTION_BACKUPS_DIR/auto_t<simulated hour>.sav and keeps the newest
 # EVOSIM_BACKUPS_KEPT of those.
 func _backup(manager, now: float) -> void:
-	var folder: String = "user://save_backups/" if save_dir == "" else save_dir.plus_file("backups/")  # A run of its own keeps its own
+	var folder: String = Defaults.EVOLUTION_BACKUPS_DIR if save_dir == "" else save_dir.plus_file("backups/")  # A run of its own keeps its own
 	var dir := Directory.new()
 	dir.make_dir_recursive(folder)
 	var target: String = folder + "auto_t%06.2fh.sav" % (now / 3600.0)

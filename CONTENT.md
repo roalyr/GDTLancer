@@ -38,7 +38,18 @@ Each design is a pair of files:
 
 `CATALOG.md` beside them describes every design. Factions pick from these through their roster. The home station's store sells them too, along with the era 51 drafts.
 
-Archetypes come out of the arena evolution, a developer's tool (`tools/evolution_sim.gd`). To fly the game's own world headless instead, run `godot --no-window -s tools/evolution_sim.gd -- --new --frozen --save-dir=user://watch/`.
+The game flies these files as they are: an archetype's ship file sets its stats, its fit and its model. To give one a hand-made model, point its `ship_scene` at the new scene.
+
+## Play and evolution
+
+The game and the evolution are two separate modes, and neither ever reads the other's data:
+
+- **Play** (the game) works with the presets only. Its saves are in `user://savegames/`.
+- **Evolution** is a developer's tool for breeding new designs. Every ship in it flies a placeholder hull. Its save, backups, life logs and status are all in `user://evolution/`.
+
+To run evolution, open the debug overlay and press **EVOLUTION**, then **START EVOLUTION**. The game pauses, and evolution runs in a separate process until you press **STOP EVOLUTION**; it then saves and ends, and the game carries on. This only works when running from the project on a desktop. From a terminal: `godot --no-window -s tools/evolution_sim.gd -- --hours=4`.
+
+New designs reach the game only when you export them as presets (`tools/export_presets.gd`).
 
 ## Placeholder models — `Constants.gd`, `HULL_FORMS` and `STATION_FORMS`
 

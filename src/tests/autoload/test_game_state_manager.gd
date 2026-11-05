@@ -13,7 +13,7 @@ func before_each():
 func after_each():
 	GameState.reset_state()
 	GameStateManager.delete_all_saves()  # Only the test folder
-	GameStateManager.save_dir = GameStateManager.SAVE_DIR
+	GameStateManager.save_dir = GameStateManager.PLAY_SAVE_DIR
 
 
 func _populate_game_state() -> void:
@@ -172,3 +172,57 @@ func test_a_save_broken_mid_write_falls_back_to_the_one_before():
 	assert_eq(GameState.current_sector_id, "sector_cob")
 	GameStateManager.delete_save(TEST_SLOT)
 	assert_false(GameStateManager.has_save_file(TEST_SLOT), "Deleted with its backup: it does not come back")
+
+
+# Switches mode but keeps the test folder (set_mode points save_dir at the mode's real folder).
+func _as_mode(mode: String) -> void:
+	GameStateManager.mode = mode
+	GameStateManager.save_dir = "user://test_savegames/"
+	Evolution.frozen = false  # As the tests run it (pre-run hook)
+
+
+func test_each_mode_loads_only_its_own_saves():
+	_populate_game_state()
+	_as_mode(GameStateManager.MODE_EVOLUTION)
+	assert_true(GameStateManager.save_game(TEST_SLOT))
+	_as_mode(GameStateManager.MODE_PLAY)
+	assert_false(GameStateManager.has_save_file(TEST_SLOT), "The game never sees evolution's save")
+	assert_false(GameStateManager.load_game(TEST_SLOT), "nor loads it")
+	GameStateManager.delete_outdated_saves()
+	assert_true(File.new().file_exists(GameStateManager._get_save_path(TEST_SLOT)), "and never deletes it either")
+	GameStateManager.delete_all_saves()  # (In one folder the play save's backup would be evolution's)
+	assert_true(GameStateManager.save_game(TEST_SLOT))
+	_as_mode(GameStateManager.MODE_EVOLUTION)
+	assert_false(GameStateManager.has_save_file(TEST_SLOT), "Evolution never sees the game's")
+	_as_mode(GameStateManager.MODE_PLAY)
+	assert_true(GameStateManager.has_save_file(TEST_SLOT), "The game sees its own")
+
+
+func test_a_save_from_before_the_modes_is_evolutions():
+	_populate_game_state()
+	assert_true(GameStateManager.save_game(TEST_SLOT))
+	var path: String = GameStateManager._get_save_path(TEST_SLOT)
+	var file := File.new()
+	file.open(path, File.READ)
+	var data: Dictionary = file.get_var(true)
+	file.close()
+	data.erase("mode")  # As every save was before
+	file.open(path, File.WRITE)
+	file.store_var(data, true)
+	file.close()
+	assert_false(GameStateManager.has_save_file(TEST_SLOT), "Not the game's")
+	_as_mode(GameStateManager.MODE_EVOLUTION)
+	assert_true(GameStateManager.has_save_file(TEST_SLOT), "but evolution's")
+	_as_mode(GameStateManager.MODE_PLAY)
+
+
+func test_the_modes_keep_their_data_in_their_own_folders():
+	GameStateManager.mode = GameStateManager.MODE_EVOLUTION
+	assert_eq(GameStateManager.save_dir, Constants.EVOLUTION_DIR)
+	assert_false(Evolution.frozen, "Evolution evolves")
+	GameStateManager.mode = GameStateManager.MODE_PLAY
+	assert_eq(GameStateManager.save_dir, GameStateManager.PLAY_SAVE_DIR)
+	assert_true(Evolution.frozen, "the game flies presets")
+	assert_true(Constants.EVO_LOG_DIR.begins_with(Constants.EVOLUTION_DIR), "Life logs are evolution's")
+	assert_true(Constants.EVOLUTION_BACKUPS_DIR.begins_with(Constants.EVOLUTION_DIR))
+	_as_mode(GameStateManager.MODE_PLAY)

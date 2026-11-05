@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Summarises an evolution run's life log (user://evolution_logs/run_<id>.jsonl, one JSON per finished life).
+"""Summarises an evolution run's life log (user://evolution/logs/run_<id>.jsonl, one JSON per finished life).
 
     python3 tools/evolution_report.py [log.jsonl] [--last-hours H]
 
@@ -16,9 +16,9 @@ import sys
 from collections import Counter, defaultdict
 
 USER_DIRS = [
-    "~/.local/share/godot/app_userdata/*/evolution_logs/",
-    "~/Library/Application Support/Godot/app_userdata/*/evolution_logs/",
-    "~/AppData/Roaming/Godot/app_userdata/*/evolution_logs/",
+    "~/.local/share/godot/app_userdata/*/evolution/logs/",
+    "~/Library/Application Support/Godot/app_userdata/*/evolution/logs/",
+    "~/AppData/Roaming/Godot/app_userdata/*/evolution/logs/",
 ]
 
 

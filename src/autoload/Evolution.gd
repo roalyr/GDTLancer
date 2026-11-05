@@ -4,10 +4,13 @@
 # flies its genome again or a mutant; the life's end (death or retirement) scores the genome and
 # may make it its niche's best. In proving mode (Constants EVO_PROVING) it mostly re-flies the leading
 # genomes of each archetype until they have enough lives to be presets (_unproven).
-# A frozen world (`frozen`, the game: Constants EVO_WORLD_FROZEN) evolves nothing: its havens fly the
-# picked archetypes (database/presets/archetypes/, FactionTemplate.roster) again as they are, on
-# their placeholder hulls; their lives are recorded as any, but never enter the pools. The arena
-# sim (tools/evolution_sim.gd) and the tests evolve.
+# Two modes (GameStateManager.mode), their data apart:
+# - Play, the game (`frozen`): evolves nothing and knows no evolution tree. Its havens fly the
+#   presets, the picked archetypes (database/presets/archetypes/, FactionTemplate.roster), as their
+#   preset files say (Genome.build: the preset ship, its fit and model); no pools, no seeds, no life
+#   log, and a save holds only the NPCs flying, by archetype (read again from the presets on load).
+# - Evolution, the arena (tools/evolution_sim.gd, its own process and save; the tests too): the
+#   pools evolve, every ship on its family's placeholder hull.
 # Saved with the game (serialize / deserialize).
 # Console: lines start with "EVO " (Constants EVO_LOG_LEVEL), a report every EVO_REPORT_INTERVAL.
 # File: every finished life in full, one JSON line each, under Constants EVO_LOG_DIR.
@@ -74,7 +77,8 @@ func new_run() -> void:
 	_next_uid = 0
 	_next_genome = 0
 	_report_due = Constants.EVO_REPORT_INTERVAL
-	plant_seeds()
+	if not frozen:
+		plant_seeds()  # Play has no evolution tree
 
 
 # Puts each starting design (Constants EVO_SEEDS) into its pool, where its niche is still empty.
@@ -108,6 +112,11 @@ func serialize() -> Dictionary:
 	var lives: Array = resume.duplicate(true)
 	for uid in live:
 		lives.append(live[uid].duplicate(true))
+	if frozen:  # Play: the NPCs flying, by archetype; no genomes, no pools
+		return {
+			"version": SAVE_VERSION, "play": true, "run_id": run_id, "game_time": game_time, "real_time": real_time,
+			"totals": totals.duplicate(), "lives": lives, "next_uid": _next_uid,
+		}
 	return {
 		"version": SAVE_VERSION, "run_id": run_id, "game_time": game_time, "real_time": real_time,
 		"totals": totals.duplicate(), "pools": pools.duplicate(true), "genomes": genomes.duplicate(true),
@@ -119,6 +128,8 @@ func deserialize(data: Dictionary) -> bool:
 	new_run()
 	if int(data.get("version", 0)) != SAVE_VERSION:
 		return false
+	if frozen:
+		return _deserialize_play(data)
 	run_id = str(data.get("run_id", run_id))
 	game_time = float(data.get("game_time", 0.0))
 	real_time = float(data.get("real_time", 0.0))
@@ -175,9 +186,9 @@ func begin_life(faction: String, zone_id: String) -> Dictionary:
 			_start(saved)
 			_log(2, "EVO BACK %s %s zone=%s age=%.0fs" % [saved.uid, saved.genome_id, zone_id, game_time - float(saved.born)])
 			return saved
-	var pick: Dictionary = _pick_archetype(faction, zone_id) if frozen else {}
+	var pick: Dictionary = _pick_archetype(faction, zone_id) if frozen else _pick_genome(faction, _preferred_role(faction, zone_id))
 	if pick.empty():
-		pick = _pick_genome(faction, _preferred_role(faction, zone_id))
+		return {}  # Play: a faction without a roster flies nothing
 	var genome_id: String = pick.genome_id
 	var entry: Dictionary = genomes[genome_id]
 	var prefix: String = TemplateDatabase.factions.get(faction, {}).get("name", faction).substr(0, 2).to_upper()
@@ -204,6 +215,26 @@ func _start(record: Dictionary) -> void:
 	record.behavior = entry.genome.get("behavior", Genome.default_behavior())
 	record.combat = Genome.is_combat_role(Genome.niche(entry.genome))
 	live[record.uid] = record
+
+
+# A play save: the NPCs flying again, each on its archetype as the presets say now (a life on
+# anything else, or a faction's archetype gone from its roster, is dropped).
+func _deserialize_play(data: Dictionary) -> bool:
+	run_id = str(data.get("run_id", run_id))
+	game_time = float(data.get("game_time", 0.0))
+	real_time = float(data.get("real_time", 0.0))
+	totals = data.get("totals", totals)
+	_next_uid = int(data.get("next_uid", 0))
+	for record in data.get("lives", []):
+		var faction: String = str(record.get("faction", ""))
+		var name: String = str(record.get("genome_id", "")).trim_prefix(faction + "-")
+		if not name in TemplateDatabase.factions.get(faction, {}).get("roster", []):
+			continue
+		if archetype_genome(faction, name) == record.genome_id:
+			record.zone = _haven_for(faction, str(record.get("zone", "")))
+			resume.append(record)
+	_report_due = game_time + Constants.EVO_REPORT_INTERVAL
+	return true
 
 
 func attach_body(uid: String, body: Node) -> void:
@@ -667,7 +698,7 @@ func _clock() -> String:
 
 
 func _write_life(record: Dictionary, died: bool, killer: String, fitness: float, age: float) -> void:
-	if not log_lives:
+	if not log_lives or frozen:  # Life logs are evolution's
 		return
 	var dir := Directory.new()
 	if not dir.dir_exists(Constants.EVO_LOG_DIR):
