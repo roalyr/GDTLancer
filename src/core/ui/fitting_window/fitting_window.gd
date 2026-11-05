@@ -20,6 +20,7 @@ onready var _store: VBoxContainer = $Panel/Layout/Body/Content/Columns/Store/Scr
 onready var _store_scroll: ScrollContainer = $Panel/Layout/Body/Content/Columns/Store/Scroll
 onready var _tabs: HBoxContainer = $Panel/Layout/Body/Content/Columns/Store/Tabs
 onready var _status: Label = $Panel/Layout/Body/Content/Status
+onready var _preview: Control = $Panel/Layout/Body/Content/Columns/Store/HullPreview
 
 const STORE_TABS = ["ships", "weapons", "equipment", "modules", "cargo"]
 const WEAPON_TYPES = ["laser", "missile", "cannon"]
@@ -33,6 +34,8 @@ const GROUP_OPEN_MAX = 12  # A part heading over more rows than this starts fold
 
 var _tab: String = "ships"
 var _folded: Dictionary = {}  # Tab/heading -> folded, once tapped
+var _ship_rows: Dictionary = {}  # Ships tab: ship id -> its row (tapping one shows it in the preview)
+const SELECTED_SHADE = Color(1, 1, 1, 0.16)  # The previewed ship's row
 
 
 func _ready() -> void:
@@ -195,10 +198,13 @@ func _rebuild_tabs() -> void:
 func _rebuild_store(ship_body) -> void:
 	_rebuild_tabs()
 	_clear(_store)
+	_ship_rows = {}
+	_preview.visible = _tab == "ships"
 	match _tab:
 		"ships":
-			_add_note(_store, "Hulls only: yours is traded in for half, its parts go to storage. Each line says how the hull was fitted when it evolved; PROVEN ones flew 10 lives or more.")
+			_add_note(_store, "Tap a ship to see its hull above (drag it to turn it). Hulls only: yours is traded in for half, its parts go to storage. Each line says how the hull was fitted when it evolved; PROVEN ones flew 10 lives or more.")
 			_store_ships()
+			preview_ship(_preview.ship_id if _ship_rows.has(_preview.ship_id) else GameState.player_ship_template_id)
 		"weapons":
 			_store_parts(store_groups(true))
 		"equipment":
@@ -230,7 +236,9 @@ func _store_ships() -> void:
 			var cost: int = Fitting.ship_cost(ship_id)
 			var label: String = "FLYING" if flying else ("BUY %d" % cost if cost >= 0 else "BUY +%d" % -cost)
 			var title: String = Fitting.part_name(ship_id) + ("  PROVEN" if TemplateDatabase.proven_presets.has(ship_id) else "")
-			_add_row(_store, i, title, describe_ship(ship_id), [[label, flying or GameState.player_bank < cost, "_on_buy_ship", [ship_id]]])
+			var row: Control = _add_row(_store, i, title, describe_ship(ship_id), [[label, flying or GameState.player_bank < cost, "_on_buy_ship", [ship_id]]])
+			row.connect("gui_input", self, "_on_ship_row_input", [ship_id])
+			_ship_rows[ship_id] = row
 
 
 # [heading, [part ids]] pairs for a tab (weapons; equipment: other tools; else modules), each
@@ -360,7 +368,7 @@ func _add_note(container: Node, text: String) -> void:
 
 # A row: `title` over `detail` (dimmer, wrapping), and its buttons ([text, disabled, method, binds])
 # beside them. Every other row is shaded, so rows read apart.
-func _add_row(container: Node, index: int, title: String, detail: String, buttons: Array) -> void:
+func _add_row(container: Node, index: int, title: String, detail: String, buttons: Array) -> Control:
 	var panel: PanelContainer = RowScene.instance()
 	if index % 2 != 0:
 		panel.self_modulate = Color(1, 1, 1, 0)  # Unshaded: the panel's own look only, not its contents
@@ -371,6 +379,29 @@ func _add_row(container: Node, index: int, title: String, detail: String, button
 	detail_label.visible = detail != ""
 	for spec in buttons:
 		_add_button(panel.get_node("Row"), spec[0], spec[1], spec[2], spec[3], RowButtonScene)
+	return panel
+
+
+# Shows `ship_id`'s hull in the preview and marks its row.
+func preview_ship(ship_id: String) -> void:
+	var previous = _ship_rows.get(_preview.ship_id)
+	if is_instance_valid(previous) and previous.has_meta("shade"):
+		previous.add_stylebox_override("panel", null)  # Back to the scene's shade
+		previous.self_modulate = previous.get_meta("shade")
+	_preview.show_ship(ship_id)
+	var row = _ship_rows.get(ship_id)
+	if is_instance_valid(row):
+		var style: StyleBoxFlat = row.get_stylebox("panel").duplicate()
+		style.bg_color = SELECTED_SHADE
+		row.add_stylebox_override("panel", style)
+		if not row.has_meta("shade"):
+			row.set_meta("shade", row.self_modulate)
+		row.self_modulate = Color(1, 1, 1, 1)  # Shaded even on an unshaded line
+
+
+func _on_ship_row_input(event: InputEvent, ship_id: String) -> void:
+	if event is InputEventMouseButton and event.button_index == BUTTON_LEFT and not event.pressed:
+		preview_ship(ship_id)
 
 
 func _add_button(container: Node, text: String, disabled: bool, method: String, binds: Array, scene: PackedScene = ButtonScene) -> Button:

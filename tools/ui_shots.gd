@@ -26,6 +26,14 @@ func _ready() -> void:
 		fitting._on_tab(tab)
 		yield(_wait(0.5), "completed")
 		_shot("fitting_%s" % tab)
+	fitting._on_tab("ships")
+	var ids: Array = fitting._ship_rows.keys()
+	ids.sort()
+	for ship_id in ids:
+		if ship_id.begins_with("preset_ship_archetype_raider_heavy"):
+			fitting.preview_ship(ship_id)
+	yield(_wait(1.0), "completed")
+	_shot("fitting_ships_preview")
 	EventBus.emit_signal("announcement", "UI shots: an announcement", "warning")
 	yield(_wait(0.2), "completed")
 	_shot("announcement")
