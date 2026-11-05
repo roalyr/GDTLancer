@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=2]
+[gd_scene load_steps=13 format=2]
 
 [ext_resource path="res://src/scenes/game_world/world_manager.gd" type="Script" id=1]
 [ext_resource path="res://scenes/ui/hud/main_hud.tscn" type="PackedScene" id=2]
@@ -10,6 +10,8 @@
 [ext_resource path="res://scenes/prefabs/navigation/jump_transition_rig.tscn" type="PackedScene" id=29]
 [ext_resource path="res://assets/audio/music/ambient/GDTLancer ambient 1.mp3" type="AudioStream" id=30]
 [ext_resource path="res://src/scenes/game_world/ambient_music.gd" type="Script" id=31]
+[ext_resource path="res://src/core/sound/sound_effects.gd" type="Script" id=32]
+[ext_resource path="res://database/sounds/sound_bank.tres" type="Resource" id=33]
 
 [node name="MainGameScene" type="Node"]
 
@@ -38,6 +40,7 @@ __meta__ = {
 size = Vector2( 1920, 1080 )
 handle_input_locally = false
 render_target_update_mode = 3
+audio_listener_enable_3d = true
 
 [node name="CurrentZoneContainer" type="Spatial" parent="WorldViewContainer/WorldViewport"]
 __meta__ = {
@@ -47,6 +50,10 @@ __meta__ = {
 [node name="OrbitCamera" parent="WorldViewContainer/WorldViewport" instance=ExtResource( 3 )]
 
 [node name="JumpTransitionRig" parent="WorldViewContainer/WorldViewport" instance=ExtResource( 29 )]
+
+[node name="SoundEffects" type="Spatial" parent="WorldViewContainer/WorldViewport"]
+script = ExtResource( 32 )
+bank = ExtResource( 33 )
 
 [node name="MainHUD" parent="." instance=ExtResource( 2 )]
 

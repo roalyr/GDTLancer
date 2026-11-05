@@ -1216,13 +1216,27 @@ func get_reference_origin_offset(world_position: Vector3) -> Vector3:
 
 
 # ==================================================================================================
-# UI COLOURS
+# SOUND
 # ==================================================================================================
 
-# Selected-target bracket.
 const MUSIC_AMBIENT_VOLUME_DB = -8.0  # Space ambient soundtrack (AmbientMusic)
 const MUSIC_AMBIENT_FADE_IN = 6.0  # s
 const MUSIC_SILENT_DB = -60.0
+
+# Sound effects (SoundEffects plays the slots of database/sounds/sound_bank.tres). World sounds are
+# heard from the player's ship (the camera's when there is none), turned the camera's way.
+const SOUND_EFFECTS_VOLUME_DB = -6.0  # Every effect, on top of its file's own loudness
+const SOUND_UNIT_SIZE = 80.0  # m within which a world sound plays at full loudness
+const SOUND_MAX_DISTANCE = 3000.0  # m beyond which a world sound is not played at all
+const SOUND_MAX_VOICES = 24  # World sounds at once; more are dropped
+const SOUND_REPEAT_GAP = 0.06  # s: the same slot from the same source plays at most this often
+const SOUND_ENGINE_IDLE_DB = -18.0  # An idling engine's loop, against full thrust's 0 dB
+const SOUND_ENGINE_PITCH = [0.85, 1.15]  # Engine loop pitch from idle to full thrust
+
+
+# ==================================================================================================
+# UI COLOURS
+# ==================================================================================================
 
 const RENDER_SCALE_STEPS = [1.0, 0.5, 0.25]  # Render resolution shares the HUD's render scale button cycles through
 
@@ -1235,6 +1249,7 @@ const ANNOUNCE_MAX = 5  # Shown at once; the oldest goes first
 const ANNOUNCE_ANCHOR = 0.62  # The newest's bottom edge, as a share of the screen height
 const ANNOUNCE_GAP = 4.0  # px between two
 const ANNOUNCE_SLIDE_RATE = 12.0  # How fast pushed ones slide up to their places (1/s)
+# Selected-target bracket.
 const COLOR_UI_TARGET_SELECTED = Color(1.0, 0.9, 0.35, 1.0)  # Yellow: the selected target, anything not hostile, wrecks included
 # Unselected targets' marks and labels. Ships and stations by their side to the player only, not
 # their factions' colours: green allied (standing friendly), blue neutral, red hostile (attacking it

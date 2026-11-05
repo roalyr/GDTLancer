@@ -53,7 +53,9 @@ New designs reach the game only when you export them as presets (`tools/export_p
 
 ## Models — ships and stations
 
-A model is made in Blender, exported as `.glb`, and imported with one command. The game needs nothing else from it: it builds the collision hull, the hit surface and the levels of detail itself. Look at `src/tests/fixtures/models/test_hull/` for a small model made by these rules.
+A model is made in Blender and imported with one command. The game needs nothing else from it: it builds the collision hull, the hit surface and the levels of detail itself.
+
+**Start from a starter:** copy `assets/models/starters/ship_starter.blend` (or `station_starter.blend`). It holds a small model that already keeps the rules below, every library material by its game name (coloured roughly as the game draws it), the engine empties, and a `Guides` collection (the 17 m length box, the nose arrow, a ship for scale) that is never exported. Its Text Editor has a README. After adding a library material, rebuild the starters: `tools/blender -b -P tools/make_starters.py`.
 
 **In Blender**
 - **Ships are 17 m nose to tail**, nose toward **+Y**, top toward **+Z**. A ship's size comes from its preset (`model_scale`), so every ship model is made at this one length.
@@ -61,12 +63,14 @@ A model is made in Blender, exported as `.glb`, and imported with one command. T
 - **Materials are picked by name.** Name a material after a file in `assets/art/materials_generic/` (`hull_dark_metal` for `mat_hull_dark_metal.tres`; case and spaces don't matter, so "Hull Dark Metal" works). Short names: `glow`, `metal`, `dark`, `light`. Name it **`paint`** for the surfaces that take the faction's paint. Blender's colours don't reach the game: the library's materials replace them. To add a new look, add a `mat_<name>.tres` to the library.
 - **Engines:** add an empty named `Engine` at each nozzle, unrotated. Its scale sets the size of the exhaust. Exhausts trail aft.
 
-**Import:** save the `.glb` as `assets/models/ships/<name>/<name>.glb` (stations: `assets/models/stations/<name>/<name>.glb`), then run:
+**Import:** save the `.blend` as `assets/models/ships/<name>/<name>.blend` (stations: `assets/models/stations/<name>/<name>.blend`), then run:
 
-    tools/import_model.sh assets/models/ships/<name>/<name>.glb
-    tools/import_model.sh --station assets/models/stations/<name>/<name>.glb
+    tools/import_model.sh assets/models/ships/<name>/<name>.blend
+    tools/import_model.sh --station assets/models/stations/<name>/<name>.blend
 
-It makes the levels of detail (`lod/`) and the hit surface (`hit/`) beside the model, imports them, and writes the scene `scenes/prefabs/ships/<name>.tscn` (or `scenes/prefabs/station/<name>.tscn`). A scene that already exists is kept. Last, it checks the scene against these rules and lists any problems. Run it again after every export.
+It exports the `.glb` beside the `.blend` itself, leaving `Guides` out. A `.glb` exported by hand works too.
+
+It makes the levels of detail (`lod/`) and the hit surface (`hit/`) beside the model, imports them, and writes the scene `scenes/prefabs/ships/<name>.tscn` (or `scenes/prefabs/station/<name>.tscn`). A scene that already exists is kept. Last, it checks the scene against these rules and lists any problems. Run it again after every change.
 
 **Use it:** point an archetype's `ship_scene` at the ship scene, or a haven's `model` at the station scene.
 
@@ -75,6 +79,16 @@ It makes the levels of detail (`lod/`) and the hit surface (`hit/`) beside the m
 **Placeholders:** until real models land, ships and stations are built from primitives (`Constants.gd`: `HULL_FORMS`, `STATION_FORMS`; the part fields are described in `src/scenes/game_world/models/primitive_form.gd`). Hulls are `scenes/prefabs/ships/placeholders/<family>_<weight>.tscn`, stations `scenes/prefabs/station/placeholders/<form>.tscn`. Parts marked `"look": "paint"` take the faction's paint. To replace a placeholder, point its archetype or haven at a real model's scene.
 
 **Rocks:** asteroid fields use the low-poly rocks in `Constants.FIELD_ROCK_MODELS`. The dense rocks are placed by hand in the sector scenes.
+
+## Sounds — `database/sounds/sound_bank.tres`
+
+The sound bank has one slot per game event: guns, missiles, the harpoon and the lance, hits and wrecks, the afterburner, engines, buttons, notices, radio and docking (each slot is described in `src/core/sound/sound_bank.gd`). Open the bank in the inspector and drop a sound file on a slot. A slot left empty is silent, so they can be filled one at a time.
+
+- **World** slots are heard where they happen, fading with distance from the player's ship.
+- **Loop** slots (`engine`, `missile_engine`) are carried by every ship or missile while it flies; the engine gets louder and higher with thrust. Their files must loop: select the file, tick **Loop** in the Import dock, and press Reimport. The other slots must not loop.
+- **UI** slots are heard as they are.
+
+Short `.wav` files suit effects; `.ogg` suits loops. Make the files about equally loud: `Constants.gd` ("SOUND") sets the overall volume, the hearing distance and how many sounds play at once. The tests check that every filled slot holds a sound and loops as its kind says. Music is separate: the main scene's `AmbientMusic`.
 
 ## Parts, commodities, starting kit — `database/registry/`
 

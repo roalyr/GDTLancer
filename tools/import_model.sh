@@ -1,5 +1,7 @@
 #!/bin/sh
-# Imports a model exported from Blender (.glb) into the game in one go (CONTENT.md, "Models"):
+# Imports a model from Blender into the game in one go (CONTENT.md, "Models"):
+#   0. given a .blend, its export to a .glb beside it (tools/export_blend.py; the "Guides"
+#      collection left out);
 #   1. its levels of detail (tools/generate_lods.py, ships only): <folder>/lod/<name>_LOD<n>.glb;
 #   2. Godot's import of the new files (the editor, run without a window; materials stay inside
 #      the model: project.godot's importer_defaults);
@@ -7,10 +9,11 @@
 #   4. its scene, unless it exists (tools/new_model_scene.gd): scenes/prefabs/ships/<name>.tscn,
 #      or scenes/prefabs/station/<name>.tscn;
 #   5. a check of the scene against the rules (tools/check_model.gd).
-# Re-run it after every export from Blender. Then point the preset's ship_scene (or the
+# Re-run it after every change in Blender. Then point the preset's ship_scene (or the
 # HavenMarker's model) at the scene, and run the tests.
 # Usage, from anywhere:
-#     tools/import_model.sh [--station] [--ratio 0.7] [--levels 3] assets/models/ships/<name>/<name>.glb
+#     tools/import_model.sh [--station] [--ratio 0.7] [--levels 3] assets/models/ships/<name>/<name>.blend
+# (or .glb). Start a model from assets/models/starters/.
 set -e
 cd "$(dirname "$0")/.."
 GODOT="${GODOT:-godot}"
@@ -27,6 +30,12 @@ while [ $# -gt 1 ]; do
 done
 MODEL="${1#res://}"
 [ -f "$MODEL" ] || { echo "No model file: $MODEL"; exit 1; }
+case "$MODEL" in
+	*.blend)
+		tools/blender -b "$MODEL" -P tools/export_blend.py | grep -E "^EXPORTED" || { echo "Export failed: $MODEL"; exit 1; }
+		MODEL="${MODEL%.blend}.glb"
+		;;
+esac
 if [ -z "$STATION" ]; then
 	tools/blender -b -P tools/generate_lods.py -- --levels "$LEVELS" --ratio "$RATIO" "$MODEL"
 fi

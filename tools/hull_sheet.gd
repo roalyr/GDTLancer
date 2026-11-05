@@ -8,14 +8,17 @@
 extends Spatial
 
 const MeshLod = preload("res://src/core/agents/components/mesh_lod.gd")
+const ModelLooks = preload("res://src/scenes/game_world/models/model_looks.gd")
 
 const FAMILIES = ["fighter", "lance", "prospector", "raider", "scavenger"]
 const WEIGHTS = ["light", "medium", "heavy"]
-const SPACING = 30.0  # m between hulls
+const SPACING = 30.0  # m between placeholder hulls; a model sheet spaces by the model's size
+const MODEL_GAP = 1.3  # A model sheet's spacing, times the model's widest span (stations are big)
 
 var out: String = "user://hull_sheet.png"
 var faction: String = "verdant"
 var scene_path: String = ""
+var spacing: float = SPACING
 
 
 func _ready() -> void:
@@ -52,7 +55,7 @@ func _ready() -> void:
 	var camera := Camera.new()
 	camera.far = 10000.0
 	add_child(camera)
-	var reach: float = max(columns / 5.0, rows / 3.0)  # The placeholder sheet's framing, grown to fit
+	var reach: float = max(columns / 5.0, rows / 3.0) * spacing / SPACING  # The placeholder sheet's framing, grown to fit
 	camera.look_at_from_position(Vector3(0, 78, 62) * reach, Vector3(0, 0, 3), Vector3.UP)
 	camera.fov = 50.0
 	camera.current = true
@@ -66,7 +69,7 @@ func _ready() -> void:
 
 
 func _place(hull: Spatial, column: int, row: int, columns: int, rows: int) -> void:
-	hull.transform.origin = Vector3((column - (columns - 1) / 2.0) * SPACING, 0, (row - (rows - 1) / 2.0) * SPACING)
+	hull.transform.origin = Vector3((column - (columns - 1) / 2.0) * spacing, 0, (row - (rows - 1) / 2.0) * spacing)
 	hull.rotation_degrees.y = -35.0
 	add_child(hull)
 
@@ -81,6 +84,8 @@ func _model_sheet() -> Array:
 	var levels: int = 1
 	var probe: Spatial = load(scene_path).instance()
 	add_child(probe)
+	var box: AABB = ModelLooks.bounds(probe)
+	spacing = max(SPACING, max(box.size.x, box.size.z) * MODEL_GAP)
 	for lod in MeshLod.attach(probe, null):
 		levels = max(levels, lod.levels.size())
 	probe.free()
