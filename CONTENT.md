@@ -2,6 +2,8 @@
 
 This guide says where the game's content lives and how to change it without touching code. Every file named here is a Godot resource (`.tres`) or scene (`.tscn`). You can edit them in the Godot inspector, or as text.
 
+Every tool named here is also in the developer menu, `tools/dev.py`: pick a task, answer its questions, and it runs (`tools/dev.py list` shows them; `tools/dev.py <task> key=value` runs one without the menu).
+
 ## Factions — `database/factions/<id>.tres`
 
 Each file is a `FactionTemplate` that sets:
@@ -55,13 +57,14 @@ New designs reach the game only when you export them as presets (`tools/export_p
 
 A model is made in Blender and imported with one command. The game needs nothing else from it: it builds the collision hull, the hit surface and the levels of detail itself.
 
-**Start from a starter:** copy `assets/models/starters/ship_starter.blend` (or `station_starter.blend`). It holds a small model that already keeps the rules below, every library material by its game name (coloured roughly as the game draws it), the engine empties, and a `Guides` collection (the nose arrow and a box of the game's ship length for ships, a ship for scale for stations) that is never exported. Its Text Editor has a README. After adding a library material, rebuild the starters: `tools/blender -b -P tools/make_starters.py`.
+**Start from a starter:** copy `assets/models/starters/ship_starter.blend` (or `station_starter.blend`), or let the menu do it (`tools/dev.py new_model`). It holds a small model that already keeps the rules below, every library material by its game name (coloured roughly as the game draws it), the engine empties, and a `Guides` collection (the nose arrow and a box of the game's ship length for ships, a ship for scale for stations) that is never exported. Its Text Editor has a README. After adding a library material, rebuild the starters: `tools/blender -b -P tools/make_starters.py`.
 
 **In Blender**
 - **Ships: any size**, nose toward **+Y**, top toward **+Z**. The import scales every ship model to 17 m nose to tail (`Constants.SHIP_MODEL_LENGTH`), and the game sizes each ship from its preset (`model_scale`: a light fighter is about 14 m, a heavy one 33 m). Only the proportions count; engine empties scale with the rest.
 - **Stations** can be any size. Ships undock above their top.
 - **Materials are picked by name.** Name a material after a file in `assets/art/materials_generic/` (`hull_dark_metal` for `mat_hull_dark_metal.tres`; case and spaces don't matter, so "Hull Dark Metal" works). Short names: `glow`, `metal`, `dark`, `light`. Name it **`paint`** for the surfaces that take the faction's paint. Blender's colours don't reach the game: the library's materials replace them. To add a new look, add a `mat_<name>.tres` to the library.
 - **Engines:** add an empty named `Engine` at each nozzle, unrotated. Its scale sets the size of the exhaust. Exhausts trail aft.
+- **What exports is what renders.** Modifiers enabled for renders are applied, in order, even ones hidden in the viewport; ones disabled for renders are dropped (the import lists them). Shape keys are applied as mixed, collection instances become real objects, curves and text become meshes. Objects disabled in renders (boolean cutters) and collections excluded from the view layer (parts for instancing) are left out. Your `.blend` is never changed.
 
 **Import:** save the `.blend` as `assets/models/ships/<name>/<name>.blend` (stations: `assets/models/stations/<name>/<name>.blend`), then run:
 

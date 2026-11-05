@@ -7,3 +7,6 @@ __pycache__/
 
 # Local link to the legacy project (reference only)
 GDTLancer-legacy
+
+# Developer menu state and outputs (tools/dev.py)
+.dev/

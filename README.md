@@ -26,6 +26,8 @@ You fly the ship, not the guns: distance and relative velocity decide a fight, a
 
 Early development: the flight core works, and everything else is changing.
 
+For developers: `tools/dev.py` is a menu of the project's tools, and [CONTENT.md](CONTENT.md) says where the content lives.
+
 ## License
 
 This project is licensed under the **GNU General Public License v3.0 or later (GPL-3.0-or-later)**. See [LICENSE](LICENSE.md) for details. See also [AI-ACKNOWLEDGEMENT.md](AI-ACKNOWLEDGEMENT.md).

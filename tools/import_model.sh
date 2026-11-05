@@ -1,7 +1,7 @@
 #!/bin/sh
 # Imports a model from Blender into the game in one go (CONTENT.md, "Models"):
-#   0. given a .blend, its export to a .glb beside it (tools/export_blend.py; the "Guides"
-#      collection left out);
+#   0. given a .blend, its export to a .glb beside it as it renders (tools/export_blend.py:
+#      modifiers applied, "Guides" and unrendered objects left out);
 #   1. ships only: its fit to Constants.SHIP_MODEL_LENGTH nose to tail (tools/fit_length.py; the
 #      .glb is rescaled in place, so a ship can be made at any size: its preset sizes it in the
 #      game), then its levels of detail (tools/generate_lods.py): <folder>/lod/<name>_LOD<n>.glb;
