@@ -1,5 +1,5 @@
 # HavenMarker: a station NPCs live from, and the one place it is set: SectorLayout builds the
-# station here from `model` (stations are never placed in a sector scene apart from their haven),
+# station here from `model`, turned as the marker is (stations are never placed in a sector scene apart from their haven),
 # a beacon too; NPCs dock where they are welcome (Havens.welcome):
 # their own faction's havens, and neutral ones unless they are raiders or the xenohive.
 
@@ -34,6 +34,8 @@ func to_spec(at: Vector3) -> Dictionary:
 	}
 	if seen_anywhere:
 		spec["seen_anywhere"] = true
+	if rotation_degrees != Vector3.ZERO:
+		spec["turn"] = rotation_degrees  # Its station's, degrees (the marker's own rotation)
 	attach(spec)
 	if model != null:
 		spec["model"] = model.resource_path

@@ -14,6 +14,8 @@ from devtool import constants, tasks
 FILE = "res://database/factions/verdant.tres"
 LAYOUT = "res://scenes/levels/sectors/sector_elace/sector_elace_layout.tscn"
 MARKER = devapp.MARKERS + "haven_marker.gd"
+ROTATION_FIELD = {"name": "rotation_degrees", "type": "Vector3", "hint": 0, "hint_name": "", "hint_string": "",
+                  "default": {"$": "Vector3", "v": [0.0, 0.0, 0.0]}, "comment": "Its turn, degrees"}
 HAVEN_FIELDS = [{"name": "translation", "type": "Vector3", "hint_name": "", "hint_string": "", "comment": "Its place"},
                 {"name": "haven_id", "type": "String", "hint_name": "", "hint_string": "", "comment": ""},
                 {"name": "repair", "type": "bool", "hint_name": "", "hint_string": "", "comment": ""}]
@@ -55,8 +57,9 @@ class FakeBridge:
         if command == "world_scene":
             return [{"node": "SceneAssets/Planet A", "name": "Planet A", "parent": "SceneAssets", "kind": "planet",
                      "scene": "res://scenes/levels/sectors/sector_elace/planet_elace_a/planet_elace_a.tscn",
-                     "x": 6000.0, "y": 0.0, "z": 22000.0, "radius": 1000.0, "fields": [HAVEN_FIELDS[0]],
-                     "values": {"translation": {"$": "Vector3", "v": [6000.0, 0.0, 22000.0]}}}]
+                     "x": 6000.0, "y": 0.0, "z": 22000.0, "radius": 1000.0, "fields": [HAVEN_FIELDS[0], ROTATION_FIELD],
+                     "values": {"translation": {"$": "Vector3", "v": [6000.0, 0.0, 22000.0]},
+                                "rotation_degrees": {"$": "Vector3", "v": [0.0, 30.0, 0.0]}}}]
         if command == "scene_nodes":
             return [
                 {"node": ".", "name": "Layout", "parent": "", "type": "Spatial", "script": "res://layout.gd",
@@ -229,6 +232,7 @@ class AppTest(unittest.IsolatedAsyncioTestCase):
             copy = fake.writes[-1]
             self.assertEqual((copy["command"], copy["scene"]), ("scene_instance", "res://scenes/levels/sectors/sector_elace/planet_elace_a/planet_elace_a.tscn"))
             self.assertEqual(copy["values"]["translation"]["v"][0], 6000.0 + devapp.COPY_OFFSET * 5)
+            self.assertEqual(copy["values"]["rotation_degrees"]["v"], [0.0, 30.0, 0.0], "A copy is turned as the original")
             app._show_node("@")
             app.action_new_marker()
             await pilot.pause()
@@ -244,6 +248,20 @@ class AppTest(unittest.IsolatedAsyncioTestCase):
             app.screen.dismiss(True)
             await self._started(pilot, app)
             self.assertEqual((fake.writes[-1]["command"], fake.writes[-1]["path"], fake.writes[-1]["node"]), ("scene_remove", scene, "SceneAssets/Planet A"))
+
+    async def test_a_body_is_turned_in_the_form(self):
+        fake = FakeBridge()
+        app = devapp.DevApp(bridge_factory=lambda: fake)
+        async with app.run_test(size=(160, 60)) as pilot:
+            await self._open_sector(pilot, app)
+            app._show_node("@SceneAssets/Planet A")
+            await pilot.pause()
+            form = app.query_one("#world-form", devapp.Form)
+            self.assertEqual([f.field["name"] for f in form.fields], ["translation", "rotation_degrees"])
+            form.fields[1].editor.value = "0, 45, 0"
+            app.action_save_node()
+            await self._started(pilot, app)
+            self.assertEqual(fake.writes[-1]["values"], {"rotation_degrees": {"$": "Vector3", "v": [0.0, 45.0, 0.0]}}, "Only the turn")
 
     async def test_the_map_turns_to_the_side_and_filters(self):
         app = devapp.DevApp(bridge_factory=lambda: FakeBridge())

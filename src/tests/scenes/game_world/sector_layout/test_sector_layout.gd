@@ -136,3 +136,24 @@ func test_attached_markers_ride_with_their_bodies():
 		if beacon.beacon_name == "Elace B Belt":
 			belt = beacon
 	assert_almost_eq(belt.global_transform.origin, planet.global_transform.origin, Vector3.ONE * 0.01, "The planet's ring of rocks is where the planet is")
+
+
+func test_a_turned_haven_marker_turns_its_station():
+	var marker = load("res://src/scenes/game_world/sector_layout/markers/haven_marker.gd").new()
+	marker.haven_id = "turned"
+	assert_false(marker.to_spec(Vector3.ZERO).has("turn"), "Unturned: nothing to say")
+	marker.rotation_degrees = Vector3(0, 90, 0)
+	var spec: Dictionary = marker.to_spec(Vector3(5, 0, 0))
+	marker.free()
+	var layout = _layout()
+	var built: Dictionary = layout._build_haven(spec)
+	assert_almost_eq(built.station.rotation_degrees.y, 90.0, 0.01)
+	assert_eq(built.station.transform.origin, Vector3(5, 0, 0), "Still where its marker is")
+
+
+func test_sector_scenes_place_no_editor_only_meshes():
+	for sector in ["sector_elace", "sector_cob", "sector_lywin"]:
+		var scene: Node = load("res://scenes/levels/sectors/%s/%s.tscn" % [sector, sector]).instance()
+		for child in scene.get_children():
+			assert_false(child is MeshInstance, "%s: %s is a mesh at the root (the play area is the layout's play_radius)" % [sector, child.name])
+		scene.free()

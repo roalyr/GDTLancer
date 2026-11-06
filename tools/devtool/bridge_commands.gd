@@ -18,6 +18,9 @@ const ShipFit = preload("res://src/core/systems/ship_fit.gd")
 const EDITABLE = PROPERTY_USAGE_SCRIPT_VARIABLE | PROPERTY_USAGE_EDITOR
 const SHADER_PARAM = "shader_param/"
 const TRANSLATION = "translation"
+const ROTATION = "rotation_degrees"  # As the Godot inspector shows it: degrees about x, y, z
+const ROTATION_FIELD = {"name": ROTATION, "type": "Vector3", "hint": 0, "hint_name": "", "hint_string": "",
+	"default": {"$": "Vector3", "v": [0.0, 0.0, 0.0]}, "comment": "Its turn, degrees about x, y, z (as the Godot editor's rotation)"}
 const MAIN_SCENE = "res://scenes/levels/game_world/main_game_scene.tscn"
 const MUSIC_NODE = "AmbientMusic"
 const PART_DIRS = {"weapons": "res://database/registry/tools/", "modules": "res://database/registry/assets/modules/",
@@ -232,11 +235,17 @@ static func _placed_things(root: Node) -> Array:
 		if not node is Spatial or node.owner != root or node.get_script() == SectorLayoutScript:
 			continue
 		var origin: Vector3 = _origin(node)
-		var fields: Array = [fields_of(node)[0]]  # Its place
+		var fields: Array = [fields_of(node)[0], ROTATION_FIELD]  # Its place and its turn
 		out.append({"node": str(root.get_path_to(node)), "name": node.name, "parent": SCENE_ASSETS, "kind": _thing_kind(node),
 			"scene": node.filename, "x": origin.x, "y": origin.y, "z": origin.z, "radius": _thing_radius(node),
-			"fields": fields, "values": {TRANSLATION: encode(node.translation)}})
+			"fields": fields, "values": {TRANSLATION: encode(node.translation), ROTATION: encode(_degrees(node))}})
 	return out
+
+
+# A Spatial's rotation in degrees, without float dust (90 rather than 89.999992).
+static func _degrees(node: Spatial) -> Vector3:
+	var turn: Vector3 = node.rotation_degrees
+	return Vector3(stepify(turn.x, 0.001), stepify(turn.y, 0.001), stepify(turn.z, 0.001))
 
 
 static func _thing_kind(node: Node) -> String:
@@ -281,7 +290,11 @@ func cmd_scene_instance(args: Dictionary):
 	var probe: Node = load(scene).instance()
 	var before: Array = _texts(Validator.for_file(path))
 	var values: Dictionary = args.get("values", {})
-	var error: String = _set_in_text(doc, added, probe, {TRANSLATION: values[TRANSLATION]}) if values.has(TRANSLATION) else ""
+	var place := {}
+	for key in [TRANSLATION, ROTATION]:
+		if values.has(key):
+			place[key] = values[key]
+	var error: String = _set_in_text(doc, added, probe, place)
 	probe.free()
 	if error != "":
 		return {"error": error}
@@ -664,6 +677,8 @@ static func fields_of(target: Object) -> Array:
 	if target is Spatial:
 		fields.append({"name": TRANSLATION, "type": "Vector3", "hint": 0, "hint_name": "", "hint_string": "",
 			"default": encode(Vector3.ZERO), "comment": "Its place, m (x, y, z; y is up)"})
+		if target.get_script() != null and target.get_script().resource_path.ends_with("haven_marker.gd"):
+			fields.append(ROTATION_FIELD)  # Its station's turn
 	if target is AudioStreamPlayer or target is AudioStreamPlayer3D:
 		fields.append({"name": "stream", "type": "Object", "hint": PROPERTY_HINT_RESOURCE_TYPE, "hint_name": "resource",
 			"hint_string": "AudioStream", "default": null, "comment": "What it plays (music: an .ogg or .mp3 that loops)"})
@@ -696,7 +711,7 @@ static func fields_of(target: Object) -> Array:
 static func values_of(target: Object) -> Dictionary:
 	var values := {}
 	for field in fields_of(target):
-		values[field.name] = encode(target.get(field.name))
+		values[field.name] = encode(_degrees(target) if field.name == ROTATION else target.get(field.name))
 	return values
 
 
@@ -853,6 +868,8 @@ static func _set_in_text(doc, node_path: String, node: Node, values: Dictionary)
 	var types := {}
 	for field in fields_of(node):
 		types[field.name] = field.type
+	if node is Spatial:
+		types[ROTATION] = "Vector3"  # Any placed thing can turn
 	var defaults: Object = null
 	if node.get_script() != null:
 		defaults = node.get_script().new()
@@ -869,11 +886,10 @@ static func _set_in_text(doc, node_path: String, node: Node, values: Dictionary)
 			value = int(value)
 		var key: String = name
 		var default = defaults.get(name) if defaults != null else null
-		if name == TRANSLATION:
-			var transform: Transform = node.transform
-			transform.origin = value
+		if name in [TRANSLATION, ROTATION]:  # Both are the transform line: set on the node, so a move and a turn add up
+			node.set(name, value)
 			key = "transform"
-			value = transform
+			value = node.transform
 			default = Transform()
 		var text: String = _value_text(doc, value)
 		if text == "!":

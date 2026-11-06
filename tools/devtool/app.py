@@ -1972,7 +1972,7 @@ class DevApp(App):
         form = self.query_one("#world-form", Form)
         where = self.world["path"] if node_path == "." else "%s · %s" % (node_path, self.world["path"])
         if node_path == SCENE:
-            form.clear("[b]Scene[/b]  %s\n[dim]What the sector scene places: stars, planets, moons, belts. Move one here; ctrl+n places a "
+            form.clear("[b]Scene[/b]  %s\n[dim]What the sector scene places: stars, planets, moons, belts. Move or turn one here; ctrl+n places a "
                        "scene, ctrl+d copies the picked one, delete removes it. What each is made of is its own scene's: the Godot "
                        "editor's.[/dim]" % self.world["scene"])
         elif node_path.startswith(SCENE):
@@ -2105,7 +2105,7 @@ class DevApp(App):
                 return
             self.world_worker("scene_instance", "Copied %s (%d km along x)" % (node["name"], COPY_OFFSET * 5 / 1000), file=self.world["scene"],
                               scene=node["scene"], name=node["name"],
-                              values={"translation": {"$": "Vector3", "v": [node["x"] + COPY_OFFSET * 5, node["y"], node["z"]]}})
+                              values=dict(node["values"], translation={"$": "Vector3", "v": [node["x"] + COPY_OFFSET * 5, node["y"], node["z"]]}))
             return
         if node is None or not node["script"].startswith(MARKERS) or picked == ".":
             self.notify("Pick a marker to copy", severity="warning")

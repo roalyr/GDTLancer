@@ -106,6 +106,7 @@ func _build_haven(spec: Dictionary) -> Dictionary:
 	station.station_name = spec.name
 	station.has_beacon = bool(spec.get("seen_anywhere", false))
 	station.transform.origin = spec.at
+	station.rotation_degrees = spec.get("turn", Vector3.ZERO)
 	var model_path: String = str(spec.get("model", Constants.STATION_DEFAULT_MODEL))
 	var model = load(model_path) if ResourceLoader.exists(model_path) else null
 	if model is PackedScene:

@@ -413,8 +413,16 @@ func test_a_scene_is_placed_moved_and_removed_line_by_line():
 	var copy = load(SECTOR_COPY).instance()
 	assert_eq(copy.get_node("SceneAssets/Moon Elace A12").translation, Vector3(40000, 0, 0))
 	copy.free()
-	_ok(commands.handle("scene_write", {"path": SECTOR_COPY, "node": "SceneAssets/Moon Elace A12", "values": {"translation": {"$": "Vector3", "v": [41000, 0, 0]}}}))
-	assert_string_contains(_text(SECTOR_COPY), "41000, 0, 0 )")
+	_ok(commands.handle("scene_write", {"path": SECTOR_COPY, "node": "SceneAssets/Moon Elace A12", "values": {"translation": {"$": "Vector3", "v": [41000, 0, 0]},
+		"rotation_degrees": {"$": "Vector3", "v": [0, 90, 0]}}}))
+	copy = load(SECTOR_COPY).instance()
+	var moved: Spatial = copy.get_node("SceneAssets/Moon Elace A12")
+	assert_eq(moved.translation, Vector3(41000, 0, 0), "Moved and turned in one save: both hold")
+	assert_almost_eq(moved.rotation_degrees.y, 90.0, 0.01)
+	copy.free()
+	for thing in _ok(commands.handle("world_scene", {"path": SECTOR_COPY})):
+		if thing.node == "SceneAssets/Moon Elace A12":
+			assert_eq(thing.values.rotation_degrees.v, [0.0, 90.0, 0.0], "Read back as round degrees")
 	_ok(commands.handle("scene_remove", {"path": SECTOR_COPY, "node": "SceneAssets/Moon Elace A12"}))
 	assert_eq(_text(SECTOR_COPY), _text(SECTOR_SCENE), "Back as it was")
 	Directory.new().remove(SECTOR_COPY)
