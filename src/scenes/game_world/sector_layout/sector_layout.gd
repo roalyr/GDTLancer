@@ -15,7 +15,7 @@ const BeaconNetworkScript = preload("res://src/scenes/game_world/sector_layout/b
 const HazardScript = preload("res://src/scenes/game_world/sector_layout/hazard.gd")
 const Havens = preload("res://src/core/systems/havens.gd")
 
-export var sector_id: String = "sector_elace"
+export var sector_id: String = "sector_elace"  # Set from its Layout child's (the layout scene's) when it has one
 
 var network: Node = null
 var entry: Dictionary = {}  # The entry beacon: {"at" (sector space), "radius"}; empty: the layout has none
@@ -24,6 +24,9 @@ var havens: Array = []  # [{"id", "faction", "factions": {faction: ships}, "stat
 
 func _ready():
 	add_to_group("sector_layout")
+	var markers = get_node_or_null("Layout")
+	if markers != null and not str(markers.get("sector_id")) in ["", "Null"]:
+		sector_id = str(markers.sector_id)
 	var layout: Dictionary = TemplateDatabase.sector_layouts.get(sector_id, {})
 	network = BeaconNetworkScript.new()
 	network.name = "BeaconNetwork"

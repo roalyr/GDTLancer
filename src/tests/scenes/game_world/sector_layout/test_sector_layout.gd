@@ -269,3 +269,16 @@ func test_the_arena_keeps_elace_as_it_was_for_evolution():
 	assert_eq(Array(location.connections), [], "Apart: no one jumps there")
 	for id in TemplateDatabase.locations:
 		assert_false(Constants.EVO_SECTOR_ID in Array(TemplateDatabase.locations[id].connections), "%s does not lead there" % id)
+
+
+func test_each_sector_builds_its_own_layout():
+	for sector_id in [Constants.INITIAL_SECTOR_ID, Constants.EVO_SECTOR_ID]:
+		var scene: Node = load("res://scenes/levels/sectors/%s/%s.tscn" % [sector_id, sector_id]).instance()
+		add_child_autofree(scene)
+		var layout = scene.get_node("SceneAssets/SectorLayout")
+		assert_eq(layout.sector_id, sector_id)
+		var ids: Array = []
+		for haven in layout.havens:
+			ids.append(haven.id)
+		for haven in TemplateDatabase.sector_layouts[sector_id].havens:
+			assert_has(ids, haven.id, "%s builds its own havens" % sector_id)
