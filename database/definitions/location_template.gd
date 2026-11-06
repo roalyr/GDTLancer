@@ -3,6 +3,14 @@
 extends Template
 class_name LocationTemplate
 
+# Fields that apply only when another field has some values (the dev tool hides the others):
+# field -> {other field: [values it applies with]} or {other field: {"not": [values it does not]}}.
+const SHOWN_WHEN = {
+	"sector_scene_path": {"is_procedural": [false]},
+	"procedural_type": {"is_procedural": [true]},
+	"procedural_hints": {"is_procedural": [true]},
+}
+
 # --- Identity & Scene ---
 export var location_name: String = "Unknown Station"
 export var jump_in_distance: float = 5000.0  # Distance from origin or EntryPoint for spawning / jump-in (+/- 10% variation).

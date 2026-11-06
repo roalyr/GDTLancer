@@ -157,3 +157,20 @@ func test_sector_scenes_place_no_editor_only_meshes():
 		for child in scene.get_children():
 			assert_false(child is MeshInstance, "%s: %s is a mesh at the root (the play area is the layout's play_radius)" % [sector, child.name])
 		scene.free()
+
+
+func test_a_beacon_passes_on_only_what_its_kind_reads():
+	var marker = load("res://src/scenes/game_world/sector_layout/markers/beacon_marker.gd").new()
+	marker.kind = "field"
+	marker.owner_faction = "verdant"
+	marker.player_visible = true
+	marker.rocks = 5
+	var spec: Dictionary = marker.to_spec(Vector3.ZERO)
+	assert_false(spec.has("owner"), "A field has no owner")
+	assert_false(spec.has("player_visible"), "Fields always show")
+	assert_eq(spec.rocks, 5)
+	marker.kind = "landmark"
+	spec = marker.to_spec(Vector3.ZERO)
+	assert_false(spec.has("rocks"))
+	assert_true(spec.player_visible)
+	marker.free()

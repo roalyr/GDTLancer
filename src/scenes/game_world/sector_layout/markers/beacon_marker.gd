@@ -7,6 +7,15 @@
 tool
 extends "res://src/scenes/game_world/sector_layout/markers/layout_marker.gd"
 
+# Fields that apply only when another field has some values (the dev tool hides the others):
+# field -> {other field: [values it applies with]} or {other field: {"not": [values it does not]}}.
+const SHOWN_WHEN = {
+	"owner_faction": {"kind": ["patrol"]},
+	"rocks": {"kind": ["field"]},
+	"ring": {"kind": ["field"]},
+	"player_visible": {"kind": ["landmark"]},  # Fields always show; paid pickets do (Wages); the entry is no beacon
+}
+
 export(String, "patrol", "field", "landmark", "entry") var kind: String = "landmark" setget _set_kind
 export var beacon_name: String = ""
 export var owner_faction: String = ""  # A patrol beacon's faction
@@ -43,7 +52,7 @@ func _ring_color() -> Color:
 
 func to_spec(at: Vector3) -> Dictionary:
 	var spec := {"kind": kind, "name": beacon_name, "at": at}
-	if owner_faction != "":
+	if kind == "patrol" and owner_faction != "":  # Only what applies to its kind (SHOWN_WHEN)
 		spec["owner"] = owner_faction
 	if radius > 0.0:
 		spec["radius"] = radius
@@ -51,6 +60,6 @@ func to_spec(at: Vector3) -> Dictionary:
 		spec["rocks"] = rocks
 		if ring > 0.0:
 			spec["ring"] = ring
-	if player_visible:
+	if kind == "landmark" and player_visible:
 		spec["player_visible"] = true
 	return attach(spec)

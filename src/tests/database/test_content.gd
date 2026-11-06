@@ -108,3 +108,33 @@ func test_node_paths_are_found_in_scene_text():
 	assert_true(Validator.has_node_path(text, "SceneAssets"))
 	assert_false(Validator.has_node_path(text, "SceneAssets/Star Cob"))
 	assert_false(Validator.has_node_path(text, "Elsewhere/Star Elace"))
+
+
+# SHOWN_WHEN (the dev tool hides fields that do not apply): every field it names is the script's,
+# and so is every field it depends on; a list's values are among that field's choices.
+func test_shown_when_rules_name_real_fields():
+	var scripts := [
+		"res://src/scenes/game_world/sector_layout/markers/beacon_marker.gd",
+		"res://src/scenes/game_world/sector_layout/markers/haven_marker.gd",
+		"res://database/definitions/faction_template.gd",
+		"res://database/definitions/asset_module_template.gd",
+		"res://database/definitions/location_template.gd",
+		"res://database/definitions/utility_tool_template.gd",
+	]
+	for path in scripts:
+		var script: Script = load(path)
+		var rules: Dictionary = script.get_script_constant_map().get("SHOWN_WHEN", {})
+		assert_false(rules.empty(), "%s has rules" % path)
+		var fields := {}
+		for property in script.get_script_property_list():
+			fields[property.name] = property
+		for name in rules:
+			assert_true(fields.has(name), "%s: SHOWN_WHEN names %s, not one of its fields" % [path, name])
+			for other in rules[name]:
+				assert_true(fields.has(other), "%s: %s depends on %s, not one of its fields" % [path, name, other])
+				var rule = rules[name][other]
+				var values: Array = rule.get("not", []) if rule is Dictionary else rule
+				var choices: String = fields[other].hint_string if fields.has(other) and fields[other].hint == PROPERTY_HINT_ENUM else ""
+				for value in values:
+					if choices != "":
+						assert_true(value in choices.split(","), "%s: %s is no choice of %s" % [path, value, other])

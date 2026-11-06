@@ -263,6 +263,32 @@ class AppTest(unittest.IsolatedAsyncioTestCase):
             await self._started(pilot, app)
             self.assertEqual(fake.writes[-1]["values"], {"rotation_degrees": {"$": "Vector3", "v": [0.0, 45.0, 0.0]}}, "Only the turn")
 
+    async def test_fields_that_do_not_apply_are_hidden_and_not_saved(self):
+        app = devapp.DevApp(bridge_factory=lambda: FakeBridge())
+        async with app.run_test(size=(160, 60)) as pilot:
+            await self._open_sector(pilot, app)
+            field = lambda name, kind, **more: dict({"name": name, "type": kind, "hint": 0, "hint_name": "", "hint_string": "",
+                                                     "default": None, "comment": ""}, **more)
+            fields = [field("kind", "String", hint_name="enum", hint_string="patrol,field,landmark"),
+                      field("owner_faction", "String", when={"kind": ["patrol"]}),
+                      field("rocks", "int", when={"kind": ["field"]}),
+                      field("prefer_share", "float", when={"owner_faction": {"not": [""]}})]
+            form = app.query_one("#world-form", devapp.Form)
+            form.show("Beacon", fields, {"kind": "field", "owner_faction": "", "rocks": 4, "prefer_share": 0.0})
+            await pilot.pause()
+            await pilot.pause()
+            shown = lambda: [editor.field["name"] for editor in form.fields if editor.display]
+            self.assertEqual(shown(), ["kind", "rocks"])
+            rocks = form.fields[2]
+            rocks.editor.value = "9"
+            form.fields[0].editor.value = "patrol"
+            await pilot.pause()
+            self.assertEqual(shown(), ["kind", "owner_faction"], "Live, as the kind changes")
+            self.assertEqual(form.changes(), {"kind": "patrol"}, "A hidden field's edit is not saved")
+            form.fields[1].editor.value = "verdant"
+            await pilot.pause()
+            self.assertIn("prefer_share", shown(), "{not: [...]}: anything but those")
+
     async def test_the_map_turns_to_the_side_and_filters(self):
         app = devapp.DevApp(bridge_factory=lambda: FakeBridge())
         async with app.run_test(size=(160, 60)) as pilot:

@@ -4,6 +4,25 @@
 extends Template
 class_name UtilityToolTemplate
 
+# Fields that apply only when another field has some values (the dev tool hides the others):
+# field -> {other field: [values it applies with]} or {other field: {"not": [values it does not]}}.
+# What each tool_type reads (ToolController); the rest is the same for all.
+const SHOWN_WHEN = {
+	"damage": {"tool_type": ["laser", "missile", "cannon"]},
+	"tracking": {"tool_type": ["laser"]},
+	"cycle_time": {"tool_type": ["laser", "missile", "cannon"]},
+	"reel_speed": {"tool_type": ["harpoon"]},
+	"launch_speed": {"tool_type": ["harpoon"]},
+	"strip_interval": {"tool_type": ["harpoon"]},
+	"ammo": {"tool_type": ["missile", "cannon"]},
+	"round_mass": {"tool_type": ["missile", "cannon"]},
+	"round_value": {"tool_type": ["missile", "cannon"]},
+	"projectile_speed": {"tool_type": ["missile", "cannon"]},
+	"flight_time": {"tool_type": ["missile", "cannon"]},
+	"projectile_accel": {"tool_type": ["missile"]},
+	"turn_rate": {"tool_type": ["missile"]},
+}
+
 export var tool_name: String = "Unknown Tool"
 export var hud_label: String = ""  # Short name on the tool's HUD button; tool_name if empty
 export var description: String = ""

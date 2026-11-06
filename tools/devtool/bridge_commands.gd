@@ -695,17 +695,36 @@ static func fields_of(target: Object) -> Array:
 	var script: Script = target.get_script()
 	if script == null:
 		return fields
-	var probe = script.new() if not target is Node else null
+	var probe = script.new()  # Its defaults (a node's too: freed below)
 	var comments: Dictionary = _comments(script)
+	var shown_when: Dictionary = _shown_when(script)
 	for property in script.get_script_property_list():
 		if property.usage & EDITABLE != EDITABLE:
 			continue
-		fields.append({
+		var field := {
 			"name": property.name, "type": TYPE_NAMES.get(property.type, str(property.type)),
 			"hint": property.hint, "hint_name": HINT_NAMES.get(property.hint, ""), "hint_string": property.hint_string,
 			"default": encode(probe.get(property.name)) if probe != null else null, "comment": comments.get(property.name, ""),
-		})
+		}
+		if shown_when.has(property.name):
+			field["when"] = shown_when[property.name]  # It applies only with these values of other fields
+		fields.append(field)
+	if probe is Node:
+		probe.free()
 	return fields
+
+
+# The script's SHOWN_WHEN (field -> {other field: [values]} or {other field: {"not": [values]}}),
+# its base scripts' under it.
+static func _shown_when(script: Script) -> Dictionary:
+	var out := {}
+	while script != null:
+		var rules = script.get_script_constant_map().get("SHOWN_WHEN", {})
+		for name in rules:
+			if not out.has(name):
+				out[name] = rules[name]
+		script = script.get_base_script()
+	return out
 
 
 static func values_of(target: Object) -> Dictionary:

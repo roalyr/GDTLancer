@@ -1,6 +1,7 @@
 """Every editable field the game never reads carries a "not in the game yet" notice (data.NOT_IN_GAME),
 and none the game reads does. A field counts as read when game code (src/, not its tests) names it
-outside its own export line: another script, or its own file's to_spec()."""
+outside its own export line: another script, or its own file's to_spec(). A SHOWN_WHEN rule (which
+fields the dev tool shows) is no read."""
 
 import glob
 import os
@@ -12,6 +13,7 @@ from devtool.tasks import ROOT
 
 TEMPLATE_SCRIPTS = ("database/definitions/*.gd", "src/scenes/game_world/sector_layout/markers/*.gd")
 EXPORT = re.compile(r"^export[^\n]*?var\s+(\w+)", re.M)
+SHOWN_WHEN = re.compile(r"^const SHOWN_WHEN = \{(?:[^\n]*\}$|.*?^\}$)", re.M | re.S)
 
 
 def game_sources():
@@ -19,7 +21,7 @@ def game_sources():
     for path in glob.glob(os.path.join(ROOT, "src", "**", "*.gd"), recursive=True) + glob.glob(os.path.join(ROOT, "database", "definitions", "*.gd")):
         if os.sep + "tests" + os.sep not in path:
             with open(path) as handle:
-                out[path] = handle.read()
+                out[path] = SHOWN_WHEN.sub("", handle.read())
     return out
 
 
@@ -28,7 +30,7 @@ def unread_fields():
     out = set()
     for pattern in TEMPLATE_SCRIPTS:
         for script in glob.glob(os.path.join(ROOT, pattern)):
-            own = sources.get(script) or open(script).read()
+            own = sources.get(script) or SHOWN_WHEN.sub("", open(script).read())
             for name in EXPORT.findall(own):
                 word = re.compile(r"\b%s\b" % re.escape(name))
                 in_own = [line for line in own.split("\n") if word.search(line) and not line.lstrip().startswith(("export", "#"))]

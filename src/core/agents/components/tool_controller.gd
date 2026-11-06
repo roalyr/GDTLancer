@@ -117,14 +117,19 @@ func _size_magazines() -> void:
 		loads.missile = float(stats.get("missile_load", 0.0))
 	var sharing := {}
 	for tool_template in _tools:
-		if int(tool_template.ammo) > 0:
+		if _has_rounds(tool_template):
 			sharing[tool_template.tool_type] = int(sharing.get(tool_template.tool_type, 0)) + 1
 	for index in range(_tools.size()):
 		var tool_template = _tools[index]
-		if int(tool_template.ammo) <= 0:
+		if not _has_rounds(tool_template):
 			continue
 		var share: float = float(loads.get(tool_template.tool_type, 0.0)) / int(sharing[tool_template.tool_type])
 		_capacity[index] = int(tool_template.ammo) + int(floor(share / max(float(tool_template.round_mass), 0.001)))
+
+
+# Missile racks and cannons have magazines; no other tool reads `ammo` (UtilityToolTemplate.SHOWN_WHEN).
+static func _has_rounds(tool_template) -> bool:
+	return tool_template.tool_type in ["missile", "cannon"] and int(tool_template.ammo) > 0
 
 
 func get_capacity(index: int) -> int:
@@ -293,12 +298,15 @@ func get_retracting_tether(index: int) -> Node:
 	return _retracting.get(index) if is_retracting(index) else null
 
 
-# 0 at the start of a cycle, 1 when the next cycle is due.
+# 0 at the start of a cycle, 1 when the next cycle is due (a harpoon's cycle: one strip).
 func get_cycle_progress(index: int) -> float:
 	var tool_template = get_tool(index)
-	if tool_template == null or not is_active(index) or tool_template.cycle_time <= 0.0:
+	if tool_template == null or not is_active(index):
 		return 0.0
-	return clamp(1.0 - _cycle_timers.get(index, 0.0) / tool_template.cycle_time, 0.0, 1.0)
+	var cycle: float = tool_template.strip_interval if tool_template.tool_type == "harpoon" else tool_template.cycle_time
+	if cycle <= 0.0:
+		return 0.0
+	return clamp(1.0 - _cycle_timers.get(index, 0.0) / cycle, 0.0, 1.0)
 
 
 func activate(index: int, target: Node) -> Dictionary:

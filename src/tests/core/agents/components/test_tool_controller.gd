@@ -738,3 +738,19 @@ func test_harpoon_that_outruns_its_cable_misses_and_winches_back():
 	controller._physics_process(0.016)
 	assert_true(controller.is_retracting(1), "and the harpoon waits for it.")
 
+
+
+func test_only_racks_and_cannons_have_magazines():
+	laser.ammo = 20  # A stray value: the dev tool hides ammo on a laser, and the game does not read it
+	controller.set_tools([laser])
+	assert_false(controller.has_magazine(0))
+
+
+func test_a_harpoons_progress_is_its_strip():
+	var harpoon := _make_harpoon()
+	harpoon.cycle_time = 4.0  # Not a harpoon's: its cycle is strip_interval
+	controller.set_tools([harpoon])
+	controller._targets[0] = target  # Switched on
+	controller._cycle_timers[0] = 0.5
+	assert_almost_eq(controller.get_cycle_progress(0), 0.5, 0.001, "Half of a 1 s strip, not seven eighths of 4 s")
+	controller._targets.clear()

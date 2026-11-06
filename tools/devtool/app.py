@@ -301,6 +301,13 @@ class PairsEditor(Vertical):
             total.first().update(self.special.total(pairs) if self.special.total else "")
 
 
+def applies(value, rule):
+    """Whether a SHOWN_WHEN rule holds for the other field's value: [values], or {"not": [values]}."""
+    if isinstance(rule, dict):
+        return value not in rule.get("not", [])
+    return value in rule
+
+
 class FieldEditor(Vertical):
     """One field of a data file or scene node: its name, type and comment, and an editor fit for
     its type (or a Special one), with a notice if the game does not read it yet."""
@@ -449,6 +456,15 @@ class FieldEditor(Vertical):
             return {"$": self.original["$"], "text": editor.value}
         return json.loads(editor.value)
 
+    def current(self):
+        """value(), or the value as loaded while the editor does not parse (or a list has no pick yet, as it mounts)."""
+        if isinstance(self.editor, Select) and type(self.editor.value).__name__ == "NoSelection":
+            return self.original.get("path", "") if isinstance(self.original, dict) and self.field["type"] == "String" else self.original
+        try:
+            return self.value()
+        except Exception:  # Does not parse, or is still being built
+            return self.original
+
     def encoded(self):
         """value() as sent to the bridge: whole counts marked int, since JSON numbers reach Godot as floats."""
         value = self.value()
@@ -495,6 +511,25 @@ class Form(Vertical):
         scroll.mount_all(self.fields)
         self.title(title)
         self.result(None)
+        self.call_after_refresh(self.apply_when)
+
+    def apply_when(self):
+        """Hides the fields that do not apply with the others' values (the script's SHOWN_WHEN); the
+        game does not read them then either."""
+        ruled = [editor for editor in self.fields if editor.field.get("when") and editor.editor is not None]
+        others = {other for editor in ruled for other in editor.field["when"]}
+        values = {editor.field["name"]: editor.current() for editor in self.fields if editor.field["name"] in others}
+        for editor in ruled:
+            editor.display = all(applies(values.get(other), rule) for other, rule in editor.field["when"].items())
+
+    def on_input_changed(self, _event):
+        self.apply_when()
+
+    def on_select_changed(self, _event):
+        self.apply_when()
+
+    def on_switch_changed(self, _event):
+        self.apply_when()
 
     def clear(self, title):
         self.query_one(".form-fields", VerticalScroll).remove_children()
@@ -503,8 +538,9 @@ class Form(Vertical):
         self.result(None)
 
     def changes(self):
-        """{field: value} of the fields changed; ValueError if one does not parse."""
-        return {editor.field["name"]: editor.encoded() for editor in self.fields if editor.changed()}
+        """{field: value} of the fields changed; ValueError if one does not parse. A hidden field's
+        edit is dropped: it does not apply."""
+        return {editor.field["name"]: editor.encoded() for editor in self.fields if editor.display and editor.changed()}
 
     def result(self, result):
         status = self.query_one(".form-status", Static)

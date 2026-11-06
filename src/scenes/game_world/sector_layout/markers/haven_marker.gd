@@ -6,6 +6,10 @@
 tool
 extends "res://src/scenes/game_world/sector_layout/markers/layout_marker.gd"
 
+# Fields that apply only when another field has some values (the dev tool hides the others):
+# field -> {other field: [values it applies with]} or {other field: {"not": [values it does not]}}.
+const SHOWN_WHEN = {"prefer_share": {"prefer_role": {"not": [""]}}}
+
 export var haven_id: String = ""  # Its location id (docking, prices, saves): unique across sectors
 export var display_name: String = ""
 export var faction: String = ""  # Its owner's faction id (database/factions/); "" neutral

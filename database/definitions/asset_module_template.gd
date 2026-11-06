@@ -4,6 +4,10 @@
 extends AssetTemplate
 class_name ModuleTemplate
 
+# Fields that apply only when another field has some values (the dev tool hides the others):
+# field -> {other field: [values it applies with]} or {other field: {"not": [values it does not]}}.
+const SHOWN_WHEN = {"lance": {"module_kind": ["lance", ""]}}
+
 export var module_name: String = "Unnamed Module"
 export var description: String = ""
 export var base_value: int = 10  # WP; buy price at the home station (sells back for half)

@@ -14,6 +14,8 @@ This guide says where the game's content lives and how to change it without touc
 - **Look:** every shader (red when its shared blocks are out of date; `y` syncs them) and what uses it, each faction's paints, the paint patterns (`g` remakes the library, `v` opens its sheet) and the music (pick a track, `ctrl+s`).
 - **Tools:** whether evolution is running and in which era (`x` asks it to stop, `n` starts a new era), its save, backups and logs; the APK; the newest outputs (`o` opens one). Below, every other tool (tests, sheets, presets, evolution, balance, the APK): Enter asks its questions, then runs it.
 
+A form shows only the fields that apply: a patrol beacon has an owner, a field its rocks, a laser no magazine. Each script says which in its `SHOWN_WHEN` (a field, and the values of another it applies with), and the game reads no field where its rule says it does not apply.
+
 Godot reads and writes every file, so the tool saves exactly what the Godot editor would; in a layout, only the lines of what changed change. From a terminal, `tools/dev.py list` shows the tasks, and `tools/dev.py <task> key=value` runs one.
 
 ## Factions — `database/factions/<id>.tres`
