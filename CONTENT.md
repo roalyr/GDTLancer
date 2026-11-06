@@ -5,10 +5,12 @@ This guide says where the game's content lives and how to change it without touc
 **Work through the development tool:** `tools/dev.py`. It opens a menu (the first run installs its one package into `.dev/`):
 - **Overview:** every content rule below, checked at once, and what changed since the last commit. Models changed in Blender since their last import are listed too.
 - **Models:** every ship and station model, with its files, levels of detail, hit surface, who uses it and its check. Keys: `i` import, `o` open in Blender, `s` review sheet, `n` new model from a starter.
-- **Data:** every data file by kind (factions, archetypes, parts, commodities, the game start, locations, agents, the sound bank), in a form built from its script, with each field's note. `ctrl+s` saves, and the rules are checked at once on every save. `ctrl+u` puts the file back as it was before the last save, and `ctrl+n` makes a new file of the kind.
+- **Data:** every data file by kind (factions, archetypes, parts, commodities, the game start, locations, agents, the material library, the sound bank), in a form built from its script, with each field's note. `ctrl+s` saves, and the rules are checked at once on every save. `ctrl+u` puts the file back as it was before the last save, and `ctrl+n` makes a new file of the kind.
+- **World:** each sector's layout: its havens, beacons and hazards in a tree, on a map from above, and the picked one in a form. `ctrl+n` adds a marker to the picked group, `ctrl+d` copies the picked marker, and `delete` removes it. Saving, checking and `ctrl+u` work as in Data.
+- **Constants:** every value in `src/autoload/Constants.gd`, by section (or by kind of value, `ctrl+g`), with its notes; `ctrl+f` finds one. A value is changed in place, so its comments stay. Godot checks that the script still parses before it is saved.
 - **Tasks:** every other tool (tests, sheets, presets, evolution, balance, the APK). Each asks its questions, then runs.
 
-Godot reads and writes every file, so the tool saves exactly what the Godot editor would. Sector layouts (havens, beacons) and the material library are not in the tool yet: edit those in the Godot editor. From a terminal, `tools/dev.py list` shows the tasks, and `tools/dev.py <task> key=value` runs one.
+Godot reads and writes every file, so the tool saves exactly what the Godot editor would; in a layout, only the lines of what changed change. From a terminal, `tools/dev.py list` shows the tasks, and `tools/dev.py <task> key=value` runs one.
 
 ## Factions — `database/factions/<id>.tres`
 
@@ -23,7 +25,7 @@ Aliens set `no_standing`, `territory` and `salvage_as`, and may fly a hull of th
 
 ## Sectors and havens — `scenes/levels/sectors/<sector>/<sector>_layout.tscn`
 
-Each sector's layout is a scene of markers, placed among the sector's planets: open the sector scene and the markers sit under `SceneAssets/SectorLayout/Layout`, each drawing its reach as a ring in the editor. Move a marker to move what it stands for. Edit `<sector>_layout.tscn` itself (the instance in the sector scene only shows it). The layout's root sets the play area.
+Each sector's layout is a scene of markers, placed among the sector's planets. Edit it in the tool (World): move a marker (`translation`, in m) to move what it stands for. The layout's root sets the play area. In the Godot editor, the markers sit under `SceneAssets/SectorLayout/Layout` of the sector scene, each drawing its reach as a ring.
 - **Havens** (`HavenMarker`): stations NPCs live from. Each sets:
   - its id, name and owner (`faction`);
   - its look (`model`: a station model scene, see **Models**), or `station`: a station already in the sector scene;
@@ -63,12 +65,12 @@ New designs reach the game only when you export them as presets (`tools/export_p
 
 A model is made in Blender and imported with one command. The game needs nothing else from it: it builds the collision hull, the hit surface and the levels of detail itself.
 
-**Start from a starter:** copy `assets/models/starters/ship_starter.blend` (or `station_starter.blend`), or let the menu do it (`tools/dev.py new_model`). It holds a small model that already keeps the rules below, every library material by its game name (coloured roughly as the game draws it), the engine empties, and a `Guides` collection (the nose arrow and a box of the game's ship length for ships, a ship for scale for stations) that is never exported. Its Text Editor has a README. After adding a library material, rebuild the starters: `tools/blender -b -P tools/make_starters.py`.
+**Start from a starter:** copy `assets/models/starters/ship_starter.blend` (or `station_starter.blend`), or let the menu do it (`tools/dev.py new_model`). It holds a small model that already keeps the rules below, every library material by its game name (coloured roughly as the game draws it), the engine empties, and a `Guides` collection (the nose arrow and a box of the game's ship length for ships, a ship for scale for stations) that is never exported. Its Text Editor has a README. After changing the material library, rebuild the starters (`tools/dev.py starters`); the Overview says when they are out of date.
 
 **In Blender**
 - **Ships: any size**, nose toward **+Y**, top toward **+Z**. The import scales every ship model to 17 m nose to tail (`Constants.SHIP_MODEL_LENGTH`), and the game sizes each ship from its preset (`model_scale`: a light fighter is about 14 m, a heavy one 33 m). Only the proportions count; engine empties scale with the rest.
 - **Stations** can be any size. Ships undock above their top.
-- **Materials are picked by name.** Name a material after a file in `assets/art/materials_generic/` (`hull_dark_metal` for `mat_hull_dark_metal.tres`; case and spaces don't matter, so "Hull Dark Metal" works). Short names: `glow`, `metal`, `dark`, `light`. Name it **`paint`** for the surfaces that take the faction's paint. Blender's colours don't reach the game: the library's materials replace them. To add a new look, add a `mat_<name>.tres` to the library.
+- **Materials are picked by name.** Name a material after a file in `assets/art/materials_generic/` (`hull_dark_metal` for `mat_hull_dark_metal.tres`; case and spaces don't matter, so "Hull Dark Metal" works). Short names: `glow`, `metal`, `dark`, `light`. Name it **`paint`** for the surfaces that take the faction's paint. Blender's colours don't reach the game: the library's materials replace them. To add a new look, copy a library material in the tool (Data, Material library, `ctrl+n`) and change its colours; the rules check that it is named `mat_<lower_case>.tres` and uses a model shader.
 - **Engines:** add an empty named `Engine` at each nozzle, unrotated. Its scale sets the size of the exhaust. Exhausts trail aft.
 - **What exports is what renders.** Modifiers enabled for renders are applied, in order, even ones hidden in the viewport; ones disabled for renders are dropped (the import lists them). Shape keys are applied as mixed, collection instances become real objects, curves and text become meshes. Objects disabled in renders (boolean cutters) and collections excluded from the view layer (parts for instancing) are left out. Your `.blend` is never changed.
 
@@ -94,7 +96,7 @@ It makes the levels of detail (`lod/`) and the hit surface (`hit/`) beside the m
 The sound bank has one slot per game event: guns, missiles, the harpoon and the lance, hits and wrecks, the afterburner, engines, buttons, notices, radio and docking (each slot is described in `src/core/sound/sound_bank.gd`). Open the bank in the tool (Data, Sound bank) and type or pick a sound file's path in a slot. A slot left empty is silent, so they can be filled one at a time.
 
 - **World** slots are heard where they happen, fading with distance from the player's ship.
-- **Loop** slots (`engine`, `missile_engine`) are carried by every ship or missile while it flies; the engine gets louder and higher with thrust. Their files must loop: select the file, tick **Loop** in the Import dock, and press Reimport. The other slots must not loop.
+- **Loop** slots (`engine`, `missile_engine`) are carried by every ship or missile while it flies; the engine gets louder and higher with thrust. Their files must loop, and the other slots' must not. The Overview says when one is wrong; `l` there (or `tools/dev.py fix_loops`) sets each file's import loop setting and imports it again.
 - **UI** slots are heard as they are.
 
 Short `.wav` files suit effects; `.ogg` suits loops. Make the files about equally loud: `Constants.gd` ("SOUND") sets the overall volume, the hearing distance and how many sounds play at once. The tests check that every filled slot holds a sound and loops as its kind says. Music is separate: the main scene's `AmbientMusic`.
@@ -116,6 +118,6 @@ The rules live in one place, `src/core/validation/content_validator.gd`, and two
 - the development tool, on every save and on its Overview;
 - the tests (`tools/dev.py tests`), which also run everything else.
 
-They load every faction, sector layout, haven and archetype, every ship and station model in use, and the sound bank. Broken references, a missing roster genome, a broken haven and models off the rules all fail. `tools/dev.py validate` lists every problem from a terminal; `tools/dev.py check_model scene=<path>` checks one model.
+They load every faction, sector layout, haven and archetype, every ship and station model in use, the material library and the sound bank. Broken references, a missing roster genome, a broken haven and models off the rules all fail. `tools/dev.py validate` lists every problem from a terminal; `tools/dev.py check_model scene=<path>` checks one model.
 
 To add a rule, add it to the validator. The tool and the tests both pick it up.

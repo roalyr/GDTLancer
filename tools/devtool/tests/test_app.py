@@ -1,18 +1,27 @@
 """The menu, driven by Textual's test pilot against a stand-in for Godot (no files are written)."""
 
+import os
+import shutil
 import unittest
 
-from textual.widgets import DataTable, Input
+from textual.widgets import DataTable, Input, TextArea
 
 from devtool import app as devapp
-from devtool import tasks
+from devtool import constants, tasks
 
 FILE = "res://database/factions/verdant.tres"
+LAYOUT = "res://scenes/levels/sectors/sector_elace/sector_elace_layout.tscn"
+MARKER = devapp.MARKERS + "haven_marker.gd"
+HAVEN_FIELDS = [{"name": "translation", "type": "Vector3", "hint_name": "", "hint_string": "", "comment": "Its place"},
+                {"name": "haven_id", "type": "String", "hint_name": "", "hint_string": "", "comment": ""},
+                {"name": "repair", "type": "bool", "hint_name": "", "hint_string": "", "comment": ""}]
 
 
 class FakeBridge:
     def __init__(self):
         self.writes = []
+        self.checked = []
+        self.log = []
 
     def call(self, command, **args):
         if command == "ping":
@@ -32,9 +41,28 @@ class FakeBridge:
             return {"path": args["path"], "class": "FakeTemplate", "values": {
                 "name": "Verdant", "count": 3, "share": 0.25, "on": True, "color": {"$": "Color", "v": [0.5, 1.0, 0.25, 1.0]},
                 "list": ["a", "b"], "paint": ""}}
-        if command == "write":
-            self.writes.append(args)
-            return {"path": args["path"], "problems": [], "new": []}
+        if command in ("write", "scene_write", "scene_add", "scene_remove"):
+            self.writes.append(dict(args, command=command))
+            result = {"path": args["path"], "problems": [], "new": []}
+            if command == "scene_add":
+                result["node"] = args["parent"] + "/" + args["name"] + "2"
+            return result
+        if command == "scene_nodes":
+            return [
+                {"node": ".", "name": "Layout", "parent": "", "type": "Spatial", "script": "res://layout.gd",
+                 "fields": [{"name": "sector_id", "type": "String", "hint_name": "", "hint_string": "", "comment": ""}],
+                 "values": {"sector_id": "sector_elace"}},
+                {"node": "Havens", "name": "Havens", "parent": ".", "type": "Spatial", "script": "",
+                 "fields": [HAVEN_FIELDS[0]], "values": {"translation": {"$": "Vector3", "v": [0.0, 0.0, 0.0]}}},
+                {"node": "Havens/Port", "name": "Port", "parent": "Havens", "type": "Position3D", "script": MARKER,
+                 "fields": HAVEN_FIELDS, "values": {"translation": {"$": "Vector3", "text": "", "v": [1000.0, 0.0, 2000.0]},
+                                                    "haven_id": "port", "repair": True}}]
+        if command == "sector_map":
+            return [{"name": "Star", "kind": "star", "x": 0.0, "z": 0.0, "radius": 0.0, "node": ""},
+                    {"name": "Port", "kind": "haven_marker", "x": 1000.0, "z": 2000.0, "radius": 0.0, "node": "Havens/Port"}]
+        if command == "check_script":
+            self.checked.append(args["source"])
+            return {"ok": "BROKEN" not in args["source"]}
         raise AssertionError("unexpected " + command)
 
     def close(self):
@@ -104,6 +132,113 @@ class AppTest(unittest.IsolatedAsyncioTestCase):
             await pilot.pause()
         self.assertEqual(answers[0]["duels"], "3")
         self.assertEqual(answers[0]["weapons"], "no")
+
+
+    async def _open_sector(self, pilot, app):
+        await self._started(pilot, app)
+        app.load_sector("sector_elace", LAYOUT, "Havens/Port")
+        await self._started(pilot, app)
+
+    async def test_a_marker_saves_only_what_changed(self):
+        fake = FakeBridge()
+        app = devapp.DevApp(bridge_factory=lambda: fake)
+        async with app.run_test(size=(160, 60)) as pilot:
+            await self._open_sector(pilot, app)
+            form = app.query_one("#world-form", devapp.Form)
+            self.assertEqual([f.field["name"] for f in form.fields], ["translation", "haven_id", "repair"])
+            self.assertEqual(form.changes(), {}, "Unchanged as loaded")
+            self.assertIn("[reverse bold]H[/]", str(app.query_one("#world-map").content), "The picked marker on the map")
+            by_name = {f.field["name"]: f for f in form.fields}
+            by_name["translation"].editor.value = "1500, 0, 2000"
+            app.action_save_node()
+            await self._started(pilot, app)
+            self.assertEqual(fake.writes[0]["command"], "scene_write")
+            self.assertEqual(fake.writes[0]["node"], "Havens/Port")
+            self.assertEqual(fake.writes[0]["values"], {"translation": {"$": "Vector3", "v": [1500.0, 0.0, 2000.0]}})
+
+    async def test_markers_are_added_copied_and_removed(self):
+        fake = FakeBridge()
+        app = devapp.DevApp(bridge_factory=lambda: fake)
+        async with app.run_test(size=(160, 60)) as pilot:
+            await self._open_sector(pilot, app)
+            app.action_copy_marker()
+            await self._started(pilot, app)
+            copy = fake.writes[-1]
+            self.assertEqual((copy["command"], copy["parent"], copy["script"]), ("scene_add", "Havens", MARKER))
+            self.assertEqual(copy["values"]["translation"]["v"], [1000.0 + devapp.COPY_OFFSET, 0.0, 2000.0])
+            app._show_node("Havens")
+            app.action_new_marker()
+            await pilot.pause()
+            app.screen.query_one(Input).value = "NewPort"
+            await pilot.press("enter")
+            await self._started(pilot, app)
+            self.assertEqual((fake.writes[-1]["parent"], fake.writes[-1]["name"], fake.writes[-1]["script"]), ("Havens", "NewPort", MARKER))
+            app._show_node("Havens/Port")
+            app.action_remove_marker()
+            await pilot.pause()
+            await pilot.press("y")
+            await self._started(pilot, app)
+            self.assertEqual((fake.writes[-1]["command"], fake.writes[-1]["node"]), ("scene_remove", "Havens/Port"))
+
+    async def test_a_constant_is_checked_then_saved_in_place(self):
+        fake = FakeBridge()
+        scratch = os.path.join(tasks.ROOT, ".dev", "test_constants.gd")
+        shutil.copy(os.path.join(tasks.ROOT, constants.PATH), scratch)
+        app = devapp.DevApp(bridge_factory=lambda: fake, constants_path=".dev/test_constants.gd")
+        try:
+            async with app.run_test(size=(160, 60)) as pilot:
+                await self._started(pilot, app)
+                app._show_constant("LINEAR_DRAG")
+                value = app.query_one("#const-value", Input)
+                self.assertEqual(value.value, "0.5")
+                value.value = "[1]"
+                app.action_save_constant()
+                await self._started(pilot, app)
+                self.assertEqual(fake.checked, [], "Not a number: refused before Godot is asked")
+                value.value = "BROKEN"
+                app.action_save_constant()
+                await self._started(pilot, app)
+                with open(scratch) as handle:
+                    self.assertNotIn("BROKEN", handle.read(), "Godot said no: not saved")
+                value.value = "0.75"
+                app.action_save_constant()
+                await self._started(pilot, app)
+                with open(scratch) as handle:
+                    text = handle.read()
+                self.assertIn("const LINEAR_DRAG = 0.75  # Velocity damping", text)
+                app.action_undo_save()
+                await self._started(pilot, app)
+                app._show_constant("MEGASTRUCTURE_LAYERS")
+                self.assertTrue(app.query_one("#const-text", TextArea).display, "A long value in a text box")
+            with open(scratch) as handle, open(os.path.join(tasks.ROOT, constants.PATH)) as real:
+                self.assertEqual(handle.read(), real.read(), "Undone")
+        finally:
+            os.remove(scratch)
+
+    async def test_constants_are_found_and_grouped(self):
+        app = devapp.DevApp(bridge_factory=lambda: FakeBridge())
+        async with app.run_test(size=(160, 60)) as pilot:
+            await self._started(pilot, app)
+            app.query_one("#const-filter", Input).value = "linear drag"
+            await pilot.pause()
+            tree = app.query_one("#const-tree")
+            leaves = [leaf.data for group in tree.root.children for leaf in group.children]
+            self.assertIn("LINEAR_DRAG", leaves)
+            app.action_group_constants()
+            groups = [str(group.label).split(" (")[0] for group in tree.root.children]
+            self.assertEqual(groups, ["float"])
+
+    async def test_typing_q_in_a_field_types_it(self):
+        app = devapp.DevApp(bridge_factory=lambda: FakeBridge())
+        async with app.run_test(size=(160, 60)) as pilot:
+            await self._started(pilot, app)
+            await pilot.press("5")
+            await pilot.pause()
+            self.assertEqual(app.query_one("TabbedContent").active, "constants")
+            await pilot.press("ctrl+f")
+            await pilot.press("q", "3")
+            self.assertEqual(app.query_one("#const-filter", Input).value, "q3")
+            self.assertTrue(app.is_running)
 
 
 if __name__ == "__main__":

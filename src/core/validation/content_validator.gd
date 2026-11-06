@@ -11,7 +11,9 @@ extends Reference
 const ModelCheck = preload("res://src/scenes/game_world/models/model_check.gd")
 const SoundBank = preload("res://src/core/sound/sound_bank.gd")
 const SOUND_BANK_PATH = "res://database/sounds/sound_bank.tres"
-const SECTIONS = ["factions", "sectors", "archetypes", "models", "sounds"]
+const SECTIONS = ["factions", "sectors", "archetypes", "models", "materials", "sounds"]
+const MATERIALS_DIR = "res://assets/art/materials_generic/"
+const MATERIAL_SHADERS = ["res://assets/art/shaders/solid.gdshader", "res://assets/art/shaders/glow.gdshader"]
 const BEACON_KINDS = ["patrol", "field", "landmark"]
 
 
@@ -32,6 +34,8 @@ static func section(name: String) -> Array:
 			return archetypes()
 		"models":
 			return models()
+		"materials":
+			return materials()
 		"sounds":
 			return sounds()
 	return [_problem("", "No validator section '%s'" % name)]
@@ -47,6 +51,8 @@ static func section_for(path: String) -> String:
 		return "archetypes"
 	if path == SOUND_BANK_PATH:
 		return "sounds"
+	if path.begins_with(MATERIALS_DIR):
+		return "materials"
 	if path.begins_with("res://scenes/prefabs/ships/") or path.begins_with("res://scenes/prefabs/station/"):
 		return "models"
 	return ""
@@ -236,6 +242,25 @@ static func models() -> Array:
 	for scene_path in used.stations:
 		for problem in ModelCheck.station_problems(scene_path):
 			out.append(_problem(scene_path, problem))
+	return out
+
+
+# --- Materials ---
+
+# The material library: models take their materials from it by name (mat_<what>.tres; the model's
+# material of that name is swapped for it), so each is a ShaderMaterial on a model shader, named so.
+static func materials() -> Array:
+	var out: Array = []
+	var name_regex := RegEx.new()
+	name_regex.compile("^mat_[a-z0-9_]+\\.tres$")
+	for path in _files_in(MATERIALS_DIR, ".tres"):
+		if name_regex.search(path.get_file()) == null:
+			out.append(_problem(path, "Name it mat_<lower_case>.tres (models find it by that name)"))
+		var material = _fresh(path)
+		if not material is ShaderMaterial:
+			out.append(_problem(path, "Not a ShaderMaterial"))
+		elif material.shader == null or not material.shader.resource_path in MATERIAL_SHADERS:
+			out.append(_problem(path, "Its shader should be one of %s" % [MATERIAL_SHADERS]))
 	return out
 
 

@@ -38,6 +38,14 @@ class LiveBridgeTest(unittest.TestCase):
     def test_the_content_holds(self):
         self.assertEqual(self.bridge.call("validate", section="factions"), [])
 
+    def test_godot_checks_constants_before_they_are_saved(self):
+        from devtool import constants
+        with open(os.path.join(tasks.ROOT, constants.PATH)) as handle:
+            text = handle.read()
+        entry = next(e for e in constants.parse(text) if e.name == "LINEAR_DRAG")
+        self.assertTrue(self.bridge.call("check_script", source=constants.set_value(text, entry, "0.75"))["ok"])
+        self.assertFalse(self.bridge.call("check_script", source=constants.set_value(text, entry, "0.75 +"))["ok"])
+
     def test_paths(self):
         self.assertEqual(res_path("database/factions/verdant.tres"), "res://database/factions/verdant.tres")
 

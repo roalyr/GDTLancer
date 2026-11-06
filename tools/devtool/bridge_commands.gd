@@ -1,14 +1,22 @@
 # BridgeCommands: what the development tool (tools/dev.py) asks of Godot, one method per command,
 # each taking and returning plain data (JSON-safe; values with no JSON form travel as
-# {"$": type, "text": var2str(value)}). bridge.gd runs these over stdin/stdout; the tests call them
-# directly. Godot reads and writes every file, so what the tool saves is what the editor would.
-# Commands: ping, schema, read, write, create, validate, models.
+# {"$": type, "text": var2str(value)}, Colors and Vector3s also as "v": [...]). bridge.gd runs these
+# over stdin/stdout; the tests call them directly. Godot reads and writes every file, so what the
+# tool saves is what the editor would.
+# Resources: ping, schema, read, write, create (fields: a script's exported variables; a
+# ShaderMaterial's shader and shader parameters). Scenes: scene_nodes, scene_write, scene_add,
+# scene_remove (nodes and their fields, translation included), sector_map. Checks: validate, models,
+# sound_slots, check_script.
 
 extends Reference
 
 const Validator = preload("res://src/core/validation/content_validator.gd")
 const ModelCheck = preload("res://src/scenes/game_world/models/model_check.gd")
+const SoundBank = preload("res://src/core/sound/sound_bank.gd")
+const TscnText = preload("res://tools/devtool/tscn_text.gd")
 const EDITABLE = PROPERTY_USAGE_SCRIPT_VARIABLE | PROPERTY_USAGE_EDITOR
+const SHADER_PARAM = "shader_param/"
+const TRANSLATION = "translation"
 const HINT_NAMES = {
 	PROPERTY_HINT_NONE: "", PROPERTY_HINT_RANGE: "range", PROPERTY_HINT_EXP_RANGE: "range", PROPERTY_HINT_ENUM: "enum",
 	PROPERTY_HINT_FLAGS: "flags", PROPERTY_HINT_FILE: "file", PROPERTY_HINT_DIR: "dir", PROPERTY_HINT_GLOBAL_FILE: "file",
@@ -23,6 +31,7 @@ const TYPE_NAMES = {
 	TYPE_INT_ARRAY: "PoolIntArray", TYPE_REAL_ARRAY: "PoolRealArray", TYPE_STRING_ARRAY: "PoolStringArray",
 	TYPE_VECTOR2_ARRAY: "PoolVector2Array", TYPE_VECTOR3_ARRAY: "PoolVector3Array", TYPE_COLOR_ARRAY: "PoolColorArray",
 }
+const BODY_PREFIXES = ["star", "planet", "moon", "station"]  # Sector scene nodes drawn on the map
 
 
 # Runs `command` with `args`: {"ok": true, "result": ...} or {"ok": false, "error": text}.
@@ -39,39 +48,34 @@ func cmd_ping(_args: Dictionary) -> Dictionary:
 	return {"godot": Engine.get_version_info().string}
 
 
-# The editable fields of the resource at `path` (or of the script at `script`), in script order:
-# [{name, type, hint, hint_string, default, comment}]: comment is the text after the field's `#`.
+# --- Resources ---
+
+# The editable fields of the resource at `path` (or of the script at `script`), in order:
+# [{name, type, hint, hint_name, hint_string, default, comment}].
 func cmd_schema(args: Dictionary):
-	var script: Script = _script_for(args)
-	if script == null:
-		return {"error": "No script for %s" % args}
-	var probe = script.new()
-	var comments: Dictionary = _comments(script)
-	var fields: Array = []
-	for property in script.get_script_property_list():
-		if property.usage & EDITABLE != EDITABLE:
-			continue
-		fields.append({
-			"name": property.name, "type": TYPE_NAMES.get(property.type, str(property.type)),
-			"hint": property.hint, "hint_name": HINT_NAMES.get(property.hint, ""), "hint_string": property.hint_string,
-			"default": encode(probe.get(property.name)), "comment": comments.get(property.name, ""),
-		})
-	return {"script": script.resource_path, "class": _class_name(script), "fields": fields}
+	var target = null
+	if str(args.get("script", "")) != "":
+		var script = load(str(args.script))
+		target = script.new() if script is Script else null
+	else:
+		target = _fresh(str(args.get("path", "")))
+	if target == null:
+		return {"error": "Nothing to describe at %s" % args}
+	var script: Script = target.get_script()
+	var out := {"script": script.resource_path if script != null else "", "class": _class_of(target), "fields": fields_of(target)}
+	if target is Node:
+		target.free()
+	return out
 
 
-# The resource at `path`: its script, class and field values.
+# The resource at `path`: its class and field values.
 func cmd_read(args: Dictionary):
 	var resource = _fresh(str(args.get("path", "")))
 	if resource == null:
 		return {"error": "Cannot load %s" % args.get("path", "")}
 	var script: Script = resource.get_script()
-	var values := {}
-	if script != null:
-		for property in script.get_script_property_list():
-			if property.usage & EDITABLE == EDITABLE:
-				values[property.name] = encode(resource.get(property.name))
-	return {"path": str(args.path), "class": _class_name(script) if script != null else resource.get_class(),
-		"script": script.resource_path if script != null else "", "values": values}
+	return {"path": str(args.path), "class": _class_of(resource), "script": script.resource_path if script != null else "",
+		"values": values_of(resource)}
 
 
 # Sets `values` on the resource at `path` and saves it; then its rules (ContentValidator.for_file):
@@ -81,21 +85,152 @@ func cmd_write(args: Dictionary):
 	var resource = _fresh(path)
 	if resource == null:
 		return {"error": "Cannot load %s" % path}
-	return _save_checked(path, resource, args.get("values", {}))
+	var before: Array = _texts(Validator.for_file(path))
+	var error: String = set_values(resource, args.get("values", {}))
+	if error != "":
+		return {"error": error}
+	if ResourceSaver.save(path, resource) != OK:
+		return {"error": "Saving %s failed" % path}
+	return _checked(path, before)
 
 
-# A new resource of `script` at `path` (not over an existing file), with `values`.
+# A new resource at `path` (never over a file): of `script`, or a copy of `copy_from`; with `values`.
 func cmd_create(args: Dictionary):
 	var path: String = str(args.get("path", ""))
-	if path == "" or ResourceLoader.exists(path) or File.new().file_exists(path):
+	if path == "" or File.new().file_exists(path):
 		return {"error": "%s exists already (or no path)" % path}
-	var script: Script = _script_for(args)
-	if script == null:
-		return {"error": "No script %s" % args.get("script", "")}
-	var dir := Directory.new()
-	dir.make_dir_recursive(path.get_base_dir())
-	return _save_checked(path, script.new(), args.get("values", {}))
+	var resource: Resource = null
+	if str(args.get("copy_from", "")) != "":
+		var source = _fresh(str(args.copy_from))
+		resource = source.duplicate() if source != null else null
+	elif str(args.get("script", "")) != "":
+		var script = load(str(args.script))
+		resource = script.new() if script is Script else null
+	if resource == null:
+		return {"error": "Nothing to make %s from" % path}
+	var error: String = set_values(resource, args.get("values", {}))
+	if error != "":
+		return {"error": error}
+	Directory.new().make_dir_recursive(path.get_base_dir())
+	if ResourceSaver.save(path, resource) != OK:
+		return {"error": "Saving %s failed" % path}
+	return _checked(path, [])
 
+
+# --- Scenes ---
+
+# Every node of the scene at `path` (its own, not those of scenes placed in it):
+# [{node, name, parent, type, script, fields, values}]; node is its path from the root (".").
+func cmd_scene_nodes(args: Dictionary):
+	var root: Node = _edit_instance(str(args.get("path", "")))
+	if root == null:
+		return {"error": "Cannot open %s" % args.get("path", "")}
+	var out: Array = []
+	for node in _own_nodes(root):
+		var script: Script = node.get_script()
+		out.append({
+			"node": str(root.get_path_to(node)), "name": node.name,
+			"parent": str(root.get_path_to(node.get_parent())) if node != root else "",
+			"type": node.get_class(), "script": script.resource_path if script != null else "",
+			"fields": fields_of(node), "values": values_of(node),
+		})
+	root.free()
+	return out
+
+
+# Sets `values` on node `node` of the scene at `path` and saves the scene; then its rules. Only
+# the lines of the values that changed change (TscnText).
+func cmd_scene_write(args: Dictionary):
+	var path: String = str(args.get("path", ""))
+	var root: Node = _edit_instance(path)
+	if root == null:
+		return {"error": "Cannot open %s" % path}
+	var node_path: String = str(args.get("node", ""))
+	var node: Node = root.get_node_or_null(node_path)
+	var old_text: String = _read_text(path)
+	var doc = TscnText.new(old_text)
+	if node == null or doc.find_node(node_path) == null:
+		return _freed(root, {"error": "%s has no node of its own at %s" % [path, node_path]})
+	var before: Array = _texts(Validator.for_file(path))
+	var error: String = _set_in_text(doc, node_path, node, args.get("values", {}))
+	root.free()
+	if error != "":
+		return {"error": error}
+	return _save_text_checked(path, old_text, doc.text(), before)
+
+
+# A new node `name` under `parent` of the scene at `path`: a `type` (default Position3D) with
+# `script` (a res:// path, or none), its fields set to `values`. A taken name gets a number.
+# Returns its path as "node".
+func cmd_scene_add(args: Dictionary):
+	var path: String = str(args.get("path", ""))
+	var old_text: String = _read_text(path)
+	if old_text == "":
+		return {"error": "Cannot open %s" % path}
+	var doc = TscnText.new(old_text)
+	var parent: String = str(args.get("parent", "."))
+	if parent != "." and doc.find_node(parent) == null:
+		return {"error": "%s has no node %s" % [path, parent]}
+	var type: String = str(args.get("type", "Position3D"))
+	var probe = ClassDB.instance(type)
+	if not probe is Node:
+		return {"error": "No node type %s" % type}
+	var script_path: String = str(args.get("script", ""))
+	if script_path != "":
+		probe.set_script(load(script_path))
+	var added: String = doc.add_node(parent, str(args.get("name", "Marker")), type, doc.ext_id(script_path, "Script") if script_path != "" else -1)
+	var before: Array = _texts(Validator.for_file(path))
+	var error: String = _set_in_text(doc, added, probe, args.get("values", {}))
+	probe.free()
+	if error != "":
+		return {"error": error}
+	var result = _save_text_checked(path, old_text, doc.text(), before)
+	if result is Dictionary and not result.has("error"):
+		result["node"] = added
+	return result
+
+
+# Removes node `node` (and what is under it) from the scene at `path`.
+func cmd_scene_remove(args: Dictionary):
+	var path: String = str(args.get("path", ""))
+	var old_text: String = _read_text(path)
+	var doc = TscnText.new(old_text)
+	var node_path: String = str(args.get("node", ""))
+	if node_path in ["", "."] or not doc.remove_node(node_path):
+		return {"error": "%s: no node %s to remove" % [path, node_path]}
+	doc.drop_unused_resources()
+	return _save_text_checked(path, old_text, doc.text(), _texts(Validator.for_file(path)))
+
+
+# A sector seen from above: the bodies of its scene (stars, planets, moons, stations) and the
+# markers of its layout, each {name, kind, x, z, radius, node}: x and z in m; radius a marker's
+# reach (0: none set); node a marker's path in its layout.
+func cmd_sector_map(args: Dictionary):
+	var sector: String = str(args.get("sector", ""))
+	var out: Array = []
+	var scene_root: Node = _edit_instance(Constants.SECTORS_SCENES_DIR.plus_file(sector).plus_file(sector + ".tscn"))
+	if scene_root != null:
+		for node in _own_nodes(scene_root):
+			if node is Spatial and node != scene_root:
+				for prefix in BODY_PREFIXES:
+					if node.name.to_lower().begins_with(prefix):
+						var origin: Vector3 = _origin(node)
+						out.append({"name": node.name, "kind": prefix, "x": origin.x, "z": origin.z, "radius": 0.0, "node": ""})
+						break
+		scene_root.free()
+	var layout_root: Node = _edit_instance(Validator.layout_files().get(sector, ""))
+	if layout_root != null:
+		for node in _own_nodes(layout_root):
+			if node is Spatial and node.get_script() != null and node != layout_root:
+				var origin: Vector3 = _origin(node)
+				var radius = node.get("radius")
+				out.append({"name": node.name, "kind": node.get_script().resource_path.get_file().get_basename(), "x": origin.x, "z": origin.z,
+					"radius": float(radius) if typeof(radius) in [TYPE_INT, TYPE_REAL] else 0.0, "node": str(layout_root.get_path_to(node))})
+		layout_root.free()
+	return out
+
+
+# --- Checks ---
 
 # Problems: of one `file`, one `section`, or all.
 func cmd_validate(args: Dictionary):
@@ -127,24 +262,90 @@ func cmd_models(_args: Dictionary):
 	return out
 
 
-# Whether the scene at `path` is a model (its root a ShipModel, or a StationModel), not a scene
-# models go into (FactionStation) or anything else kept beside them.
-static func _is_model_scene(path: String, kind: String) -> bool:
-	var scene = load(path)
-	if not scene is PackedScene:
-		return false
-	var root: Node = scene.instance()
-	var base: Script = load("res://src/scenes/game_world/models/ship_model.gd" if kind == "ships" else "res://src/scenes/game_world/models/station_model.gd")
-	var script: Script = root.get_script()
-	root.free()
-	while script != null:
-		if script == base:
-			return true
-		script = script.get_base_script()
-	return false
+# The sound bank's slots: [{slot, kind, path ("" empty), loops}].
+func cmd_sound_slots(_args: Dictionary):
+	var bank = _fresh(Validator.SOUND_BANK_PATH)
+	var out: Array = []
+	for slot in SoundBank.SLOTS:
+		var stream = bank.get(slot) if bank != null else null
+		out.append({"slot": slot, "kind": SoundBank.SLOTS[slot], "path": stream.resource_path if stream is AudioStream else "",
+			"loops": Validator.stream_loops(stream) if stream is AudioStream else false})
+	return out
 
 
-# --- Values ---
+# Whether `source` (GDScript text) compiles: {"ok": bool}. Godot prints the parse error itself (the
+# tool shows Godot's output).
+func cmd_check_script(args: Dictionary):
+	var script := GDScript.new()
+	script.source_code = str(args.get("source", ""))
+	return {"ok": script.reload() == OK}
+
+
+# --- Fields and values ---
+
+# The editable fields of `target` (a resource or node): its script's exported variables; a
+# ShaderMaterial's shader and shader parameters; a Spatial's translation first.
+static func fields_of(target: Object) -> Array:
+	var fields: Array = []
+	if target is Spatial:
+		fields.append({"name": TRANSLATION, "type": "Vector3", "hint": 0, "hint_name": "", "hint_string": "",
+			"default": encode(Vector3.ZERO), "comment": "Its place, m (x, y, z; y is up)"})
+	if target is ShaderMaterial:
+		fields.append({"name": "shader", "type": "Object", "hint": PROPERTY_HINT_RESOURCE_TYPE, "hint_name": "resource",
+			"hint_string": "Shader", "default": null, "comment": "The shader (assets/art/shaders/)"})
+		if target.shader != null:
+			var comments: Dictionary = _shader_comments(target.shader)
+			for param in VisualServer.shader_get_param_list(target.shader.get_rid()):
+				fields.append({"name": SHADER_PARAM + param.name, "type": TYPE_NAMES.get(param.type, str(param.type)), "hint": param.hint,
+					"hint_name": HINT_NAMES.get(param.hint, ""), "hint_string": param.hint_string, "default": null,
+					"comment": comments.get(param.name, "")})
+		return fields
+	var script: Script = target.get_script()
+	if script == null:
+		return fields
+	var probe = script.new() if not target is Node else null
+	var comments: Dictionary = _comments(script)
+	for property in script.get_script_property_list():
+		if property.usage & EDITABLE != EDITABLE:
+			continue
+		fields.append({
+			"name": property.name, "type": TYPE_NAMES.get(property.type, str(property.type)),
+			"hint": property.hint, "hint_name": HINT_NAMES.get(property.hint, ""), "hint_string": property.hint_string,
+			"default": encode(probe.get(property.name)) if probe != null else null, "comment": comments.get(property.name, ""),
+		})
+	return fields
+
+
+static func values_of(target: Object) -> Dictionary:
+	var values := {}
+	for field in fields_of(target):
+		values[field.name] = encode(target.get(field.name))
+	return values
+
+
+# Sets `values` (encoded) on `target`; "" or what was wrong.
+static func set_values(target: Object, values: Dictionary) -> String:
+	var types := {}
+	for field in fields_of(target):
+		types[field.name] = field.type
+	for name in values:
+		if not types.has(name):
+			return "No field '%s'" % name
+		var value = match_types(decode(values[name]), target.get(name))
+		match types[name]:
+			"float":
+				value = float(value) if typeof(value) in [TYPE_INT, TYPE_REAL] else value
+			"int":
+				value = int(value) if typeof(value) in [TYPE_INT, TYPE_REAL] else value
+			"PoolStringArray":
+				value = PoolStringArray(value) if value is Array else value
+			"PoolIntArray":
+				value = PoolIntArray(value) if value is Array else value
+			"PoolRealArray":
+				value = PoolRealArray(value) if value is Array else value
+		target.set(name, value)
+	return ""
+
 
 # `value` as JSON text, numbers as Godot writes them into files (to_json() rounds to 6 decimals, so a
 # value read and written back would change).
@@ -197,6 +398,8 @@ static func encode(value):
 			return {"$": "Dictionary", "text": var2str(value)}
 		TYPE_COLOR:
 			return {"$": "Color", "text": var2str(value), "v": [value.r, value.g, value.b, value.a]}
+		TYPE_VECTOR3:
+			return {"$": "Vector3", "text": var2str(value), "v": [value.x, value.y, value.z]}
 		TYPE_OBJECT:
 			if value is Resource:
 				return {"$": "Resource", "path": value.resource_path, "class": value.get_class()}
@@ -220,6 +423,9 @@ static func decode(value):
 			"Color":
 				if value.has("v"):
 					return Color(value.v[0], value.v[1], value.v[2], value.v[3] if value.v.size() > 3 else 1.0)
+			"Vector3":
+				if value.has("v"):
+					return Vector3(value.v[0], value.v[1], value.v[2])
 			"Resource":
 				return load(value.path) if str(value.get("path", "")) != "" else null
 		return str2var(str(value.get("text", "null")))
@@ -250,25 +456,7 @@ static func match_types(value, like):
 
 # --- Helpers ---
 
-func _save_checked(path: String, resource: Resource, values: Dictionary):
-	var before: Array = _texts(Validator.for_file(path)) if ResourceLoader.exists(path) else []
-	var field_types := {}
-	for property in resource.get_script().get_script_property_list():
-		field_types[property.name] = property.type
-	for name in values:
-		if not field_types.has(name):
-			return {"error": "%s has no field '%s'" % [path, name]}
-		var value = match_types(decode(values[name]), resource.get(name))
-		if field_types[name] == TYPE_REAL and typeof(value) == TYPE_INT:
-			value = float(value)
-		elif field_types[name] == TYPE_INT and typeof(value) == TYPE_REAL:
-			value = int(value)
-		elif field_types[name] in [TYPE_STRING_ARRAY, TYPE_INT_ARRAY, TYPE_REAL_ARRAY] and value is Array:
-			value = convert(value, field_types[name])
-		resource.set(name, value)
-	var error: int = ResourceSaver.save(path, resource)
-	if error != OK:
-		return {"error": "Saving %s failed (%d)" % [path, error]}
+func _checked(path: String, before: Array) -> Dictionary:
 	TemplateDatabase._factions.clear()  # Read again on next use
 	TemplateDatabase._sector_layouts.clear()
 	var problems: Array = Validator.for_file(path)
@@ -277,6 +465,126 @@ func _save_checked(path: String, resource: Resource, values: Dictionary):
 		if not "%s: %s" % [problem.file, problem.problem] in before:
 			fresh.append(problem)
 	return {"path": path, "problems": problems, "new": fresh}
+
+
+# Sets `values` (encoded) on the node at `node_path` in `doc`, as text: `node` (the node as loaded,
+# or a new one) gives each field's type, current value and default. A value the file does not set
+# and that equals the default stays unset, as Godot would leave it; one it sets is rewritten in place.
+static func _set_in_text(doc, node_path: String, node: Node, values: Dictionary) -> String:
+	var types := {}
+	for field in fields_of(node):
+		types[field.name] = field.type
+	var defaults: Object = null
+	if node.get_script() != null:
+		defaults = node.get_script().new()
+	var error := ""
+	for name in values:
+		if not types.has(name):
+			error = "No field '%s'" % name
+			break
+		var current = node.translation if name == TRANSLATION else node.get(name)
+		var value = match_types(decode(values[name]), current)
+		if types[name] == "float" and typeof(value) == TYPE_INT:
+			value = float(value)
+		elif types[name] == "int" and typeof(value) == TYPE_REAL:
+			value = int(value)
+		var key: String = name
+		var default = defaults.get(name) if defaults != null else null
+		if name == TRANSLATION:
+			var transform: Transform = node.transform
+			transform.origin = value
+			key = "transform"
+			value = transform
+			default = Transform()
+		var text: String = _value_text(doc, value)
+		if text == "!":
+			error = "%s: only a resource saved in a file can be set (%s)" % [name, value]
+			break
+		var existing: String = doc.get_property(node_path, key)
+		var is_default: bool = var2str(value) == var2str(default) and not (value is Resource)
+		if existing == text or (existing == "" and is_default):
+			continue  # As it was; or unset, and its default holds
+		doc.set_property(node_path, key, "" if is_default else text)  # Back to the default: the line goes
+	if defaults is Node:
+		defaults.free()
+	doc.drop_unused_resources()
+	return error
+
+
+# A value's text in a scene file ("!" when it cannot be written there).
+static func _value_text(doc, value) -> String:
+	if value is Resource:
+		if value.resource_path == "" or value.resource_path.find("::") >= 0:
+			return "!"
+		var type: String = "PackedScene" if value is PackedScene else ("Script" if value is Script else ("Texture" if value is Texture else value.get_class()))
+		return "ExtResource( %d )" % doc.ext_id(value.resource_path, type)
+	return var2str(value)
+
+
+# Writes `new_text` to the scene at `path` and loads it again; if it does not load, puts `old_text`
+# back. Then its rules.
+func _save_text_checked(path: String, old_text: String, new_text: String, before: Array):
+	if new_text == old_text:
+		return _checked(path, before)
+	_write_text(path, new_text)
+	var loaded = ResourceLoader.load(path, "", true)
+	var instance: Node = loaded.instance() if loaded is PackedScene else null
+	if instance == null:
+		_write_text(path, old_text)
+		return {"error": "The edited %s did not load; left as it was" % path}
+	instance.free()
+	return _checked(path, before)
+
+
+static func _read_text(path: String) -> String:
+	var file := File.new()
+	if file.open(path, File.READ) != OK:
+		return ""
+	var text: String = file.get_as_text()
+	file.close()
+	return text
+
+
+static func _write_text(path: String, text: String) -> void:
+	var file := File.new()
+	file.open(path, File.WRITE)
+	file.store_string(text)
+	file.close()
+
+
+static func _freed(root: Node, result):
+	root.free()
+	return result
+
+
+static func _edit_instance(path: String) -> Node:
+	if path == "" or not ResourceLoader.exists(path):
+		return null
+	var packed = ResourceLoader.load(path, "", true)
+	return packed.instance(PackedScene.GEN_EDIT_STATE_INSTANCE) if packed is PackedScene else null
+
+
+# The scene's own nodes (the root and what it owns), parents before children.
+static func _own_nodes(root: Node) -> Array:
+	var out: Array = []
+	var queue: Array = [root]
+	while not queue.empty():
+		var node: Node = queue.pop_front()
+		if node == root or node.owner == root:
+			out.append(node)
+		for child in node.get_children():
+			queue.append(child)
+	return out
+
+
+# A node's place in its scene's space (it is not in the tree, so no global_transform).
+static func _origin(node: Spatial) -> Vector3:
+	var origin: Vector3 = node.transform.origin
+	var parent = node.get_parent()
+	while parent is Spatial:
+		origin = parent.transform.xform(origin)
+		parent = parent.get_parent()
+	return origin
 
 
 static func _texts(problems: Array) -> Array:
@@ -290,11 +598,21 @@ static func _fresh(path: String) -> Resource:
 	return ResourceLoader.load(path, "", true) if path != "" and ResourceLoader.exists(path) else null
 
 
-func _script_for(args: Dictionary) -> Script:
-	if str(args.get("script", "")) != "":
-		return load(str(args.script)) as Script
-	var resource = _fresh(str(args.get("path", "")))
-	return resource.get_script() if resource != null else null
+# Whether the scene at `path` is a model (its root a ShipModel, or a StationModel), not a scene
+# models go into (FactionStation) or anything else kept beside them.
+static func _is_model_scene(path: String, kind: String) -> bool:
+	var scene = load(path)
+	if not scene is PackedScene:
+		return false
+	var root: Node = scene.instance()
+	var base: Script = load("res://src/scenes/game_world/models/ship_model.gd" if kind == "ships" else "res://src/scenes/game_world/models/station_model.gd")
+	var script: Script = root.get_script()
+	root.free()
+	while script != null:
+		if script == base:
+			return true
+		script = script.get_base_script()
+	return false
 
 
 # Field name -> the comment after it, through the script's base scripts.
@@ -311,9 +629,22 @@ static func _comments(script: Script) -> Dictionary:
 	return out
 
 
-static func _class_name(script: Script) -> String:
+# Uniform name -> the comment after it in the shader.
+static func _shader_comments(shader: Shader) -> Dictionary:
+	var out := {}
+	var regex := RegEx.new()
+	regex.compile("^\\s*uniform\\s+\\w+\\s+(\\w+)[^/\\n]*//\\s*(.+)$")
+	for line in shader.code.split("\n"):
+		var found: RegExMatch = regex.search(line)
+		if found != null:
+			out[found.get_string(1)] = found.get_string(2).strip_edges()
+	return out
+
+
+static func _class_of(target: Object) -> String:
+	var script: Script = target.get_script()
 	if script == null:
-		return ""
+		return target.get_class()
 	var regex := RegEx.new()
 	regex.compile("(?m)^class_name\\s+(\\w+)")
 	var found: RegExMatch = regex.search(script.source_code)

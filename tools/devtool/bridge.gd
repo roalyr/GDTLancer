@@ -20,7 +20,7 @@ func _serve() -> void:
 	_commands = load(COMMANDS).new()
 	print(REPLY + to_json({"id": 0, "ok": true, "result": "ready"}))
 	while true:
-		var line: String = OS.read_string_from_stdin().strip_edges()
+		var line: String = _read_line().strip_edges()
 		if line == "":
 			break
 		var parsed: JSONParseResult = JSON.parse(line)
@@ -34,3 +34,16 @@ func _serve() -> void:
 		reply["id"] = request.get("id", -1)
 		print(REPLY + _commands.json(reply))
 	quit()
+
+
+# One line of stdin, however long: Godot reads it 1 KB at a time. "" at the end of input.
+func _read_line() -> String:
+	var line := ""
+	while true:
+		var chunk: String = OS.read_string_from_stdin()
+		if chunk == "":
+			return line
+		line += chunk
+		if line.ends_with("\n"):
+			return line
+	return line

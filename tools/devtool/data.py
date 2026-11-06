@@ -13,9 +13,12 @@ DEFINITIONS = "res://database/definitions/"
 
 
 class Kind:
-    def __init__(self, key, title, pattern, script=None, about="", exclude=()):
+    """`script` makes a new file; or, with `copies`, a new file is a copy of the one picked (its
+    name then starts with `prefix`)."""
+
+    def __init__(self, key, title, pattern, script=None, about="", exclude=(), copies=False, prefix=""):
         self.key, self.title, self.pattern, self.script, self.about = key, title, pattern, script, about
-        self.exclude = exclude
+        self.exclude, self.copies, self.prefix = exclude, copies, prefix
 
     def files(self):
         """res:// paths of this kind's files, sorted."""
@@ -31,7 +34,11 @@ class Kind:
         return "res://" + os.path.dirname(self.pattern)
 
     def can_create(self):
-        return self.script is not None and "*" in os.path.basename(self.pattern)
+        return (self.script is not None or self.copies) and "*" in os.path.basename(self.pattern)
+
+    def new_path(self, name):
+        name = name if name.startswith(self.prefix) else self.prefix + name
+        return self.folder() + "/" + name + ".tres"
 
 
 ARCHETYPES = "database/presets/archetypes/"
@@ -54,6 +61,9 @@ KINDS = [
          "The sector graph."),
     Kind("agents", "Agents", "database/registry/agents/*.tres", DEFINITIONS + "agent_template.gd",
          "The player's and NPCs' base templates."),
+    Kind("materials", "Material library", "assets/art/materials_generic/mat_*.tres", None,
+         "Models take these by name (a model's material mat_x becomes mat_x.tres). New: a copy of the one picked;"
+         " then rebuild the starters (Tasks: starters).", copies=True, prefix="mat_"),
     Kind("sounds", "Sound bank", "database/sounds/sound_bank.tres", None,
          "One slot per game event; an empty slot is silent."),
 ]

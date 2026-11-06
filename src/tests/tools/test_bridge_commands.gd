@@ -125,3 +125,157 @@ func _text(path: String) -> String:
 	var text: String = file.get_as_text()
 	file.close()
 	return text
+
+
+# --- Materials ---
+
+func test_materials_show_their_shader_parameters_and_round_trip():
+	var library := "res://assets/art/materials_generic/"
+	var schema: Dictionary = _ok(commands.handle("schema", {"path": library + "mat_hull_dark_metal.tres"}))
+	var names: Array = []
+	for field in schema.fields:
+		names.append(field.name)
+	assert_has(names, "shader")
+	assert_has(names, "shader_param/albedo")
+	var comments := {}
+	for field in schema.fields:
+		comments[field.name] = field.comment
+	assert_string_contains(comments["shader_param/detail_texture"], "scratches", "The comment after the uniform")
+	var copy := "user://test_bridge_material.tres"
+	var baseline := "user://test_bridge_material_baseline.tres"
+	for path in BridgeCommands.Validator._files_in(library, ".tres"):
+		ResourceSaver.save(baseline, ResourceLoader.load(path, "", true))
+		ResourceSaver.save(copy, ResourceLoader.load(path, "", true))
+		var values: Dictionary = JSON.parse(BridgeCommands.json(_ok(commands.handle("read", {"path": copy})).values)).result
+		_ok(commands.handle("write", {"path": copy, "values": values}))
+		assert_eq(_text(copy), _text(baseline), path)
+	var albedo: Dictionary = _ok(commands.handle("read", {"path": copy})).values["shader_param/albedo"]
+	albedo.v = [0.5, 0.25, 0.125, 1.0]
+	_ok(commands.handle("write", {"path": copy, "values": {"shader_param/albedo": albedo}}))
+	assert_eq(ResourceLoader.load(copy, "", true).get_shader_param("albedo"), Color(0.5, 0.25, 0.125, 1.0))
+	Directory.new().remove(copy)
+	Directory.new().remove(baseline)
+
+
+func test_a_new_material_is_a_copy():
+	var copy := "user://test_bridge_new_material.tres"
+	Directory.new().remove(copy)
+	_ok(commands.handle("create", {"path": copy, "copy_from": "res://assets/art/materials_generic/mat_hull_glow.tres"}))
+	var made = ResourceLoader.load(copy, "", true)
+	assert_true(made is ShaderMaterial)
+	assert_eq(made.shader.resource_path, "res://assets/art/shaders/glow.gdshader")
+	Directory.new().remove(copy)
+
+
+# --- Scenes ---
+
+const LAYOUT = "res://scenes/levels/sectors/sector_elace/sector_elace_layout.tscn"
+const LAYOUT_COPY = "user://test_bridge_layout.tscn"
+
+
+func _layout_copy() -> void:
+	var dir := Directory.new()
+	dir.copy(LAYOUT, LAYOUT_COPY)
+
+
+func _node(nodes: Array, path: String) -> Dictionary:
+	for node in nodes:
+		if node.node == path:
+			return node
+	return {}
+
+
+func test_scene_nodes_list_markers_with_fields():
+	var nodes: Array = _ok(commands.handle("scene_nodes", {"path": LAYOUT}))
+	var root: Dictionary = _node(nodes, ".")
+	assert_eq(root.values.sector_id, "sector_elace")
+	var haven: Dictionary = _node(nodes, "Havens/VerdantHaven")
+	assert_eq(haven.values.haven_id, "verdant_haven")
+	assert_eq(haven.values.translation.v, [6000.0, 0.0, 25000.0])
+	assert_eq(haven.fields[0].name, "translation", "Its place first")
+	for node in nodes:
+		assert_false(node.type == "ImmediateGeometry", "Rings drawn by the markers are not the scene's")
+
+
+func test_a_layout_saved_unchanged_stays_as_it_was():
+	_layout_copy()
+	var before: String = _text(LAYOUT_COPY)
+	var nodes: Array = _ok(commands.handle("scene_nodes", {"path": LAYOUT_COPY}))
+	for node in nodes:
+		var values: Dictionary = JSON.parse(BridgeCommands.json(node.values)).result
+		_ok(commands.handle("scene_write", {"path": LAYOUT_COPY, "node": node.node, "values": values}))
+	assert_eq(_text(LAYOUT_COPY), before, "Every node written back as it was")
+	Directory.new().remove(LAYOUT_COPY)
+
+
+func test_a_haven_moves_and_changes():
+	_layout_copy()
+	var before: String = _text(LAYOUT_COPY)
+	_ok(commands.handle("scene_write", {"path": LAYOUT_COPY, "node": "Havens/VerdantHaven",
+		"values": {"translation": {"$": "Vector3", "v": [7000, 0, 24000]}, "ships": {"verdant": 6}, "prefer_share": 0.5}}))
+	var haven: Dictionary = _node(_ok(commands.handle("scene_nodes", {"path": LAYOUT_COPY})), "Havens/VerdantHaven")
+	assert_eq(haven.values.translation.v, [7000.0, 0.0, 24000.0])
+	assert_eq_deep(haven.values.ships, {"verdant": 6})
+	assert_eq(haven.values.prefer_share, 0.5)
+	assert_string_contains(_text(LAYOUT_COPY), '"verdant": 6', "Ship counts stay whole numbers")
+	var changed := 0
+	var old_lines: PoolStringArray = before.split("\n")
+	var new_lines: PoolStringArray = _text(LAYOUT_COPY).split("\n")
+	assert_eq(new_lines.size(), old_lines.size(), "No lines added or lost")
+	for index in range(min(old_lines.size(), new_lines.size())):
+		if old_lines[index] != new_lines[index]:
+			changed += 1
+	assert_eq(changed, 3, "Only its transform, ships and prefer_share lines changed")
+	Directory.new().remove(LAYOUT_COPY)
+
+
+func test_a_haven_takes_another_model_and_gives_it_back():
+	_layout_copy()
+	var refinery := {"$": "Resource", "path": "res://scenes/prefabs/station/placeholders/refinery.tscn"}
+	_ok(commands.handle("scene_write", {"path": LAYOUT_COPY, "node": "Havens/ElaceFreePort", "values": {"model": refinery}}))
+	assert_string_contains(_text(LAYOUT_COPY), "model = ExtResource( 8 )", "A scene the file has already")
+	var other := {"$": "Resource", "path": "res://scenes/prefabs/station/faction_station.tscn"}
+	_ok(commands.handle("scene_write", {"path": LAYOUT_COPY, "node": "Havens/ElaceFreePort", "values": {"model": other}}))
+	assert_string_contains(_text(LAYOUT_COPY), '[ext_resource path="res://scenes/prefabs/station/faction_station.tscn" type="PackedScene" id=10]')
+	assert_string_contains(_text(LAYOUT_COPY), "load_steps=11", "Counted")
+	_ok(commands.handle("scene_write", {"path": LAYOUT_COPY, "node": "Havens/ElaceFreePort", "values": {"model": null}}))
+	assert_eq(_text(LAYOUT_COPY), _text(LAYOUT), "Back to none: the line and the unused resource go")
+	Directory.new().remove(LAYOUT_COPY)
+
+
+func test_markers_are_added_and_removed():
+	_layout_copy()
+	var added: Dictionary = _ok(commands.handle("scene_add", {"path": LAYOUT_COPY, "parent": "Beacons", "name": "TestBeacon",
+		"script": "res://src/scenes/game_world/sector_layout/markers/beacon_marker.gd",
+		"values": {"translation": {"$": "Vector3", "v": [100, 0, 200]}, "kind": "field", "rocks": 12}}))
+	assert_eq(added.node, "Beacons/TestBeacon")
+	var beacon: Dictionary = _node(_ok(commands.handle("scene_nodes", {"path": LAYOUT_COPY})), "Beacons/TestBeacon")
+	assert_eq(beacon.values.kind, "field")
+	assert_eq(beacon.values.rocks, 12)
+	var twin: Dictionary = _ok(commands.handle("scene_add", {"path": LAYOUT_COPY, "parent": "Beacons", "name": "TestBeacon",
+		"script": "res://src/scenes/game_world/sector_layout/markers/beacon_marker.gd"}))
+	assert_ne(twin.node, "Beacons/TestBeacon", "A taken name gets a number")
+	_ok(commands.handle("scene_remove", {"path": LAYOUT_COPY, "node": "Beacons/TestBeacon"}))
+	_ok(commands.handle("scene_remove", {"path": LAYOUT_COPY, "node": twin.node}))
+	assert_eq(_text(LAYOUT_COPY), _text(LAYOUT), "Back as it was")
+	assert_false(commands.handle("scene_remove", {"path": LAYOUT_COPY, "node": "."}).ok, "Never the root")
+	Directory.new().remove(LAYOUT_COPY)
+
+
+func test_the_sector_map_has_bodies_and_markers():
+	var items: Array = _ok(commands.handle("sector_map", {"sector": "sector_elace"}))
+	var kinds := {}
+	for item in items:
+		kinds[item.kind] = true
+	for kind in ["star", "planet", "haven_marker", "beacon_marker", "hazard_marker"]:
+		assert_true(kinds.has(kind), kind)
+
+
+# --- Checks ---
+
+func test_sound_slots_and_script_checks():
+	var slots: Array = _ok(commands.handle("sound_slots", {}))
+	assert_eq(slots.size(), BridgeCommands.SoundBank.SLOTS.size())
+	assert_eq(slots[0].keys().size(), 4)
+	assert_true(_ok(commands.handle("check_script", {"source": "extends Node\nconst A = 1\n"})).ok)
+	assert_false(_ok(commands.handle("check_script", {"source": "extends Node\nconst A = (\n"})).ok)

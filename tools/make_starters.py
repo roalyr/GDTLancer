@@ -18,16 +18,16 @@ Re-run after adding a library material:
 
 import math
 import os
-import re
+import sys
 
 import bpy
 
-ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-LIBRARY = os.path.join(ROOT, "assets", "art", "materials_generic")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from material_library import MANIFEST, ROOT, library_materials, manifest  # noqa: E402
+
 OUT_DIR = os.path.join(ROOT, "assets", "models", "starters")
 SHIP_LENGTH = 17.0  # Constants.SHIP_MODEL_LENGTH
 GUIDES = "Guides"
-SKIPPED_PREFIXES = ("hull_faction_",)  # Faction colours: a model takes its owner's through "Paint"
 PAINT_PREVIEW = (0.55, 0.58, 0.62, 1.0)
 
 README = """GDTLancer model starter
@@ -47,26 +47,6 @@ Save as  assets/models/ships/<name>/<name>.blend  (stations: assets/models/stati
 Then:    tools/import_model.sh assets/models/ships/<name>/<name>.blend
          tools/import_model.sh --station assets/models/stations/<name>/<name>.blend
 """
-
-
-def library_materials():
-    """[(display name, albedo, emission)] from the material library, sorted by name."""
-    out = []
-    for file_name in sorted(os.listdir(LIBRARY)):
-        match = re.match(r"mat_(.+)\.tres$", file_name)
-        if not match or match.group(1).startswith(SKIPPED_PREFIXES):
-            continue
-        with open(os.path.join(LIBRARY, file_name)) as handle:
-            text = handle.read()
-        out.append((match.group(1).replace("_", " ").title(), color_param(text, "albedo"), color_param(text, "emission")))
-    return out
-
-
-def color_param(text, name):
-    match = re.search(r"shader_param/%s = Color\( ([^)]*) \)" % name, text)
-    if not match:
-        return (0.0, 0.0, 0.0, 1.0)
-    return tuple(float(value) for value in match.group(1).split(","))
 
 
 def make_material(name, albedo, emission=(0.0, 0.0, 0.0, 1.0)):
@@ -211,6 +191,9 @@ def main():
     save("ship_starter.blend")
     station_starter(reset())
     save("station_starter.blend")
+    with open(MANIFEST, "w") as handle:  # What they were built from (the development tool compares)
+        handle.write(manifest())
+    print("WROTE " + os.path.relpath(MANIFEST, ROOT))
 
 
 main()

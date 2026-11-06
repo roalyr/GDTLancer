@@ -37,6 +37,11 @@ func test_every_model_in_use_keeps_the_rules():
 	assert_eq(_texts(Validator.models()), [])
 
 
+func test_the_material_library_keeps_the_rules():
+	assert_eq(_texts(Validator.materials()), [])
+	assert_eq(Validator.section_for(Validator.MATERIALS_DIR.plus_file("mat_hull_glow.tres")), "materials")
+
+
 func test_the_sound_bank_keeps_the_rules():
 	assert_eq(_texts(Validator.sounds()), [])
 
