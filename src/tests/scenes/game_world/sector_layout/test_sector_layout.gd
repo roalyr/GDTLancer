@@ -31,6 +31,12 @@ func test_every_haven_and_beacon_is_built():
 	var spec: Dictionary = TemplateDatabase.sector_layouts.sector_elace
 	assert_eq(layout.havens.size(), spec.havens.size(), "Every haven")
 	assert_eq(layout.get_haven("station_elace_home").station.name, "ElaceHomeStation", "The scene's station is the free port")
+	var marker: Dictionary = {}
+	for haven in spec.havens:
+		if haven.id == "station_elace_home":
+			marker = haven
+	assert_almost_eq(layout.get_haven("station_elace_home").station.global_transform.origin, layout.global_transform.xform(marker.at),
+		Vector3.ONE * 0.01, "and stands where its marker is")
 	assert_eq_deep(layout.get_haven("verdant_haven").factions, {"verdant": 5})
 	assert_eq(layout.network.beacons.size(), spec.havens.size() + spec.beacons.size(), "A beacon per haven and per listed beacon")
 	for beacon in layout.network.beacons:

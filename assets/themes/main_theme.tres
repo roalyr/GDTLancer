@@ -21,17 +21,6 @@ use_mipmaps = true
 use_filter = true
 font_data = ExtResource( 3 )
 
-[sub_resource type="StyleBoxFlat" id=4]
-bg_color = Color( 0, 0, 0, 0 )
-
-[sub_resource type="StyleBoxFlat" id=5]
-bg_color = Color( 0, 0, 0, 0 )
-
-[sub_resource type="StyleBoxFlat" id=6]
-border_width_left = 50
-border_width_right = 50
-border_color = Color( 0, 0, 0, 0 )
-
 [sub_resource type="StyleBoxFlat" id=9]
 content_margin_left = 40.0
 content_margin_right = 40.0
@@ -43,6 +32,17 @@ border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 border_color = Color( 1, 1, 1, 0.12 )
+
+[sub_resource type="StyleBoxFlat" id=4]
+bg_color = Color( 0, 0, 0, 0 )
+
+[sub_resource type="StyleBoxFlat" id=5]
+bg_color = Color( 0, 0, 0, 0 )
+
+[sub_resource type="StyleBoxFlat" id=6]
+border_width_left = 50
+border_width_right = 50
+border_color = Color( 0, 0, 0, 0 )
 
 [resource]
 default_font = SubResource( 2 )
@@ -57,10 +57,10 @@ Button/styles/hover = SubResource( 7 )
 Button/styles/normal = SubResource( 7 )
 Button/styles/pressed = SubResource( 7 )
 HBoxContainer/constants/separation = 40
-PanelContainer/styles/panel = SubResource( 9 )
 ItemList/fonts/font = SubResource( 1 )
 Label/colors/font_color_shadow = Color( 0, 0, 0, 0.827451 )
 Label/fonts/font = SubResource( 2 )
+PanelContainer/styles/panel = SubResource( 9 )
 RichTextLabel/fonts/normal_font = SubResource( 2 )
 TabContainer/fonts/font = SubResource( 2 )
 VSlider/icons/grabber = ExtResource( 1 )

@@ -8,7 +8,7 @@ extends "res://src/scenes/game_world/sector_layout/markers/layout_marker.gd"
 export var haven_id: String = ""  # Its location id (docking, prices, saves): unique across sectors
 export var display_name: String = ""
 export var faction: String = ""  # Its owner's faction id (database/factions/); "" neutral
-export var station: String = ""  # A station already in the sector scene (by node name); "" builds one here
+export var station: String = ""  # A station already in the sector scene (by node name), moved here; "" builds one here
 export(PackedScene) var model: PackedScene = null  # Its look (a StationModel scene: scenes/prefabs/station/); none: Constants.STATION_DEFAULT_MODEL
 export var ships: Dictionary = {}  # Faction id -> ships living from it (each haven's are a group, with ranks and a leader)
 export var prefer_role: String = ""  # A family its ships are more often (Evolution), prefer_share of the time

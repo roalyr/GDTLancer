@@ -60,6 +60,7 @@ func _build_haven(spec: Dictionary) -> Dictionary:
 		if station == null:
 			printerr("SectorLayout: no station %s in the scene" % spec.station)
 			return {}
+		station.global_transform.origin = global_transform.xform(spec.at)  # The marker places it, as it does a built one
 	else:
 		station = StationScene.instance()
 		station.name = spec.id
