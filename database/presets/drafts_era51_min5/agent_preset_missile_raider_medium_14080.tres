@@ -32,3 +32,5 @@ traits = [  ]
 lives = 7
 fitness = 1.11149
 origin = ""
+genome = {
+}

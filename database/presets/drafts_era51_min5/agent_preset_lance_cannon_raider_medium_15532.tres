@@ -33,3 +33,5 @@ traits = [ "loner" ]
 lives = 10
 fitness = 0.345845
 origin = ""
+genome = {
+}

@@ -33,3 +33,5 @@ traits = [ "skittish", "loner" ]
 lives = 12
 fitness = 0.794711
 origin = ""
+genome = {
+}

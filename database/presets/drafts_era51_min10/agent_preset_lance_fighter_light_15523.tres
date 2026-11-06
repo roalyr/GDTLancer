@@ -32,3 +32,5 @@ traits = [ "skittish", "lets runners go" ]
 lives = 10
 fitness = 0.41204
 origin = ""
+genome = {
+}

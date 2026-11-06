@@ -31,3 +31,5 @@ traits = [ "stubborn", "merciful", "shoots back", "loner" ]
 lives = 10
 fitness = 0.416701
 origin = ""
+genome = {
+}

@@ -14,21 +14,21 @@ The picked designs, one per family and weight class (`archetypes/`: ship `preset
 
 | Archetype | Role | Temperament | Equipment | Modules | Lives | Fitness | Hull WP | Origin |
 |---|---|---|---|---|---|---|---|---|
-| fighter_light | cannon-fighter | cautious | Rail Cannon II, Laser III |  | 10 | +1.24 | 591 | cannon_fighter_light_15958 (era 51) |
-| fighter_medium | missile-fighter | measured | Missile Rack III, Laser I |  | 11 | +0.81 | 865 | missile_fighter_medium_14708 (era 51) |
-| fighter_heavy | missile-cannon-fighter | measured | Laser I x2, Rail Cannon II, Rail Cannon III, Laser III x3, Laser II, Missile Rack II, Missile Rack III | Hull Plating I | 10 | +0.42 | 7272 | missile_cannon_fighter_heavy_15260 (era 51) |
-| lance_light | lance-missile-fighter | aggressive | Missile Rack III | Afterburner I, Kinetic Lance II | 7 | +0.82 | 676 | lance_missile_fighter_light_12178 (era 51) |
-| lance_medium | lancer | measured | Tether Harpoon | Kinetic Lance I, Hull Plating II | 10 | +0.39 | 1148 | lancer_medium_15466 (era 51) |
-| lance_heavy | lance-missile-cannon-fighter | measured | Missile Rack I, Rail Cannon III | Decoy Launcher III, Power Cell I, Kinetic Lance I, Sensor Damper II | 11 | +0.17 | 2479 | lance_missile_cannon_fighter_heavy_16100 (era 51) |
-| prospector_light | prospector | cautious | Laser I, Tether Harpoon | Kinetic Lance I | 11 | +0.27 | 591 | prospector_light_15008 (era 51) |
-| prospector_medium | prospector | cautious | Laser III, Tether Harpoon, Laser II | Kinetic Lance I | 11 | +0.31 | 990 | prospector_medium_14901 (era 51) |
-| prospector_heavy | prospector | measured | Laser III, Tether Harpoon, Rail Cannon II | Kinetic Lance II, Afterburner II | 6 | +0.35 | 2501 | prospector_heavy_16070 (era 51) |
-| raider_light | raider | cautious | Tether Harpoon, Laser II |  | 10 | +1.78 | 818 | raider_light_15543 (era 51) |
-| raider_medium | missile-cannon-raider | measured | Rail Cannon III, Laser III, Tether Harpoon, Missile Rack III, Laser I, Rail Cannon I | Decoy Launcher II | 10 | +0.82 | 2357 | missile_cannon_raider_medium_6673 (era 51) |
-| raider_heavy | missile-cannon-raider | measured | Laser III x2, Tether Harpoon, Missile Rack I, Rail Cannon III | Sensor Damper I | 10 | +0.64 | 3947 | missile_cannon_raider_heavy_15583 (era 51) |
-| scavenger_light | scavenger | cautious | Tether Harpoon |  | 13 | +1.58 | 727 | scavenger_light_15723 (era 51) |
-| scavenger_medium | scavenger | cautious | Tether Harpoon |  | 14 | +1.41 | 991 | scavenger_medium_15607 (era 51) |
-| scavenger_heavy | scavenger | measured | Tether Harpoon | Sensor Damper I | 10 | -0.20 | 2927 | scavenger_heavy_14132 (era 51) |
+| fighter_light | cannon-fighter | cautious | Cannon Mk I-medium, Laser Mk I-heavy |  | 10 | +1.24 | 591 | cannon_fighter_light_15958 (era 51) |
+| fighter_medium | missile-fighter | measured | Missile Rack Mk I-medium, Laser Mk I-light |  | 11 | +0.81 | 865 | missile_fighter_medium_14708 (era 51) |
+| fighter_heavy | missile-cannon-fighter | measured | Laser Mk I-light x2, Cannon Mk I-medium, Cannon Mk I-heavy, Laser Mk I-heavy x3, Laser Mk I-medium, Missile Rack Mk I-medium, Missile Rack Mk I-heavy | Plating Mk I-light | 10 | +0.42 | 7272 | missile_cannon_fighter_heavy_15260 (era 51) |
+| lance_light | lance-missile-fighter | aggressive | Missile Rack Mk I-medium | Afterburner Mk I-light, Lance Mk I-medium | 7 | +0.82 | 676 | lance_missile_fighter_light_12178 (era 51) |
+| lance_medium | lancer | measured | Harpoon Mk I | Lance Mk I-light, Plating Mk I-medium | 10 | +0.39 | 1148 | lancer_medium_15466 (era 51) |
+| lance_heavy | lance-missile-cannon-fighter | measured | Missile Rack Mk I-light, Cannon Mk I-heavy | Decoy Launcher Mk I-heavy, Power Cell Mk I-light, Lance Mk I-light, Damper Mk I-medium | 11 | +0.17 | 2479 | lance_missile_cannon_fighter_heavy_16100 (era 51) |
+| prospector_light | prospector | cautious | Laser Mk I-light, Harpoon Mk I | Lance Mk I-light | 11 | +0.27 | 591 | prospector_light_15008 (era 51) |
+| prospector_medium | prospector | cautious | Laser Mk I-heavy, Harpoon Mk I, Laser Mk I-medium | Lance Mk I-light | 11 | +0.31 | 990 | prospector_medium_14901 (era 51) |
+| prospector_heavy | prospector | measured | Laser Mk I-heavy, Harpoon Mk I, Cannon Mk I-medium | Lance Mk I-medium, Afterburner Mk I-medium | 6 | +0.35 | 2501 | prospector_heavy_16070 (era 51) |
+| raider_light | raider | cautious | Harpoon Mk I, Laser Mk I-medium |  | 10 | +1.78 | 818 | raider_light_15543 (era 51) |
+| raider_medium | missile-cannon-raider | measured | Cannon Mk I-heavy, Laser Mk I-heavy, Harpoon Mk I, Missile Rack Mk I-heavy, Laser Mk I-light, Cannon Mk I-light | Decoy Launcher Mk I-medium | 10 | +0.82 | 2357 | missile_cannon_raider_medium_6673 (era 51) |
+| raider_heavy | missile-cannon-raider | measured | Laser Mk I-heavy x2, Harpoon Mk I, Missile Rack Mk I-light, Cannon Mk I-heavy | Damper Mk I-light | 10 | +0.64 | 3947 | missile_cannon_raider_heavy_15583 (era 51) |
+| scavenger_light | scavenger | cautious | Harpoon Mk I |  | 13 | +1.58 | 727 | scavenger_light_15723 (era 51) |
+| scavenger_medium | scavenger | cautious | Harpoon Mk I |  | 14 | +1.41 | 991 | scavenger_medium_15607 (era 51) |
+| scavenger_heavy | scavenger | measured | Harpoon Mk I | Damper Mk I-light | 10 | -0.20 | 2927 | scavenger_heavy_14132 (era 51) |
 
 ## Fighter
 
@@ -66,21 +66,21 @@ The picked designs, one per family and weight class (`archetypes/`: ship `preset
 
 | Design | Role | Temperament | Traits | Equipment | Modules | Proven | Lives | Fitness | Hull WP | Folder |
 |---|---|---|---|---|---|---|---|---|---|---|
-| lancer_light_15618 | lancer | cautious | skittish, loner | Tether Harpoon | Hull Plating I, Kinetic Lance I | yes | 12 | +0.79 | 635 | drafts_era51_min5 |
+| lancer_light_15618 | lancer | cautious | skittish, loner | tool_harpoon | Hull Plating I, Kinetic Lance I | yes | 12 | +0.79 | 635 | drafts_era51_min5 |
 | lance_fighter_light_15523 | lance-fighter | cautious | skittish, lets runners go | Laser III | Kinetic Lance I | yes | 10 | +0.41 | 559 | drafts_era51_min10 |
 | lance_cannon_fighter_light_15402 | lance-cannon-fighter | cautious | skittish, lets runners go, wary | Rail Cannon III | Kinetic Lance I | yes | 10 | +0.16 | 559 | drafts_era51_min10 |
 | lance_fighter_light_15657 | lance-fighter | cautious | skittish, relentless, runs silent, wary | Laser I | Kinetic Lance I |  | 5 | +0.88 | 551 | drafts_era51_min5 |
-| lance_missile_raider_light_12790 | lance-missile-raider | cautious | skittish, loner | Tether Harpoon, Missile Rack II | Hull Plating I, Kinetic Lance I |  | 5 | +0.86 | 686 | drafts_era51_min5 |
+| lance_missile_raider_light_12790 | lance-missile-raider | cautious | skittish, loner | tool_harpoon, Missile Rack II | Hull Plating I, Kinetic Lance I |  | 5 | +0.86 | 686 | drafts_era51_min5 |
 | lance_missile_fighter_light_12178 | lance-missile-fighter | aggressive | quick to fight, stubborn, relentless, ruthless | Missile Rack III | Afterburner I, Kinetic Lance II |  | 7 | +0.82 | 676 | drafts_era51_min5 |
-| lance_cannon_raider_light_12408 | lance-cannon-raider | cautious | picks its fights, standoff, lets runners go, ruthless, runs silent, team player, bold | Laser III, Tether Harpoon, Rail Cannon III | Kinetic Lance III |  | 6 | +0.62 | 824 | drafts_era51_min5 |
+| lance_cannon_raider_light_12408 | lance-cannon-raider | cautious | picks its fights, standoff, lets runners go, ruthless, runs silent, team player, bold | Laser III, tool_harpoon, Rail Cannon III | Kinetic Lance III |  | 6 | +0.62 | 824 | drafts_era51_min5 |
 | lance_cannon_fighter_light_14749 | lance-cannon-fighter | cautious | quick to break off, lets runners go, ruthless, wary | Rail Cannon II | Kinetic Lance II |  | 9 | +0.44 | 489 | drafts_era51_min5 |
 
 ### Medium
 
 | Design | Role | Temperament | Traits | Equipment | Modules | Proven | Lives | Fitness | Hull WP | Folder |
 |---|---|---|---|---|---|---|---|---|---|---|
-| lancer_medium_15466 | lancer | measured |  | Tether Harpoon | Kinetic Lance I, Hull Plating II | yes | 10 | +0.39 | 1148 | drafts_era51_min5 |
-| lance_cannon_raider_medium_15532 | lance-cannon-raider | measured | loner | Tether Harpoon, Rail Cannon III | Kinetic Lance I, Decoy Launcher II | yes | 10 | +0.35 | 1528 | drafts_era51_min5 |
+| lancer_medium_15466 | lancer | measured |  | tool_harpoon | Kinetic Lance I, Hull Plating II | yes | 10 | +0.39 | 1148 | drafts_era51_min5 |
+| lance_cannon_raider_medium_15532 | lance-cannon-raider | measured | loner | tool_harpoon, Rail Cannon III | Kinetic Lance I, Decoy Launcher II | yes | 10 | +0.35 | 1528 | drafts_era51_min5 |
 | lance_cannon_fighter_medium_12533 | lance-cannon-fighter | measured | stubborn, sells often | Rail Cannon III | Kinetic Lance I, Hull Plating II | yes | 11 | +0.12 | 1401 | drafts_era51_min10 |
 | lance_cannon_fighter_medium_14399 | lance-cannon-fighter | measured | quick to fight, ruthless | Laser I, Rail Cannon I | Thruster III, Kinetic Lance III |  | 8 | +0.20 | 1075 | drafts_era51_min5 |
 | lance_fighter_medium_15668 | lance-fighter | aggressive | quick to fight, stubborn, standoff, relentless, shoots back | Laser I | Extended Magazine II, Hull Plating I, Kinetic Lance I |  | 5 | +0.00 | 1698 | drafts_era51_min5 |
@@ -98,19 +98,19 @@ The picked designs, one per family and weight class (`archetypes/`: ship `preset
 
 | Design | Role | Temperament | Traits | Equipment | Modules | Proven | Lives | Fitness | Hull WP | Folder |
 |---|---|---|---|---|---|---|---|---|---|---|
-| prospector_light_15008 | prospector | cautious | picks its fights, skittish, relentless, runs silent, loner, wary, sells often | Laser I, Tether Harpoon | Kinetic Lance I | yes | 11 | +0.27 | 591 | drafts_era51_min5 |
+| prospector_light_15008 | prospector | cautious | picks its fights, skittish, relentless, runs silent, loner, wary, sells often | Laser I, tool_harpoon | Kinetic Lance I | yes | 11 | +0.27 | 591 | drafts_era51_min5 |
 
 ### Medium
 
 | Design | Role | Temperament | Traits | Equipment | Modules | Proven | Lives | Fitness | Hull WP | Folder |
 |---|---|---|---|---|---|---|---|---|---|---|
-| prospector_medium_14901 | prospector | cautious |  | Laser III, Tether Harpoon, Laser II | Kinetic Lance I | yes | 11 | +0.31 | 990 | drafts_era51_min5 |
+| prospector_medium_14901 | prospector | cautious |  | Laser III, tool_harpoon, Laser II | Kinetic Lance I | yes | 11 | +0.31 | 990 | drafts_era51_min5 |
 
 ### Heavy
 
 | Design | Role | Temperament | Traits | Equipment | Modules | Proven | Lives | Fitness | Hull WP | Folder |
 |---|---|---|---|---|---|---|---|---|---|---|
-| prospector_heavy_16070 | prospector | measured | quick to fight, stubborn, shoots back, wary | Laser III, Tether Harpoon, Rail Cannon II | Kinetic Lance II, Afterburner II |  | 6 | +0.35 | 2501 | drafts_era51_min5 |
+| prospector_heavy_16070 | prospector | measured | quick to fight, stubborn, shoots back, wary | Laser III, tool_harpoon, Rail Cannon II | Kinetic Lance II, Afterburner II |  | 6 | +0.35 | 2501 | drafts_era51_min5 |
 
 ## Raider
 
@@ -118,30 +118,30 @@ The picked designs, one per family and weight class (`archetypes/`: ship `preset
 
 | Design | Role | Temperament | Traits | Equipment | Modules | Proven | Lives | Fitness | Hull WP | Folder |
 |---|---|---|---|---|---|---|---|---|---|---|
-| raider_light_15543 | raider | cautious | stubborn, skittish, runs silent | Tether Harpoon, Laser II |  | yes | 10 | +1.78 | 818 | drafts_era51_min5 |
-| cannon_raider_light_15251 | cannon-raider | cautious | picks its fights, stubborn, close-in, skittish, runs silent | Tether Harpoon, Rail Cannon II | Sensor Damper III | yes | 10 | +1.63 | 687 | drafts_era51_min5 |
-| missile_raider_light_12784 | missile-raider | cautious | picks its fights, standoff, lets runners go, ruthless, runs silent, team player, bold | Laser I, Tether Harpoon, Missile Rack III | Afterburner I | yes | 10 | +0.88 | 814 | drafts_era51_min5 |
-| missile_cannon_raider_light_16193 | missile-cannon-raider | cautious | picks its fights, skittish, runs silent | Missile Rack I, Tether Harpoon, Rail Cannon II |  |  | 6 | +0.85 | 801 | drafts_era51_min5 |
+| raider_light_15543 | raider | cautious | stubborn, skittish, runs silent | tool_harpoon, Laser II |  | yes | 10 | +1.78 | 818 | drafts_era51_min5 |
+| cannon_raider_light_15251 | cannon-raider | cautious | picks its fights, stubborn, close-in, skittish, runs silent | tool_harpoon, Rail Cannon II | Sensor Damper III | yes | 10 | +1.63 | 687 | drafts_era51_min5 |
+| missile_raider_light_12784 | missile-raider | cautious | picks its fights, standoff, lets runners go, ruthless, runs silent, team player, bold | Laser I, tool_harpoon, Missile Rack III | Afterburner I | yes | 10 | +0.88 | 814 | drafts_era51_min5 |
+| missile_cannon_raider_light_16193 | missile-cannon-raider | cautious | picks its fights, skittish, runs silent | Missile Rack I, tool_harpoon, Rail Cannon II |  |  | 6 | +0.85 | 801 | drafts_era51_min5 |
 
 ### Medium
 
 | Design | Role | Temperament | Traits | Equipment | Modules | Proven | Lives | Fitness | Hull WP | Folder |
 |---|---|---|---|---|---|---|---|---|---|---|
-| missile_cannon_raider_medium_6673 | missile-cannon-raider | measured |  | Rail Cannon III, Laser III, Tether Harpoon, Missile Rack III, Laser I, Rail Cannon I | Decoy Launcher II | yes | 10 | +0.82 | 2357 | drafts_era51_min5 |
-| cannon_raider_medium_12795 | cannon-raider | cautious | lets runners go, sells often | Laser III, Rail Cannon II, Tether Harpoon | Power Cell I | yes | 10 | +0.72 | 1184 | drafts_era51_min10 |
-| raider_medium_15609 | raider | cautious | picks its fights, close-in, skittish, lets runners go, sells often | Tether Harpoon, Laser I | Sensor Booster I | yes | 10 | +0.65 | 1615 | drafts_era51_min10 |
-| missile_raider_medium_15522 | missile-raider | measured |  | Missile Rack II, Missile Rack III, Tether Harpoon | Decoy Launcher II, Afterburner I | yes | 11 | +0.65 | 2139 | drafts_era51_min10 |
-| missile_raider_medium_14080 | missile-raider | cautious |  | Laser II, Missile Rack III, Tether Harpoon |  |  | 7 | +1.11 | 1263 | drafts_era51_min5 |
-| cannon_raider_medium_15742 | cannon-raider | cautious |  | Rail Cannon III, Tether Harpoon |  |  | 6 | +0.84 | 1111 | drafts_era51_min5 |
-| raider_medium_15639 | raider | cautious | stubborn, runs silent, sells often | Tether Harpoon, Laser III |  |  | 6 | +0.68 | 1108 | drafts_era51_min5 |
+| missile_cannon_raider_medium_6673 | missile-cannon-raider | measured |  | Rail Cannon III, Laser III, tool_harpoon, Missile Rack III, Laser I, Rail Cannon I | Decoy Launcher II | yes | 10 | +0.82 | 2357 | drafts_era51_min5 |
+| cannon_raider_medium_12795 | cannon-raider | cautious | lets runners go, sells often | Laser III, Rail Cannon II, tool_harpoon | Power Cell I | yes | 10 | +0.72 | 1184 | drafts_era51_min10 |
+| raider_medium_15609 | raider | cautious | picks its fights, close-in, skittish, lets runners go, sells often | tool_harpoon, Laser I | Sensor Booster I | yes | 10 | +0.65 | 1615 | drafts_era51_min10 |
+| missile_raider_medium_15522 | missile-raider | measured |  | Missile Rack II, Missile Rack III, tool_harpoon | Decoy Launcher II, Afterburner I | yes | 11 | +0.65 | 2139 | drafts_era51_min10 |
+| missile_raider_medium_14080 | missile-raider | cautious |  | Laser II, Missile Rack III, tool_harpoon |  |  | 7 | +1.11 | 1263 | drafts_era51_min5 |
+| cannon_raider_medium_15742 | cannon-raider | cautious |  | Rail Cannon III, tool_harpoon |  |  | 6 | +0.84 | 1111 | drafts_era51_min5 |
+| raider_medium_15639 | raider | cautious | stubborn, runs silent, sells often | tool_harpoon, Laser III |  |  | 6 | +0.68 | 1108 | drafts_era51_min5 |
 
 ### Heavy
 
 | Design | Role | Temperament | Traits | Equipment | Modules | Proven | Lives | Fitness | Hull WP | Folder |
 |---|---|---|---|---|---|---|---|---|---|---|
-| missile_cannon_raider_heavy_15583 | missile-cannon-raider | measured |  | Laser III x2, Tether Harpoon, Missile Rack I, Rail Cannon III | Sensor Damper I | yes | 10 | +0.64 | 3947 | drafts_era51_min5 |
-| missile_raider_heavy_11412 | missile-raider | measured |  | Laser III x2, Tether Harpoon, Missile Rack I, Laser I | Sensor Damper I, Afterburner III |  | 5 | +0.22 | 3733 | drafts_era51_min5 |
-| raider_heavy_9831 | raider | measured | quick to fight, stubborn, standoff | Laser I, Laser III, Tether Harpoon | Hull Plating II x2 |  | 6 | +0.02 | 6854 | drafts_era51_min5 |
+| missile_cannon_raider_heavy_15583 | missile-cannon-raider | measured |  | Laser III x2, tool_harpoon, Missile Rack I, Rail Cannon III | Sensor Damper I | yes | 10 | +0.64 | 3947 | drafts_era51_min5 |
+| missile_raider_heavy_11412 | missile-raider | measured |  | Laser III x2, tool_harpoon, Missile Rack I, Laser I | Sensor Damper I, Afterburner III |  | 5 | +0.22 | 3733 | drafts_era51_min5 |
+| raider_heavy_9831 | raider | measured | quick to fight, stubborn, standoff | Laser I, Laser III, tool_harpoon | Hull Plating II x2 |  | 6 | +0.02 | 6854 | drafts_era51_min5 |
 
 ## Scavenger
 
@@ -149,16 +149,16 @@ The picked designs, one per family and weight class (`archetypes/`: ship `preset
 
 | Design | Role | Temperament | Traits | Equipment | Modules | Proven | Lives | Fitness | Hull WP | Folder |
 |---|---|---|---|---|---|---|---|---|---|---|
-| scavenger_light_15723 | scavenger | cautious | picks its fights, stubborn, skittish, lets runners go | Tether Harpoon |  | yes | 13 | +1.58 | 727 | drafts_era51_min5 |
+| scavenger_light_15723 | scavenger | cautious | picks its fights, stubborn, skittish, lets runners go | tool_harpoon |  | yes | 13 | +1.58 | 727 | drafts_era51_min5 |
 
 ### Medium
 
 | Design | Role | Temperament | Traits | Equipment | Modules | Proven | Lives | Fitness | Hull WP | Folder |
 |---|---|---|---|---|---|---|---|---|---|---|
-| scavenger_medium_15607 | scavenger | cautious | stubborn, skittish, runs silent | Tether Harpoon |  | yes | 14 | +1.41 | 991 | drafts_era51_min5 |
+| scavenger_medium_15607 | scavenger | cautious | stubborn, skittish, runs silent | tool_harpoon |  | yes | 14 | +1.41 | 991 | drafts_era51_min5 |
 
 ### Heavy
 
 | Design | Role | Temperament | Traits | Equipment | Modules | Proven | Lives | Fitness | Hull WP | Folder |
 |---|---|---|---|---|---|---|---|---|---|---|
-| scavenger_heavy_14132 | scavenger | measured | stubborn, merciful | Tether Harpoon | Sensor Damper I | yes | 10 | -0.20 | 2927 | drafts_era51_min5 |
+| scavenger_heavy_14132 | scavenger | measured | stubborn, merciful | tool_harpoon | Sensor Damper I | yes | 10 | -0.20 | 2927 | drafts_era51_min5 |
