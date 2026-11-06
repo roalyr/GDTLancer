@@ -2,8 +2,10 @@
 
 extends GutTest
 
+const PartCatalog = preload("res://src/core/systems/part_catalog.gd")
+
 const TemplateIndexer = preload("res://src/scenes/game_world/world_manager/template_indexer.gd")
-const CATEGORIES = ["agents", "assets_ships", "assets_modules", "assets_commodities", "locations", "utility_tools", "game_starts"]
+const CATEGORIES = ["agents", "assets_ships", "assets_commodities", "locations", "game_starts", "presets"]  # Parts are presets: the catalogue
 
 var indexer_instance = null
 var _saved_categories: Dictionary = {}
@@ -81,7 +83,10 @@ func test_ship_tools_and_salvage_resolve():
 	for ship_id in TemplateDatabase.assets_ships:
 		var ship = TemplateDatabase.assets_ships[ship_id]
 		for tool_id in ship.equipped_tools:
-			assert_true(TemplateDatabase.utility_tools.get(tool_id) is UtilityToolTemplate, "%s fits unknown tool '%s'." % [ship_id, tool_id])
+			assert_true(TemplateDatabase.get_template(tool_id) is UtilityToolTemplate, "%s fits unknown tool '%s'." % [ship_id, tool_id])
+			assert_true(PartCatalog.has(tool_id), "%s fits '%s', not the catalogue's" % [ship_id, tool_id])
+		for module_id in ship.equipped_modules:
+			assert_true(TemplateDatabase.get_template(module_id) is ModuleTemplate and PartCatalog.has(module_id), "%s fits '%s'" % [ship_id, module_id])
 		for commodity_id in ship.salvage_yield:
 			assert_has(TemplateDatabase.assets_commodities, commodity_id, "%s salvages unknown commodity '%s'." % [ship_id, commodity_id])
 

@@ -62,16 +62,16 @@ genome = {
 },
 "tools": [ {
 "genes": {
-"count": 38.0,
-"mass": 723.839,
-"round_mass": 17.0545
+"count": 38.5,
+"mass": 701.101,
+"round_mass": 16.606
 },
 "kind": "cannon",
 "type": 3
 }, {
 "genes": {
-"energy": 10.6342,
-"mass": 600.0
+"energy": 11.719,
+"mass": 675.553
 },
 "kind": "laser",
 "type": 3
@@ -82,15 +82,15 @@ genome = {
 "type": 0
 }, {
 "genes": {
-"count": 4.0,
-"round_mass": 219.937
+"count": 3.0,
+"round_mass": 225.821
 },
 "kind": "missile",
 "type": 3
 }, {
 "genes": {
-"energy": 2.51099,
-"mass": 147.936
+"energy": 2.511,
+"mass": 150.0
 },
 "kind": "laser",
 "type": 1

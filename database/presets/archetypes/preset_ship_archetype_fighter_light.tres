@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource( 1 )
 template_id = "preset_ship_archetype_fighter_light"
-ship_model_name = "Mk I Light Fighter"
+ship_model_name = "Fighter Mk I-light"
 base_value = 591
 ship_scene = ExtResource( 2 )
 hull_integrity = 71
@@ -19,7 +19,7 @@ tool_slots_small = 2
 tool_slots_medium = 0
 tool_slots_large = 0
 module_slots = 1
-equipped_tools = [ "preset_cannon_2_308_52_60", "preset_laser_3_618_118" ]
+equipped_tools = [ "preset_cannon_medium", "preset_laser_heavy" ]
 equipped_modules = [  ]
 salvage_yield = {
 "commodity_scrap": 12,

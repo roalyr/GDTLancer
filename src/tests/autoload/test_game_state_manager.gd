@@ -106,7 +106,7 @@ func test_losing_the_ship_keeps_the_bank_and_storage_and_wakes_at_home():
 	GameState.player_bank = 1234
 	GameState.player_storage = {"commodity_tech": 3}
 	GameState.player_cargo = {"commodity_scrap": 5}
-	GameState.player_fit = {"tools": ["tool_harpoon"]}
+	GameState.player_fit = {"tools": ["preset_harpoon"]}
 	GameState.player_docked_at = ""
 	GameStateManager.lose_ship()
 	assert_eq(GameState.player_bank, 1234, "The bank is kept")

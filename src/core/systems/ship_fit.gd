@@ -6,6 +6,7 @@
 extends Reference
 
 const ShipLaws = preload("res://src/core/systems/ship_laws.gd")
+const PartCatalog = preload("res://src/core/systems/part_catalog.gd")
 const SIZES = ["small", "medium", "large"]
 const STATS = ["hull", "power_capacity", "power_regen", "cargo_capacity", "linear_thrust", "angular_thrust", "signature", "sensor_strength"]
 
@@ -37,16 +38,18 @@ static func default_fit(ship) -> Dictionary:
 	return fit
 
 
-# A random fit for an NPC: a laser in its first tool slot (so it can fight), any working tool in
-# the others (lasers, harpoon; not the drill, which has no use yet), and a random module or none in
-# each module slot.
+# A random fit for an NPC, from the part catalogue: a laser in its first tool slot (so it can
+# fight), any working tool in the others (lasers, missiles, cannons, harpoon), and a random module or
+# none in each module slot.
 static func random_fit(ship) -> Dictionary:
 	var fit: Dictionary = empty_fit(ship)
 	var sizes: Array = tool_slot_sizes(ship)
 	var lasers: Array = []
 	var usable: Array = []
-	for tool_id in TemplateDatabase.utility_tools:
-		var tool_template = TemplateDatabase.utility_tools[tool_id]
+	var tools := {}
+	for tool_id in PartCatalog.tool_ids():
+		var tool_template = TemplateDatabase.get_template(tool_id)  # The catalogue, as indexed
+		tools[tool_id] = tool_template
 		if not tool_template is UtilityToolTemplate:
 			continue
 		if tool_template.tool_type == "laser":
@@ -56,11 +59,14 @@ static func random_fit(ship) -> Dictionary:
 	for i in range(sizes.size()):
 		var choices: Array = []
 		for tool_id in (lasers if i == 0 else usable):
-			if tool_fits_slot(TemplateDatabase.utility_tools[tool_id], sizes[i]):
+			if tool_fits_slot(tools[tool_id], sizes[i]):
 				choices.append(tool_id)
 		if not choices.empty():
 			fit.tools[i] = choices[randi() % choices.size()]
-	var modules: Array = TemplateDatabase.assets_modules.keys()
+	var modules: Array = []
+	for module_id in PartCatalog.module_ids():
+		if TemplateDatabase.get_template(module_id) is ModuleTemplate:
+			modules.append(module_id)
 	for i in range(fit.modules.size()):
 		var pick: int = randi() % (modules.size() + 1)  # One chance in (modules + 1) of an empty slot
 		if pick < modules.size():

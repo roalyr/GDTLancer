@@ -7,6 +7,7 @@
 
 extends Reference
 
+const PartCatalog = preload("res://src/core/systems/part_catalog.gd")
 const SHARE_KEYS = ["structure", "engine", "reactor", "capacitor", "hold"]
 # The hull's own capacitor stores power; there is no capacitor module (power cells only, era 46).
 const MODULE_KINDS = ["plating", "thruster", "power_cell", "lance", "sensor", "damper", "decoy", "afterburner", "magazine", "rack"]
@@ -184,8 +185,8 @@ static func build_laser_template(genes: Dictionary, part_type: int, template_id:
 		tool_template.set(field, stats[field])
 	tool_template.template_id = template_id
 	tool_template.tool_type = "laser"
-	tool_template.tool_name = "%s %s" % [Constants.PART_NAMES.laser, Constants.PART_TYPE_NAMES.get(part_type, "")]
-	tool_template.hud_label = "LASER %s" % Constants.PART_TYPE_NAMES.get(part_type, "")
+	tool_template.tool_name = PartCatalog.name("laser", part_type)
+	tool_template.hud_label = PartCatalog.hud_label("laser", part_type)
 	tool_template.description = "%.0f kg, %.1f per shot." % [stats.mass, stats.power_per_cycle]
 	tool_template.variant_type = part_type
 	tool_template.law_genes = clamp_laser_genes(genes)
@@ -274,8 +275,8 @@ static func build_weapon_template(kind: String, genes: Dictionary, part_type: in
 		tool_template.set(field, stats[field])
 	tool_template.template_id = template_id
 	tool_template.tool_type = kind
-	tool_template.tool_name = "%s %s" % [Constants.PART_NAMES[kind], Constants.PART_TYPE_NAMES.get(part_type, "")]
-	tool_template.hud_label = "%s %s" % ["MISSILE" if kind == "missile" else "CANNON", Constants.PART_TYPE_NAMES.get(part_type, "")]
+	tool_template.tool_name = PartCatalog.name(kind, part_type)
+	tool_template.hud_label = PartCatalog.hud_label(kind, part_type)
 	if kind == "missile":
 		tool_template.description = "%.0f kg: %d missiles of %.0f kg, %.0f damage, %.0f m/s, %.0f m reach. Guided; more only at a base or from a missile ship's wreck." % [
 			stats.mass, stats.ammo, stats.round_mass, stats.damage, stats.projectile_speed, stats.optimal_range]
@@ -372,7 +373,7 @@ static func build_module_template(kind: String, genes: Dictionary, part_type: in
 	module.mass = stats.mass
 	module.stat_modifiers = stats.stat_modifiers
 	module.base_value = stats.base_value
-	module.module_name = "%s %s" % [Constants.PART_NAMES.get(kind, kind), Constants.PART_TYPE_NAMES.get(part_type, "")]
+	module.module_name = PartCatalog.name(kind, part_type)
 	module.description = "%.0f kg." % stats.mass
 	if kind == "lance":
 		module.lance = stats.lance

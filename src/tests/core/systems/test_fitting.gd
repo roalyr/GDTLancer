@@ -8,6 +8,7 @@ const Fitting = preload("res://src/core/systems/fitting.gd")
 const AgentScript = preload("res://src/core/agents/agent.gd")
 const ToolControllerScript = preload("res://src/core/agents/components/tool_controller.gd")
 const ShipLaws = preload("res://src/core/systems/ship_laws.gd")
+const PartCatalog = preload("res://src/core/systems/part_catalog.gd")
 
 var ship: ShipTemplate = null
 var _saved: Dictionary = {}
@@ -17,12 +18,12 @@ func before_each():
 	for category in ["utility_tools", "assets_modules"]:
 		_saved[category] = TemplateDatabase.get(category)
 	TemplateDatabase.utility_tools = {
-		"t_small": _tool("t_small", "small", 100, 300.0),
-		"t_medium": _tool("t_medium", "medium", 200, 600.0),
+		"preset_laser_light": _tool("preset_laser_light", "small", 100, 300.0),
+		"preset_laser_medium": _tool("preset_laser_medium", "medium", 200, 600.0),
 	}
 	TemplateDatabase.assets_modules = {
-		"m_plate": _module("m_plate", 120, 1500.0, {"hull": 300}),
-		"m_engine": _module("m_engine", 150, 400.0, {"linear_thrust": 100000}),
+		"preset_plating_heavy": _module("preset_plating_heavy", 120, 1500.0, {"hull": 300}),
+		"preset_thruster_medium": _module("preset_thruster_medium", 150, 400.0, {"linear_thrust": 100000}),
 	}
 	ship = ShipTemplate.new()
 	ship.hull_integrity = 100
@@ -31,8 +32,8 @@ func before_each():
 	ship.tool_slots_small = 1
 	ship.tool_slots_medium = 1
 	ship.module_slots = 2
-	ship.equipped_tools = ["t_small"]
-	ship.equipped_modules = ["m_plate"]
+	ship.equipped_tools = ["preset_laser_light"]
+	ship.equipped_modules = ["preset_plating_heavy"]
 	GameState.reset_state()
 	GameState.home_location_id = "home"
 	GameState.player_docked_at = "home"
@@ -89,20 +90,20 @@ func test_random_fit_arms_the_first_slot_and_fills_slots_by_size():
 
 func test_default_fit_places_tools_by_size_and_modules_in_order():
 	var fit: Dictionary = ShipFit.default_fit(ship)
-	assert_eq(fit.tools, ["t_small", ""], "Small tool takes the small slot, the medium slot stays free.")
-	assert_eq(fit.modules, ["m_plate", ""])
+	assert_eq(fit.tools, ["preset_laser_light", ""], "Small tool takes the small slot, the medium slot stays free.")
+	assert_eq(fit.modules, ["preset_plating_heavy", ""])
 
 
 func test_tools_fit_slots_of_their_size_or_larger():
 	var fit: Dictionary = ShipFit.empty_fit(ship)
-	assert_eq(ShipFit.free_tool_slot(ship, fit, "t_small"), 0, "Prefers the smallest slot that takes it.")
-	assert_eq(ShipFit.free_tool_slot(ship, fit, "t_medium"), 1, "A medium tool needs a medium or large slot.")
-	fit.tools[1] = "t_medium"
-	assert_eq(ShipFit.free_tool_slot(ship, fit, "t_medium"), -1)
+	assert_eq(ShipFit.free_tool_slot(ship, fit, "preset_laser_light"), 0, "Prefers the smallest slot that takes it.")
+	assert_eq(ShipFit.free_tool_slot(ship, fit, "preset_laser_medium"), 1, "A medium tool needs a medium or large slot.")
+	fit.tools[1] = "preset_laser_medium"
+	assert_eq(ShipFit.free_tool_slot(ship, fit, "preset_laser_medium"), -1)
 
 
 func test_stats_add_module_modifiers_and_every_part_mass():
-	var stats: Dictionary = ShipFit.compute_stats(ship, {"tools": ["t_small", "t_medium"], "modules": ["m_plate", "m_engine"]})
+	var stats: Dictionary = ShipFit.compute_stats(ship, {"tools": ["preset_laser_light", "preset_laser_medium"], "modules": ["preset_plating_heavy", "preset_thruster_medium"]})
 	assert_eq(stats.hull, 400.0)
 	assert_eq(stats.linear_thrust, 600000.0)
 	assert_eq(stats.mass, 6000.0 + 300.0 + 600.0 + 1500.0 + 400.0)
@@ -110,41 +111,41 @@ func test_stats_add_module_modifiers_and_every_part_mass():
 
 func test_buying_spends_the_bank_and_selling_returns_half():
 	GameState.player_bank = 250
-	assert_eq(Fitting.buy("m_engine"), "")
+	assert_eq(Fitting.buy("preset_thruster_medium"), "")
 	assert_eq(GameState.player_bank, 100)
-	assert_eq(GameState.player_storage.get("m_engine"), 1)
-	assert_ne(Fitting.buy("m_engine"), "", "Cannot afford a second one.")
-	assert_eq(Fitting.sell("m_engine"), "")
+	assert_eq(GameState.player_storage.get("preset_thruster_medium"), 1)
+	assert_ne(Fitting.buy("preset_thruster_medium"), "", "Cannot afford a second one.")
+	assert_eq(Fitting.sell("preset_thruster_medium"), "")
 	assert_eq(GameState.player_bank, 175)
-	assert_false(GameState.player_storage.has("m_engine"))
+	assert_false(GameState.player_storage.has("preset_thruster_medium"))
 
 
 func test_refitting_only_at_the_home_port():
 	GameState.player_bank = 1000
 	GameState.player_docked_at = ""
-	assert_ne(Fitting.buy("m_engine"), "")
+	assert_ne(Fitting.buy("preset_thruster_medium"), "")
 	GameState.player_docked_at = "elsewhere"
-	assert_ne(Fitting.buy("m_engine"), "")
+	assert_ne(Fitting.buy("preset_thruster_medium"), "")
 
 
 func test_fitting_and_unfitting_update_the_live_ship():
 	var body = _player_ship()
 	assert_eq(body.hull_max, 400.0, "Default fit includes the plating.")
 	var base_mass: float = body.mass
-	GameState.player_storage = {"m_engine": 1, "t_medium": 1}
-	assert_eq(Fitting.fit_part(body, "m_engine"), "")
+	GameState.player_storage = {"preset_thruster_medium": 1, "preset_laser_medium": 1}
+	assert_eq(Fitting.fit_part(body, "preset_thruster_medium"), "")
 	assert_eq(body.movement_system, null)
 	assert_almost_eq(body.mass, base_mass + 400.0, 0.01, "The module's mass is carried.")
-	assert_eq(body.fit.modules, ["m_plate", "m_engine"])
-	assert_eq(GameState.player_fit.modules, ["m_plate", "m_engine"], "The player's fit is kept in GameState.")
-	assert_false(GameState.player_storage.has("m_engine"))
-	assert_eq(Fitting.fit_part(body, "t_medium"), "")
-	assert_eq(body.get_fitted_tool_ids(), ["t_small", "t_medium"])
+	assert_eq(body.fit.modules, ["preset_plating_heavy", "preset_thruster_medium"])
+	assert_eq(GameState.player_fit.modules, ["preset_plating_heavy", "preset_thruster_medium"], "The player's fit is kept in GameState.")
+	assert_false(GameState.player_storage.has("preset_thruster_medium"))
+	assert_eq(Fitting.fit_part(body, "preset_laser_medium"), "")
+	assert_eq(body.get_fitted_tool_ids(), ["preset_laser_light", "preset_laser_medium"])
 	assert_eq(body.get_node("ToolController").get_tool_count(), 2, "Tools reload with the fit.")
 	assert_eq(Fitting.unfit(body, "modules", 0), "")
 	assert_eq(body.hull_max, 100.0, "Plating removed.")
-	assert_eq(GameState.player_storage.get("m_plate"), 1, "Unfitted parts go back to storage.")
-	assert_ne(Fitting.fit_part(body, "m_engine"), "", "Nothing left in storage to fit.")
+	assert_eq(GameState.player_storage.get("preset_plating_heavy"), 1, "Unfitted parts go back to storage.")
+	assert_ne(Fitting.fit_part(body, "preset_thruster_medium"), "", "Nothing left in storage to fit.")
 
 
 func test_lance_launchers_side_by_side_and_spent_lances_lighten_the_ship():
@@ -187,14 +188,14 @@ func _with_ships_and_cargo() -> void:
 	_saved["presets"] = TemplateDatabase.presets
 	_saved["assets_commodities"] = TemplateDatabase.assets_commodities
 	var heavy = ShipTemplate.new()
-	heavy.template_id = "s_heavy"
+	heavy.template_id = "preset_ship_archetype_fighter_heavy"
 	heavy.base_value = 4000
-	ship.template_id = "s_light"
+	ship.template_id = "preset_ship_archetype_fighter_light"
 	ship.base_value = 1200
 	var stock = ShipTemplate.new()
 	stock.template_id = "s_stock"
 	TemplateDatabase.assets_ships = {"s_stock": stock}  # A stock hull: not sold (every ship flies a design)
-	TemplateDatabase.presets = {"s_light": ship, "s_heavy": heavy}
+	TemplateDatabase.presets = {"preset_ship_archetype_fighter_light": ship, "preset_ship_archetype_fighter_heavy": heavy}
 	var fuel = CommodityTemplate.new()
 	fuel.template_id = "c_fuel"
 	fuel.base_value = 25
@@ -206,13 +207,16 @@ func test_store_sells_every_ship_part_and_commodity():
 	var drill = _tool("t_drill", "medium", 120, 900.0)
 	drill.tool_type = "drill"
 	TemplateDatabase.utility_tools["t_drill"] = drill
-	assert_has(Fitting.catalog(), "t_drill", "Every tool, working or not")
-	assert_has(Fitting.catalog(), "m_engine", "every module")
-	assert_eq(Fitting.ship_catalog(), ["s_heavy", "s_light"], "every preset hull, no stock one")
+	assert_does_not_have(Fitting.catalog(), "t_drill", "Only the catalogue's parts")
+	assert_has(Fitting.catalog(), "preset_thruster_medium", "every module of it")
+	assert_has(Fitting.catalog(), "preset_laser_light", "and tool")
+	for part_id in Fitting.catalog():
+		assert_true(PartCatalog.has(part_id), part_id)
+	assert_eq(Fitting.ship_catalog(), ["preset_ship_archetype_fighter_heavy", "preset_ship_archetype_fighter_light"], "the archetypes' hulls, no stock one")
 	assert_eq(Fitting.cargo_catalog(), ["c_fuel"], "and every commodity.")
 
 
-func test_store_sells_the_preset_designs_and_their_parts():
+func test_store_sells_the_archetypes_hulls_not_the_drafts():
 	_with_ships_and_cargo()
 	var design = ShipTemplate.new()
 	design.template_id = "preset_ship_x1"
@@ -220,10 +224,13 @@ func test_store_sells_the_preset_designs_and_their_parts():
 	var gun = _tool("preset_laser_x1", "small", 80, 500.0)
 	TemplateDatabase.presets["preset_ship_x1"] = design
 	TemplateDatabase.presets["preset_laser_x1"] = gun
-	assert_has(Fitting.ship_catalog(), "preset_ship_x1", "Evolved designs are for sale")
-	assert_has(Fitting.catalog(), "preset_laser_x1", "and so are their parts")
-	assert_does_not_have(Fitting.catalog(), "preset_ship_x1", "Ships are not parts")
-	assert_eq(TemplateDatabase.get_template("preset_ship_x1"), design)
+	assert_does_not_have(Fitting.ship_catalog(), "preset_ship_x1", "Evolution's drafts are not for sale")
+	assert_does_not_have(Fitting.catalog(), "preset_laser_x1", "nor their own parts")
+	TemplateDatabase.presets.erase("preset_ship_x1")
+	design.template_id = "preset_ship_archetype_x1"
+	TemplateDatabase.presets["preset_ship_archetype_x1"] = design
+	assert_has(Fitting.ship_catalog(), "preset_ship_archetype_x1", "an archetype's hull is")
+	assert_eq(TemplateDatabase.get_template("preset_ship_archetype_x1"), design)
 	design.tool_slots_small = 1
 	design.module_slots = 1
 	design.equipped_tools = ["preset_laser_x1"]
@@ -231,9 +238,9 @@ func test_store_sells_the_preset_designs_and_their_parts():
 	add_child_autofree(spawner)
 	var saved_spawner = GlobalRefs.agent_spawner
 	GlobalRefs.agent_spawner = spawner
-	GameState.player_ship_template_id = "s_light"
+	GameState.player_ship_template_id = "preset_ship_archetype_fighter_light"
 	GameState.player_bank = 5000
-	assert_eq(Fitting.buy_ship("preset_ship_x1"), "")
+	assert_eq(Fitting.buy_ship("preset_ship_archetype_x1"), "")
 	assert_eq_deep(GameState.player_fit, {"tools": [""], "modules": [""]})  # A preset's hull comes bare: its price is the hull's
 	GlobalRefs.agent_spawner = saved_spawner
 
@@ -244,27 +251,27 @@ func test_buying_a_ship_trades_the_old_one_in_and_stores_its_fit():
 	add_child_autofree(spawner)
 	var saved_spawner = GlobalRefs.agent_spawner
 	GlobalRefs.agent_spawner = spawner
-	GameState.player_ship_template_id = "s_light"
-	GameState.player_fit = {"tools": ["t_small", ""], "modules": ["m_plate", ""]}
+	GameState.player_ship_template_id = "preset_ship_archetype_fighter_light"
+	GameState.player_fit = {"tools": ["preset_laser_light", ""], "modules": ["preset_plating_heavy", ""]}
 	GameState.player_bank = 5000
 	GameState.player_hull_scars = [[1.0]]
-	assert_eq(Fitting.ship_cost("s_heavy"), 4000 - 600, "Half the old hull's price comes off")
-	assert_eq(Fitting.buy_ship("s_heavy"), "")
+	assert_eq(Fitting.ship_cost("preset_ship_archetype_fighter_heavy"), 4000 - 600, "Half the old hull's price comes off")
+	assert_eq(Fitting.buy_ship("preset_ship_archetype_fighter_heavy"), "")
 	assert_eq(GameState.player_bank, 5000 - 3400)
-	assert_eq(GameState.player_ship_template_id, "s_heavy")
-	assert_eq_deep(GameState.player_storage, {"t_small": 1, "m_plate": 1})
-	assert_eq_deep(GameState.player_fit, ShipFit.empty_fit(TemplateDatabase.get_template("s_heavy")))  # the new (preset) hull comes bare
+	assert_eq(GameState.player_ship_template_id, "preset_ship_archetype_fighter_heavy")
+	assert_eq_deep(GameState.player_storage, {"preset_laser_light": 1, "preset_plating_heavy": 1})
+	assert_eq_deep(GameState.player_fit, ShipFit.empty_fit(TemplateDatabase.get_template("preset_ship_archetype_fighter_heavy")))  # the new (preset) hull comes bare
 	assert_true(GameState.player_hull_scars.empty(), "unmarked,")
 	assert_eq(spawner.replaced, 1, "and the player's body is rebuilt.")
-	assert_ne(Fitting.buy_ship("s_heavy"), "", "Already flying it")
+	assert_ne(Fitting.buy_ship("preset_ship_archetype_fighter_heavy"), "", "Already flying it")
 	GameState.player_bank = 0
-	assert_eq(Fitting.buy_ship("s_light"), "", "Trading down pays")
+	assert_eq(Fitting.buy_ship("preset_ship_archetype_fighter_light"), "", "Trading down pays")
 	assert_eq(GameState.player_bank, 2000 - 1200, "the difference.")
 	GameState.player_bank = 1000
-	assert_ne(Fitting.buy_ship("s_heavy"), "", "Short of WP")
+	assert_ne(Fitting.buy_ship("preset_ship_archetype_fighter_heavy"), "", "Short of WP")
 	GameState.player_docked_at = ""
 	GameState.player_bank = 100000
-	assert_ne(Fitting.buy_ship("s_heavy"), "", "or not docked at home: nothing changes.")
+	assert_ne(Fitting.buy_ship("preset_ship_archetype_fighter_heavy"), "", "or not docked at home: nothing changes.")
 	assert_eq(spawner.replaced, 2)
 	GlobalRefs.agent_spawner = saved_spawner
 

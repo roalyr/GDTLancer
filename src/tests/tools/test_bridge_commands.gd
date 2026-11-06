@@ -98,12 +98,12 @@ func test_an_empty_starting_kit_saves_whole_counts():
 	var start = load("res://database/registry/game_starts/start_default.tres").duplicate()
 	start.starting_storage = {}
 	ResourceSaver.save(dir + "start_empty.tres", start)
-	_ok(commands.handle("write", {"path": dir + "start_empty.tres", "values": {"starting_storage": {"tool_rail_cannon": {"$": "int", "v": 2.0}}}}))
+	_ok(commands.handle("write", {"path": dir + "start_empty.tres", "values": {"starting_storage": {"preset_cannon_medium": {"$": "int", "v": 2.0}}}}))
 	var file := File.new()
 	file.open(dir + "start_empty.tres", File.READ)
 	var text := file.get_as_text()
 	file.close()
-	assert_string_contains(text, '"tool_rail_cannon": 2\n')
+	assert_string_contains(text, '"preset_cannon_medium": 2\n')
 	Directory.new().remove(dir + "start_empty.tres")
 	Directory.new().remove(dir)
 
@@ -123,10 +123,10 @@ func test_validate_and_models():
 func test_a_read_and_write_back_leaves_every_data_file_as_it_was():
 	var paths: Array = []
 	for dir_path in ["res://database/factions", "res://database/registry/agents", "res://database/registry/assets/ships",
-			"res://database/registry/assets/modules", "res://database/registry/assets/commodities", "res://database/registry/tools",
+			"res://database/registry/assets/commodities", "res://database/presets/parts",
 			"res://database/registry/game_starts", "res://database/registry/locations", "res://database/presets/archetypes", "res://database/sounds"]:
 		paths += BridgeCommands.Validator._files_in(dir_path, ".tres")
-	assert_gt(paths.size(), 100)
+	assert_gt(paths.size(), 80)
 	var baseline := "user://test_bridge_baseline.tres"
 	for path in paths:
 		ResourceSaver.save(baseline, ResourceLoader.load(path, "", true))
@@ -319,7 +319,7 @@ func test_the_archetypes_view_has_every_design_with_its_numbers():
 			light = design
 	assert_has(light.flown_by, "verdant", "Verdant's roster has it")
 	assert_almost_eq(light.length, 0.83931 * Constants.SHIP_MODEL_LENGTH, 0.001)
-	assert_eq(light.parts[0].name, "Rail Cannon II")
+	assert_eq(light.parts[0].name, "Cannon Mk I-medium")
 	assert_gt(light.gun_dps, 0.0)
 	var lance_light: Dictionary = {}
 	for design in view.archetypes:
@@ -351,10 +351,11 @@ func test_the_parts_view_has_every_part_and_who_uses_it():
 		assert_gt(view[kind].size(), 0, kind)
 		for item in view[kind]:
 			by_id[item.id] = item
-	assert_eq(by_id.tool_ablative_laser.dps, 6.0)
-	assert_has(by_id.tool_ablative_laser.used_by, "start start_default")
-	assert_has(by_id.preset_cannon_2_308_52_60.used_by, "fighter_light", "Fitted to an archetype")
-	assert_eq(by_id.preset_cannon_2_308_52_60.origin, "archetype")
+	assert_gt(by_id.preset_laser_medium.dps, 0.0)
+	assert_has(by_id.preset_laser_medium.used_by, "start start_default")
+	assert_has(by_id.preset_cannon_medium.used_by, "fighter_light", "Fitted to an archetype")
+	assert_eq(by_id.preset_cannon_medium.origin, "catalogue")
+	assert_eq(view.weapons.size() + view.modules.size(), BridgeCommands.PartCatalog.ids().size(), "The catalogue, nothing else")
 	assert_eq(view.starts[0].id, "start_default")
 
 

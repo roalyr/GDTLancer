@@ -4,6 +4,8 @@
 
 extends GutTest
 
+const PartCatalog = preload("res://src/tests/helpers/reference_parts.gd")  # Fixed reference genes, not the tunable catalogue
+
 const AgentScript = preload("res://src/core/agents/agent.gd")
 const LanceScript = preload("res://src/core/agents/components/lance_controller.gd")
 const ShipLaws = preload("res://src/core/systems/ship_laws.gd")
@@ -26,7 +28,7 @@ func before_each():
 	miner.mass = 6000.0
 	lance = LanceScript.new()
 	miner.add_child(lance)
-	lance.setup(miner, "test_lance", ShipLaws.lance_stats(Constants.PART_TYPE_SEEDS.lance[2]))
+	lance.setup(miner, "test_lance", ShipLaws.lance_stats(PartCatalog.genes("lance", 2)))
 
 
 func after_each():

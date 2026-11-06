@@ -39,14 +39,13 @@ func test_the_default_start_comes_with_a_starter_pack_of_real_parts():
 	TemplateDatabase.game_starts[TEST_START_ID] = game_start
 	generator_instance.generate_new_world(TEST_START_ID)
 	assert_false(GameState.player_storage.empty(), "Spare parts at home")
-	for part_id in GameState.player_storage:  # Registry parts (the test run indexes no registry)
-		var folder: String = "tools/" if part_id.begins_with("tool_") else "assets/modules/"
-		var part = load("res://database/registry/%s%s.tres" % [folder, part_id])
-		assert_true(part is UtilityToolTemplate or part is ModuleTemplate, part_id + " is a part")
-	GameState.player_storage["tool_rail_cannon"] = 0
+	for part_id in GameState.player_storage:  # The catalogue's parts (read from their files: the test run indexes nothing)
+		var part = load(Constants.PARTS_DIR.plus_file(part_id + ".tres"))
+		assert_true(part is UtilityToolTemplate or part is ModuleTemplate, part_id + " is a catalogue part")
+	GameState.player_storage["preset_cannon_medium"] = 0
 	generator_instance.generate_new_world(TEST_START_ID)
-	assert_eq(GameState.player_storage["tool_rail_cannon"], 1, "Each run gets its own copy")
-	assert_eq(game_start.starting_storage["tool_rail_cannon"], 1)
+	assert_eq(GameState.player_storage["preset_cannon_medium"], 1, "Each run gets its own copy")
+	assert_eq(game_start.starting_storage["preset_cannon_medium"], 1)
 
 
 func test_missing_game_start_falls_back_to_default_ship():

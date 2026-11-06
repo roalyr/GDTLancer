@@ -549,16 +549,14 @@ class AppTest(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(app.query_one("TabbedContent").active, "data")
             self.assertEqual(app.open_file, FILE)
 
-    async def test_parts_switch_kinds_and_hide_archetype_parts(self):
+    async def test_parts_switch_kinds_and_open_in_data(self):
         app = devapp.DevApp(bridge_factory=lambda: FakeBridge())
         async with app.run_test(size=(180, 50)) as pilot:
             await self._started(pilot, app)
             await pilot.press("6")
             await pilot.pause()
             table = app.query_one("#parts", DataTable)
-            self.assertEqual(table.row_count, 2)
-            await pilot.press("a")
-            self.assertEqual(table.row_count, 1, "Stock only")
+            self.assertEqual(table.row_count, 2, "Every part")
             await pilot.press("m")
             self.assertEqual(str(table.columns[list(table.columns)[0]].label), "Module")
             await pilot.press("k")

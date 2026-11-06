@@ -1,0 +1,36 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/utility_tool_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_cannon_medium"
+tool_name = "Cannon Mk I-medium"
+hud_label = "CANNON I-M"
+description = "621 kg: 60 rounds of 5.2 kg, 12 damage each at 903 m/s. Fixed forward: the ship aims, leading the target."
+tool_type = "cannon"
+mount_size = "small"
+base_value = 122
+mass = 620.965
+damage = 12.4167
+optimal_range = 1806.67
+falloff = 903.333
+tracking = 0.0
+cycle_time = 1.22047
+power_per_cycle = 1.0344
+reel_speed = 15.0
+launch_speed = 0.0
+strip_interval = 1.0
+ammo = 60
+round_mass = 5.172
+round_value = 1
+projectile_speed = 903.333
+projectile_accel = 0.0
+turn_rate = 0.0
+flight_time = 4.0
+variant_type = 2
+law_genes = {
+"count": 60.0,
+"mass": 310.645,
+"round_mass": 5.172
+}

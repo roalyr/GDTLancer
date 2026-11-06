@@ -970,7 +970,7 @@ class PartsPane(Vertical):
     BINDINGS = [
         Binding("w", "app.parts('weapons')", "Weapons"), Binding("m", "app.parts('modules')", "Modules"),
         Binding("c", "app.parts('commodities')", "Commodities"), Binding("k", "app.parts('starts')", "Starting kit"),
-        Binding("a", "app.toggle_archetype_parts", "Archetype parts on/off"), Binding("ctrl+r", "app.refresh_parts", "Refresh"),
+        Binding("ctrl+r", "app.refresh_parts", "Refresh"),
     ]
     DEFAULT_CSS = """
     PartsPane #parts { height: 1fr; }
@@ -1154,7 +1154,6 @@ class DevApp(App):
         self.parts_view = {"weapons": [], "modules": [], "commodities": [], "starts": []}
         self.parts_kind = "weapons"
         self.parts_rows = []
-        self.show_archetype_parts = True
         self.look_view = {}
         self.user_dir = None
         self.world = {}  # The open sector: sector, path, nodes, map, picked
@@ -1811,7 +1810,7 @@ class DevApp(App):
         name = os.path.basename(script or "")
         parts = self.parts_view
         commodities = {row["id"]: row for row in parts.get("commodities", [])}
-        stock = {row["id"]: row for kind in ("weapons", "modules") for row in parts.get(kind, []) if row.get("origin") == "stock"}
+        stock = {row["id"]: row for kind in ("weapons", "modules") for row in parts.get(kind, [])}  # The catalogue: the only parts
         havens = sorted({haven["id"]: haven["name"] for faction in self.faction_view.get("factions", []) for haven in faction["havens"]}.items())
         havens += sorted((haven["id"], haven["name"]) for haven in self.faction_view.get("neutral_havens", []))
         factions = [(f["id"], f.get("display_name", f["id"])) for f in self.faction_view.get("factions", [])]
@@ -1879,16 +1878,14 @@ class DevApp(App):
             self.parts_view = view
         kind = self.parts_kind
         rows = self.parts_view.get(kind, [])
-        if kind != "starts" and not self.show_archetype_parts:
-            rows = [row for row in rows if row["origin"] == "stock"]
-        rows = sorted(rows, key=lambda row: (row.get("origin", "") != "stock", row.get("type", row.get("kind", "")), row.get("value") or 0))
+        rows = sorted(rows, key=lambda row: (row.get("type", row.get("kind", "")), row.get("value") or 0))
         self.parts_rows = rows
         table = self.query_one("#parts", DataTable)
         table.clear(columns=True)
         table.add_columns(*PART_COLUMNS[kind])
         for index, row in enumerate(rows):
             table.add_row(*self._part_cells(kind, row), key=str(index))
-        shown = "" if kind == "starts" else ("  ·  archetype parts shown (a hides them)" if self.show_archetype_parts else "  ·  stock only (a shows archetype parts)")
+        shown = "" if kind in ("starts", "commodities") else "  ·  the catalogue: three of each kind, light, medium, heavy"
         self.query_one("#parts-title", Static).update("[b]%s[/b] (%d)%s  ·  enter opens one in Data" % (PART_TITLES[kind], len(rows), shown))
         self._show_part_detail()
 
@@ -1927,10 +1924,6 @@ class DevApp(App):
 
     def action_parts(self, kind):
         self.parts_kind = kind
-        self._show_parts()
-
-    def action_toggle_archetype_parts(self):
-        self.show_archetype_parts = not self.show_archetype_parts
         self._show_parts()
 
     # --- Look ---

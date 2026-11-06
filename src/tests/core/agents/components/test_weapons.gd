@@ -4,6 +4,8 @@
 
 extends GutTest
 
+const PartCatalog = preload("res://src/tests/helpers/reference_parts.gd")  # Fixed reference genes, not the tunable catalogue
+
 const AgentScript = preload("res://src/core/agents/agent.gd")
 const ToolControllerScript = preload("res://src/core/agents/components/tool_controller.gd")
 const ShipLaws = preload("res://src/core/systems/ship_laws.gd")
@@ -60,20 +62,20 @@ func _fly(seconds: float, step: float = 1.0 / 60.0) -> void:
 
 
 func test_laws():
-	var rack: Dictionary = ShipLaws.missile_stats(Constants.PART_TYPE_SEEDS.missile[2])
+	var rack: Dictionary = ShipLaws.missile_stats(PartCatalog.genes("missile", 2))
 	assert_eq(rack.ammo, 4)
 	assert_almost_eq(rack.damage, Constants.LAW_MISSILE_DAMAGE[1], 0.01, "The reference missile")
 	assert_almost_eq(rack.mass, 500.0, 0.01, "Four missiles and a frame of one")
 	assert_gt(rack.optimal_range, 2000.0, "Launches from well beyond a laser's reach")
-	var gun: Dictionary = ShipLaws.cannon_stats(Constants.PART_TYPE_SEEDS.cannon[2])
+	var gun: Dictionary = ShipLaws.cannon_stats(PartCatalog.genes("cannon", 2))
 	assert_almost_eq(gun.projectile_speed, Constants.LAW_CANNON_SPEED[1], 0.01)
 	assert_almost_eq(gun.damage, Constants.LAW_CANNON_DAMAGE[1], 0.01)
-	assert_lt(gun.power_per_cycle, ShipLaws.laser_stats(Constants.PART_TYPE_SEEDS.laser[2]).power_per_cycle, "Lighter on power than a laser")
+	assert_lt(gun.power_per_cycle, ShipLaws.laser_stats(PartCatalog.genes("laser", 2)).power_per_cycle, "Lighter on power than a laser")
 	assert_almost_eq(gun.mass, 600.0, 0.01, "Gun and a full magazine")
 
 
 func test_a_missile_flies_to_its_target_and_bursts():
-	controller = _arm(shooter, "missile", Constants.PART_TYPE_SEEDS.missile[2])
+	controller = _arm(shooter, "missile", PartCatalog.genes("missile", 2))
 	target.linear_velocity = Vector3(40, 0, 0)
 	assert_true(controller.activate(0, target).success)
 	controller._physics_process(0.016)
@@ -85,7 +87,7 @@ func test_a_missile_flies_to_its_target_and_bursts():
 
 
 func test_no_more_missiles_once_enough_are_on_their_way():
-	controller = _arm(shooter, "missile", Constants.PART_TYPE_SEEDS.missile[2])
+	controller = _arm(shooter, "missile", PartCatalog.genes("missile", 2))
 	target.hull = 50.0
 	controller.activate(0, target)
 	controller._physics_process(0.016)
@@ -105,7 +107,7 @@ func test_a_tight_turn_makes_a_heavy_missile_overshoot():
 
 
 func test_a_cannon_fires_only_when_the_nose_leads_the_target():
-	controller = _arm(shooter, "cannon", Constants.PART_TYPE_SEEDS.cannon[2])
+	controller = _arm(shooter, "cannon", PartCatalog.genes("cannon", 2))
 	target.global_transform.origin = Vector3(0, 0, -900)
 	target.linear_velocity = Vector3(100, 0, 0)
 	controller.activate(0, target)
@@ -120,7 +122,7 @@ func test_a_cannon_fires_only_when_the_nose_leads_the_target():
 
 
 func test_magazines_lighten_the_ship_refill_and_salvage():
-	controller = _arm(shooter, "cannon", Constants.PART_TYPE_SEEDS.cannon[2])
+	controller = _arm(shooter, "cannon", PartCatalog.genes("cannon", 2))
 	controller._set_ammo(0, 50)
 	assert_almost_eq(controller.spent_ammo_mass(), 50.0, 0.01, "Ten 5 kg rounds fired")
 	var wreck = _make_body(Vector3(0, 0, -50))
@@ -130,21 +132,21 @@ func test_magazines_lighten_the_ship_refill_and_salvage():
 	assert_eq(moved.rounds, 6, "A strip takes a tenth of a magazine")
 	assert_eq(controller.get_ammo(0), 56)
 	var other = _make_body(Vector3(0, 0, -50))
-	var missiles = _arm(other, "missile", Constants.PART_TYPE_SEEDS.missile[2])
+	var missiles = _arm(other, "missile", PartCatalog.genes("missile", 2))
 	assert_eq(missiles.recoverable_ammo_for(controller), 0, "Missiles do not fit a cannon")
 	assert_eq_deep(controller.restock_ammo(), {0: 4})
 	assert_eq(controller.get_ammo(0), 60)
 
 
 func test_extended_magazine_and_rack_share_their_load_between_the_guns():
-	var magazine: Dictionary = ShipLaws.module_stats("magazine", Constants.PART_TYPE_SEEDS.magazine[2])
-	var rack: Dictionary = ShipLaws.module_stats("rack", Constants.PART_TYPE_SEEDS.rack[2])
+	var magazine: Dictionary = ShipLaws.module_stats("magazine", PartCatalog.genes("magazine", 2))
+	var rack: Dictionary = ShipLaws.module_stats("rack", PartCatalog.genes("rack", 2))
 	shooter.fit_stats = {"sensor_strength": 10.0, "shell_load": magazine.stat_modifiers.shell_load, "missile_load": rack.stat_modifiers.missile_load}
 	controller = ToolControllerScript.new()
 	controller.name = "ToolController"
 	shooter.add_child(controller)
-	var gun = ShipLaws.build_weapon_template("cannon", Constants.PART_TYPE_SEEDS.cannon[2], 2, "test_cannon")
-	var launcher = ShipLaws.build_weapon_template("missile", Constants.PART_TYPE_SEEDS.missile[2], 2, "test_missile")
+	var gun = ShipLaws.build_weapon_template("cannon", PartCatalog.genes("cannon", 2), 2, "test_cannon")
+	var launcher = ShipLaws.build_weapon_template("missile", PartCatalog.genes("missile", 2), 2, "test_missile")
 	controller.set_tools([gun, gun, launcher])
 	assert_eq(controller.get_capacity(0), 60 + 17, "170 kg of 5 kg rounds, half each")
 	assert_eq(controller.get_ammo(1), 77, "and loaded")
@@ -158,14 +160,14 @@ func test_extended_magazine_and_rack_share_their_load_between_the_guns():
 
 
 func test_aim_command_points_the_nose_at_the_lead():
-	controller = _arm(shooter, "cannon", Constants.PART_TYPE_SEEDS.cannon[2])
+	controller = _arm(shooter, "cannon", PartCatalog.genes("cannon", 2))
 	assert_true(controller.find_cannon_for(target) >= 0)
 	controller._ammo[0] = 0
 	assert_eq(controller.find_cannon_for(target), -1, "Empty: no cannon to aim")
 
 
 func test_a_cannon_on_holds_the_nose_on_its_lead_whatever_the_course():
-	controller = _arm(shooter, "cannon", Constants.PART_TYPE_SEEDS.cannon[2])
+	controller = _arm(shooter, "cannon", PartCatalog.genes("cannon", 2))
 	assert_eq(controller.cannon_facing(), Vector3.ZERO, "Off: the nose is the course's")
 	target.linear_velocity = Vector3(100, 0, 0)
 	controller.activate(0, target)
@@ -187,8 +189,8 @@ func test_a_cannon_on_holds_the_nose_on_its_lead_whatever_the_course():
 
 
 func test_lasers_shoot_down_missiles_coming_at_their_ship():
-	controller = _arm(shooter, "missile", Constants.PART_TYPE_SEEDS.missile[2])
-	var laser: UtilityToolTemplate = ShipLaws.build_laser_template(Constants.PART_TYPE_SEEDS.laser[3], 3, "test_pd")  # A heavy laser
+	controller = _arm(shooter, "missile", PartCatalog.genes("missile", 2))
+	var laser: UtilityToolTemplate = ShipLaws.build_laser_template(PartCatalog.genes("laser", 3), 3, "test_pd")  # A heavy laser
 	var defence = ToolControllerScript.new()
 	defence.name = "ToolController"
 	target.add_child(defence)
@@ -213,12 +215,12 @@ func test_missiles_and_cannons_hold_fire_behind_a_rock():
 	add_child_autofree(rock)
 	yield(get_tree(), "physics_frame")
 	yield(get_tree(), "physics_frame")
-	controller = _arm(shooter, "cannon", Constants.PART_TYPE_SEEDS.cannon[2])
+	controller = _arm(shooter, "cannon", PartCatalog.genes("cannon", 2))
 	assert_true(controller.rock_in_the_way(target), "The rock is between them")
 	controller.activate(0, target)
 	controller._physics_process(0.016)
 	assert_eq(controller.get_ammo(0), 60, "The gun holds fire")
-	var rack = _arm(target, "missile", Constants.PART_TYPE_SEEDS.missile[2])
+	var rack = _arm(target, "missile", PartCatalog.genes("missile", 2))
 	rack.activate(0, shooter)
 	rack._physics_process(0.016)
 	assert_eq(rack.get_ammo(0), 4, "and so does the rack")
@@ -230,7 +232,7 @@ func test_missiles_and_cannons_hold_fire_behind_a_rock():
 func test_a_decoy_takes_a_missile_off():
 	seed(2)
 	target.decoys = 2
-	controller = _arm(shooter, "missile", Constants.PART_TYPE_SEEDS.missile[2])
+	controller = _arm(shooter, "missile", PartCatalog.genes("missile", 2))
 	target.global_transform.origin = Vector3(0, 0, -1500)
 	controller.activate(0, target)
 	controller._physics_process(0.016)

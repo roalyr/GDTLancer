@@ -49,7 +49,7 @@ genome = {
 },
 "modules": [ {
 "genes": {
-"mass": 150.0
+"mass": 147.716
 },
 "kind": "damper",
 "type": 1
@@ -68,8 +68,8 @@ genome = {
 },
 "tools": [ {
 "genes": {
-"energy": 11.7185,
-"mass": 738.99
+"energy": 11.719,
+"mass": 675.553
 },
 "kind": "laser",
 "type": 3
@@ -80,24 +80,24 @@ genome = {
 "type": 0
 }, {
 "genes": {
-"count": 3.0,
-"round_mass": 38.1745
+"count": 3.5,
+"round_mass": 39.03
 },
 "kind": "missile",
 "type": 1
 }, {
 "genes": {
-"energy": 12.4175,
-"mass": 626.326
+"energy": 11.719,
+"mass": 675.553
 },
 "kind": "laser",
 "type": 3
 }, {
 }, {
 "genes": {
-"count": 39.0,
-"mass": 702.203,
-"round_mass": 16.1583
+"count": 38.5,
+"mass": 701.101,
+"round_mass": 16.606
 },
 "kind": "cannon",
 "type": 3

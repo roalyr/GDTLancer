@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource( 1 )
 template_id = "preset_ship_archetype_lance_heavy"
-ship_model_name = "Mk III Heavy Lance"
+ship_model_name = "Lance Mk I-heavy"
 base_value = 2479
 ship_scene = ExtResource( 2 )
 hull_integrity = 307
@@ -19,8 +19,8 @@ tool_slots_small = 0
 tool_slots_medium = 2
 tool_slots_large = 0
 module_slots = 5
-equipped_tools = [ "preset_missile_1_399_4", "preset_cannon_3_700_146_40" ]
-equipped_modules = [ "preset_decoy_3_400", "preset_power_cell_1_124", "preset_lance_1_111_4", "preset_damper_2_300" ]
+equipped_tools = [ "preset_missile_light", "preset_cannon_heavy" ]
+equipped_modules = [ "preset_decoy_heavy", "preset_power_cell_light", "preset_lance_light", "preset_damper_medium" ]
 salvage_yield = {
 "commodity_scrap": 50,
 "commodity_tech": 14

@@ -14,8 +14,8 @@ func before_each():
 	GameState.reset_state()
 	for category in ["utility_tools", "assets_modules"]:
 		_saved[category] = TemplateDatabase.get(category)
-	TemplateDatabase.utility_tools = {"t_small": _tool("t_small", "small"), "t_large": _tool("t_large", "large")}
-	TemplateDatabase.assets_modules = {"m_plate": _module("m_plate")}
+	TemplateDatabase.utility_tools = {"preset_laser_light": _tool("preset_laser_light", "small"), "preset_cannon_heavy": _tool("preset_cannon_heavy", "large")}
+	TemplateDatabase.assets_modules = {"preset_plating_light": _module("preset_plating_light")}
 	var template := ShipTemplate.new()
 	template.hull_integrity = 100
 	template.mass = 6000.0
@@ -55,12 +55,12 @@ func _module(id: String) -> ModuleTemplate:
 
 
 func test_refit_offers_only_parts_that_fit_and_fits_them_at_once_without_docking():
-	assert_eq(DebugTools.parts_for(ship, "tools", 0), ["t_small"], "A large tool does not fit a small slot")
-	assert_eq(DebugTools.parts_for(ship, "modules", 0), ["m_plate"])
-	tools.refit("tools", 0, "t_small")
-	tools.refit("modules", 0, "m_plate")
-	assert_eq(ship.fit.tools, ["t_small"])
-	assert_eq(ship.fit.modules, ["m_plate"])
+	assert_eq(DebugTools.parts_for(ship, "tools", 0), ["preset_laser_light"], "A large tool does not fit a small slot")
+	assert_eq(DebugTools.parts_for(ship, "modules", 0), ["preset_plating_light"])
+	tools.refit("tools", 0, "preset_laser_light")
+	tools.refit("modules", 0, "preset_plating_light")
+	assert_eq(ship.fit.tools, ["preset_laser_light"])
+	assert_eq(ship.fit.modules, ["preset_plating_light"])
 	assert_eq(GameState.player_docked_at, "", "Undocked all along")
 	assert_true(GameState.player_storage.empty(), "Storage untouched")
 	tools.refit("tools", 0, "")

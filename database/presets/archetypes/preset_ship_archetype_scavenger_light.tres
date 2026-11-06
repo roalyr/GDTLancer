@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource( 1 )
 template_id = "preset_ship_archetype_scavenger_light"
-ship_model_name = "Mk I Light Scavenger"
+ship_model_name = "Scavenger Mk I-light"
 base_value = 727
 ship_scene = ExtResource( 2 )
 hull_integrity = 66
@@ -19,7 +19,7 @@ tool_slots_small = 3
 tool_slots_medium = 0
 tool_slots_large = 0
 module_slots = 1
-equipped_tools = [ "tool_harpoon" ]
+equipped_tools = [ "preset_harpoon" ]
 equipped_modules = [  ]
 salvage_yield = {
 "commodity_scrap": 15,

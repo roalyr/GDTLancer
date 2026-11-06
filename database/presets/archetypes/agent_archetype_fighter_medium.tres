@@ -65,15 +65,15 @@ genome = {
 },
 "tools": [ {
 "genes": {
-"count": 2.0,
-"round_mass": 207.68
+"count": 4.0,
+"round_mass": 100.034
 },
 "kind": "missile",
-"type": 3
+"type": 2
 }, {
 "genes": {
-"energy": 2.36646,
-"mass": 140.719
+"energy": 2.511,
+"mass": 150.0
 },
 "kind": "laser",
 "type": 1

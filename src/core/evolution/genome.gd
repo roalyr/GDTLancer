@@ -4,12 +4,15 @@
 #    "modules": [part per bay],
 #    "behavior": {gene: value} (Constants EVO_BEHAVIOR_RANGES)}
 #   part: {} (empty slot) or {"kind", "type", "genes"}; kinds "laser", "missile", "cannon", "harpoon" (tools) and
-#   ShipLaws.MODULE_KINDS (modules). The harpoon has no genes: it is the registry one.
+#   ShipLaws.MODULE_KINDS (modules), types 1-3 (light, medium, heavy). A part is the catalogue's
+#   (PartCatalog): its genes are always that part's, so evolution picks parts (kind and weight) but
+#   never makes new ones. The harpoon has no genes: there is one.
 # Every stat comes from the genes through ShipLaws, so a mutant is as lawful as its parent.
 
 extends Reference
 
 const ShipLaws = preload("res://src/core/systems/ship_laws.gd")
+const PartCatalog = preload("res://src/core/systems/part_catalog.gd")
 
 const TOOL_KINDS = ["laser", "missile", "cannon", "harpoon"]
 const WEAPON_KINDS = ["laser", "missile", "cannon"]
@@ -37,7 +40,8 @@ static func random_genome() -> Dictionary:
 
 # A starting design (Constants EVO_SEEDS): hull type and size, tool and module kinds in slot order
 # (a kind, or [kind, part type]; "" leaves a slot empty), behaviour genes over the defaults. Parts
-# get their type's seed genes; slots past the hull's are dropped, missing ones left empty.
+# are the catalogue's (a lighter one where the hardpoint is too small); slots past the hull's are
+# dropped, missing ones left empty.
 static func seed_genome(spec: Dictionary) -> Dictionary:
 	var ship_type: int = int(spec.get("type", 2))
 	var seed_genes: Dictionary = Constants.SHIP_TYPE_SEEDS[ship_type]
@@ -64,8 +68,7 @@ static func seed_genome(spec: Dictionary) -> Dictionary:
 			elif kind == "harpoon":
 				parts[i] = {"kind": "harpoon", "type": 0, "genes": {}}
 			else:
-				parts[i] = {"kind": kind, "type": part_type, "genes": Constants.PART_TYPE_SEEDS[kind][part_type].duplicate()}
-				_clamp_part(parts[i], max_mass if group[0] == "tools" else INF)
+				parts[i] = _fitted({"kind": kind, "type": part_type, "genes": {}}, max_mass if group[0] == "tools" else INF)
 	return genome
 
 
@@ -107,29 +110,61 @@ static func _random_weapon_kind() -> String:
 	return "laser"
 
 
-# A saved genome's parts of a retired kind (ShipLaws.RETIRED_MODULE_KINDS) become their successor,
-# the same mass; true if any did.
+# A saved genome's parts made the catalogue's: a retired kind (ShipLaws.RETIRED_MODULE_KINDS) becomes
+# its successor, and every part takes its catalogue genes (an older era's own genes, evolved, give
+# way to the part of that kind and weight; a lighter one where the hardpoint is too small). True if
+# anything changed.
 static func retire_parts(genome: Dictionary) -> bool:
 	var changed := false
 	for part in genome.get("modules", []):
 		if not part.empty() and ShipLaws.RETIRED_MODULE_KINDS.has(part.kind):
 			part.kind = ShipLaws.RETIRED_MODULE_KINDS[part.kind]
-			part.genes = ShipLaws.clamp_module_genes(part.genes, part.kind)
 			changed = true
+	if not genome.has("ship"):
+		return changed
+	var max_mass: float = slot_mass_limit(genome)
+	for group in ["tools", "modules"]:
+		var parts: Array = genome.get(group, [])
+		for i in range(parts.size()):
+			var fitted: Dictionary = _fitted(parts[i], max_mass if group == "tools" else INF)
+			if fitted.hash() != parts[i].hash():
+				parts[i] = fitted
+				changed = true
 	return changed
 
 
-# A part of `kind` ("" for an empty slot) of a random type, from that type's seed genes, varied.
+# The catalogue's part of `kind` ("" for an empty slot) of a random weight that fits the hardpoint.
 static func random_part(kind: String, max_mass: float = INF) -> Dictionary:
 	if kind == "":
 		return {}
 	if kind == "harpoon":
 		return {"kind": "harpoon", "type": 0, "genes": {}}
-	var part_type: int = 1 + randi() % 3
-	var part := {"kind": kind, "type": part_type, "genes": Constants.PART_TYPE_SEEDS[kind][part_type].duplicate()}
-	_mutate_genes(part.genes, 1.0)
-	_clamp_part(part, max_mass)
-	return part
+	return _fitted({"kind": kind, "type": 1 + randi() % 3, "genes": {}}, max_mass)
+
+
+# `part` as the catalogue has it: its kind and weight, the catalogue's genes; the next lighter weight
+# where it is too heavy for the hardpoint (`max_mass`, tools); {} if even the light one is.
+static func _fitted(part: Dictionary, max_mass: float = INF) -> Dictionary:
+	if part.empty():
+		return {}
+	if part.kind == "harpoon":
+		return {"kind": "harpoon", "type": 0, "genes": {}}
+	var part_type: int = int(clamp(int(part.get("type", 1)), 1, 3))
+	while part_type >= 1:
+		var genes: Dictionary = PartCatalog.genes(part.kind, part_type)
+		if not genes.empty() and PartCatalog.mount_mass(part.kind, genes) <= max_mass:
+			return {"kind": part.kind, "type": part_type, "genes": genes}
+		part_type -= 1
+	return {}
+
+
+# A heavier or lighter part of the same kind, now and then (EVO_GENE_MUTATION_CHANCE): the part's
+# own genes never vary, its weight does.
+static func _mutate_weight(part: Dictionary, scale: float, max_mass: float) -> Dictionary:
+	if part.empty() or part.kind == "harpoon" or randf() >= Constants.EVO_GENE_MUTATION_CHANCE * scale:
+		return _fitted(part, max_mass)
+	var part_type: int = int(clamp(int(part.type) + (1 if randf() < 0.5 else -1), 1, 3))
+	return _fitted({"kind": part.kind, "type": part_type, "genes": {}}, max_mass)
 
 
 # --- Mutation ---
@@ -145,16 +180,14 @@ static func mutate(genome: Dictionary, behavior_on: bool) -> Dictionary:
 	for i in range(child.tools.size()):
 		if randf() < Constants.EVO_PART_SWAP_CHANCE * scale:
 			child.tools[i] = random_part(_random_tool_kind(_harpoons_in(child.tools, i)), max_mass)
-		elif not child.tools[i].empty():
-			_mutate_genes(child.tools[i].genes, scale)
-		_clamp_part(child.tools[i], max_mass)
+		else:
+			child.tools[i] = _mutate_weight(child.tools[i], scale, max_mass)
 	for i in range(child.modules.size()):
 		if randf() < Constants.EVO_PART_SWAP_CHANCE * scale:
 			var kind: String = "" if randf() < Constants.EVO_EMPTY_SLOT_CHANCE else ShipLaws.MODULE_KINDS[randi() % ShipLaws.MODULE_KINDS.size()]
 			child.modules[i] = random_part(kind)
-		elif not child.modules[i].empty():
-			_mutate_genes(child.modules[i].genes, scale)
-		_clamp_part(child.modules[i])
+		else:
+			child.modules[i] = _mutate_weight(child.modules[i], scale, INF)
 	if behavior_on:
 		_mutate_behavior(child, scale)
 	return child
@@ -179,12 +212,6 @@ static func _mutate_ship(ship: Dictionary, scale: float) -> void:
 		var counts: Array = ShipLaws.slot_counts(float(ship["size"]))
 		var share: float = float(ship.get("tool_share", float(counts[0]) / max(1, counts[0] + counts[1])))
 		ship["tool_share"] = clamp(share + _gauss() * Constants.EVO_SLOT_SHARE_SIGMA * scale, 0.0, 1.0)
-
-
-static func _mutate_genes(genes: Dictionary, scale: float) -> void:
-	for gene in genes:
-		if randf() < Constants.EVO_GENE_MUTATION_CHANCE * scale:
-			genes[gene] = float(genes[gene]) * _step(scale)
 
 
 static func _mutate_behavior(genome: Dictionary, scale: float) -> void:
@@ -224,54 +251,23 @@ static func slot_mass_limit(genome: Dictionary) -> float:
 	return INF
 
 
-static func _clamp_part(part: Dictionary, max_mass: float = INF) -> void:
-	if part.empty() or part.kind == "harpoon":
-		return
-	if part.kind == "laser":
-		part.genes = ShipLaws.clamp_laser_genes(part.genes)
-		part.genes.mass = min(part.genes.mass, max_mass)
-	elif part.kind == "missile":
-		part.genes = ShipLaws.clamp_missile_genes(part.genes)
-		part.genes.count = round(part.genes.count)  # The rack carries whole missiles (ShipLaws.missile_stats)
-		var rack_rounds: float = part.genes.count + Constants.LAW_MISSILE_RACK_ROUNDS
-		if part.genes.round_mass * rack_rounds > max_mass:  # Too heavy for the hardpoint: fewer missiles, then lighter ones
-			part.genes.count = max(Constants.LAW_MISSILE_COUNT_RANGE[0], floor(max_mass / part.genes.round_mass - Constants.LAW_MISSILE_RACK_ROUNDS))
-			part.genes.round_mass = max(Constants.LAW_MISSILE_MASS_RANGE[0], min(part.genes.round_mass, max_mass / (part.genes.count + Constants.LAW_MISSILE_RACK_ROUNDS)))
-	elif part.kind == "cannon":
-		part.genes = ShipLaws.clamp_cannon_genes(part.genes)
-		part.genes.count = round(part.genes.count)  # Whole rounds in the magazine (ShipLaws.cannon_stats)
-		var total: float = part.genes.mass + part.genes.round_mass * part.genes.count
-		if total > max_mass:  # Too heavy for the hardpoint: gun and magazine both scaled down, then lighter rounds
-			var share: float = max_mass / total
-			part.genes.mass = max(Constants.LAW_CANNON_MASS_RANGE[0], part.genes.mass * share)
-			part.genes.count = max(Constants.LAW_CANNON_COUNT_RANGE[0], floor(part.genes.count * share))
-			if part.genes.mass + part.genes.round_mass * part.genes.count > max_mass:
-				part.genes.round_mass = max(Constants.LAW_CANNON_ROUND_RANGE[0], (max_mass - part.genes.mass) / part.genes.count)
-	else:
-		part.genes = ShipLaws.clamp_module_genes(part.genes, part.kind)
-
-
 # --- Templates ---
 
-# Id of the template a part flies as: the same genes (to the gram) share one.
+# Id of the template a part flies as: the catalogue's part of its kind and weight.
 static func part_template_id(part: Dictionary) -> String:
 	if part.empty():
 		return ""
-	if part.kind == "harpoon":
-		return Constants.HARPOON_TEMPLATE_ID
-	var key: String = "%s_%d" % [part.kind, int(part.type)]
-	for gene in ["mass", "energy", "nail_mass", "round_mass", "count"]:
-		if part.genes.has(gene):
-			key += "_%d" % int(round(float(part.genes[gene]) * (10.0 if gene in ["energy", "round_mass"] else 1.0)))
-	return "evo_" + key
+	return PartCatalog.id(part.kind, int(part.type))
 
 
-# Registers (once) the template a part flies as; returns its id.
+# The catalogue part a part flies as (registered from its file if the presets are not indexed, as in
+# tests); returns its id.
 static func ensure_part_template(part: Dictionary) -> String:
 	var template_id: String = part_template_id(part)
 	if template_id == "" or TemplateDatabase.get_template(template_id) != null:
 		return template_id
-	TemplateDatabase.register_evolved(build_part_template(part, template_id))
+	var found = PartCatalog.template(part.kind, int(part.type))
+	TemplateDatabase.register_evolved(found if found != null else build_part_template(part, template_id))
 	return template_id
 
 
@@ -295,7 +291,7 @@ static func build(genome: Dictionary, genome_id: String, faction: String) -> Dic
 			return preset
 	var ship_id: String = "evo_ship_%s" % genome_id
 	if not TemplateDatabase.evolved.has(ship_id):
-		var name: String = "Mk %s %s" % [Constants.PART_TYPE_NAMES.get(int(genome.ship.type), ""), genome_id]  # The genome shows on the HUD
+		var name: String = "%s %s" % [Constants.PART_MARK, genome_id]  # The genome shows on the HUD
 		var ship = ShipLaws.build_ship_template(genome.ship, ship_id, name, faction)
 		if model == "":
 			model = placeholder_model(family(niche(genome)), load("res://src/core/evolution/preset_classifier.gd").ship_weight(ship))
@@ -441,7 +437,7 @@ static func describe_part(part: Dictionary) -> String:
 		return "-"
 	if part.kind == "harpoon":
 		return "HARPOON"
-	var label: String = "%s %s" % [part.kind.to_upper(), Constants.PART_TYPE_NAMES.get(int(part.type), "?")]
+	var label: String = "%s-%s" % [part.kind.to_upper(), PartCatalog.weight_name(int(part.type)).to_upper()]
 	if part.kind == "laser":
 		var stats: Dictionary = ShipLaws.laser_stats(part.genes)
 		return "%s(%.0fkg %.1fE dmg%.1f/%.2fs %.0fm trk%.2f)" % [label, part.genes.mass, part.genes.energy, stats.damage, stats.cycle_time, stats.optimal_range, stats.tracking]
@@ -469,8 +465,8 @@ static func describe(genome: Dictionary) -> String:
 	for part in genome.modules:
 		modules.append(describe_part(part))
 	var b: Dictionary = genome.get("behavior", default_behavior())
-	return "MK %s s=%.2f %.0fkg hull%d thr%.0fk pwr%.0f/%.1f hold%d [st%.2f en%.2f re%.2f ca%.2f ho%.2f] tools{%s} mods{%s} beh{eng%.2f dis%.2f rng%.2f ret%.2f pur%.2f mer%.2f rf%.2f tw%.2f ca%.2f bu%.2f qu%.2f}" % [
-		Constants.PART_TYPE_NAMES.get(int(ship.type), "?"), ship["size"], stats.mass, stats.hull_integrity, stats.linear_thrust / 1000.0,
+	return "T%d s=%.2f %.0fkg hull%d thr%.0fk pwr%.0f/%.1f hold%d [st%.2f en%.2f re%.2f ca%.2f ho%.2f] tools{%s} mods{%s} beh{eng%.2f dis%.2f rng%.2f ret%.2f pur%.2f mer%.2f rf%.2f tw%.2f ca%.2f bu%.2f qu%.2f}" % [
+		int(ship.type), ship["size"], stats.mass, stats.hull_integrity, stats.linear_thrust / 1000.0,
 		stats.power_capacity, stats.power_regen, stats.cargo_capacity,
 		sh.structure, sh.engine, sh.reactor, sh.capacitor, sh.hold,
 		PoolStringArray(tools).join(" "), PoolStringArray(modules).join(" "),

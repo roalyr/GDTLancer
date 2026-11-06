@@ -50,7 +50,8 @@ class DataKindsTest(unittest.TestCase):
                 self.assertTrue(os.path.exists(os.path.join(tasks.ROOT, kind.script[len("res://"):])), kind.script)
 
     def test_archetype_kinds_do_not_overlap(self):
-        parts = set(data.KINDS_BY_KEY["archetype_parts"].files())
+        parts = set(data.KINDS_BY_KEY["parts"].files())
+        self.assertEqual(len(parts), 40, "Three of every kind, and the harpoon")
         self.assertFalse(parts & set(data.KINDS_BY_KEY["archetype_ships"].files()))
         self.assertFalse(parts & set(data.KINDS_BY_KEY["archetype_pilots"].files()))
 

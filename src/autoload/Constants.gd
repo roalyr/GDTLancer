@@ -429,7 +429,7 @@ const AI_SPARE_TIME = 60.0  # s
 # toward 1 by d) and runs home later (retreat hull * (1 - d)). NPCs that do not evolve start with a
 # random wallet of up to WALLET_MAX_SHARE of their ship's value; evolving pilots, see EVO_PILOT_STAKE_SHARE.
 const AI_DESPERATION_COMFORT = 1.0
-const AI_HAUL_SHARE = 0.25  # An NPC goes home to sell once its hold is worth this share of its ship (behaviour gene "haul")
+const AI_HAUL_SHARE = 0.25  # An NPC goes home to sell once its hold is worth this share of its ship; a prospector once its hold is this share full (behaviour gene "haul")
 const AI_DESPERATION_NERVE = 0.5
 const AI_WALLET_MAX_SHARE = 2.0
 # Ramming (kinetic lance; ShipControllerAI, command_ram): a lance counts in a ship's damage per second
@@ -942,24 +942,12 @@ const STATION_FORMS = {
 }
 const SHIP_DEFAULT_SCENE = "res://scenes/prefabs/ships/placeholders/fighter_medium.tscn"  # Hull of a ship built from genes before it gets its own
 const STATION_DEFAULT_MODEL = "res://scenes/prefabs/station/placeholders/haven.tscn"  # A haven with no model of its own
-const PART_TYPE_SEEDS = {  # Part kind -> type -> genes
-	"laser": {1: {"mass": 150.0, "energy": 2.5}, 2: {"mass": 300.0, "energy": 5.0}, 3: {"mass": 600.0, "energy": 12.0}},
-	"plating": {1: {"mass": 500.0}, 2: {"mass": 1000.0}, 3: {"mass": 2000.0}},
-	"thruster": {1: {"mass": 200.0}, 2: {"mass": 400.0}, 3: {"mass": 800.0}},
-	"power_cell": {1: {"mass": 150.0}, 2: {"mass": 300.0}, 3: {"mass": 600.0}},
-	"lance": {1: {"nail_mass": 100.0, "count": 3.0}, 2: {"nail_mass": 200.0, "count": 3.0}, 3: {"nail_mass": 350.0, "count": 4.0}},
-	"missile": {1: {"round_mass": 40.0, "count": 4.0}, 2: {"round_mass": 100.0, "count": 4.0}, 3: {"round_mass": 250.0, "count": 4.0}},
-	"cannon": {1: {"mass": 150.0, "round_mass": 2.0, "count": 80.0}, 2: {"mass": 300.0, "round_mass": 5.0, "count": 60.0}, 3: {"mass": 700.0, "round_mass": 15.0, "count": 40.0}},
-	"sensor": {1: {"mass": 120.0}, 2: {"mass": 250.0}, 3: {"mass": 500.0}},
-	"damper": {1: {"mass": 150.0}, 2: {"mass": 300.0}, 3: {"mass": 600.0}},
-	"decoy": {1: {"mass": 100.0}, 2: {"mass": 200.0}, 3: {"mass": 400.0}},
-	"afterburner": {1: {"mass": 200.0}, 2: {"mass": 400.0}, 3: {"mass": 800.0}},
-	"magazine": {1: {"mass": 100.0}, 2: {"mass": 200.0}, 3: {"mass": 400.0}},
-	"rack": {1: {"mass": 150.0}, 2: {"mass": 300.0}, 3: {"mass": 600.0}},
-}
-const PART_NAMES = {"laser": "Laser", "plating": "Hull Plating", "thruster": "Thruster", "power_cell": "Power Cell", "harpoon": "Harpoon", "lance": "Kinetic Lance", "missile": "Missile Rack", "cannon": "Rail Cannon", "sensor": "Sensor Booster", "damper": "Sensor Damper", "decoy": "Decoy Launcher", "afterburner": "Afterburner", "magazine": "Extended Magazine", "rack": "Extended Rack"}
-const PART_TYPE_NAMES = {1: "I", 2: "II", 3: "III"}
-const HARPOON_TEMPLATE_ID = "tool_harpoon"  # Not evolved: the same harpoon for everyone
+# Parts (PartCatalog): three of every kind, light, medium and heavy (type 1, 2, 3), one harpoon; each
+# a preset in PARTS_DIR, its law_genes the part's genes. Names are plain: "<name> <PART_MARK>-<weight>".
+const PARTS_DIR = "res://database/presets/parts/"
+const PART_NAMES = {"laser": "Laser", "cannon": "Cannon", "missile": "Missile Rack", "lance": "Lance", "harpoon": "Harpoon", "plating": "Plating", "thruster": "Thruster", "power_cell": "Power Cell", "sensor": "Sensor", "damper": "Damper", "decoy": "Decoy Launcher", "afterburner": "Afterburner", "magazine": "Shell Bay", "rack": "Missile Bay"}
+const PART_MARK = "Mk I"  # The generation every part and archetype hull is (a later balance pass: Mk II)
+const HARPOON_TEMPLATE_ID = "preset_harpoon"  # Not evolved: the same harpoon for everyone
 
 
 # ==================================================================================================
@@ -1132,7 +1120,7 @@ const EVO_BEHAVIOR_RANGES = {  # Gene -> [min, max, default]
 	"caution": [0.0, 1.0, 0.5],  # Keeps clear of unseen enemies under this share of its engage desire (AI_AVOID_SHARE)
 	"burn": [0.0, 0.8, 0.3],  # Share of its power kept from the afterburner for its weapons (AI_AFTERBURNER_RESERVE)
 	"prospect": [0.0, 1.0, 0.0],  # At 0.5 or more, with a laser, a lance and a harpoon, it mines when it has nothing else to do
-	"haul": [0.05, 1.0, 0.25],  # Goes home to sell once its hold is worth this share of its ship (AI_HAUL_SHARE)
+	"haul": [0.05, 1.0, 0.25],  # Goes home to sell once its hold is worth this share of its ship; a prospector once it is this share full (AI_HAUL_SHARE)
 	"quiet": [0.0, 0.9, 0.3],  # Share of its thrust it cuts while keeping clear of an enemy that has not seen it (a lower signature)
 }
 # Starting designs, guessed, planted in each pool's empty niches (Evolution.plant_seeds; Genome.seed_genome):

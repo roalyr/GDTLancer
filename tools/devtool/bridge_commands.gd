@@ -15,6 +15,7 @@ const Validator = preload("res://src/core/validation/content_validator.gd")
 const ModelCheck = preload("res://src/scenes/game_world/models/model_check.gd")
 const SoundBank = preload("res://src/core/sound/sound_bank.gd")
 const TscnText = preload("res://tools/devtool/tscn_text.gd")
+const PartCatalog = preload("res://src/core/systems/part_catalog.gd")
 const SectorMaker = preload("res://tools/devtool/sector_maker.gd")
 const ShipFit = preload("res://src/core/systems/ship_fit.gd")
 const EDITABLE = PROPERTY_USAGE_SCRIPT_VARIABLE | PROPERTY_USAGE_EDITOR
@@ -25,8 +26,7 @@ const ROTATION_FIELD = {"name": ROTATION, "type": "Vector3", "hint": 0, "hint_na
 	"default": {"$": "Vector3", "v": [0.0, 0.0, 0.0]}, "comment": "Its turn, degrees about x, y, z (as the Godot editor's rotation)"}
 const MAIN_SCENE = "res://scenes/levels/game_world/main_game_scene.tscn"
 const MUSIC_NODE = "AmbientMusic"
-const PART_DIRS = {"weapons": "res://database/registry/tools/", "modules": "res://database/registry/assets/modules/",
-	"commodities": "res://database/registry/assets/commodities/"}
+const PART_DIRS = {"parts": Constants.PARTS_DIR, "commodities": "res://database/registry/assets/commodities/"}  # The part catalogue (PartCatalog) and the goods
 const SHADERS_DIR = "res://assets/art/shaders/"
 const PATTERNS_DIR = "res://assets/art/textures/paint_patterns/"
 const HINT_NAMES = {
@@ -500,10 +500,10 @@ func cmd_factions(_args: Dictionary):
 	return {"factions": out, "archetypes": Validator.archetype_names(), "neutral_havens": havens.get("", [])}
 
 
-# Every weapon, module and commodity (stock ones in database/registry/, archetype parts in
-# database/presets/archetypes/), with its numbers and where it is used: {"weapons": [...],
-# "modules": [...], "commodities": [...], "starts": [{path, id, ship, location, bank, storage}]}.
-# Each item: {id, path, name, origin ("stock" or "archetype"), value, mass, used_by: [...], ...}.
+# Every weapon, module (the part catalogue, database/presets/parts/: three of each kind) and
+# commodity, with its numbers and where it is used: {"weapons": [...], "modules": [...],
+# "commodities": [...], "starts": [{path, id, ship, location, bank, storage}]}.
+# Each item: {id, path, name, origin ("catalogue" or "stock"), value, mass, used_by: [...], ...}.
 func cmd_parts(_args: Dictionary):
 	var used := {}
 	var ship_paths: Array = []
@@ -541,11 +541,7 @@ func cmd_parts(_args: Dictionary):
 	var paths: Array = []
 	for kind in PART_DIRS:
 		for path in Validator._files_in(PART_DIRS[kind], ".tres"):
-			paths.append([kind, path, "stock"])
-	for path in Validator._files_in(Constants.ARCHETYPES_DIR, ".tres"):
-		var name: String = path.get_file()
-		if name.begins_with("preset_") and not name.begins_with("preset_ship_archetype_"):
-			paths.append(["", path, "archetype"])
+			paths.append([kind, path, "catalogue" if kind == "parts" else "stock"])
 	for entry in paths:
 		var item = _fresh(entry[1])
 		if item == null:
@@ -651,7 +647,7 @@ static func _files_under(dir_path: String, suffix: String) -> Array:
 
 
 static func _part(part_id: String) -> Resource:
-	var path: String = Constants.ARCHETYPES_DIR.plus_file(part_id + ".tres")
+	var path: String = Constants.PARTS_DIR.plus_file(part_id + ".tres")
 	return _fresh(path) if ResourceLoader.exists(path) else TemplateDatabase.get_template(part_id)
 
 

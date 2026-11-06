@@ -90,7 +90,7 @@ static func write_preset(genome: Dictionary, genome_id: String, dir_path: String
 	var niche: String = Genome.niche(genome)
 	var design: String = design_id(genome_id, niche)
 	var ship_id: String = "preset_ship_%s" % design
-	var ship = ShipLaws.build_ship_template(genome.ship, ship_id, "Mk %s %s" % [Constants.PART_TYPE_NAMES.get(int(genome.ship.type), ""), design.capitalize()], "")
+	var ship = ShipLaws.build_ship_template(genome.ship, ship_id, "%s %s" % [design.capitalize(), Constants.PART_MARK], "")
 	ship.equipped_tools = _filled(tools)
 	ship.equipped_modules = _filled(modules)
 	ResourceSaver.save(dir_path.plus_file(ship_id + ".tres"), ship)
@@ -121,13 +121,9 @@ static func _filled(ids: Array) -> Array:
 	return result
 
 
-static func _write_part(part: Dictionary, dir_path: String) -> String:
-	var template_id: String = Genome.part_template_id(part)
-	if template_id == "" or template_id == Constants.HARPOON_TEMPLATE_ID:
-		return template_id
-	template_id = template_id.replace("evo_", "preset_")
-	ResourceSaver.save(dir_path.plus_file(template_id + ".tres"), Genome.build_part_template(part, template_id))
-	return template_id
+# A design's part is the catalogue's (PartCatalog): it is named, not written.
+static func _write_part(part: Dictionary, _dir_path: String) -> String:
+	return Genome.part_template_id(part)
 
 
 class Sorter:

@@ -4,6 +4,8 @@
 
 extends GutTest
 
+const PartCatalog = preload("res://src/tests/helpers/reference_parts.gd")  # Fixed reference genes, not the tunable catalogue
+
 const CombatAssessment = preload("res://src/core/systems/combat_assessment.gd")
 
 const AgentScript = preload("res://src/core/agents/agent.gd")
@@ -321,7 +323,7 @@ func test_a_lancer_out_of_lances_collects_a_loose_one_before_fighting():
 	ai.initialize({"patrol_center": Vector3.ZERO, "behavior": {"engage": 0.0}})
 	var lance = LanceScript.new()
 	hostile.add_child(lance)
-	lance.setup(hostile, "test_lance", ShipLaws.lance_stats(Constants.PART_TYPE_SEEDS.lance[2]))
+	lance.setup(hostile, "test_lance", ShipLaws.lance_stats(PartCatalog.genes("lance", 2)))
 	lance.nails = 0
 	var loose = lance.drop_lance(Vector3(0, 0, -200), Vector3.ZERO)
 	var enemy = _make_ship(Vector3(0, 0, -300), "verdant", 1.0)
@@ -367,6 +369,14 @@ func test_takes_a_hold_home_once_it_is_worth_its_haul_share_of_the_ship():
 	ai._scan_timer = 0.0
 	ai._process_patrol()
 	assert_eq(ai.get_state(), AIScript.AIState.DEPART, "Worth a quarter of the ship: takes it home with room to spare")
+
+
+func test_a_prospector_hauls_once_its_hold_is_its_haul_share_full():
+	assert_false(AIScript.haul_due(true, 0.49, 500.0, 1000000.0, 0.5), "Under half full: keeps mining")
+	assert_true(AIScript.haul_due(true, 0.5, 500.0, 1000000.0, 0.5), "Half full: home, however little the ship's worth it")
+	assert_false(AIScript.haul_due(true, 0.9, 0.0, 1000.0, 0.5), "Nothing worth selling: nothing to haul")
+	assert_false(AIScript.haul_due(false, 1.0, 240.0, 1000.0, 0.25), "Anyone else weighs the ship's worth")
+	assert_true(AIScript.haul_due(false, 0.1, 250.0, 1000.0, 0.25))
 
 
 func test_strips_the_nearest_free_wreck_and_leaves_when_full():
@@ -580,7 +590,7 @@ func test_a_broke_pilot_takes_worse_odds_and_spares_less():
 func _give_lance(body: RigidBody) -> Spatial:
 	var lance = load("res://src/core/agents/components/lance_controller.gd").new()
 	body.add_child(lance)
-	lance.setup(body, "test_lance", load("res://src/core/systems/ship_laws.gd").lance_stats(Constants.PART_TYPE_SEEDS.lance[2]))
+	lance.setup(body, "test_lance", load("res://src/core/systems/ship_laws.gd").lance_stats(PartCatalog.genes("lance", 2)))
 	return lance
 
 

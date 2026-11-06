@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource( 1 )
 template_id = "preset_ship_archetype_raider_heavy"
-ship_model_name = "Mk III Heavy Raider"
+ship_model_name = "Raider Mk I-heavy"
 base_value = 3947
 ship_scene = ExtResource( 2 )
 hull_integrity = 404
@@ -19,8 +19,8 @@ tool_slots_small = 0
 tool_slots_medium = 8
 tool_slots_large = 0
 module_slots = 1
-equipped_tools = [ "preset_laser_3_739_117", "tool_harpoon", "preset_missile_1_382_3", "preset_laser_3_626_124", "preset_cannon_3_702_162_39" ]
-equipped_modules = [ "preset_damper_1_150" ]
+equipped_tools = [ "preset_laser_heavy", "preset_harpoon", "preset_missile_light", "preset_laser_heavy", "preset_cannon_heavy" ]
+equipped_modules = [ "preset_damper_light" ]
 salvage_yield = {
 "commodity_scrap": 79,
 "commodity_tech": 32

@@ -11,6 +11,7 @@
 
 extends Control
 
+const PartCatalog = preload("res://src/core/systems/part_catalog.gd")
 const ShipFit = preload("res://src/core/systems/ship_fit.gd")
 const Fitting = preload("res://src/core/systems/fitting.gd")
 const EvolutionRunner = preload("res://src/core/evolution/evolution_runner.gd")
@@ -291,17 +292,19 @@ func _pick_part(kind: String, slot: int) -> void:
 		_list.add_child(_button(_part_label(part_id), self, "refit", [kind, slot, part_id]))
 
 
-# Every part that can go in the slot: tools that fit its size, any module.
+# Every catalogue part that can go in the slot: tools that fit its size, any module.
 static func parts_for(ship: Node, kind: String, slot: int) -> Array:
 	var ids: Array = []
 	if kind == "tools":
 		var sizes: Array = ShipFit.tool_slot_sizes(ship.ship_template)
-		for tool_id in TemplateDatabase.utility_tools:
-			if slot < sizes.size() and ShipFit.tool_fits_slot(TemplateDatabase.utility_tools[tool_id], sizes[slot]):
+		for tool_id in PartCatalog.tool_ids():
+			var tool_template = TemplateDatabase.get_template(tool_id)
+			if tool_template != null and slot < sizes.size() and ShipFit.tool_fits_slot(tool_template, sizes[slot]):
 				ids.append(tool_id)
 	else:
-		for module_id in TemplateDatabase.assets_modules:
-			ids.append(module_id)
+		for module_id in PartCatalog.module_ids():
+			if TemplateDatabase.get_template(module_id) != null:
+				ids.append(module_id)
 	ids.sort()
 	return ids
 

@@ -1310,10 +1310,19 @@ func _note(event: String) -> void:
 
 
 # An old haven NPC goes home to retire (Evolution, Constants NPC_MAX_LIFETIME).
-# Its hold is worth its haul gene's share of its ship: worth taking home before it is lost with it.
+# Its hold is worth taking home before it is lost with it: a prospector's once it is its haul gene's
+# share full (a miner weighs a full hold, worth a long haul to the best market, against a short
+# trip and less to lose); anyone else's once it is worth that share of its ship.
 func hold_worth_hauling() -> bool:
-	var cargo_value: float = agent_script.get_cargo_value()
-	return cargo_value > 0.0 and cargo_value >= _haul * agent_script.get_value()
+	var capacity: float = max(1.0, float(agent_script.cargo_capacity))
+	return haul_due(is_prospector(), (capacity - agent_script.get_free_cargo()) / capacity,
+		agent_script.get_cargo_value(), agent_script.get_value(), _haul)
+
+
+static func haul_due(prospector: bool, fill: float, cargo_value: float, ship_value: float, share: float) -> bool:
+	if cargo_value <= 0.0:
+		return false
+	return fill >= share if prospector else cargo_value >= share * ship_value
 
 
 func _due_home() -> bool:

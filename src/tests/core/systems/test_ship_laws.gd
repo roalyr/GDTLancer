@@ -3,6 +3,8 @@
 
 extends GutTest
 
+const PartCatalog = preload("res://src/core/systems/part_catalog.gd")
+
 const ShipLaws = preload("res://src/core/systems/ship_laws.gd")
 
 const REFERENCE_SHIP = {"type": 2, "size": 1.0, "shares": {"structure": 0.55, "engine": 0.2, "reactor": 0.1, "capacitor": 0.05, "hold": 0.1}}
@@ -73,9 +75,14 @@ func test_module_laws_match_the_ship_subsystems():
 	assert_almost_eq(ShipLaws.module_stats("power_cell", {"mass": 600.0}).stat_modifiers.power_regen, 10.0, 0.001)
 
 
-func test_registry_parts_follow_their_genes():
-	for template_id in ["tools/tool_ablative_laser", "tools/tool_ablative_laser_long_range", "assets/modules/module_hull_plating", "assets/modules/module_thruster", "assets/modules/module_power_cell", "assets/ships/ship_default", "assets/ships/ship_hostile_default"]:
-		var template = load("res://database/registry/%s.tres" % template_id)
+func test_the_catalogue_and_stock_hulls_follow_their_genes():
+	var paths: Array = ["res://database/registry/assets/ships/ship_default.tres", "res://database/registry/assets/ships/ship_hostile_default.tres"]
+	for template_id in PartCatalog.ids():
+		if template_id != Constants.HARPOON_TEMPLATE_ID:
+			paths.append(Constants.PARTS_DIR.plus_file(template_id + ".tres"))
+	for path in paths:
+		var template_id: String = path.get_file()
+		var template = load(path)
 		assert_not_null(template, template_id)
 		if template == null:
 			continue

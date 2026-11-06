@@ -2,6 +2,8 @@
 
 extends GutTest
 
+const PartCatalog = preload("res://src/core/systems/part_catalog.gd")
+
 const Genome = preload("res://src/core/evolution/genome.gd")
 const ShipLaws = preload("res://src/core/systems/ship_laws.gd")
 
@@ -43,8 +45,22 @@ func test_saved_capacitors_become_power_cells():
 	genome.modules = [{"kind": "capacitor", "type": 2, "genes": {"mass": 200.0}}, {}]
 	assert_true(Genome.retire_parts(genome))
 	assert_eq(genome.modules[0].kind, "power_cell")
-	assert_eq(genome.modules[0].genes.mass, 200.0, "The same mass")
+	assert_eq_deep(genome.modules[0].genes, PartCatalog.genes("power_cell", 2))  # The catalogue's power cell of that weight
 	assert_false(Genome.retire_parts(genome), "Nothing left to retire")
+
+
+func test_parts_are_the_catalogues_and_only_their_weight_varies():
+	var genome: Dictionary = Genome.random_genome()
+	for _i in range(40):
+		genome = Genome.mutate(genome, true)
+		for part in genome.tools + genome.modules:
+			if part.empty() or part.kind == "harpoon":
+				continue
+			assert_eq_deep(part.genes, PartCatalog.genes(part.kind, int(part.type)))
+			assert_eq(Genome.part_template_id(part), "preset_%s_%s" % [part.kind, PartCatalog.weight_name(int(part.type))])
+	var evolved: Dictionary = {"ship": genome.ship, "tools": [{"kind": "laser", "type": 3, "genes": {"mass": 612.0, "energy": 14.2}}], "modules": [{"kind": "plating", "type": 1, "genes": {"mass": 777.0}}]}
+	assert_true(Genome.retire_parts(evolved), "An older era's own genes give way")
+	assert_eq_deep(evolved.modules[0].genes, PartCatalog.genes("plating", 1))
 
 
 func test_mutation_leaves_the_parent_alone():
@@ -128,14 +144,15 @@ func test_missiles_and_cannons_are_lawful_weapons_on_their_own_branches():
 	var gun = TemplateDatabase.get_template(Genome.ensure_part_template(genome.tools[0]))
 	assert_true(gun is UtilityToolTemplate and gun.tool_type == "cannon" and gun.ammo > 0 and gun.projectile_speed > 0.0)
 	assert_gt(Genome.cost(genome), ShipLaws.ship_stats(genome.ship).base_value, "Priced with its rounds")
-	var heavy: Dictionary = {"kind": "missile", "type": 3, "genes": {"round_mass": 900.0, "count": 16.0}}
-	Genome._clamp_part(heavy, 799.0)
-	assert_true(ShipLaws.missile_stats(heavy.genes).mass <= 799.0 + 0.01, "Cut down to the hardpoint: fewer, lighter missiles")
-
-	var big_gun: Dictionary = {"kind": "cannon", "type": 3, "genes": Constants.PART_TYPE_SEEDS.cannon[3].duplicate()}
-	Genome._clamp_part(big_gun, 799.0)
-	assert_true(ShipLaws.cannon_stats(big_gun.genes).mass <= 799.0 + 0.01, "A heavy cannon cut down to a small hardpoint")
-	assert_gt(big_gun.genes.count, 20.0, "keeps a useful magazine")
+	var heavy: Dictionary = Genome._fitted({"kind": "missile", "type": 3, "genes": {}}, 600.0)
+	assert_true(heavy.empty() or int(heavy.type) < 3, "Too heavy for the hardpoint: the next lighter rack")
+	if not heavy.empty():
+		assert_true(PartCatalog.mount_mass("missile", heavy.genes) <= 600.0)
+	var big_gun: Dictionary = Genome._fitted({"kind": "cannon", "type": 3, "genes": {}}, 799.0)
+	assert_false(big_gun.empty(), "A lighter cannon on a small hardpoint")
+	assert_true(PartCatalog.mount_mass("cannon", big_gun.genes) <= 799.0)
+	assert_eq_deep(big_gun.genes, PartCatalog.genes("cannon", int(big_gun.type)))
+	assert_true(Genome._fitted({"kind": "cannon", "type": 1, "genes": {}}, 10.0).empty(), "Nothing fits: the slot stays empty")
 
 
 func test_mutation_can_shift_slots_between_hardpoints_and_bays():

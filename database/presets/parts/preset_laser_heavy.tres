@@ -1,0 +1,35 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/utility_tool_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_laser_heavy"
+tool_name = "Laser Mk I-heavy"
+hud_label = "LASER I-H"
+description = "676 kg, 17.6 per shot."
+tool_type = "laser"
+mount_size = "small"
+base_value = 229
+mass = 675.553
+damage = 11.8601
+optimal_range = 1621.78
+falloff = 405.446
+tracking = 0.0666394
+cycle_time = 1.56189
+power_per_cycle = 17.5785
+reel_speed = 15.0
+launch_speed = 0.0
+strip_interval = 1.0
+ammo = 0
+round_mass = 0.0
+round_value = 0
+projectile_speed = 0.0
+projectile_accel = 0.0
+turn_rate = 0.0
+flight_time = 0.0
+variant_type = 3
+law_genes = {
+"energy": 11.719,
+"mass": 675.553
+}

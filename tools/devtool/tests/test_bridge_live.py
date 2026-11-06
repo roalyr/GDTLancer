@@ -26,8 +26,8 @@ class LiveBridgeTest(unittest.TestCase):
         self.assertIn("roster", names)
 
     def test_floats_arrive_whole(self):
-        read = self.bridge.call("read", path="res://database/registry/tools/tool_ablative_laser_long_range.tres")
-        self.assertEqual(read["values"]["tracking"], 0.0707107)
+        read = self.bridge.call("read", path="res://database/presets/parts/preset_laser_heavy.tres")
+        self.assertEqual(read["values"]["tracking"], 0.0666394)  # As the file has it, to the last digit
 
     def test_errors_come_back_as_errors(self):
         with self.assertRaises(BridgeError):

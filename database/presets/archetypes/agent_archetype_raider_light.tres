@@ -70,8 +70,8 @@ genome = {
 "type": 0
 }, {
 "genes": {
-"energy": 5.15071,
-"mass": 297.661
+"energy": 5.151,
+"mass": 300.0
 },
 "kind": "laser",
 "type": 2

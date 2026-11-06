@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource( 1 )
 template_id = "preset_ship_archetype_raider_medium"
-ship_model_name = "Mk III Medium Raider"
+ship_model_name = "Raider Mk I-medium"
 base_value = 2357
 ship_scene = ExtResource( 2 )
 hull_integrity = 228
@@ -19,8 +19,8 @@ tool_slots_small = 0
 tool_slots_medium = 6
 tool_slots_large = 0
 module_slots = 1
-equipped_tools = [ "preset_cannon_3_724_171_38", "preset_laser_3_600_106", "tool_harpoon", "preset_missile_3_2199_4", "preset_laser_1_148_25", "preset_cannon_1_150_20_80" ]
-equipped_modules = [ "preset_decoy_2_200" ]
+equipped_tools = [ "preset_cannon_heavy", "preset_laser_heavy", "preset_harpoon", "preset_missile_heavy", "preset_laser_light", "preset_cannon_light" ]
+equipped_modules = [ "preset_decoy_medium" ]
 salvage_yield = {
 "commodity_scrap": 47,
 "commodity_tech": 22

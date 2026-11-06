@@ -66,54 +66,54 @@ genome = {
 },
 "tools": [ {
 "genes": {
-"energy": 3.04156,
-"mass": 459.747
-},
-"kind": "laser",
-"type": 1
-}, {
-"genes": {
-"energy": 2.5,
+"energy": 2.511,
 "mass": 150.0
 },
 "kind": "laser",
 "type": 1
 }, {
 "genes": {
-"count": 74.0,
-"mass": 790.799,
-"round_mass": 7.27485
+"energy": 2.511,
+"mass": 150.0
+},
+"kind": "laser",
+"type": 1
+}, {
+"genes": {
+"count": 60.0,
+"mass": 310.645,
+"round_mass": 5.172
 },
 "kind": "cannon",
 "type": 2
 }, {
 "genes": {
-"count": 37.0,
-"mass": 546.242,
-"round_mass": 23.5124
+"count": 38.5,
+"mass": 701.101,
+"round_mass": 16.606
 },
 "kind": "cannon",
 "type": 3
 }, {
 }, {
 "genes": {
-"energy": 16.8468,
-"mass": 963.486
+"energy": 11.719,
+"mass": 675.553
 },
 "kind": "laser",
 "type": 3
 }, {
 "genes": {
-"energy": 5.1378,
-"mass": 1208.39
+"energy": 11.719,
+"mass": 675.553
 },
 "kind": "laser",
 "type": 3
 }, {
 }, {
 "genes": {
-"energy": 5.27014,
-"mass": 310.416
+"energy": 5.151,
+"mass": 300.0
 },
 "kind": "laser",
 "type": 2
@@ -126,14 +126,14 @@ genome = {
 "type": 2
 }, {
 "genes": {
-"count": 4.0,
-"round_mass": 274.082
+"count": 3.0,
+"round_mass": 225.821
 },
 "kind": "missile",
 "type": 3
 }, {
 "genes": {
-"energy": 11.4121,
+"energy": 11.719,
 "mass": 675.553
 },
 "kind": "laser",

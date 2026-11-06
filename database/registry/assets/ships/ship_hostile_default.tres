@@ -19,7 +19,7 @@ tool_slots_small = 2
 tool_slots_medium = 0
 tool_slots_large = 0
 module_slots = 2
-equipped_tools = [ "tool_ablative_laser" ]
+equipped_tools = [ "preset_laser_medium" ]
 equipped_modules = [  ]
 salvage_yield = {
 "commodity_scrap": 20,

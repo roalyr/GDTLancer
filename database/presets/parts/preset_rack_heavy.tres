@@ -1,0 +1,21 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/asset_module_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_rack_heavy"
+module_name = "Missile Bay Mk I-heavy"
+description = "600 kg."
+base_value = 150
+mass = 600.0
+stat_modifiers = {
+"missile_load": 510.0
+}
+lance = {
+}
+module_kind = "rack"
+variant_type = 3
+law_genes = {
+"mass": 600.0
+}

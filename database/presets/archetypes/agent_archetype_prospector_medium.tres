@@ -49,8 +49,8 @@ genome = {
 },
 "modules": [ {
 "genes": {
-"count": 2.48446,
-"nail_mass": 109.333
+"count": 3.092,
+"nail_mass": 109.356
 },
 "kind": "lance",
 "type": 1
@@ -69,8 +69,8 @@ genome = {
 },
 "tools": [ {
 "genes": {
-"energy": 16.5597,
-"mass": 700.797
+"energy": 11.719,
+"mass": 675.553
 },
 "kind": "laser",
 "type": 3
@@ -81,7 +81,7 @@ genome = {
 "type": 0
 }, {
 "genes": {
-"energy": 5.0,
+"energy": 5.151,
 "mass": 300.0
 },
 "kind": "laser",

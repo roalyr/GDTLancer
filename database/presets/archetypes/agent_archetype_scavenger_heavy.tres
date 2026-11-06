@@ -50,7 +50,7 @@ genome = {
 "modules": [ {
 }, {
 "genes": {
-"mass": 145.433
+"mass": 147.716
 },
 "kind": "damper",
 "type": 1

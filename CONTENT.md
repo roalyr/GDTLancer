@@ -137,11 +137,15 @@ The sound bank has one slot per game event: guns, missiles, the harpoon and the 
 
 Short `.wav` files suit effects; `.ogg` suits loops. Make the files about equally loud: `Constants.gd` ("SOUND") sets the overall volume, the hearing distance and how many sounds play at once. The tests check that every filled slot holds a sound and loops as its kind says. Music is separate: the Look tab sets the ambient track (the main scene's `AmbientMusic`).
 
-## Parts, commodities, starting kit — `database/registry/`
+## Parts — `database/presets/parts/`
+
+The part catalogue: three of every kind, light, medium and heavy (as hulls come in three weights), and one harpoon. These are the only parts. Archetypes, starting kits, the store and evolution all use them, and the validator rejects any other. Names are plain and the same for every kind: "Laser Mk I-light", "Plating Mk I-heavy"; hulls follow the same pattern ("Lance Mk I-medium"). The mark (`Constants.PART_MARK`) is the generation.
+
+To tune a part, edit its `law_genes`, then run `tools/dev.py apply_laws` to rebuild its stats. Evolution picks a kind and a weight only: a genome's part genes are always the catalogue's, so a change here re-balances every ship that carries the part. The Parts tab lists them all with who uses each.
+
+## Commodities, stock hulls, starting kit — `database/registry/`
 
 - `assets/ships`: stock hulls.
-- `assets/modules`: modules.
-- `tools`: weapons and tools.
 - `assets/commodities`: commodities.
 - `game_starts`: the player's start: its ship, the haven it starts docked at (also its home port), its bank, and the kit waiting in home storage (`starting_storage`). The tool lists the kit as rows of part and count, with its worth and mass; ship and haven are picked from lists.
 - `locations`: the sector graph. Jumps between sectors are off for 0.x (`Constants.jumps_enabled`): the game is Elace only until the other sectors are laid out.

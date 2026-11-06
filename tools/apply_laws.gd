@@ -1,11 +1,12 @@
-# Rewrites the hand-made ships and parts in database/registry/ from their law_genes (ShipLaws), so
+# Rewrites the hand-made ships (database/registry/) and the part catalogue (database/presets/parts/)
+# from their law_genes (ShipLaws), so
 # what the stations sell obeys the same laws as what evolution makes. Run after changing a law:
 #     godot --no-window -s tools/apply_laws.gd
-# Only templates with law_genes are touched (modules also need module_kind, tools tool_type "laser").
+# Only templates with law_genes are touched (modules also need module_kind; tools a tool_type).
 extends SceneTree
 
 var ShipLaws = null  # Loaded once the autoloads are in (the laws read Constants)
-const FOLDERS = ["res://database/registry/assets/ships/", "res://database/registry/assets/modules/", "res://database/registry/tools/"]
+const FOLDERS = ["res://database/registry/assets/ships/", "res://database/presets/parts/"]  # Hand-made hulls, and the part catalogue (PartCatalog)
 
 
 func _initialize():

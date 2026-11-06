@@ -8,15 +8,16 @@
 
 extends Reference
 
+const PartCatalog = preload("res://src/core/systems/part_catalog.gd")
 const ModelCheck = preload("res://src/scenes/game_world/models/model_check.gd")
 const SectorNames = preload("res://src/core/validation/sector_names.gd")
 const SoundBank = preload("res://src/core/sound/sound_bank.gd")
 const SOUND_BANK_PATH = "res://database/sounds/sound_bank.tres"
-const SECTIONS = ["factions", "locations", "sectors", "archetypes", "starts", "models", "materials", "sounds"]
+const SECTIONS = ["factions", "locations", "sectors", "parts", "archetypes", "starts", "models", "materials", "sounds"]
 const STARTS_DIR = "res://database/registry/game_starts/"
 const LOCATIONS_DIR = "res://database/registry/locations/"
 const COMMODITIES_DIR = "res://database/registry/assets/commodities/"
-const PART_DIRS = ["res://database/registry/tools/", "res://database/registry/assets/modules/"]
+const PART_DIRS = [Constants.PARTS_DIR]  # The part catalogue (PartCatalog): the only parts there are
 const SHIPS_DIR = "res://database/registry/assets/ships/"
 const ANY_COMMODITY = "*"
 const MATERIALS_DIR = "res://assets/art/materials_generic/"
@@ -39,6 +40,8 @@ static func section(name: String) -> Array:
 			return locations()
 		"sectors":
 			return sectors()
+		"parts":
+			return parts()
 		"archetypes":
 			return archetypes()
 		"models":
@@ -60,6 +63,8 @@ static func section_for(path: String) -> String:
 		return "locations"
 	if path.begins_with(Constants.SECTORS_SCENES_DIR):
 		return "sectors"
+	if path.begins_with(Constants.PARTS_DIR):
+		return "parts"
 	if path.begins_with(Constants.ARCHETYPES_DIR):
 		return "archetypes"
 	if path == SOUND_BANK_PATH:
@@ -268,6 +273,41 @@ static func archetype_names() -> Array:
 	return out
 
 
+# The part catalogue (PartCatalog): three of every kind, light, medium and heavy, and one harpoon;
+# each preset_<kind>_<weight>.tres with its kind, weight and plain name, and nothing else there. The
+# archetypes folder holds the archetypes alone (their parts are the catalogue's).
+static func parts(dir_path: String = Constants.PARTS_DIR) -> Array:
+	var out: Array = []
+	var expected: Array = PartCatalog.ids()
+	for path in _files_in(dir_path, ".tres"):
+		var template_id: String = path.get_file().get_basename()
+		if not template_id in expected:
+			out.append(_problem(path, "Not a catalogue part: the catalogue is preset_<kind>_<light|medium|heavy> and %s" % Constants.HARPOON_TEMPLATE_ID))
+			continue
+		expected.erase(template_id)
+		var part = _fresh(path)
+		if part == null or part.template_id != template_id:
+			out.append(_problem(path, "Its template_id should be '%s'" % template_id))
+			continue
+		var kind: String = str(part.get("tool_type")) if part is UtilityToolTemplate else str(part.get("module_kind"))
+		var part_type: int = 0 if kind == "harpoon" else int(part.variant_type)
+		if PartCatalog.id(kind, part_type) != template_id:
+			out.append(_problem(path, "It is a %s %s, so its id is '%s'" % [PartCatalog.weight_name(part_type), kind, PartCatalog.id(kind, part_type)]))
+		var name: String = str(part.get("tool_name")) if part is UtilityToolTemplate else str(part.get("module_name"))
+		if name != PartCatalog.name(kind, part_type):
+			out.append(_problem(path, "Its name is '%s', not '%s'" % [name, PartCatalog.name(kind, part_type)]))
+		if kind != "harpoon" and (part.get("law_genes") == null or part.law_genes.empty()):
+			out.append(_problem(path, "No law_genes: the part's genes, which evolution and apply_laws read"))
+	for template_id in expected:
+		out.append(_problem(dir_path.plus_file(template_id + ".tres"), "Missing: every kind comes light, medium and heavy"))
+	if dir_path == Constants.PARTS_DIR:
+		for path in _files_in(Constants.ARCHETYPES_DIR, ".tres"):
+			var name: String = path.get_file()
+			if not (name.begins_with("agent_archetype_") or name.begins_with("preset_ship_archetype_")):
+				out.append(_problem(path, "Not an archetype: archetypes fit the catalogue's parts, kept in %s" % Constants.PARTS_DIR))
+	return out
+
+
 static func archetypes() -> Array:
 	var out: Array = []
 	for archetype in archetype_names():
@@ -283,8 +323,17 @@ static func archetypes() -> Array:
 			if ship.ship_scene == null:
 				out.append(_problem(ship_path, "No hull scene (ship_scene)"))
 			for part in ship.equipped_tools + ship.equipped_modules:
-				if not (_exists(Constants.ARCHETYPES_DIR.plus_file(part + ".tres")) or TemplateDatabase.get_template(part) != null or part == Constants.HARPOON_TEMPLATE_ID):
-					out.append(_problem(ship_path, "Part '%s' does not exist" % part))
+				if not PartCatalog.has(part):
+					out.append(_problem(ship_path, "Part '%s' is not the catalogue's (%s)" % [part, Constants.PARTS_DIR]))
+			var words: Array = archetype.split("_")
+			if words.size() == 2 and ship.ship_model_name != PartCatalog.hull_name(words[0], words[1]):
+				out.append(_problem(ship_path, "Its name is '%s', not '%s'" % [ship.ship_model_name, PartCatalog.hull_name(words[0], words[1])]))
+		for group in ["tools", "modules"]:
+			for part in agent.genome.get(group, []):
+				if part.empty() or part.kind == "harpoon":
+					continue
+				if PartCatalog.genes(part.kind, int(part.type)).hash() != part.genes.hash():
+					out.append(_problem(path, "Its genome's %s %s is not the catalogue's (its genes differ)" % [PartCatalog.weight_name(int(part.type)), part.kind]))
 		if not _exists(Constants.PLACEHOLDER_HULLS_DIR.plus_file(archetype + ".tscn")):
 			out.append(_problem(path, "No placeholder hull %s" % Constants.PLACEHOLDER_HULLS_DIR.plus_file(archetype + ".tscn")))
 	return out

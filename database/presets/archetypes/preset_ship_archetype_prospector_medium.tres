@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource( 1 )
 template_id = "preset_ship_archetype_prospector_medium"
-ship_model_name = "Mk II Medium Prospector"
+ship_model_name = "Prospector Mk I-medium"
 base_value = 990
 ship_scene = ExtResource( 2 )
 hull_integrity = 108
@@ -19,8 +19,8 @@ tool_slots_small = 3
 tool_slots_medium = 0
 tool_slots_large = 0
 module_slots = 1
-equipped_tools = [ "preset_laser_3_701_166", "tool_harpoon", "preset_laser_2_300_50" ]
-equipped_modules = [ "preset_lance_1_109_2" ]
+equipped_tools = [ "preset_laser_heavy", "preset_harpoon", "preset_laser_medium" ]
+equipped_modules = [ "preset_lance_light" ]
 salvage_yield = {
 "commodity_scrap": 20,
 "commodity_tech": 10

@@ -1,0 +1,21 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/asset_module_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_magazine_light"
+module_name = "Shell Bay Mk I-light"
+description = "100 kg."
+base_value = 25
+mass = 100.0
+stat_modifiers = {
+"shell_load": 85.0
+}
+lance = {
+}
+module_kind = "magazine"
+variant_type = 1
+law_genes = {
+"mass": 100.0
+}

@@ -55,8 +55,8 @@ genome = {
 "type": 1
 }, {
 "genes": {
-"count": 2.46061,
-"nail_mass": 235.445
+"count": 2.781,
+"nail_mass": 300.238
 },
 "kind": "lance",
 "type": 2
@@ -76,10 +76,10 @@ genome = {
 "tools": [ {
 }, {
 "genes": {
-"count": 2.0,
-"round_mass": 231.704
+"count": 4.0,
+"round_mass": 100.034
 },
 "kind": "missile",
-"type": 3
+"type": 2
 } ]
 }

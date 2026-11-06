@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource( 1 )
 template_id = "preset_ship_archetype_lance_medium"
-ship_model_name = "Mk II Medium Lance"
+ship_model_name = "Lance Mk I-medium"
 base_value = 1148
 ship_scene = ExtResource( 2 )
 hull_integrity = 146
@@ -19,8 +19,8 @@ tool_slots_small = 2
 tool_slots_medium = 0
 tool_slots_large = 0
 module_slots = 2
-equipped_tools = [ "tool_harpoon" ]
-equipped_modules = [ "preset_lance_1_109_3", "preset_plating_2_981" ]
+equipped_tools = [ "preset_harpoon" ]
+equipped_modules = [ "preset_lance_light", "preset_plating_medium" ]
 salvage_yield = {
 "commodity_scrap": 23,
 "commodity_tech": 9

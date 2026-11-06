@@ -745,7 +745,7 @@ func print_report() -> void:
 			roles[role] = int(roles.get(role, 0)) + 1
 			for part in entry.genome.tools + entry.genome.modules:
 				if not part.empty():
-					var key: String = "%s %s" % [part.kind, Constants.PART_TYPE_NAMES.get(int(part.type), "")]
+					var key: String = "%s %s" % [part.kind, ["", "light", "medium", "heavy"][clamp(int(part.type), 0, 3)]]
 					parts[key] = int(parts.get(key, 0)) + 1
 			if i < 8:
 				print("[%s] EVO REPORT   #%d %-22s %s fit %+.2f n=%d kills=%d deaths=%d earned=%d  %s" % [_clock(), i + 1, ranked[i][1], ranked[i][2],

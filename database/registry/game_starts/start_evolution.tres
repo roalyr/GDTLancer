@@ -9,12 +9,12 @@ player_ship_template = "preset_ship_archetype_prospector_light"
 player_starting_location = "station_arena_home"
 starting_bank = 30000
 starting_storage = {
-"module_afterburner": 1,
-"module_decoy_launcher": 1,
-"module_extended_magazine": 1,
-"module_hull_plating": 1,
-"module_sensor_booster": 1,
-"tool_ablative_laser": 1,
-"tool_missile_rack": 1,
-"tool_rail_cannon": 1
+"preset_afterburner_medium": 1,
+"preset_decoy_medium": 1,
+"preset_magazine_medium": 1,
+"preset_plating_medium": 1,
+"preset_sensor_medium": 1,
+"preset_laser_medium": 1,
+"preset_missile_medium": 1,
+"preset_cannon_medium": 1
 }

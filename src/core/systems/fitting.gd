@@ -1,6 +1,7 @@
-# Fitting: the home station's store and refitting. It sells everything there is at the station's
-# prices (Market): every tool and module (bought into the home storage, fitted from there, sold back
-# for half), every ship hull (the current one is traded in for half its price) and every commodity
+# Fitting: the home station's store and refitting. It sells, at the station's prices (Market), the
+# part catalogue (PartCatalog: three of every kind, light, medium, heavy; bought into the home
+# storage, fitted from there, sold back for half), the archetypes' hulls (the current one is traded
+# in for half its price) and every commodity
 # (into the hold, sold back at the station's cargo price). Every refit is applied to the ship at once
 # (stats, mass, tools) and repairs it.
 # Returns "" on success or a message saying why not.
@@ -10,32 +11,29 @@ extends Reference
 const ShipFit = preload("res://src/core/systems/ship_fit.gd")
 const HomePort = preload("res://src/core/systems/home_port.gd")
 const Market = preload("res://src/core/systems/market.gd")
+const PartCatalog = preload("res://src/core/systems/part_catalog.gd")
 
 
 static func is_available() -> bool:
 	return HomePort.is_home(GameState.player_docked_at)
 
 
-# Parts the home station sells: every tool and module, the presets' included.
+# Parts the home station sells: the catalogue, nothing else.
 static func catalog() -> Array:
 	var ids: Array = []
-	for tool_id in TemplateDatabase.utility_tools:
-		ids.append(tool_id)
-	for module_id in TemplateDatabase.assets_modules:
-		ids.append(module_id)
-	for preset_id in TemplateDatabase.presets:
-		if not TemplateDatabase.presets[preset_id] is ShipTemplate:
-			ids.append(preset_id)
+	for part_id in PartCatalog.ids():
+		if TemplateDatabase.get_template(part_id) != null:
+			ids.append(part_id)
 	ids.sort()
 	return ids
 
 
-# Ships the home station sells: every hull, and every preset design's hull (bare: its price is the
-# hull's; the presets' parts are in catalog()).
+# Ships the home station sells: the archetypes' hulls, three of every family (bare: its price is the
+# hull's; the parts are in catalog()). Drafts are evolution's, not for sale.
 static func ship_catalog() -> Array:
-	var ids: Array = []  # Presets only (the archetypes and drafts): every ship flies a design, on its placeholder hull
+	var ids: Array = []
 	for preset_id in TemplateDatabase.presets:
-		if TemplateDatabase.presets[preset_id] is ShipTemplate:
+		if TemplateDatabase.presets[preset_id] is ShipTemplate and str(preset_id).begins_with("preset_ship_archetype_"):
 			ids.append(preset_id)
 	ids.sort()
 	return ids

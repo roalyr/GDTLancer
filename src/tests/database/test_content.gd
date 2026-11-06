@@ -109,7 +109,7 @@ func test_game_starts_keep_the_rules():
 
 func test_a_broken_game_start_is_caught():
 	var start = load("res://database/registry/game_starts/start_default.tres").duplicate()
-	start.starting_storage = {"tool_nothing": 1, "tool_rail_cannon": 0}
+	start.starting_storage = {"tool_nothing": 1, "preset_cannon_medium": 0}
 	start.player_starting_location = "nowhere"
 	start.player_ship_template = "ship_nothing"
 	var dir := "user://test_validator_starts/"
@@ -119,7 +119,7 @@ func test_a_broken_game_start_is_caught():
 	for problem in Validator.starts(dir):
 		texts.append(problem.problem)
 	assert_has(texts, "Its kit holds 'tool_nothing', which is not a weapon, tool or module")
-	assert_has(texts, "Its kit's count of 'tool_rail_cannon' should be a whole number from 1")
+	assert_has(texts, "Its kit's count of 'preset_cannon_medium' should be a whole number from 1")
 	assert_has(texts, "It starts at 'nowhere', which is not a haven")
 	assert_has(texts, "Its ship 'ship_nothing' is not a ship template")
 	Directory.new().remove(dir + "start_broken.tres")

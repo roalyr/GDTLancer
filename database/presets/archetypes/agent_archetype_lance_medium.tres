@@ -49,8 +49,8 @@ genome = {
 },
 "modules": [ {
 "genes": {
-"count": 3.03099,
-"nail_mass": 109.378
+"count": 3.092,
+"nail_mass": 109.356
 },
 "kind": "lance",
 "type": 1

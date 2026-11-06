@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource( 1 )
 template_id = "preset_ship_archetype_scavenger_heavy"
-ship_model_name = "Mk III Heavy Scavenger"
+ship_model_name = "Scavenger Mk I-heavy"
 base_value = 2927
 ship_scene = ExtResource( 2 )
 hull_integrity = 271
@@ -19,8 +19,8 @@ tool_slots_small = 0
 tool_slots_medium = 3
 tool_slots_large = 0
 module_slots = 4
-equipped_tools = [ "tool_harpoon" ]
-equipped_modules = [ "preset_damper_1_145" ]
+equipped_tools = [ "preset_harpoon" ]
+equipped_modules = [ "preset_damper_light" ]
 salvage_yield = {
 "commodity_scrap": 59,
 "commodity_tech": 27

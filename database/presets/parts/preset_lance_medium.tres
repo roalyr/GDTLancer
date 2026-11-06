@@ -1,0 +1,29 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/asset_module_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_lance_medium"
+module_name = "Lance Mk I-medium"
+description = "1501 kg: 3 lances of 300 kg, 166 damage at 200 m/s (none under 60 m/s); an armoured prow, +64 hull."
+base_value = 375
+mass = 1501.19
+stat_modifiers = {
+"hull": 64
+}
+lance = {
+"count": 3,
+"damage": 166.085,
+"length": 13.7402,
+"mass": 1501.19,
+"nail_mass": 300.238,
+"nail_value": 75,
+"reload": 4.90092
+}
+module_kind = "lance"
+variant_type = 2
+law_genes = {
+"count": 2.781,
+"nail_mass": 300.238
+}
