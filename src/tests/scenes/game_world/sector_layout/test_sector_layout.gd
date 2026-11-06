@@ -174,3 +174,31 @@ func test_a_beacon_passes_on_only_what_its_kind_reads():
 	assert_false(spec.has("rocks"))
 	assert_true(spec.player_visible)
 	marker.free()
+
+
+func test_in_the_editor_an_attached_markers_ring_is_drawn_round_its_body():
+	Engine.editor_hint = true
+	var sector := Spatial.new()
+	add_child_autofree(sector)
+	var assets := Spatial.new()
+	assets.name = "SceneAssets"
+	sector.add_child(assets)
+	var planet := Spatial.new()
+	planet.name = "Planet"
+	planet.transform.origin = Vector3(30000, 0, 0)
+	assets.add_child(planet)
+	var layout := Spatial.new()  # The layout scene's root
+	assets.add_child(layout)
+	var marker = load("res://src/scenes/game_world/sector_layout/markers/beacon_marker.gd").new()
+	marker.attached_to = "SceneAssets/Planet"
+	marker.transform.origin = Vector3(100, 0, 0)
+	layout.add_child(marker)
+	marker.owner = layout
+	marker._process(0.0)
+	var ring: Spatial = marker._ring
+	Engine.editor_hint = false
+	assert_not_null(ring)
+	assert_almost_eq(ring.global_transform.origin, Vector3(30100, 0, 0), Vector3.ONE * 0.01, "Where the game puts it")
+	marker.attached_to = ""
+	marker._process(0.0)
+	assert_eq(ring.transform.origin, Vector3.ZERO, "Let go: at the marker again")

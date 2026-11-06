@@ -1,8 +1,9 @@
 # SectorLayout: builds a sector's layout on load (its layout scene's markers): its havens
-# (stations NPCs live from; one already in the scene is used as it is), a beacon at each haven, at
+# (stations NPCs live from, each built from its marker), a beacon at each haven, at
 # each planet and moon (a landmark above it) and at each beacon the layout lists, the rock fields
 # round the field beacons (from their names' seeds, the same on every load), its hazards, and the
-# BeaconNetwork that keeps the beacons' numbers. Sits at the sector's middle, unrotated, so layout
+# BeaconNetwork that keeps the beacons' numbers, and where ships arrive (the entry beacon). Markers
+# attached to a body are placed from it. Sits at the sector's middle, unrotated, so layout
 # positions are sector positions. AgentSystem keeps each populated haven's NPCs topped up from
 # Evolution.
 

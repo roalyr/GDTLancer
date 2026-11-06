@@ -170,7 +170,7 @@ func has_save_file(slot_id: int = 0) -> bool:
 # --- Internals ---
 
 func _get_save_path(slot_id: int) -> String:
-	return save_dir + SAVE_FILE_PREFIX + str(slot_id) + SAVE_FILE_EXT
+	return save_dir.plus_file(SAVE_FILE_PREFIX + str(slot_id) + SAVE_FILE_EXT)  # With or without a trailing / on save_dir
 
 
 func _read_save_data(slot_id: int):

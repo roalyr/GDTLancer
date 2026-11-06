@@ -37,14 +37,14 @@ Aliens set `no_standing`, `territory` and `salvage_as`, and may fly a hull of th
 
 **The sector scene** (`<sector>.tscn`) places its bodies and belts under `SceneAssets`, with its layout (`SectorLayout`). Nothing else is placed there: no stations (they come with their haven) and no entry point (a beacon).
 
-**The layout** (`<sector>_layout.tscn`) is a scene of markers among the bodies. Move a marker (`translation`, in m) to move what it stands for. The layout's root sets the play area. A marker can be **attached** to a body (`attached_to`): its translation is then from that body, and it moves with it (the star's radiation, a planet's ring of rocks). In the Godot editor the markers sit under `SceneAssets/SectorLayout/Layout`, each drawing its reach as a ring.
+**The layout** (`<sector>_layout.tscn`) is a scene of markers among the bodies. Move a marker (`translation`, in m) to move what it stands for. The layout's root sets the play area. A marker can be **attached** to a body (`attached_to`): its translation is then from that body, and it moves with it (the star's radiation, a planet's ring of rocks). In the Godot editor the markers sit under `SceneAssets/SectorLayout/Layout`, each drawing its reach as a ring (an attached one's round its body, where the game puts it).
 - **Havens** (`HavenMarker`): stations NPCs live from. Each sets:
   - its id, name and owner (`faction`);
   - its station (`model`: a station model scene, see **Models**, picked from a list in the tool). A haven and its station are one thing: the layout builds the station at the marker, turned as the marker is (`rotation_degrees`), so moving the marker moves the station. Never place a station in a sector scene itself; the rules catch one;
   - whether it is seen from anywhere (`seen_anywhere`: it runs a beacon, as the home port does), instead of by its size;
   - how many ships of each faction live there (`ships`), and which kind it favours (`prefer_role`);
   - its services: repair, rearm, and what it buys at what price (`buys`). The tool lists them as rows: a commodity (or `*`, anything not listed) and its factor on the commodity's price, with what one unit then fetches. A haven with no rows buys nothing.
-- **Beacons** (`BeaconMarker`): patrol points (`owner_faction`), rock fields (`rocks` within `radius`; `ring` round a planet), landmarks routes go through, and the sector's one **entry** (`kind` "entry"): ships jumping in arrive, and new games start, `radius` out from it. Planets and moons get their landmarks by themselves.
+- **Beacons** (`BeaconMarker`): patrol points (`owner_faction`), rock fields (`rocks` within `radius`; `ring` round a planet), landmarks routes go through, and the sector's one **entry** (`kind` "entry"): ships jumping in, the player and travelling NPCs alike, arrive `radius` out from it (no radius: the sector's `jump_in_distance`). A new game starts docked at the home port instead. Planets and moons get their landmarks by themselves.
 - **Hazards** (`HazardMarker`): the star's radiation, from `core` out to `radius` (attached to its star).
 
 Routes go round planets and moons by themselves.

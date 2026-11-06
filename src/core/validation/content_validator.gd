@@ -144,6 +144,7 @@ static func sectors() -> Array:
 	var seen := {}
 	for sector_id in layouts:
 		var path: String = layouts[sector_id]
+		var spec: Dictionary = _spec_of(path)
 		var scene_path: String = Constants.SECTORS_SCENES_DIR.plus_file(sector_id).plus_file(sector_id + ".tscn")
 		var file := File.new()
 		if file.open(scene_path, File.READ) != OK:
@@ -153,10 +154,10 @@ static func sectors() -> Array:
 			file.close()
 			var entries := 0
 			var points: Array = []
-			for haven in _spec_of(path).havens:
+			for haven in spec.havens:
 				points.append([haven.get("id", ""), haven])
 			for list in ["beacons", "hazards"]:
-				for point in _spec_of(path)[list]:
+				for point in spec[list]:
 					points.append([point.get("name", point.get("kind", "")), point])
 					if point.get("kind", "") == "entry" and list == "beacons":
 						entries += 1
@@ -170,9 +171,6 @@ static func sectors() -> Array:
 				out.append(_problem(path, "The sector scene %s does not place this layout" % scene_path))
 			for station in stations_placed_in(scene_text):
 				out.append(_problem(scene_path, "It places a station (%s): stations come with their haven, so place a haven marker in the layout instead" % station))
-		var layout: Node = _fresh(path).instance()
-		var spec: Dictionary = layout.to_spec() if layout.has_method("to_spec") else {"havens": [], "beacons": []}
-		layout.free()
 		for haven in spec.havens:
 			if seen.has(haven.id):
 				out.append(_problem(path, "Haven id '%s' is used twice" % haven.id))

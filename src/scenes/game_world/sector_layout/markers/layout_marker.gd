@@ -1,9 +1,10 @@
 # LayoutMarker: a point of a sector's layout placed in its layout scene
-# (scenes/levels/sectors/<sector>/layout.tscn): a haven, beacon or hazard (HavenMarker,
+# (scenes/levels/sectors/<sector>/<sector>_layout.tscn): a haven, beacon or hazard (HavenMarker,
 # BeaconMarker, HazardMarker). Its position is the point's; in the editor it draws its reach.
 # Read by SectorLayoutMarkers.to_spec; nothing of it runs in play. With `attached_to` it rides with
 # a body of the sector scene (a star's radiation, a planet's ring of rocks): its position is then
-# from that body, so moving the body moves it too.
+# from that body, so moving the body moves it too. In the editor its ring is drawn where the game
+# puts it (round the body, the offset away); the marker's own cross stays at the offset.
 
 tool
 extends Position3D
@@ -17,11 +18,37 @@ var _ring: ImmediateGeometry = null
 
 
 func _ready() -> void:
+	set_process(Engine.editor_hint)  # Only the editor's ring follows a body
 	if not Engine.editor_hint:
 		return
 	_ring = MarkerRing.new()
 	add_child(_ring)
 	_update_ring()
+
+
+func _process(_delta: float) -> void:
+	if _ring == null:
+		return
+	var body: Spatial = _attached_body()
+	var layout = owner if owner is Spatial else null  # The layout scene's root
+	if body != null and layout != null:
+		_ring.global_transform.origin = body.global_transform.origin + (global_transform.origin - layout.global_transform.origin)
+	elif _ring.transform.origin != Vector3.ZERO:
+		_ring.transform.origin = Vector3.ZERO
+
+
+# The body it is attached to, looked up from the scene it sits in (as SectorLayout does), or null:
+# none, or the layout scene is open on its own.
+func _attached_body() -> Spatial:
+	if attached_to == "":
+		return null
+	var node: Node = self
+	while node.get_parent() != null and not node.get_parent() is Viewport:
+		node = node.get_parent()
+		var found = node.get_node_or_null(attached_to)
+		if found is Spatial:
+			return found
+	return null
 
 
 # The ring's radius and colour (0: none); markers override.

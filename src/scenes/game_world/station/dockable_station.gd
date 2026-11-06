@@ -8,8 +8,8 @@ extends StaticBody
 const CollisionHull = preload("res://src/core/agents/components/collision_hull.gd")
 const ModelLooks = preload("res://src/scenes/game_world/models/model_looks.gd")
 
-export var location_id: String = "station_elace_home"
-export var station_name: String = "Elace System"
+export var location_id: String = ""  # Its haven's id (SectorLayout sets it, and the name, from the haven marker)
+export var station_name: String = ""
 export var obstacle_radius: float = 120.0  # m the autopilot keeps clear of
 export var undock_offset: Vector3 = Vector3(0, 60, 0)  # Where a ship appears when it spawns docked, in station space
 export var has_beacon: bool = false  # A beacon is detected anywhere, like a star; without one, by size

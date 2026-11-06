@@ -294,11 +294,16 @@ func _entry_point() -> Vector3:
 	return preload("res://src/scenes/game_world/sector_layout/sector_layout.gd").entry_of(GlobalRefs.current_zone).at
 
 
-# Where ships come in from, or go out toward, `sector_id` (the jump shell on its side).
+# Where ships come in from, or go out toward, `sector_id` (the jump shell on its side): the entry
+# beacon's radius out from the entry, as the player arrives (AgentSystem); no radius, the sector's
+# jump_in_distance.
 func _jump_shell_point(entry: Vector3, sector_id: String) -> Vector3:
 	var here = TemplateDatabase.locations.get(GameState.current_sector_id)
 	var there = TemplateDatabase.locations.get(sector_id)
 	var distance: float = float(here.jump_in_distance) if here != null and here.get("jump_in_distance") != null else 20000.0
+	var radius: float = float(preload("res://src/scenes/game_world/sector_layout/sector_layout.gd").entry_of(GlobalRefs.current_zone).radius)
+	if radius > 0.0:
+		distance = radius
 	var direction: Vector3 = (there.global_position - here.global_position).normalized() if here != null and there != null else _scatter(1.0).normalized()
 	return entry + direction * distance * 0.9
 

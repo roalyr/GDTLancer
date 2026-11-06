@@ -2,7 +2,8 @@
 # its patrol ships go round them, its safe zone), "field" (a rock field to mine: `rocks` of them
 # within `radius`, `ring`: only the outer share past it, round a planet) or "landmark" (a point
 # routes go through; every planet and moon gets one by itself; `player_visible` shows it on the HUD)
-# or "entry" (where ships jumping in arrive and new games start, `radius` out from it; one a sector).
+# or "entry" (where ships jumping in arrive, the player and travellers alike, `radius` out from it;
+# one a sector. A new game starts docked at its home port, here only when it names none).
 
 tool
 extends "res://src/scenes/game_world/sector_layout/markers/layout_marker.gd"

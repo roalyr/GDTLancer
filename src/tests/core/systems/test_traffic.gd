@@ -84,3 +84,19 @@ func test_a_lost_travellers_place_is_filled_only_when_its_replacement_is_due():
 	GameState.world_time += Constants.TRAFFIC_REPLACE_TIME + 1.0
 	traffic.fill_roster()
 	assert_eq(GameState.travelers.size(), Traffic._roster_size())
+
+
+func test_travellers_arrive_the_entry_beacons_radius_out_as_the_player_does():
+	GameState.current_sector_id = "sector_elace"
+	var zone := Spatial.new()
+	add_child_autofree(zone)
+	var saved_zone = GlobalRefs.current_zone
+	GlobalRefs.current_zone = zone
+	var shell: Vector3 = traffic._jump_shell_point(Vector3.ZERO, "sector_cob")
+	assert_almost_eq(shell.length(), 20000.0 * 0.9, 1.0, "No layout: the sector's jump_in_distance")
+	var layout = preload("res://src/scenes/game_world/sector_layout/sector_layout.gd").new()
+	zone.add_child(layout)  # Elace's layout: its entry beacon, 20 km
+	layout.entry.radius = 8000.0
+	shell = traffic._jump_shell_point(layout.to_global(layout.entry.at), "sector_cob")
+	assert_almost_eq(shell.distance_to(layout.to_global(layout.entry.at)), 8000.0 * 0.9, 1.0, "The entry beacon's radius")
+	GlobalRefs.current_zone = saved_zone

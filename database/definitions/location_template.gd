@@ -13,7 +13,7 @@ const SHOWN_WHEN = {
 
 # --- Identity & Scene ---
 export var location_name: String = "Unknown Station"
-export var jump_in_distance: float = 5000.0  # Distance from origin or EntryPoint for spawning / jump-in (+/- 10% variation).
+export var jump_in_distance: float = 5000.0  # Jump-in distance (+/- 10%) from the sector's entry for a sector whose entry beacon sets no radius (or that has none).
 export var interaction_radius: float = 100.0  # Dock/interact radius when a scene-level anchor uses this resource directly.
 
 # --- Sector Scene Configuration ---

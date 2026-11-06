@@ -53,10 +53,16 @@ PLACEABLE = ("scenes/levels/sectors/*/*/*.tscn", "scenes/prefabs/celestial/*.tsc
 
 
 def placeable_scenes():
-    """res:// paths of the scenes a sector can place: stars, planets, moons, belts (composed in Godot)."""
+    """res:// paths of the scenes a sector can place: stars, planets, moons, belts (composed in Godot).
+    In a sector's folders only <folder>/<folder>.tscn counts: the others there are parts of one (a
+    star's sprite)."""
     out = []
     for pattern in PLACEABLE:
-        out += ["res://" + os.path.relpath(path, tasks.ROOT) for path in sorted(glob.glob(os.path.join(tasks.ROOT, pattern)))]
+        for path in sorted(glob.glob(os.path.join(tasks.ROOT, pattern))):
+            folder = os.path.basename(os.path.dirname(path))
+            if pattern.startswith("scenes/levels/sectors/") and os.path.basename(path) != folder + ".tscn":
+                continue
+            out.append("res://" + os.path.relpath(path, tasks.ROOT))
     return out
 
 
@@ -2110,7 +2116,10 @@ class DevApp(App):
             return
         picked = self.world["picked"]
         if picked.startswith(SCENE):
-            scenes = [path for path in placeable_scenes() if path != self.world["scene"]]
+            scenes = placeable_scenes()
+            if not scenes:
+                self.notify("No scenes to place (%s)" % ", ".join(PLACEABLE), severity="warning")
+                return
             here = self.world["nodes"].get(picked, {})
             at = [here.get("x", 0.0) + COPY_OFFSET * 5, here.get("y", 0.0), here.get("z", 0.0)] if picked != SCENE else [0.0, 0.0, 0.0]
 
