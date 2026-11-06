@@ -29,6 +29,7 @@
 
 extends Node
 
+const Havens = preload("res://src/core/systems/havens.gd")
 const FrameProfiler = preload("res://src/core/utils/frame_profiler.gd")
 const Wages = preload("res://src/core/systems/wages.gd")
 
@@ -229,10 +230,11 @@ func remove_escort(escort: Node) -> void:
 	_escorts.erase(escort)
 
 
-# An armed ship with teamwork enough, of a faction that hires escorts, takes the nearest worker of
-# its own that has no NPC escort yet. Returns whether it has one.
+# An armed ship with teamwork enough (or an outpost's: guarding its prospectors is what it is there
+# for), of a faction that hires escorts, takes the nearest worker of its own that has no NPC escort
+# yet. Returns whether it has one.
 func _take_ward() -> bool:
-	if _teamwork < Constants.AI_ESCORT_MIN_TEAMWORK or is_prospector() or not TemplateDatabase.factions.get(agent_script.faction, {}).get("escorts", false):
+	if (_teamwork < Constants.AI_ESCORT_MIN_TEAMWORK and not is_outpost_guard()) or is_prospector() or not TemplateDatabase.factions.get(agent_script.faction, {}).get("escorts", false):
 		return false
 	var best: Node = null
 	var best_distance: float = Constants.ESCORT_PICK_RANGE
@@ -255,6 +257,11 @@ func _take_ward() -> bool:
 	_has_patrol_destination = false
 	_note("took_ward")
 	return true
+
+
+# Lives at an outpost: a haven that favours prospectors (its prefer_role).
+func is_outpost_guard() -> bool:
+	return not _havens.empty() and str(Havens.spec(str(_havens.get("zone_id", ""))).get("prefer_role", "")) == "prospector"
 
 
 func _drop_ward() -> void:
@@ -1232,8 +1239,9 @@ func _set_trip(point: Vector3) -> void:
 	agent_script.command_move_to(_trip[0])
 
 
-# Where to sell the hold: the welcoming station that pays most for it against the time to get
-# there (route cost: danger counts as time); the nearest refuge if none buys any of it.
+# Where to sell the hold: the welcoming station that pays most for it against the whole round (there
+# and back, route cost: danger counts as time, and AI_MARKET_FILL_TIME to fill the hold again), so a
+# far market that pays well can beat a near one; the nearest refuge if none buys any of it.
 func _pick_market() -> Spatial:
 	var network = BeaconNetwork.of(agent_script)
 	if network == null or agent_script.get_cargo_value() <= 0.0:
@@ -1249,7 +1257,7 @@ func _pick_market() -> Spatial:
 			if network.beacons[i].haven == station:
 				index = i
 		var cost: float = planned.cost[index] if index >= 0 else INF
-		var score: float = float(Market.hold_value(agent_script, str(station.get("location_id"))).value) / (cost + Constants.ROUTE_TIME_FLOOR)
+		var score: float = float(Market.hold_value(agent_script, str(station.get("location_id"))).value) / (2.0 * cost + Constants.AI_MARKET_FILL_TIME)
 		if score > best_score:
 			best = station
 			best_score = score

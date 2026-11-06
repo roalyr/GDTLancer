@@ -248,7 +248,7 @@ func test_elace_is_built_round_a_rush_on_one_open_belt():
 			if beacon.kind == "patrol" and beacon.get("owner", "") == faction:
 				nearest = min(nearest, _at(beacon, bodies).distance_to(rush))
 		assert_lt(nearest, 12000.0, "%s pickets the rush: the patrols meet there" % faction)
-		assert_lt(_at(havens[faction + "_post"], bodies).distance_to(rush), 14000.0, "%s has a claim by the belt" % faction)
+		assert_lt(_at(havens[faction + "_post"], bodies).distance_to(rush), 14000.0, "%s has an outpost by the belt" % faction)
 	var star: Vector3 = bodies["SceneAssets/Star Elace"]
 	assert_lt((rush - star).normalized().dot((_at(havens.elace_refinery, bodies) - star).normalized()), -0.5,
 		"The refinery pays best across the star from the belt: ore is hauled round it")

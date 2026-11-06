@@ -72,6 +72,19 @@ func test_no_escorts_across_factions_or_where_none_are_hired_or_for_loners():
 	assert_true(Wages.can_escort(_ship(Vector3.ZERO, "", true, "player"), worker), "The player may, while not hostile")
 
 
+func test_an_outposts_guard_escorts_whatever_its_teamwork():
+	_ship(Vector3(0, 0, -800), "verdant", false)
+	var guard = _ship(Vector3.ZERO, "verdant", true)
+	_ai(guard)._teamwork = 0.5
+	assert_false(_ai(guard)._take_ward(), "A loner from a haven")
+	_ai(guard)._havens = {"zone_id": "verdant_post"}  # Verdant Outpost: favours prospectors
+	assert_true(_ai(guard).is_outpost_guard())
+	assert_true(_ai(guard)._take_ward(), "An outpost's guard: escorting is its job")
+	_ai(guard)._drop_ward()
+	_ai(guard)._havens = {"zone_id": "verdant_haven"}
+	assert_false(_ai(guard).is_outpost_guard(), "A home haven's ship is no outpost guard")
+
+
 func test_a_ward_gone_is_let_go():
 	var escort = _ship(Vector3.ZERO, "verdant", true)
 	var worker = _ship(Vector3(0, 0, -800), "verdant", false)

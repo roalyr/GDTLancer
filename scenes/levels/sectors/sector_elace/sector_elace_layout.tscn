@@ -41,7 +41,8 @@ prefer_share = 0.0
 repair = true
 rearm = true
 buys = {
-"*": 1.0
+"*": 1.0,
+"commodity_ore": 0.7
 }
 
 [node name="VerdantHaven" type="Position3D" parent="Havens"]
@@ -66,18 +67,18 @@ buys = {
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 20000, 0, 10000 )
 script = ExtResource( 1 )
 haven_id = "verdant_post"
-display_name = "Verdant Claim"
+display_name = "Verdant Outpost"
 faction = "verdant"
 model = ExtResource( 7 )
 ships = {
-"verdant": 3
+"verdant": 4
 }
 prefer_role = "prospector"
-prefer_share = 0.7
+prefer_share = 0.5
 repair = true
 rearm = false
 buys = {
-"commodity_ore": 0.8
+"commodity_ore": 0.6
 }
 
 [node name="VioletHaven" type="Position3D" parent="Havens"]
@@ -102,18 +103,18 @@ buys = {
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 22000, 0, -10000 )
 script = ExtResource( 1 )
 haven_id = "violet_post"
-display_name = "Violet Claim"
+display_name = "Violet Outpost"
 faction = "violet"
 model = ExtResource( 7 )
 ships = {
-"violet": 3
+"violet": 4
 }
 prefer_role = "prospector"
-prefer_share = 0.7
+prefer_share = 0.5
 repair = true
 rearm = false
 buys = {
-"commodity_ore": 0.8
+"commodity_ore": 0.6
 }
 
 [node name="ElaceRefinery" type="Position3D" parent="Havens"]

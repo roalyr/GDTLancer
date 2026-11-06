@@ -213,7 +213,7 @@ func _spawn(record: Dictionary) -> void:
 	var arriving: bool = bool(record.get("arriving", false))
 	record.erase("arriving")
 	var work: Vector3 = _work_point(record, entry)
-	var position: Vector3 = _jump_shell_point(entry, record.from) if arriving else work + _scatter(Constants.TRAFFIC_WORK_RADIUS)
+	var position: Vector3 = _jump_shell_point(entry, record.from if arriving else record.next)  # In at the entry, then off to work: never dropped into a fight
 	var body = spawner.spawn_npc_from_template(Constants.NPC_BASE_TEMPLATE_PATH, position, {
 		"faction": record.faction,
 		"ship_template_id": built.ship_template_id,
@@ -331,7 +331,7 @@ func _work_point(record: Dictionary, entry: Vector3) -> Vector3:
 
 # The field beacon of the current sector with the most ore in reach (as BeaconNetwork counts it),
 # away from territorial factions' havens (a xenohive's belt is a risk for the sector's own
-# prospectors, not a traveller's work; rivals' claims on a belt draw them all the more); null if none.
+# prospectors, not a traveller's work; rivals' outposts by a belt draw them all the more); null if none.
 func _hotspot(_faction: String):
 	var network = BeaconNetwork.of(self) if is_inside_tree() else null
 	if network == null:

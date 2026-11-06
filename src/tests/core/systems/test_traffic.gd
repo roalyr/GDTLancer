@@ -122,7 +122,7 @@ func test_travellers_work_at_the_richest_field_clear_of_a_territory():
 		rock.deposit = 100
 		rock.transform.origin = at
 		add_child_autofree(rock)
-	assert_eq(traffic._hotspot("verdant"), made.violet_belt, "The richest field: a rival's claim by it draws them the more")
+	assert_eq(traffic._hotspot("verdant"), made.violet_belt, "The richest field: a rival's outpost by it draws them the more")
 	made.violet_belt.kind = "landmark"
 	assert_eq(traffic._hotspot("verdant"), made.open, "Not the hive's, the richer: a territory")
 	var point: Vector3 = traffic._work_point({"role": "prospector", "faction": "verdant"}, Vector3(9000, 0, 0))

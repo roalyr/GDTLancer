@@ -1012,6 +1012,7 @@ const ROUTE_WAYPOINT_REACHED = 1500.0  # m from a waypoint at which the next is 
 # where its enemies are there now. Scavenge (unarmed): heat. Mine (prospectors): a field's ore over
 # CHOICE_FIELD_VALUE, less where it is hot (e^(-c * heat)).
 const ROUTE_TIME_FLOOR = 60.0  # s
+const AI_MARKET_FILL_TIME = 600.0  # s a hold takes to fill again: weighed with the round trip when choosing where to sell
 const CHOICE_OWN_PATROL = 1.0
 const CHOICE_FIELD = 0.5
 const CHOICE_LANDMARK = 0.2
