@@ -34,6 +34,7 @@ func to_spec(at: Vector3) -> Dictionary:
 	}
 	if seen_anywhere:
 		spec["seen_anywhere"] = true
+	attach(spec)
 	if model != null:
 		spec["model"] = model.resource_path
 	if prefer_role != "":

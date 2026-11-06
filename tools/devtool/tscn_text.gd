@@ -147,6 +147,15 @@ func add_node(parent: String, name: String, type: String, script_id: int) -> Str
 	return unique if parent == "." else parent + "/" + unique
 
 
+# A new node `name` under `parent` that instances the scene `scene_path` (an ext_resource, added if
+# the file has none), after the parent's last descendant; returns its path.
+func add_instance(parent: String, name: String, scene_path: String) -> String:
+	var added: String = add_node(parent, name, "", -1)
+	var section = find_node(added)
+	section.head = '[node name="%s" parent="%s" instance=ExtResource( %d )]' % [added.get_file(), parent, ext_id(scene_path, "PackedScene")]
+	return added
+
+
 # Removes the node at `path` and every node under it.
 func remove_node(path: String) -> bool:
 	var removed := false

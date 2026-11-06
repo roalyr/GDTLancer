@@ -19,7 +19,7 @@ const SHIPS_DIR = "res://database/registry/assets/ships/"
 const ANY_COMMODITY = "*"
 const MATERIALS_DIR = "res://assets/art/materials_generic/"
 const MATERIAL_SHADERS = ["res://assets/art/shaders/solid.gdshader", "res://assets/art/shaders/glow.gdshader"]
-const BEACON_KINDS = ["patrol", "field", "landmark"]
+const BEACON_KINDS = ["patrol", "field", "landmark", "entry"]
 
 
 static func all() -> Array:
@@ -151,6 +151,21 @@ static func sectors() -> Array:
 		else:
 			var scene_text: String = file.get_as_text()
 			file.close()
+			var entries := 0
+			var points: Array = []
+			for haven in _spec_of(path).havens:
+				points.append([haven.get("id", ""), haven])
+			for list in ["beacons", "hazards"]:
+				for point in _spec_of(path)[list]:
+					points.append([point.get("name", point.get("kind", "")), point])
+					if point.get("kind", "") == "entry" and list == "beacons":
+						entries += 1
+			if entries != 1:
+				out.append(_problem(path, "%d entry beacons: a sector has one (where ships arrive)" % entries))
+			for point in points:
+				var body: String = str(point[1].get("attached_to", ""))
+				if body != "" and not has_node_path(scene_text, body):
+					out.append(_problem(path, "'%s' is attached to %s, which the sector scene does not have" % [point[0], body]))
 			if scene_text.find(sector_id + Constants.SECTOR_LAYOUT_SUFFIX) < 0:
 				out.append(_problem(path, "The sector scene %s does not place this layout" % scene_path))
 			for station in stations_placed_in(scene_text):
@@ -264,6 +279,25 @@ static func models() -> Array:
 		for problem in ModelCheck.station_problems(scene_path):
 			out.append(_problem(scene_path, problem))
 	return out
+
+
+# Whether a scene's text has a node at `node_path` (from its root, e.g. "SceneAssets/Star Elace").
+static func has_node_path(scene_text: String, node_path: String) -> bool:
+	var parent: String = node_path.get_base_dir() if node_path.find("/") >= 0 else "."
+	var head: String = '[node name="%s" ' % node_path.get_file()
+	var at: int = scene_text.find(head)
+	while at >= 0:
+		if scene_text.substr(at, scene_text.find("\n", at) - at).find('parent="%s"' % parent) >= 0:
+			return true
+		at = scene_text.find(head, at + 1)
+	return false
+
+
+static func _spec_of(layout_path: String) -> Dictionary:
+	var layout: Node = _fresh(layout_path).instance()
+	var spec: Dictionary = layout.to_spec() if layout.has_method("to_spec") else {"havens": [], "beacons": [], "hazards": []}
+	layout.free()
+	return spec
 
 
 # The station scenes a sector scene's text places itself (by their ext_resources): a station

@@ -8,7 +8,7 @@ This guide says where the game's content lives and how to change it without touc
 - **Archetypes:** the fifteen designs side by side as the game flies them: fitted mass, speed (and with the afterburner), acceleration, gun damage per second, slots, price, and which factions fly each. The picked one's pilot genes are drawn against evolution's ranges. `s` review sheet; `p` and `h` open its pilot or ship in Data.
 - **Factions:** every faction with its colour and paint, who is at war with whom (a matrix: pick a cell, `w` makes war or peace), its roster (tick archetypes, `ctrl+s`) and its havens (Enter opens one in World). `e` opens the faction in Data.
 - **Data:** every data file by kind (factions, archetypes, parts, commodities, the game start, locations, agents, the material library, the sound bank), in a form built from its script, with each field's note. `ctrl+s` saves, and the rules are checked at once on every save. `ctrl+u` puts the file back as it was before the last save, and `ctrl+n` makes a new file of the kind. A field the game does not read yet says so in orange ("Not in the game yet"): it is kept and saved, but changing it changes nothing in play.
-- **World:** each sector's layout: its havens, beacons and hazards in a tree, on a map from above, and the picked one in a form. The map is to scale both ways, on a grid in round km, with havens and beacons in their owner's colour and rings for the play area, the hazards and the picked marker's radius; its buttons zoom in on the picked marker, back out, or hide the map to give the form the room. `ctrl+n` adds a marker to the picked group, `ctrl+d` copies the picked marker, and `delete` removes it. Saving, checking and `ctrl+u` work as in Data.
+- **World:** each sector as two lists in a tree: **Scene** (the stars, planets, moons and asteroid belts its scene places) and its layout (havens, beacons, hazards). Pick one to move it in the form; `ctrl+n` places a new one (a scene from a list, or a marker), `ctrl+d` copies, `delete` removes. The map is to scale, from above or from the side (heights), on a grid in round km, with owners' colours, the picked one's size or reach as a ring, and buttons to zoom on the picked one, see the whole sector or hide the map. Its legend is also its filter: click a kind to hide or show it.
 - **Constants:** every value in `src/autoload/Constants.gd`, by section (or by kind of value, `ctrl+g`), with its notes; `ctrl+f` finds one. A value is changed in place, so its comments stay. Godot checks that the script still parses before it is saved.
 - **Parts:** weapons (`w`), modules (`m`), commodities (`c`) and the starting kit (`k`) side by side, with what uses each; `a` hides the archetypes' own parts. Enter opens one in Data.
 - **Look:** every shader (red when its shared blocks are out of date; `y` syncs them) and what uses it, each faction's paints, the paint patterns (`g` remakes the library, `v` opens its sheet) and the music (pick a track, `ctrl+s`).
@@ -27,17 +27,23 @@ Each file is a `FactionTemplate` that sets:
 
 Aliens set `no_standing`, `territory` and `salvage_as`, and may fly a hull of their own (`ship_scene`) instead of their archetypes' hulls. To add a faction, add a file (Data, Factions, `ctrl+n`), then give it havens (World). Wars and rosters are quickest on the Factions tab; making peace there takes the other side out of both lists.
 
-## Sectors and havens — `scenes/levels/sectors/<sector>/<sector>_layout.tscn`
+## Sectors — `scenes/levels/sectors/<sector>/`
 
-Each sector's layout is a scene of markers, placed among the sector's planets. Edit it in the tool (World): move a marker (`translation`, in m) to move what it stands for. The layout's root sets the play area. In the Godot editor, the markers sit under `SceneAssets/SectorLayout/Layout` of the sector scene, each drawing its reach as a ring.
+**What goes where.** The Godot editor makes things; the tool puts them in the world:
+- **The Godot editor** composes scenes: one star, planet or moon (`<sector>/<body>/<body>.tscn`), one asteroid belt filled with its rocks (`<sector>/belt_<name>/belt_<name>.tscn`), one station or ship model (see **Models**).
+- **The tool (World)** places them: what a sector holds, where, what is linked to what. It creates, moves and deletes the bodies and belts in the sector scene and every marker in its layout, and links markers to bodies. Placing by hand in the Godot editor works too, but the tool is the way.
+
+**The sector scene** (`<sector>.tscn`) places its bodies and belts under `SceneAssets`, with its layout (`SectorLayout`). Nothing else is placed there: no stations (they come with their haven) and no entry point (a beacon).
+
+**The layout** (`<sector>_layout.tscn`) is a scene of markers among the bodies. Move a marker (`translation`, in m) to move what it stands for. The layout's root sets the play area. A marker can be **attached** to a body (`attached_to`): its translation is then from that body, and it moves with it (the star's radiation, a planet's ring of rocks). In the Godot editor the markers sit under `SceneAssets/SectorLayout/Layout`, each drawing its reach as a ring.
 - **Havens** (`HavenMarker`): stations NPCs live from. Each sets:
   - its id, name and owner (`faction`);
   - its station (`model`: a station model scene, see **Models**, picked from a list in the tool). A haven and its station are one thing: the layout builds the station at the marker, so moving the marker moves the station. Never place a station in a sector scene itself; the rules catch one;
   - whether it is seen from anywhere (`seen_anywhere`: it runs a beacon, as the home port does), instead of by its size;
   - how many ships of each faction live there (`ships`), and which kind it favours (`prefer_role`);
   - its services: repair, rearm, and what it buys at what price (`buys`). The tool lists them as rows: a commodity (or `*`, anything not listed) and its factor on the commodity's price, with what one unit then fetches. A haven with no rows buys nothing.
-- **Beacons** (`BeaconMarker`): patrol points (`owner_faction`), rock fields (`rocks` within `radius`) and landmarks routes go through. Planets and moons get theirs by themselves.
-- **Hazards** (`HazardMarker`): the star's radiation, from `core` out to `radius`.
+- **Beacons** (`BeaconMarker`): patrol points (`owner_faction`), rock fields (`rocks` within `radius`; `ring` round a planet), landmarks routes go through, and the sector's one **entry** (`kind` "entry"): ships jumping in arrive, and new games start, `radius` out from it. Planets and moons get their landmarks by themselves.
+- **Hazards** (`HazardMarker`): the star's radiation, from `core` out to `radius` (attached to its star).
 
 Routes go round planets and moons by themselves.
 

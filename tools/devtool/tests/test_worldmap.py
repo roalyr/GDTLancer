@@ -15,7 +15,7 @@ def plain(text):
 class WorldMapTest(unittest.TestCase):
     ITEMS = [{"name": "Star", "kind": "star", "x": 0.0, "z": 0.0, "node": ""},
              {"name": "Port", "kind": "haven_marker", "x": 10000.0, "z": 0.0, "node": "Havens/Port", "faction": "verdant", "radius": 0.0},
-             {"name": "Field", "kind": "beacon_marker", "x": -10000.0, "z": 4000.0, "node": "Beacons/Field", "faction": "", "radius": 3000.0}]
+             {"name": "Field", "kind": "beacon_marker", "x": -10000.0, "z": 4000.0, "node": "Beacons/Field", "faction": "", "radius": 3000.0, "beacon": "field"}]
 
     def grid(self, text):
         lines = plain(text).split("\n")
@@ -26,7 +26,7 @@ class WorldMapTest(unittest.TestCase):
         rows = self.grid(text)
         star = next((r, line.index("*")) for r, line in enumerate(rows) if "*" in line)
         port = next((r, line.index("H")) for r, line in enumerate(rows) if "H" in line)
-        field = next((r, line.index("B")) for r, line in enumerate(rows) if "B" in line)
+        field = next((r, line.index("F")) for r, line in enumerate(rows) if "F" in line)
         self.assertEqual(star[0], port[0], "Same z, same row")
         self.assertEqual(star[1] % 2, 0, "Symbols start on a cell's first character")
         cells_across = (port[1] - star[1]) // 2
@@ -43,11 +43,11 @@ class WorldMapTest(unittest.TestCase):
             self.assertIn(label, header.split())
 
     def test_shared_cells_count_and_the_picked_one_shows(self):
-        items = self.ITEMS + [{"name": "Near", "kind": "beacon_marker", "x": 10400.0, "z": 400.0, "node": "Beacons/Near", "faction": ""}]
+        items = self.ITEMS + [{"name": "Near", "kind": "beacon_marker", "x": 10400.0, "z": 400.0, "node": "Beacons/Near", "faction": "", "beacon": "patrol"}]
         text = worldmap.render(items, columns=20, rows=10)
         self.assertIn("H2", plain(text), "The haven over the beacon, with the count")
         picked = worldmap.render(items, "Beacons/Near", columns=20, rows=10)
-        self.assertIn("B2", plain(picked), "The picked one on top")
+        self.assertIn("P2", plain(picked), "The picked one on top")
         self.assertIn("reverse", picked)
 
     def test_owner_colours_and_rings(self):
@@ -67,6 +67,34 @@ class WorldMapTest(unittest.TestCase):
     def test_rows_fit_the_sector(self):
         wide = [dict(item, z=0.0) for item in self.ITEMS]
         self.assertLess(len(plain(worldmap.render(wide, columns=20, rows=None)).split("\n")), 15, "A flat sector, few rows")
+
+    def test_from_the_side_heights_go_up(self):
+        items = [{"name": "Star", "kind": "star", "x": 0.0, "y": 0.0, "z": 0.0, "node": ""},
+                 {"name": "Belt", "kind": "belt", "x": 0.0, "y": -10000.0, "z": 9000.0, "node": "@SceneAssets/Belt", "radius": 2000.0},
+                 {"name": "High", "kind": "haven_marker", "x": 4000.0, "y": 6000.0, "z": 0.0, "node": "Havens/High"}]
+        text = plain(worldmap.render(items, columns=20, rows=None, side=True))
+        rows = text.split("\n")
+        high = next(i for i, line in enumerate(rows) if "H" in line[worldmap.LABEL_WIDTH:])
+        belt = next(i for i, line in enumerate(rows) if "%" in line[worldmap.LABEL_WIDTH:])
+        star = next(i for i, line in enumerate(rows) if "*" in line[worldmap.LABEL_WIDTH:])
+        self.assertLess(high, star, "Up is up")
+        self.assertGreater(belt, star)
+        self.assertIn("y up", text)
+        self.assertIn("-10", [line[:worldmap.LABEL_WIDTH].replace("│", "").strip() for line in rows], "Heights down the left")
+
+    def test_filters_hide_kinds_but_never_the_picked_one(self):
+        text = plain(worldmap.render(self.ITEMS, columns=20, rows=10, hidden={"field", "haven"}))
+        grid = "\n".join(self.grid(text))
+        self.assertNotIn("F", grid)
+        self.assertNotIn("H", grid)
+        picked = "\n".join(self.grid(plain(worldmap.render(self.ITEMS, "Havens/Port", columns=20, rows=10, hidden={"haven"}))))
+        self.assertIn("H", picked)
+
+    def test_a_picked_body_shows_its_outline(self):
+        items = [{"name": "Planet", "kind": "planet", "x": 0.0, "y": 0.0, "z": 0.0, "node": "@SceneAssets/Planet", "radius": 4000.0},
+                 {"name": "Far", "kind": "star", "x": 20000.0, "y": 0.0, "z": 0.0, "node": ""}]
+        self.assertEqual(plain(worldmap.render(items, columns=20, rows=10, legend=False)).count("·"), 0)
+        self.assertGreater(plain(worldmap.render(items, "@SceneAssets/Planet", columns=20, rows=10, legend=False)).count("·"), 4)
 
     def test_nothing_to_draw(self):
         self.assertEqual(worldmap.render([]), "(nothing to draw)")

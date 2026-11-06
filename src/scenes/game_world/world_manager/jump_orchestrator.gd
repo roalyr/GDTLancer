@@ -282,11 +282,7 @@ func _restore_gameplay_camera_at_recorded_state() -> void:
 
 	# On jump-in trigger camera aim at target origin (coord origin or Entry point)
 	if is_instance_valid(GlobalRefs.player_agent_body):
-		var anchor_pos = Vector3.ZERO
-		if is_instance_valid(GlobalRefs.current_zone):
-			var entry_node = GlobalRefs.current_zone.find_node("EntryPoint", true, false)
-			if entry_node and entry_node is Spatial:
-				anchor_pos = entry_node.global_transform.origin
+		var anchor_pos: Vector3 = preload("res://src/scenes/game_world/sector_layout/sector_layout.gd").entry_of(GlobalRefs.current_zone).at
 		var player_pos = GlobalRefs.player_agent_body.global_transform.origin
 		var target_origin_dir = (anchor_pos - player_pos).normalized()
 		if target_origin_dir.length_squared() > 0.001:

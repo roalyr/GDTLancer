@@ -4,7 +4,9 @@ import os
 import shutil
 import unittest
 
-from textual.widgets import DataTable, Input, TextArea
+from devtool.tests.test_worldmap import plain as worldmap_plain
+
+from textual.widgets import DataTable, Input, Label, TextArea
 
 from devtool import app as devapp
 from devtool import constants, tasks
@@ -42,12 +44,19 @@ class FakeBridge:
             return {"path": args["path"], "class": "FakeTemplate", "values": {
                 "name": "Verdant", "count": 3, "share": 0.25, "on": True, "color": {"$": "Color", "v": [0.5, 1.0, 0.25, 1.0]},
                 "list": ["a", "b"], "paint": ""}}
-        if command in ("write", "scene_write", "scene_add", "scene_remove"):
+        if command in ("write", "scene_write", "scene_add", "scene_remove", "scene_instance"):
             self.writes.append(dict(args, command=command))
             result = {"path": args["path"], "problems": [], "new": []}
             if command == "scene_add":
                 result["node"] = args["parent"] + "/" + args["name"] + "2"
+            if command == "scene_instance":
+                result["node"] = "SceneAssets/" + args["name"] + "2"
             return result
+        if command == "world_scene":
+            return [{"node": "SceneAssets/Planet A", "name": "Planet A", "parent": "SceneAssets", "kind": "planet",
+                     "scene": "res://scenes/levels/sectors/sector_elace/planet_elace_a/planet_elace_a.tscn",
+                     "x": 6000.0, "y": 0.0, "z": 22000.0, "radius": 1000.0, "fields": [HAVEN_FIELDS[0]],
+                     "values": {"translation": {"$": "Vector3", "v": [6000.0, 0.0, 22000.0]}}}]
         if command == "scene_nodes":
             return [
                 {"node": ".", "name": "Layout", "parent": "", "type": "Spatial", "script": "res://layout.gd",
@@ -59,8 +68,10 @@ class FakeBridge:
                  "fields": HAVEN_FIELDS, "values": {"translation": {"$": "Vector3", "text": "", "v": [1000.0, 0.0, 2000.0]},
                                                     "haven_id": "port", "repair": True}}]
         if command == "sector_map":
-            return [{"name": "Star", "kind": "star", "x": 0.0, "z": 0.0, "radius": 0.0, "node": ""},
-                    {"name": "Port", "kind": "haven_marker", "x": 1000.0, "z": 2000.0, "radius": 0.0, "node": "Havens/Port"}]
+            return [{"name": "Star", "kind": "star", "x": 0.0, "y": 0.0, "z": 0.0, "radius": 0.0, "node": ""},
+                    {"name": "Planet A", "kind": "planet", "x": 6000.0, "y": 500.0, "z": 22000.0, "radius": 1000.0, "node": "@SceneAssets/Planet A"},
+                    {"name": "Port", "kind": "haven_marker", "x": 1000.0, "y": 0.0, "z": 2000.0, "radius": 0.0, "node": "Havens/Port",
+                     "attached_to": "SceneAssets/Planet A"}]
         if command == "archetypes":
             design = {"pilot": "res://p.tres", "ship": "res://s.tres", "role": "r", "temperament": "measured", "traits": [], "lives": 10,
                       "fitness": 0.5, "skill": 0.5, "behavior": {"engage": 2.0}, "scene": "res://h.tscn", "length": 14.0, "value": 500,
@@ -196,6 +207,55 @@ class AppTest(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(fake.writes[0]["command"], "scene_write")
             self.assertEqual(fake.writes[0]["node"], "Havens/Port")
             self.assertEqual(fake.writes[0]["values"], {"translation": {"$": "Vector3", "v": [1500.0, 0.0, 2000.0]}})
+
+    async def test_bodies_are_moved_placed_copied_and_removed_in_the_sector_scene(self):
+        fake = FakeBridge()
+        app = devapp.DevApp(bridge_factory=lambda: fake)
+        async with app.run_test(size=(160, 60)) as pilot:
+            await self._open_sector(pilot, app)
+            scene = "res://scenes/levels/sectors/sector_elace/sector_elace.tscn"
+            app._show_node("@SceneAssets/Planet A")
+            await pilot.pause()
+            self.assertIn("carries Port with it", str(app.query_one("#world-form .form-title").content))
+            form = app.query_one("#world-form", devapp.Form)
+            form.fields[0].editor.value = "7000, 0, 22000"
+            app.action_save_node()
+            await self._started(pilot, app)
+            move = fake.writes[-1]
+            self.assertEqual((move["command"], move["path"], move["node"]), ("scene_write", scene, "SceneAssets/Planet A"))
+            self.assertEqual(app.world["picked"], "@SceneAssets/Planet A", "Still picked after the reload")
+            app.action_copy_marker()
+            await self._started(pilot, app)
+            copy = fake.writes[-1]
+            self.assertEqual((copy["command"], copy["scene"]), ("scene_instance", "res://scenes/levels/sectors/sector_elace/planet_elace_a/planet_elace_a.tscn"))
+            self.assertEqual(copy["values"]["translation"]["v"][0], 6000.0 + devapp.COPY_OFFSET * 5)
+            app._show_node("@")
+            app.action_new_marker()
+            await pilot.pause()
+            self.assertIsInstance(app.screen, devapp.PlaceScreen)
+            app.screen.query_one("#place-ok").press()
+            await self._started(pilot, app)
+            self.assertEqual(fake.writes[-1]["command"], "scene_instance")
+            self.assertEqual(fake.writes[-1]["path"], scene)
+            app._show_node("@SceneAssets/Planet A")
+            app.action_remove_marker()
+            await pilot.pause()
+            self.assertIn("Port", str(app.screen.query_one(Label).content), "It says what rides with it")
+            app.screen.dismiss(True)
+            await self._started(pilot, app)
+            self.assertEqual((fake.writes[-1]["command"], fake.writes[-1]["path"], fake.writes[-1]["node"]), ("scene_remove", scene, "SceneAssets/Planet A"))
+
+    async def test_the_map_turns_to_the_side_and_filters(self):
+        app = devapp.DevApp(bridge_factory=lambda: FakeBridge())
+        async with app.run_test(size=(160, 60)) as pilot:
+            await self._open_sector(pilot, app)
+            app.query_one("#map-side").press()
+            await pilot.pause()
+            self.assertIn("from the side", str(app.query_one("#world-map").content))
+            app.query_one("#filter-planet").press()
+            await pilot.pause()
+            self.assertNotIn("O", worldmap_plain(str(app.query_one("#world-map").content)).split("from the side")[0].replace("Port", ""))
+            self.assertTrue(app.query_one("#filter-planet").has_class("off"))
 
     async def test_markers_are_added_copied_and_removed(self):
         fake = FakeBridge()

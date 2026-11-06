@@ -17,6 +17,7 @@ const Havens = preload("res://src/core/systems/havens.gd")
 export var sector_id: String = "sector_elace"
 
 var network: Node = null
+var entry: Dictionary = {}  # The entry beacon: {"at" (sector space), "radius"}; empty: the layout has none
 var havens: Array = []  # [{"id", "faction", "factions": {faction: ships}, "station", "stations": {faction: [station]}, "beacon"}]
 
 
@@ -28,6 +29,7 @@ func _ready():
 	network.play_radius = float(layout.get("play_radius", INF))
 	add_child(network)
 	for spec in layout.get("hazards", []):
+		spec = _placed(spec)
 		var hazard = HazardScript.new()
 		hazard.name = "Hazard_%s" % spec.kind
 		hazard.kind = spec.kind
@@ -38,19 +40,61 @@ func _ready():
 		network.register_hazard(hazard)
 	var keep_clear: Array = []
 	for spec in layout.get("havens", []):
-		var haven: Dictionary = _build_haven(spec)
+		var haven: Dictionary = _build_haven(_placed(spec))
 		if haven.empty():
 			continue
 		havens.append(haven)
 		keep_clear.append([haven.station.global_transform.origin, Constants.FIELD_ROCK_CLEARANCE])
 	call_deferred("_add_landmarks")  # The scene's planets and moons are ready by then
 	for spec in layout.get("beacons", []):
+		spec = _placed(spec)
+		if spec.kind == "entry":  # Not a beacon ships fly by: where they arrive
+			entry = {"at": spec.at, "radius": float(spec.get("radius", 0.0))}
+			continue
 		var beacon = _add_beacon(spec.kind, str(spec.get("owner", "")), spec.name, spec.at, float(spec.get("radius", Constants.BEACON_TRAFFIC_RADIUS)))
 		beacon.player_visible = spec.kind == "field" or bool(spec.get("player_visible", false))  # Fields always: a ring of rocks has no one name
 		if spec.kind == "patrol" and TemplateDatabase.factions.get(beacon.faction, {}).get("patrol_wages", false):
 			beacon.player_visible = true  # Where the player earns that faction's patrol wage (Wages)
 		if spec.kind == "field":
 			_build_rocks(spec, keep_clear)
+
+
+# `spec` with its place from its body when it is attached to one: the body's position in the layout's
+# space, plus the marker's own as an offset.
+func _placed(spec: Dictionary) -> Dictionary:
+	if str(spec.get("attached_to", "")) == "":
+		return spec
+	var body = _body(spec.attached_to)
+	if body == null:
+		printerr("SectorLayout: %s is attached to %s, which the sector scene does not have" % [spec.get("name", spec.get("id", spec.get("kind", ""))), spec.attached_to])
+		return spec
+	var placed: Dictionary = spec.duplicate()
+	placed.at = (to_local(body.global_transform.origin) if is_inside_tree() else body.transform.origin) + spec.at
+	return placed
+
+
+# The sector scene's node at `path` (from the scene's root), or null.
+func _body(path: String) -> Spatial:
+	var node: Node = self
+	while node.get_parent() != null and not node.get_parent() is Viewport:
+		node = node.get_parent()
+		var found = node.get_node_or_null(path)
+		if found is Spatial:
+			return found
+	return null
+
+
+# Where ships arrive in the sector loaded now: {"at" (global), "radius"} of its layout's entry
+# beacon; else its scene's EntryPoint node (sectors with no layout yet), radius 0; else the origin.
+static func entry_of(zone: Node) -> Dictionary:
+	var tree = Engine.get_main_loop()
+	for layout in (tree.get_nodes_in_group("sector_layout") if tree is SceneTree else []):
+		if not layout.entry.empty() and (not is_instance_valid(zone) or zone.is_a_parent_of(layout)):
+			return {"at": layout.to_global(layout.entry.at), "radius": layout.entry.radius}
+	var node = zone.find_node("EntryPoint", true, false) if is_instance_valid(zone) else null
+	if node is Spatial:
+		return {"at": node.global_transform.origin, "radius": 0.0}
+	return {"at": Vector3.ZERO, "radius": 0.0}
 
 
 func _build_haven(spec: Dictionary) -> Dictionary:

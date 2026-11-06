@@ -291,11 +291,7 @@ func _record(id: String) -> Dictionary:
 
 
 func _entry_point() -> Vector3:
-	if is_instance_valid(GlobalRefs.current_zone):
-		var entry = GlobalRefs.current_zone.find_node("EntryPoint", true, false)
-		if entry is Spatial:
-			return entry.global_transform.origin
-	return Vector3.ZERO
+	return preload("res://src/scenes/game_world/sector_layout/sector_layout.gd").entry_of(GlobalRefs.current_zone).at
 
 
 # Where ships come in from, or go out toward, `sector_id` (the jump shell on its side).

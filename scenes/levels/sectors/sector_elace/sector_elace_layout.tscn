@@ -19,6 +19,7 @@ play_radius = 60000.0
 
 [node name="Radiation" type="Position3D" parent="Hazards"]
 script = ExtResource( 4 )
+attached_to = "SceneAssets/Star Elace"
 kind = "radiation"
 core = 5000.0
 radius = 15000.0
@@ -41,7 +42,7 @@ rearm = true
 buys = {
 "*": 1.0
 }
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 40000, 0, 0 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 30000, 0, 5000 )
 
 [node name="VerdantHaven" type="Position3D" parent="Havens"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 6000, 0, 25000 )
@@ -260,8 +261,8 @@ ring = 0.0
 player_visible = false
 
 [node name="ElaceBBelt" type="Position3D" parent="Beacons"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 25000, 0, 0 )
 script = ExtResource( 3 )
+attached_to = "SceneAssets/Planet Elace B"
 kind = "field"
 beacon_name = "Elace B Belt"
 owner_faction = ""
@@ -324,3 +325,10 @@ radius = 0.0
 rocks = 0
 ring = 0.0
 player_visible = true
+
+[node name="Entry" type="Position3D" parent="Beacons"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -20000, 0, 2000 )
+script = ExtResource( 3 )
+kind = "entry"
+beacon_name = "Elace entry"
+radius = 20000.0

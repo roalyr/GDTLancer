@@ -373,3 +373,48 @@ func test_the_look_view_and_the_music_stream():
 	_ok(commands.handle("scene_write", {"path": copy, "node": "AmbientMusic", "values": {"stream": view.music.values.stream}}))
 	assert_eq(_text(copy), before, "The same stream: unchanged")
 	Directory.new().remove(copy)
+
+
+const SECTOR_SCENE = "res://scenes/levels/sectors/sector_elace/sector_elace.tscn"
+const SECTOR_COPY = "user://test_bridge_sector.tscn"
+
+
+func test_the_sector_scene_places_bodies_and_belts():
+	var things: Array = _ok(commands.handle("world_scene", {"path": SECTOR_SCENE}))
+	var kinds := {}
+	for thing in things:
+		kinds[thing.node] = thing.kind
+	assert_eq(kinds.get("SceneAssets/Star Elace"), "star")
+	assert_eq(kinds.get("SceneAssets/Planet Elace B"), "planet")
+	assert_eq(kinds.get("SceneAssets/Moon Elace C1"), "moon")
+	assert_eq(kinds.get("SceneAssets/Belt Elace Deep"), "belt")
+	assert_false(kinds.has("SceneAssets/SectorLayout"), "The layout is not a thing it places")
+	for thing in things:
+		if thing.node == "SceneAssets/Planet Elace B":
+			assert_eq(thing.radius, 1000.0, "Its size, from its collision sphere")
+
+
+func test_the_map_has_heights_the_entry_and_attached_markers_at_their_bodies():
+	var by_node := {}
+	for item in _ok(commands.handle("sector_map", {"sector": "sector_elace"})):
+		by_node[item.node] = item
+	assert_eq(by_node["@SceneAssets/Belt Elace Deep"].y, -25700.0, "Heights for the side view")
+	assert_eq(by_node["Beacons/Entry"].beacon, "entry")
+	assert_eq([by_node["Beacons/ElaceBBelt"].x, by_node["Beacons/ElaceBBelt"].z], [by_node["@SceneAssets/Planet Elace B"].x, by_node["@SceneAssets/Planet Elace B"].z],
+		"The planet's ring of rocks drawn where the planet is")
+
+
+func test_a_scene_is_placed_moved_and_removed_line_by_line():
+	Directory.new().copy(SECTOR_SCENE, SECTOR_COPY)
+	var moon := "res://scenes/levels/sectors/sector_elace/moon_elace_a1/moon_elace_a1.tscn"
+	var placed: Dictionary = _ok(commands.handle("scene_instance", {"path": SECTOR_COPY, "scene": moon, "name": "Moon Elace A1",
+		"values": {"translation": {"$": "Vector3", "v": [40000, 0, 0]}}}))
+	assert_eq(placed.node, "SceneAssets/Moon Elace A12", "A taken name gets a number")
+	var copy = load(SECTOR_COPY).instance()
+	assert_eq(copy.get_node("SceneAssets/Moon Elace A12").translation, Vector3(40000, 0, 0))
+	copy.free()
+	_ok(commands.handle("scene_write", {"path": SECTOR_COPY, "node": "SceneAssets/Moon Elace A12", "values": {"translation": {"$": "Vector3", "v": [41000, 0, 0]}}}))
+	assert_string_contains(_text(SECTOR_COPY), "41000, 0, 0 )")
+	_ok(commands.handle("scene_remove", {"path": SECTOR_COPY, "node": "SceneAssets/Moon Elace A12"}))
+	assert_eq(_text(SECTOR_COPY), _text(SECTOR_SCENE), "Back as it was")
+	Directory.new().remove(SECTOR_COPY)

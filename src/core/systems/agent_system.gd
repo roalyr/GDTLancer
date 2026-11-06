@@ -86,15 +86,12 @@ func spawn_player():
 			GameState.player_docked_at = ""  # No such station here: spawn undocked rather than stuck
 	# Priority 3: Use zone entry point (new game or jump arrival)
 	else:
-		var anchor_pos = Vector3.ZERO
-		if is_instance_valid(GlobalRefs.current_zone):
-			var entry_node = GlobalRefs.current_zone.find_node("EntryPoint", true, false)
-			if entry_node and entry_node is Spatial:
-				anchor_pos = entry_node.global_transform.origin
+		var entry: Dictionary = preload("res://src/scenes/game_world/sector_layout/sector_layout.gd").entry_of(GlobalRefs.current_zone)
+		var anchor_pos: Vector3 = entry.at
 		
-		# Arrive jump_in_distance (+/- 10%) from the anchor, on the side facing the system the jump
-		# came from (scattered a little), or anywhere around it on a new game.
-		var base_dist = _get_jump_in_distance_for_sector(GameState.current_sector_id)
+		# Arrive the entry beacon's radius (+/- 10%) from it (no radius: the sector's jump_in_distance), on
+		# the side facing the system the jump came from (scattered a little), or anywhere round it on a new game.
+		var base_dist: float = entry.radius if entry.radius > 0.0 else _get_jump_in_distance_for_sector(GameState.current_sector_id)
 		var random_dir = Vector3(rand_range(-1, 1), rand_range(-1, 1), rand_range(-1, 1)).normalized()
 		var spawn_dir = random_dir
 		if GameState.player_arrival_direction != Vector3.ZERO:

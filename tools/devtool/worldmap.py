@@ -1,6 +1,7 @@
 """
-A sector seen from above, in characters: its bodies and its layout's markers (the bridge's
-sector_map), x to the right and z down.
+A sector seen from above (x to the right, z down) or from the side (x to the right, y up), in
+characters: what its scene places (stars, planets, moons, belts) and its layout's markers (the
+bridge's sector_map).
 
 Each cell is two characters wide, which a terminal draws about square, and covers the same metres
 across as down, so distances read true in every direction. A grid in round kilometres lies under
@@ -9,19 +10,36 @@ brighter. Each thing is a symbol, with a count after it when more than one share
 and beacons take their owner's colour. Rings show the play area, each hazard's reach and the
 picked marker's radius. The picked marker is drawn reversed.
 
-    render(items, selected="Havens/VerdantHaven", columns=40, rows=20, colors={"verdant": "#3a6b3a"}, zoom=2)
+    render(items, selected="Havens/VerdantHaven", columns=40, rows=20, colors={"verdant": "#3a6b3a"}, zoom=2,
+           side=True, hidden={"landmark"})
 
 zoom: 1 fits everything; each doubling halves the metres per cell, centred on the picked marker.
 """
 
 import math
 
-SYMBOLS = {"star": "*", "planet": "O", "moon": "o", "station": "#",
-           "haven_marker": "H", "beacon_marker": "B", "hazard_marker": "!"}
-LEGEND = "* star  O planet  o moon  H haven  B beacon  ! hazard  · rings: play area, hazards, the picked one's radius"
-# Which symbol a shared cell shows: the picked marker first, then havens, hazards, beacons, bodies
-RANK = {"haven_marker": 0, "hazard_marker": 1, "beacon_marker": 2, "station": 3, "star": 4, "planet": 5, "moon": 6}
-BODY_STYLE = {"star": "bold yellow", "planet": "cyan", "moon": "dim cyan", "station": "white", "hazard_marker": "bold red"}
+# What each thing is drawn as, by its filter key (FILTERS: the legend, each a filter in the tool)
+FILTERS = [("star", "*", "stars"), ("planet", "O", "planets"), ("moon", "o", "moons"), ("belt", "%", "belts"),
+           ("object", "#", "other things"), ("haven", "H", "havens"), ("patrol", "P", "patrol beacons"),
+           ("field", "F", "rock fields"), ("landmark", "L", "landmarks"), ("entry", "E", "entry"),
+           ("hazard", "!", "hazards"), ("rings", "·", "rings")]
+SYMBOLS = {key: symbol for key, symbol, _ in FILTERS}
+LEGEND = "  ".join("%s %s" % (symbol, label) for _, symbol, label in FILTERS) + " (play area, hazards, the picked one's size)"
+# Which symbol a shared cell shows: the picked one first, then havens, hazards, beacons, bodies
+RANK = {"haven": 0, "hazard": 1, "entry": 2, "patrol": 3, "field": 4, "landmark": 5, "star": 6, "planet": 7, "moon": 8, "belt": 9}
+BODY_STYLE = {"star": "bold yellow", "planet": "cyan", "moon": "dim cyan", "belt": "yellow", "object": "white", "hazard": "bold red",
+              "entry": "bold bright_blue", "field": "bold yellow", "landmark": "white"}
+MARKER_KEYS = {"haven_marker": "haven", "hazard_marker": "hazard"}
+
+
+def key_of(item):
+    """An item's filter key: its kind, a marker's by what it is, a beacon's by its own kind."""
+    kind = item["kind"]
+    if kind == "beacon_marker":
+        return item.get("beacon", "landmark")
+    if kind == "play_area":
+        return "rings"
+    return MARKER_KEYS.get(kind, kind)
 NICE = (1, 2, 2.5, 5)
 LABEL_WIDTH = 7
 
@@ -45,10 +63,14 @@ def distance(metres):
     return "%g km" % (metres / 1000.0) if metres >= 1000 else "%g m" % metres
 
 
-def render(items, selected="", columns=40, rows=20, colors=None, zoom=1, max_rows=40):
-    """rows=None: as many as the sector needs down at the scale its width sets (up to max_rows)."""
+def render(items, selected="", columns=40, rows=20, colors=None, zoom=1, max_rows=40, side=False, hidden=(), legend=True):
+    """rows=None: as many as the sector needs down at the scale its width sets (up to max_rows).
+    side: from the side (y up) instead of from above. hidden: filter keys (FILTERS) not drawn; the
+    picked one is drawn all the same. legend: the legend line under the map (the tool shows its own)."""
     colors = colors or {}
-    drawn = [item for item in items if item["kind"] in SYMBOLS]
+    items = [dict(item, z=-item.get("y", 0.0)) if side else item for item in items]  # y up: drawn as -z down
+    items = [item for item in items if (key_of(item) not in hidden) or (selected and item.get("node") == selected)]
+    drawn = [item for item in items if key_of(item) in SYMBOLS and key_of(item) != "rings"]
     if not drawn:
         return "(nothing to draw)"
     xs = [item["x"] for item in drawn] + [0.0]
@@ -108,7 +130,7 @@ def render(items, selected="", columns=40, rows=20, colors=None, zoom=1, max_row
 
     # Rings: the play area, hazards' reach, the picked marker's radius
     rings = [(item, "grey50") for item in items if item["kind"] == "play_area" and item.get("radius")]
-    rings += [(item, "red") for item in items if item["kind"] == "hazard_marker" and item.get("radius")]
+    rings += [(item, "red") for item in items if key_of(item) == "hazard" and item.get("radius") and "rings" not in hidden]
     rings += [(item, "bold white") for item in items if selected and item.get("node") == selected and item.get("radius")]
     for item, style in rings:
         steps = max(int(2 * math.pi * item["radius"] / cell * 1.5), 16)
@@ -128,36 +150,36 @@ def render(items, selected="", columns=40, rows=20, colors=None, zoom=1, max_row
             continue
         shared.setdefault((r, c), []).append(item)
     for (r, c), here in shared.items():
-        here.sort(key=lambda item: (not (selected and item.get("node") == selected), RANK.get(item["kind"], 9)))
+        here.sort(key=lambda item: (not (selected and item.get("node") == selected), RANK.get(key_of(item), 10)))
         first = here[0]
+        key = key_of(first)
         count = " " if len(here) == 1 else (str(len(here)) if len(here) < 10 else "+")
-        style = BODY_STYLE.get(first["kind"], "white")
+        style = BODY_STYLE.get(key, "bold white")
         if first.get("faction") and colors.get(first["faction"]):
             style = "bold " + colors[first["faction"]]
-        elif first["kind"] in ("haven_marker", "beacon_marker"):
-            style = "bold white"
         if selected and first.get("node") == selected:
             style += " reverse"
-        cells[r][c] = (SYMBOLS[first["kind"]] + count, style)
+        cells[r][c] = (SYMBOLS[key] + count, style)
 
     # Labels: km along the top on grid columns, down the left on grid rows
     header = [" "] * (columns * 2)
     for c in range(columns):
         if column_lines[c]:
             text = km(centre_x(c))
-            if all(ch == " " for ch in header[c * 2:c * 2 + len(text) + 1]):
+            if c * 2 + len(text) <= columns * 2 and all(ch == " " for ch in header[c * 2:c * 2 + len(text) + 1]):
                 header[c * 2:c * 2 + len(text)] = list(text)
     lines = [" " * LABEL_WIDTH + "".join(header[:columns * 2]).rstrip()]
     lines.append(" " * (LABEL_WIDTH - 1) + "┌" + "─" * (columns * 2) + "┐")
     for r in range(rows):
         label = ""
         if row_lines[r]:
-            label = km(centre_z(r))
+            label = km(-centre_z(r) if side else centre_z(r))
         body = "".join(("[%s]%s[/]" % (style, text.replace("[", "\\[")) if style else text) for text, style in cells[r])
         lines.append(label.rjust(LABEL_WIDTH - 2) + " │" + body + "│")
     lines.append(" " * (LABEL_WIDTH - 1) + "└" + "─" * (columns * 2) + "┘")
-    note = "grid %s, one cell %s, x across, z down (km)%s" % (distance(grid_step), distance(cell), ", zoom x%d" % zoom if zoom > 1 else "")
+    note = "%s: grid %s, one cell %s, x across, %s (km)%s" % ("from the side" if side else "from above", distance(grid_step), distance(cell),
+                                                             "y up" if side else "z down", ", zoom x%d" % zoom if zoom > 1 else "")
     if off_map:
         note += "; %d off the map" % off_map
-    lines.append("[dim]%s\n%s[/dim]" % (LEGEND, note))
+    lines.append("[dim]%s%s[/dim]" % ((LEGEND + "\n") if legend else "", note))
     return "\n".join(lines)

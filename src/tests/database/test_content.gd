@@ -100,3 +100,11 @@ func test_a_station_placed_in_a_sector_scene_is_caught():
 	text += '[ext_resource path="res://scenes/prefabs/station/faction_station.tscn" type="PackedScene" id=2]\n'
 	text += '[ext_resource path="res://scenes/prefabs/celestial/asteroid.tscn" type="PackedScene" id=3]\n'
 	assert_eq(Validator.stations_placed_in(text), ["res://src/scenes/game_world/station/dockable_station.gd", "res://scenes/prefabs/station/faction_station.tscn"])
+
+
+func test_node_paths_are_found_in_scene_text():
+	var text := '[node name="Sector" type="Spatial"]\n\n[node name="SceneAssets" type="Spatial" parent="."]\n\n[node name="Star Elace" parent="SceneAssets" instance=ExtResource( 4 )]\n'
+	assert_true(Validator.has_node_path(text, "SceneAssets/Star Elace"))
+	assert_true(Validator.has_node_path(text, "SceneAssets"))
+	assert_false(Validator.has_node_path(text, "SceneAssets/Star Cob"))
+	assert_false(Validator.has_node_path(text, "Elsewhere/Star Elace"))

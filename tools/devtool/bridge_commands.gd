@@ -38,7 +38,8 @@ const TYPE_NAMES = {
 	TYPE_INT_ARRAY: "PoolIntArray", TYPE_REAL_ARRAY: "PoolRealArray", TYPE_STRING_ARRAY: "PoolStringArray",
 	TYPE_VECTOR2_ARRAY: "PoolVector2Array", TYPE_VECTOR3_ARRAY: "PoolVector3Array", TYPE_COLOR_ARRAY: "PoolColorArray",
 }
-const BODY_PREFIXES = ["star", "planet", "moon", "station"]  # Sector scene nodes drawn on the map
+const SCENE_ASSETS = "SceneAssets"  # Where a sector scene keeps what it places (bodies, belts, its layout)
+const SectorLayoutScript = preload("res://src/scenes/game_world/sector_layout/sector_layout.gd")
 
 
 # Runs `command` with `args`: {"ok": true, "result": ...} or {"ok": false, "error": text}.
@@ -209,34 +210,124 @@ func cmd_scene_remove(args: Dictionary):
 	return _save_text_checked(path, old_text, doc.text(), _texts(Validator.for_file(path)))
 
 
-# A sector seen from above: the bodies of its scene (stars, planets, moons, stations) and the
-# markers of its layout, each {name, kind, x, z, radius, node, faction}: x and z in m; radius a
-# marker's reach (0: none set); node a marker's path in its layout; faction its owner's ("" none).
+# The things a sector scene places (SceneAssets' children but the layout): each {node, name,
+# parent, kind ("star", "planet", "moon", "belt", "object"), scene (the scene it instances, "" none),
+# x, y, z (m), radius (a body's size, a belt's reach; m), fields, values (its place only: what it is
+# made of is its own scene's, for the Godot editor)}.
+func cmd_world_scene(args: Dictionary):
+	var root: Node = _edit_instance(str(args.get("path", "")))
+	if root == null:
+		return {"error": "Cannot open %s" % args.get("path", "")}
+	var out: Array = _placed_things(root)
+	root.free()
+	return out
+
+
+static func _placed_things(root: Node) -> Array:
+	var out: Array = []
+	var assets: Node = root.get_node_or_null(SCENE_ASSETS)
+	if assets == null:
+		return out
+	for node in assets.get_children():
+		if not node is Spatial or node.owner != root or node.get_script() == SectorLayoutScript:
+			continue
+		var origin: Vector3 = _origin(node)
+		var fields: Array = [fields_of(node)[0]]  # Its place
+		out.append({"node": str(root.get_path_to(node)), "name": node.name, "parent": SCENE_ASSETS, "kind": _thing_kind(node),
+			"scene": node.filename, "x": origin.x, "y": origin.y, "z": origin.z, "radius": _thing_radius(node),
+			"fields": fields, "values": {TRANSLATION: encode(node.translation)}})
+	return out
+
+
+static func _thing_kind(node: Node) -> String:
+	if node.has_method("get_apparent_radius"):
+		if node.get("is_star"):
+			return "star"
+		return "moon" if (node.name + node.filename).to_lower().find("moon") >= 0 else "planet"
+	for child in node.get_children():
+		if child.get_script() != null and child.get_script().resource_path.ends_with("asteroid.gd"):
+			return "belt"
+	return "object"
+
+
+static func _thing_radius(node: Node) -> float:
+	if node.has_method("get_apparent_radius"):
+		var shape = node.get_node_or_null("CollisionShape")
+		if shape != null and shape.shape is SphereShape:
+			return shape.shape.radius * max(node.scale.x, max(node.scale.y, node.scale.z))
+		return 0.0
+	var reach := 0.0
+	for child in node.get_children():
+		if child is Spatial:
+			reach = max(reach, (node.transform.basis.xform(child.transform.origin)).length())
+	return reach
+
+
+# A new instance of `scene` named `name` under `parent` (default SceneAssets) of the scene at
+# `path`, at `values`' translation; then its rules. Returns its path as "node".
+func cmd_scene_instance(args: Dictionary):
+	var path: String = str(args.get("path", ""))
+	var scene: String = str(args.get("scene", ""))
+	var old_text: String = _read_text(path)
+	if old_text == "":
+		return {"error": "Cannot open %s" % path}
+	if not ResourceLoader.exists(scene) or not load(scene) is PackedScene:
+		return {"error": "No scene %s" % scene}
+	var doc = TscnText.new(old_text)
+	var parent: String = str(args.get("parent", SCENE_ASSETS))
+	if doc.find_node(parent) == null:
+		return {"error": "%s has no node %s" % [path, parent]}
+	var added: String = doc.add_instance(parent, str(args.get("name", "Thing")), scene)
+	var probe: Node = load(scene).instance()
+	var before: Array = _texts(Validator.for_file(path))
+	var values: Dictionary = args.get("values", {})
+	var error: String = _set_in_text(doc, added, probe, {TRANSLATION: values[TRANSLATION]}) if values.has(TRANSLATION) else ""
+	probe.free()
+	if error != "":
+		return {"error": error}
+	var result = _save_text_checked(path, old_text, doc.text(), before)
+	if result is Dictionary and not result.has("error"):
+		result["node"] = added
+	return result
+
+
+# A sector from above and from the side: the things its scene places (as world_scene, their node
+# paths marked "@") and its layout's markers, each {name, kind, x, y, z, radius, node, faction,
+# attached_to}: x, y, z in m, an attached marker's from its body; radius a marker's reach (0: none
+# set); node a marker's path in its layout; faction its owner's ("" none). Beacons' kind is
+# "beacon_marker" with "beacon" their own kind (patrol, field, landmark, entry); plus the play area.
 func cmd_sector_map(args: Dictionary):
 	var sector: String = str(args.get("sector", ""))
 	var out: Array = []
+	var bodies := {}
 	var scene_root: Node = _edit_instance(Constants.SECTORS_SCENES_DIR.plus_file(sector).plus_file(sector + ".tscn"))
 	if scene_root != null:
-		for node in _own_nodes(scene_root):
-			if node is Spatial and node != scene_root:
-				for prefix in BODY_PREFIXES:
-					if node.name.to_lower().begins_with(prefix):
-						var origin: Vector3 = _origin(node)
-						out.append({"name": node.name, "kind": prefix, "x": origin.x, "z": origin.z, "radius": 0.0, "node": ""})
-						break
+		for thing in _placed_things(scene_root):
+			bodies[thing.node] = Vector3(thing.x, thing.y, thing.z)
+			out.append({"name": thing.name, "kind": thing.kind, "x": thing.x, "y": thing.y, "z": thing.z, "radius": thing.radius,
+				"node": "@" + thing.node, "faction": "", "attached_to": ""})
 		scene_root.free()
 	var layout_root: Node = _edit_instance(Validator.layout_files().get(sector, ""))
 	if layout_root != null:
 		if layout_root.get("play_radius") != null:
-			out.append({"name": "play area", "kind": "play_area", "x": 0.0, "z": 0.0, "radius": float(layout_root.play_radius), "node": "", "faction": ""})
+			out.append({"name": "play area", "kind": "play_area", "x": 0.0, "y": 0.0, "z": 0.0, "radius": float(layout_root.play_radius),
+				"node": "", "faction": "", "attached_to": ""})
 		for node in _own_nodes(layout_root):
 			if node is Spatial and node.get_script() != null and node != layout_root:
 				var origin: Vector3 = _origin(node)
+				var attached: String = str(node.get("attached_to")) if node.get("attached_to") != null else ""
+				if attached != "" and bodies.has(attached):
+					origin += bodies[attached]
 				var radius = node.get("radius")
 				var faction = node.get("faction") if node.get("faction") != null else node.get("owner_faction")
-				out.append({"name": node.name, "kind": node.get_script().resource_path.get_file().get_basename(), "x": origin.x, "z": origin.z,
-					"radius": float(radius) if typeof(radius) in [TYPE_INT, TYPE_REAL] else 0.0, "node": str(layout_root.get_path_to(node)),
-					"faction": str(faction) if faction != null else ""})
+				var item := {"name": node.name, "kind": node.get_script().resource_path.get_file().get_basename(), "x": origin.x, "y": origin.y,
+					"z": origin.z, "radius": float(radius) if typeof(radius) in [TYPE_INT, TYPE_REAL] else 0.0,
+					"node": str(layout_root.get_path_to(node)), "faction": str(faction) if faction != null else "", "attached_to": attached}
+				if node.get("kind") != null and item.kind == "beacon_marker":
+					item["beacon"] = str(node.kind)
+					if item.radius == 0.0:
+						item.radius = Constants.BEACON_TRAFFIC_RADIUS
+				out.append(item)
 		layout_root.free()
 	return out
 

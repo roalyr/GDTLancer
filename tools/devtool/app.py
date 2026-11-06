@@ -32,6 +32,7 @@ from textual.binding import Binding
 from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.screen import ModalScreen
 from textual.suggester import SuggestFromList
+from textual.message import Message
 from textual.widgets import (Button, DataTable, Footer, Header, Input, Label, Select, SelectionList, Static, Switch,
                              TabbedContent, TabPane, TextArea, Tree)
 
@@ -47,6 +48,21 @@ LAYOUTS = "scenes/levels/sectors/*/*_layout.tscn"
 MARKERS = "res://src/scenes/game_world/sector_layout/markers/"
 GROUP_MARKERS = {"Havens": "haven_marker.gd", "Beacons": "beacon_marker.gd", "Hazards": "hazard_marker.gd"}
 COPY_OFFSET = 2000.0  # m along x between a marker and its copy
+SCENE = "@"  # World keys of what the sector scene places: "@" + its node path; "@" alone: the group
+PLACEABLE = ("scenes/levels/sectors/*/*/*.tscn", "scenes/prefabs/celestial/*.tscn")  # Scenes the World tab places in a sector
+
+
+def placeable_scenes():
+    """res:// paths of the scenes a sector can place: stars, planets, moons, belts (composed in Godot)."""
+    out = []
+    for pattern in PLACEABLE:
+        out += ["res://" + os.path.relpath(path, tasks.ROOT) for path in sorted(glob.glob(os.path.join(tasks.ROOT, pattern)))]
+    return out
+
+
+def title_of(scene):
+    """A node name for a new instance of `scene`: "planet_elace_d.tscn" -> "Planet Elace D"."""
+    return " ".join(word.capitalize() if len(word) > 1 else word.upper() for word in os.path.basename(scene)[:-5].split("_"))
 FAMILIES = ["fighter", "lance", "raider", "prospector", "scavenger"]
 WEIGHTS = ["light", "medium", "heavy"]
 GENE_BAR = 30  # Characters of a gene's bar
@@ -579,6 +595,46 @@ class NameScreen(ModalScreen):
         self.dismiss(None)
 
 
+class PlaceScreen(ModalScreen):
+    """Which scene to place, and its node name; dismisses with (scene, name), or None."""
+
+    DEFAULT_CSS = """
+    PlaceScreen { align: center middle; }
+    PlaceScreen > Vertical { width: 90; height: auto; border: thick $accent; background: $surface; padding: 1 2; }
+    PlaceScreen #place-buttons { height: auto; margin-top: 1; }
+    """
+    BINDINGS = [Binding("escape", "cancel", "Cancel")]
+
+    def __init__(self, title, scenes):
+        super().__init__()
+        self.title_, self.scenes = title, scenes
+
+    def compose(self) -> ComposeResult:
+        with Vertical():
+            yield Label(self.title_)
+            yield Select([(path.replace("res://", ""), path) for path in self.scenes], id="place-scene", allow_blank=False,
+                         value=self.scenes[0])
+            yield Label("Its node name")
+            yield Input(value=title_of(self.scenes[0]), id="place-name")
+            with Horizontal(id="place-buttons"):
+                yield Button("Place", id="place-ok", variant="primary")
+                yield Button("Cancel", id="place-cancel")
+
+    @on(Select.Changed, "#place-scene")
+    def _scene_changed(self, event):
+        self.query_one("#place-name", Input).value = title_of(event.value)
+
+    @on(Button.Pressed, "#place-ok")
+    @on(Input.Submitted, "#place-name")
+    def _done(self, _event):
+        name = self.query_one("#place-name", Input).value.strip()
+        self.dismiss((self.query_one("#place-scene", Select).value, name) if name else None)
+
+    @on(Button.Pressed, "#place-cancel")
+    def action_cancel(self, _event=None):
+        self.dismiss(None)
+
+
 class ConfirmScreen(ModalScreen):
     """A yes/no question; dismisses with True or False."""
 
@@ -623,7 +679,7 @@ HELP = """\
   2 Models      every ship and station model: import (i), open in Blender (o), review sheet (s)
   3 Archetypes  the fifteen designs as the game flies them; pilot genes against evolution's ranges
   4 Factions    wars (pick a cell, w), rosters (space ticks, ctrl+s), havens (enter: World)
-  5 World       each sector's havens, beacons and hazards on a map; ctrl+d copies, delete removes
+  5 World       a sector: its scene's bodies and belts, its layout's markers, on a map (top or side, filters)
   6 Parts       weapons (w), modules (m), commodities (c), starting kit (k); a hides archetype parts
   7 Look        shaders, faction paints, paint patterns, music; y syncs shader blocks
   8 Data        every data file in a form made from its script
@@ -809,11 +865,37 @@ class LookPane(Horizontal):
             yield Form("", id="music-form")
 
 
+class FilterChip(Static):
+    """One line of the map's legend that is also its filter: a click (or enter) shows or hides that kind."""
+
+    can_focus = True
+    BINDINGS = [Binding("enter,space", "toggle", "Show/hide", show=False)]
+
+    class Toggled(Message):
+        def __init__(self, chip, key):
+            super().__init__()
+            self.chip, self.key = chip, key
+
+    def __init__(self, text, key, **kwargs):
+        super().__init__(text, **kwargs)
+        self.key = key
+        self.tooltip = "Show or hide them on the map"
+
+    def on_click(self, _event):
+        self.action_toggle()
+
+    def action_toggle(self):
+        self.post_message(self.Toggled(self, self.key))
+
+    def press(self):
+        self.action_toggle()
+
+
 class WorldPane(Horizontal):
     BINDINGS = [
         Binding("ctrl+s", "app.save_node", "Save"), Binding("ctrl+r", "app.reload_sector", "Refresh"),
-        Binding("ctrl+u", "app.undo_save", "Undo last save"), Binding("ctrl+n", "app.new_marker", "New marker"),
-        Binding("ctrl+d", "app.copy_marker", "Copy marker"), Binding("delete", "app.remove_marker", "Remove marker"),
+        Binding("ctrl+u", "app.undo_save", "Undo last save"), Binding("ctrl+n", "app.new_marker", "New"),
+        Binding("ctrl+d", "app.copy_marker", "Copy"), Binding("delete", "app.remove_marker", "Remove"),
     ]
     DEFAULT_CSS = """
     WorldPane #world-tree { width: 42; }
@@ -821,6 +903,12 @@ class WorldPane(Horizontal):
     WorldPane #world-map { height: auto; }
     WorldPane #map-buttons { height: auto; }
     WorldPane #map-buttons Button { min-width: 14; margin-right: 1; }
+    WorldPane #map-filters { height: auto; }
+    WorldPane #map-filters { height: auto; layout: grid; grid-size: 6; grid-gutter: 0 1; grid-rows: 1; }
+    WorldPane .map-filter { width: 1fr; height: 1; background: $boost; padding: 0 1; }
+    WorldPane .map-filter:hover { background: $accent 40%; }
+    WorldPane .map-filter:focus { text-style: bold; }
+    WorldPane .map-filter.off { text-style: strike; color: $text-disabled; background: transparent; }
     WorldPane #world-form { height: 1fr; }
     """
 
@@ -834,7 +922,11 @@ class WorldPane(Horizontal):
                 yield Button("Zoom in", id="map-in")
                 yield Button("Zoom out", id="map-out")
                 yield Button("Whole sector", id="map-fit")
+                yield Button("Side view", id="map-side", tooltip="From the side (heights) or from above")
             yield Static("", id="world-map")
+            with Horizontal(id="map-filters"):
+                for key, symbol, label in worldmap.FILTERS:
+                    yield FilterChip("%s %s" % (symbol, label), key, id="filter-" + key, classes="map-filter")
             yield Form("Opening the first sector...", id="world-form")
 
 
@@ -1521,7 +1613,14 @@ class DevApp(App):
 
     def specials(self, script):
         """{field: Special} for the file or node with `script`: buy lists, the starting kit, and
-        fields picked from a list (ships, havens, factions)."""
+        fields picked from a list (ships, havens, factions, the body a marker rides with)."""
+        out = self._specials(script)
+        if os.path.basename(script or "").endswith("_marker.gd") and self.world:
+            out["attached_to"] = Special(choices=[("", "(none: its place is its own)")] + [
+                (thing["node"], "%s (%s)" % (thing["name"], thing["kind"])) for thing in self.world.get("things", [])])
+        return out
+
+    def _specials(self, script):
         name = os.path.basename(script or "")
         parts = self.parts_view
         commodities = {row["id"]: row for row in parts.get("commodities", [])}
@@ -1822,18 +1921,35 @@ class DevApp(App):
         try:
             nodes = self.ask("scene_nodes", path=path)
             items = self.ask("sector_map", sector=sector)
+            things = self.ask("world_scene", path=self._sector_scene(path))
         except BridgeError as error:
             self.call_from_thread(self.notify, "%s: %s" % (sector, error), severity="error")
             return
-        self.call_from_thread(self._show_sector, sector, path, nodes, items, picked, result)
+        self.call_from_thread(self._show_sector, sector, path, nodes, items, picked, result, things)
 
-    def _show_sector(self, sector, path, nodes, items, picked, result):
-        self.world = {"sector": sector, "path": path, "nodes": {node["node"]: node for node in nodes}, "map": items, "picked": "."}
+    @staticmethod
+    def _sector_scene(layout_path):
+        return layout_path.replace("_layout.tscn", ".tscn")
+
+    def _show_sector(self, sector, path, nodes, items, picked, result, things=()):
+        self.world = {"sector": sector, "path": path, "nodes": {node["node"]: node for node in nodes}, "map": items, "picked": ".",
+                      "scene": self._sector_scene(path), "things": list(things)}
         tree = self.query_one("#world-tree", Tree)
         sector_node = next(child for child in tree.root.children if child.data["sector"] == sector)
         sector_node.remove_children()
+        group = {"node": SCENE, "name": "Scene", "parent": ".", "script": "", "type": "scene", "fields": [], "values": {}}
+        self.world["nodes"][SCENE] = group
+        scene_node = sector_node.add("Scene  [dim]what the sector scene places[/dim]", data={"sector": sector, "path": path, "node": SCENE},
+                                     expand=True)
+        for thing in things:
+            key = SCENE + thing["node"]
+            self.world["nodes"][key] = dict(thing, node=key, parent=SCENE, script="", type=thing["kind"])
+            scene_node.add_leaf("%s  [dim]%s[/dim]" % (thing["name"], thing["kind"]), data={"sector": sector, "path": path, "node": key})
         parents = {node["parent"] for node in nodes}
-        tree_nodes = {".": sector_node}
+        tree_nodes = {".": sector_node, SCENE: scene_node}
+        for key in self.world["nodes"]:
+            if key.startswith(SCENE + "SceneAssets"):
+                tree_nodes[key] = next(child for child in scene_node.children if child.data["node"] == key)
         for node in nodes:
             if node["node"] == ".":
                 continue
@@ -1855,18 +1971,48 @@ class DevApp(App):
         self.world["picked"] = node_path
         form = self.query_one("#world-form", Form)
         where = self.world["path"] if node_path == "." else "%s · %s" % (node_path, self.world["path"])
-        if node["fields"] and (node["script"] or node_path == "."):
+        if node_path == SCENE:
+            form.clear("[b]Scene[/b]  %s\n[dim]What the sector scene places: stars, planets, moons, belts. Move one here; ctrl+n places a "
+                       "scene, ctrl+d copies the picked one, delete removes it. What each is made of is its own scene's: the Godot "
+                       "editor's.[/dim]" % self.world["scene"])
+        elif node_path.startswith(SCENE):
+            form.show("[b]%s[/b]  %s · %s\n[dim]%s, %s; made in %s (the Godot editor)%s[/dim]" % (
+                node["name"], node_path[1:], self.world["scene"], node["kind"], "%.0f m across" % (2 * node["radius"]) if node["radius"] else "no size",
+                node["scene"].replace("res://", "") or "this scene", self._riders(node_path)), node["fields"], node["values"], "")
+        elif node["fields"] and (node["script"] or node_path == "."):
             form.show("[b]%s[/b]  %s" % (node["name"], where), node["fields"], node["values"], node["script"])
         else:
             form.clear("[b]%s[/b]  %s\n[dim]A group; ctrl+n adds a marker to it.[/dim]" % (node["name"], where))
         form.result(result)
         self.query_one("#world-map", Static).update(self._map_text(node_path))
 
+    def _riders(self, key):
+        riders = [item["name"] for item in self.world.get("map", []) if item.get("attached_to") and SCENE + item["attached_to"] == key]
+        return "; carries %s with it" % ", ".join(riders) if riders else ""
+
+    @on(Button.Pressed, "#map-side")
+    def _map_side(self, event):
+        self.map_side = not getattr(self, "map_side", False)
+        event.button.label = "Top view" if self.map_side else "Side view"
+        self._redraw_map()
+
+    @on(FilterChip.Toggled)
+    def _map_filter(self, event):
+        hidden = self.__dict__.setdefault("map_hidden", set())
+        hidden.symmetric_difference_update({event.key})
+        event.chip.set_class(event.key in hidden, "off")
+        self._redraw_map()
+
+    def _redraw_map(self):
+        if self.world:
+            self.query_one("#world-map", Static).update(self._map_text(self.world.get("picked", "")))
+
     @on(Button.Pressed, "#map-toggle")
     def _map_toggle(self, event):
         shown = not self.query_one("#world-map").display
         self.query_one("#world-map").display = shown
-        for button_id in ("#map-in", "#map-out", "#map-fit"):
+        self.query_one("#map-filters").display = shown
+        for button_id in ("#map-in", "#map-out", "#map-fit", "#map-side"):
             self.query_one(button_id).display = shown
         event.button.label = "Hide map" if shown else "Show map"
 
@@ -1874,8 +2020,7 @@ class DevApp(App):
     def _map_zoom(self, event):
         zoom = getattr(self, "map_zoom", 1)
         self.map_zoom = {"map-in": min(zoom * 2, 64), "map-out": max(zoom // 2, 1), "map-fit": 1}[event.button.id]
-        if self.world:
-            self.query_one("#world-map", Static).update(self._map_text(self.world.get("picked", "")))
+        self._redraw_map()
 
     def _map_text(self, node_path):
         colors = {}
@@ -1886,7 +2031,8 @@ class DevApp(App):
         width = self.query_one("#world-side").size.width or 96
         columns = max(16, min(60, (width - worldmap.LABEL_WIDTH - 3) // 2))
         return worldmap.render(self.world["map"], node_path, columns=columns, rows=None, max_rows=28, colors=colors,
-                               zoom=getattr(self, "map_zoom", 1))
+                               zoom=getattr(self, "map_zoom", 1), side=getattr(self, "map_side", False),
+                               hidden=getattr(self, "map_hidden", set()), legend=False)
 
     def action_reload_sector(self):
         if self.world:
@@ -1903,8 +2049,14 @@ class DevApp(App):
         if not values:
             self.notify("Nothing changed")
             return
-        self.world_worker("scene_write", "Saved %s (%s)" % (self.world["picked"], ", ".join(sorted(values))),
-                          node=self.world["picked"], values=values)
+        picked = self.world["picked"]
+        if picked == SCENE:
+            return
+        if picked.startswith(SCENE):
+            self.world_worker("scene_write", "Moved %s" % self.world["nodes"][picked]["name"], file=self.world["scene"],
+                              node=picked[1:], values=values)
+            return
+        self.world_worker("scene_write", "Saved %s (%s)" % (picked, ", ".join(sorted(values))), node=picked, values=values)
 
     def _marker_script(self, node_path):
         """The marker script for a new marker beside or in `node_path`, and its parent."""
@@ -1920,6 +2072,20 @@ class DevApp(App):
         if not self.world:
             self.notify("Open a sector first", severity="warning")
             return
+        picked = self.world["picked"]
+        if picked.startswith(SCENE):
+            scenes = [path for path in placeable_scenes() if path != self.world["scene"]]
+            here = self.world["nodes"].get(picked, {})
+            at = [here.get("x", 0.0) + COPY_OFFSET * 5, here.get("y", 0.0), here.get("z", 0.0)] if picked != SCENE else [0.0, 0.0, 0.0]
+
+            def placed(answer):
+                if answer:
+                    scene, name = answer
+                    self.world_worker("scene_instance", "Placed %s" % name, file=self.world["scene"], scene=scene, name=name,
+                                      values={"translation": {"$": "Vector3", "v": at}})
+            self.push_screen(PlaceScreen("Place a scene in %s (it goes %s)" % (
+                self.world["sector"], "beside %s; move it after" % here.get("name") if picked != SCENE else "at the middle; move it after"), scenes), placed)
+            return
         script, parent = self._marker_script(self.world["picked"])
         if script is None:
             self.notify("Pick a group (%s) or a marker" % ", ".join(GROUP_MARKERS), severity="warning")
@@ -1933,6 +2099,14 @@ class DevApp(App):
     def action_copy_marker(self):
         picked = self.world.get("picked", ".")
         node = self.world.get("nodes", {}).get(picked)
+        if picked.startswith(SCENE) and picked != SCENE and node:
+            if not node["scene"]:
+                self.notify("%s is not an instance of a scene: copy it in the Godot editor" % node["name"], severity="warning")
+                return
+            self.world_worker("scene_instance", "Copied %s (%d km along x)" % (node["name"], COPY_OFFSET * 5 / 1000), file=self.world["scene"],
+                              scene=node["scene"], name=node["name"],
+                              values={"translation": {"$": "Vector3", "v": [node["x"] + COPY_OFFSET * 5, node["y"], node["z"]]}})
+            return
         if node is None or not node["script"].startswith(MARKERS) or picked == ".":
             self.notify("Pick a marker to copy", severity="warning")
             return
@@ -1948,25 +2122,36 @@ class DevApp(App):
             self.notify("Pick a marker to remove", severity="warning")
             return
 
+        if picked == SCENE:
+            self.notify("Pick something the scene places to remove", severity="warning")
+            return
+        riders = [item["name"] for item in self.world.get("map", []) if item.get("attached_to") and SCENE + item["attached_to"] == picked]
+
         def answered(yes):
-            if yes:
+            if yes and picked.startswith(SCENE):
+                self.world_worker("scene_remove", "Removed %s" % picked[1:], file=self.world["scene"], node=picked[1:])
+            elif yes:
                 self.world_worker("scene_remove", "Removed %s" % picked, node=picked)
-        self.push_screen(ConfirmScreen("Remove %s from %s?" % (picked, self.world["sector"])), answered)
+        self.push_screen(ConfirmScreen("Remove %s from %s?%s" % (picked.lstrip(SCENE), self.world["sector"],
+                                                                 " Markers attached to it (%s) then fail the rules until moved or let go." % ", ".join(riders) if riders else "")), answered)
 
     @work(thread=True, exclusive=True, group="world")
-    def world_worker(self, command, done, **args):
+    def world_worker(self, command, done, file=None, **args):
         sector, path = self.world["sector"], self.world["path"]
-        before = read_text(path)
+        target = file or path
+        before = read_text(target)
         try:
-            result = self.ask(command, path=path, **args)
+            result = self.ask(command, path=target, **args)
         except BridgeError as error:
             self.call_from_thread(self.notify, "Not saved: %s" % error, severity="error")
             return
-        self._undo_point([(path, before)], lambda: self.load_sector(sector, path, self.world.get("picked", ".")))
+        self._undo_point([(target, before)], lambda: self.load_sector(sector, path, self.world.get("picked", ".")))
         self.call_from_thread(self.notify, done)
         picked = result.get("node", args.get("node", "."))
+        if target != path:
+            picked = SCENE + picked
         if command == "scene_remove":
-            picked = self.world["nodes"].get(picked, {}).get("parent", ".")
+            picked = SCENE if target != path else self.world["nodes"].get(picked, {}).get("parent", ".")
         self.load_sector(sector, path, picked, result)
 
     # --- Constants ---

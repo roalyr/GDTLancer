@@ -38,7 +38,12 @@ func test_every_haven_and_beacon_is_built():
 	assert_almost_eq(layout.get_haven("station_elace_home").station.global_transform.origin, layout.global_transform.xform(marker.at),
 		Vector3.ONE * 0.01, "and stands where its marker is")
 	assert_eq_deep(layout.get_haven("verdant_haven").factions, {"verdant": 5})
-	assert_eq(layout.network.beacons.size(), spec.havens.size() + spec.beacons.size(), "A beacon per haven and per listed beacon")
+	var entries := 0
+	for beacon in spec.beacons:
+		if beacon.kind == "entry":
+			entries += 1
+	assert_eq(entries, 1, "One entry")
+	assert_eq(layout.network.beacons.size(), spec.havens.size() + spec.beacons.size() - entries, "A beacon per haven and per listed beacon but the entry")
 	for beacon in layout.network.beacons:
 		assert_true(beacon.is_in_group("beacon"))
 
@@ -99,3 +104,35 @@ func test_havens_wear_their_models_and_fit_to_them():
 		assert_gt(extent[0], 50.0, "%s: a station-sized model" % spec.id)
 		assert_gt(station.undock_offset.y, extent[1], "%s: ships undock above it" % spec.id)
 		assert_true(station.get_node("CollisionShape").shape is ConvexPolygonShape, "%s: its hull collides" % spec.id)
+
+
+func test_the_entry_is_where_ships_arrive():
+	var layout = _layout()
+	var entry: Dictionary = LayoutScript.entry_of(layout.get_parent())
+	assert_almost_eq(entry.at, Vector3(-20000, 0, 2000), Vector3.ONE * 0.01, "The entry beacon's place")
+	assert_eq(entry.radius, 20000.0, "and its radius: how far out ships arrive")
+
+
+func test_attached_markers_ride_with_their_bodies():
+	var sector := Spatial.new()
+	add_child_autofree(sector)
+	var assets := Spatial.new()
+	assets.name = "SceneAssets"
+	sector.add_child(assets)
+	var star := Spatial.new()
+	star.name = "Star Elace"
+	star.transform.origin = Vector3(1000, 0, 0)
+	assets.add_child(star)
+	var planet := Spatial.new()
+	planet.name = "Planet Elace B"
+	planet.transform.origin = Vector3(30000, 500, 0)
+	assets.add_child(planet)
+	var layout = LayoutScript.new()
+	assets.add_child(layout)
+	var hazard: Node = layout.get_node("Hazard_radiation")
+	assert_almost_eq(hazard.global_transform.origin, star.global_transform.origin, Vector3.ONE * 0.01, "The radiation round the star, wherever it is")
+	var belt: Node = null
+	for beacon in layout.network.beacons:
+		if beacon.beacon_name == "Elace B Belt":
+			belt = beacon
+	assert_almost_eq(belt.global_transform.origin, planet.global_transform.origin, Vector3.ONE * 0.01, "The planet's ring of rocks is where the planet is")

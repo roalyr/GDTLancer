@@ -24,4 +24,4 @@ func _ring_color() -> Color:
 
 
 func to_spec(at: Vector3) -> Dictionary:
-	return {"kind": kind, "at": at, "core": core, "radius": radius}
+	return attach({"kind": kind, "at": at, "core": core, "radius": radius})
