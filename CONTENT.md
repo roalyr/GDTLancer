@@ -12,7 +12,7 @@ This guide says where the game's content lives and how to change it without touc
 - **Constants:** every value in `src/autoload/Constants.gd`, by section (or by kind of value, `ctrl+g`), with its notes; `ctrl+f` finds one. A value is changed in place, so its comments stay. Godot checks that the script still parses before it is saved.
 - **Parts:** weapons (`w`), modules (`m`), commodities (`c`) and the starting kit (`k`) side by side, with what uses each; `a` hides the archetypes' own parts. Enter opens one in Data.
 - **Look:** every shader (red when its shared blocks are out of date; `y` syncs them) and what uses it, each faction's paints, the paint patterns (`g` remakes the library, `v` opens its sheet) and the music (pick a track, `ctrl+s`).
-- **Tools:** whether evolution is running (`x` asks it to stop), its save, backups and logs; the APK; the newest outputs (`o` opens one). Below, every other tool (tests, sheets, presets, evolution, balance, the APK): Enter asks its questions, then runs it.
+- **Tools:** whether evolution is running and in which era (`x` asks it to stop, `n` starts a new era), its save, backups and logs; the APK; the newest outputs (`o` opens one). Below, every other tool (tests, sheets, presets, evolution, balance, the APK): Enter asks its questions, then runs it.
 
 Godot reads and writes every file, so the tool saves exactly what the Godot editor would; in a layout, only the lines of what changed change. From a terminal, `tools/dev.py list` shows the tasks, and `tools/dev.py <task> key=value` runs one.
 
@@ -64,6 +64,14 @@ The game and the evolution are two separate modes, and neither ever reads the ot
 To run evolution, open the debug overlay and press **EVOLUTION**, then **START EVOLUTION**. The game pauses, and evolution runs in a separate process until you press **STOP EVOLUTION**; it then saves and ends, and the game carries on. This only works when running from the project on a desktop. From a terminal: `godot --no-window -s tools/evolution_sim.gd -- --hours=4`.
 
 New designs reach the game only when you export them as presets (`tools/export_presets.gd`).
+
+**A new era** (the rules changed, so fitness earned under the old ones no longer counts) always goes through the tool: Tools, `n`, or `tools/dev.py new_era label=<this era> next=<next era>`. With evolution stopped, it:
+1. copies the save to `backups/era<N>_<name>_t<hours>h_<date>.sav` and checks the copy byte for byte (a backup is never overwritten);
+2. exports that copy's drafts to `database/presets/drafts_era<N>_min10/` and `_min5/`;
+3. rewrites `database/presets/CATALOG.md`, and commits the drafts and the catalog (nothing else);
+4. records the new era in `user://evolution/era.json`, and starts it in the background, its console going to `era<N+1>_<name>.log`.
+
+If a step fails, the flow stops there and lists what is already done. The Tools tab's evolution task only goes on with the current era.
 
 ## Models — ships and stations
 

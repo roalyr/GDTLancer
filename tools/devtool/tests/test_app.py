@@ -372,7 +372,9 @@ class AppTest(unittest.IsolatedAsyncioTestCase):
         with tempfile.TemporaryDirectory() as user_dir:
             os.makedirs(os.path.join(user_dir, "evolution"))
             with open(os.path.join(user_dir, "evolution", "status.json"), "w") as handle:
-                handle.write('{"era": 52, "sim_time": 1000}')
+                handle.write('{"state": "running", "pid": %d, "game_time": 7200, "lives": 40, "genomes": 90}' % os.getpid())
+            with open(os.path.join(user_dir, "evolution", "era.json"), "w") as handle:
+                handle.write('{"era": 52, "label": "fuel"}')
             app = devapp.DevApp(bridge_factory=lambda: FakeBridge(user_dir))
             async with app.run_test(size=(180, 50)) as pilot:
                 await self._started(pilot, app)

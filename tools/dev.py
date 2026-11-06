@@ -75,7 +75,7 @@ def main(argv):
             if task.group != group:
                 group = task.group
                 print("\n" + group)
-            asks = " ".join("%s=%s" % (ask.key, ask.default or ("" if ask.optional else "?")) for ask in task.asks)
+            asks = " ".join("%s=%s" % (ask.key, (ask.default() if callable(ask.default) else ask.default) or ("" if ask.optional else "?")) for ask in task.asks)
             print("  %-18s %s%s" % (task.key, task.title, ("   [" + asks + "]") if asks else ""))
         return 0
     task = tasks.TASKS_BY_KEY.get(argv[0])

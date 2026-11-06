@@ -35,7 +35,7 @@ from textual.suggester import SuggestFromList
 from textual.widgets import (Button, DataTable, Footer, Header, Input, Label, Select, SelectionList, Static, Switch,
                              TabbedContent, TabPane, TextArea, Tree)
 
-from . import constants, data, models, tasks, worldmap
+from . import constants, data, evolution, models, tasks, worldmap
 from .bridge import Bridge, BridgeError, file_path
 
 RESOURCE_FILES = {  # Resource type -> the files a field of it can point at
@@ -135,24 +135,23 @@ def tools_status(evolution_dir):
     if evolution_dir is None:
         lines.append("[b]Evolution[/b]: (waiting for Godot to say where user:// is)")
     else:
-        status = os.path.join(evolution_dir, "status.json")
-        if os.path.exists(status):
-            try:
-                with open(status) as handle:
-                    info = json.load(handle)
-            except (OSError, ValueError):
-                info = {}
-            details = ", ".join("%s %s" % (key, info[key]) for key in sorted(info) if not isinstance(info[key], (dict, list)))[:160]
-            lines.append("[b]Evolution[/b]: [green]running[/green] (updated %s) %s · x asks it to stop" % (age(status), details))
+        status_file = os.path.join(evolution_dir, "status.json")
+        info = evolution.status(evolution_dir)
+        number, label, guessed = evolution.era(evolution_dir)
+        era_text = ("era %d%s%s" % (number, " (%s)" % label if label else "", ", guessed from backup names" if guessed else "")) if number else "era unknown"
+        if info and info["running"]:
+            lines.append("[b]Evolution[/b]: [green]running[/green] %s, t=%.1f h, %s lives, %s genomes, pace x%.1f (updated %s) · x asks it to stop"
+                         % (era_text, float(info.get("game_time", 0)) / 3600.0, info.get("lives", "?"), info.get("genomes", "?"),
+                            float(info.get("pace", 0)), age(status_file)))
         else:
-            lines.append("[b]Evolution[/b]: stopped")
+            ended = (", last run %s %s at t=%.1f h" % (info.get("state", "?"), age(status_file), float(info.get("game_time", 0)) / 3600.0)) if info else ""
+            lines.append("[b]Evolution[/b]: stopped, %s%s · n starts a new era (backs up and exports first)" % (era_text, ended))
         save = os.path.join(evolution_dir, "save_0.sav")
         backups = newest_files(os.path.join(evolution_dir, "backups"), 1)
         logs = newest_files(os.path.join(evolution_dir, "logs"), 1)
         lines.append("  save %s · newest backup %s · newest life log %s" % (
             age(save) if os.path.exists(save) else "none", ("%s, %s" % (os.path.basename(backups[0]), age(backups[0]))) if backups else "none",
             age(logs[0]) if logs else "none"))
-        lines.append("  [dim]Before a new era: back up the save and export the preset drafts (Tools: export_presets).[/dim]")
     if os.path.exists(tasks.APK):
         lines.append("[b]APK[/b]: %s, %.0f MB, exported %s" % (tasks.APK, os.path.getsize(tasks.APK) / 1e6, age(tasks.APK)))
     else:
@@ -851,7 +850,8 @@ class ConstantsPane(Horizontal):
 
 
 class TasksPane(Vertical):
-    BINDINGS = [Binding("x", "app.stop_evolution", "Stop evolution"), Binding("o", "app.open_output", "Open newest output"),
+    BINDINGS = [Binding("x", "app.stop_evolution", "Stop evolution"), Binding("n", "app.new_era", "New era"),
+                Binding("o", "app.open_output", "Open newest output"),
                 Binding("ctrl+r", "app.refresh_status", "Refresh")]
     DEFAULT_CSS = """
     TasksPane #tools-status { height: auto; padding: 0 1; border-bottom: solid $panel; }
@@ -2056,13 +2056,20 @@ class DevApp(App):
 
     def action_stop_evolution(self):
         folder = self._evolution_dir()
-        if folder is None or not os.path.exists(os.path.join(folder, "status.json")):
+        if folder is None or not (evolution.status(folder) or {}).get("running"):
             self.notify("Evolution is not running", severity="warning")
             return
         with open(os.path.join(folder, "stop"), "w"):
             pass
         self.notify("Asked evolution to save and stop (it does at its next check)")
         self._show_status()
+
+    def action_new_era(self):
+        folder = self._evolution_dir()
+        if folder and (evolution.status(folder) or {}).get("running"):
+            self.notify("Evolution is running: x stops it, then n again once it says stopped", severity="warning")
+            return
+        self._ask_task(tasks.TASKS_BY_KEY["new_era"])
 
     def action_open_output(self):
         newest = newest_files(tasks.OUT_DIR, 1)

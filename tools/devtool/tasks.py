@@ -27,7 +27,9 @@ class Ask:
     """One question a task asks. kind: "text", "choice" (from `choices`), "file" (from `globs`,
     relative to the project) or "flag" (yes/no)."""
 
-    def __init__(self, key, label, kind="text", default="", choices=None, globs=None, optional=False):
+    def __init__(self, key, label, kind="text", default="", choices=None, globs=None, optional=False, fresh=False):
+        """`default` may be a function; `fresh`: always the default, never the last answer."""
+        self.fresh = fresh
         self.key, self.label, self.kind = key, label, kind
         self.default, self.choices, self.globs, self.optional = default, choices, globs, optional
 
@@ -52,7 +54,8 @@ class Task:
     def defaults(self, last):
         values = {}
         for ask in self.asks:
-            values[ask.key] = last.get(self.key, {}).get(ask.key, ask.default)
+            default = ask.default() if callable(ask.default) else ask.default
+            values[ask.key] = default if ask.fresh else last.get(self.key, {}).get(ask.key, default)
         return values
 
 
@@ -143,12 +146,21 @@ def _model_sheet(v):
 
 
 def _evolution(v):
-    command = godot_script("tools/evolution_sim.gd", "--", "--hours=" + v["hours"], "--speed=" + v["speed"])
-    if yes(v["new"]):
-        command.append("--new")
-    if yes(v["new_era"]):
-        command.append("--new-era")
-    return command
+    """Goes on with the saved evolution; a new era or a new evolution goes through new_era (backups first)."""
+    return godot_script("tools/evolution_sim.gd", "--", "--hours=" + v["hours"], "--speed=" + v["speed"])
+
+
+def _era_default(part):
+    def default():
+        from . import evolution
+        number, label, _ = evolution.era(evolution.evolution_dir())
+        return {"era": str(number) if number else "", "label": label}[part]
+    return default
+
+
+def _new_era(v):
+    return ["python3", "tools/devtool/evolution.py"] + ["%s=%s" % (key, v[key]) for key in
+                                                       ("era", "label", "next", "kind", "hours", "speed", "min_lives", "commit", "start")]
 
 
 def _lance_duel(v):
@@ -220,9 +232,18 @@ TASKS = [
     Task("apply_laws", "Content", "Apply the ship laws", "Rewrites hand-made ships and parts from their law genes (after changing a law).",
          lambda v: godot_script("tools/apply_laws.gd")),
     # Evolution
-    Task("evolution", "Evolution", "Run evolution (headless)", "Back up the save and export drafts before a new era.",
-         _evolution, [Ask("hours", "Simulated hours (0: until stopped)", default="1"), Ask("speed", "Speed", default="6"),
-                      Ask("new", "Start a new evolution", "flag", "no"), Ask("new_era", "New era (rules changed)", "flag", "no")]),
+    Task("evolution", "Evolution", "Run evolution (headless)", "Goes on with the saved evolution. A new era: new_era.",
+         _evolution, [Ask("hours", "Simulated hours (0: until stopped)", default="1"), Ask("speed", "Speed", default="6")]),
+    Task("new_era", "Evolution", "New era (backs up first)",
+         "Backs up the save, exports its drafts, rewrites the catalog and commits them, then starts the next era.",
+         _new_era, [Ask("era", "This era's number", default=_era_default("era"), fresh=True),
+                    Ask("label", "This era's name (its backup and drafts)", default=_era_default("label"), fresh=True),
+                    Ask("next", "The next era's name (what changed)"),
+                    Ask("kind", "Next era: era (genomes stay, their records start over) or fresh (a new evolution)", "choice", "era", ["era", "fresh"]),
+                    Ask("hours", "Simulated hours (0: until stopped)", default="20"), Ask("speed", "Speed", default="8"),
+                    Ask("min_lives", "Drafts for these minimum lives", default="10,5"),
+                    Ask("commit", "Commit the drafts and catalog", "flag", "yes"),
+                    Ask("start", "Start the next era now", "flag", "yes")]),
     Task("evolution_report", "Evolution", "Evolution report", "Summary of the newest evolution life log.",
          lambda v: ["python3", "tools/evolution_report.py"] + (["--last-hours", v["hours"]] if v["hours"] else []),
          [Ask("hours", "Only the last hours (empty: all)", default="", optional=True)]),

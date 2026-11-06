@@ -36,13 +36,13 @@ func _run():
 	var file := File.new()
 	if file.open(save_path, File.READ) != OK:
 		print("PRESETS no save at ", save_path)
-		quit()
+		quit(1)
 		return
 	var data = file.get_var(true)
 	file.close()
 	if not (data is Dictionary and data.get("evolution") is Dictionary):
 		print("PRESETS the save has no evolution data")
-		quit()
+		quit(1)
 		return
 	if clean:
 		_remove_presets(out_dir)
