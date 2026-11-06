@@ -323,3 +323,34 @@ func test_the_factions_view_has_wars_both_ways_and_havens():
 	assert_eq(by_id.verdant.havens[0].sector, "sector_elace")
 	assert_true(by_id.verdant.paint is Dictionary and by_id.verdant.paint.has("v"))
 	assert_eq(view.archetypes, BridgeCommands.Validator.archetype_names())
+
+
+func test_the_parts_view_has_every_part_and_who_uses_it():
+	var view: Dictionary = _ok(commands.handle("parts", {}))
+	var by_id := {}
+	for kind in ["weapons", "modules", "commodities"]:
+		assert_gt(view[kind].size(), 0, kind)
+		for item in view[kind]:
+			by_id[item.id] = item
+	assert_eq(by_id.tool_ablative_laser.dps, 6.0)
+	assert_has(by_id.tool_ablative_laser.used_by, "start start_default")
+	assert_has(by_id.preset_cannon_2_308_52_60.used_by, "fighter_light", "Fitted to an archetype")
+	assert_eq(by_id.preset_cannon_2_308_52_60.origin, "archetype")
+	assert_eq(view.starts[0].id, "start_default")
+
+
+func test_the_look_view_and_the_music_stream():
+	var view: Dictionary = _ok(commands.handle("look", {}))
+	var by_path := {}
+	for shader in view.shaders:
+		by_path[shader.path] = shader
+	assert_gt(by_path["res://assets/art/shaders/solid.gdshader"].materials.size(), 10)
+	assert_gt(by_path["res://assets/art/shaders/star_surface.gdshader"].scenes.size(), 0, "Named in a star scene")
+	assert_eq(view.paints.size(), BridgeCommands.Validator.faction_files().size() * 2)
+	assert_string_ends_with(view.music.stream, ".mp3")
+	var copy := "user://test_bridge_main.tscn"
+	Directory.new().copy(BridgeCommands.MAIN_SCENE, copy)
+	var before: String = _text(copy)
+	_ok(commands.handle("scene_write", {"path": copy, "node": "AmbientMusic", "values": {"stream": view.music.values.stream}}))
+	assert_eq(_text(copy), before, "The same stream: unchanged")
+	Directory.new().remove(copy)

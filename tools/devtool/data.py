@@ -63,7 +63,7 @@ KINDS = [
          "The player's and NPCs' base templates."),
     Kind("materials", "Material library", "assets/art/materials_generic/mat_*.tres", None,
          "Models take these by name (a model's material mat_x becomes mat_x.tres). New: a copy of the one picked;"
-         " then rebuild the starters (Tasks: starters).", copies=True, prefix="mat_"),
+         " then rebuild the starters (Tools: starters).", copies=True, prefix="mat_"),
     Kind("sounds", "Sound bank", "database/sounds/sound_bank.tres", None,
          "One slot per game event; an empty slot is silent."),
 ]

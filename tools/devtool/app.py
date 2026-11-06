@@ -7,13 +7,15 @@ The development tool's menu (Textual): the project's content and its checks in o
     Archetypes the fifteen designs side by side as the game flies them (fitted mass, speed, guns),
                their pilots' genes against evolution's ranges, and who flies each
     Factions   who is at war with whom (toggled in a matrix), each faction's roster and havens
+    Parts      weapons, modules, commodities and the starting kit side by side, with who uses each
+    Look       shaders (shared blocks in date, who uses each), faction paints, paint patterns, music
     Data       every data file by kind (the material library too), edited in a form made from its
                script or shader; each save is checked
     World      each sector's layout (havens, beacons, hazards) on a map from above, each marker in
                a form; add, copy, remove; each save is checked
     Constants  src/autoload/Constants.gd by section or by kind of value; values changed in place,
                Godot checks the script before it is saved
-    Tasks      every tool (tasks.py), with its questions
+    Tools      evolution, the APK and the newest outputs at a glance; every tool (tasks.py) to run
 
 Godot does the reading, writing and checking (bridge.py), so the files stay as Godot writes them.
 Keys are listed in the footer and on the help screen (?).
@@ -101,6 +103,64 @@ def write_text(path, text):
 
 def plural(count, word):
     return "%d %s%s" % (count, word, "" if count == 1 else "s")
+
+
+def open_file(path):
+    """Opens a file in the desktop's program for it."""
+    try:
+        subprocess.Popen(["xdg-open", path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except OSError:
+        pass
+
+
+def newest_files(folder, count, skip=(".import",)):
+    out = []
+    for base, _dirs, names in os.walk(folder) if folder and os.path.isdir(folder) else []:
+        out += [os.path.join(base, name) for name in names if not name.endswith(skip)]
+    return sorted(out, key=os.path.getmtime, reverse=True)[:count]
+
+
+def age(path):
+    import time
+    seconds = max(0, time.time() - os.path.getmtime(path))
+    for unit, size in (("d", 86400), ("h", 3600), ("min", 60)):
+        if seconds >= size:
+            return "%d %s ago" % (seconds // size, unit)
+    return "just now"
+
+
+def tools_status(evolution_dir):
+    """Evolution, the APK and the newest outputs, as markup lines."""
+    lines = []
+    if evolution_dir is None:
+        lines.append("[b]Evolution[/b]: (waiting for Godot to say where user:// is)")
+    else:
+        status = os.path.join(evolution_dir, "status.json")
+        if os.path.exists(status):
+            try:
+                with open(status) as handle:
+                    info = json.load(handle)
+            except (OSError, ValueError):
+                info = {}
+            details = ", ".join("%s %s" % (key, info[key]) for key in sorted(info) if not isinstance(info[key], (dict, list)))[:160]
+            lines.append("[b]Evolution[/b]: [green]running[/green] (updated %s) %s · x asks it to stop" % (age(status), details))
+        else:
+            lines.append("[b]Evolution[/b]: stopped")
+        save = os.path.join(evolution_dir, "save_0.sav")
+        backups = newest_files(os.path.join(evolution_dir, "backups"), 1)
+        logs = newest_files(os.path.join(evolution_dir, "logs"), 1)
+        lines.append("  save %s · newest backup %s · newest life log %s" % (
+            age(save) if os.path.exists(save) else "none", ("%s, %s" % (os.path.basename(backups[0]), age(backups[0]))) if backups else "none",
+            age(logs[0]) if logs else "none"))
+        lines.append("  [dim]Before a new era: back up the save and export the preset drafts (Tools: export_presets).[/dim]")
+    if os.path.exists(tasks.APK):
+        lines.append("[b]APK[/b]: %s, %.0f MB, exported %s" % (tasks.APK, os.path.getsize(tasks.APK) / 1e6, age(tasks.APK)))
+    else:
+        lines.append("[b]APK[/b]: none at %s (Tools: apk)" % tasks.APK)
+    newest = newest_files(tasks.OUT_DIR, 3)
+    lines.append("[b]Newest outputs[/b] (.dev/out/, o opens the first): " + (", ".join("%s (%s)" % (os.path.relpath(path, tasks.OUT_DIR), age(path))
+                                                                                    for path in newest) if newest else "none yet"))
+    return "\n".join(lines)
 
 
 # --- Form fields ----------------------------------------------------------------------------------
@@ -396,7 +456,7 @@ class ConfirmScreen(ModalScreen):
 
 HELP = """\
 [b]Keys, the same on every tab[/b]
-  1-8         switch tabs                    ?          this help
+  1-9, 0      switch tabs                    ?          this help
   tab         next box in a tab              shift+tab  the box before
   enter       open or run what is picked     q          quit (not while typing)
   ctrl+s      save                           ctrl+u     undo the last save (every file it wrote)
@@ -409,9 +469,11 @@ HELP = """\
   3 Archetypes  the fifteen designs as the game flies them; pilot genes against evolution's ranges
   4 Factions    wars (pick a cell, w), rosters (space ticks, ctrl+s), havens (enter: World)
   5 World       each sector's havens, beacons and hazards on a map; ctrl+d copies, delete removes
-  6 Data        every data file in a form made from its script
-  7 Constants   Constants.gd by section (or by kind, ctrl+g); ctrl+f finds
-  8 Tasks       every other tool; enter asks its questions and runs it
+  6 Parts       weapons (w), modules (m), commodities (c), starting kit (k); a hides archetype parts
+  7 Look        shaders, faction paints, paint patterns, music; y syncs shader blocks
+  8 Data        every data file in a form made from its script
+  9 Constants   Constants.gd by section (or by kind, ctrl+g); ctrl+f finds
+  0 Tools       evolution, APK and outputs; every other tool (enter asks its questions and runs it)
 
 [b]Saving[/b]
   Godot writes every file and checks the content rules on each save: green means every rule holds,
@@ -544,6 +606,54 @@ class FactionsPane(Horizontal):
             yield table
 
 
+PART_COLUMNS = {
+    "weapons": ("Weapon", "Type", "Mount", "Mass kg", "Damage", "Cycle s", "DPS", "Range m", "Ammo", "Power", "WP", "Origin", "Used by"),
+    "modules": ("Module", "Kind", "Mass kg", "Effects", "WP", "Origin", "Used by"),
+    "commodities": ("Commodity", "WP", "kg/unit", "WP/t", "Used by"),
+    "starts": ("Game start", "Ship", "Docked at", "Bank WP", "Storage"),
+}
+PART_TITLES = {"weapons": "Weapons and tools", "modules": "Modules", "commodities": "Commodities", "starts": "Starting kit"}
+
+
+class PartsPane(Vertical):
+    BINDINGS = [
+        Binding("w", "app.parts('weapons')", "Weapons"), Binding("m", "app.parts('modules')", "Modules"),
+        Binding("c", "app.parts('commodities')", "Commodities"), Binding("k", "app.parts('starts')", "Starting kit"),
+        Binding("a", "app.toggle_archetype_parts", "Archetype parts on/off"), Binding("ctrl+r", "app.refresh_parts", "Refresh"),
+    ]
+    DEFAULT_CSS = """
+    PartsPane #parts { height: 1fr; }
+    PartsPane #parts-title, PartsPane #part-detail { height: auto; padding: 0 1; }
+    """
+
+    def compose(self) -> ComposeResult:
+        yield Static("", id="parts-title")
+        yield OpenTable(id="parts", cursor_type="row", zebra_stripes=True)
+        yield Static("", id="part-detail")
+
+
+class LookPane(Horizontal):
+    BINDINGS = [
+        Binding("ctrl+s", "app.save_music", "Save music"), Binding("ctrl+u", "app.undo_save", "Undo last save"),
+        Binding("y", "app.look_task('shaders_sync')", "Sync shader blocks"), Binding("g", "app.look_task('paint_patterns')", "Remake patterns"),
+        Binding("v", "app.view_pattern_sheet", "Pattern sheet"), Binding("ctrl+r", "app.refresh_look", "Refresh"),
+    ]
+    DEFAULT_CSS = """
+    LookPane #look-tree { width: 42; }
+    LookPane #look-side { width: 1fr; padding: 0 1; }
+    LookPane #look-detail { height: auto; }
+    LookPane #music-form { height: 1fr; }
+    """
+
+    def compose(self) -> ComposeResult:
+        tree = Tree("Look", id="look-tree")
+        tree.show_root = False
+        yield tree
+        with Vertical(id="look-side"):
+            yield Static("Starting Godot...", id="look-detail")
+            yield Form("", id="music-form")
+
+
 class WorldPane(Horizontal):
     BINDINGS = [
         Binding("ctrl+s", "app.save_node", "Save"), Binding("ctrl+r", "app.reload_sector", "Refresh"),
@@ -596,7 +706,14 @@ class ConstantsPane(Horizontal):
 
 
 class TasksPane(Vertical):
+    BINDINGS = [Binding("x", "app.stop_evolution", "Stop evolution"), Binding("o", "app.open_output", "Open newest output"),
+                Binding("ctrl+r", "app.refresh_status", "Refresh")]
+    DEFAULT_CSS = """
+    TasksPane #tools-status { height: auto; padding: 0 1; border-bottom: solid $panel; }
+    """
+
     def compose(self) -> ComposeResult:
+        yield Static("", id="tools-status")
         table = RunTable(id="tasks", cursor_type="row", zebra_stripes=True)
         table.add_columns("Group", "Task", "tools/dev.py ...")
         yield table
@@ -605,9 +722,11 @@ class TasksPane(Vertical):
 
 # --- The app --------------------------------------------------------------------------------------
 
-TABS = ["overview", "models-tab", "archetypes-tab", "factions-tab", "world", "data", "constants", "tasks-tab"]
+TABS = ["overview", "models-tab", "archetypes-tab", "factions-tab", "world", "parts-tab", "look-tab", "data", "constants", "tasks-tab"]
+TAB_KEYS = "1234567890"
 TAB_FOCUS = {"overview": "#problems", "models-tab": "#models", "archetypes-tab": "#archetypes", "factions-tab": "#factions",
-             "world": "#world-tree", "data": "#data-tree", "constants": "#const-tree", "tasks-tab": "#tasks"}
+             "world": "#world-tree", "parts-tab": "#parts", "look-tab": "#look-tree", "data": "#data-tree", "constants": "#const-tree",
+             "tasks-tab": "#tasks"}
 
 
 class DevApp(App):
@@ -615,7 +734,7 @@ class DevApp(App):
     SUB_TITLE = "development tool"
     BINDINGS = [Binding("q", "quit", "Quit"), Binding("question_mark,f1", "help", "Help"),
                 Binding("tab", "app.focus_next", "Next box", show=False), Binding("shift+tab", "app.focus_previous", "Box before", show=False)] + [
-        Binding(str(index + 1), "tab(%d)" % index, tab, show=False) for index, tab in enumerate(TABS)]
+        Binding(TAB_KEYS[index], "tab(%d)" % index, tab, show=False) for index, tab in enumerate(TABS)]
     CSS = """
     #summary, #model-detail, #task-detail { height: auto; padding: 0 1; }
     #problems, #models, #tasks { height: 1fr; }
@@ -631,6 +750,12 @@ class DevApp(App):
         self.archetype_view = {"ranges": {}, "archetypes": []}
         self.faction_view = {"factions": [], "archetypes": []}
         self.faction_picked = None
+        self.parts_view = {"weapons": [], "modules": [], "commodities": [], "starts": []}
+        self.parts_kind = "weapons"
+        self.parts_rows = []
+        self.show_archetype_parts = True
+        self.look_view = {}
+        self.user_dir = None
         self.world = {}  # The open sector: sector, path, nodes, map, picked
         self.constants_path = "res://" + constants_path
         self.constant_entries = []
@@ -654,11 +779,15 @@ class DevApp(App):
                 yield FactionsPane()
             with TabPane("5 World", id="world"):
                 yield WorldPane()
-            with TabPane("6 Data", id="data"):
+            with TabPane("6 Parts", id="parts-tab"):
+                yield PartsPane()
+            with TabPane("7 Look", id="look-tab"):
+                yield LookPane()
+            with TabPane("8 Data", id="data"):
                 yield DataPane()
-            with TabPane("7 Constants", id="constants"):
+            with TabPane("9 Constants", id="constants"):
                 yield ConstantsPane()
-            with TabPane("8 Tasks", id="tasks-tab"):
+            with TabPane("0 Tools", id="tasks-tab"):
                 yield TasksPane()
         yield Footer()
 
@@ -706,9 +835,16 @@ class DevApp(App):
             self.call_from_thread(self._godot_status, "Godot did not start")
             return
         self.call_from_thread(self._godot_status, "Godot %s" % version)
+        try:
+            self.user_dir = self.bridge.call("user_dir")["path"]
+        except BridgeError:
+            pass
+        self.call_from_thread(self._show_status)
         self._check_all()
         self._refresh_models()
         self._refresh_views()
+        self._refresh_parts()
+        self._refresh_look()
 
     def restart_bridge(self):
         """After Constants.gd changes: the autoload Godot runs has the old values."""
@@ -797,7 +933,7 @@ class DevApp(App):
         if any(section == "sounds" and "should" in problem and "loop" in problem for section, _, problem in problems):
             lines.append("[yellow]Sounds that loop wrong for their slot:[/yellow] l sets their import loop setting")
         if self._starters_stale():
-            lines.append("[yellow]The material library changed since the starter .blends were built:[/yellow] Tasks: starters")
+            lines.append("[yellow]The material library changed since the starter .blends were built:[/yellow] Tools: starters")
         lines.append("Content changed since the last commit: %s%s" % (plural(len(changed), "file"),
                                                                     (": " + ", ".join(changed[:6]) + (" ..." if len(changed) > 6 else "")) if changed else ""))
         self._set_summary("\n".join(lines))
@@ -1218,6 +1354,220 @@ class DevApp(App):
         self._refresh_views()
         self._check_all()
 
+    # --- Parts ---
+
+    def action_refresh_parts(self):
+        self.refresh_parts_worker()
+
+    @work(thread=True, exclusive=True, group="parts")
+    def refresh_parts_worker(self):
+        self._refresh_parts()
+
+    def _refresh_parts(self):
+        try:
+            view = self.ask("parts")
+        except BridgeError as error:
+            self.call_from_thread(self.notify, "Parts: %s" % error, severity="error")
+            return
+        self.call_from_thread(self._show_parts, view)
+
+    def _show_parts(self, view=None):
+        if view is not None:
+            self.parts_view = view
+        kind = self.parts_kind
+        rows = self.parts_view.get(kind, [])
+        if kind != "starts" and not self.show_archetype_parts:
+            rows = [row for row in rows if row["origin"] == "stock"]
+        rows = sorted(rows, key=lambda row: (row.get("origin", "") != "stock", row.get("type", row.get("kind", "")), row.get("value") or 0))
+        self.parts_rows = rows
+        table = self.query_one("#parts", DataTable)
+        table.clear(columns=True)
+        table.add_columns(*PART_COLUMNS[kind])
+        for index, row in enumerate(rows):
+            table.add_row(*self._part_cells(kind, row), key=str(index))
+        shown = "" if kind == "starts" else ("  ·  archetype parts shown (a hides them)" if self.show_archetype_parts else "  ·  stock only (a shows archetype parts)")
+        self.query_one("#parts-title", Static).update("[b]%s[/b] (%d)%s  ·  enter opens one in Data" % (PART_TITLES[kind], len(rows), shown))
+        self._show_part_detail()
+
+    @staticmethod
+    def _part_cells(kind, row):
+        used = ", ".join(row.get("used_by", [])) or "[yellow]nothing[/yellow]"
+        if kind == "weapons":
+            return (row["name"], row["type"], row["mount"], "%.0f" % row["mass"], "%.1f" % row["damage"], "%.2f" % row["cycle"],
+                    "%.1f" % row["dps"], "%.0f" % row["range"], str(row["ammo"]) if row["ammo"] else "-", "%.1f" % row["power"],
+                    str(row["value"]), row["origin"], used)
+        if kind == "modules":
+            effects = ", ".join("%s %+g" % (key, value) for key, value in (row["effects"] or {}).items()) if isinstance(row["effects"], dict) else ""
+            return (row["name"], row["kind"] or "-", "%.0f" % row["mass"], (effects + (" lance" if row["lance"] else "")).strip() or "-",
+                    str(row["value"]), row["origin"], used)
+        if kind == "commodities":
+            per_tonne = row["value"] / row["mass"] * 1000.0 if row["mass"] else 0.0
+            return (row["name"], str(row["value"]), "%g" % row["mass"], "%.0f" % per_tonne, used)
+        storage = ", ".join("%s x%d" % (key, value) for key, value in row["storage"].items()) if isinstance(row["storage"], dict) else ""
+        return (row["id"], row["ship"], row["location"], str(row["bank"]), storage)
+
+    @on(DataTable.RowHighlighted, "#parts")
+    def _show_part_detail(self, _event=None):
+        table = self.query_one("#parts", DataTable)
+        if not self.parts_rows or table.cursor_row is None or table.cursor_row >= len(self.parts_rows):
+            self.query_one("#part-detail", Static).update("")
+            return
+        row = self.parts_rows[table.cursor_row]
+        lines = ["[b]%s[/b]  %s" % (row.get("name", row["id"]), row["path"])]
+        if row.get("used_by"):
+            lines.append("Used by: " + ", ".join(row["used_by"]))
+        self.query_one("#part-detail", Static).update("\n".join(lines))
+
+    @on(DataTable.RowSelected, "#parts")
+    def _part_picked(self, event):
+        self.open_in_data(self.parts_rows[int(event.row_key.value)]["path"])
+
+    def action_parts(self, kind):
+        self.parts_kind = kind
+        self._show_parts()
+
+    def action_toggle_archetype_parts(self):
+        self.show_archetype_parts = not self.show_archetype_parts
+        self._show_parts()
+
+    # --- Look ---
+
+    def action_refresh_look(self):
+        self.refresh_look_worker()
+
+    @work(thread=True, exclusive=True, group="look")
+    def refresh_look_worker(self):
+        self._refresh_look()
+
+    def _refresh_look(self):
+        try:
+            view = self.ask("look")
+        except BridgeError as error:
+            self.call_from_thread(self.notify, "Look: %s" % error, severity="error")
+            return
+        view["stale_shaders"] = self._stale_shaders()
+        self.call_from_thread(self._show_look, view)
+
+    @staticmethod
+    def _stale_shaders():
+        try:
+            out = subprocess.run(["python3", "tools/sync_shader_blocks.py", "--check"], cwd=tasks.ROOT, capture_output=True, text=True, timeout=30).stdout
+        except (OSError, subprocess.TimeoutExpired):
+            return []
+        return [os.path.basename(line.split("out of date:", 1)[1].strip()) for line in out.splitlines() if "out of date:" in line]
+
+    def _show_look(self, view):
+        self.look_view = view
+        tree = self.query_one("#look-tree", Tree)
+        picked = (tree.cursor_node.data or {}) if tree.cursor_node is not None else {}
+        tree.clear()
+        stale = view.get("stale_shaders", [])
+        shaders = tree.root.add("Shaders (%d%s)" % (len(view["shaders"]), ", %d out of date" % len(stale) if stale else ""), data={"look": "shaders"}, expand=True)
+        for shader in view["shaders"]:
+            name = os.path.basename(shader["path"])
+            shaders.add_leaf(("[red]%s[/red]" % name) if name in stale else name, data={"look": "shader", "path": shader["path"]})
+        paints = tree.root.add("Faction paints", data={"look": "paints"}, expand=True)
+        for paint in view["paints"]:
+            paints.add_leaf("%s %s %s" % (swatch(paint["albedo"]), paint["faction"], paint["kind"]), data={"look": "paint", "path": paint["material"]})
+        unused = [p for p in view["patterns"] if not p["used_by"]]
+        tree.root.add_leaf("Paint patterns (%d, %d in use)" % (len(view["patterns"]), len(view["patterns"]) - len(unused)), data={"look": "patterns"})
+        tree.root.add_leaf("Music", data={"look": "music"})
+        self._show_look_item(picked or {"look": "shaders"})
+
+    @on(Tree.NodeHighlighted, "#look-tree")
+    def _look_highlighted(self, event):
+        if event.node.data:
+            self._show_look_item(event.node.data)
+
+    @on(Tree.NodeSelected, "#look-tree")
+    def _look_selected(self, event):
+        info = event.node.data or {}
+        if info.get("look") == "paint" and info.get("path"):
+            self.open_in_data(info["path"])
+
+    def _show_look_item(self, info):
+        view = self.look_view
+        if not view:
+            return
+        detail = self.query_one("#look-detail", Static)
+        form = self.query_one("#music-form", Form)
+        form.display = info.get("look") == "music"
+        what = info.get("look")
+        lines = []
+        if what in ("shaders", "shader"):
+            stale = view.get("stale_shaders", [])
+            lines.append("[b]Shaders[/b] (assets/art/shaders/). [red]Red[/red]: its shared blocks are older than shader_common.glsl; y syncs them.")
+            for shader in view["shaders"]:
+                if what == "shader" and shader["path"] != info.get("path"):
+                    continue
+                name = os.path.basename(shader["path"])
+                lines.append("")
+                lines.append("[b]%s[/b]%s: %s, %s" % (name, " [red](out of date)[/red]" if name in stale else "",
+                                                    plural(len(shader["materials"]), "material"), plural(len(shader["scenes"]), "scene")))
+                if what == "shader":
+                    lines += ["  " + path.replace("res://", "") for path in shader["materials"] + shader["scenes"]]
+        elif what in ("paints", "paint"):
+            lines.append("[b]Faction paints[/b]: each faction's hull and station material (enter opens one in Data).")
+            for paint in view["paints"]:
+                if what == "paint" and paint["material"] != info.get("path"):
+                    continue
+                pattern = os.path.basename(paint["pattern"]) if paint["pattern"] else "no pattern"
+                lines.append("%s %-10s %-8s %s  [dim]%s, strength %+.3f[/dim]" % (
+                    swatch(paint["albedo"]), paint["faction"], paint["kind"], os.path.basename(paint["material"]), pattern, paint["strength"] or 0.0))
+        elif what == "patterns":
+            lines.append("[b]Paint patterns[/b] (assets/art/textures/paint_patterns/): g remakes the library, v opens its contact sheet.")
+            for pattern in view["patterns"]:
+                users = ", ".join(os.path.basename(u)[:-5] for u in pattern["used_by"])
+                lines.append("  %-34s %s" % (os.path.basename(pattern["path"]), users or "[dim]unused[/dim]"))
+        elif what == "music":
+            music = view.get("music", {})
+            lines.append("[b]Music[/b]: the ambient track (%s in %s). It fades in when the first sector loads and loops."
+                         % (music.get("node"), music.get("scene", "").replace("res://", "")))
+            lines.append("Volume and fade: Constants, SOUND (MUSIC_*). ctrl+s saves a new track; it must loop (its import settings).")
+            if music.get("fields"):
+                form.show("", music["fields"], music["values"])
+        detail.update("\n".join(lines))
+
+    def action_save_music(self):
+        music = self.look_view.get("music", {})
+        form = self.query_one("#music-form", Form)
+        if not form.display or not music:
+            self.notify("Pick Music on the left first", severity="warning")
+            return
+        try:
+            values = form.changes()
+        except ValueError as error:
+            self.notify("Not saved: %s" % error, severity="error")
+            return
+        if not values:
+            self.notify("Nothing changed")
+            return
+        self.music_worker(music["scene"], music["node"], values)
+
+    @work(thread=True, exclusive=True, group="look")
+    def music_worker(self, scene, node, values):
+        before = read_text(scene)
+        try:
+            result = self.ask("scene_write", path=scene, node=node, values=values)
+        except BridgeError as error:
+            self.call_from_thread(self.notify, "Not saved: %s" % error, severity="error")
+            return
+        self._undo_point([(scene, before)], self.refresh_look_worker)
+        self.call_from_thread(self.notify, "Saved the music")
+        self._refresh_look()
+        self.call_from_thread(self.query_one("#music-form", Form).result, result)
+
+    def action_look_task(self, key):
+        self.run_task(tasks.TASKS_BY_KEY[key], {})
+        self.refresh_look_worker()
+
+    def action_view_pattern_sheet(self):
+        sheet = os.path.join(tasks.ROOT, "tools", "renders", "paint_patterns_sheet.png")
+        if not os.path.exists(sheet):
+            self.notify("No contact sheet yet: g makes it", severity="warning")
+            return
+        open_file(sheet)
+
     # --- World ---
 
     def _fill_world_tree(self):
@@ -1496,6 +1846,34 @@ class DevApp(App):
             self._show_constant(self.constant_picked, "Put back as it was.")
         self.restart_bridge()
 
+    # --- Tools: status ---
+
+    def _evolution_dir(self):
+        return os.path.join(self.user_dir, "evolution") if self.user_dir else None
+
+    def _show_status(self):
+        self.query_one("#tools-status", Static).update(tools_status(self._evolution_dir()))
+
+    def action_refresh_status(self):
+        self._show_status()
+
+    def action_stop_evolution(self):
+        folder = self._evolution_dir()
+        if folder is None or not os.path.exists(os.path.join(folder, "status.json")):
+            self.notify("Evolution is not running", severity="warning")
+            return
+        with open(os.path.join(folder, "stop"), "w"):
+            pass
+        self.notify("Asked evolution to save and stop (it does at its next check)")
+        self._show_status()
+
+    def action_open_output(self):
+        newest = newest_files(tasks.OUT_DIR, 1)
+        if not newest:
+            self.notify("Nothing in .dev/out/ yet", severity="warning")
+            return
+        open_file(newest[0])
+
     # --- Tasks ---
 
     def _fill_tasks(self):
@@ -1549,6 +1927,7 @@ class DevApp(App):
                     input()
                 except EOFError:
                     pass
+        self._show_status()
         if task.group in ("Models", "Content", "Checks"):
             self._fill_data_tree()
             self.refresh_models_worker()

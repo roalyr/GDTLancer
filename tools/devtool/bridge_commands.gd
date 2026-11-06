@@ -6,7 +6,7 @@
 # Resources: ping, schema, read, write, create (fields: a script's exported variables; a
 # ShaderMaterial's shader and shader parameters). Scenes: scene_nodes, scene_write, scene_add,
 # scene_remove (nodes and their fields, translation included), sector_map. Views: archetypes,
-# factions. Checks: validate, models, sound_slots, check_script.
+# factions, parts, look. Checks: validate, models, sound_slots, check_script. user_dir.
 
 extends Reference
 
@@ -18,6 +18,12 @@ const ShipFit = preload("res://src/core/systems/ship_fit.gd")
 const EDITABLE = PROPERTY_USAGE_SCRIPT_VARIABLE | PROPERTY_USAGE_EDITOR
 const SHADER_PARAM = "shader_param/"
 const TRANSLATION = "translation"
+const MAIN_SCENE = "res://scenes/levels/game_world/main_game_scene.tscn"
+const MUSIC_NODE = "AmbientMusic"
+const PART_DIRS = {"weapons": "res://database/registry/tools/", "modules": "res://database/registry/assets/modules/",
+	"commodities": "res://database/registry/assets/commodities/"}
+const SHADERS_DIR = "res://assets/art/shaders/"
+const PATTERNS_DIR = "res://assets/art/textures/paint_patterns/"
 const HINT_NAMES = {
 	PROPERTY_HINT_NONE: "", PROPERTY_HINT_RANGE: "range", PROPERTY_HINT_EXP_RANGE: "range", PROPERTY_HINT_ENUM: "enum",
 	PROPERTY_HINT_FLAGS: "flags", PROPERTY_HINT_FILE: "file", PROPERTY_HINT_DIR: "dir", PROPERTY_HINT_GLOBAL_FILE: "file",
@@ -333,6 +339,156 @@ func cmd_factions(_args: Dictionary):
 	return {"factions": out, "archetypes": Validator.archetype_names(), "neutral_havens": havens.get("", [])}
 
 
+# Every weapon, module and commodity (stock ones in database/registry/, archetype parts in
+# database/presets/archetypes/), with its numbers and where it is used: {"weapons": [...],
+# "modules": [...], "commodities": [...], "starts": [{path, id, ship, location, bank, storage}]}.
+# Each item: {id, path, name, origin ("stock" or "archetype"), value, mass, used_by: [...], ...}.
+func cmd_parts(_args: Dictionary):
+	var used := {}
+	var ship_paths: Array = []
+	for path in Validator._files_in(Constants.ARCHETYPES_DIR, ".tres"):
+		if path.get_file().begins_with("preset_ship_archetype_"):
+			ship_paths.append(path)
+	ship_paths += Validator._files_in("res://database/registry/assets/ships/", ".tres")
+	for path in ship_paths:
+		var ship = _fresh(path)
+		if ship == null:
+			continue
+		var label: String = str(ship.template_id).trim_prefix("preset_ship_archetype_")
+		for part_id in Array(ship.equipped_tools) + Array(ship.equipped_modules):
+			_note_use(used, part_id, label)
+		for commodity_id in ship.salvage_yield:
+			_note_use(used, commodity_id, "salvage of " + label)
+	var starts: Array = []
+	for path in Validator._files_in("res://database/registry/game_starts/", ".tres"):
+		var start = _fresh(path)
+		for item_id in start.starting_storage:
+			_note_use(used, item_id, "start " + start.template_id)
+		starts.append({"path": path, "id": start.template_id, "ship": start.player_ship_template, "location": start.player_starting_location,
+			"bank": start.starting_bank, "storage": encode(start.starting_storage)})
+	var layouts: Dictionary = Validator.layout_files()
+	for sector in layouts:
+		var root: Node = _edit_instance(layouts[sector])
+		if root == null:
+			continue
+		for node in _own_nodes(root):
+			if node.get_script() != null and node.get_script().resource_path.ends_with("haven_marker.gd"):
+				for commodity_id in node.buys:
+					_note_use(used, commodity_id, "bought at " + node.haven_id)
+		root.free()
+	var out := {"weapons": [], "modules": [], "commodities": [], "starts": starts}
+	var paths: Array = []
+	for kind in PART_DIRS:
+		for path in Validator._files_in(PART_DIRS[kind], ".tres"):
+			paths.append([kind, path, "stock"])
+	for path in Validator._files_in(Constants.ARCHETYPES_DIR, ".tres"):
+		var name: String = path.get_file()
+		if name.begins_with("preset_") and not name.begins_with("preset_ship_archetype_"):
+			paths.append(["", path, "archetype"])
+	for entry in paths:
+		var item = _fresh(entry[1])
+		if item == null:
+			continue
+		var row := {"id": item.template_id, "path": entry[1], "origin": entry[2], "value": item.get("base_value"),
+			"used_by": used.get(item.template_id, [])}
+		if item is UtilityToolTemplate:
+			row.merge({"name": item.tool_name, "type": item.tool_type, "mount": item.mount_size, "mass": item.mass, "damage": item.damage,
+				"cycle": item.cycle_time, "dps": _tool_dps(item), "range": item.optimal_range, "ammo": item.ammo, "power": item.power_per_cycle})
+			out.weapons.append(row)
+		elif item is ModuleTemplate:
+			row.merge({"name": item.module_name, "kind": item.module_kind, "mass": item.mass, "effects": encode(item.stat_modifiers),
+				"lance": not item.lance.empty()})
+			out.modules.append(row)
+		elif item is CommodityTemplate:
+			row.merge({"name": item.commodity_name, "mass": item.unit_mass})
+			out.commodities.append(row)
+	return out
+
+
+# How the game looks, as files: {"shaders": [{path, materials: [paths], scenes: [that name it]}], "paints": [{faction,
+# kind ("hull"/"station"), material, albedo, pattern, strength}], "patterns": [{path, used_by}],
+# "music": {scene, node, stream, fields, values}}.
+func cmd_look(_args: Dictionary):
+	var by_shader := {}
+	var by_texture := {}
+	for path in _files_under("res://assets/", ".tres"):
+		var material = _fresh(path)
+		if not material is ShaderMaterial or material.shader == null:
+			continue
+		var shader_path: String = material.shader.resource_path
+		if not by_shader.has(shader_path):
+			by_shader[shader_path] = []
+		by_shader[shader_path].append(path)
+		var texture = material.get_shader_param("detail_texture")
+		if texture is Texture:
+			if not by_texture.has(texture.resource_path):
+				by_texture[texture.resource_path] = []
+			by_texture[texture.resource_path].append(path)
+	var scene_texts := {}
+	for path in _files_under("res://scenes/", ".tscn") + _files_under("res://assets/", ".tscn"):
+		scene_texts[path] = _read_text(path)
+	var shaders: Array = []
+	for path in Validator._files_in(SHADERS_DIR, ".gdshader"):
+		var scenes: Array = []
+		for scene in scene_texts:
+			if scene_texts[scene].find('"%s"' % path) >= 0:
+				scenes.append(scene)
+		shaders.append({"path": path, "materials": by_shader.get(path, []), "scenes": scenes})
+	var paints: Array = []
+	var factions: Dictionary = Validator.faction_files()
+	var ids: Array = factions.keys()
+	ids.sort()
+	for id in ids:
+		var faction = _fresh(factions[id])
+		for kind in ["hull", "station"]:
+			var material_path: String = faction.get(kind + "_material")
+			var material = _fresh(material_path) if material_path != "" else null
+			var texture = material.get_shader_param("detail_texture") if material is ShaderMaterial else null
+			paints.append({"faction": id, "kind": kind, "material": material_path,
+				"albedo": encode(material.get_shader_param("albedo")) if material is ShaderMaterial else null,
+				"pattern": texture.resource_path if texture is Texture else "",
+				"strength": material.get_shader_param("detail_paint_strength") if material is ShaderMaterial else 0.0})
+	var patterns: Array = []
+	for path in Validator._files_in(PATTERNS_DIR, ".png"):
+		patterns.append({"path": path, "used_by": by_texture.get(path, [])})
+	var music := {"scene": MAIN_SCENE, "node": MUSIC_NODE}
+	var root: Node = _edit_instance(MAIN_SCENE)
+	if root != null:
+		var player: Node = root.get_node_or_null(MUSIC_NODE)
+		if player != null:
+			music["stream"] = player.stream.resource_path if player.stream != null else ""
+			music["fields"] = fields_of(player)
+			music["values"] = values_of(player)
+		root.free()
+	return {"shaders": shaders, "paints": paints, "patterns": patterns, "music": music}
+
+
+# Where Godot keeps user:// on this machine (evolution's save and logs are there).
+func cmd_user_dir(_args: Dictionary):
+	return {"path": OS.get_user_data_dir()}
+
+
+static func _note_use(table: Dictionary, id: String, user: String) -> void:
+	if not table.has(id):
+		table[id] = []
+	if not user in table[id]:
+		table[id].append(user)
+
+
+static func _files_under(dir_path: String, suffix: String) -> Array:
+	var out: Array = Validator._files_in(dir_path, suffix)
+	var dir := Directory.new()
+	if dir.open(dir_path) != OK:
+		return out
+	dir.list_dir_begin(true, true)
+	var name: String = dir.get_next()
+	while name != "":
+		if dir.current_is_dir():
+			out += _files_under(dir_path.plus_file(name) + "/", suffix)
+		name = dir.get_next()
+	return out
+
+
 static func _part(part_id: String) -> Resource:
 	var path: String = Constants.ARCHETYPES_DIR.plus_file(part_id + ".tres")
 	return _fresh(path) if ResourceLoader.exists(path) else TemplateDatabase.get_template(part_id)
@@ -413,6 +569,9 @@ static func fields_of(target: Object) -> Array:
 	if target is Spatial:
 		fields.append({"name": TRANSLATION, "type": "Vector3", "hint": 0, "hint_name": "", "hint_string": "",
 			"default": encode(Vector3.ZERO), "comment": "Its place, m (x, y, z; y is up)"})
+	if target is AudioStreamPlayer or target is AudioStreamPlayer3D:
+		fields.append({"name": "stream", "type": "Object", "hint": PROPERTY_HINT_RESOURCE_TYPE, "hint_name": "resource",
+			"hint_string": "AudioStream", "default": null, "comment": "What it plays (music: an .ogg or .mp3 that loops)"})
 	if target is ShaderMaterial:
 		fields.append({"name": "shader", "type": "Object", "hint": PROPERTY_HINT_RESOURCE_TYPE, "hint_name": "resource",
 			"hint_string": "Shader", "default": null, "comment": "The shader (assets/art/shaders/)"})
@@ -639,7 +798,11 @@ static func _value_text(doc, value) -> String:
 	if value is Resource:
 		if value.resource_path == "" or value.resource_path.find("::") >= 0:
 			return "!"
-		var type: String = "PackedScene" if value is PackedScene else ("Script" if value is Script else ("Texture" if value is Texture else value.get_class()))
+		var type: String = value.get_class()
+		for base in ["PackedScene", "Script", "Texture", "AudioStream", "Material"]:
+			if ClassDB.is_parent_class(type, base):
+				type = base
+				break
 		return "ExtResource( %d )" % doc.ext_id(value.resource_path, type)
 	return var2str(value)
 

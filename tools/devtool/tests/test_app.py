@@ -18,7 +18,8 @@ HAVEN_FIELDS = [{"name": "translation", "type": "Vector3", "hint_name": "", "hin
 
 
 class FakeBridge:
-    def __init__(self):
+    def __init__(self, user_dir=""):
+        self.user_dir = user_dir
         self.writes = []
         self.checked = []
         self.log = []
@@ -74,6 +75,24 @@ class FakeBridge:
                                                           "name": "Port", "ships": {"blue": 4}}]},
                 {"id": "green", "path": "res://database/factions/xenohive.tres", "display_name": "Green", "enemies": [], "at_war": [], "roster": [], "havens": []},
                 {"id": "red", "path": "res://database/factions/violet.tres", "display_name": "Red", "enemies": ["blue"], "at_war": ["blue"], "roster": [], "havens": []}]}
+        if command == "user_dir":
+            return {"path": self.user_dir}
+        if command == "parts":
+            weapon = {"id": "tool_laser", "path": FILE, "name": "Laser", "origin": "stock", "value": 100, "used_by": ["start x"], "type": "laser",
+                      "mount": "small", "mass": 300.0, "damage": 6.0, "cycle": 1.0, "dps": 6.0, "range": 1000.0, "ammo": 0, "power": 1.0}
+            return {"weapons": [weapon, dict(weapon, id="preset_laser", origin="archetype", used_by=[])],
+                    "modules": [{"id": "module_ab", "path": FILE, "name": "Afterburner", "origin": "stock", "value": 100, "used_by": [],
+                                 "kind": "afterburner", "mass": 400.0, "effects": {"afterburner_thrust": 5e5}, "lance": False}],
+                    "commodities": [{"id": "commodity_ore", "path": FILE, "name": "Ore", "origin": "stock", "value": 20, "used_by": [], "mass": 50.0}],
+                    "starts": [{"path": FILE, "id": "start_default", "ship": "s", "location": "home", "bank": 3000, "storage": {"tool_laser": 1}}]}
+        if command == "look":
+            music_field = {"name": "stream", "type": "Object", "hint_name": "resource", "hint_string": "AudioStream", "comment": ""}
+            return {"shaders": [{"path": "res://assets/art/shaders/solid.gdshader", "materials": ["res://m.tres"], "scenes": []}],
+                    "paints": [{"faction": "verdant", "kind": "hull", "material": FILE, "albedo": {"$": "Color", "v": [0.2, 0.4, 0.2, 1.0]},
+                                "pattern": "", "strength": 0.0}],
+                    "patterns": [{"path": "res://p.png", "used_by": []}],
+                    "music": {"scene": LAYOUT, "node": "AmbientMusic", "stream": "res://a.mp3", "fields": [music_field],
+                              "values": {"stream": {"$": "Resource", "path": "res://a.mp3"}}}}
         if command == "check_script":
             self.checked.append(args["source"])
             return {"ok": "BROKEN" not in args["source"]}
@@ -89,8 +108,9 @@ class AppTest(unittest.IsolatedAsyncioTestCase):
         asyncio.get_running_loop().set_debug(False)  # The test runner's debug mode reports slow steps
 
     async def _started(self, pilot, app):
-        await pilot.pause()
-        await app.workers.wait_for_complete()
+        for _ in range(3):  # Workers start workers (a save reloads its file), and forms mount after them
+            await pilot.pause()
+            await app.workers.wait_for_complete()
         await pilot.pause()
 
     async def test_overview_models_and_tasks_fill(self):
@@ -282,7 +302,7 @@ class AppTest(unittest.IsolatedAsyncioTestCase):
         async with app.run_test(size=(160, 50)) as pilot:
             await self._started(pilot, app)
             for index in range(len(devapp.TABS)):
-                await pilot.press(str(index + 1))
+                await pilot.press(devapp.TAB_KEYS[index])
                 await pilot.pause()
                 self.assertEqual(app.query_one("TabbedContent").active, devapp.TABS[index])
                 keys = {binding.key for _, binding, enabled, _ in app.active_bindings.values() if binding.show}
@@ -313,11 +333,61 @@ class AppTest(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(app.query_one("TabbedContent").active, "data")
             self.assertEqual(app.open_file, FILE)
 
+    async def test_parts_switch_kinds_and_hide_archetype_parts(self):
+        app = devapp.DevApp(bridge_factory=lambda: FakeBridge())
+        async with app.run_test(size=(180, 50)) as pilot:
+            await self._started(pilot, app)
+            await pilot.press("6")
+            await pilot.pause()
+            table = app.query_one("#parts", DataTable)
+            self.assertEqual(table.row_count, 2)
+            await pilot.press("a")
+            self.assertEqual(table.row_count, 1, "Stock only")
+            await pilot.press("m")
+            self.assertEqual(str(table.columns[list(table.columns)[0]].label), "Module")
+            await pilot.press("k")
+            self.assertEqual(app.parts_rows[0]["id"], "start_default")
+            await pilot.press("enter")
+            await self._started(pilot, app)
+            self.assertEqual(app.query_one("TabbedContent").active, "data")
+
+    async def test_look_shows_shaders_paints_and_saves_music(self):
+        fake = FakeBridge()
+        app = devapp.DevApp(bridge_factory=lambda: fake)
+        async with app.run_test(size=(180, 50)) as pilot:
+            await self._started(pilot, app)
+            labels = [str(node.label) for node in app.query_one("#look-tree").root.children]
+            self.assertEqual([label.split(" (")[0] for label in labels], ["Shaders", "Faction paints", "Paint patterns", "Music"])
+            app._show_look_item({"look": "music"})
+            await pilot.pause()
+            form = app.query_one("#music-form", devapp.Form)
+            form.fields[0].editor.value = "res://assets/audio/music/ambient/GDTLancer ambient 1.mp3"
+            app.action_save_music()
+            await self._started(pilot, app)
+            self.assertEqual(fake.writes[-1]["command"], "scene_write")
+            self.assertEqual(fake.writes[-1]["node"], "AmbientMusic")
+
+    async def test_tools_show_evolution_running_and_ask_it_to_stop(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as user_dir:
+            os.makedirs(os.path.join(user_dir, "evolution"))
+            with open(os.path.join(user_dir, "evolution", "status.json"), "w") as handle:
+                handle.write('{"era": 52, "sim_time": 1000}')
+            app = devapp.DevApp(bridge_factory=lambda: FakeBridge(user_dir))
+            async with app.run_test(size=(180, 50)) as pilot:
+                await self._started(pilot, app)
+                status = str(app.query_one("#tools-status").content)
+                self.assertIn("running", status)
+                self.assertIn("era 52", status)
+                await pilot.press("0")
+                await pilot.press("x")
+                self.assertTrue(os.path.exists(os.path.join(user_dir, "evolution", "stop")))
+
     async def test_typing_q_in_a_field_types_it(self):
         app = devapp.DevApp(bridge_factory=lambda: FakeBridge())
         async with app.run_test(size=(160, 60)) as pilot:
             await self._started(pilot, app)
-            await pilot.press("7")
+            await pilot.press("9")
             await pilot.pause()
             self.assertEqual(app.query_one("TabbedContent").active, "constants")
             await pilot.press("ctrl+f")

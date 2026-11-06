@@ -10,7 +10,9 @@ This guide says where the game's content lives and how to change it without touc
 - **Data:** every data file by kind (factions, archetypes, parts, commodities, the game start, locations, agents, the material library, the sound bank), in a form built from its script, with each field's note. `ctrl+s` saves, and the rules are checked at once on every save. `ctrl+u` puts the file back as it was before the last save, and `ctrl+n` makes a new file of the kind.
 - **World:** each sector's layout: its havens, beacons and hazards in a tree, on a map from above, and the picked one in a form. `ctrl+n` adds a marker to the picked group, `ctrl+d` copies the picked marker, and `delete` removes it. Saving, checking and `ctrl+u` work as in Data.
 - **Constants:** every value in `src/autoload/Constants.gd`, by section (or by kind of value, `ctrl+g`), with its notes; `ctrl+f` finds one. A value is changed in place, so its comments stay. Godot checks that the script still parses before it is saved.
-- **Tasks:** every other tool (tests, sheets, presets, evolution, balance, the APK). Each asks its questions, then runs.
+- **Parts:** weapons (`w`), modules (`m`), commodities (`c`) and the starting kit (`k`) side by side, with what uses each; `a` hides the archetypes' own parts. Enter opens one in Data.
+- **Look:** every shader (red when its shared blocks are out of date; `y` syncs them) and what uses it, each faction's paints, the paint patterns (`g` remakes the library, `v` opens its sheet) and the music (pick a track, `ctrl+s`).
+- **Tools:** whether evolution is running (`x` asks it to stop), its save, backups and logs; the APK; the newest outputs (`o` opens one). Below, every other tool (tests, sheets, presets, evolution, balance, the APK): Enter asks its questions, then runs it.
 
 Godot reads and writes every file, so the tool saves exactly what the Godot editor would; in a layout, only the lines of what changed change. From a terminal, `tools/dev.py list` shows the tasks, and `tools/dev.py <task> key=value` runs one.
 
@@ -101,7 +103,7 @@ The sound bank has one slot per game event: guns, missiles, the harpoon and the 
 - **Loop** slots (`engine`, `missile_engine`) are carried by every ship or missile while it flies; the engine gets louder and higher with thrust. Their files must loop, and the other slots' must not. The Overview says when one is wrong; `l` there (or `tools/dev.py fix_loops`) sets each file's import loop setting and imports it again.
 - **UI** slots are heard as they are.
 
-Short `.wav` files suit effects; `.ogg` suits loops. Make the files about equally loud: `Constants.gd` ("SOUND") sets the overall volume, the hearing distance and how many sounds play at once. The tests check that every filled slot holds a sound and loops as its kind says. Music is separate: the main scene's `AmbientMusic`.
+Short `.wav` files suit effects; `.ogg` suits loops. Make the files about equally loud: `Constants.gd` ("SOUND") sets the overall volume, the hearing distance and how many sounds play at once. The tests check that every filled slot holds a sound and loops as its kind says. Music is separate: the Look tab sets the ambient track (the main scene's `AmbientMusic`).
 
 ## Parts, commodities, starting kit — `database/registry/`
 
