@@ -26,7 +26,7 @@ You fly the ship, not the guns: distance and relative velocity decide a fight, a
 
 Early development: the flight core works, and everything else is changing.
 
-For developers: `tools/dev.py` is a menu of the project's tools, and [CONTENT.md](CONTENT.md) says where the content lives.
+For developers: `tools/dev.py` is the development tool (content, models, data, checks), and [CONTENT.md](CONTENT.md) says where the content lives.
 
 ## License
 

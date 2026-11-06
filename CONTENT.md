@@ -1,8 +1,14 @@
 # Content guide
 
-This guide says where the game's content lives and how to change it without touching code. Every file named here is a Godot resource (`.tres`) or scene (`.tscn`). You can edit them in the Godot inspector, or as text.
+This guide says where the game's content lives and how to change it without touching code.
 
-Every tool named here is also in the developer menu, `tools/dev.py`: pick a task, answer its questions, and it runs (`tools/dev.py list` shows them; `tools/dev.py <task> key=value` runs one without the menu).
+**Work through the development tool:** `tools/dev.py`. It opens a menu (the first run installs its one package into `.dev/`):
+- **Overview:** every content rule below, checked at once, and what changed since the last commit. Models changed in Blender since their last import are listed too.
+- **Models:** every ship and station model, with its files, levels of detail, hit surface, who uses it and its check. Keys: `i` import, `o` open in Blender, `s` review sheet, `n` new model from a starter.
+- **Data:** every data file by kind (factions, archetypes, parts, commodities, the game start, locations, agents, the sound bank), in a form built from its script, with each field's note. `ctrl+s` saves, and the rules are checked at once on every save. `ctrl+u` puts the file back as it was before the last save, and `ctrl+n` makes a new file of the kind.
+- **Tasks:** every other tool (tests, sheets, presets, evolution, balance, the APK). Each asks its questions, then runs.
+
+Godot reads and writes every file, so the tool saves exactly what the Godot editor would. Sector layouts (havens, beacons) and the material library are not in the tool yet: edit those in the Godot editor. From a terminal, `tools/dev.py list` shows the tasks, and `tools/dev.py <task> key=value` runs one.
 
 ## Factions — `database/factions/<id>.tres`
 
@@ -85,7 +91,7 @@ It makes the levels of detail (`lod/`) and the hit surface (`hit/`) beside the m
 
 ## Sounds — `database/sounds/sound_bank.tres`
 
-The sound bank has one slot per game event: guns, missiles, the harpoon and the lance, hits and wrecks, the afterburner, engines, buttons, notices, radio and docking (each slot is described in `src/core/sound/sound_bank.gd`). Open the bank in the inspector and drop a sound file on a slot. A slot left empty is silent, so they can be filled one at a time.
+The sound bank has one slot per game event: guns, missiles, the harpoon and the lance, hits and wrecks, the afterburner, engines, buttons, notices, radio and docking (each slot is described in `src/core/sound/sound_bank.gd`). Open the bank in the tool (Data, Sound bank) and type or pick a sound file's path in a slot. A slot left empty is silent, so they can be filled one at a time.
 
 - **World** slots are heard where they happen, fading with distance from the player's ship.
 - **Loop** slots (`engine`, `missile_engine`) are carried by every ship or missile while it flies; the engine gets louder and higher with thrust. Their files must loop: select the file, tick **Loop** in the Import dock, and press Reimport. The other slots must not loop.
@@ -106,4 +112,10 @@ These are indexed by `template_id`. A field the script does not declare is repor
 
 ## Checking your work
 
-Run the tests: `godot --no-window -s addons/gut/gut_cmdln.gd -gexit`. They load every faction, sector layout, haven and archetype, and fail on a missing roster genome or a broken haven. They also check every ship and station model in use against the rules above. To check one model: `godot --no-window -s tools/check_model.gd -- res://scenes/prefabs/ships/<name>.tscn` (add `--station` for a station).
+The rules live in one place, `src/core/validation/content_validator.gd`, and two things use them:
+- the development tool, on every save and on its Overview;
+- the tests (`tools/dev.py tests`), which also run everything else.
+
+They load every faction, sector layout, haven and archetype, every ship and station model in use, and the sound bank. Broken references, a missing roster genome, a broken haven and models off the rules all fail. `tools/dev.py validate` lists every problem from a terminal; `tools/dev.py check_model scene=<path>` checks one model.
+
+To add a rule, add it to the validator. The tool and the tests both pick it up.
