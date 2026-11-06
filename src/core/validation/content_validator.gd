@@ -149,9 +149,12 @@ static func sectors() -> Array:
 		if file.open(scene_path, File.READ) != OK:
 			out.append(_problem(path, "No sector scene %s" % scene_path))
 		else:
-			if file.get_as_text().find(sector_id + Constants.SECTOR_LAYOUT_SUFFIX) < 0:
-				out.append(_problem(path, "The sector scene %s does not place this layout" % scene_path))
+			var scene_text: String = file.get_as_text()
 			file.close()
+			if scene_text.find(sector_id + Constants.SECTOR_LAYOUT_SUFFIX) < 0:
+				out.append(_problem(path, "The sector scene %s does not place this layout" % scene_path))
+			for station in stations_placed_in(scene_text):
+				out.append(_problem(scene_path, "It places a station (%s): stations come with their haven, so place a haven marker in the layout instead" % station))
 		var layout: Node = _fresh(path).instance()
 		var spec: Dictionary = layout.to_spec() if layout.has_method("to_spec") else {"havens": [], "beacons": []}
 		layout.free()
@@ -175,7 +178,9 @@ static func sectors() -> Array:
 					out.append(_problem(path, "Haven '%s' buys '%s', which is not a commodity" % [haven.id, commodity]))
 				if not typeof(buys[commodity]) in [TYPE_INT, TYPE_REAL] or float(buys[commodity]) <= 0.0:
 					out.append(_problem(path, "Haven '%s': its price factor for '%s' should be a number above 0" % [haven.id, commodity]))
-			if haven.has("model") and not _exists(haven.model):
+			if not haven.has("model"):
+				out.append(_problem(path, "Haven '%s': no station (model): a haven and its station are one" % haven.id))
+			elif not _exists(haven.model):
 				out.append(_problem(path, "Haven '%s': model '%s' does not exist" % [haven.id, haven.model]))
 		for beacon in spec.beacons:
 			if not beacon.kind in BEACON_KINDS:
@@ -258,6 +263,26 @@ static func models() -> Array:
 	for scene_path in used.stations:
 		for problem in ModelCheck.station_problems(scene_path):
 			out.append(_problem(scene_path, problem))
+	return out
+
+
+# The station scenes a sector scene's text places itself (by their ext_resources): a station
+# script, or a scene whose own text uses one.
+static func stations_placed_in(scene_text: String) -> Array:
+	var out: Array = []
+	var regex := RegEx.new()
+	regex.compile('\\[ext_resource path="([^"]+)" type="(Script|PackedScene)"')
+	for found in regex.search_all(scene_text):
+		var used: String = found.get_string(1)
+		var text: String = used
+		if found.get_string(2) == "PackedScene":
+			var file := File.new()
+			if file.open(used, File.READ) != OK:
+				continue
+			text = file.get_as_text()
+			file.close()
+		if text.find("station/dockable_station.gd") >= 0 or text.find("station/faction_station.gd") >= 0:
+			out.append(used)
 	return out
 
 

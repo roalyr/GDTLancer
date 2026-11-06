@@ -30,7 +30,8 @@ script = ExtResource( 1 )
 haven_id = "station_elace_home"
 display_name = "Elace Free Port"
 faction = ""
-station = "ElaceHomeStation"
+model = ExtResource( 6 )
+seen_anywhere = true
 ships = {
 }
 prefer_role = ""
@@ -40,7 +41,7 @@ rearm = true
 buys = {
 "*": 1.0
 }
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 50000, 0, 0 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 40000, 0, 0 )
 
 [node name="VerdantHaven" type="Position3D" parent="Havens"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 6000, 0, 25000 )
@@ -48,7 +49,6 @@ script = ExtResource( 1 )
 haven_id = "verdant_haven"
 display_name = "Verdant Haven"
 faction = "verdant"
-station = ""
 model = ExtResource( 6 )
 ships = {
 "verdant": 5
@@ -67,7 +67,6 @@ script = ExtResource( 1 )
 haven_id = "verdant_post"
 display_name = "Verdant Post"
 faction = "verdant"
-station = ""
 model = ExtResource( 7 )
 ships = {
 "verdant": 2
@@ -86,7 +85,6 @@ script = ExtResource( 1 )
 haven_id = "violet_haven"
 display_name = "Violet Haven"
 faction = "violet"
-station = ""
 model = ExtResource( 6 )
 ships = {
 "violet": 5
@@ -105,7 +103,6 @@ script = ExtResource( 1 )
 haven_id = "violet_post"
 display_name = "Violet Post"
 faction = "violet"
-station = ""
 model = ExtResource( 7 )
 ships = {
 "violet": 2
@@ -124,7 +121,6 @@ script = ExtResource( 1 )
 haven_id = "elace_refinery"
 display_name = "Elace Refinery"
 faction = ""
-station = ""
 model = ExtResource( 8 )
 ships = {
 }
@@ -143,7 +139,6 @@ script = ExtResource( 1 )
 haven_id = "raider_den"
 display_name = "Raider Den"
 faction = "raiders"
-station = ""
 model = ExtResource( 5 )
 ships = {
 "raiders": 4
@@ -162,7 +157,6 @@ script = ExtResource( 1 )
 haven_id = "xenohive"
 display_name = "Xenohive"
 faction = "xenohive"
-station = ""
 model = ExtResource( 9 )
 ships = {
 "xenohive": 3

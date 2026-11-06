@@ -210,8 +210,8 @@ func cmd_scene_remove(args: Dictionary):
 
 
 # A sector seen from above: the bodies of its scene (stars, planets, moons, stations) and the
-# markers of its layout, each {name, kind, x, z, radius, node}: x and z in m; radius a marker's
-# reach (0: none set); node a marker's path in its layout.
+# markers of its layout, each {name, kind, x, z, radius, node, faction}: x and z in m; radius a
+# marker's reach (0: none set); node a marker's path in its layout; faction its owner's ("" none).
 func cmd_sector_map(args: Dictionary):
 	var sector: String = str(args.get("sector", ""))
 	var out: Array = []
@@ -227,12 +227,16 @@ func cmd_sector_map(args: Dictionary):
 		scene_root.free()
 	var layout_root: Node = _edit_instance(Validator.layout_files().get(sector, ""))
 	if layout_root != null:
+		if layout_root.get("play_radius") != null:
+			out.append({"name": "play area", "kind": "play_area", "x": 0.0, "z": 0.0, "radius": float(layout_root.play_radius), "node": "", "faction": ""})
 		for node in _own_nodes(layout_root):
 			if node is Spatial and node.get_script() != null and node != layout_root:
 				var origin: Vector3 = _origin(node)
 				var radius = node.get("radius")
+				var faction = node.get("faction") if node.get("faction") != null else node.get("owner_faction")
 				out.append({"name": node.name, "kind": node.get_script().resource_path.get_file().get_basename(), "x": origin.x, "z": origin.z,
-					"radius": float(radius) if typeof(radius) in [TYPE_INT, TYPE_REAL] else 0.0, "node": str(layout_root.get_path_to(node))})
+					"radius": float(radius) if typeof(radius) in [TYPE_INT, TYPE_REAL] else 0.0, "node": str(layout_root.get_path_to(node)),
+					"faction": str(faction) if faction != null else ""})
 		layout_root.free()
 	return out
 

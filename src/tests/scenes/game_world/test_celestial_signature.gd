@@ -77,8 +77,9 @@ func test_station_signature_is_its_size_times_the_constant():
 	assert_true(ship.detects(station), "One running a beacon is detected anywhere.")
 
 
-func test_home_station_runs_a_beacon():
-	var home = load("res://scenes/levels/sectors/sector_elace/station_elace_home.tscn").instance()
-	_place(home, Vector3(0, 0, -1e6))
-	assert_true(home.has_beacon)
-	assert_true(ship.detects(home), "The way home is always on the sensors.")
+func test_the_home_port_runs_a_beacon():
+	var home = null
+	for haven in TemplateDatabase.sector_layouts.sector_elace.havens:
+		if haven.id == "station_elace_home":
+			home = haven
+	assert_true(home.get("seen_anywhere", false), "The way home is always on the sensors (SectorLayout gives its station a beacon).")

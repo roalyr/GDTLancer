@@ -54,28 +54,21 @@ func _ready():
 
 
 func _build_haven(spec: Dictionary) -> Dictionary:
-	var station: Spatial = null
-	if spec.has("station"):
-		station = get_parent().get_node_or_null(spec.station) if get_parent() != null else null
-		if station == null:
-			printerr("SectorLayout: no station %s in the scene" % spec.station)
-			return {}
-		station.global_transform.origin = global_transform.xform(spec.at)  # The marker places it, as it does a built one
+	var station: Spatial = StationScene.instance()
+	station.name = spec.id
+	station.faction = str(spec.get("faction", ""))
+	station.haven_id = spec.id
+	station.location_id = spec.id
+	station.station_name = spec.name
+	station.has_beacon = bool(spec.get("seen_anywhere", false))
+	station.transform.origin = spec.at
+	var model_path: String = str(spec.get("model", Constants.STATION_DEFAULT_MODEL))
+	var model = load(model_path) if ResourceLoader.exists(model_path) else null
+	if model is PackedScene:
+		station.get_node("Model").add_child(model.instance())  # The station fits itself to it as it enters (DockableStation)
 	else:
-		station = StationScene.instance()
-		station.name = spec.id
-		station.faction = str(spec.get("faction", ""))
-		station.haven_id = spec.id
-		station.location_id = spec.id
-		station.station_name = spec.name
-		station.transform.origin = spec.at
-		var model_path: String = str(spec.get("model", Constants.STATION_DEFAULT_MODEL))
-		var model = load(model_path) if ResourceLoader.exists(model_path) else null
-		if model is PackedScene:
-			station.get_node("Model").add_child(model.instance())  # The station fits itself to it as it enters (DockableStation)
-		else:
-			printerr("SectorLayout: no station model %s for %s" % [model_path, spec.id])
-		add_child(station)
+		printerr("SectorLayout: no station model %s for %s" % [model_path, spec.id])
+	add_child(station)
 	var faction: String = str(spec.get("faction", ""))
 	var beacon = _add_beacon("haven", faction, spec.name, station.global_transform.origin, Constants.HAVEN_BEACON_RADIUS)
 	beacon.haven = station

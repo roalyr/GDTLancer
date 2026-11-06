@@ -1,10 +1,9 @@
-[gd_scene load_steps=25 format=2]
+[gd_scene load_steps=24 format=2]
 
 [ext_resource path="res://src/core/utils/editor_object.gd" type="Script" id=1]
 [ext_resource path="res://src/scenes/game_world/starsphere_slot.gd" type="Script" id=2]
 [ext_resource path="res://scenes/starspheres/global_nebulas_starsphere/global_nebulas.tscn" type="PackedScene" id=3]
 [ext_resource path="res://scenes/levels/sectors/sector_elace/star_elace/star_elace.tscn" type="PackedScene" id=4]
-[ext_resource path="res://scenes/levels/sectors/sector_elace/station_elace_home.tscn" type="PackedScene" id=5]
 [ext_resource path="res://scenes/prefabs/celestial/asteroid.tscn" type="PackedScene" id=6]
 [ext_resource path="res://assets/models/rocks/rock_01_6k.glb" type="PackedScene" id=7]
 [ext_resource path="res://assets/models/rocks/rock_03_4k.glb" type="PackedScene" id=9]
@@ -80,9 +79,6 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 6000, 0, -22000 )
 
 [node name="Moon Elace C1" parent="SceneAssets" instance=ExtResource( 24 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -2000, 0, -28000 )
-
-[node name="ElaceHomeStation" parent="SceneAssets" instance=ExtResource( 5 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 50000, 0, 0 )
 
 [node name="SectorLayout" type="Spatial" parent="SceneAssets"]
 script = ExtResource( 25 )

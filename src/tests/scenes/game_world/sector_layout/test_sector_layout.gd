@@ -10,9 +10,6 @@ const ModelLooks = preload("res://src/scenes/game_world/models/model_looks.gd")
 func _layout() -> Node:
 	var sector := Spatial.new()
 	add_child_autofree(sector)
-	var home := Spatial.new()
-	home.name = "ElaceHomeStation"  # The scene's own station, used as it is
-	sector.add_child(home)
 	var layout = LayoutScript.new()
 	sector.add_child(layout)
 	return layout
@@ -30,7 +27,10 @@ func test_every_haven_and_beacon_is_built():
 	var layout = _layout()
 	var spec: Dictionary = TemplateDatabase.sector_layouts.sector_elace
 	assert_eq(layout.havens.size(), spec.havens.size(), "Every haven")
-	assert_eq(layout.get_haven("station_elace_home").station.name, "ElaceHomeStation", "The scene's station is the free port")
+	var home = layout.get_haven("station_elace_home").station
+	assert_eq(home.get_parent(), layout, "The free port's station is its haven's, built by the layout like every other")
+	assert_true(home.has_beacon, "and seen from anywhere: the way home is always on the sensors")
+	assert_false(layout.get_haven("verdant_haven").station.has_beacon, "Other havens by their size")
 	var marker: Dictionary = {}
 	for haven in spec.havens:
 		if haven.id == "station_elace_home":
@@ -67,7 +67,7 @@ func test_who_is_welcome_where():
 	for station in layout.refuges_for("verdant"):
 		ids.append(station.name)
 	assert_true("verdant_haven" in ids and "verdant_post" in ids, "Its own")
-	assert_true("ElaceHomeStation" in ids and "elace_refinery" in ids, "and the neutral ones")
+	assert_true("station_elace_home" in ids and "elace_refinery" in ids, "and the neutral ones")
 	assert_false("violet_haven" in ids, "not the enemy's")
 	var raider_ids := []
 	for station in layout.refuges_for("raiders"):
@@ -91,11 +91,9 @@ func test_only_fields_lone_landmarks_and_paid_pickets_show_to_the_player():
 func test_havens_wear_their_models_and_fit_to_them():
 	var layout = _layout()
 	for spec in TemplateDatabase.sector_layouts.sector_elace.havens:
-		if spec.has("station"):
-			continue
 		var station: Node = layout.get_haven(spec.id).station
 		var model: Node = station.get_node("Model").get_child(0)
-		assert_eq(model.filename, spec.get("model", Constants.STATION_DEFAULT_MODEL), "%s wears its model" % spec.id)
+		assert_eq(model.filename, spec.model, "%s wears its model" % spec.id)
 		var extent: Array = ModelLooks.extent(station.get_node("Model"))
 		assert_almost_eq(station.obstacle_radius, extent[0], 0.01, "%s: kept clear by its size (%.0f m)" % [spec.id, station.obstacle_radius])
 		assert_gt(extent[0], 50.0, "%s: a station-sized model" % spec.id)

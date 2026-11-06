@@ -181,7 +181,14 @@ class AppTest(unittest.IsolatedAsyncioTestCase):
             form = app.query_one("#world-form", devapp.Form)
             self.assertEqual([f.field["name"] for f in form.fields], ["translation", "haven_id", "repair"])
             self.assertEqual(form.changes(), {}, "Unchanged as loaded")
-            self.assertIn("[reverse bold]H[/]", str(app.query_one("#world-map").content), "The picked marker on the map")
+            self.assertIn("reverse]H", str(app.query_one("#world-map").content), "The picked marker on the map")
+            app.query_one("#map-toggle").press()
+            await pilot.pause()
+            self.assertFalse(app.query_one("#world-map").display, "Hidden: the form gets the room")
+            self.assertEqual(str(app.query_one("#map-toggle").label), "Show map")
+            app.query_one("#map-toggle").press()
+            await pilot.pause()
+            self.assertTrue(app.query_one("#world-map").display)
             by_name = {f.field["name"]: f for f in form.fields}
             by_name["translation"].editor.value = "1500, 0, 2000"
             app.action_save_node()

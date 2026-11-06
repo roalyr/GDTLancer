@@ -93,3 +93,10 @@ func test_a_broken_game_start_is_caught():
 	assert_has(texts, "Its ship 'ship_nothing' is not a ship template")
 	Directory.new().remove(dir + "start_broken.tres")
 	Directory.new().remove(dir)
+
+
+func test_a_station_placed_in_a_sector_scene_is_caught():
+	var text := '[ext_resource path="res://src/scenes/game_world/station/dockable_station.gd" type="Script" id=1]\n'
+	text += '[ext_resource path="res://scenes/prefabs/station/faction_station.tscn" type="PackedScene" id=2]\n'
+	text += '[ext_resource path="res://scenes/prefabs/celestial/asteroid.tscn" type="PackedScene" id=3]\n'
+	assert_eq(Validator.stations_placed_in(text), ["res://src/scenes/game_world/station/dockable_station.gd", "res://scenes/prefabs/station/faction_station.tscn"])

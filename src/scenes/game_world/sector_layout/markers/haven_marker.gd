@@ -1,5 +1,6 @@
-# HavenMarker: a station NPCs live from. Built by SectorLayout here (unless `station` names one
-# already in the sector scene), a beacon too; NPCs dock where they are welcome (Havens.welcome):
+# HavenMarker: a station NPCs live from, and the one place it is set: SectorLayout builds the
+# station here from `model` (stations are never placed in a sector scene apart from their haven),
+# a beacon too; NPCs dock where they are welcome (Havens.welcome):
 # their own faction's havens, and neutral ones unless they are raiders or the xenohive.
 
 tool
@@ -8,8 +9,8 @@ extends "res://src/scenes/game_world/sector_layout/markers/layout_marker.gd"
 export var haven_id: String = ""  # Its location id (docking, prices, saves): unique across sectors
 export var display_name: String = ""
 export var faction: String = ""  # Its owner's faction id (database/factions/); "" neutral
-export var station: String = ""  # A station already in the sector scene (by node name), moved here; "" builds one here
-export(PackedScene) var model: PackedScene = null  # Its look (a StationModel scene: scenes/prefabs/station/); none: Constants.STATION_DEFAULT_MODEL
+export(PackedScene) var model: PackedScene = null  # Its station: a StationModel scene (scenes/prefabs/station/)
+export var seen_anywhere: bool = false  # It runs a beacon: on every sensor at any range (the home port), not by its size
 export var ships: Dictionary = {}  # Faction id -> ships living from it (each haven's are a group, with ranks and a leader)
 export var prefer_role: String = ""  # A family its ships are more often (Evolution), prefer_share of the time
 export var prefer_share: float = 0.0
@@ -31,8 +32,8 @@ func to_spec(at: Vector3) -> Dictionary:
 		"id": haven_id, "name": display_name, "faction": faction, "at": at, "ships": ships.duplicate(),
 		"services": {"repair": repair, "rearm": rearm, "buys": buys.duplicate()},
 	}
-	if station != "":
-		spec["station"] = station
+	if seen_anywhere:
+		spec["seen_anywhere"] = true
 	if model != null:
 		spec["model"] = model.resource_path
 	if prefer_role != "":

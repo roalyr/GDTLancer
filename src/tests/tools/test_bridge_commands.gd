@@ -256,8 +256,9 @@ func test_a_haven_takes_another_model_and_gives_it_back():
 	_ok(commands.handle("scene_write", {"path": LAYOUT_COPY, "node": "Havens/ElaceFreePort", "values": {"model": other}}))
 	assert_string_contains(_text(LAYOUT_COPY), '[ext_resource path="res://scenes/prefabs/station/faction_station.tscn" type="PackedScene" id=10]')
 	assert_string_contains(_text(LAYOUT_COPY), "load_steps=11", "Counted")
-	_ok(commands.handle("scene_write", {"path": LAYOUT_COPY, "node": "Havens/ElaceFreePort", "values": {"model": null}}))
-	assert_eq(_text(LAYOUT_COPY), _text(LAYOUT), "Back to none: the line and the unused resource go")
+	var own := {"$": "Resource", "path": "res://scenes/prefabs/station/placeholders/haven.tscn"}
+	_ok(commands.handle("scene_write", {"path": LAYOUT_COPY, "node": "Havens/ElaceFreePort", "values": {"model": own}}))
+	assert_eq(_text(LAYOUT_COPY), _text(LAYOUT), "Back to its own: the unused resource goes")
 	Directory.new().remove(LAYOUT_COPY)
 
 

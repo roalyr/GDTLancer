@@ -318,6 +318,12 @@ class FieldEditor(Vertical):
         special = self.special
         if special is not None and special.pairs is not None and kind == "Dictionary":
             self.editor = PairsEditor(special, value)
+        elif special is not None and special.choices and kind == "Object":
+            path = value.get("path", "") if isinstance(value, dict) else ""
+            choices = list(special.choices)
+            if path not in [c for c, _ in choices]:
+                choices.insert(0, (path, "%s [red](not a station model)[/red]" % path if path else "(none)"))
+            self.editor = Select([(label, choice) for choice, label in choices], value=path, allow_blank=False)
         elif special is not None and special.choices and kind == "String":
             choices = list(special.choices)
             if value not in [c for c, _ in choices]:
@@ -397,6 +403,8 @@ class FieldEditor(Vertical):
         kind, editor = self.field["type"], self.editor
         if isinstance(editor, PairsEditor):
             return editor.value()
+        if kind == "Object" and isinstance(editor, Select):
+            return {"$": "Resource", "path": editor.value} if editor.value else None
         if kind == "bool":
             return bool(editor.value)
         if isinstance(editor, Select):
@@ -434,6 +442,9 @@ class FieldEditor(Vertical):
 
     def changed(self):
         value = self.value()
+        if self.field["type"] == "Object":
+            before = self.original.get("path", "") if isinstance(self.original, dict) else ""
+            return (value or {}).get("path", "") != before
         if self.field["type"] in ("Color", "Vector3") and isinstance(self.original, dict):
             return value["v"] != [float(c) for c in self.original.get("v", [])]
         return not same(value, self.original)
@@ -808,6 +819,8 @@ class WorldPane(Horizontal):
     WorldPane #world-tree { width: 42; }
     WorldPane #world-side { width: 1fr; }
     WorldPane #world-map { height: auto; }
+    WorldPane #map-buttons { height: auto; }
+    WorldPane #map-buttons Button { min-width: 14; margin-right: 1; }
     WorldPane #world-form { height: 1fr; }
     """
 
@@ -816,6 +829,11 @@ class WorldPane(Horizontal):
         tree.show_root = False
         yield tree
         with Vertical(id="world-side"):
+            with Horizontal(id="map-buttons"):
+                yield Button("Hide map", id="map-toggle", tooltip="Hide the map: the picked one's form gets the room")
+                yield Button("Zoom in", id="map-in")
+                yield Button("Zoom out", id="map-out")
+                yield Button("Whole sector", id="map-fit")
             yield Static("", id="world-map")
             yield Form("Opening the first sector...", id="world-form")
 
@@ -1528,6 +1546,8 @@ class DevApp(App):
                 "buys": Special(pairs=[(key, "%s (%d WP)" % (row["name"], row["value"])) for key, row in sorted(commodities.items())],
                                 default=1.0, about=sale, total=summary, any_key=("*", "* anything else")),
                 "faction": Special(choices=[("", "(none: neutral)")] + factions),
+                "model": Special(choices=[(row.scene, "%s  %s" % (os.path.basename(row.scene)[:-5], row.scene.replace("res://", "")))
+                                          for row in getattr(self, "model_rows", []) if row.kind == "station"]),
             }
         if name == "game_start_template.gd":
             def part(key, count):
@@ -1840,7 +1860,33 @@ class DevApp(App):
         else:
             form.clear("[b]%s[/b]  %s\n[dim]A group; ctrl+n adds a marker to it.[/dim]" % (node["name"], where))
         form.result(result)
-        self.query_one("#world-map", Static).update(worldmap.render(self.world["map"], node_path))
+        self.query_one("#world-map", Static).update(self._map_text(node_path))
+
+    @on(Button.Pressed, "#map-toggle")
+    def _map_toggle(self, event):
+        shown = not self.query_one("#world-map").display
+        self.query_one("#world-map").display = shown
+        for button_id in ("#map-in", "#map-out", "#map-fit"):
+            self.query_one(button_id).display = shown
+        event.button.label = "Hide map" if shown else "Show map"
+
+    @on(Button.Pressed, "#map-in, #map-out, #map-fit")
+    def _map_zoom(self, event):
+        zoom = getattr(self, "map_zoom", 1)
+        self.map_zoom = {"map-in": min(zoom * 2, 64), "map-out": max(zoom // 2, 1), "map-fit": 1}[event.button.id]
+        if self.world:
+            self.query_one("#world-map", Static).update(self._map_text(self.world.get("picked", "")))
+
+    def _map_text(self, node_path):
+        colors = {}
+        for faction in self.faction_view.get("factions", []):
+            color = faction.get("color")
+            if isinstance(color, dict) and "v" in color:
+                colors[faction["id"]] = "rgb(%d,%d,%d)" % tuple(max(60, min(255, int(c * 255))) for c in color["v"][:3])
+        width = self.query_one("#world-side").size.width or 96
+        columns = max(16, min(60, (width - worldmap.LABEL_WIDTH - 3) // 2))
+        return worldmap.render(self.world["map"], node_path, columns=columns, rows=None, max_rows=28, colors=colors,
+                               zoom=getattr(self, "map_zoom", 1))
 
     def action_reload_sector(self):
         if self.world:
