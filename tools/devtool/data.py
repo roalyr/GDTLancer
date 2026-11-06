@@ -70,6 +70,30 @@ KINDS = [
 KINDS_BY_KEY = {kind.key: kind for kind in KINDS}
 
 
+# Fields (and screens) for what the game does not do yet: they are kept, and the tool can edit
+# them, but nothing in the game reads them, so changing one changes nothing in play. The tool
+# shows each with this notice; tests/test_not_in_game.py fails when an unread field has no
+# notice, or when the game starts reading one that still has it.
+NOT_IN_GAME = {
+    ("location_template.gd", "is_procedural"): "Procedural sectors are not in the game yet (every sector is a scene).",
+    ("location_template.gd", "procedural_type"): "Procedural sectors are not in the game yet.",
+    ("location_template.gd", "procedural_hints"): "Procedural sectors are not in the game yet.",
+    ("location_template.gd", "sector_description"): "No screen shows a sector's description yet.",
+    ("location_template.gd", "radiation_level"): "Sector-wide radiation is not in the game yet (hazards are markers: World, Hazards).",
+    ("location_template.gd", "thermal_background_k"): "Sector temperature is not in the game yet.",
+    ("location_template.gd", "gravity_well_penalty"): "Gravity wells are not in the game yet.",
+    ("location_template.gd", "mineral_density"): "Sector mineral density is not in the game yet (rocks come from beacons' fields).",
+    ("location_template.gd", "propellant_sources"): "Propellant sources are not in the game yet.",
+    ("location_template.gd", "danger_level"): "Sector danger levels are not in the game yet.",
+}
+NOT_IN_GAME_TITLE = "Not in the game yet"
+
+
+def not_in_game(script, field):
+    """The notice for `field` of the script at `script` (a path or file name), or ""."""
+    return NOT_IN_GAME.get((os.path.basename(script or ""), field), "")
+
+
 def kind_of(res):
     for kind in KINDS:
         if res in kind.files():

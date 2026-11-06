@@ -7,7 +7,7 @@ This guide says where the game's content lives and how to change it without touc
 - **Models:** every ship and station model, with its files, levels of detail, hit surface, who uses it and its check. Keys: `i` import, `o` open in Blender, `s` review sheet, `ctrl+n` new model from a starter.
 - **Archetypes:** the fifteen designs side by side as the game flies them: fitted mass, speed (and with the afterburner), acceleration, gun damage per second, slots, price, and which factions fly each. The picked one's pilot genes are drawn against evolution's ranges. `s` review sheet; `p` and `h` open its pilot or ship in Data.
 - **Factions:** every faction with its colour and paint, who is at war with whom (a matrix: pick a cell, `w` makes war or peace), its roster (tick archetypes, `ctrl+s`) and its havens (Enter opens one in World). `e` opens the faction in Data.
-- **Data:** every data file by kind (factions, archetypes, parts, commodities, the game start, locations, agents, the material library, the sound bank), in a form built from its script, with each field's note. `ctrl+s` saves, and the rules are checked at once on every save. `ctrl+u` puts the file back as it was before the last save, and `ctrl+n` makes a new file of the kind.
+- **Data:** every data file by kind (factions, archetypes, parts, commodities, the game start, locations, agents, the material library, the sound bank), in a form built from its script, with each field's note. `ctrl+s` saves, and the rules are checked at once on every save. `ctrl+u` puts the file back as it was before the last save, and `ctrl+n` makes a new file of the kind. A field the game does not read yet says so in orange ("Not in the game yet"): it is kept and saved, but changing it changes nothing in play.
 - **World:** each sector's layout: its havens, beacons and hazards in a tree, on a map from above, and the picked one in a form. `ctrl+n` adds a marker to the picked group, `ctrl+d` copies the picked marker, and `delete` removes it. Saving, checking and `ctrl+u` work as in Data.
 - **Constants:** every value in `src/autoload/Constants.gd`, by section (or by kind of value, `ctrl+g`), with its notes; `ctrl+f` finds one. A value is changed in place, so its comments stay. Godot checks that the script still parses before it is saved.
 - **Parts:** weapons (`w`), modules (`m`), commodities (`c`) and the starting kit (`k`) side by side, with what uses each; `a` hides the archetypes' own parts. Enter opens one in Data.
@@ -34,7 +34,7 @@ Each sector's layout is a scene of markers, placed among the sector's planets. E
   - its id, name and owner (`faction`);
   - its look (`model`: a station model scene, see **Models**), or `station`: a station already in the sector scene;
   - how many ships of each faction live there (`ships`), and which kind it favours (`prefer_role`);
-  - its services: repair, rearm, and what it buys at what price (`buys`).
+  - its services: repair, rearm, and what it buys at what price (`buys`). The tool lists them as rows: a commodity (or `*`, anything not listed) and its factor on the commodity's price, with what one unit then fetches. A haven with no rows buys nothing.
 - **Beacons** (`BeaconMarker`): patrol points (`owner_faction`), rock fields (`rocks` within `radius`) and landmarks routes go through. Planets and moons get theirs by themselves.
 - **Hazards** (`HazardMarker`): the star's radiation, from `core` out to `radius`.
 
@@ -111,7 +111,7 @@ Short `.wav` files suit effects; `.ogg` suits loops. Make the files about equall
 - `assets/modules`: modules.
 - `tools`: weapons and tools.
 - `assets/commodities`: commodities.
-- `game_starts`: the player's start.
+- `game_starts`: the player's start: its ship, the haven it starts docked at (also its home port), its bank, and the kit waiting in home storage (`starting_storage`). The tool lists the kit as rows of part and count, with its worth and mass; ship and haven are picked from lists.
 - `locations`: the sector graph. Jumps between sectors are off for 0.x (`Constants.jumps_enabled`): the game is Elace only until the other sectors are laid out.
 
 These are indexed by `template_id`. A field the script does not declare is reported on load.
@@ -122,6 +122,6 @@ The rules live in one place, `src/core/validation/content_validator.gd`, and two
 - the development tool, on every save and on its Overview;
 - the tests (`tools/dev.py tests`), which also run everything else.
 
-They load every faction, sector layout, haven and archetype, every ship and station model in use, the material library and the sound bank. Broken references, a missing roster genome, a broken haven and models off the rules all fail. `tools/dev.py validate` lists every problem from a terminal; `tools/dev.py check_model scene=<path>` checks one model.
+They load every faction, sector layout, haven, game start and archetype, every ship and station model in use, the material library and the sound bank. Broken references, a missing roster genome, a broken haven, a buy list or kit naming something that does not exist, and models off the rules all fail. `tools/dev.py validate` lists every problem from a terminal; `tools/dev.py check_model scene=<path>` checks one model.
 
 To add a rule, add it to the validator. The tool and the tests both pick it up.

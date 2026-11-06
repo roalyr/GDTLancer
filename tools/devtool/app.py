@@ -165,9 +165,130 @@ def tools_status(evolution_dir):
 
 # --- Form fields ----------------------------------------------------------------------------------
 
+class Special:
+    """How one field gets an editor of its own instead of the generic one: `choices` for a text
+    field picked from a list, or `pairs` for a {key: number} dictionary edited row by row."""
+
+    def __init__(self, choices=None, pairs=None, integer=False, default=1, about=None, total=None, any_key=None):
+        self.choices = choices or []  # [(value, label)]
+        self.pairs = pairs  # [(key, label)] the rows' keys come from; None: not a pairs editor
+        self.integer, self.default = integer, default
+        self.about = about  # (key, number) -> what that row means, e.g. its price
+        self.total = total  # {key: number} -> a line under the rows
+        self.any_key = any_key  # (key, label) offered first, e.g. ("*", "anything else")
+
+
+class PairRow(Horizontal):
+    DEFAULT_CSS = """
+    PairRow { height: auto; }
+    PairRow Select { width: 44; }
+    PairRow Input { width: 14; }
+    PairRow .pair-about { width: 1fr; padding: 1 1; color: $text-muted; }
+    PairRow Button { min-width: 5; width: 5; }
+    """
+
+    def __init__(self, options, key, number, integer):
+        super().__init__()
+        self.options, self.key, self.number, self.integer = options, key, number, integer
+
+    def compose(self) -> ComposeResult:
+        options = list(self.options)
+        if self.key not in [value for value, _ in options]:
+            options.insert(0, (self.key, "%s [red](unknown)[/red]" % self.key))
+        yield Select([(label, value) for value, label in options], value=self.key, allow_blank=False)
+        yield Input(value=str(self.number), type="integer" if self.integer else "number")
+        yield Static("", classes="pair-about")
+        yield Button("×", classes="pair-remove", tooltip="Remove this row")
+
+    def pair(self):
+        text = self.query_one(Input).value.strip()
+        if text == "":
+            raise ValueError("a row has no number")
+        return self.query_one(Select).value, int(text) if self.integer else float(text)
+
+
+class PairsEditor(Vertical):
+    """A {key: number} field as rows: a key picked from a list, its number, what it means, and a
+    button to remove it; "+ Add" adds a row, a line under them sums them up."""
+
+    DEFAULT_CSS = """
+    PairsEditor { height: auto; }
+    PairsEditor .pairs-rows { height: auto; }
+    PairsEditor .pairs-bottom { height: auto; }
+    PairsEditor .pairs-total { padding: 1 1; width: 1fr; }
+    """
+
+    def __init__(self, special, value):
+        super().__init__()
+        self.special = special
+        self.start = dict(value) if isinstance(value, dict) else {}
+        self.options = ([special.any_key] if special.any_key else []) + list(special.pairs)
+
+    def compose(self) -> ComposeResult:
+        with Vertical(classes="pairs-rows"):
+            for key, number in self.start.items():
+                yield PairRow(self.options, key, number, self.special.integer)
+        with Horizontal(classes="pairs-bottom"):
+            yield Button("+ Add", classes="pair-add")
+            yield Static("", classes="pairs-total")
+
+    def on_mount(self):
+        self.call_after_refresh(self.refresh_notes)
+
+    def rows(self):
+        return list(self.query(PairRow))
+
+    def value(self):
+        out = {}
+        for row in self.rows():
+            key, number = row.pair()
+            if key in out:
+                raise ValueError("%s is listed twice" % key)
+            out[key] = number
+        return out
+
+    @on(Button.Pressed, ".pair-add")
+    def add_row(self, event=None):
+        if event is not None:
+            event.stop()
+        used = {row.query_one(Select).value for row in self.rows()}
+        free = [key for key, _ in self.options if key not in used]
+        if not free:
+            self.app.notify("Every one is listed already", severity="warning")
+            return
+        self.query_one(".pairs-rows").mount(PairRow(self.options, free[0], self.special.default, self.special.integer))
+        self.call_after_refresh(self.refresh_notes)
+
+    @on(Button.Pressed, ".pair-remove")
+    def remove_row(self, event):
+        event.stop()
+        event.button.parent.remove()
+        self.call_after_refresh(self.refresh_notes)
+
+    @on(Select.Changed)
+    @on(Input.Changed)
+    def _changed(self, event):
+        event.stop()
+        self.refresh_notes()
+
+    def refresh_notes(self):
+        pairs = {}
+        for row in self.rows():
+            try:
+                key, number = row.pair()
+            except ValueError:
+                row.query_one(".pair-about", Static).update("[red]a number[/red]")
+                continue
+            pairs[key] = number
+            row.query_one(".pair-about", Static).update(self.special.about(key, number) if self.special.about else "")
+        total = self.query(".pairs-total")
+        if total:
+            total.first().update(self.special.total(pairs) if self.special.total else "")
+
+
 class FieldEditor(Vertical):
     """One field of a data file or scene node: its name, type and comment, and an editor fit for
-    its type."""
+    its type (or a Special one), with a notice if the game does not read it yet."""
 
     DEFAULT_CSS = """
     FieldEditor { height: auto; margin: 0 0 1 0; }
@@ -177,11 +298,13 @@ class FieldEditor(Vertical):
     FieldEditor .color-row { height: auto; }
     FieldEditor .color-row Input { width: 1fr; }
     FieldEditor .swatch { width: 8; height: 3; }
+    FieldEditor .not-in-game { color: $warning; }
     """
 
-    def __init__(self, field, value):
+    def __init__(self, field, value, special=None, notice=""):
         super().__init__()
         self.field, self.original = field, value
+        self.special, self.notice = special, notice
         self.editor = None
 
     def compose(self) -> ComposeResult:
@@ -189,9 +312,19 @@ class FieldEditor(Vertical):
         yield Label("%s  [dim]%s[/dim]" % (field["name"].replace("shader_param/", ""), self._type_label()), classes="field-name")
         if field.get("comment"):
             yield Label(field["comment"], classes="field-about")
+        if self.notice:
+            yield Label("%s: %s" % (data.NOT_IN_GAME_TITLE, self.notice), classes="not-in-game")
         kind = field["type"]
         hint = field.get("hint_name", "")
-        if kind == "bool":
+        special = self.special
+        if special is not None and special.pairs is not None and kind == "Dictionary":
+            self.editor = PairsEditor(special, value)
+        elif special is not None and special.choices and kind == "String":
+            choices = list(special.choices)
+            if value not in [c for c, _ in choices]:
+                choices.insert(0, (value, "%s [red](unknown)[/red]" % value if value else "(none)"))
+            self.editor = Select([(label, choice) for choice, label in choices], value=value, allow_blank=False)
+        elif kind == "bool":
             self.editor = Switch(value=bool(value))
         elif hint == "enum" and kind in ("String", "int"):
             options = [option.split(":")[0] for option in field.get("hint_string", "").split(",") if option != ""]
@@ -263,6 +396,8 @@ class FieldEditor(Vertical):
     def value(self):
         """The edited value, encoded the way the bridge reads it; ValueError when it does not parse."""
         kind, editor = self.field["type"], self.editor
+        if isinstance(editor, PairsEditor):
+            return editor.value()
         if kind == "bool":
             return bool(editor.value)
         if isinstance(editor, Select):
@@ -291,6 +426,13 @@ class FieldEditor(Vertical):
             return {"$": self.original["$"], "text": editor.value}
         return json.loads(editor.value)
 
+    def encoded(self):
+        """value() as sent to the bridge: whole counts marked int, since JSON numbers reach Godot as floats."""
+        value = self.value()
+        if isinstance(self.editor, PairsEditor) and self.editor.special.integer:
+            return {key: {"$": "int", "v": number} for key, number in value.items()}
+        return value
+
     def changed(self):
         value = self.value()
         if self.field["type"] in ("Color", "Vector3") and isinstance(self.original, dict):
@@ -317,10 +459,13 @@ class Form(Vertical):
     def title(self, text):
         self.query_one(".form-title", Static).update(text)
 
-    def show(self, title, fields, values):
+    def show(self, title, fields, values, script=""):
+        """`script`: the file's or node's script, for its special editors and not-in-game notices."""
         scroll = self.query_one(".form-fields", VerticalScroll)
         scroll.remove_children()
-        self.fields = [FieldEditor(field, values.get(field["name"], field.get("default"))) for field in fields]
+        specials = self.app.specials(script) if hasattr(self.app, "specials") else {}
+        self.fields = [FieldEditor(field, values.get(field["name"], field.get("default")), specials.get(field["name"]),
+                                   data.not_in_game(script, field["name"])) for field in fields]
         scroll.mount_all(self.fields)
         self.title(title)
         self.result(None)
@@ -333,7 +478,7 @@ class Form(Vertical):
 
     def changes(self):
         """{field: value} of the fields changed; ValueError if one does not parse."""
-        return {editor.field["name"]: editor.value() for editor in self.fields if editor.changed()}
+        return {editor.field["name"]: editor.encoded() for editor in self.fields if editor.changed()}
 
     def result(self, result):
         status = self.query_one(".form-status", Static)
@@ -1068,7 +1213,7 @@ class DevApp(App):
         kind = data.kind_of(path)
         form = self.query_one("#data-form", Form)
         form.show("[b]%s[/b] · %s  [dim](%s%s)[/dim]" % (os.path.basename(path), path, schema["class"], (", " + kind.title) if kind else ""),
-                  schema["fields"], read["values"])
+                  schema["fields"], read["values"], schema.get("script", ""))
         form.result(result)
 
     def action_save_file(self):
@@ -1353,6 +1498,58 @@ class DevApp(App):
             self.call_from_thread(self.notify, done)
         self._refresh_views()
         self._check_all()
+
+    # --- Special editors ---
+
+    def specials(self, script):
+        """{field: Special} for the file or node with `script`: buy lists, the starting kit, and
+        fields picked from a list (ships, havens, factions)."""
+        name = os.path.basename(script or "")
+        parts = self.parts_view
+        commodities = {row["id"]: row for row in parts.get("commodities", [])}
+        stock = {row["id"]: row for kind in ("weapons", "modules") for row in parts.get(kind, []) if row.get("origin") == "stock"}
+        havens = sorted({haven["id"]: haven["name"] for faction in self.faction_view.get("factions", []) for haven in faction["havens"]}.items())
+        havens += sorted((haven["id"], haven["name"]) for haven in self.faction_view.get("neutral_havens", []))
+        factions = [(f["id"], f.get("display_name", f["id"])) for f in self.faction_view.get("factions", [])]
+        if name == "haven_marker.gd":
+            def sale(key, factor):
+                if key == "*":
+                    return "anything not listed: %g x its price" % factor
+                row = commodities.get(key)
+                return "pays %d WP a unit (%d x %g), before standing" % (round(row["value"] * factor), row["value"], factor) if row else ""
+
+            def summary(pairs):
+                if not pairs:
+                    return "[yellow]Buys nothing: ships cannot sell their cargo here.[/yellow]"
+                if "*" in pairs:
+                    return "Buys every commodity (%s listed apart)." % (len(pairs) - 1)
+                return "Buys only these %d; nothing else." % len(pairs)
+            return {
+                "buys": Special(pairs=[(key, "%s (%d WP)" % (row["name"], row["value"])) for key, row in sorted(commodities.items())],
+                                default=1.0, about=sale, total=summary, any_key=("*", "* anything else")),
+                "faction": Special(choices=[("", "(none: neutral)")] + factions),
+            }
+        if name == "game_start_template.gd":
+            def part(key, count):
+                row = stock.get(key)
+                return "%d x %d WP, %d kg" % (count, row["value"], row["mass"] * count) if row else ""
+
+            def kit(pairs):
+                value = sum(stock[k]["value"] * n for k, n in pairs.items() if k in stock)
+                mass = sum(stock[k]["mass"] * n for k, n in pairs.items() if k in stock)
+                return "Kit: %d parts, worth %d WP (store price), %.1f t; it waits in home storage to refit from." % (sum(pairs.values()), value, mass / 1000.0)
+            ships = [(design["ship"].rsplit("/", 1)[-1][:-5], "%s (%s, %d WP)" % (design["name"], design["role"], design["value"]))
+                     for design in self.archetype_view.get("archetypes", []) if "ship" in design]
+            ships += [(os.path.basename(path)[:-5], os.path.basename(path)[:-5] + " (stock)") for path in data.KINDS_BY_KEY["ships"].files()]
+            return {
+                "starting_storage": Special(pairs=[(key, "%s (%s, %d WP)" % (row["name"], row.get("type") or row.get("kind") or "module", row["value"]))
+                                                   for key, row in sorted(stock.items())], integer=True, default=1, about=part, total=kit),
+                "player_ship_template": Special(choices=ships),
+                "player_starting_location": Special(choices=havens),
+            }
+        if name == "beacon_marker.gd":
+            return {"owner_faction": Special(choices=[("", "(none)")] + factions)}
+        return {}
 
     # --- Parts ---
 
@@ -1639,7 +1836,7 @@ class DevApp(App):
         form = self.query_one("#world-form", Form)
         where = self.world["path"] if node_path == "." else "%s · %s" % (node_path, self.world["path"])
         if node["fields"] and (node["script"] or node_path == "."):
-            form.show("[b]%s[/b]  %s" % (node["name"], where), node["fields"], node["values"])
+            form.show("[b]%s[/b]  %s" % (node["name"], where), node["fields"], node["values"], node["script"])
         else:
             form.clear("[b]%s[/b]  %s\n[dim]A group; ctrl+n adds a marker to it.[/dim]" % (node["name"], where))
         form.result(result)

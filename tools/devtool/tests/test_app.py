@@ -383,6 +383,56 @@ class AppTest(unittest.IsolatedAsyncioTestCase):
                 await pilot.press("x")
                 self.assertTrue(os.path.exists(os.path.join(user_dir, "evolution", "stop")))
 
+    async def _form_with(self, pilot, app, fields, values, script):
+        await pilot.press("8")
+        form = app.query_one("#data-form", devapp.Form)
+        form.show("test", fields, values, script)
+        await self._started(pilot, app)
+        return form
+
+    async def test_the_starting_kit_is_edited_row_by_row(self):
+        app = devapp.DevApp(bridge_factory=lambda: FakeBridge())
+        async with app.run_test(size=(180, 50)) as pilot:
+            await self._started(pilot, app)
+            fields = [{"name": "starting_storage", "type": "Dictionary", "hint_name": "", "hint_string": "", "comment": ""},
+                      {"name": "player_starting_location", "type": "String", "hint_name": "", "hint_string": "", "comment": ""}]
+            form = await self._form_with(pilot, app, fields, {"starting_storage": {"tool_laser": 2}, "player_starting_location": "port"},
+                                         devapp.data.DEFINITIONS + "game_start_template.gd")
+            kit = form.fields[0].editor
+            self.assertIsInstance(kit, devapp.PairsEditor)
+            self.assertIn("worth 200 WP", str(kit.query_one(".pairs-total").content))
+            self.assertIsInstance(form.fields[1].editor, devapp.Select, "Havens are picked from a list")
+            self.assertEqual(form.changes(), {})
+            kit.add_row()
+            await pilot.pause()
+            self.assertEqual(form.changes(), {"starting_storage": {"tool_laser": {"$": "int", "v": 2}, "module_ab": {"$": "int", "v": 1}}})
+
+    async def test_a_buy_list_shows_prices_and_a_bad_row_is_not_saved(self):
+        app = devapp.DevApp(bridge_factory=lambda: FakeBridge())
+        async with app.run_test(size=(180, 50)) as pilot:
+            await self._started(pilot, app)
+            fields = [{"name": "buys", "type": "Dictionary", "hint_name": "", "hint_string": "", "comment": ""}]
+            form = await self._form_with(pilot, app, fields, {"buys": {"commodity_ore": 1.5}}, MARKER)
+            buys = form.fields[0].editor
+            row = buys.rows()[0]
+            self.assertIn("pays 30 WP a unit", str(row.query_one(".pair-about").content))
+            self.assertIn("Buys only these 1", str(buys.query_one(".pairs-total").content))
+            row.query_one(devapp.Input).value = ""
+            await pilot.pause()
+            with self.assertRaises(ValueError):
+                form.changes()
+
+    async def test_a_field_the_game_does_not_read_says_so(self):
+        app = devapp.DevApp(bridge_factory=lambda: FakeBridge())
+        async with app.run_test(size=(180, 50)) as pilot:
+            await self._started(pilot, app)
+            fields = [{"name": "danger_level", "type": "int", "hint_name": "", "hint_string": "", "comment": ""},
+                      {"name": "connections", "type": "PoolStringArray", "hint_name": "", "hint_string": "", "comment": ""}]
+            form = await self._form_with(pilot, app, fields, {"danger_level": 0, "connections": []},
+                                         devapp.data.DEFINITIONS + "location_template.gd")
+            self.assertEqual(len(form.fields[0].query(".not-in-game")), 1)
+            self.assertEqual(len(form.fields[1].query(".not-in-game")), 0)
+
     async def test_typing_q_in_a_field_types_it(self):
         app = devapp.DevApp(bridge_factory=lambda: FakeBridge())
         async with app.run_test(size=(160, 60)) as pilot:

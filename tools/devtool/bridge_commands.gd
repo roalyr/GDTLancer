@@ -710,6 +710,8 @@ static func decode(value):
 					return Vector3(value.v[0], value.v[1], value.v[2])
 			"Resource":
 				return load(value.path) if str(value.get("path", "")) != "" else null
+			"int":
+				return int(value.get("v", 0))
 		return str2var(str(value.get("text", "null")))
 	return value
 

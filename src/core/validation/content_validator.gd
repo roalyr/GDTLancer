@@ -11,7 +11,12 @@ extends Reference
 const ModelCheck = preload("res://src/scenes/game_world/models/model_check.gd")
 const SoundBank = preload("res://src/core/sound/sound_bank.gd")
 const SOUND_BANK_PATH = "res://database/sounds/sound_bank.tres"
-const SECTIONS = ["factions", "sectors", "archetypes", "models", "materials", "sounds"]
+const SECTIONS = ["factions", "sectors", "archetypes", "starts", "models", "materials", "sounds"]
+const STARTS_DIR = "res://database/registry/game_starts/"
+const COMMODITIES_DIR = "res://database/registry/assets/commodities/"
+const PART_DIRS = ["res://database/registry/tools/", "res://database/registry/assets/modules/"]
+const SHIPS_DIR = "res://database/registry/assets/ships/"
+const ANY_COMMODITY = "*"
 const MATERIALS_DIR = "res://assets/art/materials_generic/"
 const MATERIAL_SHADERS = ["res://assets/art/shaders/solid.gdshader", "res://assets/art/shaders/glow.gdshader"]
 const BEACON_KINDS = ["patrol", "field", "landmark"]
@@ -36,6 +41,8 @@ static func section(name: String) -> Array:
 			return models()
 		"materials":
 			return materials()
+		"starts":
+			return starts()
 		"sounds":
 			return sounds()
 	return [_problem("", "No validator section '%s'" % name)]
@@ -53,6 +60,8 @@ static func section_for(path: String) -> String:
 		return "sounds"
 	if path.begins_with(MATERIALS_DIR):
 		return "materials"
+	if path.begins_with(STARTS_DIR):
+		return "starts"
 	if path.begins_with("res://scenes/prefabs/ships/") or path.begins_with("res://scenes/prefabs/station/"):
 		return "models"
 	return ""
@@ -159,6 +168,13 @@ static func sectors() -> Array:
 					out.append(_problem(path, "Haven '%s': ships' faction '%s' is not a faction" % [haven.id, faction]))
 				elif factions[faction].roster.empty():
 					out.append(_problem(path, "Haven '%s': %s has no roster to fly" % [haven.id, faction]))
+			var commodities: Array = commodity_ids()
+			var buys: Dictionary = haven.get("services", {}).get("buys", {})
+			for commodity in buys:
+				if commodity != ANY_COMMODITY and not commodity in commodities:
+					out.append(_problem(path, "Haven '%s' buys '%s', which is not a commodity" % [haven.id, commodity]))
+				if not typeof(buys[commodity]) in [TYPE_INT, TYPE_REAL] or float(buys[commodity]) <= 0.0:
+					out.append(_problem(path, "Haven '%s': its price factor for '%s' should be a number above 0" % [haven.id, commodity]))
 			if haven.has("model") and not _exists(haven.model):
 				out.append(_problem(path, "Haven '%s': model '%s' does not exist" % [haven.id, haven.model]))
 		for beacon in spec.beacons:
@@ -242,6 +258,53 @@ static func models() -> Array:
 	for scene_path in used.stations:
 		for problem in ModelCheck.station_problems(scene_path):
 			out.append(_problem(scene_path, problem))
+	return out
+
+
+# --- Game starts ---
+
+# Each start: its ship is a ship template, it starts docked at a haven, its kit holds parts.
+static func starts(dir_path: String = STARTS_DIR) -> Array:
+	var out: Array = []
+	var havens := {}
+	for path in layout_files().values():
+		var layout: Node = _fresh(path).instance()
+		if layout.has_method("to_spec"):
+			for haven in layout.to_spec().havens:
+				havens[haven.id] = true
+		layout.free()
+	var parts: Array = part_ids()
+	for path in _files_in(dir_path, ".tres"):
+		var start = _fresh(path)
+		var ship: String = start.player_ship_template
+		if not (_exists(SHIPS_DIR.plus_file(ship + ".tres")) or _exists(Constants.ARCHETYPES_DIR.plus_file(ship + ".tres"))):
+			out.append(_problem(path, "Its ship '%s' is not a ship template" % ship))
+		if not havens.has(start.player_starting_location):
+			out.append(_problem(path, "It starts at '%s', which is not a haven" % start.player_starting_location))
+		if start.starting_bank < 0:
+			out.append(_problem(path, "Its bank is below 0"))
+		for part in start.starting_storage:
+			if not part in parts:
+				out.append(_problem(path, "Its kit holds '%s', which is not a weapon, tool or module" % part))
+			var count = start.starting_storage[part]
+			if typeof(count) != TYPE_INT or count < 1:
+				out.append(_problem(path, "Its kit's count of '%s' should be a whole number from 1" % part))
+	return out
+
+
+static func commodity_ids() -> Array:
+	var out: Array = []
+	for path in _files_in(COMMODITIES_DIR, ".tres"):
+		out.append(path.get_file().get_basename())
+	return out
+
+
+# Stock weapons, tools and modules (what the store sells and storage holds).
+static func part_ids() -> Array:
+	var out: Array = []
+	for dir_path in PART_DIRS:
+		for path in _files_in(dir_path, ".tres"):
+			out.append(path.get_file().get_basename())
 	return out
 
 

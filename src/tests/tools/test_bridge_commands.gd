@@ -88,6 +88,24 @@ func test_numbers_keep_their_types_through_a_save():
 	assert_eq(typeof(back.share), TYPE_REAL)
 	assert_eq(typeof(back.list[2]), TYPE_INT, "A new item like the first")
 	assert_eq(typeof(back.floats[0]), TYPE_REAL)
+	var kit = BridgeCommands.match_types(BridgeCommands.decode({"tool_laser": {"$": "int", "v": 2.0}}), {})
+	assert_eq(typeof(kit.tool_laser), TYPE_INT, "A count marked int, in what was empty")
+
+
+func test_an_empty_starting_kit_saves_whole_counts():
+	var dir := "user://test_bridge_starts/"
+	Directory.new().make_dir_recursive(dir)
+	var start = load("res://database/registry/game_starts/start_default.tres").duplicate()
+	start.starting_storage = {}
+	ResourceSaver.save(dir + "start_empty.tres", start)
+	_ok(commands.handle("write", {"path": dir + "start_empty.tres", "values": {"starting_storage": {"tool_rail_cannon": {"$": "int", "v": 2.0}}}}))
+	var file := File.new()
+	file.open(dir + "start_empty.tres", File.READ)
+	var text := file.get_as_text()
+	file.close()
+	assert_string_contains(text, '"tool_rail_cannon": 2\n')
+	Directory.new().remove(dir + "start_empty.tres")
+	Directory.new().remove(dir)
 
 
 func test_validate_and_models():
