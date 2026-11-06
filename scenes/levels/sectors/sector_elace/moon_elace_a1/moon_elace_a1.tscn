@@ -30,7 +30,7 @@ shader_param/dither_strength = 0.5
 
 [sub_resource type="SphereMesh" id=2]
 
-[node name="Moon Elace a1" type="StaticBody"]
+[node name="Moon Elace A1" type="StaticBody"]
 script = ExtResource( 5 )
 
 [node name="CollisionShape" type="CollisionShape" parent="."]

@@ -94,6 +94,48 @@ def not_in_game(script, field):
     return NOT_IN_GAME.get((os.path.basename(script or ""), field), "")
 
 
+SEARCHED = (".tres", ".tscn", ".gd", ".cfg", ".godot", ".glb")  # .glb: models name their materials
+SKIPPED_DIRS = {".git", ".dev", ".import", "addons", "__pycache__", "renders"}
+
+
+def template_id_of(res):
+    """The template_id a data file sets ("" none)."""
+    try:
+        with open(os.path.join(ROOT, res.replace("res://", ""))) as handle:
+            for line in handle:
+                if line.startswith("template_id = "):
+                    return line.split("=", 1)[1].strip().strip('"')
+    except OSError:
+        pass
+    return ""
+
+
+def references(res, by_name=False):
+    """res:// paths of the project files that name `res` (by path or by its template_id; with
+    `by_name`, as models take materials, by its bare name too), sorted: a file still named
+    somewhere is not deleted."""
+    own = os.path.join(ROOT, res.replace("res://", ""))
+    template_id = template_id_of(res)
+    needles = [res] + (['"%s"' % template_id] if template_id else [])
+    if by_name:
+        needles.append(os.path.basename(res).rsplit(".", 1)[0])
+    out = []
+    for folder, dirs, names in os.walk(ROOT):
+        dirs[:] = [name for name in dirs if name not in SKIPPED_DIRS]
+        for name in names:
+            path = os.path.join(folder, name)
+            if not name.endswith(SEARCHED) or path == own:
+                continue
+            try:
+                with open(path, errors="ignore") as handle:  # A .glb's names are plain text in its JSON chunk
+                    text = handle.read()
+            except OSError:
+                continue
+            if any(needle in text for needle in needles):
+                out.append("res://" + os.path.relpath(path, ROOT))
+    return sorted(out)
+
+
 def kind_of(res):
     for kind in KINDS:
         if res in kind.files():

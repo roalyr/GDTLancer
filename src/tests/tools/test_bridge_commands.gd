@@ -379,6 +379,31 @@ const SECTOR_SCENE = "res://scenes/levels/sectors/sector_elace/sector_elace.tscn
 const SECTOR_COPY = "user://test_bridge_sector.tscn"
 
 
+func test_a_sector_without_a_layout_gets_one_with_its_entry():
+	var dir: String = "user://test_sectors"
+	var folder: String = dir.plus_file("sector_cob")
+	Directory.new().make_dir_recursive(folder)
+	Directory.new().copy("res://scenes/levels/sectors/sector_cob/sector_cob.tscn", folder.plus_file("sector_cob.tscn"))
+	var made: Dictionary = _ok(commands.handle("layout_new", {"sector": "sector_cob", "dir": dir}))
+	assert_eq(made.path, folder.plus_file("sector_cob_layout.tscn"))
+	var scene: Node = load(folder.plus_file("sector_cob.tscn")).instance()
+	var layout: Node = scene.get_node_or_null("SceneAssets/SectorLayout/Layout")
+	assert_not_null(layout, "Placed in the sector scene")
+	if layout != null:
+		assert_eq(layout.sector_id, "sector_cob")
+		for group in ["Hazards", "Havens", "Beacons"]:
+			assert_not_null(layout.get_node_or_null(group), group)
+		var entry: Node = layout.get_node("Beacons/Entry")
+		assert_eq([entry.kind, entry.beacon_name, entry.radius], ["entry", "Cob Entry", 45000.0], "As far out as the location's jump_in_distance")
+	scene.free()
+	assert_true(commands.handle("layout_new", {"sector": "sector_cob", "dir": dir}).has("error"), "Only once")
+	assert_true(commands.handle("layout_new", {"sector": "sector_nowhere", "dir": dir}).has("error"), "No scene: no layout")
+	for name in ["sector_cob.tscn", "sector_cob_layout.tscn"]:
+		Directory.new().remove(folder.plus_file(name))
+	Directory.new().remove(folder)
+	Directory.new().remove(dir)
+
+
 func test_the_sector_scene_places_bodies_and_belts():
 	var things: Array = _ok(commands.handle("world_scene", {"path": SECTOR_SCENE}))
 	var kinds := {}

@@ -262,7 +262,7 @@ func test_projected_target_bracket_scene_owns_centered_info_label_for_jump_route
 	assert_not_null(info_label, "Projected target bracket scene should own the info label node.")
 	assert_eq(
 		info_label.get_script().resource_path,
-		"res://src/core/ui/helpers/CenteredGrowingLabel.gd",
+		"res://src/core/ui/helpers/centered_growing_label.gd",
 		"Projected target labels should reuse CenteredGrowingLabel."
 	)
 	assert_eq(info_label.text, "Cob System", "Route brackets should show jump context under the bracket.")

@@ -5,7 +5,8 @@
 # tool saves is what the editor would.
 # Resources: ping, schema, read, write, create (fields: a script's exported variables; a
 # ShaderMaterial's shader and shader parameters). Scenes: scene_nodes, scene_write, scene_add,
-# scene_remove (nodes and their fields, translation included), sector_map. Views: archetypes,
+# scene_remove (nodes and their fields, translation included), world_scene, scene_instance,
+# layout_new, sector_map. Views: archetypes,
 # factions, parts, look. Checks: validate, models, sound_slots, check_script. user_dir.
 
 extends Reference
@@ -302,6 +303,69 @@ func cmd_scene_instance(args: Dictionary):
 	if result is Dictionary and not result.has("error"):
 		result["node"] = added
 	return result
+
+
+# A layout for the sector `sector` (its folder's name, the location's id), which has a scene but no
+# layout: SECTORS_SCENES_DIR/<sector>/<sector>_layout.tscn with its three groups and an entry beacon
+# (where the scene's EntryPoint is, as far out as the location's jump_in_distance), placed in the
+# sector scene under SceneAssets/SectorLayout. Then the layout's rules. Returns {"path": the layout}.
+func cmd_layout_new(args: Dictionary):
+	var sector: String = str(args.get("sector", ""))
+	var folder: String = str(args.get("dir", Constants.SECTORS_SCENES_DIR)).plus_file(sector)  # dir: the tests' copy
+	var scene_path: String = folder.plus_file(sector + ".tscn")
+	var layout_path: String = folder.plus_file(sector + Constants.SECTOR_LAYOUT_SUFFIX)
+	var scene_text: String = _read_text(scene_path)
+	if sector == "" or scene_text == "":
+		return {"error": "No sector scene %s" % scene_path}
+	if File.new().file_exists(layout_path):
+		return {"error": "%s has a layout already" % sector}
+	var doc = TscnText.new(scene_text)
+	if doc.find_node(SCENE_ASSETS) == null:
+		return {"error": "%s has no %s node" % [scene_path, SCENE_ASSETS]}
+	var root: Node = _edit_instance(scene_path)
+	var entry := Vector3.ZERO
+	var entry_node: Node = root.find_node("EntryPoint", true, false) if root != null else null
+	if entry_node is Spatial:
+		entry = _origin(entry_node)
+	if root != null:
+		root.free()
+	var location_path: String = LOCATIONS_DIR.plus_file(sector + ".tres")
+	var location = _fresh(location_path) if ResourceLoader.exists(location_path) else null
+	var reach: float = float(location.jump_in_distance) if location != null else 0.0
+	var title: String = (location.location_name if location != null and location.location_name != "" else sector.capitalize()) + " Entry"
+	_write_text(layout_path, LAYOUT_TEMPLATE % [sector, var2str(Transform(Basis(), entry)), title.c_escape(), var2str(reach)])
+	var holder: String = doc.add_node(SCENE_ASSETS, "SectorLayout", "Spatial", doc.ext_id(SectorLayoutScript.resource_path, "Script"))
+	doc.add_instance(holder, "Layout", layout_path)
+	var result = _save_text_checked(scene_path, scene_text, doc.text(), [])
+	if result is Dictionary and result.has("error"):
+		Directory.new().remove(layout_path)
+		return result
+	return _checked(layout_path, [])
+
+
+const LOCATIONS_DIR = "res://database/registry/locations/"
+const LAYOUT_TEMPLATE = """[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://src/scenes/game_world/sector_layout/markers/sector_layout_markers.gd" type="Script" id=1]
+[ext_resource path="res://src/scenes/game_world/sector_layout/markers/beacon_marker.gd" type="Script" id=2]
+
+[node name="Layout" type="Spatial"]
+script = ExtResource( 1 )
+sector_id = "%s"
+
+[node name="Hazards" type="Spatial" parent="."]
+
+[node name="Havens" type="Spatial" parent="."]
+
+[node name="Beacons" type="Spatial" parent="."]
+
+[node name="Entry" type="Position3D" parent="Beacons"]
+transform = %s
+script = ExtResource( 2 )
+kind = "entry"
+beacon_name = "%s"
+radius = %s
+"""
 
 
 # A sector from above and from the side: the things its scene places (as world_scene, their node
@@ -619,8 +683,12 @@ static func _tool_dps(tool_template) -> float:
 
 # --- Checks ---
 
-# Problems: of one `file`, one `section`, or all.
+# Problems: of one `file`, one `section`, or all; with `sections`, the sections' names (slowest last).
 func cmd_validate(args: Dictionary):
+	if args.has("sections"):
+		var names: Array = Validator.SECTIONS.duplicate()
+		names.erase("models")
+		return names + ["models"]
 	if args.has("file"):
 		return Validator.for_file(str(args.file))
 	if args.has("section"):

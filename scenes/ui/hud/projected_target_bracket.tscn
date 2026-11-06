@@ -4,7 +4,7 @@
 [ext_resource path="res://assets/art/ui/controls/bracket_targeting.png" type="Texture" id=2]
 [ext_resource path="res://assets/art/ui/controls/bracket_targeting_selected.png" type="Texture" id=3]
 [ext_resource path="res://assets/themes/main_theme.tres" type="Theme" id=4]
-[ext_resource path="res://src/core/ui/helpers/CenteredGrowingLabel.gd" type="Script" id=5]
+[ext_resource path="res://src/core/ui/helpers/centered_growing_label.gd" type="Script" id=5]
 
 [node name="ProjectedTargetBracket" type="Button"]
 margin_right = 150.0

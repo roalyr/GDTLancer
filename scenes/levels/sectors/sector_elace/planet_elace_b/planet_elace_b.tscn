@@ -37,7 +37,7 @@ shader_param/dither_strength = 0.5
 
 [sub_resource type="SphereMesh" id=2]
 
-[node name="Planet Elace b" type="StaticBody"]
+[node name="Planet Elace B" type="StaticBody"]
 script = ExtResource( 6 )
 
 [node name="CollisionShape" type="CollisionShape" parent="."]

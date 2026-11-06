@@ -65,6 +65,7 @@ var _decoy_watch := 0.0  # s to the next look for missiles coming in
 var _leaks: Array = []
 var _smoulders: Array = []  # HullSmoulder spots, oldest first
 var _hull_scars = null  # HullScars under the visual root
+var _pending_hull: CollisionShape = null  # The collision shape until it is added (deferred); freed with the body if it never was
 var _damage_trails: Array = []  # DamageTrail nodes: one per Constants.DAMAGE_TRAIL_HULL_STEP of hull lost
 var _last_hit: Array = []  # [world point, outward] of the latest hit: where a new damage trail starts
 
@@ -188,7 +189,19 @@ func _add_collision_hull(ship_visual: Node, to_body: Transform) -> void:
 	if hull_shape != null:
 		holder.shape = hull_shape
 		holder.transform = Transform.IDENTITY
-	call_deferred("add_child", holder)
+	_pending_hull = holder
+	call_deferred("_add_pending_hull")
+
+
+func _add_pending_hull() -> void:
+	if is_instance_valid(_pending_hull):
+		add_child(_pending_hull)
+	_pending_hull = null
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_PREDELETE and is_instance_valid(_pending_hull) and _pending_hull.get_parent() == null:
+		_pending_hull.free()  # Freed before the deferred add: it would be left over
 
 
 # Resolves and caches the ship template, returning its movement parameters.

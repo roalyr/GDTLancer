@@ -31,6 +31,8 @@ class FakeBridge:
     def call(self, command, **args):
         if command == "ping":
             return {"godot": "fake"}
+        if command == "validate" and args.get("sections"):
+            return ["factions", "locations", "sectors", "models"]
         if command == "validate":
             return [{"file": "res://x.tres", "problem": "Broken"}] if args.get("section") == "factions" else []
         if command == "models":
@@ -54,6 +56,9 @@ class FakeBridge:
             if command == "scene_instance":
                 result["node"] = "SceneAssets/" + args["name"] + "2"
             return result
+        if command == "layout_new":
+            self.writes.append(dict(args, command=command))
+            return {"path": "res://scenes/levels/sectors/%s/%s_layout.tscn" % (args["sector"], args["sector"]), "problems": [], "new": []}
         if command == "world_scene":
             return [{"node": "SceneAssets/Planet A", "name": "Planet A", "parent": "SceneAssets", "kind": "planet",
                      "scene": "res://scenes/levels/sectors/sector_elace/planet_elace_a/planet_elace_a.tscn",
@@ -324,6 +329,56 @@ class AppTest(unittest.IsolatedAsyncioTestCase):
             await pilot.press("y")
             await self._started(pilot, app)
             self.assertEqual((fake.writes[-1]["command"], fake.writes[-1]["node"]), ("scene_remove", "Havens/Port"))
+
+    async def test_a_sector_without_a_layout_is_listed_and_gets_one(self):
+        fake = FakeBridge()
+        app = devapp.DevApp(bridge_factory=lambda: fake)
+        async with app.run_test(size=(160, 60)) as pilot:
+            await self._started(pilot, app)
+            app.query_one("TabbedContent").active = "world"
+            await self._started(pilot, app)
+            tree = app.query_one("#world-tree")
+            sectors = [child.data["sector"] for child in tree.root.children]
+            self.assertTrue({"sector_cob", "sector_elace", "sector_lywin"} <= set(sectors), sectors)
+            self.assertEqual(app.world["sector"], "sector_elace", "A sector with a layout opens first")
+            cob = "res://scenes/levels/sectors/sector_cob/sector_cob_layout.tscn"
+            app.load_sector("sector_cob", cob, ".")
+            await self._started(pilot, app)
+            self.assertTrue(app.world["nodes"]["."].get("missing"))
+            self.assertIn("no layout yet", str(app.query_one("#world-form .form-title").content))
+            self.assertIn(devapp.SCENE, app.world["nodes"], "Its scene's bodies are still there to move")
+            app.action_new_marker()
+            await pilot.pause()
+            await pilot.press("y")
+            await self._started(pilot, app)
+            self.assertEqual((fake.writes[-1]["command"], fake.writes[-1]["sector"]), ("layout_new", "sector_cob"))
+            files, _reload = app.saved_text
+            self.assertEqual([(os.path.basename(path), text is None) for path, text in files],
+                             [("sector_cob.tscn", False), ("sector_cob_layout.tscn", True)], "ctrl+u puts the scene back and takes the layout away")
+
+    async def test_a_data_file_still_named_somewhere_is_not_deleted(self):
+        fake = FakeBridge()
+        app = devapp.DevApp(bridge_factory=lambda: fake)
+        async with app.run_test(size=(160, 60)) as pilot:
+            await self._started(pilot, app)
+            tree = app.query_one("#data-tree")
+            factions = next(node for node in tree.root.children if node.data["kind"] == "factions")
+            factions.expand()
+            await pilot.pause()
+            tree.move_cursor(next(leaf for leaf in factions.children if leaf.data["path"] == FILE))
+            self.assertEqual(tree.cursor_node.data.get("path"), FILE)
+            app.action_delete_file()
+            await pilot.pause()
+            self.assertTrue(os.path.exists(devapp.file_path(FILE)), "Verdant is named by havens and starts")
+            self.assertNotIsInstance(app.screen, devapp.ConfirmScreen, "Refused before asking")
+            sounds = next(node for node in tree.root.children if node.data["kind"] == "sounds")
+            sounds.expand()
+            await pilot.pause()
+            tree.move_cursor(sounds.children[0])
+            self.assertEqual(tree.cursor_node.data.get("kind"), "sounds")
+            app.action_delete_file()
+            await pilot.pause()
+            self.assertNotIsInstance(app.screen, devapp.ConfirmScreen, "The sound bank is one fixed file")
 
     async def test_a_constant_is_checked_then_saved_in_place(self):
         fake = FakeBridge()

@@ -73,4 +73,4 @@ func test_things_on_a_host_find_its_band():
 	child.add_child(grandchild)
 	detail.band = Constants.VIEW_FAR
 	assert_eq(ViewDetail.band_of_host(grandchild), Constants.VIEW_FAR)
-	assert_eq(ViewDetail.band_of_host(Spatial.new()), Constants.VIEW_CLOSE, "No host: everything shown.")
+	assert_eq(ViewDetail.band_of_host(autofree(Spatial.new())), Constants.VIEW_CLOSE, "No host: everything shown.")

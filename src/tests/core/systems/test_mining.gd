@@ -29,6 +29,12 @@ func before_each():
 	lance.setup(miner, "test_lance", ShipLaws.lance_stats(Constants.PART_TYPE_SEEDS.lance[2]))
 
 
+func after_each():
+	for child in get_children():
+		if child.has_method("_update_puffs"):
+			child.free()  # A wreck's explosion goes to its parent, here the test, which outlives the test
+
+
 func _strike(speed: float = 200.0) -> Array:
 	miner.linear_velocity = Vector3(0, 0, -speed)
 	lance.nails -= 1  # Thrown (LanceController.fire)

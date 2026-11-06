@@ -10,9 +10,10 @@ The development tool's menu (Textual): the project's content and its checks in o
     Parts      weapons, modules, commodities and the starting kit side by side, with who uses each
     Look       shaders (shared blocks in date, who uses each), faction paints, paint patterns, music
     Data       every data file by kind (the material library too), edited in a form made from its
-               script or shader; each save is checked
-    World      each sector's layout (havens, beacons, hazards) on a map from above, each marker in
-               a form; add, copy, remove; each save is checked
+               script or shader; new, delete (only what nothing names); each save is checked
+    World      each sector: its scene's bodies and belts and its layout's markers (havens, beacons,
+               hazards) on a map, each in a form; add, copy, remove; a layout for a sector with none;
+               each save is checked
     Constants  src/autoload/Constants.gd by section or by kind of value; values changed in place,
                Godot checks the script before it is saved
     Tools      evolution, the APK and the newest outputs at a glance; every tool (tasks.py) to run
@@ -44,7 +45,7 @@ RESOURCE_FILES = {  # Resource type -> the files a field of it can point at
     "ShaderMaterial": ("*.tres",), "Texture": ("*.png",), "Resource": ("*.tres",), "Shader": ("*.gdshader",),
 }
 SKIPPED_DIRS = (".git", ".import", ".dev", "addons")
-LAYOUTS = "scenes/levels/sectors/*/*_layout.tscn"
+SECTOR_SCENES = "scenes/levels/sectors/*/*.tscn"  # A sector is its folder's <folder>.tscn; its layout <folder>_layout.tscn
 MARKERS = "res://src/scenes/game_world/sector_layout/markers/"
 GROUP_MARKERS = {"Havens": "haven_marker.gd", "Beacons": "beacon_marker.gd", "Hazards": "hazard_marker.gd"}
 COPY_OFFSET = 2000.0  # m along x between a marker and its copy
@@ -64,6 +65,12 @@ def placeable_scenes():
                 continue
             out.append("res://" + os.path.relpath(path, tasks.ROOT))
     return out
+
+
+def sector_scenes():
+    """Absolute paths of the sector scenes (scenes/levels/sectors/<sector>/<sector>.tscn), sorted."""
+    return [path for path in sorted(glob.glob(os.path.join(tasks.ROOT, SECTOR_SCENES)))
+            if os.path.basename(path) == os.path.basename(os.path.dirname(path)) + ".tscn"]
 
 
 def title_of(scene):
@@ -721,10 +728,11 @@ HELP = """\
   2 Models      every ship and station model: import (i), open in Blender (o), review sheet (s)
   3 Archetypes  the fifteen designs as the game flies them; pilot genes against evolution's ranges
   4 Factions    wars (pick a cell, w), rosters (space ticks, ctrl+s), havens (enter: World)
-  5 World       a sector: its scene's bodies and belts, its layout's markers, on a map (top or side, filters)
+  5 World       a sector: its scene's bodies and belts, its layout's markers, on a map (top or side, filters);
+                ctrl+n on a sector with no layout makes one
   6 Parts       weapons (w), modules (m), commodities (c), starting kit (k); a hides archetype parts
   7 Look        shaders, faction paints, paint patterns, music; y syncs shader blocks
-  8 Data        every data file in a form made from its script
+  8 Data        every data file in a form made from its script; delete removes one nothing names
   9 Constants   Constants.gd by section (or by kind, ctrl+g); ctrl+f finds
   0 Tools       evolution, APK and outputs; every other tool (enter asks its questions and runs it)
 
@@ -790,6 +798,7 @@ class DataPane(Horizontal):
     BINDINGS = [
         Binding("ctrl+s", "app.save_file", "Save"), Binding("ctrl+r", "app.reload_file", "Refresh"),
         Binding("ctrl+u", "app.undo_save", "Undo last save"), Binding("ctrl+n", "app.new_file", "New file"),
+        Binding("delete", "app.delete_file", "Delete file"),
     ]
     DEFAULT_CSS = """
     DataPane #data-tree { width: 42; }
@@ -1160,7 +1169,7 @@ class DevApp(App):
             self.bridge.close()
 
     def _undo_point(self, files, reload):
-        """`files`: [(path, its text before the save)], put back by ctrl+u."""
+        """`files`: [(path, its text before the save, None: it was not there)], put back by ctrl+u."""
         self.saved_text = (files, reload)
 
     def action_undo_save(self):
@@ -1169,7 +1178,11 @@ class DevApp(App):
             return
         files, reload = self.saved_text
         for path, text in files:
-            write_text(path, text)
+            if text is None:  # It did not exist before the save
+                if os.path.exists(file_path(path)):
+                    os.remove(file_path(path))
+            else:
+                write_text(path, text)
         self.saved_text = None
         self.notify("Put back %s as %s" % (", ".join(os.path.basename(path) for path, _ in files), "it was" if len(files) == 1 else "they were"))
         reload()
@@ -1188,7 +1201,12 @@ class DevApp(App):
 
     def _check_all(self):
         problems = []
-        for section in ("factions", "sectors", "archetypes", "materials", "sounds", "models"):
+        try:
+            sections = self.ask("validate", sections=True)  # Every rule the game's validator has
+        except BridgeError as error:
+            self.call_from_thread(self._show_problems, [("", "", "Check failed: %s" % error)], self._git_changes())
+            return
+        for section in sections:
             self.call_from_thread(self._set_summary, "Checking %s..." % section)
             try:
                 for problem in self.ask("validate", section=section):
@@ -1415,6 +1433,33 @@ class DevApp(App):
             if name:
                 self.create_worker(kind, name, source if kind.copies else None)
         self.push_screen(NameScreen(title, kind.prefix + "lower_case_name"), made)
+
+    def action_delete_file(self):
+        node = self.query_one("#data-tree", Tree).cursor_node
+        info = (node.data or {}) if node is not None else {}
+        kind, path = data.KINDS_BY_KEY.get(info.get("kind", "")), info.get("path")
+        if kind is None or not path:
+            self.notify("Pick a file to delete", severity="warning")
+            return
+        if not kind.can_create():
+            self.notify("%s are not deleted here (%s)" % (kind.title, kind.about or "a fixed set"), severity="warning")
+            return
+        users = data.references(path, by_name=kind.copies)
+        if users:
+            self.notify("Not deleted: %s is still named in %s%s" % (os.path.basename(path), ", ".join(user.replace("res://", "") for user in users[:4]),
+                                                                    " and %d more" % (len(users) - 4) if len(users) > 4 else ""), severity="error")
+            return
+
+        def answered(yes):
+            if not yes:
+                return
+            before = read_text(path)
+            os.remove(file_path(path))
+            self._undo_point([(path, before)], self._fill_data_tree)
+            self._fill_data_tree()
+            self.query_one("#data-form", Form).clear("[b]Deleted[/b]  %s\n[dim]ctrl+u puts it back.[/dim]" % path)
+            self.notify("Deleted %s; ctrl+u puts it back" % path)
+        self.push_screen(ConfirmScreen("Delete %s? Nothing names it." % path.replace("res://", "")), answered)
 
     @work(thread=True, group="form")
     def create_worker(self, kind, name, copy_from=None):
@@ -1931,15 +1976,17 @@ class DevApp(App):
     def _fill_world_tree(self):
         tree = self.query_one("#world-tree", Tree)
         tree.clear()
-        for layout in sorted(glob.glob(os.path.join(tasks.ROOT, LAYOUTS))):
-            sector = os.path.basename(os.path.dirname(layout))
-            path = "res://" + os.path.relpath(layout, tasks.ROOT)
-            tree.root.add(sector, data={"sector": sector, "path": path, "node": "."}, expand=False, allow_expand=True)
+        for scene in sector_scenes():
+            sector = os.path.basename(os.path.dirname(scene))
+            path = "res://" + os.path.relpath(scene, tasks.ROOT)[:-len(".tscn")] + "_layout.tscn"
+            label = sector if os.path.exists(file_path(path)) else "%s  [dim]no layout[/dim]" % sector
+            tree.root.add(label, data={"sector": sector, "path": path, "node": "."}, expand=False, allow_expand=True)
 
     def _open_first_sector(self):
         tree = self.query_one("#world-tree", Tree)
+        laid_out = [child for child in tree.root.children if os.path.exists(file_path(child.data["path"]))]
         if tree.root.children:
-            info = tree.root.children[0].data
+            info = (laid_out or tree.root.children)[0].data  # A sector with a layout first
             self.load_sector(info["sector"], info["path"], info["node"])
 
     @on(Tree.NodeExpanded, "#world-tree")
@@ -1961,7 +2008,8 @@ class DevApp(App):
     @work(thread=True, exclusive=True, group="world")
     def load_sector(self, sector, path, picked=".", result=None):
         try:
-            nodes = self.ask("scene_nodes", path=path)
+            nodes = self.ask("scene_nodes", path=path) if os.path.exists(file_path(path)) else [
+                {"node": ".", "name": sector, "parent": "", "script": "", "type": "Spatial", "fields": [], "values": {}, "missing": True}]
             items = self.ask("sector_map", sector=sector)
             things = self.ask("world_scene", path=self._sector_scene(path))
         except BridgeError as error:
@@ -2013,7 +2061,11 @@ class DevApp(App):
         self.world["picked"] = node_path
         form = self.query_one("#world-form", Form)
         where = self.world["path"] if node_path == "." else "%s · %s" % (node_path, self.world["path"])
-        if node_path == SCENE:
+        if node.get("missing"):
+            form.clear("[b]%s[/b]  no layout yet\n[dim]Havens, beacons and hazards go in the sector's layout scene (%s). "
+                       "ctrl+n (New) makes it, with an entry beacon where ships arrive, and places it in the sector scene.[/dim]"
+                       % (self.world["sector"], self.world["path"]))
+        elif node_path == SCENE:
             form.clear("[b]Scene[/b]  %s\n[dim]What the sector scene places: stars, planets, moons, belts. Move or turn one here; ctrl+n places a "
                        "scene, ctrl+d copies the picked one, delete removes it. What each is made of is its own scene's: the Godot "
                        "editor's.[/dim]" % self.world["scene"])
@@ -2131,6 +2183,10 @@ class DevApp(App):
             self.push_screen(PlaceScreen("Place a scene in %s (it goes %s)" % (
                 self.world["sector"], "beside %s; move it after" % here.get("name") if picked != SCENE else "at the middle; move it after"), scenes), placed)
             return
+        if self.world["nodes"].get(".", {}).get("missing"):
+            self.push_screen(ConfirmScreen("Make a layout for %s? %s, with an entry beacon, placed in %s." % (
+                self.world["sector"], os.path.basename(self.world["path"]), os.path.basename(self.world["scene"]))), self._make_layout)
+            return
         script, parent = self._marker_script(self.world["picked"])
         if script is None:
             self.notify("Pick a group (%s) or a marker" % ", ".join(GROUP_MARKERS), severity="warning")
@@ -2179,6 +2235,22 @@ class DevApp(App):
                 self.world_worker("scene_remove", "Removed %s" % picked, node=picked)
         self.push_screen(ConfirmScreen("Remove %s from %s?%s" % (picked.lstrip(SCENE), self.world["sector"],
                                                                  " Markers attached to it (%s) then fail the rules until moved or let go." % ", ".join(riders) if riders else "")), answered)
+
+    @work(thread=True, exclusive=True, group="world")
+    def _make_layout(self, yes):
+        if not yes:
+            return
+        sector, path, scene = self.world["sector"], self.world["path"], self.world["scene"]
+        before = read_text(scene)
+        try:
+            result = self.ask("layout_new", sector=sector)
+        except BridgeError as error:
+            self.call_from_thread(self.notify, "No layout made: %s" % error, severity="error")
+            return
+        self._undo_point([(scene, before), (path, None)], lambda: (self._fill_world_tree(), self.load_sector(sector, path, ".")))
+        self.call_from_thread(self.notify, "Made %s; ctrl+u takes it back" % os.path.basename(path))
+        self.call_from_thread(self._fill_world_tree)
+        self.load_sector(sector, path, "Beacons/Entry", result)
 
     @work(thread=True, exclusive=True, group="world")
     def world_worker(self, command, done, file=None, **args):

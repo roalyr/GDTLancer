@@ -104,7 +104,7 @@ func test_double_click_approaches_and_the_buttons_toggle_to_a_coast():
 	var enemy = Agent.new()
 	add_child_autofree(enemy)
 	var controller = PlayerControllerScript.new()
-	var recorder = CommandRecorder.new()
+	var recorder = autofree(CommandRecorder.new())
 	controller.agent_body = ship
 	controller.agent_script = recorder
 	controller._selected_target = enemy
@@ -168,7 +168,7 @@ func test_approach_rams_while_the_lance_is_armed():
 	var enemy = Agent.new()
 	add_child_autofree(enemy)
 	var controller = PlayerControllerScript.new()
-	var recorder = CommandRecorder.new()
+	var recorder = autofree(CommandRecorder.new())
 	controller.agent_body = ship
 	controller.agent_script = recorder
 	controller._selected_target = enemy
@@ -209,7 +209,7 @@ func test_a_lost_target_stops_the_commands_on_it():
 	var enemy = Agent.new()
 	add_child_autofree(enemy)
 	var controller = PlayerControllerScript.new()
-	var recorder = CommandRecorder.new()
+	var recorder = autofree(CommandRecorder.new())
 	controller.agent_body = ship
 	controller.agent_script = recorder
 	controller._set_selected_target(enemy)

@@ -25,7 +25,7 @@ shader_param/scale_min = 0.5
 
 [sub_resource type="SphereMesh" id=2]
 
-[node name="Planet Elace a" type="StaticBody"]
+[node name="Planet Elace A" type="StaticBody"]
 script = ExtResource( 5 )
 
 [node name="CollisionShape" type="CollisionShape" parent="."]

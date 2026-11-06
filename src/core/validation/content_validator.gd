@@ -2,7 +2,7 @@
 # {"file": res:// path, "problem": text}. One set of rules for both checkers: the content tests
 # (src/tests/database/test_content.gd) want every list empty, and the development tool
 # (tools/dev.py) checks each file it saves and shows the lists. A new rule goes here, nowhere else.
-# Sections: factions, sectors (layouts, havens, beacons), archetypes, models (every ship and station
+# Sections: factions, locations (the sector graph), sectors (layouts, havens, beacons), archetypes, models (every ship and station
 # model in use, ModelCheck: the slow one), sounds (the sound bank). all() runs them all.
 # Files are read afresh (not from TemplateDatabase's caches), so a just-saved edit counts.
 
@@ -11,8 +11,9 @@ extends Reference
 const ModelCheck = preload("res://src/scenes/game_world/models/model_check.gd")
 const SoundBank = preload("res://src/core/sound/sound_bank.gd")
 const SOUND_BANK_PATH = "res://database/sounds/sound_bank.tres"
-const SECTIONS = ["factions", "sectors", "archetypes", "starts", "models", "materials", "sounds"]
+const SECTIONS = ["factions", "locations", "sectors", "archetypes", "starts", "models", "materials", "sounds"]
 const STARTS_DIR = "res://database/registry/game_starts/"
+const LOCATIONS_DIR = "res://database/registry/locations/"
 const COMMODITIES_DIR = "res://database/registry/assets/commodities/"
 const PART_DIRS = ["res://database/registry/tools/", "res://database/registry/assets/modules/"]
 const SHIPS_DIR = "res://database/registry/assets/ships/"
@@ -33,6 +34,8 @@ static func section(name: String) -> Array:
 	match name:
 		"factions":
 			return factions()
+		"locations":
+			return locations()
 		"sectors":
 			return sectors()
 		"archetypes":
@@ -52,6 +55,8 @@ static func section(name: String) -> Array:
 static func section_for(path: String) -> String:
 	if path.begins_with(Constants.FACTIONS_DIR):
 		return "factions"
+	if path.begins_with(LOCATIONS_DIR):
+		return "locations"
 	if path.begins_with(Constants.SECTORS_SCENES_DIR):
 		return "sectors"
 	if path.begins_with(Constants.ARCHETYPES_DIR):
@@ -112,6 +117,42 @@ static func factions(dir_path: String = Constants.FACTIONS_DIR) -> Array:
 		for name in faction.roster:
 			if not _exists(_archetype_agent_path(name)):
 				out.append(_problem(path, "Roster archetype '%s' does not exist" % name))
+	return out
+
+
+# --- Locations: the sector graph ---
+
+# `dir_path`: the locations folder (another only for tests). Each location has an id; each
+# connection names another location that connects back (a jump goes both ways); a scene path names
+# a scene (else the sector would be an empty stand-in); a sector with a layout has a location.
+static func locations(dir_path: String = LOCATIONS_DIR) -> Array:
+	var out: Array = []
+	var graph := {}  # id -> [path, connections]
+	for path in _files_in(dir_path, ".tres"):
+		var location = _fresh(path)
+		if not location is LocationTemplate:
+			continue
+		if location.template_id == "":
+			out.append(_problem(path, "No template_id"))
+		elif graph.has(location.template_id):
+			out.append(_problem(path, "template_id '%s' is used twice" % location.template_id))
+		else:
+			graph[location.template_id] = [path, Array(location.connections)]
+		if location.sector_scene_path != "" and not ResourceLoader.exists(location.sector_scene_path):
+			out.append(_problem(path, "Sector scene '%s' does not exist" % location.sector_scene_path))
+	for id in graph:
+		var path: String = graph[id][0]
+		for other in graph[id][1]:
+			if other == id:
+				out.append(_problem(path, "It connects to itself"))
+			elif not graph.has(other):
+				out.append(_problem(path, "Connection '%s' is not a location" % other))
+			elif not id in graph[other][1]:
+				out.append(_problem(path, "It connects to '%s', which does not connect back" % other))
+	if dir_path == LOCATIONS_DIR:
+		for sector_id in layout_files():
+			if not graph.has(sector_id):
+				out.append(_problem(layout_files()[sector_id], "No location '%s' for this sector (%s)" % [sector_id, LOCATIONS_DIR]))
 	return out
 
 

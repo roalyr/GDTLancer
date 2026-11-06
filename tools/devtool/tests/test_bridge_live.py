@@ -37,6 +37,9 @@ class LiveBridgeTest(unittest.TestCase):
 
     def test_the_content_holds(self):
         self.assertEqual(self.bridge.call("validate", section="factions"), [])
+        sections = self.bridge.call("validate", sections=True)
+        self.assertEqual(sections[-1], "models", "The slow one last")
+        self.assertTrue({"factions", "locations", "sectors", "starts"} <= set(sections), sections)
 
     def test_godot_checks_constants_before_they_are_saved(self):
         from devtool import constants

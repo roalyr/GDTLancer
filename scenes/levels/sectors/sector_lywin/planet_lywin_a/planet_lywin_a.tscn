@@ -31,7 +31,7 @@ shader_param/dither_strength = 0.5
 
 [sub_resource type="SphereMesh" id=2]
 
-[node name="Planet Lywin a" type="StaticBody"]
+[node name="Planet Lywin A" type="StaticBody"]
 script = ExtResource( 5 )
 
 [node name="CollisionShape" type="CollisionShape" parent="."]

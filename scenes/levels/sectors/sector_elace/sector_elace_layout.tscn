@@ -330,5 +330,5 @@ player_visible = true
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -20000, 0, 2000 )
 script = ExtResource( 3 )
 kind = "entry"
-beacon_name = "Elace entry"
+beacon_name = "Elace Entry"
 radius = 20000.0

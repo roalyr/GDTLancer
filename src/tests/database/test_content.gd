@@ -72,6 +72,37 @@ func test_a_broken_faction_is_caught():
 	Directory.new().remove(dir_path)
 
 
+func test_locations_keep_the_rules():
+	assert_eq(_texts(Validator.locations()), [])
+	assert_eq(Validator.section_for("res://database/registry/locations/sector_elace.tres"), "locations")
+
+
+func test_a_broken_sector_graph_is_caught():
+	var dir := "user://test_validator_locations/"
+	Directory.new().make_dir_recursive(dir)
+	var a = load("res://database/registry/locations/sector_cob.tres").duplicate()
+	a.template_id = "sector_a"
+	a.connections = PoolStringArray(["sector_b", "sector_nowhere", "sector_a"])
+	a.sector_scene_path = "res://scenes/levels/sectors/sector_a/sector_a.tscn"
+	var b = a.duplicate()
+	b.template_id = "sector_b"
+	b.connections = PoolStringArray()
+	b.sector_scene_path = ""
+	ResourceSaver.save(dir + "sector_a.tres", a)
+	ResourceSaver.save(dir + "sector_b.tres", b)
+	var texts: Array = []
+	for problem in Validator.locations(dir):
+		texts.append(problem.problem)
+	assert_has(texts, "It connects to 'sector_b', which does not connect back")
+	assert_has(texts, "Connection 'sector_nowhere' is not a location")
+	assert_has(texts, "It connects to itself")
+	assert_has(texts, "Sector scene 'res://scenes/levels/sectors/sector_a/sector_a.tscn' does not exist")
+	assert_eq(texts.size(), 4, "Sector b (no scene, no connections) is fine")
+	for name in ["sector_a.tres", "sector_b.tres"]:
+		Directory.new().remove(dir + name)
+	Directory.new().remove(dir)
+
+
 func test_game_starts_keep_the_rules():
 	assert_eq(_texts(Validator.starts()), [])
 
