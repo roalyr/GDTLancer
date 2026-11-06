@@ -16,7 +16,7 @@ The development tool's menu (Textual): the project's content and its checks in o
     Tasks      every tool (tasks.py), with its questions
 
 Godot does the reading, writing and checking (bridge.py), so the files stay as Godot writes them.
-Keys are listed in the footer; 1-8 switch tabs, q quits (not while typing).
+Keys are listed in the footer and on the help screen (?).
 """
 
 import glob
@@ -394,14 +394,65 @@ class ConfirmScreen(ModalScreen):
         self.dismiss(False)
 
 
+HELP = """\
+[b]Keys, the same on every tab[/b]
+  1-8         switch tabs                    ?          this help
+  tab         next box in a tab              shift+tab  the box before
+  enter       open or run what is picked     q          quit (not while typing)
+  ctrl+s      save                           ctrl+u     undo the last save (every file it wrote)
+  ctrl+r      refresh: read the files again  ctrl+n     new (file, marker, model)
+  Plain letters are a tab's own actions (only on tabs where nothing is typed); the footer lists them.
+
+[b]Tabs[/b]
+  1 Overview    every content rule, checked; enter opens a problem's file
+  2 Models      every ship and station model: import (i), open in Blender (o), review sheet (s)
+  3 Archetypes  the fifteen designs as the game flies them; pilot genes against evolution's ranges
+  4 Factions    wars (pick a cell, w), rosters (space ticks, ctrl+s), havens (enter: World)
+  5 World       each sector's havens, beacons and hazards on a map; ctrl+d copies, delete removes
+  6 Data        every data file in a form made from its script
+  7 Constants   Constants.gd by section (or by kind, ctrl+g); ctrl+f finds
+  8 Tasks       every other tool; enter asks its questions and runs it
+
+[b]Saving[/b]
+  Godot writes every file and checks the content rules on each save: green means every rule holds,
+  red lists what broke (the file is saved; ctrl+u puts it back). Constants are checked before saving.
+"""
+
+
+class HelpScreen(ModalScreen):
+    DEFAULT_CSS = """
+    HelpScreen { align: center middle; }
+    HelpScreen > VerticalScroll { width: 110; height: auto; max-height: 90%; border: thick $accent; background: $surface; padding: 1 2; }
+    """
+    BINDINGS = [Binding("escape,question_mark,q", "close", "Close")]
+
+    def compose(self) -> ComposeResult:
+        with VerticalScroll():
+            yield Static(HELP)
+
+    def action_close(self):
+        self.dismiss(None)
+
+
 # --- Tabs -----------------------------------------------------------------------------------------
 
+class OpenTable(DataTable):
+    """A table whose enter opens the picked row (shown in the footer)."""
+    BINDINGS = [Binding("enter", "select_cursor", "Open")]
+
+
+class RunTable(DataTable):
+    """A table whose enter runs the picked row (shown in the footer)."""
+    BINDINGS = [Binding("enter", "select_cursor", "Run")]
+
+
 class OverviewPane(Vertical):
-    BINDINGS = [Binding("c", "app.check_all", "Check all"), Binding("l", "app.fix_loops", "Fix sound loops")]
+    BINDINGS = [Binding("ctrl+r", "app.check_all", "Check again"),
+                Binding("l", "app.fix_loops", "Fix sound loops")]
 
     def compose(self) -> ComposeResult:
         yield Static("Starting Godot...", id="summary")
-        table = DataTable(id="problems", cursor_type="row", zebra_stripes=True)
+        table = OpenTable(id="problems", cursor_type="row", zebra_stripes=True)
         table.add_columns("Section", "File", "Problem")
         yield table
 
@@ -409,8 +460,8 @@ class OverviewPane(Vertical):
 class ModelsPane(Vertical):
     BINDINGS = [
         Binding("i", "app.model('import')", "Import"), Binding("o", "app.model('open')", "Open in Blender"),
-        Binding("s", "app.model('sheet')", "Review sheet"), Binding("n", "app.new_model", "New model"),
-        Binding("r", "app.refresh_models", "Refresh"),
+        Binding("s", "app.model('sheet')", "Review sheet"), Binding("ctrl+n", "app.new_model", "New model"),
+        Binding("ctrl+r", "app.refresh_models", "Refresh"),
     ]
 
     def compose(self) -> ComposeResult:
@@ -422,7 +473,7 @@ class ModelsPane(Vertical):
 
 class DataPane(Horizontal):
     BINDINGS = [
-        Binding("ctrl+s", "app.save_file", "Save"), Binding("ctrl+r", "app.reload_file", "Reload"),
+        Binding("ctrl+s", "app.save_file", "Save"), Binding("ctrl+r", "app.reload_file", "Refresh"),
         Binding("ctrl+u", "app.undo_save", "Undo last save"), Binding("ctrl+n", "app.new_file", "New file"),
     ]
     DEFAULT_CSS = """
@@ -440,18 +491,21 @@ class DataPane(Horizontal):
 class ArchetypesPane(Vertical):
     BINDINGS = [
         Binding("s", "app.archetype('sheet')", "Review sheet"), Binding("p", "app.archetype('pilot')", "Pilot in Data"),
-        Binding("h", "app.archetype('ship')", "Ship in Data"), Binding("r", "app.refresh_views", "Refresh"),
+        Binding("h", "app.archetype('ship')", "Ship in Data"), Binding("ctrl+r", "app.refresh_views", "Refresh"),
     ]
     DEFAULT_CSS = """
     ArchetypesPane #archetypes { height: auto; max-height: 60%; }
     ArchetypesPane #archetype-detail { height: auto; padding: 0 1; }
+    ArchetypesPane .caption { height: auto; padding: 0 1; }
     """
 
     def compose(self) -> ComposeResult:
         table = DataTable(id="archetypes", cursor_type="row", zebra_stripes=True)
-        table.add_columns("Archetype", "Role", "Temper", "Length", "Mass t", "Hull", "Speed", "Burst", "Accel", "Gun DPS",
-                          "Cargo", "Slots S/M/L+M", "Hull WP", "Lives", "Fitness", "Flown by")
+        table.add_columns("Archetype", "Role", "Temper", "Len m", "Mass t", "Hull", "Speed", "Acc", "DPS",
+                          "Cargo", "Slots", "WP", "Lives", "Fit", "Flown by")
         yield table
+        yield Static("[dim]Speed m/s (with afterburner) · Acc m/s² · DPS: guns, as the AI rates a fight · Slots: small/medium/large"
+                     " + modules · WP: hull price · Fit: fitness when exported[/dim]", classes="caption")
         yield Static("Starting Godot...", id="archetype-detail")
 
 
@@ -459,14 +513,14 @@ class FactionsPane(Horizontal):
     BINDINGS = [
         Binding("w", "app.toggle_war", "War / peace"), Binding("ctrl+s", "app.save_roster", "Save roster"),
         Binding("e", "app.edit_faction", "Faction in Data"), Binding("ctrl+u", "app.undo_save", "Undo last save"),
-        Binding("r", "app.refresh_views", "Refresh"),
+        Binding("ctrl+r", "app.refresh_views", "Refresh"),
     ]
     DEFAULT_CSS = """
     FactionsPane #faction-left { width: 3fr; }
     FactionsPane #faction-right { width: 2fr; padding: 0 1; }
     FactionsPane #factions { height: auto; max-height: 12; }
     FactionsPane #wars { height: auto; max-height: 12; }
-    FactionsPane #roster { height: 1fr; }
+    FactionsPane #roster { height: auto; max-height: 20; }
     FactionsPane #havens { height: auto; max-height: 14; }
     FactionsPane .caption { height: auto; margin-top: 1; color: $text-muted; }
     FactionsPane #faction-detail { height: auto; }
@@ -474,24 +528,25 @@ class FactionsPane(Horizontal):
 
     def compose(self) -> ComposeResult:
         with Vertical(id="faction-left"):
-            table = DataTable(id="factions", cursor_type="row", zebra_stripes=True)
+            table = DataTable(id="factions", cursor_type="row", zebra_stripes=True, cursor_foreground_priority="renderable")
             table.add_columns("", "Faction", "Name", "Paint", "Standing", "Flags", "Roster", "Havens", "Ships")
             yield table
-            yield Static("Wars: either side's list counts. Pick a cell, w makes war or peace.", classes="caption")
+            yield Static("Wars (row against column). Either side's list makes a war; \"(theirs)\": only the column's list has it."
+                         " Pick a cell, w makes war or peace.", classes="caption")
             yield DataTable(id="wars", cursor_type="cell")
             yield Static("", id="faction-detail")
         with Vertical(id="faction-right"):
-            yield Static("Roster: the archetypes its havens fly (space ticks; ctrl+s saves).", classes="caption")
+            yield Static("Roster: the archetypes its havens fly (space ticks; ctrl+s saves).", classes="caption", id="roster-caption")
             yield SelectionList(id="roster")
             yield Static("Havens (Enter opens one in World).", classes="caption")
-            table = DataTable(id="havens", cursor_type="row", zebra_stripes=True)
+            table = OpenTable(id="havens", cursor_type="row", zebra_stripes=True)
             table.add_columns("Sector", "Haven", "Name", "Ships")
             yield table
 
 
 class WorldPane(Horizontal):
     BINDINGS = [
-        Binding("ctrl+s", "app.save_node", "Save"), Binding("ctrl+r", "app.reload_sector", "Reload"),
+        Binding("ctrl+s", "app.save_node", "Save"), Binding("ctrl+r", "app.reload_sector", "Refresh"),
         Binding("ctrl+u", "app.undo_save", "Undo last save"), Binding("ctrl+n", "app.new_marker", "New marker"),
         Binding("ctrl+d", "app.copy_marker", "Copy marker"), Binding("delete", "app.remove_marker", "Remove marker"),
     ]
@@ -508,12 +563,13 @@ class WorldPane(Horizontal):
         yield tree
         with Vertical(id="world-side"):
             yield Static("", id="world-map")
-            yield Form("Pick a sector on the left (Enter opens it).", id="world-form")
+            yield Form("Opening the first sector...", id="world-form")
 
 
 class ConstantsPane(Horizontal):
     BINDINGS = [
         Binding("ctrl+s", "app.save_constant", "Save"), Binding("ctrl+u", "app.undo_save", "Undo last save"),
+        Binding("ctrl+r", "app.reload_constants", "Refresh"),
         Binding("ctrl+g", "app.group_constants", "By section / by kind"), Binding("ctrl+f", "app.find_constant", "Find"),
     ]
     DEFAULT_CSS = """
@@ -532,7 +588,8 @@ class ConstantsPane(Horizontal):
             tree.show_root = False
             yield tree
         with Vertical(id="const-side"):
-            yield Static("Pick a constant on the left.", id="const-detail")
+            yield Static("Pick a constant on the left (open a section with enter), or find one: ctrl+f.\n"
+                         "Change its value on the right, then ctrl+s: Godot checks the script before it is saved.", id="const-detail")
             yield Input(id="const-value", placeholder="Its value, as GDScript")
             yield TextArea(id="const-text")
             yield Static("", id="const-status")
@@ -540,8 +597,8 @@ class ConstantsPane(Horizontal):
 
 class TasksPane(Vertical):
     def compose(self) -> ComposeResult:
-        table = DataTable(id="tasks", cursor_type="row", zebra_stripes=True)
-        table.add_columns("Group", "Task", "Name")
+        table = RunTable(id="tasks", cursor_type="row", zebra_stripes=True)
+        table.add_columns("Group", "Task", "tools/dev.py ...")
         yield table
         yield Static("", id="task-detail")
 
@@ -556,7 +613,8 @@ TAB_FOCUS = {"overview": "#problems", "models-tab": "#models", "archetypes-tab":
 class DevApp(App):
     TITLE = "GDTLancer"
     SUB_TITLE = "development tool"
-    BINDINGS = [Binding("q", "quit", "Quit")] + [
+    BINDINGS = [Binding("q", "quit", "Quit"), Binding("question_mark,f1", "help", "Help"),
+                Binding("tab", "app.focus_next", "Next box", show=False), Binding("shift+tab", "app.focus_previous", "Box before", show=False)] + [
         Binding(str(index + 1), "tab(%d)" % index, tab, show=False) for index, tab in enumerate(TABS)]
     CSS = """
     #summary, #model-detail, #task-detail { height: auto; padding: 0 1; }
@@ -586,21 +644,21 @@ class DevApp(App):
     def compose(self) -> ComposeResult:
         yield Header()
         with TabbedContent(initial="overview"):
-            with TabPane("Overview", id="overview"):
+            with TabPane("1 Overview", id="overview"):
                 yield OverviewPane()
-            with TabPane("Models", id="models-tab"):
+            with TabPane("2 Models", id="models-tab"):
                 yield ModelsPane()
-            with TabPane("Archetypes", id="archetypes-tab"):
+            with TabPane("3 Archetypes", id="archetypes-tab"):
                 yield ArchetypesPane()
-            with TabPane("Factions", id="factions-tab"):
+            with TabPane("4 Factions", id="factions-tab"):
                 yield FactionsPane()
-            with TabPane("World", id="world"):
+            with TabPane("5 World", id="world"):
                 yield WorldPane()
-            with TabPane("Data", id="data"):
+            with TabPane("6 Data", id="data"):
                 yield DataPane()
-            with TabPane("Constants", id="constants"):
+            with TabPane("7 Constants", id="constants"):
                 yield ConstantsPane()
-            with TabPane("Tasks", id="tasks-tab"):
+            with TabPane("8 Tasks", id="tasks-tab"):
                 yield TasksPane()
         yield Footer()
 
@@ -615,10 +673,13 @@ class DevApp(App):
         self.query_one(TabbedContent).active = TABS[index]
 
     def check_action(self, action, parameters):
-        """Typing a digit or q into a field types it."""
-        if action in ("tab", "quit") and isinstance(self.focused, (Input, TextArea)):
+        """Typing a digit, q or ? into a field types it."""
+        if action in ("tab", "quit", "help") and isinstance(self.focused, (Input, TextArea)):
             return False
         return True
+
+    def action_help(self):
+        self.push_screen(HelpScreen())
 
     @on(TabbedContent.TabActivated)
     def _focus_tab(self, event):
@@ -626,18 +687,25 @@ class DevApp(App):
         target = TAB_FOCUS.get(event.pane.id)
         if target:
             self.query_one(target).focus()
+        if event.pane.id == "world" and not self.world:
+            self._open_first_sector()
 
     # --- Godot ---
 
+    def _godot_status(self, text):
+        self.sub_title = "development tool · " + text
+
     @work(thread=True, exclusive=True, group="bridge")
     def start_bridge(self):
+        self.call_from_thread(self._godot_status, "starting Godot...")
         try:
             self.bridge = self.bridge_factory()
             version = self.bridge.call("ping")["godot"]
         except (BridgeError, OSError) as error:
             self.call_from_thread(self._set_summary, "[red]Godot did not start:[/red] %s" % error)
+            self.call_from_thread(self._godot_status, "Godot did not start")
             return
-        self.call_from_thread(self.notify, "Godot %s ready" % version)
+        self.call_from_thread(self._godot_status, "Godot %s" % version)
         self._check_all()
         self._refresh_models()
         self._refresh_views()
@@ -734,6 +802,31 @@ class DevApp(App):
                                                                     (": " + ", ".join(changed[:6]) + (" ..." if len(changed) > 6 else "")) if changed else ""))
         self._set_summary("\n".join(lines))
 
+    def action_open_problem(self):
+        """The picked problem's file, where it is edited: World for a layout, Models for a model, else Data."""
+        table = self.query_one("#problems", DataTable)
+        if not self.problems or table.cursor_row is None or table.cursor_row >= len(self.problems):
+            return
+        section, path, _ = self.problems[table.cursor_row]
+        if not path:
+            self.notify("This problem is not in one file", severity="warning")
+            return
+        tabs = self.query_one(TabbedContent)
+        if path.endswith("_layout.tscn"):
+            tabs.active = "world"
+            self.load_sector(os.path.basename(os.path.dirname(path)), path, ".")
+        elif section == "models" or path.endswith(".tscn"):
+            tabs.active = "models-tab"
+            for index, row in enumerate(self.model_rows):
+                if row.scene == path:
+                    self.query_one("#models", DataTable).move_cursor(row=index)
+        else:
+            self.open_in_data(path)
+
+    @on(DataTable.RowSelected, "#problems")
+    def _problem_selected(self, _event):
+        self.action_open_problem()
+
     def action_fix_loops(self):
         self.run_task(tasks.TASKS_BY_KEY["fix_loops"], {})
 
@@ -759,7 +852,7 @@ class DevApp(App):
         table = self.query_one("#models", DataTable)
         table.clear()
         for row in rows:
-            table.add_row(row.name + (" (placeholder)" if row.placeholder else ""), row.kind, row.source,
+            table.add_row(row.name, row.kind, row.source,
                           str(row.lods) if row.glb else "-", "yes" if row.hit else "-", str(len(row.users)), row.status, key=row.scene)
         self._show_model_detail()
 
@@ -935,13 +1028,13 @@ class DevApp(App):
         table.clear()
         for design in self.archetype_view["archetypes"]:
             if "error" in design:
-                table.add_row(design["name"], "[red]%s[/red]" % design["error"], *[""] * 14, key=design["name"])
+                table.add_row(design["name"], "[red]%s[/red]" % design["error"], *[""] * 13, key=design["name"])
                 continue
             slots = design["slots"]
             table.add_row(
-                design["name"], design["role"], design["temperament"], "%.1f m" % design["length"], "%.1f" % (design["mass"] / 1000.0),
-                "%d" % design["hull"], "%d" % design["top_speed"],
-                "%d" % design["burst_speed"] if design["burst_speed"] > design["top_speed"] + 0.5 else "-",
+                design["name"], design["role"], design["temperament"], "%.1f" % design["length"], "%.1f" % (design["mass"] / 1000.0),
+                "%d" % design["hull"],
+                "%d" % design["top_speed"] + (" (%d)" % design["burst_speed"] if design["burst_speed"] > design["top_speed"] + 0.5 else ""),
                 "%.0f" % design["accel"], "%.1f" % design["gun_dps"], "%d" % design["cargo"],
                 "%d/%d/%d+%d" % tuple(slots), "%d" % design["value"], str(design["lives"]), "%+.2f" % design["fitness"],
                 ", ".join(design["flown_by"]) or "[yellow]nobody[/yellow]", key=design["name"])
@@ -1043,6 +1136,8 @@ class DevApp(App):
         names = sorted(set(self.faction_view["archetypes"]) | set(flown), key=archetype_order)
         roster.add_options([(name if name in self.faction_view["archetypes"] else "%s [red](no such archetype)[/red]" % name, name, name in flown)
                             for name in names])
+        self.query_one("#roster-caption", Static).update(
+            "[b]%s[/b] roster: %d of %d archetypes its havens fly (space ticks or unticks; ctrl+s saves)." % (faction_id, len(flown), len(names)))
         for index, haven in enumerate(faction["havens"]):
             ships = ", ".join("%s %s" % (n, kind) for kind, n in haven["ships"].items()) if isinstance(haven["ships"], dict) else ""
             havens.add_row(haven["sector"], haven["id"], haven["name"], ships, key=str(index))
@@ -1058,10 +1153,13 @@ class DevApp(App):
 
     @on(DataTable.RowSelected, "#havens")
     def _haven_picked(self, event):
+        self._open_haven(int(event.row_key.value))
+
+    def _open_haven(self, index):
         faction = self._faction(self.faction_picked)
-        if faction is None:
+        if faction is None or index >= len(faction["havens"]):
             return
-        haven = faction["havens"][int(event.row_key.value)]
+        haven = faction["havens"][index]
         self.query_one(TabbedContent).active = "world"
         self.load_sector(haven["sector"], haven["layout"], haven["node"])
 
@@ -1129,6 +1227,18 @@ class DevApp(App):
             sector = os.path.basename(os.path.dirname(layout))
             path = "res://" + os.path.relpath(layout, tasks.ROOT)
             tree.root.add(sector, data={"sector": sector, "path": path, "node": "."}, expand=False, allow_expand=True)
+
+    def _open_first_sector(self):
+        tree = self.query_one("#world-tree", Tree)
+        if tree.root.children:
+            info = tree.root.children[0].data
+            self.load_sector(info["sector"], info["path"], info["node"])
+
+    @on(Tree.NodeExpanded, "#world-tree")
+    def _world_expanded(self, event):
+        info = event.node.data or {}
+        if info and self.world.get("sector") != info["sector"]:
+            self.load_sector(info["sector"], info["path"], ".")
 
     @on(Tree.NodeSelected, "#world-tree")
     def _world_picked(self, event):
@@ -1271,6 +1381,15 @@ class DevApp(App):
     def _load_constants(self):
         self.constant_entries = constants.parse(read_text(self.constants_path))
         self._fill_constants_tree()
+        if self.constant_picked is None:
+            self.query_one("#const-value", Input).display = False
+            self.query_one("#const-text", TextArea).display = False
+
+    def action_reload_constants(self):
+        self._load_constants()
+        if self.constant_picked:
+            self._show_constant(self.constant_picked)
+        self.notify("Read Constants.gd again")
 
     def _fill_constants_tree(self):
         words = self.query_one("#const-filter", Input).value.lower().split()
@@ -1399,6 +1518,7 @@ class DevApp(App):
     @on(DataTable.RowSelected, "#tasks")
     def _task_picked(self, event):
         self._ask_task(tasks.TASKS_BY_KEY[event.row_key.value])
+
 
     def _ask_task(self, task):
         last = tasks.load_last()

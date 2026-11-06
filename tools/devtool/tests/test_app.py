@@ -277,6 +277,42 @@ class AppTest(unittest.IsolatedAsyncioTestCase):
             await self._started(pilot, app)
             self.assertEqual(fake.writes[0]["values"], {"roster": ["fighter_light", "raider_light"]})
 
+    async def test_every_tab_shows_the_shared_keys_and_help(self):
+        app = devapp.DevApp(bridge_factory=lambda: FakeBridge())
+        async with app.run_test(size=(160, 50)) as pilot:
+            await self._started(pilot, app)
+            for index in range(len(devapp.TABS)):
+                await pilot.press(str(index + 1))
+                await pilot.pause()
+                self.assertEqual(app.query_one("TabbedContent").active, devapp.TABS[index])
+                keys = {binding.key for _, binding, enabled, _ in app.active_bindings.values() if binding.show}
+                self.assertIn("question_mark", keys, devapp.TABS[index])
+            await pilot.press("1")
+            keys = {binding.description for _, binding, _, _ in app.active_bindings.values() if binding.show}
+            self.assertIn("Open", keys, "Enter opens a problem")
+            await pilot.press("question_mark")
+            await pilot.pause()
+            self.assertIsInstance(app.screen, devapp.HelpScreen)
+            await pilot.press("escape")
+            await pilot.pause()
+            self.assertNotIsInstance(app.screen, devapp.HelpScreen)
+
+    async def test_a_problem_opens_where_it_is_edited(self):
+        fake = FakeBridge()
+        app = devapp.DevApp(bridge_factory=lambda: fake)
+        async with app.run_test(size=(160, 50)) as pilot:
+            await self._started(pilot, app)
+            app._show_problems([("sectors", LAYOUT, "Broken haven")], [])
+            app.action_open_problem()
+            await self._started(pilot, app)
+            self.assertEqual(app.query_one("TabbedContent").active, "world")
+            self.assertEqual(app.world["sector"], "sector_elace")
+            app._show_problems([("factions", FILE, "Broken")], [])
+            app.action_open_problem()
+            await self._started(pilot, app)
+            self.assertEqual(app.query_one("TabbedContent").active, "data")
+            self.assertEqual(app.open_file, FILE)
+
     async def test_typing_q_in_a_field_types_it(self):
         app = devapp.DevApp(bridge_factory=lambda: FakeBridge())
         async with app.run_test(size=(160, 60)) as pilot:

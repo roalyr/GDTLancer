@@ -2,9 +2,9 @@
 
 This guide says where the game's content lives and how to change it without touching code.
 
-**Work through the development tool:** `tools/dev.py`. It opens a menu (the first run installs its one package into `.dev/`):
+**Work through the development tool:** `tools/dev.py`. It opens a menu (the first run installs its one package into `.dev/`). `?` shows its keys; they mean the same on every tab (`ctrl+s` save, `ctrl+r` refresh, `ctrl+u` undo the last save, `ctrl+n` new, Enter open or run, Tab the next box), and the footer lists each tab's own:
 - **Overview:** every content rule below, checked at once, and what changed since the last commit. Models changed in Blender since their last import are listed too.
-- **Models:** every ship and station model, with its files, levels of detail, hit surface, who uses it and its check. Keys: `i` import, `o` open in Blender, `s` review sheet, `n` new model from a starter.
+- **Models:** every ship and station model, with its files, levels of detail, hit surface, who uses it and its check. Keys: `i` import, `o` open in Blender, `s` review sheet, `ctrl+n` new model from a starter.
 - **Archetypes:** the fifteen designs side by side as the game flies them: fitted mass, speed (and with the afterburner), acceleration, gun damage per second, slots, price, and which factions fly each. The picked one's pilot genes are drawn against evolution's ranges. `s` review sheet; `p` and `h` open its pilot or ship in Data.
 - **Factions:** every faction with its colour and paint, who is at war with whom (a matrix: pick a cell, `w` makes war or peace), its roster (tick archetypes, `ctrl+s`) and its havens (Enter opens one in World). `e` opens the faction in Data.
 - **Data:** every data file by kind (factions, archetypes, parts, commodities, the game start, locations, agents, the material library, the sound bank), in a form built from its script, with each field's note. `ctrl+s` saves, and the rules are checked at once on every save. `ctrl+u` puts the file back as it was before the last save, and `ctrl+n` makes a new file of the kind.
