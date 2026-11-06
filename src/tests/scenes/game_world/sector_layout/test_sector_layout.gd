@@ -109,8 +109,12 @@ func test_havens_wear_their_models_and_fit_to_them():
 func test_the_entry_is_where_ships_arrive():
 	var layout = _layout()
 	var entry: Dictionary = LayoutScript.entry_of(layout.get_parent())
-	assert_almost_eq(entry.at, Vector3(-20000, 0, 2000), Vector3.ONE * 0.01, "The entry beacon's place")
-	assert_eq(entry.radius, 20000.0, "and its radius: how far out ships arrive")
+	var marker: Dictionary = {}
+	for beacon in TemplateDatabase.sector_layouts.sector_elace.beacons:
+		if beacon.kind == "entry":
+			marker = beacon
+	assert_almost_eq(entry.at, marker.at, Vector3.ONE * 0.01, "The entry beacon's place")
+	assert_eq(entry.radius, float(marker.radius), "and its radius: how far out ships arrive")
 
 
 func test_attached_markers_ride_with_their_bodies():
@@ -282,3 +286,20 @@ func test_each_sector_builds_its_own_layout():
 			ids.append(haven.id)
 		for haven in TemplateDatabase.sector_layouts[sector_id].havens:
 			assert_has(ids, haven.id, "%s builds its own havens" % sector_id)
+
+
+func test_elaces_arrivals_and_pickets_keep_out_of_the_radiation():
+	var spec: Dictionary = TemplateDatabase.sector_layouts.sector_elace
+	var bodies: Dictionary = _bodies("sector_elace")
+	var star: Vector3 = bodies["SceneAssets/Star Elace"]
+	var radiation := 0.0
+	for hazard in spec.hazards:
+		radiation = max(radiation, float(hazard.radius))
+	var beacons: Dictionary = _by_name(spec.beacons)
+	var rush: Vector3 = _at(beacons["Elace B Belt"], bodies)
+	var entry: Dictionary = beacons["Elace Entry"]
+	assert_gt(_at(entry, bodies).distance_to(star) - float(entry.radius), radiation, "Arrivals come in clear of the radiation")
+	assert_lt(_at(entry, bodies).distance_to(rush), _at(entry, bodies).distance_to(star), "by the rush, not across the star")
+	for beacon in spec.beacons:
+		if beacon.kind == "patrol":
+			assert_gt(_at(beacon, bodies).distance_to(star), radiation + Constants.BEACON_LOITER_RADIUS, "%s: patrols loiter clear of it" % beacon.name)

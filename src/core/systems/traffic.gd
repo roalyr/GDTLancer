@@ -7,7 +7,8 @@
 # jump's fuel (ceil(mass / FUEL_MASS_PER_UNIT), as everyone), and arrives TRAFFIC_TRANSIT_TIME later.
 # Without fuel for a jump it stays put. In Elace it sells its cargo (home station prices) into its bank, buys
 # fuel and is repaired. In the player's sector it is a ship (its genome, built as an evolving NPC's is):
-# its AI mines, raids or patrols round its work point (the sector's hotspot: _work_point), and
+# it comes in at the entry (apart from the others, one every TRAFFIC_ARRIVAL_GAP), flies by the
+# beacons to its work point (the sector's hotspot: _work_point), mines, raids or patrols there, and
 # when its time is up, or its hold full, it flies out toward "next" and jumps. A traveller that dies is
 # gone; another takes its place in Elace TRAFFIC_REPLACE_TIME later, from the best design of its kind.
 # A child of AgentSystem, ticked by its population timer.
@@ -20,6 +21,7 @@ const BeaconNetwork = preload("res://src/scenes/game_world/sector_layout/beacon_
 
 var _bodies: Dictionary = {}  # Traveller id -> its ship in the current sector
 var _unloading: bool = false  # The sector is going: its ships leave with it, not through a jump point
+var _next_arrival: float = -INF  # World time from which the next traveller may come in (TRAFFIC_ARRIVAL_GAP)
 
 
 func _ready() -> void:
@@ -124,7 +126,9 @@ func tick() -> void:
 			_arrive(record)
 		elif record.status == "dwell" and now >= float(record.until) and record.sector != GameState.current_sector_id:
 			_depart(record)
-		if record.status == "dwell" and record.sector == GameState.current_sector_id and not _unloading and is_instance_valid(GlobalRefs.agent_container):
+		if record.status == "dwell" and record.sector == GameState.current_sector_id and not _unloading and is_instance_valid(GlobalRefs.agent_container) \
+				and now >= _next_arrival:
+			_next_arrival = now + Constants.TRAFFIC_ARRIVAL_GAP  # One at a time, as from a jump
 			_spawn(record)
 
 
@@ -213,7 +217,7 @@ func _spawn(record: Dictionary) -> void:
 	var arriving: bool = bool(record.get("arriving", false))
 	record.erase("arriving")
 	var work: Vector3 = _work_point(record, entry)
-	var position: Vector3 = _jump_shell_point(entry, record.from if arriving else record.next)  # In at the entry, then off to work: never dropped into a fight
+	var position: Vector3 = _jump_shell_point(entry, record.from if arriving else record.next) + _scatter(Constants.TRAFFIC_ARRIVAL_SCATTER)  # In at the entry, apart, then off to work
 	var body = spawner.spawn_npc_from_template(Constants.NPC_BASE_TEMPLATE_PATH, position, {
 		"faction": record.faction,
 		"ship_template_id": built.ship_template_id,

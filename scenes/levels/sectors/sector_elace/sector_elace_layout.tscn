@@ -181,7 +181,7 @@ beacon_name = "Verdant Picket Belt"
 owner_faction = "verdant"
 
 [node name="VerdantPicketLane" type="Position3D" parent="Beacons"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 17000 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 14000, 0, 16000 )
 script = ExtResource( 3 )
 kind = "patrol"
 beacon_name = "Verdant Picket Lane"
@@ -202,7 +202,7 @@ beacon_name = "Violet Picket Belt"
 owner_faction = "violet"
 
 [node name="VioletPicketLane" type="Position3D" parent="Beacons"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -17000 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 14000, 0, -16000 )
 script = ExtResource( 3 )
 kind = "patrol"
 beacon_name = "Violet Picket Lane"
@@ -262,8 +262,8 @@ beacon_name = "East Pass South"
 player_visible = true
 
 [node name="Entry" type="Position3D" parent="Beacons"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -20000, 0, 2000 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 45000, 0, 0 )
 script = ExtResource( 3 )
 kind = "entry"
 beacon_name = "Elace Entry"
-radius = 20000.0
+radius = 8000.0

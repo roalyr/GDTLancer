@@ -1325,7 +1325,7 @@ func _due_home() -> bool:
 # AI_LANCE_SALVAGE_PRIORITY times nearer), and recovers them even with a full hold.
 func scan_for_wreck() -> RigidBody:
 	var best: RigidBody = null
-	var best_distance: float = Constants.AI_SALVAGE_SEARCH_RANGE
+	var best_distance: float = Constants.AI_MINER_SALVAGE_RANGE if can_mine() else Constants.AI_SALVAGE_SEARCH_RANGE  # A miner with room: only what lies by its work
 	var own_pos: Vector3 = agent_script.global_transform.origin
 	for body in get_tree().get_nodes_in_group("agent_body"):
 		if _given_up.has(body.get_instance_id()) or not (body.get("is_wreck") and _worth_salvaging(body) and agent_script.detects(body) and _in_play_area(body.global_transform.origin)):
@@ -1451,6 +1451,12 @@ func _pick_patrol_destination() -> Vector3:
 		if is_instance_valid(_beacon):
 			centre = _beacon.global_transform.origin
 			radius = Constants.BEACON_LOITER_RADIUS
+	elif not _route.empty():  # On its way to its patrol (a traveller to its work)
+		return _route.pop_front()
+	elif agent_script.global_transform.origin.distance_to(centre) > Constants.AI_PATROL_RADIUS * 3.0 and BeaconNetwork.of(agent_script) != null:
+		_route = BeaconNetwork.of(agent_script).route(agent_script.global_transform.origin, centre, max(agent_script.get_top_speed(), 1.0), _caution, agent_script.hull_max)
+		if not _route.empty():  # Far from it: there by the beacons, round hazards and hot spots, as everyone goes
+			return _route.pop_front()
 	var point: Vector3 = centre
 	for _try in range(8):
 		var direction = Vector3(rand_range(-1, 1), rand_range(-1, 1), rand_range(-1, 1)).normalized()

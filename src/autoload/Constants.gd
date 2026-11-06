@@ -480,6 +480,7 @@ const AI_COVER_HULL_RATIO = 1.25
 const AI_COVER_MAX = 2.0
 const AI_COVER_RANGE_SHARE = 0.6
 const AI_SALVAGE_SEARCH_RANGE = 6000.0  # m; wrecks further than this are not worth the trip
+const AI_MINER_SALVAGE_RANGE = 1500.0  # m; a prospector strips only wrecks this near: it is out to mine, not to scavenge
 const AI_MINE_SEARCH_RANGE = 6000.0  # m; rocks further than this are not worth the trip
 const AI_MINE_GIVE_UP = 120.0  # s on one rock without a chunk before it tries another
 const AI_SALVAGE_GIVE_UP = 120.0  # s on one wreck, chunk or loose lance without getting anything off it before it gives that up
@@ -590,6 +591,8 @@ const TRAFFIC_REPLACE_TIME = 600.0  # s before a lost traveller's place is fille
 const TRAFFIC_FUEL_JUMPS = 4  # Fuel bought in Elace: this many jumps' worth
 const TRAFFIC_START_BANK = 2000.0  # WP a new traveller has
 const TRAFFIC_WORK_RADIUS = 1500.0  # m round its work point a traveller turns up at
+const TRAFFIC_ARRIVAL_SCATTER = 3000.0  # m round its jump shell point a traveller comes in at: never on top of another
+const TRAFFIC_ARRIVAL_GAP = 20.0  # s of world time between two travellers coming into the player's sector: a stream, not a pile
 const TRAFFIC_WORK_SEARCH = 40000.0  # m from the entry point a prospector looks for something to mine
 const TRAFFIC_HOTSPOT_HAVEN_CLEAR = 10000.0  # m past a field's edge: a territorial haven (a xenohive) this near makes it no traveller's hotspot
 

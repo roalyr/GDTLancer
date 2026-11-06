@@ -128,3 +128,31 @@ func test_travellers_work_at_the_richest_field_clear_of_a_territory():
 	var point: Vector3 = traffic._work_point({"role": "prospector", "faction": "verdant"}, Vector3(9000, 0, 0))
 	assert_eq(point, Vector3(500, 0, 0), "A prospector at the rock there")
 	assert_eq(traffic._work_point({"role": "fighter", "faction": "verdant"}, Vector3(9000, 0, 0)), Vector3.ZERO, "Others at the field")
+
+
+class Counting extends "res://src/core/systems/traffic.gd":
+	var spawned: Array = []
+	func _spawn(record: Dictionary) -> void:
+		spawned.append(record.id)
+		record.status = "away"  # Has its ship now: not spawned again
+
+
+func test_travellers_come_in_one_at_a_time_and_apart():
+	var counting = Counting.new()
+	add_child_autofree(counting)
+	GameState.current_sector_id = Constants.INITIAL_SECTOR_ID
+	var saved_container = GlobalRefs.agent_container
+	var container := Node.new()
+	add_child_autofree(container)
+	GlobalRefs.agent_container = container
+	counting.fill_roster()
+	counting.tick()
+	counting.tick()
+	assert_eq(counting.spawned.size(), 1, "One comes in, not the whole roster at once")
+	GameState.world_time += Constants.TRAFFIC_ARRIVAL_GAP
+	counting.tick()
+	assert_eq(counting.spawned.size(), 2, "the next a gap later")
+	GlobalRefs.agent_container = saved_container
+	var a: Vector3 = counting._jump_shell_point(Vector3.ZERO, "sector_cob") + counting._scatter(Constants.TRAFFIC_ARRIVAL_SCATTER)
+	var b: Vector3 = counting._jump_shell_point(Vector3.ZERO, "sector_cob") + counting._scatter(Constants.TRAFFIC_ARRIVAL_SCATTER)
+	assert_ne(a, b, "Two from the same sector come in apart")
