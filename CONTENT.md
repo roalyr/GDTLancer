@@ -5,6 +5,8 @@ This guide says where the game's content lives and how to change it without touc
 **Work through the development tool:** `tools/dev.py`. It opens a menu (the first run installs its one package into `.dev/`):
 - **Overview:** every content rule below, checked at once, and what changed since the last commit. Models changed in Blender since their last import are listed too.
 - **Models:** every ship and station model, with its files, levels of detail, hit surface, who uses it and its check. Keys: `i` import, `o` open in Blender, `s` review sheet, `n` new model from a starter.
+- **Archetypes:** the fifteen designs side by side as the game flies them: fitted mass, speed (and with the afterburner), acceleration, gun damage per second, slots, price, and which factions fly each. The picked one's pilot genes are drawn against evolution's ranges. `s` review sheet; `p` and `h` open its pilot or ship in Data.
+- **Factions:** every faction with its colour and paint, who is at war with whom (a matrix: pick a cell, `w` makes war or peace), its roster (tick archetypes, `ctrl+s`) and its havens (Enter opens one in World). `e` opens the faction in Data.
 - **Data:** every data file by kind (factions, archetypes, parts, commodities, the game start, locations, agents, the material library, the sound bank), in a form built from its script, with each field's note. `ctrl+s` saves, and the rules are checked at once on every save. `ctrl+u` puts the file back as it was before the last save, and `ctrl+n` makes a new file of the kind.
 - **World:** each sector's layout: its havens, beacons and hazards in a tree, on a map from above, and the picked one in a form. `ctrl+n` adds a marker to the picked group, `ctrl+d` copies the picked marker, and `delete` removes it. Saving, checking and `ctrl+u` work as in Data.
 - **Constants:** every value in `src/autoload/Constants.gd`, by section (or by kind of value, `ctrl+g`), with its notes; `ctrl+f` finds one. A value is changed in place, so its comments stay. Godot checks that the script still parses before it is saved.
@@ -21,7 +23,7 @@ Each file is a `FactionTemplate` that sets:
 - its paints (`hull_material`, `station_material`);
 - its **roster**: the archetypes its havens fly.
 
-Aliens set `no_standing`, `territory` and `salvage_as`, and may fly a hull of their own (`ship_scene`) instead of their archetypes' hulls. To add a faction, add a file, then give it havens.
+Aliens set `no_standing`, `territory` and `salvage_as`, and may fly a hull of their own (`ship_scene`) instead of their archetypes' hulls. To add a faction, add a file (Data, Factions, `ctrl+n`), then give it havens (World). Wars and rosters are quickest on the Factions tab; making peace there takes the other side out of both lists.
 
 ## Sectors and havens — `scenes/levels/sectors/<sector>/<sector>_layout.tscn`
 
@@ -46,7 +48,7 @@ Each design is a pair of files:
 - **`preset_ship_archetype_<name>.tres`**: the hull and its fit;
 - **`agent_archetype_<name>.tres`**: the pilot. It holds the behaviour and the exact `genome` the game flies.
 
-`CATALOG.md` beside them describes every design. Factions pick from these through their roster. The home station's store sells them too, along with the era 51 drafts.
+`CATALOG.md` beside them describes every design; the Archetypes tab compares them. Factions pick from these through their roster. The home station's store sells them too, along with the era 51 drafts.
 
 The game flies these files as they are: an archetype's ship file sets its stats, its fit and its model. To give one a hand-made model, point its `ship_scene` at the new scene (see **Models**).
 

@@ -5,8 +5,8 @@
 # tool saves is what the editor would.
 # Resources: ping, schema, read, write, create (fields: a script's exported variables; a
 # ShaderMaterial's shader and shader parameters). Scenes: scene_nodes, scene_write, scene_add,
-# scene_remove (nodes and their fields, translation included), sector_map. Checks: validate, models,
-# sound_slots, check_script.
+# scene_remove (nodes and their fields, translation included), sector_map. Views: archetypes,
+# factions. Checks: validate, models, sound_slots, check_script.
 
 extends Reference
 
@@ -14,6 +14,7 @@ const Validator = preload("res://src/core/validation/content_validator.gd")
 const ModelCheck = preload("res://src/scenes/game_world/models/model_check.gd")
 const SoundBank = preload("res://src/core/sound/sound_bank.gd")
 const TscnText = preload("res://tools/devtool/tscn_text.gd")
+const ShipFit = preload("res://src/core/systems/ship_fit.gd")
 const EDITABLE = PROPERTY_USAGE_SCRIPT_VARIABLE | PROPERTY_USAGE_EDITOR
 const SHADER_PARAM = "shader_param/"
 const TRANSLATION = "translation"
@@ -228,6 +229,128 @@ func cmd_sector_map(args: Dictionary):
 					"radius": float(radius) if typeof(radius) in [TYPE_INT, TYPE_REAL] else 0.0, "node": str(layout_root.get_path_to(node))})
 		layout_root.free()
 	return out
+
+
+# --- Views ---
+
+# Every archetype as the game flies it: {"ranges": EVO_BEHAVIOR_RANGES, "archetypes": [{name,
+# pilot, ship (paths), role, temperament, traits, lives, fitness, skill, behavior, scene, length (m),
+# value, hull, cargo, slots, mass (fitted, kg), top_speed, burst_speed (afterburner), accel (m/s2),
+# power, regen, signature, gun_dps (weapons as an observer counts them; ToolController), parts:
+# [{id, name, kind}], flown_by: [faction ids]}]}.
+func cmd_archetypes(_args: Dictionary):
+	var rosters := {}
+	for faction_path in Validator.faction_files().values():
+		var faction = _fresh(faction_path)
+		for name in faction.roster:
+			if not rosters.has(name):
+				rosters[name] = []
+			rosters[name].append(faction.template_id)
+	var out: Array = []
+	for name in Validator.archetype_names():
+		var pilot_path: String = Validator._archetype_agent_path(name)
+		var pilot = _fresh(pilot_path)
+		var ship_path: String = Constants.ARCHETYPES_DIR.plus_file(pilot.ship_template_id + ".tres")
+		var ship = _fresh(ship_path)
+		if ship == null:
+			out.append({"name": name, "pilot": pilot_path, "ship": ship_path, "error": "no ship"})
+			continue
+		for part_id in Array(ship.equipped_tools) + Array(ship.equipped_modules):
+			var known = TemplateDatabase.get_template(part_id)
+			var part = _part(part_id)
+			if part != null and (known == null or known.resource_path == part.resource_path):
+				TemplateDatabase.register_evolved(part)  # As the game finds them (Genome.preset_build); fresh from the file
+		var stats: Dictionary = ShipFit.compute_stats(ship, ShipFit.default_fit(ship))
+		var drag: float = max(stats.mass * Constants.LINEAR_DRAG, 0.001)
+		var parts: Array = []
+		var gun_dps := 0.0
+		for part_id in Array(ship.equipped_tools) + Array(ship.equipped_modules):
+			var part = _part(part_id)
+			var part_name: String = part_id
+			var kind := "?"
+			if part is UtilityToolTemplate:
+				part_name = part.tool_name
+				kind = part.tool_type
+				gun_dps += _tool_dps(part)
+			elif part != null:
+				part_name = str(part.get("module_name")) if part.get("module_name") != null else part_id
+				kind = "module"
+			parts.append({"id": part_id, "name": part_name, "kind": kind})
+		out.append({
+			"name": name, "pilot": pilot_path, "ship": ship_path,
+			"role": pilot.role, "temperament": pilot.temperament, "traits": Array(pilot.traits),
+			"lives": pilot.lives, "fitness": pilot.fitness, "skill": pilot.skill, "behavior": pilot.behavior,
+			"scene": ship.ship_scene.resource_path if ship.ship_scene != null else "",
+			"length": float(ship.model_scale) * Constants.SHIP_MODEL_LENGTH, "value": ship.base_value,
+			"hull": stats.hull, "cargo": stats.cargo_capacity,
+			"slots": [ship.tool_slots_small, ship.tool_slots_medium, ship.tool_slots_large, ship.module_slots],
+			"mass": stats.mass, "top_speed": stats.linear_thrust / drag,
+			"burst_speed": (stats.linear_thrust + stats.afterburner_thrust) / drag, "accel": stats.linear_thrust / max(stats.mass, 0.001),
+			"power": stats.power_capacity, "regen": stats.power_regen, "signature": stats.signature,
+			"gun_dps": gun_dps, "parts": parts, "flown_by": rosters.get(name, []),
+		})
+	return {"ranges": Constants.EVO_BEHAVIOR_RANGES, "archetypes": out}
+
+
+# Every faction with what the generic form cannot show: {"factions": [{id, path, name, color,
+# enemies, at_war (either side's list), roster, flags..., paint (albedo of its hull material),
+# havens: [{sector, layout, node, id, name, ships}]}], "archetypes": [names]}.
+func cmd_factions(_args: Dictionary):
+	var specs := {}
+	var paths: Dictionary = Validator.faction_files()
+	for id in paths:
+		specs[id] = _fresh(paths[id])
+	var havens := {}
+	var layouts: Dictionary = Validator.layout_files()
+	for sector in layouts:
+		var root: Node = _edit_instance(layouts[sector])
+		if root == null:
+			continue
+		for node in _own_nodes(root):
+			if node.get_script() != null and node.get_script().resource_path.ends_with("haven_marker.gd"):
+				if not havens.has(node.faction):
+					havens[node.faction] = []
+				havens[node.faction].append({"sector": sector, "layout": layouts[sector], "node": str(root.get_path_to(node)),
+					"id": node.haven_id, "name": node.display_name, "ships": encode(node.ships)})
+		root.free()
+	var out: Array = []
+	var ids: Array = specs.keys()
+	ids.sort()
+	for id in ids:
+		var faction = specs[id]
+		var at_war: Array = []
+		for other in ids:
+			if other != id and (other in faction.enemies or id in specs[other].enemies):
+				at_war.append(other)
+		var paint = _fresh(faction.hull_material) if faction.hull_material != "" else null
+		var entry: Dictionary = values_of(faction)
+		entry["id"] = id
+		entry["path"] = paths[id]
+		entry["at_war"] = at_war
+		entry["paint"] = encode(paint.get_shader_param("albedo")) if paint is ShaderMaterial else null
+		entry["havens"] = havens.get(id, [])
+		out.append(entry)
+	return {"factions": out, "archetypes": Validator.archetype_names(), "neutral_havens": havens.get("", [])}
+
+
+static func _part(part_id: String) -> Resource:
+	var path: String = Constants.ARCHETYPES_DIR.plus_file(part_id + ".tres")
+	return _fresh(path) if ResourceLoader.exists(path) else TemplateDatabase.get_template(part_id)
+
+
+# A weapon's damage per second as ToolController counts it with a full magazine.
+static func _tool_dps(tool_template) -> float:
+	if tool_template.cycle_time <= 0.0:
+		return 0.0
+	var rate: float = tool_template.damage / tool_template.cycle_time
+	match tool_template.tool_type:
+		"laser":
+			return rate
+		"missile":
+			return min(rate, tool_template.damage * tool_template.ammo / Constants.AI_MISSILE_FIGHT_TIME) * Constants.AI_MISSILE_HIT_SHARE
+		"cannon":
+			return rate * Constants.AI_CANNON_HIT_SHARE if tool_template.ammo > 0 else 0.0
+	return 0.0
 
 
 # --- Checks ---

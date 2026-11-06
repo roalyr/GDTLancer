@@ -4,6 +4,9 @@ The development tool's menu (Textual): the project's content and its checks in o
     Overview   every content rule (ContentValidator), models to re-import, stale starters, sound
                loops, data changed in git
     Models     every ship and station model: its files, who uses it, its check; import, open, review
+    Archetypes the fifteen designs side by side as the game flies them (fitted mass, speed, guns),
+               their pilots' genes against evolution's ranges, and who flies each
+    Factions   who is at war with whom (toggled in a matrix), each faction's roster and havens
     Data       every data file by kind (the material library too), edited in a form made from its
                script or shader; each save is checked
     World      each sector's layout (havens, beacons, hazards) on a map from above, each marker in
@@ -13,7 +16,7 @@ The development tool's menu (Textual): the project's content and its checks in o
     Tasks      every tool (tasks.py), with its questions
 
 Godot does the reading, writing and checking (bridge.py), so the files stay as Godot writes them.
-Keys are listed in the footer; 1-6 switch tabs, q quits (not while typing).
+Keys are listed in the footer; 1-8 switch tabs, q quits (not while typing).
 """
 
 import glob
@@ -27,7 +30,7 @@ from textual.binding import Binding
 from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.screen import ModalScreen
 from textual.suggester import SuggestFromList
-from textual.widgets import (Button, DataTable, Footer, Header, Input, Label, Select, Static, Switch,
+from textual.widgets import (Button, DataTable, Footer, Header, Input, Label, Select, SelectionList, Static, Switch,
                              TabbedContent, TabPane, TextArea, Tree)
 
 from . import constants, data, models, tasks, worldmap
@@ -42,6 +45,32 @@ LAYOUTS = "scenes/levels/sectors/*/*_layout.tscn"
 MARKERS = "res://src/scenes/game_world/sector_layout/markers/"
 GROUP_MARKERS = {"Havens": "haven_marker.gd", "Beacons": "beacon_marker.gd", "Hazards": "hazard_marker.gd"}
 COPY_OFFSET = 2000.0  # m along x between a marker and its copy
+FAMILIES = ["fighter", "lance", "raider", "prospector", "scavenger"]
+WEIGHTS = ["light", "medium", "heavy"]
+GENE_BAR = 30  # Characters of a gene's bar
+
+
+def archetype_order(name):
+    family, _, weight = name.rpartition("_")
+    return (FAMILIES.index(family) if family in FAMILIES else len(FAMILIES), family,
+            WEIGHTS.index(weight) if weight in WEIGHTS else len(WEIGHTS))
+
+
+def gene_bar(value, low, high, default):
+    """A gene's value on a bar from `low` to `high`: = up to it, | at the default."""
+    def column(x):
+        return min(GENE_BAR - 1, max(0, int(round((x - low) / max(high - low, 1e-9) * (GENE_BAR - 1)))))
+    cells = ["=" if index <= column(value) else "-" for index in range(GENE_BAR)]
+    cells[column(default)] = "|"
+    return "".join(cells)
+
+
+def swatch(color):
+    """Two blocks in a colour ({"v": [r, g, b, a]}), as markup."""
+    if not isinstance(color, dict) or "v" not in color:
+        return "  "
+    r, g, b = [max(0, min(255, int(c * 255))) for c in color["v"][:3]]
+    return "[rgb(%d,%d,%d)]██[/]" % (r, g, b)
 
 
 def project_files(patterns):
@@ -408,6 +437,58 @@ class DataPane(Horizontal):
         yield Form("Pick a file on the left.", id="data-form")
 
 
+class ArchetypesPane(Vertical):
+    BINDINGS = [
+        Binding("s", "app.archetype('sheet')", "Review sheet"), Binding("p", "app.archetype('pilot')", "Pilot in Data"),
+        Binding("h", "app.archetype('ship')", "Ship in Data"), Binding("r", "app.refresh_views", "Refresh"),
+    ]
+    DEFAULT_CSS = """
+    ArchetypesPane #archetypes { height: auto; max-height: 60%; }
+    ArchetypesPane #archetype-detail { height: auto; padding: 0 1; }
+    """
+
+    def compose(self) -> ComposeResult:
+        table = DataTable(id="archetypes", cursor_type="row", zebra_stripes=True)
+        table.add_columns("Archetype", "Role", "Temper", "Length", "Mass t", "Hull", "Speed", "Burst", "Accel", "Gun DPS",
+                          "Cargo", "Slots S/M/L+M", "Hull WP", "Lives", "Fitness", "Flown by")
+        yield table
+        yield Static("Starting Godot...", id="archetype-detail")
+
+
+class FactionsPane(Horizontal):
+    BINDINGS = [
+        Binding("w", "app.toggle_war", "War / peace"), Binding("ctrl+s", "app.save_roster", "Save roster"),
+        Binding("e", "app.edit_faction", "Faction in Data"), Binding("ctrl+u", "app.undo_save", "Undo last save"),
+        Binding("r", "app.refresh_views", "Refresh"),
+    ]
+    DEFAULT_CSS = """
+    FactionsPane #faction-left { width: 3fr; }
+    FactionsPane #faction-right { width: 2fr; padding: 0 1; }
+    FactionsPane #factions { height: auto; max-height: 12; }
+    FactionsPane #wars { height: auto; max-height: 12; }
+    FactionsPane #roster { height: 1fr; }
+    FactionsPane #havens { height: auto; max-height: 14; }
+    FactionsPane .caption { height: auto; margin-top: 1; color: $text-muted; }
+    FactionsPane #faction-detail { height: auto; }
+    """
+
+    def compose(self) -> ComposeResult:
+        with Vertical(id="faction-left"):
+            table = DataTable(id="factions", cursor_type="row", zebra_stripes=True)
+            table.add_columns("", "Faction", "Name", "Paint", "Standing", "Flags", "Roster", "Havens", "Ships")
+            yield table
+            yield Static("Wars: either side's list counts. Pick a cell, w makes war or peace.", classes="caption")
+            yield DataTable(id="wars", cursor_type="cell")
+            yield Static("", id="faction-detail")
+        with Vertical(id="faction-right"):
+            yield Static("Roster: the archetypes its havens fly (space ticks; ctrl+s saves).", classes="caption")
+            yield SelectionList(id="roster")
+            yield Static("Havens (Enter opens one in World).", classes="caption")
+            table = DataTable(id="havens", cursor_type="row", zebra_stripes=True)
+            table.add_columns("Sector", "Haven", "Name", "Ships")
+            yield table
+
+
 class WorldPane(Horizontal):
     BINDINGS = [
         Binding("ctrl+s", "app.save_node", "Save"), Binding("ctrl+r", "app.reload_sector", "Reload"),
@@ -467,9 +548,9 @@ class TasksPane(Vertical):
 
 # --- The app --------------------------------------------------------------------------------------
 
-TABS = ["overview", "models-tab", "data", "world", "constants", "tasks-tab"]
-TAB_FOCUS = {"overview": "#problems", "models-tab": "#models", "data": "#data-tree", "world": "#world-tree",
-             "constants": "#const-tree", "tasks-tab": "#tasks"}
+TABS = ["overview", "models-tab", "archetypes-tab", "factions-tab", "world", "data", "constants", "tasks-tab"]
+TAB_FOCUS = {"overview": "#problems", "models-tab": "#models", "archetypes-tab": "#archetypes", "factions-tab": "#factions",
+             "world": "#world-tree", "data": "#data-tree", "constants": "#const-tree", "tasks-tab": "#tasks"}
 
 
 class DevApp(App):
@@ -488,7 +569,10 @@ class DevApp(App):
         self.model_rows = []
         self.problems = []
         self.open_file = None
-        self.saved_text = None  # (path, its text before the last save, what to reload after an undo)
+        self.saved_text = None  # ([(path, its text before the last save)], what to reload after an undo)
+        self.archetype_view = {"ranges": {}, "archetypes": []}
+        self.faction_view = {"factions": [], "archetypes": []}
+        self.faction_picked = None
         self.world = {}  # The open sector: sector, path, nodes, map, picked
         self.constants_path = "res://" + constants_path
         self.constant_entries = []
@@ -506,10 +590,14 @@ class DevApp(App):
                 yield OverviewPane()
             with TabPane("Models", id="models-tab"):
                 yield ModelsPane()
-            with TabPane("Data", id="data"):
-                yield DataPane()
+            with TabPane("Archetypes", id="archetypes-tab"):
+                yield ArchetypesPane()
+            with TabPane("Factions", id="factions-tab"):
+                yield FactionsPane()
             with TabPane("World", id="world"):
                 yield WorldPane()
+            with TabPane("Data", id="data"):
+                yield DataPane()
             with TabPane("Constants", id="constants"):
                 yield ConstantsPane()
             with TabPane("Tasks", id="tasks-tab"):
@@ -552,6 +640,7 @@ class DevApp(App):
         self.call_from_thread(self.notify, "Godot %s ready" % version)
         self._check_all()
         self._refresh_models()
+        self._refresh_views()
 
     def restart_bridge(self):
         """After Constants.gd changes: the autoload Godot runs has the old values."""
@@ -569,17 +658,19 @@ class DevApp(App):
         if self.bridge is not None:
             self.bridge.close()
 
-    def _undo_point(self, path, before, reload):
-        self.saved_text = (path, before, reload)
+    def _undo_point(self, files, reload):
+        """`files`: [(path, its text before the save)], put back by ctrl+u."""
+        self.saved_text = (files, reload)
 
     def action_undo_save(self):
         if self.saved_text is None:
             self.notify("No save to undo")
             return
-        path, text, reload = self.saved_text
-        write_text(path, text)
+        files, reload = self.saved_text
+        for path, text in files:
+            write_text(path, text)
         self.saved_text = None
-        self.notify("Put back %s as it was" % os.path.basename(path))
+        self.notify("Put back %s as %s" % (", ".join(os.path.basename(path) for path, _ in files), "it was" if len(files) == 1 else "they were"))
         reload()
 
     # --- Overview ---
@@ -772,7 +863,7 @@ class DevApp(App):
         except BridgeError as error:
             self.call_from_thread(self.notify, "Not saved: %s" % error, severity="error")
             return
-        self._undo_point(path, before, lambda: self.load_file(path))
+        self._undo_point([(path, before)], lambda: self.load_file(path))
         self.call_from_thread(self.notify, "Saved %s (%s)" % (os.path.basename(path), ", ".join(sorted(values))))
         self.load_file(path, result)
 
@@ -813,6 +904,221 @@ class DevApp(App):
         self.call_from_thread(self._fill_data_tree)
         self.call_from_thread(self.notify, "Made %s" % path)
         self.load_file(path, result)
+
+    # --- Archetypes and factions ---
+
+    def action_refresh_views(self):
+        self.refresh_views_worker()
+
+    @work(thread=True, exclusive=True, group="views")
+    def refresh_views_worker(self):
+        self._refresh_views()
+
+    def _refresh_views(self):
+        try:
+            archetypes = self.ask("archetypes")
+            factions = self.ask("factions")
+        except BridgeError as error:
+            self.call_from_thread(self.notify, "Views: %s" % error, severity="error")
+            return
+        self.call_from_thread(self._show_views, archetypes, factions)
+
+    def _show_views(self, archetypes, factions):
+        archetypes["archetypes"].sort(key=lambda design: archetype_order(design["name"]))
+        self.archetype_view, self.faction_view = archetypes, factions
+        self._show_archetypes()
+        self._show_factions()
+
+    def _show_archetypes(self):
+        table = self.query_one("#archetypes", DataTable)
+        row = table.cursor_row
+        table.clear()
+        for design in self.archetype_view["archetypes"]:
+            if "error" in design:
+                table.add_row(design["name"], "[red]%s[/red]" % design["error"], *[""] * 14, key=design["name"])
+                continue
+            slots = design["slots"]
+            table.add_row(
+                design["name"], design["role"], design["temperament"], "%.1f m" % design["length"], "%.1f" % (design["mass"] / 1000.0),
+                "%d" % design["hull"], "%d" % design["top_speed"],
+                "%d" % design["burst_speed"] if design["burst_speed"] > design["top_speed"] + 0.5 else "-",
+                "%.0f" % design["accel"], "%.1f" % design["gun_dps"], "%d" % design["cargo"],
+                "%d/%d/%d+%d" % tuple(slots), "%d" % design["value"], str(design["lives"]), "%+.2f" % design["fitness"],
+                ", ".join(design["flown_by"]) or "[yellow]nobody[/yellow]", key=design["name"])
+        if row is not None and row < table.row_count:
+            table.move_cursor(row=row)
+        self._show_archetype_detail()
+
+    def _current_archetype(self):
+        table = self.query_one("#archetypes", DataTable)
+        designs = self.archetype_view["archetypes"]
+        if not designs or table.cursor_row is None or table.cursor_row >= len(designs):
+            return None
+        return designs[table.cursor_row]
+
+    @on(DataTable.RowHighlighted, "#archetypes")
+    def _show_archetype_detail(self, _event=None):
+        design = self._current_archetype()
+        if design is None or "error" in design:
+            return
+        lines = ["[b]%s[/b]  %s, %s%s  ·  skill %.2f  ·  %s" % (
+            design["name"], design["role"], design["temperament"], (" (" + ", ".join(design["traits"]) + ")") if design["traits"] else "",
+            design["skill"], design["scene"].replace("res://", ""))]
+        lines.append("Fit: " + ", ".join("%s [dim]%s[/dim]" % (part["name"], part["kind"]) for part in design["parts"]) if design["parts"] else "Fit: none")
+        lines.append("Power %.0f, regen %.1f/s · signature %.0f m" % (design["power"], design["regen"], design["signature"]))
+        lines.append("[dim]Genes (bar: evolution's range; | its starting value):[/dim]")
+        ranges = self.archetype_view["ranges"]
+        for gene in sorted(ranges):
+            low, high, default = ranges[gene]
+            value = design["behavior"].get(gene)
+            if value is None:
+                lines.append("  %-13s %s  [dim](not set: %s)[/dim]" % (gene, "." * GENE_BAR, default))
+            else:
+                lines.append("  %-13s %s  %.2f  [dim](%s .. %s)[/dim]" % (gene, gene_bar(value, low, high, default), value, low, high))
+        self.query_one("#archetype-detail", Static).update("\n".join(lines))
+
+    def action_archetype(self, what):
+        design = self._current_archetype()
+        if design is None:
+            return
+        if what == "sheet":
+            self.run_task(tasks.TASKS_BY_KEY["model_sheet"], {"scene": design["scene"].replace("res://", "")})
+        else:
+            self.open_in_data(design["pilot" if what == "pilot" else "ship"])
+
+    def open_in_data(self, path):
+        self.query_one(TabbedContent).active = "data"
+        self.load_file(path)
+
+    def _faction(self, faction_id):
+        return next((f for f in self.faction_view["factions"] if f["id"] == faction_id), None)
+
+    def _show_factions(self):
+        factions = self.faction_view["factions"]
+        table = self.query_one("#factions", DataTable)
+        table.clear()
+        for faction in factions:
+            flags = "".join(letter for letter, key in (("D", "distress"), ("E", "escorts"), ("W", "patrol_wages"), ("N", "no_standing"), ("S", "silent"))
+                            if faction.get(key))
+            ships = sum(sum(int(n) for n in haven["ships"].values()) for haven in faction["havens"] if isinstance(haven["ships"], dict))
+            table.add_row(swatch(faction.get("color")), faction["id"], faction.get("display_name", ""), swatch(faction.get("paint")),
+                          "%+.2f" % faction.get("starting_standing", 0.0), flags or "-", str(len(faction.get("roster", []))),
+                          str(len(faction["havens"])), str(ships), key=faction["id"])
+        wars = self.query_one("#wars", DataTable)
+        wars.clear(columns=True)
+        wars.add_column("", key="row")
+        for faction in factions:
+            wars.add_column(faction["id"], key=faction["id"])
+        for faction in factions:
+            cells = []
+            for other in factions:
+                if other["id"] == faction["id"]:
+                    cells.append("[dim]—[/dim]")
+                elif other["id"] in faction["at_war"]:
+                    listed = other["id"] in faction.get("enemies", [])
+                    cells.append("[red]WAR[/red]" + ("" if listed else " [dim](theirs)[/dim]"))
+                else:
+                    cells.append("[dim]·[/dim]")
+            wars.add_row(faction["id"], *cells, key=faction["id"])
+        ids = [f["id"] for f in factions]
+        picked = self.faction_picked if self.faction_picked in ids else (ids[0] if ids else None)
+        if picked:
+            table.move_cursor(row=ids.index(picked))
+        self._pick_faction(picked)
+
+    @on(DataTable.RowHighlighted, "#factions")
+    def _faction_highlighted(self, event):
+        self._pick_faction(event.row_key.value)
+
+    def _pick_faction(self, faction_id):
+        faction = self._faction(faction_id) if faction_id else None
+        self.faction_picked = faction_id
+        roster = self.query_one("#roster", SelectionList)
+        roster.clear_options()
+        havens = self.query_one("#havens", DataTable)
+        havens.clear()
+        if faction is None:
+            return
+        flown = faction.get("roster", [])
+        names = sorted(set(self.faction_view["archetypes"]) | set(flown), key=archetype_order)
+        roster.add_options([(name if name in self.faction_view["archetypes"] else "%s [red](no such archetype)[/red]" % name, name, name in flown)
+                            for name in names])
+        for index, haven in enumerate(faction["havens"]):
+            ships = ", ".join("%s %s" % (n, kind) for kind, n in haven["ships"].items()) if isinstance(haven["ships"], dict) else ""
+            havens.add_row(haven["sector"], haven["id"], haven["name"], ships, key=str(index))
+        notes = []
+        if faction.get("ship_scene"):
+            notes.append("Flies its own hull: %s" % faction["ship_scene"].replace("res://", ""))
+        if faction.get("territory"):
+            notes.append("Territory %d m round its havens" % faction["territory"])
+        if faction.get("salvage_as"):
+            notes.append("Wrecks hold %s" % faction["salvage_as"])
+        notes.append("[dim]Flags: D distress, E escorts, W patrol wages, N no standing, S silent[/dim]")
+        self.query_one("#faction-detail", Static).update("\n".join(notes))
+
+    @on(DataTable.RowSelected, "#havens")
+    def _haven_picked(self, event):
+        faction = self._faction(self.faction_picked)
+        if faction is None:
+            return
+        haven = faction["havens"][int(event.row_key.value)]
+        self.query_one(TabbedContent).active = "world"
+        self.load_sector(haven["sector"], haven["layout"], haven["node"])
+
+    def action_edit_faction(self):
+        faction = self._faction(self.faction_picked)
+        if faction is not None:
+            self.open_in_data(faction["path"])
+
+    def action_toggle_war(self):
+        wars = self.query_one("#wars", DataTable)
+        factions = self.faction_view["factions"]
+        row, column = wars.cursor_coordinate.row, wars.cursor_coordinate.column - 1
+        if not (0 <= row < len(factions) and 0 <= column < len(factions)) or row == column:
+            self.notify("Pick a cell of two factions", severity="warning")
+            return
+        a, b = factions[row], factions[column]
+        if b["id"] in a["at_war"]:
+            changes = {f["id"]: [e for e in f.get("enemies", []) if e != other["id"]]
+                       for f, other in ((a, b), (b, a)) if other["id"] in f.get("enemies", [])}
+            done = "Peace between %s and %s" % (a["id"], b["id"])
+        else:
+            changes = {a["id"]: list(a.get("enemies", [])) + [b["id"]]}
+            done = "%s and %s are at war" % (a["id"], b["id"])
+        self.factions_worker({self._faction(fid)["path"]: {"enemies": enemies} for fid, enemies in changes.items()}, done)
+
+    def action_save_roster(self):
+        faction = self._faction(self.faction_picked)
+        if faction is None:
+            return
+        picked = list(self.query_one("#roster", SelectionList).selected)
+        roster = [name for name in faction.get("roster", []) if name in picked] + [name for name in picked if name not in faction.get("roster", [])]
+        if roster == faction.get("roster", []):
+            self.notify("Nothing changed")
+            return
+        self.factions_worker({faction["path"]: {"roster": roster}}, "Saved %s's roster (%d)" % (faction["id"], len(roster)))
+
+    @work(thread=True, exclusive=True, group="views")
+    def factions_worker(self, writes, done):
+        """`writes`: {path: values}; all are saved, then checked; one ctrl+u puts them all back."""
+        befores = [(path, read_text(path)) for path in writes]
+        problems = []
+        try:
+            for path, values in writes.items():
+                problems += self.ask("write", path=path, values=values)["new"]
+        except BridgeError as error:
+            for path, text in befores:
+                write_text(path, text)
+            self.call_from_thread(self.notify, "Not saved: %s" % error, severity="error")
+            return
+        self._undo_point(befores, self.refresh_views_worker)
+        if problems:
+            self.call_from_thread(self.notify, "%s, but the rules find: %s (ctrl+u undoes)" % (done, "; ".join(p["problem"] for p in problems)),
+                                  severity="warning", timeout=10)
+        else:
+            self.call_from_thread(self.notify, done)
+        self._refresh_views()
+        self._check_all()
 
     # --- World ---
 
@@ -953,7 +1259,7 @@ class DevApp(App):
         except BridgeError as error:
             self.call_from_thread(self.notify, "Not saved: %s" % error, severity="error")
             return
-        self._undo_point(path, before, lambda: self.load_sector(sector, path, self.world.get("picked", ".")))
+        self._undo_point([(path, before)], lambda: self.load_sector(sector, path, self.world.get("picked", ".")))
         self.call_from_thread(self.notify, done)
         picked = result.get("node", args.get("node", "."))
         if command == "scene_remove":
@@ -1057,7 +1363,7 @@ class DevApp(App):
             self.call_from_thread(self._show_constant, name, "[red]Not saved: Godot cannot parse it.[/red]\n" + "\n".join(log))
             return
         write_text(self.constants_path, new_text)
-        self._undo_point(self.constants_path, before, self._constants_undone)
+        self._undo_point([(self.constants_path, before)], self._constants_undone)
         self.call_from_thread(self._constant_saved, name)
 
     def _constant_saved(self, name):

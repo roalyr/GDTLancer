@@ -279,3 +279,47 @@ func test_sound_slots_and_script_checks():
 	assert_eq(slots[0].keys().size(), 4)
 	assert_true(_ok(commands.handle("check_script", {"source": "extends Node\nconst A = 1\n"})).ok)
 	assert_false(_ok(commands.handle("check_script", {"source": "extends Node\nconst A = (\n"})).ok)
+
+
+# --- Views ---
+
+func test_the_archetypes_view_has_every_design_with_its_numbers():
+	var view: Dictionary = _ok(commands.handle("archetypes", {}))
+	var names: Array = []
+	for design in view.archetypes:
+		names.append(design.name)
+		assert_false(design.has("error"), design.name)
+		assert_gt(design.top_speed, 0.0, design.name)
+		assert_true(design.burst_speed >= design.top_speed, design.name)
+		assert_gt(design.mass, 0.0, design.name)
+	assert_eq(names, BridgeCommands.Validator.archetype_names())
+	assert_true(view.ranges.has("engage"))
+	var light: Dictionary = {}
+	for design in view.archetypes:
+		if design.name == "fighter_light":
+			light = design
+	assert_has(light.flown_by, "verdant", "Verdant's roster has it")
+	assert_almost_eq(light.length, 0.83931 * Constants.SHIP_MODEL_LENGTH, 0.001)
+	assert_eq(light.parts[0].name, "Rail Cannon II")
+	assert_gt(light.gun_dps, 0.0)
+	var lance_light: Dictionary = {}
+	for design in view.archetypes:
+		if design.name == "lance_light":
+			lance_light = design
+	assert_gt(lance_light.burst_speed, lance_light.top_speed, "Its afterburner")
+
+
+func test_the_factions_view_has_wars_both_ways_and_havens():
+	var view: Dictionary = _ok(commands.handle("factions", {}))
+	var by_id := {}
+	for faction in view.factions:
+		by_id[faction.id] = faction
+	assert_has(by_id.verdant.at_war, "violet")
+	assert_has(by_id.violet.at_war, "verdant")
+	for faction in view.factions:
+		for other in faction.at_war:
+			assert_has(by_id[other].at_war, faction.id, "War goes both ways")
+	assert_gt(by_id.verdant.havens.size(), 0)
+	assert_eq(by_id.verdant.havens[0].sector, "sector_elace")
+	assert_true(by_id.verdant.paint is Dictionary and by_id.verdant.paint.has("v"))
+	assert_eq(view.archetypes, BridgeCommands.Validator.archetype_names())

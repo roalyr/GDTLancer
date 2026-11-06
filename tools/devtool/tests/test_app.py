@@ -60,6 +60,20 @@ class FakeBridge:
         if command == "sector_map":
             return [{"name": "Star", "kind": "star", "x": 0.0, "z": 0.0, "radius": 0.0, "node": ""},
                     {"name": "Port", "kind": "haven_marker", "x": 1000.0, "z": 2000.0, "radius": 0.0, "node": "Havens/Port"}]
+        if command == "archetypes":
+            design = {"pilot": "res://p.tres", "ship": "res://s.tres", "role": "r", "temperament": "measured", "traits": [], "lives": 10,
+                      "fitness": 0.5, "skill": 0.5, "behavior": {"engage": 2.0}, "scene": "res://h.tscn", "length": 14.0, "value": 500,
+                      "hull": 70.0, "cargo": 10.0, "slots": [2, 0, 0, 1], "mass": 4000.0, "top_speed": 150.0, "burst_speed": 150.0,
+                      "accel": 90.0, "power": 50.0, "regen": 5.0, "signature": 1200.0, "gun_dps": 12.0, "parts": [], "flown_by": []}
+            return {"ranges": {"engage": [0.3, 4.0, 1.0], "mercy": [0.0, 1.0, 0.5]},
+                    "archetypes": [dict(design, name="raider_light"), dict(design, name="fighter_heavy"), dict(design, name="fighter_light")]}
+        if command == "factions":
+            return {"archetypes": ["fighter_light", "fighter_heavy", "raider_light"], "factions": [
+                {"id": "blue", "path": "res://database/factions/verdant.tres", "display_name": "Blue", "enemies": ["red"], "at_war": ["red"],
+                 "roster": ["fighter_light"], "havens": [{"sector": "sector_elace", "layout": LAYOUT, "node": "Havens/Port", "id": "port",
+                                                          "name": "Port", "ships": {"blue": 4}}]},
+                {"id": "green", "path": "res://database/factions/xenohive.tres", "display_name": "Green", "enemies": [], "at_war": [], "roster": [], "havens": []},
+                {"id": "red", "path": "res://database/factions/violet.tres", "display_name": "Red", "enemies": ["blue"], "at_war": ["blue"], "roster": [], "havens": []}]}
         if command == "check_script":
             self.checked.append(args["source"])
             return {"ok": "BROKEN" not in args["source"]}
@@ -228,11 +242,46 @@ class AppTest(unittest.IsolatedAsyncioTestCase):
             groups = [str(group.label).split(" (")[0] for group in tree.root.children]
             self.assertEqual(groups, ["float"])
 
+    async def test_archetypes_are_listed_in_family_and_weight_order(self):
+        app = devapp.DevApp(bridge_factory=lambda: FakeBridge())
+        async with app.run_test(size=(200, 60)) as pilot:
+            await self._started(pilot, app)
+            self.assertEqual([d["name"] for d in app.archetype_view["archetypes"]], ["fighter_light", "fighter_heavy", "raider_light"])
+            detail = str(app.query_one("#archetype-detail").content)
+            self.assertIn("engage", detail)
+            self.assertIn("not set", detail, "mercy has no value")
+        self.assertEqual(devapp.gene_bar(1.0, 0.0, 1.0, 0.5).count("="), devapp.GENE_BAR - 1)
+        self.assertEqual(devapp.gene_bar(0.0, 0.0, 1.0, 0.5)[0], "=")
+
+    async def test_war_and_peace_and_rosters(self):
+        fake = FakeBridge()
+        app = devapp.DevApp(bridge_factory=lambda: fake)
+        async with app.run_test(size=(200, 60)) as pilot:
+            await self._started(pilot, app)
+            wars = app.query_one("#wars", DataTable)
+            wars.move_cursor(row=0, column=3)  # blue x red: at war, both lists
+            app.action_toggle_war()
+            await self._started(pilot, app)
+            self.assertEqual(sorted((w["path"], tuple(w["values"]["enemies"])) for w in fake.writes),
+                             [("res://database/factions/verdant.tres", ()), ("res://database/factions/violet.tres", ())], "Peace takes both lists")
+            fake.writes.clear()
+            wars.move_cursor(row=1, column=1)  # green x blue
+            app.action_toggle_war()
+            await self._started(pilot, app)
+            self.assertEqual(fake.writes, [dict(command="write", path="res://database/factions/xenohive.tres", values={"enemies": ["blue"]})])
+            fake.writes.clear()
+            app._pick_faction("blue")
+            roster = app.query_one("#roster")
+            roster.select("raider_light")
+            app.action_save_roster()
+            await self._started(pilot, app)
+            self.assertEqual(fake.writes[0]["values"], {"roster": ["fighter_light", "raider_light"]})
+
     async def test_typing_q_in_a_field_types_it(self):
         app = devapp.DevApp(bridge_factory=lambda: FakeBridge())
         async with app.run_test(size=(160, 60)) as pilot:
             await self._started(pilot, app)
-            await pilot.press("5")
+            await pilot.press("7")
             await pilot.pause()
             self.assertEqual(app.query_one("TabbedContent").active, "constants")
             await pilot.press("ctrl+f")
