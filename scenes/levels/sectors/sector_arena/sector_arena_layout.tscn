@@ -1,0 +1,334 @@
+[gd_scene load_steps=10 format=2]
+
+[ext_resource path="res://src/scenes/game_world/sector_layout/markers/haven_marker.gd" type="Script" id=1]
+[ext_resource path="res://src/scenes/game_world/sector_layout/markers/sector_layout_markers.gd" type="Script" id=2]
+[ext_resource path="res://src/scenes/game_world/sector_layout/markers/beacon_marker.gd" type="Script" id=3]
+[ext_resource path="res://src/scenes/game_world/sector_layout/markers/hazard_marker.gd" type="Script" id=4]
+[ext_resource path="res://scenes/prefabs/station/placeholders/den.tscn" type="PackedScene" id=5]
+[ext_resource path="res://scenes/prefabs/station/placeholders/haven.tscn" type="PackedScene" id=6]
+[ext_resource path="res://scenes/prefabs/station/placeholders/post.tscn" type="PackedScene" id=7]
+[ext_resource path="res://scenes/prefabs/station/placeholders/refinery.tscn" type="PackedScene" id=8]
+[ext_resource path="res://scenes/prefabs/station/xenohive_hive.tscn" type="PackedScene" id=9]
+
+[node name="Layout" type="Spatial"]
+script = ExtResource( 2 )
+sector_id = "sector_arena"
+play_radius = 60000.0
+
+[node name="Hazards" type="Spatial" parent="."]
+
+[node name="Radiation" type="Position3D" parent="Hazards"]
+script = ExtResource( 4 )
+attached_to = "SceneAssets/Star Arena"
+kind = "radiation"
+core = 5000.0
+radius = 15000.0
+
+[node name="Havens" type="Spatial" parent="."]
+
+[node name="ArenaFreePort" type="Position3D" parent="Havens"]
+script = ExtResource( 1 )
+haven_id = "station_arena_home"
+display_name = "Arena Free Port"
+faction = ""
+model = ExtResource( 6 )
+seen_anywhere = true
+ships = {
+}
+prefer_role = ""
+prefer_share = 0.0
+repair = true
+rearm = true
+buys = {
+"*": 1.0
+}
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 30000, 0, 5000 )
+
+[node name="VerdantHaven" type="Position3D" parent="Havens"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 6000, 0, 25000 )
+script = ExtResource( 1 )
+haven_id = "arena_verdant_haven"
+display_name = "Verdant Haven"
+faction = "verdant"
+model = ExtResource( 6 )
+ships = {
+"verdant": 5
+}
+prefer_role = ""
+prefer_share = 0.0
+repair = true
+rearm = true
+buys = {
+"*": 0.9
+}
+
+[node name="VerdantPost" type="Position3D" parent="Havens"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -2000, 0, 29500 )
+script = ExtResource( 1 )
+haven_id = "arena_verdant_post"
+display_name = "Verdant Post"
+faction = "verdant"
+model = ExtResource( 7 )
+ships = {
+"verdant": 2
+}
+prefer_role = "prospector"
+prefer_share = 0.7
+repair = true
+rearm = false
+buys = {
+"commodity_ore": 0.8
+}
+
+[node name="VioletHaven" type="Position3D" parent="Havens"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 6000, 0, -25000 )
+script = ExtResource( 1 )
+haven_id = "arena_violet_haven"
+display_name = "Violet Haven"
+faction = "violet"
+model = ExtResource( 6 )
+ships = {
+"violet": 5
+}
+prefer_role = ""
+prefer_share = 0.0
+repair = true
+rearm = true
+buys = {
+"*": 0.9
+}
+
+[node name="VioletPost" type="Position3D" parent="Havens"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -2000, 0, -29500 )
+script = ExtResource( 1 )
+haven_id = "arena_violet_post"
+display_name = "Violet Post"
+faction = "violet"
+model = ExtResource( 7 )
+ships = {
+"violet": 2
+}
+prefer_role = "prospector"
+prefer_share = 0.7
+repair = true
+rearm = false
+buys = {
+"commodity_ore": 0.8
+}
+
+[node name="ArenaRefinery" type="Position3D" parent="Havens"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 32500, 0, 0 )
+script = ExtResource( 1 )
+haven_id = "arena_refinery"
+display_name = "Arena Refinery"
+faction = ""
+model = ExtResource( 8 )
+ships = {
+}
+prefer_role = ""
+prefer_share = 0.0
+repair = false
+rearm = false
+buys = {
+"commodity_ore": 1.4,
+"commodity_relic": 1.2
+}
+
+[node name="RaiderDen" type="Position3D" parent="Havens"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 24000, 0 )
+script = ExtResource( 1 )
+haven_id = "arena_raider_den"
+display_name = "Raider Den"
+faction = "raiders"
+model = ExtResource( 5 )
+ships = {
+"raiders": 4
+}
+prefer_role = ""
+prefer_share = 0.0
+repair = true
+rearm = true
+buys = {
+"*": 0.7
+}
+
+[node name="Xenohive" type="Position3D" parent="Havens"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3000, -24000, 0 )
+script = ExtResource( 1 )
+haven_id = "arena_xenohive"
+display_name = "Xenohive"
+faction = "xenohive"
+model = ExtResource( 9 )
+ships = {
+"xenohive": 3
+}
+prefer_role = ""
+prefer_share = 0.0
+repair = false
+rearm = false
+buys = {
+"*": 1.0
+}
+
+[node name="Beacons" type="Spatial" parent="."]
+
+[node name="VerdantPicketWest" type="Position3D" parent="Beacons"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -8000, 0, 20000 )
+script = ExtResource( 3 )
+kind = "patrol"
+beacon_name = "Verdant Picket West"
+owner_faction = "verdant"
+radius = 0.0
+rocks = 0
+ring = 0.0
+player_visible = false
+
+[node name="VerdantPicketEast" type="Position3D" parent="Beacons"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 16000, 0, 16000 )
+script = ExtResource( 3 )
+kind = "patrol"
+beacon_name = "Verdant Picket East"
+owner_faction = "verdant"
+radius = 0.0
+rocks = 0
+ring = 0.0
+player_visible = false
+
+[node name="VerdantPicketNorth" type="Position3D" parent="Beacons"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 6000, 0, 33000 )
+script = ExtResource( 3 )
+kind = "patrol"
+beacon_name = "Verdant Picket North"
+owner_faction = "verdant"
+radius = 0.0
+rocks = 0
+ring = 0.0
+player_visible = false
+
+[node name="VioletPicketWest" type="Position3D" parent="Beacons"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -8000, 0, -20000 )
+script = ExtResource( 3 )
+kind = "patrol"
+beacon_name = "Violet Picket West"
+owner_faction = "violet"
+radius = 0.0
+rocks = 0
+ring = 0.0
+player_visible = false
+
+[node name="VioletPicketEast" type="Position3D" parent="Beacons"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 16000, 0, -16000 )
+script = ExtResource( 3 )
+kind = "patrol"
+beacon_name = "Violet Picket East"
+owner_faction = "violet"
+radius = 0.0
+rocks = 0
+ring = 0.0
+player_visible = false
+
+[node name="VioletPicketSouth" type="Position3D" parent="Beacons"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 6000, 0, -33000 )
+script = ExtResource( 3 )
+kind = "patrol"
+beacon_name = "Violet Picket South"
+owner_faction = "violet"
+radius = 0.0
+rocks = 0
+ring = 0.0
+player_visible = false
+
+[node name="VerdantHomeField" type="Position3D" parent="Beacons"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 14000, 0, 28000 )
+script = ExtResource( 3 )
+kind = "field"
+beacon_name = "Verdant Home Field"
+owner_faction = ""
+radius = 2000.0
+rocks = 14
+ring = 0.0
+player_visible = false
+
+[node name="VioletHomeField" type="Position3D" parent="Beacons"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 14000, 0, -28000 )
+script = ExtResource( 3 )
+kind = "field"
+beacon_name = "Violet Home Field"
+owner_faction = ""
+radius = 2000.0
+rocks = 14
+ring = 0.0
+player_visible = false
+
+[node name="ArenaBBelt" type="Position3D" parent="Beacons"]
+script = ExtResource( 3 )
+attached_to = "SceneAssets/Planet Arena B"
+kind = "field"
+beacon_name = "Arena B Belt"
+owner_faction = ""
+radius = 5000.0
+rocks = 30
+ring = 0.5
+player_visible = false
+
+[node name="DeepField" type="Position3D" parent="Beacons"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -24000, 0 )
+script = ExtResource( 3 )
+kind = "field"
+beacon_name = "Deep Field"
+owner_faction = ""
+radius = 4000.0
+rocks = 12
+ring = 0.0
+player_visible = false
+
+[node name="WestPassNorth" type="Position3D" parent="Beacons"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -18000, 0, 11000 )
+script = ExtResource( 3 )
+kind = "landmark"
+beacon_name = "West Pass North"
+owner_faction = ""
+radius = 0.0
+rocks = 0
+ring = 0.0
+player_visible = true
+
+[node name="WestPassSouth" type="Position3D" parent="Beacons"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -18000, 0, -11000 )
+script = ExtResource( 3 )
+kind = "landmark"
+beacon_name = "West Pass South"
+owner_faction = ""
+radius = 0.0
+rocks = 0
+ring = 0.0
+player_visible = true
+
+[node name="EastPassNorth" type="Position3D" parent="Beacons"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 20000, 0, 11000 )
+script = ExtResource( 3 )
+kind = "landmark"
+beacon_name = "East Pass North"
+owner_faction = ""
+radius = 0.0
+rocks = 0
+ring = 0.0
+player_visible = true
+
+[node name="EastPassSouth" type="Position3D" parent="Beacons"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 20000, 0, -11000 )
+script = ExtResource( 3 )
+kind = "landmark"
+beacon_name = "East Pass South"
+owner_faction = ""
+radius = 0.0
+rocks = 0
+ring = 0.0
+player_visible = true
+
+[node name="Entry" type="Position3D" parent="Beacons"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -20000, 0, 2000 )
+script = ExtResource( 3 )
+kind = "entry"
+beacon_name = "Arena Entry"
+radius = 20000.0

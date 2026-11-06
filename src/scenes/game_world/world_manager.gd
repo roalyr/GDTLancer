@@ -90,7 +90,7 @@ func _on_new_game_requested() -> void:
 	yield(get_tree(), "idle_frame")
 	
 	_setup_new_game()
-	load_sector(Constants.INITIAL_SECTOR_ID)
+	load_sector(GameStateManager.home_sector_id())  # The game's home, or evolution's arena
 	call_deferred("_emit_loaded_dock_signal")  # A run starts docked at its home port
 
 
@@ -177,7 +177,7 @@ func _setup_new_game():
 	_world_generator = WorldGenerator.new()
 	_world_generator.name = "WorldGenerator"
 	add_child(_world_generator)
-	_world_generator.generate_new_world()
+	_world_generator.generate_new_world(GameStateManager.game_start_id())
 
 
 func _cleanup_all_agents() -> void:

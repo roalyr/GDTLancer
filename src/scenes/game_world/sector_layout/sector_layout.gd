@@ -46,6 +46,10 @@ func _ready():
 			continue
 		havens.append(haven)
 		keep_clear.append([haven.station.global_transform.origin, Constants.FIELD_ROCK_CLEARANCE])
+	for body in get_parent().get_children() if get_parent() != null else []:  # No rock inside a planet or moon
+		if body is Spatial and body.has_method("get_apparent_radius"):
+			var at: Vector3 = to_local(body.global_transform.origin) if is_inside_tree() else body.transform.origin
+			keep_clear.append([at, body.get_apparent_radius() + Constants.FIELD_ROCK_CLEARANCE])
 	call_deferred("_add_landmarks")  # The scene's planets and moons are ready by then
 	for spec in layout.get("beacons", []):
 		spec = _placed(spec)
@@ -154,7 +158,7 @@ func _add_landmarks() -> void:
 
 
 # A field's rocks, the same on every load: within its radius (a ring: only past `ring` of it), clear
-# of the stations and each other.
+# of the stations, the planets and moons, and each other.
 func _build_rocks(spec: Dictionary, keep_clear: Array) -> void:
 	var count: int = int(spec.get("rocks", 0))
 	if count <= 0:

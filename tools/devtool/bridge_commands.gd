@@ -6,7 +6,7 @@
 # Resources: ping, schema, read, write, create (fields: a script's exported variables; a
 # ShaderMaterial's shader and shader parameters). Scenes: scene_nodes, scene_write, scene_add,
 # scene_remove (nodes and their fields, translation included), world_scene, scene_instance,
-# layout_new, sector_map. Views: archetypes,
+# sector_map; sectors and bodies as files: layout_new, sector_new, sector_clone, body_new, body_remove. Views: archetypes,
 # factions, parts, look. Checks: validate, models, sound_slots, check_script. user_dir.
 
 extends Reference
@@ -15,6 +15,7 @@ const Validator = preload("res://src/core/validation/content_validator.gd")
 const ModelCheck = preload("res://src/scenes/game_world/models/model_check.gd")
 const SoundBank = preload("res://src/core/sound/sound_bank.gd")
 const TscnText = preload("res://tools/devtool/tscn_text.gd")
+const SectorMaker = preload("res://tools/devtool/sector_maker.gd")
 const ShipFit = preload("res://src/core/systems/ship_fit.gd")
 const EDITABLE = PROPERTY_USAGE_SCRIPT_VARIABLE | PROPERTY_USAGE_EDITOR
 const SHADER_PARAM = "shader_param/"
@@ -305,67 +306,55 @@ func cmd_scene_instance(args: Dictionary):
 	return result
 
 
-# A layout for the sector `sector` (its folder's name, the location's id), which has a scene but no
-# layout: SECTORS_SCENES_DIR/<sector>/<sector>_layout.tscn with its three groups and an entry beacon
-# (where the scene's EntryPoint is, as far out as the location's jump_in_distance), placed in the
-# sector scene under SceneAssets/SectorLayout. Then the layout's rules. Returns {"path": the layout}.
+# Sectors and bodies as files (SectorMaker; named by SectorNames, so they keep the sector rules).
+# Each takes `sector`; `dir` and `locations` (the sectors' and locations' folders) only in tests.
+# The result is the checked sector scene's ({"path", "problems", "new"}) with what was made:
+# "files" (written), "deleted", "node" (a new body's path in the sector scene).
+#   layout_new  a layout for a sector with a scene and none (groups, an entry beacon)
+#   sector_new  a new sector: folder, empty scene, layout, location
+#   sector_clone  `sector` copied as `to`: bodies, scene, layout (its own haven ids), location (no connections)
+#   body_new    `kind` (star, planet, moon, belt), a copy of the body scene `from`, named by the
+#               rules (a moon of planet `of`, a belt's `word`), placed at `values`' translation
+#   body_remove  the body `node` out of the sector scene, and its folder if it was the sector's
 func cmd_layout_new(args: Dictionary):
-	var sector: String = str(args.get("sector", ""))
-	var folder: String = str(args.get("dir", Constants.SECTORS_SCENES_DIR)).plus_file(sector)  # dir: the tests' copy
-	var scene_path: String = folder.plus_file(sector + ".tscn")
-	var layout_path: String = folder.plus_file(sector + Constants.SECTOR_LAYOUT_SUFFIX)
-	var scene_text: String = _read_text(scene_path)
-	if sector == "" or scene_text == "":
-		return {"error": "No sector scene %s" % scene_path}
-	if File.new().file_exists(layout_path):
-		return {"error": "%s has a layout already" % sector}
-	var doc = TscnText.new(scene_text)
-	if doc.find_node(SCENE_ASSETS) == null:
-		return {"error": "%s has no %s node" % [scene_path, SCENE_ASSETS]}
-	var root: Node = _edit_instance(scene_path)
-	var entry := Vector3.ZERO
-	var entry_node: Node = root.find_node("EntryPoint", true, false) if root != null else null
-	if entry_node is Spatial:
-		entry = _origin(entry_node)
-	if root != null:
-		root.free()
-	var location_path: String = LOCATIONS_DIR.plus_file(sector + ".tres")
-	var location = _fresh(location_path) if ResourceLoader.exists(location_path) else null
-	var reach: float = float(location.jump_in_distance) if location != null else 0.0
-	var title: String = (location.location_name if location != null and location.location_name != "" else sector.capitalize()) + " Entry"
-	_write_text(layout_path, LAYOUT_TEMPLATE % [sector, var2str(Transform(Basis(), entry)), title.c_escape(), var2str(reach)])
-	var holder: String = doc.add_node(SCENE_ASSETS, "SectorLayout", "Spatial", doc.ext_id(SectorLayoutScript.resource_path, "Script"))
-	doc.add_instance(holder, "Layout", layout_path)
-	var result = _save_text_checked(scene_path, scene_text, doc.text(), [])
-	if result is Dictionary and result.has("error"):
-		Directory.new().remove(layout_path)
-		return result
-	return _checked(layout_path, [])
+	return _made(args, SectorMaker.new_layout(_sectors_dir(args), _locations_dir(args), str(args.get("sector", ""))))
 
 
-const LOCATIONS_DIR = "res://database/registry/locations/"
-const LAYOUT_TEMPLATE = """[gd_scene load_steps=3 format=2]
+func cmd_sector_new(args: Dictionary):
+	return _made(args, SectorMaker.new_sector(_sectors_dir(args), _locations_dir(args), str(args.get("sector", ""))))
 
-[ext_resource path="res://src/scenes/game_world/sector_layout/markers/sector_layout_markers.gd" type="Script" id=1]
-[ext_resource path="res://src/scenes/game_world/sector_layout/markers/beacon_marker.gd" type="Script" id=2]
 
-[node name="Layout" type="Spatial"]
-script = ExtResource( 1 )
-sector_id = "%s"
+func cmd_sector_clone(args: Dictionary):
+	var made: Dictionary = SectorMaker.clone_sector(_sectors_dir(args), _locations_dir(args), str(args.get("sector", "")), str(args.get("to", "")))
+	return _made(args, made)
 
-[node name="Hazards" type="Spatial" parent="."]
 
-[node name="Havens" type="Spatial" parent="."]
+func cmd_body_new(args: Dictionary):
+	var at = decode(args.get("values", {}).get(TRANSLATION, {"$": "Vector3", "v": [0, 0, 0]}))
+	return _made(args, SectorMaker.new_body(_sectors_dir(args), str(args.get("sector", "")), str(args.get("kind", "")), str(args.get("from", "")),
+		at if at is Vector3 else Vector3.ZERO, str(args.get("of", "")), str(args.get("word", ""))))
 
-[node name="Beacons" type="Spatial" parent="."]
 
-[node name="Entry" type="Position3D" parent="Beacons"]
-transform = %s
-script = ExtResource( 2 )
-kind = "entry"
-beacon_name = "%s"
-radius = %s
-"""
+func cmd_body_remove(args: Dictionary):
+	return _made(args, SectorMaker.remove_body(_sectors_dir(args), str(args.get("sector", "")), str(args.get("node", ""))))
+
+
+static func _sectors_dir(args: Dictionary) -> String:
+	return str(args.get("dir", Constants.SECTORS_SCENES_DIR))
+
+
+static func _locations_dir(args: Dictionary) -> String:
+	return str(args.get("locations", Validator.LOCATIONS_DIR))
+
+
+func _made(_args: Dictionary, made: Dictionary):
+	if made.has("error"):
+		return made
+	var result: Dictionary = _checked(made.scene, [])
+	for key in made:
+		if key != "scene":
+			result[key] = made[key]
+	return result
 
 
 # A sector from above and from the side: the things its scene places (as world_scene, their node

@@ -578,11 +578,11 @@ const THREAT_COLOR = Color(1.0, 0.36, 0.12, 1.0)  # Red-orange, as hostile brack
 
 # Traffic (Traffic): persistent NPCs travelling the sector graph, the population besides the evolving NPCs.
 const TRAFFIC_ROSTER = [  # Kind (faction, niche role; "" any) and how many
-	{"faction": "verdant", "role": "prospector", "count": 2},
-	{"faction": "violet", "role": "prospector", "count": 2},
-	{"faction": "verdant", "role": "fighter", "count": 1},
-	{"faction": "violet", "role": "fighter", "count": 1},
-	{"faction": "raiders", "role": "", "count": 3},
+	{"faction": "verdant", "role": "prospector", "count": 3},  # The rush: prospectors, the raiders after them, fighters guarding
+	{"faction": "violet", "role": "prospector", "count": 3},
+	{"faction": "verdant", "role": "fighter", "count": 2},
+	{"faction": "violet", "role": "fighter", "count": 2},
+	{"faction": "raiders", "role": "", "count": 4},
 ]
 const TRAFFIC_DWELL_TIME = [240.0, 720.0]  # s of world time a traveller stays in a sector
 const TRAFFIC_TRANSIT_TIME = 60.0  # s between leaving a sector and arriving in the next
@@ -591,6 +591,7 @@ const TRAFFIC_FUEL_JUMPS = 4  # Fuel bought in Elace: this many jumps' worth
 const TRAFFIC_START_BANK = 2000.0  # WP a new traveller has
 const TRAFFIC_WORK_RADIUS = 1500.0  # m round its work point a traveller turns up at
 const TRAFFIC_WORK_SEARCH = 40000.0  # m from the entry point a prospector looks for something to mine
+const TRAFFIC_HOTSPOT_HAVEN_CLEAR = 10000.0  # m past a field's edge: a territorial haven (a xenohive) this near makes it no traveller's hotspot
 
 # Prices (Market): physics value * (1 + the station's markup) * (1 -+ standing share).
 const PRICE_MARKUP_MAX = 0.5  # A station's markup is rolled in 0..this
@@ -1046,7 +1047,8 @@ const FIELD_ROCK_MODELS = [
 	"res://assets/models/rocks/rock_05_4k.glb",
 ]
 const FIELD_ROCK_SCENE = "res://scenes/prefabs/celestial/asteroid.tscn"
-const EVO_SECTOR_ID = "sector_elace"  # The evolving NPCs live in this sector's havens
+const EVO_SECTOR_ID = "sector_arena"  # Evolution's sector: Elace as it was (symmetric), apart (no one jumps there); its havens hold the evolving NPCs
+const EVO_GAME_START_ID = "start_evolution"  # Evolution's run starts here (docked in EVO_SECTOR_ID); the game's at DEFAULT_GAME_START_ID
 const EVO_FACTIONS = ["verdant", "violet", "raiders", "xenohive"]  # Each keeps a gene pool
 # The xenohive's drones grow with what they bring home: one more per XENOHIVE_MASS_PER_DRONE kg of cargo
 # delivered (all time), up to XENOHIVE_DRONES_MAX extra. A fixed spawner for now; the hive does not grow.

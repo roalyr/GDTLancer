@@ -9,6 +9,7 @@
 extends Reference
 
 const ModelCheck = preload("res://src/scenes/game_world/models/model_check.gd")
+const SectorNames = preload("res://src/core/validation/sector_names.gd")
 const SoundBank = preload("res://src/core/sound/sound_bank.gd")
 const SOUND_BANK_PATH = "res://database/sounds/sound_bank.tres"
 const SECTIONS = ["factions", "locations", "sectors", "archetypes", "starts", "models", "materials", "sounds"]
@@ -140,6 +141,11 @@ static func locations(dir_path: String = LOCATIONS_DIR) -> Array:
 			graph[location.template_id] = [path, Array(location.connections)]
 		if location.sector_scene_path != "" and not ResourceLoader.exists(location.sector_scene_path):
 			out.append(_problem(path, "Sector scene '%s' does not exist" % location.sector_scene_path))
+		var expected: String = Constants.SECTORS_SCENES_DIR.plus_file(location.template_id).plus_file(location.template_id + ".tscn")
+		if location.sector_scene_path != "" and location.sector_scene_path != expected and dir_path == LOCATIONS_DIR:
+			out.append(_problem(path, "Its sector scene is '%s': a sector's is %s" % [location.sector_scene_path, expected]))
+		if path.get_file().get_basename() != location.template_id and location.template_id != "":
+			out.append(_problem(path, "Its file is named after its template_id: %s.tres" % location.template_id))
 	for id in graph:
 		var path: String = graph[id][0]
 		for other in graph[id][1]:
@@ -150,6 +156,11 @@ static func locations(dir_path: String = LOCATIONS_DIR) -> Array:
 			elif not id in graph[other][1]:
 				out.append(_problem(path, "It connects to '%s', which does not connect back" % other))
 	if dir_path == LOCATIONS_DIR:
+		for id in graph:
+			if graph[id][1].empty() and id != Constants.EVO_SECTOR_ID:
+				out.append(_problem(graph[id][0], "It connects to no sector, so no one gets there (only evolution's, %s, stands apart)" % Constants.EVO_SECTOR_ID))
+			elif id == Constants.EVO_SECTOR_ID and not graph[id][1].empty():
+				out.append(_problem(graph[id][0], "Evolution's sector stands apart: it connects to no sector (the game never goes there)"))
 		for sector_id in layout_files():
 			if not graph.has(sector_id):
 				out.append(_problem(layout_files()[sector_id], "No location '%s' for this sector (%s)" % [sector_id, LOCATIONS_DIR]))
@@ -182,6 +193,7 @@ static func sectors() -> Array:
 	var layouts: Dictionary = layout_files()
 	if layouts.empty():
 		out.append(_problem(Constants.SECTORS_SCENES_DIR, "No sector layouts"))
+	out += sector_folders()
 	var seen := {}
 	for sector_id in layouts:
 		var path: String = layouts[sector_id]
@@ -332,6 +344,113 @@ static func has_node_path(scene_text: String, node_path: String) -> bool:
 	return false
 
 
+# The folder rules (SectorNames): every sector folder, its files, its bodies and what its scene
+# places. `dir_path`: the sectors folder (another only for tests).
+static func sector_folders(dir_path: String = Constants.SECTORS_SCENES_DIR) -> Array:
+	var out: Array = []
+	for sector_id in _dirs_in(dir_path):
+		var folder: String = dir_path.plus_file(sector_id)
+		var problem: String = SectorNames.sector_problem(sector_id)
+		if problem != "":
+			out.append(_problem(folder, "Sector folder %s" % problem))
+			continue
+		var scene_path: String = folder.plus_file(sector_id + ".tscn")
+		var layout_path: String = folder.plus_file(sector_id + Constants.SECTOR_LAYOUT_SUFFIX)
+		for path in _files_in(folder, ""):
+			if not path in [scene_path, layout_path]:
+				out.append(_problem(path, "A sector folder holds only %s.tscn, its layout and its bodies' folders" % sector_id))
+		var scene_text: String = _text_of(scene_path)
+		if scene_text == "":
+			out.append(_problem(folder, "No sector scene %s" % scene_path))
+			continue
+		if SectorNames.root_name(scene_text) != SectorNames.title(sector_id):
+			out.append(_problem(scene_path, "Its root is '%s', not '%s'" % [SectorNames.root_name(scene_text), SectorNames.title(sector_id)]))
+		if dir_path == Constants.SECTORS_SCENES_DIR:
+			var location = _fresh(LOCATIONS_DIR.plus_file(sector_id + ".tres")) if ResourceLoader.exists(LOCATIONS_DIR.plus_file(sector_id + ".tres")) else null
+			if location == null:
+				out.append(_problem(scene_path, "No location %s%s.tres for this sector" % [LOCATIONS_DIR, sector_id]))
+			elif location.sector_scene_path != scene_path:
+				out.append(_problem(scene_path, "Its location's sector_scene_path is '%s', not this scene" % location.sector_scene_path))
+		var bodies := {}  # body scene path -> [kind, suffix]
+		var planets := []
+		for body in _dirs_in(folder):
+			var parts: Dictionary = SectorNames.body_parts(sector_id, body)
+			var body_folder: String = folder.plus_file(body)
+			if parts.has("problem"):
+				out.append(_problem(body_folder, "Body folder %s" % parts.problem))
+				continue
+			var body_path: String = body_folder.plus_file(body + ".tscn")
+			for path in _files_in(body_folder, ""):
+				if path != body_path and not path.get_file().begins_with(body + "_"):
+					out.append(_problem(path, "A body's folder holds %s.tscn and its parts, named %s_<part>" % [body, body]))
+			if not _dirs_in(body_folder).empty():
+				out.append(_problem(body_folder, "A body's folder has no folders in it"))
+			var body_text: String = _text_of(body_path)
+			if body_text == "":
+				out.append(_problem(body_folder, "No body scene %s" % body_path))
+				continue
+			bodies[body_path] = [parts.kind, parts.suffix]
+			if parts.kind == "planet":
+				planets.append(parts.suffix)
+			if SectorNames.root_name(body_text) != SectorNames.title(body):
+				out.append(_problem(body_path, "Its root is '%s', not '%s'" % [SectorNames.root_name(body_text), SectorNames.title(body)]))
+			if (parts.kind == "star") != (body_text.find("is_star = true") >= 0):
+				out.append(_problem(body_path, "A %s's scene should %sbe a star (is_star)" % [parts.kind, "" if parts.kind == "star" else "not "]))
+		for path in bodies:
+			if bodies[path][0] == "moon" and not bodies[path][1].substr(0, 1) in planets:
+				out.append(_problem(path, "A moon of planet %s, which the sector does not have" % bodies[path][1].substr(0, 1).to_upper()))
+		var placed := {}
+		for thing in SectorNames.instances_under(scene_text, "SceneAssets"):
+			if thing.name == "SectorLayout":
+				continue
+			if bodies.has(thing.scene):
+				placed[thing.scene] = int(placed.get(thing.scene, 0)) + 1
+				if thing.name != SectorNames.title(thing.scene):
+					out.append(_problem(scene_path, "'%s' places %s: name it '%s'" % [thing.name, thing.scene.get_file(), SectorNames.title(thing.scene)]))
+			elif thing.scene.begins_with(SectorNames.PREFABS_DIR):
+				if not thing.name.begins_with(SectorNames.title(thing.scene)):
+					out.append(_problem(scene_path, "'%s' places %s: name it '%s' (and a number)" % [thing.name, thing.scene.get_file(), SectorNames.title(thing.scene)]))
+			elif thing.scene.begins_with(dir_path):
+				out.append(_problem(scene_path, "'%s' places %s, which is not one of this sector's bodies: copy it into the sector as a body of its own" % [thing.name, thing.scene]))
+		for path in bodies:
+			if int(placed.get(path, 0)) > 1:
+				out.append(_problem(scene_path, "It places %s %d times: a body is placed once (a copy is a body of its own)" % [path.get_file(), placed[path]]))
+			elif not placed.has(path):
+				out.append(_problem(path, "The sector scene does not place this body: place it, or remove its folder"))
+		var layout_text: String = _text_of(layout_path)
+		if layout_text != "":
+			var regex := RegEx.new()
+			regex.compile('\nsector_id = "([^"]*)"')
+			var found = regex.search(layout_text)
+			if found != null and found.get_string(1) != sector_id:
+				out.append(_problem(layout_path, "Its sector_id is '%s', not '%s'" % [found.get_string(1), sector_id]))
+	return out
+
+
+static func _dirs_in(dir_path: String) -> Array:
+	var out: Array = []
+	var dir := Directory.new()
+	if dir.open(dir_path) != OK:
+		return out
+	dir.list_dir_begin(true, true)
+	var name: String = dir.get_next()
+	while name != "":
+		if dir.current_is_dir():
+			out.append(name)
+		name = dir.get_next()
+	out.sort()
+	return out
+
+
+static func _text_of(path: String) -> String:
+	var file := File.new()
+	if file.open(path, File.READ) != OK:
+		return ""
+	var text: String = file.get_as_text()
+	file.close()
+	return text
+
+
 static func _spec_of(layout_path: String) -> Dictionary:
 	var layout: Node = _fresh(layout_path).instance()
 	var spec: Dictionary = layout.to_spec() if layout.has_method("to_spec") else {"havens": [], "beacons": [], "hazards": []}
@@ -364,12 +483,13 @@ static func stations_placed_in(scene_text: String) -> Array:
 # Each start: its ship is a ship template, it starts docked at a haven, its kit holds parts.
 static func starts(dir_path: String = STARTS_DIR) -> Array:
 	var out: Array = []
-	var havens := {}
-	for path in layout_files().values():
-		var layout: Node = _fresh(path).instance()
+	var havens := {}  # Haven id -> its sector
+	var layouts: Dictionary = layout_files()
+	for sector_id in layouts:
+		var layout: Node = _fresh(layouts[sector_id]).instance()
 		if layout.has_method("to_spec"):
 			for haven in layout.to_spec().havens:
-				havens[haven.id] = true
+				havens[haven.id] = sector_id
 		layout.free()
 	var parts: Array = part_ids()
 	for path in _files_in(dir_path, ".tres"):
@@ -379,6 +499,11 @@ static func starts(dir_path: String = STARTS_DIR) -> Array:
 			out.append(_problem(path, "Its ship '%s' is not a ship template" % ship))
 		if not havens.has(start.player_starting_location):
 			out.append(_problem(path, "It starts at '%s', which is not a haven" % start.player_starting_location))
+		elif dir_path == STARTS_DIR:  # Each mode's start docks in its sector: the game's home, evolution's arena
+			var home: String = Constants.EVO_SECTOR_ID if start.template_id == Constants.EVO_GAME_START_ID else Constants.INITIAL_SECTOR_ID
+			if havens[start.player_starting_location] != home:
+				out.append(_problem(path, "It starts in %s; a%s start docks in %s" % [havens[start.player_starting_location],
+					"n evolution" if home == Constants.EVO_SECTOR_ID else " game", home]))
 		if start.starting_bank < 0:
 			out.append(_problem(path, "Its bank is below 0"))
 		for part in start.starting_storage:

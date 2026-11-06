@@ -339,7 +339,7 @@ func test_the_factions_view_has_wars_both_ways_and_havens():
 		for other in faction.at_war:
 			assert_has(by_id[other].at_war, faction.id, "War goes both ways")
 	assert_gt(by_id.verdant.havens.size(), 0)
-	assert_eq(by_id.verdant.havens[0].sector, "sector_elace")
+	assert_has([Constants.INITIAL_SECTOR_ID, Constants.EVO_SECTOR_ID], by_id.verdant.havens[0].sector)
 	assert_true(by_id.verdant.paint is Dictionary and by_id.verdant.paint.has("v"))
 	assert_eq(view.archetypes, BridgeCommands.Validator.archetype_names())
 
@@ -379,13 +379,49 @@ const SECTOR_SCENE = "res://scenes/levels/sectors/sector_elace/sector_elace.tscn
 const SECTOR_COPY = "user://test_bridge_sector.tscn"
 
 
+const TEST_SECTORS = "user://test_sectors"
+const TEST_LOCATIONS = "user://test_locations"
+const Validator2 = preload("res://src/core/validation/content_validator.gd")
+
+
+func _clear_dir(path: String) -> void:
+	var dir := Directory.new()
+	if dir.open(path) != OK:
+		return
+	dir.list_dir_begin(true, true)
+	var name: String = dir.get_next()
+	while name != "":
+		if dir.current_is_dir():
+			_clear_dir(path.plus_file(name))
+		else:
+			dir.remove(path.plus_file(name))
+		name = dir.get_next()
+	Directory.new().remove(path)
+
+
+func _test_dirs() -> Dictionary:
+	_clear_dir(TEST_SECTORS)
+	_clear_dir(TEST_LOCATIONS)
+	Directory.new().make_dir_recursive(TEST_SECTORS)
+	Directory.new().make_dir_recursive(TEST_LOCATIONS)
+	return {"dir": TEST_SECTORS, "locations": TEST_LOCATIONS}
+
+
+func _folder_problems() -> Array:
+	var out: Array = []
+	for problem in Validator2.sector_folders(TEST_SECTORS):
+		out.append("%s: %s" % [problem.file, problem.problem])
+	return out
+
+
 func test_a_sector_without_a_layout_gets_one_with_its_entry():
-	var dir: String = "user://test_sectors"
-	var folder: String = dir.plus_file("sector_cob")
+	var dirs: Dictionary = _test_dirs()
+	var folder: String = TEST_SECTORS.plus_file("sector_cob")
 	Directory.new().make_dir_recursive(folder)
 	Directory.new().copy("res://scenes/levels/sectors/sector_cob/sector_cob.tscn", folder.plus_file("sector_cob.tscn"))
-	var made: Dictionary = _ok(commands.handle("layout_new", {"sector": "sector_cob", "dir": dir}))
-	assert_eq(made.path, folder.plus_file("sector_cob_layout.tscn"))
+	Directory.new().copy("res://database/registry/locations/sector_cob.tres", TEST_LOCATIONS.plus_file("sector_cob.tres"))
+	var made: Dictionary = _ok(commands.handle("layout_new", dict_with(dirs, {"sector": "sector_cob"})))
+	assert_eq(made.layout, folder.plus_file("sector_cob_layout.tscn"))
 	var scene: Node = load(folder.plus_file("sector_cob.tscn")).instance()
 	var layout: Node = scene.get_node_or_null("SceneAssets/SectorLayout/Layout")
 	assert_not_null(layout, "Placed in the sector scene")
@@ -396,12 +432,103 @@ func test_a_sector_without_a_layout_gets_one_with_its_entry():
 		var entry: Node = layout.get_node("Beacons/Entry")
 		assert_eq([entry.kind, entry.beacon_name, entry.radius], ["entry", "Cob Entry", 45000.0], "As far out as the location's jump_in_distance")
 	scene.free()
-	assert_true(commands.handle("layout_new", {"sector": "sector_cob", "dir": dir}).has("error"), "Only once")
-	assert_true(commands.handle("layout_new", {"sector": "sector_nowhere", "dir": dir}).has("error"), "No scene: no layout")
-	for name in ["sector_cob.tscn", "sector_cob_layout.tscn"]:
-		Directory.new().remove(folder.plus_file(name))
-	Directory.new().remove(folder)
-	Directory.new().remove(dir)
+	assert_true(commands.handle("layout_new", dict_with(dirs, {"sector": "sector_cob"})).has("error"), "Only once")
+	assert_true(commands.handle("layout_new", dict_with(dirs, {"sector": "sector_nowhere"})).has("error"), "No scene: no layout")
+	_clear_dir(TEST_SECTORS)
+	_clear_dir(TEST_LOCATIONS)
+
+
+static func dict_with(a: Dictionary, b: Dictionary) -> Dictionary:
+	var out: Dictionary = a.duplicate()
+	for key in b:
+		out[key] = b[key]
+	return out
+
+
+func test_a_new_sector_and_its_bodies_keep_the_rules():
+	var dirs: Dictionary = _test_dirs()
+	assert_true(commands.handle("sector_new", dict_with(dirs, {"sector": "Vidr"})).has("error"), "Not a sector's name")
+	var made: Dictionary = _ok(commands.handle("sector_new", dict_with(dirs, {"sector": "sector_vidr"})))
+	assert_eq(made.path, TEST_SECTORS.plus_file("sector_vidr/sector_vidr.tscn"))
+	var location = load(TEST_LOCATIONS.plus_file("sector_vidr.tres"))
+	assert_eq([location.template_id, location.location_name, location.sector_scene_path], ["sector_vidr", "Vidr", made.path])
+	assert_eq(_folder_problems(), [], "A new sector keeps the rules")
+	var planet := "res://scenes/levels/sectors/sector_elace/planet_elace_b/planet_elace_b.tscn"
+	var star := "res://scenes/levels/sectors/sector_elace/star_elace/star_elace.tscn"
+	var at := {"translation": {"$": "Vector3", "v": [20000, 0, 0]}}
+	assert_true(commands.handle("body_new", dict_with(dirs, {"sector": "sector_vidr", "kind": "star", "from": planet})).has("error"), "A star from a star")
+	var sun: Dictionary = _ok(commands.handle("body_new", dict_with(dirs, {"sector": "sector_vidr", "kind": "star", "from": star})))
+	assert_eq(sun.node, "SceneAssets/Star Vidr")
+	assert_true(File.new().file_exists(TEST_SECTORS.plus_file("sector_vidr/star_vidr/star_vidr_sprite.tscn")), "With its parts")
+	var first: Dictionary = _ok(commands.handle("body_new", dict_with(dirs, {"sector": "sector_vidr", "kind": "planet", "from": planet, "values": at})))
+	var second: Dictionary = _ok(commands.handle("body_new", dict_with(dirs, {"sector": "sector_vidr", "kind": "planet", "from": first.body})))
+	assert_eq([first.node, second.node], ["SceneAssets/Planet Vidr A", "SceneAssets/Planet Vidr B"], "The next free letter")
+	assert_true(commands.handle("body_new", dict_with(dirs, {"sector": "sector_vidr", "kind": "moon", "from": planet, "of": "c"})).has("error"), "No planet C")
+	var moon: Dictionary = _ok(commands.handle("body_new", dict_with(dirs, {"sector": "sector_vidr", "kind": "moon", "from": planet, "of": "b"})))
+	assert_eq(moon.node, "SceneAssets/Moon Vidr B1")
+	var scene: Node = load(made.path).instance()
+	assert_eq(scene.get_node("SceneAssets/Planet Vidr A").translation, Vector3(20000, 0, 0))
+	assert_eq(scene.get_node("SceneAssets/Star Vidr/").get_child_count() > 0, true)
+	scene.free()
+	assert_eq(_folder_problems(), [], "Bodies made by the tool keep the rules")
+	var gone: Dictionary = _ok(commands.handle("body_remove", dict_with(dirs, {"sector": "sector_vidr", "node": "SceneAssets/Planet Vidr A"})))
+	assert_eq(gone.deleted, [TEST_SECTORS.plus_file("sector_vidr/planet_vidr_a/planet_vidr_a.tscn")], "Its folder goes with it")
+	assert_false(Directory.new().dir_exists(TEST_SECTORS.plus_file("sector_vidr/planet_vidr_a")))
+	assert_eq(_folder_problems(), [])
+	_clear_dir(TEST_SECTORS)
+	_clear_dir(TEST_LOCATIONS)
+
+
+func test_the_folder_rules_catch_what_is_off():
+	var dirs: Dictionary = _test_dirs()
+	_ok(commands.handle("sector_new", dict_with(dirs, {"sector": "sector_vidr"})))
+	var folder: String = TEST_SECTORS.plus_file("sector_vidr")
+	var planet := "res://scenes/levels/sectors/sector_elace/planet_elace_b/planet_elace_b.tscn"
+	Directory.new().make_dir_recursive(folder.plus_file("planet_vidr_B"))
+	Directory.new().make_dir_recursive(folder.plus_file("moon_vidr_c1"))
+	Directory.new().copy(planet, folder.plus_file("moon_vidr_c1/moon_vidr_c1.tscn"))
+	Directory.new().copy(planet, folder.plus_file("stray.tscn"))
+	var texts: String = PoolStringArray(_folder_problems()).join("\n")
+	assert_string_contains(texts, "planet_vidr_B' is not lower_snake_case")
+	assert_string_contains(texts, "Its root is 'Planet Elace B', not 'Moon Vidr C1'")
+	assert_string_contains(texts, "A moon of planet C, which the sector does not have")
+	assert_string_contains(texts, "The sector scene does not place this body")
+	assert_string_contains(texts, "A sector folder holds only sector_vidr.tscn")
+	_clear_dir(TEST_SECTORS)
+	_clear_dir(TEST_LOCATIONS)
+
+
+func test_a_sector_is_cloned_apart_with_its_own_names():
+	var dirs: Dictionary = _test_dirs()
+	var real := "res://scenes/levels/sectors/sector_elace/"
+	var files: Array = ["sector_elace.tscn", "sector_elace_layout.tscn", "star_elace/star_elace.tscn", "star_elace/star_elace_sprite.tscn"]
+	for body in ["planet_elace_a", "moon_elace_a1", "moon_elace_b1", "planet_elace_b", "planet_elace_c", "moon_elace_c1", "belt_elace_deep"]:
+		files.append("%s/%s.tscn" % [body, body])
+	for name in files:  # Elace as it is, in the test's folder (its paths with it)
+		Directory.new().make_dir_recursive(TEST_SECTORS.plus_file("sector_elace/" + name).get_base_dir())
+		var file := File.new()
+		file.open(TEST_SECTORS.plus_file("sector_elace/" + name), File.WRITE)
+		file.store_string(_text(real + name).replace(real, TEST_SECTORS + "/sector_elace/"))
+		file.close()
+	Directory.new().copy("res://database/registry/locations/sector_elace.tres", TEST_LOCATIONS.plus_file("sector_elace.tres"))
+	var made: Dictionary = _ok(commands.handle("sector_clone", dict_with(dirs, {"sector": "sector_elace", "to": "sector_arena"})))
+	var text: String = _text(made.path)
+	assert_string_contains(text, 'path="%s/sector_arena/planet_arena_b/planet_arena_b.tscn"' % TEST_SECTORS)
+	assert_string_contains(text, '[node name="Planet Arena B" parent="SceneAssets"')
+	assert_string_contains(text, '[node name="Sector Arena" type="Spatial"]')
+	var layout: String = _text(TEST_SECTORS.plus_file("sector_arena/sector_arena_layout.tscn"))
+	assert_string_contains(layout, 'attached_to = "SceneAssets/Planet Arena B"')
+	assert_string_contains(layout, 'sector_id = "sector_arena"')
+	assert_string_contains(layout, 'haven_id = "station_arena_home"')
+	assert_string_contains(layout, 'haven_id = "arena_verdant_haven"', "Ids of its own")
+	assert_string_contains(layout, 'display_name = "Arena Free Port"')
+	assert_false(layout.find("Elace") >= 0, "Nothing of Elace's names left: %s" % layout.substr(layout.find("Elace") - 60, 120))
+	var location = load(TEST_LOCATIONS.plus_file("sector_arena.tres"))
+	assert_eq(Array(location.connections), [], "No one jumps there")
+	assert_string_contains(_text(TEST_SECTORS.plus_file("sector_arena/star_arena/star_arena.tscn")), "star_arena/star_arena_sprite.tscn")
+	assert_eq(_folder_problems(), [], "The clone keeps the rules, as its source does")
+	_clear_dir(TEST_SECTORS)
+	_clear_dir(TEST_LOCATIONS)
 
 
 func test_the_sector_scene_places_bodies_and_belts():

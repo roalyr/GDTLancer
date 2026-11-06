@@ -122,7 +122,7 @@ func test_losing_the_ship_keeps_the_bank_and_storage_and_wakes_at_home():
 func test_save_carries_the_evolution_and_a_summary():
 	_populate_game_state()
 	Evolution.new_run()
-	var life: Dictionary = Evolution.begin_life("verdant", "verdant_post")
+	var life: Dictionary = Evolution.begin_life("verdant", "arena_verdant_post")
 	Evolution.game_time = 1234.0
 	GameState.play_time = 7200.0
 	assert_true(GameStateManager.save_game(TEST_SLOT))
@@ -133,7 +133,7 @@ func test_save_carries_the_evolution_and_a_summary():
 	assert_true(GameStateManager.load_game(TEST_SLOT))
 	assert_almost_eq(Evolution.game_time, 1234.0, 0.01)
 	assert_almost_eq(GameState.play_time, 7200.0, 0.01)
-	assert_eq(Evolution.begin_life("verdant", "verdant_post").uid, life.uid, "The ship flying at the save flies again")
+	assert_eq(Evolution.begin_life("verdant", "arena_verdant_post").uid, life.uid, "The ship flying at the save flies again")
 	Evolution.new_run()
 	TemplateDatabase.evolved = {}
 
@@ -229,3 +229,20 @@ func test_the_modes_keep_their_data_in_their_own_folders():
 	assert_true(Constants.EVO_LOG_DIR.begins_with(Constants.EVOLUTION_DIR), "Life logs are evolution's")
 	assert_true(Constants.EVOLUTION_BACKUPS_DIR.begins_with(Constants.EVOLUTION_DIR))
 	_as_mode(GameStateManager.MODE_PLAY)
+
+
+func test_evolution_runs_in_its_own_sector_and_an_old_save_moves_there():
+	var saved_mode: String = GameStateManager.mode
+	assert_eq([GameStateManager.game_start_id(), GameStateManager.home_sector_id()], [Constants.DEFAULT_GAME_START_ID, Constants.INITIAL_SECTOR_ID], "The game: its home")
+	GameStateManager.mode = GameStateManager.MODE_EVOLUTION
+	GameStateManager.save_dir = TEST_SAVE_DIR
+	assert_eq([GameStateManager.game_start_id(), GameStateManager.home_sector_id()], [Constants.EVO_GAME_START_ID, Constants.EVO_SECTOR_ID], "Evolution: the arena")
+	GameState.current_sector_id = Constants.INITIAL_SECTOR_ID  # Where evolution lived before
+	GameState.player_docked_at = "station_elace_home"
+	GameStateManager._rehome_in_arena()
+	assert_eq(GameStateManager.game_start(Constants.EVO_GAME_START_ID).player_starting_location, "station_arena_home")
+	assert_eq([GameState.current_sector_id, GameState.player_docked_at, GameState.home_location_id],
+		[Constants.EVO_SECTOR_ID, GameStateManager.game_start(Constants.EVO_GAME_START_ID).player_starting_location,
+		GameStateManager.game_start(Constants.EVO_GAME_START_ID).player_starting_location])
+	GameStateManager.mode = saved_mode
+	GameStateManager.save_dir = TEST_SAVE_DIR

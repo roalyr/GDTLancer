@@ -21,6 +21,11 @@ HAVEN_FIELDS = [{"name": "translation", "type": "Vector3", "hint_name": "", "hin
                 {"name": "repair", "type": "bool", "hint_name": "", "hint_string": "", "comment": ""}]
 
 
+def read_location(sector):
+    path = devapp.file_path("res://database/registry/locations/%s.tres" % sector)
+    return devapp.read_text("res://database/registry/locations/%s.tres" % sector) if os.path.exists(path) else None
+
+
 class FakeBridge:
     def __init__(self, user_dir=""):
         self.user_dir = user_dir
@@ -55,6 +60,12 @@ class FakeBridge:
                 result["node"] = args["parent"] + "/" + args["name"] + "2"
             if command == "scene_instance":
                 result["node"] = "SceneAssets/" + args["name"] + "2"
+            return result
+        if command in ("body_new", "body_remove", "sector_new", "sector_clone"):
+            self.writes.append(dict(args, command=command))
+            result = {"path": "res://x.tscn", "problems": [], "new": [], "files": ["res://scenes/levels/sectors/sector_elace/planet_elace_d/planet_elace_d.tscn"]}
+            if command == "body_new":
+                result["node"] = "SceneAssets/Planet Elace D"
             return result
         if command == "layout_new":
             self.writes.append(dict(args, command=command))
@@ -235,24 +246,41 @@ class AppTest(unittest.IsolatedAsyncioTestCase):
             app.action_copy_marker()
             await self._started(pilot, app)
             copy = fake.writes[-1]
-            self.assertEqual((copy["command"], copy["scene"]), ("scene_instance", "res://scenes/levels/sectors/sector_elace/planet_elace_a/planet_elace_a.tscn"))
+            self.assertEqual((copy["command"], copy["kind"], copy["from"], copy["sector"]),
+                             ("body_new", "planet", "res://scenes/levels/sectors/sector_elace/planet_elace_a/planet_elace_a.tscn", "sector_elace"),
+                             "A copy of a body is a new body, named by the rules")
             self.assertEqual(copy["values"]["translation"]["v"][0], 6000.0 + devapp.COPY_OFFSET * 5)
             self.assertEqual(copy["values"]["rotation_degrees"]["v"], [0.0, 30.0, 0.0], "A copy is turned as the original")
+            self.assertIn(("res://scenes/levels/sectors/sector_elace/planet_elace_d/planet_elace_d.tscn", None), app.saved_text[0],
+                          "ctrl+u takes the new body's files away")
             app._show_node("@")
             app.action_new_marker()
             await pilot.pause()
-            self.assertIsInstance(app.screen, devapp.PlaceScreen)
-            app.screen.query_one("#place-ok").press()
+            self.assertIsInstance(app.screen, devapp.BodyScreen)
+            app.screen.query_one("#body-kind").value = "moon"
+            await pilot.pause()
+            self.assertEqual(app.screen.query_one("#body-of").value, "a", "Its planets to pick from")
+            app.screen.query_one("#body-ok").press()
             await self._started(pilot, app)
-            self.assertEqual(fake.writes[-1]["command"], "scene_instance")
-            self.assertEqual(fake.writes[-1]["path"], scene)
+            self.assertEqual((fake.writes[-1]["command"], fake.writes[-1]["kind"], fake.writes[-1]["of"]), ("body_new", "moon", "a"))
+            app._show_node("@")
+            app.action_new_marker()
+            await pilot.pause()
+            app.screen.query_one("#body-kind").value = "prefab"
+            await pilot.pause()
+            app.screen.query_one("#body-ok").press()
+            await self._started(pilot, app)
+            self.assertEqual((fake.writes[-1]["command"], fake.writes[-1]["path"], fake.writes[-1]["name"]), ("scene_instance", scene, "Asteroid"))
             app._show_node("@SceneAssets/Planet A")
             app.action_remove_marker()
             await pilot.pause()
             self.assertIn("Port", str(app.screen.query_one(Label).content), "It says what rides with it")
+            self.assertIn("planet_elace_a) goes too", str(app.screen.query_one(Label).content))
             app.screen.dismiss(True)
             await self._started(pilot, app)
-            self.assertEqual((fake.writes[-1]["command"], fake.writes[-1]["path"], fake.writes[-1]["node"]), ("scene_remove", scene, "SceneAssets/Planet A"))
+            self.assertEqual((fake.writes[-1]["command"], fake.writes[-1]["node"]), ("body_remove", "SceneAssets/Planet A"))
+            self.assertIn("res://scenes/levels/sectors/sector_elace/planet_elace_a/planet_elace_a.tscn", [path for path, _ in app.saved_text[0]],
+                          "ctrl+u brings its folder back")
 
     async def test_a_body_is_turned_in_the_form(self):
         fake = FakeBridge()
@@ -355,6 +383,28 @@ class AppTest(unittest.IsolatedAsyncioTestCase):
             files, _reload = app.saved_text
             self.assertEqual([(os.path.basename(path), text is None) for path, text in files],
                              [("sector_cob.tscn", False), ("sector_cob_layout.tscn", True)], "ctrl+u puts the scene back and takes the layout away")
+
+    async def test_sectors_are_made_and_copied_from_the_world_tab(self):
+        fake = FakeBridge()
+        app = devapp.DevApp(bridge_factory=lambda: fake)
+        async with app.run_test(size=(160, 60)) as pilot:
+            await self._open_sector(pilot, app)
+            app.query_one("#sector-new").press()
+            await pilot.pause()
+            app.screen.query_one(Input).value = "vidr"
+            await pilot.press("enter")
+            await self._started(pilot, app)
+            self.assertEqual((fake.writes[-1]["command"], fake.writes[-1]["sector"]), ("sector_new", "sector_vidr"))
+            self.assertIn(("res://database/registry/locations/sector_vidr.tres", read_location("sector_vidr")), app.saved_text[0],
+                          "ctrl+u puts its location back as it was")
+            app.load_sector("sector_elace", LAYOUT, ".")
+            await self._started(pilot, app)
+            app.query_one("#sector-clone").press()
+            await pilot.pause()
+            app.screen.query_one(Input).value = "sector_proving"
+            await pilot.press("enter")
+            await self._started(pilot, app)
+            self.assertEqual((fake.writes[-1]["command"], fake.writes[-1]["sector"], fake.writes[-1]["to"]), ("sector_clone", "sector_elace", "sector_proving"))
 
     async def test_a_data_file_still_named_somewhere_is_not_deleted(self):
         fake = FakeBridge()

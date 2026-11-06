@@ -100,3 +100,31 @@ func test_travellers_arrive_the_entry_beacons_radius_out_as_the_player_does():
 	shell = traffic._jump_shell_point(layout.to_global(layout.entry.at), "sector_cob")
 	assert_almost_eq(shell.distance_to(layout.to_global(layout.entry.at)), 8000.0 * 0.9, 1.0, "The entry beacon's radius")
 	GlobalRefs.current_zone = saved_zone
+
+
+func test_travellers_work_at_the_richest_field_clear_of_a_territory():
+	var network = load("res://src/scenes/game_world/sector_layout/beacon_network.gd").new()
+	add_child_autofree(network)
+	var made := {}
+	for spec in [["open", "field", "", Vector3(0, 0, 0)], ["hive_belt", "field", "", Vector3(40000, 0, 0)],
+			["hive", "haven", "xenohive", Vector3(42000, 0, 0)], ["violet_belt", "field", "", Vector3(-40000, 0, 0)],
+			["violet_haven", "haven", "violet", Vector3(-41000, 0, 0)]]:
+		var beacon = load("res://src/scenes/game_world/sector_layout/beacon.gd").new()
+		beacon.kind = spec[1]
+		beacon.faction = spec[2]
+		beacon.radius = 3000.0
+		beacon.transform.origin = spec[3]
+		network.add_child(beacon)
+		network.register(beacon)
+		made[spec[0]] = beacon
+	for at in [Vector3(500, 0, 0), Vector3(40500, 0, 0), Vector3(40000, 0, 900), Vector3(-40500, 0, 0), Vector3(-40000, 0, 800)]:
+		var rock = load(Constants.FIELD_ROCK_SCENE).instance()
+		rock.deposit = 100
+		rock.transform.origin = at
+		add_child_autofree(rock)
+	assert_eq(traffic._hotspot("verdant"), made.violet_belt, "The richest field: a rival's claim by it draws them the more")
+	made.violet_belt.kind = "landmark"
+	assert_eq(traffic._hotspot("verdant"), made.open, "Not the hive's, the richer: a territory")
+	var point: Vector3 = traffic._work_point({"role": "prospector", "faction": "verdant"}, Vector3(9000, 0, 0))
+	assert_eq(point, Vector3(500, 0, 0), "A prospector at the rock there")
+	assert_eq(traffic._work_point({"role": "fighter", "faction": "verdant"}, Vector3(9000, 0, 0)), Vector3.ZERO, "Others at the field")

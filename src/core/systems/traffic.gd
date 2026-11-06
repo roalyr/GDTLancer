@@ -7,7 +7,7 @@
 # jump's fuel (ceil(mass / FUEL_MASS_PER_UNIT), as everyone), and arrives TRAFFIC_TRANSIT_TIME later.
 # Without fuel for a jump it stays put. In Elace it sells its cargo (home station prices) into its bank, buys
 # fuel and is repaired. In the player's sector it is a ship (its genome, built as an evolving NPC's is):
-# its AI mines, raids or patrols round its work point (prospectors: the nearest minable thing), and
+# its AI mines, raids or patrols round its work point (the sector's hotspot: _work_point), and
 # when its time is up, or its hold full, it flies out toward "next" and jumps. A traveller that dies is
 # gone; another takes its place in Elace TRAFFIC_REPLACE_TIME later, from the best design of its kind.
 # A child of AgentSystem, ticked by its population timer.
@@ -16,6 +16,7 @@ extends Node
 
 const Genome = preload("res://src/core/evolution/genome.gd")
 const Market = preload("res://src/core/systems/market.gd")
+const BeaconNetwork = preload("res://src/scenes/game_world/sector_layout/beacon_network.gd")
 
 var _bodies: Dictionary = {}  # Traveller id -> its ship in the current sector
 var _unloading: bool = false  # The sector is going: its ships leave with it, not through a jump point
@@ -211,14 +212,15 @@ func _spawn(record: Dictionary) -> void:
 	var entry: Vector3 = _entry_point()
 	var arriving: bool = bool(record.get("arriving", false))
 	record.erase("arriving")
-	var position: Vector3 = _jump_shell_point(entry, record.from) if arriving else _work_point(record, entry) + _scatter(Constants.TRAFFIC_WORK_RADIUS)
+	var work: Vector3 = _work_point(record, entry)
+	var position: Vector3 = _jump_shell_point(entry, record.from) if arriving else work + _scatter(Constants.TRAFFIC_WORK_RADIUS)
 	var body = spawner.spawn_npc_from_template(Constants.NPC_BASE_TEMPLATE_PATH, position, {
 		"faction": record.faction,
 		"ship_template_id": built.ship_template_id,
 		"fit": built.fit,
 		"skill": 0.6,
 		"behavior": record.genome.get("behavior", Genome.default_behavior()),
-		"patrol_center": _work_point(record, entry),
+		"patrol_center": work,
 		"home_point": _jump_shell_point(entry, record.next),
 		"wallet": float(record.bank),
 	})
@@ -309,18 +311,53 @@ func _jump_shell_point(entry: Vector3, sector_id: String) -> Vector3:
 
 
 # Prospectors work the nearest minable thing to the entry point; the rest keep near it.
+# Where a traveller works: the sector's hotspot (_hotspot), the rush that draws prospectors to mine,
+# raiders to prey on them and fighters to guard or contest it; a prospector at the rock there
+# nearest its middle. With no hotspot, a prospector the minable thing nearest the entry, others the entry.
 func _work_point(record: Dictionary, entry: Vector3) -> Vector3:
-	if record.role == "prospector":
-		var best: Spatial = null
-		var best_distance: float = Constants.TRAFFIC_WORK_SEARCH
-		for rock in get_tree().get_nodes_in_group("mineable"):
-			var distance: float = rock.global_transform.origin.distance_to(entry)
-			if distance < best_distance:
-				best = rock
-				best_distance = distance
-		if best != null:
-			return best.global_transform.origin
-	return entry
+	var hotspot = _hotspot(record.faction)
+	var centre: Vector3 = hotspot.global_transform.origin if hotspot != null else entry
+	if record.role != "prospector":
+		return centre
+	var best: Spatial = null
+	var best_distance: float = hotspot.radius + Constants.BEACON_LOITER_RADIUS if hotspot != null else Constants.TRAFFIC_WORK_SEARCH
+	for rock in get_tree().get_nodes_in_group("mineable"):
+		var distance: float = rock.global_transform.origin.distance_to(centre)
+		if distance < best_distance:
+			best = rock
+			best_distance = distance
+	return best.global_transform.origin if best != null else centre
+
+
+# The field beacon of the current sector with the most ore in reach (as BeaconNetwork counts it),
+# away from territorial factions' havens (a xenohive's belt is a risk for the sector's own
+# prospectors, not a traveller's work; rivals' claims on a belt draw them all the more); null if none.
+func _hotspot(_faction: String):
+	var network = BeaconNetwork.of(self) if is_inside_tree() else null
+	if network == null:
+		return null
+	var rocks: Array = get_tree().get_nodes_in_group("mineable")
+	var best = null
+	var best_ore := 0
+	for beacon in network.beacons:
+		if beacon.kind != "field" or _territory_near(network, beacon):
+			continue
+		var ore := 0
+		for rock in rocks:
+			if rock.global_transform.origin.distance_to(beacon.global_transform.origin) <= beacon.radius + Constants.BEACON_LOITER_RADIUS:
+				ore += rock.get_deposit()
+		if ore > best_ore:
+			best = beacon
+			best_ore = ore
+	return best
+
+
+static func _territory_near(network, field) -> bool:
+	for beacon in network.beacons:
+		if beacon.kind == "haven" and TemplateDatabase.factions.get(beacon.faction, {}).has("territory") \
+				and beacon.global_transform.origin.distance_to(field.global_transform.origin) <= field.radius + Constants.TRAFFIC_HOTSPOT_HAVEN_CLEAR:
+			return true
+	return false
 
 
 static func _scatter(radius: float) -> Vector3:

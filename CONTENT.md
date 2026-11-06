@@ -35,6 +35,21 @@ Aliens set `no_standing`, `territory` and `salvage_as`, and may fly a hull of th
 - **The Godot editor** composes scenes: one star, planet or moon (`<sector>/<body>/<body>.tscn`), one asteroid belt filled with its rocks (`<sector>/belt_<name>/belt_<name>.tscn`), one station or ship model (see **Models**).
 - **The tool (World)** places them: what a sector holds, where, what is linked to what. It creates, moves and deletes the bodies and belts in the sector scene and every marker in its layout, and links markers to bodies. Placing by hand in the Godot editor works too, but the tool is the way.
 
+**Names and folders are rules** (`src/core/validation/sector_names.gd`, checked with the rest):
+```
+scenes/levels/sectors/sector_<word>/      the location's id; its location's sector_scene_path points here
+    sector_<word>.tscn                    the sector scene, root "Sector <Word>"
+    sector_<word>_layout.tscn             its layout
+    <body>/<body>.tscn                    one folder a body; other files there are its parts: <body>_<part>.tscn
+```
+A body is `star_<word>` (then `star_<word>_b`, `_c`...), `planet_<word>_<letter>`, `moon_<word>_<planet's letter><n>` (`moon_elace_b1`: Planet B's first), or `belt_<word>_<its own word>`. Everything is lower_snake_case. A body's root, and its node in the sector scene, are its title ("Planet Elace B"). A sector places each of its own bodies once, and the shared prefabs (`scenes/prefabs/celestial/`) as often as it likes; nothing from another sector's folder. The tool names everything it makes by these rules, so what it makes passes them:
+- **New sector** (button): its folder, an empty scene, a layout with its entry, and its location (made, or the one there pointed at it).
+- **Copy sector** (button): the open sector as a new one, apart (no connections), its bodies renamed and its havens' ids made its own.
+- **New body** (`ctrl+n` on Scene): a copy of a body you pick, named by the rules (the next free letter; a moon of the planet you pick; a belt's word), placed in the sector scene; then change its looks in the Godot editor. Or a shared prefab placed as it is.
+- **Copy** (`ctrl+d` on a body) makes a new body like it; **delete** removes a body and its folder. `ctrl+u` takes any of these back.
+
+**Elace and the arena.** Elace (`sector_elace`) is the game's home, built round a rush: Planet B's ring (Elace B Belt) is rich and open to all, with each side's claim at its edge, the free port as its town, both sides' pickets on it and on their lanes, and the raider den over the lanes. The refinery pays best across the star, so ore is hauled round it by the passes. The deep belt at the Xenohive is richer per rock, and the hive's. Travelling NPCs work at the richest field clear of a territory (the rush). Evolution runs in **the arena** (`sector_arena`, `Constants.EVO_SECTOR_ID`): Elace as it was, symmetric, so neither side starts ahead; nothing connects to it, so the game never goes there, and evolution's run starts docked there (`start_evolution`). The rules keep it so: only the arena stands apart, and each mode's start docks in its own sector.
+
 **The sector scene** (`<sector>.tscn`) places its bodies and belts under `SceneAssets`, with its layout (`SectorLayout`). Nothing else is placed there: no stations (they come with their haven) and no entry point (a beacon). A sector with no layout yet keeps an `EntryPoint` node instead, where ships arrive until it has one.
 
 **The layout** (`<sector>_layout.tscn`) is a scene of markers among the bodies. Move a marker (`translation`, in m) to move what it stands for. The layout's root sets the play area. A marker can be **attached** to a body (`attached_to`): its translation is then from that body, and it moves with it (the star's radiation, a planet's ring of rocks). In the Godot editor the markers sit under `SceneAssets/SectorLayout/Layout`, each drawing its reach as a ring (an attached one's round its body, where the game puts it).

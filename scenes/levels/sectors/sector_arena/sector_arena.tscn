@@ -1,0 +1,63 @@
+[gd_scene load_steps=13 format=2]
+
+[ext_resource path="res://src/scenes/game_world/starsphere_slot.gd" type="Script" id=2]
+[ext_resource path="res://scenes/starspheres/global_nebulas_starsphere/global_nebulas.tscn" type="PackedScene" id=3]
+[ext_resource path="res://scenes/levels/sectors/sector_arena/star_arena/star_arena.tscn" type="PackedScene" id=4]
+[ext_resource path="res://scenes/levels/sectors/sector_arena/planet_arena_a/planet_arena_a.tscn" type="PackedScene" id=19]
+[ext_resource path="res://scenes/levels/sectors/sector_arena/moon_arena_a1/moon_arena_a1.tscn" type="PackedScene" id=20]
+[ext_resource path="res://scenes/levels/sectors/sector_arena/moon_arena_b1/moon_arena_b1.tscn" type="PackedScene" id=21]
+[ext_resource path="res://scenes/levels/sectors/sector_arena/planet_arena_b/planet_arena_b.tscn" type="PackedScene" id=22]
+[ext_resource path="res://scenes/levels/sectors/sector_arena/planet_arena_c/planet_arena_c.tscn" type="PackedScene" id=23]
+[ext_resource path="res://scenes/levels/sectors/sector_arena/moon_arena_c1/moon_arena_c1.tscn" type="PackedScene" id=24]
+[ext_resource path="res://src/scenes/game_world/sector_layout/sector_layout.gd" type="Script" id=25]
+[ext_resource path="res://scenes/levels/sectors/sector_arena/sector_arena_layout.tscn" type="PackedScene" id=26]
+[ext_resource path="res://scenes/levels/sectors/sector_arena/belt_arena_deep/belt_arena_deep.tscn" type="PackedScene" id=27]
+
+[node name="Sector Arena" type="Spatial"]
+
+[node name="AgentContainer" type="Spatial" parent="."]
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="StarsphereSlot" type="Spatial" parent="."]
+script = ExtResource( 2 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Globalnebulas" parent="StarsphereSlot" instance=ExtResource( 3 )]
+visible = false
+
+[node name="SceneAssets" type="Spatial" parent="."]
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Star Arena" parent="SceneAssets" instance=ExtResource( 4 )]
+
+[node name="Planet Arena A" parent="SceneAssets" instance=ExtResource( 19 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 6000, 0, 22000 )
+
+[node name="Moon Arena A1" parent="SceneAssets" instance=ExtResource( 20 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -2000, 0, 28000 )
+
+[node name="Moon Arena B1" parent="SceneAssets" instance=ExtResource( 21 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 31000, 0, 0 )
+
+[node name="Planet Arena B" parent="SceneAssets" instance=ExtResource( 22 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 25000, 0, 0 )
+
+[node name="Planet Arena C" parent="SceneAssets" instance=ExtResource( 23 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 6000, 0, -22000 )
+
+[node name="Moon Arena C1" parent="SceneAssets" instance=ExtResource( 24 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -2000, 0, -28000 )
+
+[node name="SectorLayout" type="Spatial" parent="SceneAssets"]
+script = ExtResource( 25 )
+
+[node name="Layout" parent="SceneAssets/SectorLayout" instance=ExtResource( 26 )]
+
+[node name="Belt Arena Deep" parent="SceneAssets" instance=ExtResource( 27 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -25700, -20500 )

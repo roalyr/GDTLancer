@@ -202,3 +202,70 @@ func test_in_the_editor_an_attached_markers_ring_is_drawn_round_its_body():
 	marker.attached_to = ""
 	marker._process(0.0)
 	assert_eq(ring.transform.origin, Vector3.ZERO, "Let go: at the marker again")
+
+
+# --- Elace's design: a rush round one rich, open belt (and a rich, risky one at the hive) ---
+
+static func _by_name(list: Array) -> Dictionary:
+	var out := {}
+	for item in list:
+		out[item.get("name", item.get("id", ""))] = item
+	return out
+
+
+static func _at(spec: Dictionary, bodies: Dictionary) -> Vector3:
+	return spec.at + bodies.get(str(spec.get("attached_to", "")), Vector3.ZERO)
+
+
+func _bodies(sector_id: String) -> Dictionary:
+	var out := {}
+	var scene: Node = load("res://scenes/levels/sectors/%s/%s.tscn" % [sector_id, sector_id]).instance()
+	for body in scene.get_node("SceneAssets").get_children():
+		out["SceneAssets/" + body.name] = body.translation
+	scene.free()
+	return out
+
+
+func test_elace_is_built_round_a_rush_on_one_open_belt():
+	var spec: Dictionary = TemplateDatabase.sector_layouts.sector_elace
+	var bodies: Dictionary = _bodies("sector_elace")
+	var fields: Array = []
+	for beacon in spec.beacons:
+		if beacon.kind == "field":
+			fields.append(beacon)
+	assert_eq(fields.size(), 2, "Two belts: the open one and the hive's")
+	var beacons: Dictionary = _by_name(spec.beacons)
+	var havens: Dictionary = {}
+	for haven in spec.havens:
+		havens[haven.id] = haven
+	var rush: Vector3 = _at(beacons["Elace B Belt"], bodies)
+	var deep: Vector3 = _at(beacons["Deep Field"], bodies)
+	assert_gt(int(beacons["Elace B Belt"].rocks), int(beacons["Deep Field"].rocks), "The open belt has the more rocks; the deep one the bigger")
+	assert_lt(_at(havens.xenohive, bodies).distance_to(deep), 6000.0, "The deep belt is the hive's")
+	for faction in ["verdant", "violet"]:
+		var nearest := INF
+		for beacon in spec.beacons:
+			if beacon.kind == "patrol" and beacon.get("owner", "") == faction:
+				nearest = min(nearest, _at(beacon, bodies).distance_to(rush))
+		assert_lt(nearest, 12000.0, "%s pickets the rush: the patrols meet there" % faction)
+		assert_lt(_at(havens[faction + "_post"], bodies).distance_to(rush), 14000.0, "%s has a claim by the belt" % faction)
+	var star: Vector3 = bodies["SceneAssets/Star Elace"]
+	assert_lt((rush - star).normalized().dot((_at(havens.elace_refinery, bodies) - star).normalized()), -0.5,
+		"The refinery pays best across the star from the belt: ore is hauled round it")
+	assert_lt(_at(havens.station_elace_home, bodies).distance_to(rush), 8000.0, "The free port is the rush's town")
+
+
+func test_the_arena_keeps_elace_as_it_was_for_evolution():
+	var spec: Dictionary = TemplateDatabase.sector_layouts[Constants.EVO_SECTOR_ID]
+	var havens: Dictionary = {}
+	for haven in spec.havens:
+		havens[haven.id] = haven
+	for pair in [["arena_verdant_haven", "arena_violet_haven"], ["arena_verdant_post", "arena_violet_post"]]:
+		var a: Vector3 = havens[pair[0]].at
+		var b: Vector3 = havens[pair[1]].at
+		assert_eq(Vector3(a.x, a.y, -a.z), b, "Mirror images: %s and %s" % pair)
+		assert_eq_deep(havens[pair[0]].ships.values(), havens[pair[1]].ships.values())
+	var location = load("res://database/registry/locations/%s.tres" % Constants.EVO_SECTOR_ID)
+	assert_eq(Array(location.connections), [], "Apart: no one jumps there")
+	for id in TemplateDatabase.locations:
+		assert_false(Constants.EVO_SECTOR_ID in Array(TemplateDatabase.locations[id].connections), "%s does not lead there" % id)

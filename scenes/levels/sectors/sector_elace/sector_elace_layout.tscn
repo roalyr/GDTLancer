@@ -27,6 +27,7 @@ radius = 15000.0
 [node name="Havens" type="Spatial" parent="."]
 
 [node name="ElaceFreePort" type="Position3D" parent="Havens"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 30000, 0, 5000 )
 script = ExtResource( 1 )
 haven_id = "station_elace_home"
 display_name = "Elace Free Port"
@@ -42,7 +43,6 @@ rearm = true
 buys = {
 "*": 1.0
 }
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 30000, 0, 5000 )
 
 [node name="VerdantHaven" type="Position3D" parent="Havens"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 6000, 0, 25000 )
@@ -63,14 +63,14 @@ buys = {
 }
 
 [node name="VerdantPost" type="Position3D" parent="Havens"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -2000, 0, 29500 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 20000, 0, 10000 )
 script = ExtResource( 1 )
 haven_id = "verdant_post"
-display_name = "Verdant Post"
+display_name = "Verdant Claim"
 faction = "verdant"
 model = ExtResource( 7 )
 ships = {
-"verdant": 2
+"verdant": 3
 }
 prefer_role = "prospector"
 prefer_share = 0.7
@@ -99,14 +99,14 @@ buys = {
 }
 
 [node name="VioletPost" type="Position3D" parent="Havens"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -2000, 0, -29500 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 22000, 0, -10000 )
 script = ExtResource( 1 )
 haven_id = "violet_post"
-display_name = "Violet Post"
+display_name = "Violet Claim"
 faction = "violet"
 model = ExtResource( 7 )
 ships = {
-"violet": 2
+"violet": 3
 }
 prefer_role = "prospector"
 prefer_share = 0.7
@@ -117,7 +117,7 @@ buys = {
 }
 
 [node name="ElaceRefinery" type="Position3D" parent="Havens"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 32500, 0, 0 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -26000, 0, -6000 )
 script = ExtResource( 1 )
 haven_id = "elace_refinery"
 display_name = "Elace Refinery"
@@ -135,14 +135,14 @@ buys = {
 }
 
 [node name="RaiderDen" type="Position3D" parent="Havens"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 24000, 0 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 10000, 20000, 0 )
 script = ExtResource( 1 )
 haven_id = "raider_den"
 display_name = "Raider Den"
 faction = "raiders"
 model = ExtResource( 5 )
 ships = {
-"raiders": 4
+"raiders": 5
 }
 prefer_role = ""
 prefer_share = 0.0
@@ -172,125 +172,71 @@ buys = {
 
 [node name="Beacons" type="Spatial" parent="."]
 
-[node name="VerdantPicketWest" type="Position3D" parent="Beacons"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -8000, 0, 20000 )
+[node name="VerdantPicketBelt" type="Position3D" parent="Beacons"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 24000, 0, 8000 )
 script = ExtResource( 3 )
 kind = "patrol"
-beacon_name = "Verdant Picket West"
+beacon_name = "Verdant Picket Belt"
 owner_faction = "verdant"
-radius = 0.0
-rocks = 0
-ring = 0.0
-player_visible = false
 
-[node name="VerdantPicketEast" type="Position3D" parent="Beacons"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 16000, 0, 16000 )
+[node name="VerdantPicketLane" type="Position3D" parent="Beacons"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 17000 )
 script = ExtResource( 3 )
 kind = "patrol"
-beacon_name = "Verdant Picket East"
+beacon_name = "Verdant Picket Lane"
 owner_faction = "verdant"
-radius = 0.0
-rocks = 0
-ring = 0.0
-player_visible = false
 
-[node name="VerdantPicketNorth" type="Position3D" parent="Beacons"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 6000, 0, 33000 )
+[node name="VerdantPicketHome" type="Position3D" parent="Beacons"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -4000, 0, 21000 )
 script = ExtResource( 3 )
 kind = "patrol"
-beacon_name = "Verdant Picket North"
+beacon_name = "Verdant Picket Home"
 owner_faction = "verdant"
-radius = 0.0
-rocks = 0
-ring = 0.0
-player_visible = false
 
-[node name="VioletPicketWest" type="Position3D" parent="Beacons"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -8000, 0, -20000 )
+[node name="VioletPicketBelt" type="Position3D" parent="Beacons"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 24000, 0, -8000 )
 script = ExtResource( 3 )
 kind = "patrol"
-beacon_name = "Violet Picket West"
+beacon_name = "Violet Picket Belt"
 owner_faction = "violet"
-radius = 0.0
-rocks = 0
-ring = 0.0
-player_visible = false
 
-[node name="VioletPicketEast" type="Position3D" parent="Beacons"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 16000, 0, -16000 )
+[node name="VioletPicketLane" type="Position3D" parent="Beacons"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -17000 )
 script = ExtResource( 3 )
 kind = "patrol"
-beacon_name = "Violet Picket East"
+beacon_name = "Violet Picket Lane"
 owner_faction = "violet"
-radius = 0.0
-rocks = 0
-ring = 0.0
-player_visible = false
 
-[node name="VioletPicketSouth" type="Position3D" parent="Beacons"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 6000, 0, -33000 )
+[node name="VioletPicketRefinery" type="Position3D" parent="Beacons"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -22000, 0, -12000 )
 script = ExtResource( 3 )
 kind = "patrol"
-beacon_name = "Violet Picket South"
+beacon_name = "Violet Picket Refinery"
 owner_faction = "violet"
-radius = 0.0
-rocks = 0
-ring = 0.0
-player_visible = false
-
-[node name="VerdantHomeField" type="Position3D" parent="Beacons"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 14000, 0, 28000 )
-script = ExtResource( 3 )
-kind = "field"
-beacon_name = "Verdant Home Field"
-owner_faction = ""
-radius = 2000.0
-rocks = 14
-ring = 0.0
-player_visible = false
-
-[node name="VioletHomeField" type="Position3D" parent="Beacons"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 14000, 0, -28000 )
-script = ExtResource( 3 )
-kind = "field"
-beacon_name = "Violet Home Field"
-owner_faction = ""
-radius = 2000.0
-rocks = 14
-ring = 0.0
-player_visible = false
 
 [node name="ElaceBBelt" type="Position3D" parent="Beacons"]
 script = ExtResource( 3 )
 attached_to = "SceneAssets/Planet Elace B"
 kind = "field"
 beacon_name = "Elace B Belt"
-owner_faction = ""
-radius = 5000.0
-rocks = 30
-ring = 0.5
-player_visible = false
+radius = 7000.0
+rocks = 45
+ring = 0.4
 
 [node name="DeepField" type="Position3D" parent="Beacons"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -24000, 0 )
 script = ExtResource( 3 )
 kind = "field"
 beacon_name = "Deep Field"
-owner_faction = ""
-radius = 4000.0
-rocks = 12
+radius = 5000.0
+rocks = 20
 ring = 0.0
-player_visible = false
 
 [node name="WestPassNorth" type="Position3D" parent="Beacons"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -18000, 0, 11000 )
 script = ExtResource( 3 )
 kind = "landmark"
 beacon_name = "West Pass North"
-owner_faction = ""
-radius = 0.0
-rocks = 0
-ring = 0.0
 player_visible = true
 
 [node name="WestPassSouth" type="Position3D" parent="Beacons"]
@@ -298,10 +244,6 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -18000, 0, -11000 )
 script = ExtResource( 3 )
 kind = "landmark"
 beacon_name = "West Pass South"
-owner_faction = ""
-radius = 0.0
-rocks = 0
-ring = 0.0
 player_visible = true
 
 [node name="EastPassNorth" type="Position3D" parent="Beacons"]
@@ -309,10 +251,6 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 20000, 0, 11000 )
 script = ExtResource( 3 )
 kind = "landmark"
 beacon_name = "East Pass North"
-owner_faction = ""
-radius = 0.0
-rocks = 0
-ring = 0.0
 player_visible = true
 
 [node name="EastPassSouth" type="Position3D" parent="Beacons"]
@@ -320,10 +258,6 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 20000, 0, -11000 )
 script = ExtResource( 3 )
 kind = "landmark"
 beacon_name = "East Pass South"
-owner_faction = ""
-radius = 0.0
-rocks = 0
-ring = 0.0
 player_visible = true
 
 [node name="Entry" type="Position3D" parent="Beacons"]

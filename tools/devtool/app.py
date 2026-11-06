@@ -12,8 +12,8 @@ The development tool's menu (Textual): the project's content and its checks in o
     Data       every data file by kind (the material library too), edited in a form made from its
                script or shader; new, delete (only what nothing names); each save is checked
     World      each sector: its scene's bodies and belts and its layout's markers (havens, beacons,
-               hazards) on a map, each in a form; add, copy, remove; a layout for a sector with none;
-               each save is checked
+               hazards) on a map, each in a form; add, copy, remove; new sectors, copies of one, new
+               bodies, all named by the sector rules (SectorNames); each save is checked
     Constants  src/autoload/Constants.gd by section or by kind of value; values changed in place,
                Godot checks the script before it is saved
     Tools      evolution, the APK and the newest outputs at a glance; every tool (tasks.py) to run
@@ -50,20 +50,56 @@ MARKERS = "res://src/scenes/game_world/sector_layout/markers/"
 GROUP_MARKERS = {"Havens": "haven_marker.gd", "Beacons": "beacon_marker.gd", "Hazards": "hazard_marker.gd"}
 COPY_OFFSET = 2000.0  # m along x between a marker and its copy
 SCENE = "@"  # World keys of what the sector scene places: "@" + its node path; "@" alone: the group
-PLACEABLE = ("scenes/levels/sectors/*/*/*.tscn", "scenes/prefabs/celestial/*.tscn")  # Scenes the World tab places in a sector
+BODY_SCENES = "scenes/levels/sectors/*/*/*.tscn"  # A body is its folder's <folder>.tscn (SectorNames)
+PREFABS = "scenes/prefabs/celestial/*.tscn"  # Shared celestial scenes a sector places as often as it likes
+BODY_KINDS = ("star", "planet", "moon", "belt")
+SECTORS_DIR = "res://scenes/levels/sectors/"
+LOCATIONS_DIR = "res://database/registry/locations/"
 
 
-def placeable_scenes():
-    """res:// paths of the scenes a sector can place: stars, planets, moons, belts (composed in Godot).
-    In a sector's folders only <folder>/<folder>.tscn counts: the others there are parts of one (a
-    star's sprite)."""
+def home_sector():
+    """The game's home sector (Constants INITIAL_SECTOR_ID)."""
+    import re
+    found = re.search(r'^const INITIAL_SECTOR_ID: String = "([^"]+)"', read_text("res://src/autoload/Constants.gd"), re.M)
+    return found.group(1) if found else ""
+
+
+def body_scenes():
+    """[(res path, is a star)] of every sector's bodies (<folder>/<folder>.tscn), to make a new one like."""
     out = []
-    for pattern in PLACEABLE:
-        for path in sorted(glob.glob(os.path.join(tasks.ROOT, pattern))):
-            folder = os.path.basename(os.path.dirname(path))
-            if pattern.startswith("scenes/levels/sectors/") and os.path.basename(path) != folder + ".tscn":
-                continue
-            out.append("res://" + os.path.relpath(path, tasks.ROOT))
+    for path in sorted(glob.glob(os.path.join(tasks.ROOT, BODY_SCENES))):
+        if os.path.basename(path) != os.path.basename(os.path.dirname(path)) + ".tscn":
+            continue  # A body's part (a star's sprite)
+        with open(path, errors="ignore") as handle:
+            out.append(("res://" + os.path.relpath(path, tasks.ROOT), "is_star = true" in handle.read()))
+    return out
+
+
+def prefab_scenes():
+    return ["res://" + os.path.relpath(path, tasks.ROOT) for path in sorted(glob.glob(os.path.join(tasks.ROOT, PREFABS)))]
+
+
+def own_body(scene, sector):
+    """(kind, suffix) if `scene` is one of `sector`'s own bodies (by the naming rules), else None."""
+    folder = SECTORS_DIR + sector + "/"
+    if not scene.startswith(folder) or scene.count("/") != folder.count("/") + 1:
+        return None
+    stem = os.path.basename(scene)[:-len(".tscn")]
+    word = sector[len("sector_"):]
+    for kind in BODY_KINDS:
+        head = "%s_%s" % (kind, word)
+        if stem == head or stem.startswith(head + "_"):
+            return kind, stem[len(head) + 1:]
+    return None
+
+
+def folder_texts(scene):
+    """[(path, text)] of the files in a body scene's folder (for ctrl+u, before it goes)."""
+    folder = os.path.dirname(file_path(scene))
+    out = []
+    for name in sorted(os.listdir(folder)) if os.path.isdir(folder) else []:
+        if os.path.isfile(os.path.join(folder, name)):
+            out.append((os.path.dirname(scene) + "/" + name, read_text(os.path.dirname(scene) + "/" + name)))
     return out
 
 
@@ -644,42 +680,95 @@ class NameScreen(ModalScreen):
         self.dismiss(None)
 
 
-class PlaceScreen(ModalScreen):
-    """Which scene to place, and its node name; dismisses with (scene, name), or None."""
+class BodyScreen(ModalScreen):
+    """A new body for a sector, named by the rules (SectorNames): its kind and the body it is made
+    like (a copy of its scene), a moon's planet, a belt's word; or a shared prefab placed as it is.
+    Dismisses with {"kind", "from", "of", "word"} or {"kind": "prefab", "from", "name"}, or None."""
 
     DEFAULT_CSS = """
-    PlaceScreen { align: center middle; }
-    PlaceScreen > Vertical { width: 90; height: auto; border: thick $accent; background: $surface; padding: 1 2; }
-    PlaceScreen #place-buttons { height: auto; margin-top: 1; }
+    BodyScreen { align: center middle; }
+    BodyScreen > Vertical { width: 96; height: auto; border: thick $accent; background: $surface; padding: 1 2; }
+    BodyScreen Label { margin-top: 1; }
+    BodyScreen #body-buttons { height: auto; margin-top: 1; }
     """
     BINDINGS = [Binding("escape", "cancel", "Cancel")]
+    KINDS = [("A new star", "star"), ("A new planet", "planet"), ("A new moon", "moon"), ("A new belt", "belt"), ("A shared prefab", "prefab")]
+    RULE = {"star": "Named star_<sector>, then star_<sector>_b, c ...: the next free one.",
+            "planet": "Named planet_<sector>_<letter>: the next free letter.",
+            "moon": "Named moon_<sector>_<its planet's letter><number>: the planet's next moon.",
+            "belt": "Named belt_<sector>_<word>: give the word (lower_snake_case).",
+            "prefab": "Placed as it is (no copy); its node is named after it."}
 
-    def __init__(self, title, scenes):
+    def __init__(self, title, planets, bodies, prefabs):
         super().__init__()
-        self.title_, self.scenes = title, scenes
+        self.title_, self.planets, self.bodies, self.prefabs = title, planets, bodies, prefabs
+
+    def _sources(self, kind):
+        if kind == "prefab":
+            return self.prefabs
+        if kind == "star":
+            return [path for path, star in self.bodies if star]
+        others = [path for path, star in self.bodies if not star]
+        return sorted(others, key=lambda path: (not os.path.basename(path).startswith(kind + "_"), path))  # Its kind first
 
     def compose(self) -> ComposeResult:
         with Vertical():
             yield Label(self.title_)
-            yield Select([(path.replace("res://", ""), path) for path in self.scenes], id="place-scene", allow_blank=False,
-                         value=self.scenes[0])
-            yield Label("Its node name")
-            yield Input(value=title_of(self.scenes[0]), id="place-name")
-            with Horizontal(id="place-buttons"):
-                yield Button("Place", id="place-ok", variant="primary")
-                yield Button("Cancel", id="place-cancel")
+            yield Select(self.KINDS, id="body-kind", allow_blank=False, value="planet")
+            yield Label("Made like (a copy of its scene, to change in the Godot editor)", id="body-from-label")
+            yield Select([], id="body-from", allow_blank=True)
+            yield Label("Its planet", id="body-of-label")
+            yield Select([("Planet " + letter.upper(), letter) for letter in self.planets], id="body-of", allow_blank=not self.planets,
+                         value=self.planets[0] if self.planets else Select.BLANK)
+            yield Label("Its word", id="body-word-label")
+            yield Input(placeholder="deep", id="body-word")
+            yield Static("", id="body-rule")
+            with Horizontal(id="body-buttons"):
+                yield Button("Make", id="body-ok", variant="primary")
+                yield Button("Cancel", id="body-cancel")
 
-    @on(Select.Changed, "#place-scene")
-    def _scene_changed(self, event):
-        self.query_one("#place-name", Input).value = title_of(event.value)
+    def on_mount(self):
+        self._kind_shown("planet")
 
-    @on(Button.Pressed, "#place-ok")
-    @on(Input.Submitted, "#place-name")
+    @on(Select.Changed, "#body-kind")
+    def _kind_changed(self, event):
+        if event.value is not Select.BLANK:
+            self._kind_shown(event.value)
+
+    def _kind_shown(self, kind):
+        sources = self._sources(kind)
+        chooser = self.query_one("#body-from", Select)
+        chooser.set_options([(path.replace("res://scenes/", ""), path) for path in sources])
+        if sources:
+            chooser.value = sources[0]
+        for widget in ("#body-of-label", "#body-of"):
+            self.query_one(widget).display = kind == "moon"
+        for widget in ("#body-word-label", "#body-word"):
+            self.query_one(widget).display = kind in ("belt", "prefab")
+        self.query_one("#body-word-label", Label).update("Its node name" if kind == "prefab" else "Its word")
+        if kind == "prefab" and sources:
+            self.query_one("#body-word", Input).value = title_of(sources[0])
+        self.query_one("#body-rule", Static).update("[dim]%s[/dim]" % self.RULE[kind])
+
+    @on(Button.Pressed, "#body-ok")
+    @on(Input.Submitted, "#body-word")
     def _done(self, _event):
-        name = self.query_one("#place-name", Input).value.strip()
-        self.dismiss((self.query_one("#place-scene", Select).value, name) if name else None)
+        kind = self.query_one("#body-kind", Select).value
+        source = self.query_one("#body-from", Select).value
+        if source is Select.BLANK or source is None:
+            self.notify("Nothing to make it like", severity="warning")
+            return
+        word = self.query_one("#body-word", Input).value.strip()
+        if kind == "prefab":
+            self.dismiss({"kind": kind, "from": source, "name": word or title_of(source)})
+            return
+        of = self.query_one("#body-of", Select).value
+        if kind == "moon" and (of is Select.BLANK or of is None):
+            self.notify("A moon needs a planet: make one first", severity="warning")
+            return
+        self.dismiss({"kind": kind, "from": source, "of": of if kind == "moon" else "", "word": word if kind == "belt" else ""})
 
-    @on(Button.Pressed, "#place-cancel")
+    @on(Button.Pressed, "#body-cancel")
     def action_cancel(self, _event=None):
         self.dismiss(None)
 
@@ -729,7 +818,7 @@ HELP = """\
   3 Archetypes  the fifteen designs as the game flies them; pilot genes against evolution's ranges
   4 Factions    wars (pick a cell, w), rosters (space ticks, ctrl+s), havens (enter: World)
   5 World       a sector: its scene's bodies and belts, its layout's markers, on a map (top or side, filters);
-                ctrl+n on a sector with no layout makes one
+                new and copied sectors and bodies are named by the rules; ctrl+n on a sector with no layout makes one
   6 Parts       weapons (w), modules (m), commodities (c), starting kit (k); a hides archetype parts
   7 Look        shaders, faction paints, paint patterns, music; y syncs shader blocks
   8 Data        every data file in a form made from its script; delete removes one nothing names
@@ -949,7 +1038,9 @@ class WorldPane(Horizontal):
         Binding("ctrl+d", "app.copy_marker", "Copy"), Binding("delete", "app.remove_marker", "Remove"),
     ]
     DEFAULT_CSS = """
-    WorldPane #world-tree { width: 42; }
+    WorldPane #world-left { width: 42; }
+    WorldPane #sector-buttons { height: auto; }
+    WorldPane #sector-buttons Button { min-width: 12; margin-right: 1; }
     WorldPane #world-side { width: 1fr; }
     WorldPane #world-map { height: auto; }
     WorldPane #map-buttons { height: auto; }
@@ -964,9 +1055,13 @@ class WorldPane(Horizontal):
     """
 
     def compose(self) -> ComposeResult:
-        tree = Tree("Sectors", id="world-tree")
-        tree.show_root = False
-        yield tree
+        with Vertical(id="world-left"):
+            with Horizontal(id="sector-buttons"):
+                yield Button("New sector", id="sector-new", tooltip="A new sector: its folder, scene, layout and location, named by the rules")
+                yield Button("Copy sector", id="sector-clone", tooltip="The open sector copied apart (no connections), its bodies and havens renamed")
+            tree = Tree("Sectors", id="world-tree")
+            tree.show_root = False
+            yield tree
         with Vertical(id="world-side"):
             with Horizontal(id="map-buttons"):
                 yield Button("Hide map", id="map-toggle", tooltip="Hide the map: the picked one's form gets the room")
@@ -1181,7 +1276,12 @@ class DevApp(App):
             if text is None:  # It did not exist before the save
                 if os.path.exists(file_path(path)):
                     os.remove(file_path(path))
+                folder = os.path.dirname(file_path(path))
+                while folder.startswith(tasks.ROOT + os.sep) and os.path.isdir(folder) and not os.listdir(folder):
+                    os.rmdir(folder)  # A folder made with it
+                    folder = os.path.dirname(folder)
             else:
+                os.makedirs(os.path.dirname(file_path(path)), exist_ok=True)  # A deleted body's folder
                 write_text(path, text)
         self.saved_text = None
         self.notify("Put back %s as %s" % (", ".join(os.path.basename(path) for path, _ in files), "it was" if len(files) == 1 else "they were"))
@@ -1985,8 +2085,9 @@ class DevApp(App):
     def _open_first_sector(self):
         tree = self.query_one("#world-tree", Tree)
         laid_out = [child for child in tree.root.children if os.path.exists(file_path(child.data["path"]))]
+        home = [child for child in laid_out if child.data["sector"] == home_sector()]
         if tree.root.children:
-            info = (laid_out or tree.root.children)[0].data  # A sector with a layout first
+            info = (home or laid_out or tree.root.children)[0].data  # The game's home, else a sector with a layout
             self.load_sector(info["sector"], info["path"], info["node"])
 
     @on(Tree.NodeExpanded, "#world-tree")
@@ -2025,7 +2126,9 @@ class DevApp(App):
         self.world = {"sector": sector, "path": path, "nodes": {node["node"]: node for node in nodes}, "map": items, "picked": ".",
                       "scene": self._sector_scene(path), "things": list(things)}
         tree = self.query_one("#world-tree", Tree)
-        sector_node = next(child for child in tree.root.children if child.data["sector"] == sector)
+        sector_node = next((child for child in tree.root.children if child.data["sector"] == sector), None)
+        if sector_node is None:  # Made after the tree was filled
+            sector_node = tree.root.add(sector, data={"sector": sector, "path": path, "node": "."}, expand=False, allow_expand=True)
         sector_node.remove_children()
         group = {"node": SCENE, "name": "Scene", "parent": ".", "script": "", "type": "scene", "fields": [], "values": {}}
         self.world["nodes"][SCENE] = group
@@ -2066,9 +2169,10 @@ class DevApp(App):
                        "ctrl+n (New) makes it, with an entry beacon where ships arrive, and places it in the sector scene.[/dim]"
                        % (self.world["sector"], self.world["path"]))
         elif node_path == SCENE:
-            form.clear("[b]Scene[/b]  %s\n[dim]What the sector scene places: stars, planets, moons, belts. Move or turn one here; ctrl+n places a "
-                       "scene, ctrl+d copies the picked one, delete removes it. What each is made of is its own scene's: the Godot "
-                       "editor's.[/dim]" % self.world["scene"])
+            form.clear("[b]Scene[/b]  %s\n[dim]What the sector scene places: stars, planets, moons, belts. Move or turn one here; ctrl+n makes "
+                       "a new body (a copy of one you pick, named by the rules: planet_<sector>_<letter>, moon_<sector>_<letter><n> ...) or "
+                       "places a shared prefab, ctrl+d copies the picked body as a new one, delete removes it with its folder. What each is "
+                       "made of is its own scene's: the Godot editor's.[/dim]" % self.world["scene"])
         elif node_path.startswith(SCENE):
             form.show("[b]%s[/b]  %s · %s\n[dim]%s, %s; made in %s (the Godot editor)%s[/dim]" % (
                 node["name"], node_path[1:], self.world["scene"], node["kind"], "%.0f m across" % (2 * node["radius"]) if node["radius"] else "no size",
@@ -2083,6 +2187,14 @@ class DevApp(App):
     def _riders(self, key):
         riders = [item["name"] for item in self.world.get("map", []) if item.get("attached_to") and SCENE + item["attached_to"] == key]
         return "; carries %s with it" % ", ".join(riders) if riders else ""
+
+    @on(Button.Pressed, "#sector-new")
+    def _sector_new_pressed(self, _event):
+        self.action_new_sector()
+
+    @on(Button.Pressed, "#sector-clone")
+    def _sector_clone_pressed(self, _event):
+        self.action_clone_sector()
 
     @on(Button.Pressed, "#map-side")
     def _map_side(self, event):
@@ -2168,20 +2280,22 @@ class DevApp(App):
             return
         picked = self.world["picked"]
         if picked.startswith(SCENE):
-            scenes = placeable_scenes()
-            if not scenes:
-                self.notify("No scenes to place (%s)" % ", ".join(PLACEABLE), severity="warning")
-                return
             here = self.world["nodes"].get(picked, {})
             at = [here.get("x", 0.0) + COPY_OFFSET * 5, here.get("y", 0.0), here.get("z", 0.0)] if picked != SCENE else [0.0, 0.0, 0.0]
 
-            def placed(answer):
-                if answer:
-                    scene, name = answer
-                    self.world_worker("scene_instance", "Placed %s" % name, file=self.world["scene"], scene=scene, name=name,
-                                      values={"translation": {"$": "Vector3", "v": at}})
-            self.push_screen(PlaceScreen("Place a scene in %s (it goes %s)" % (
-                self.world["sector"], "beside %s; move it after" % here.get("name") if picked != SCENE else "at the middle; move it after"), scenes), placed)
+            def made(answer):
+                if not answer:
+                    return
+                where = {"translation": {"$": "Vector3", "v": at}}
+                if answer["kind"] == "prefab":
+                    self.world_worker("scene_instance", "Placed %s" % answer["name"], file=self.world["scene"], scene=answer["from"],
+                                      name=answer["name"], values=where)
+                else:
+                    self.body_worker("body_new", "Made a new %s" % answer["kind"], [], kind=answer["kind"], values=where,
+                                     **{key: answer[key] for key in ("from", "of", "word")})
+            self.push_screen(BodyScreen("A new body in %s (it goes %s)" % (
+                self.world["sector"], "beside %s; move it after" % here.get("name") if picked != SCENE else "at the middle; move it after"),
+                self._planet_letters(), body_scenes(), prefab_scenes()), made)
             return
         if self.world["nodes"].get(".", {}).get("missing"):
             self.push_screen(ConfirmScreen("Make a layout for %s? %s, with an entry beacon, placed in %s." % (
@@ -2203,6 +2317,21 @@ class DevApp(App):
         if picked.startswith(SCENE) and picked != SCENE and node:
             if not node["scene"]:
                 self.notify("%s is not an instance of a scene: copy it in the Godot editor" % node["name"], severity="warning")
+                return
+            body = own_body(node["scene"], self.world["sector"])
+            if body is not None:  # A copy of a body is a body of its own, named by the rules
+                kind, suffix = body
+                where = dict(node["values"], translation={"$": "Vector3", "v": [node["x"] + COPY_OFFSET * 5, node["y"], node["z"]]})
+
+                def copied(word=""):
+                    if kind == "belt" and not word:
+                        return
+                    self.body_worker("body_new", "Copied %s as a new %s" % (node["name"], kind), [], kind=kind, values=where,
+                                     **{"from": node["scene"], "of": suffix[:1] if kind == "moon" else "", "word": word})
+                if kind == "belt":
+                    self.push_screen(NameScreen("A copy of %s: the new belt's word (belt_%s_<word>)" % (node["name"], self.world["sector"][7:]), "word"), copied)
+                else:
+                    copied()
                 return
             self.world_worker("scene_instance", "Copied %s (%d km along x)" % (node["name"], COPY_OFFSET * 5 / 1000), file=self.world["scene"],
                               scene=node["scene"], name=node["name"],
@@ -2228,13 +2357,82 @@ class DevApp(App):
             return
         riders = [item["name"] for item in self.world.get("map", []) if item.get("attached_to") and SCENE + item["attached_to"] == picked]
 
+        body = own_body(self.world["nodes"][picked].get("scene", ""), self.world["sector"]) if picked.startswith(SCENE) else None
+
         def answered(yes):
-            if yes and picked.startswith(SCENE):
+            if yes and body is not None:
+                self.body_worker("body_remove", "Removed %s and its folder" % picked[1:], folder_texts(self.world["nodes"][picked]["scene"]),
+                                 node=picked[1:])
+            elif yes and picked.startswith(SCENE):
                 self.world_worker("scene_remove", "Removed %s" % picked[1:], file=self.world["scene"], node=picked[1:])
             elif yes:
                 self.world_worker("scene_remove", "Removed %s" % picked, node=picked)
-        self.push_screen(ConfirmScreen("Remove %s from %s?%s" % (picked.lstrip(SCENE), self.world["sector"],
+        self.push_screen(ConfirmScreen("Remove %s from %s?%s%s" % (picked.lstrip(SCENE), self.world["sector"],
+                                                                 " Its folder (%s) goes too." % os.path.dirname(self.world["nodes"][picked]["scene"]).replace("res://", "") if body else "",
                                                                  " Markers attached to it (%s) then fail the rules until moved or let go." % ", ".join(riders) if riders else "")), answered)
+
+    def _planet_letters(self):
+        letters = []
+        for thing in self.world.get("things", []):
+            body = own_body(thing.get("scene", ""), self.world["sector"])
+            if body is not None and body[0] == "planet":
+                letters.append(body[1])
+        return sorted(letters)
+
+    @work(thread=True, exclusive=True, group="world")
+    def body_worker(self, command, done, before_files, **args):
+        """A body made or removed (SectorMaker): ctrl+u puts the sector scene and every file back."""
+        sector, path, scene = self.world["sector"], self.world["path"], self.world["scene"]
+        before = [(scene, read_text(scene))] + list(before_files)
+        try:
+            result = self.ask(command, sector=sector, **args)
+        except BridgeError as error:
+            self.call_from_thread(self.notify, "Not done: %s" % error, severity="error")
+            return
+        made = [(file, None) for file in result.get("files", [])]
+        self._undo_point(before + made, lambda: self.load_sector(sector, path, self.world.get("picked", ".")))
+        self.call_from_thread(self.notify, "%s%s" % (done, " (%s)" % result["node"].split("/")[-1] if result.get("node") else ""))
+        self.load_sector(sector, path, SCENE + result["node"] if result.get("node") else SCENE, result)
+
+    def action_new_sector(self):
+        def named(name):
+            if not name:
+                return
+            sector = name if name.startswith("sector_") else "sector_" + name
+            location = LOCATIONS_DIR + sector + ".tres"
+            before = [(location, read_text(location) if os.path.exists(file_path(location)) else None)]
+            self.sector_worker("sector_new", "Made %s" % sector, sector, before, sector=sector)
+        self.push_screen(NameScreen("A new sector: its id (sector_<word>, lower_snake_case; its location is made too, or pointed at it)",
+                                    "sector_word"), named)
+
+    def action_clone_sector(self):
+        if not self.world:
+            self.notify("Open the sector to copy first", severity="warning")
+            return
+        source = self.world["sector"]
+
+        def named(name):
+            if not name:
+                return
+            sector = name if name.startswith("sector_") else "sector_" + name
+            self.sector_worker("sector_clone", "Copied %s as %s" % (source, sector), sector, [], sector=source, to=sector)
+        self.push_screen(NameScreen("A copy of %s, apart (no connections; its havens' ids its own): its id (sector_<word>)" % source,
+                                    "sector_word"), named)
+
+    @work(thread=True, exclusive=True, group="world")
+    def sector_worker(self, command, done, opened, before, **args):
+        sector = opened  # The sector made, opened after
+        try:
+            result = self.ask(command, **args)
+        except BridgeError as error:
+            self.call_from_thread(self.notify, "Not made: %s" % error, severity="error")
+            return
+        made = [(file, None) for file in result.get("files", []) if file not in dict(before)]
+        layout = SECTORS_DIR + "%s/%s_layout.tscn" % (sector, sector)
+        self._undo_point(made + before, lambda: (self._fill_world_tree(), self._open_first_sector()))
+        self.call_from_thread(self.notify, "%s; ctrl+u takes it back" % done)
+        self.call_from_thread(self._fill_world_tree)
+        self.load_sector(sector, layout, ".", result)
 
     @work(thread=True, exclusive=True, group="world")
     def _make_layout(self, yes):

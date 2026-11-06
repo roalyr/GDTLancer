@@ -1,4 +1,4 @@
-# Evolution: the evolving NPCs' gene pools (they live from the havens of Constants EVO_SECTOR_ID: SectorLayout), their lives, and the record of every life (see Constants
+# Evolution: the evolving NPCs' gene pools (they live from the havens of Constants EVO_SECTOR_ID, the arena: SectorLayout), their lives, and the record of every life (see Constants
 # EVOLUTION). Each faction has its own pool: an archive of niches (Genome.niche), each
 # holding the best genome found for it. A spawn (begin_life) picks a niche softly by fitness and
 # flies its genome again or a mutant; the life's end (death or retirement) scores the genome and
@@ -519,10 +519,11 @@ func _place_in_archive(genome_id: String) -> String:
 
 
 # `zone_id` if it is one of the sector's populated havens that `faction` lives from, otherwise the
-# first such haven (a saved life from before, or from a zone that is gone).
+# first such haven (a saved life from before, or from a zone that is gone). The sector: evolution's
+# (EVO_SECTOR_ID), or the game's home (a frozen world's).
 func _haven_for(faction: String, zone_id: String) -> String:
 	var first := ""
-	for haven in Havens.populated(Constants.EVO_SECTOR_ID):
+	for haven in Havens.populated(Constants.INITIAL_SECTOR_ID if frozen else Constants.EVO_SECTOR_ID):
 		if not haven.ships.has(faction):
 			continue
 		if haven.id == zone_id:

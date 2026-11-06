@@ -28,6 +28,25 @@ func _ready() -> void:
 	delete_outdated_saves()
 
 
+# The game start of this mode: the game's, or evolution's (Constants EVO_GAME_START_ID).
+func game_start_id() -> String:
+	return Constants.EVO_GAME_START_ID if mode == MODE_EVOLUTION else Constants.DEFAULT_GAME_START_ID
+
+
+# The game start `id`, from TemplateDatabase or, before it is indexed, from its file; null if none.
+func game_start(id: String) -> Resource:
+	if TemplateDatabase.game_starts.has(id):
+		return TemplateDatabase.game_starts[id]
+	var path: String = "res://database/registry/game_starts/%s.tres" % id
+	return load(path) if ResourceLoader.exists(path) else null
+
+
+# The sector a run of this mode lives in: the game's home (INITIAL_SECTOR_ID) or evolution's
+# arena (EVO_SECTOR_ID).
+func home_sector_id() -> String:
+	return Constants.EVO_SECTOR_ID if mode == MODE_EVOLUTION else Constants.INITIAL_SECTOR_ID
+
+
 # Play or evolution: where saves go, which ones load, and whether the world evolves.
 func set_mode(value: String) -> void:
 	mode = value
@@ -90,7 +109,7 @@ func delete_all_saves() -> void:
 # The player's ship is lost (Constants RESPAWN_DELAY): the state they wake up in, docked at home in
 # the start's ship. Bank, storage, home and play time stay.
 func lose_ship() -> void:
-	var game_start = TemplateDatabase.game_starts.get(Constants.DEFAULT_GAME_START_ID)
+	var game_start = TemplateDatabase.game_starts.get(game_start_id())
 	GameState.player_ship_template_id = game_start.player_ship_template if game_start != null else Constants.FALLBACK_SHIP_TEMPLATE_ID
 	GameState.player_fit = {}  # The hull's default fit
 	GameState.player_hull = -1.0
@@ -100,7 +119,7 @@ func lose_ship() -> void:
 	GameState.player_hull_scars = []
 	GameState.player_bounties = {}  # Lapse with the ship (a killer has collected them)
 	GameState.player_docked_at = GameState.home_location_id
-	GameState.current_sector_id = Constants.INITIAL_SECTOR_ID  # The home port's sector
+	GameState.current_sector_id = home_sector_id()  # The home port's sector
 	GameState.player_position = Vector3.ZERO
 	GameState.player_rotation = Vector3.ZERO
 	GameState.player_arrived_from_sector = ""
@@ -317,9 +336,24 @@ func _deserialize_and_apply_game_state(save_data: Dictionary) -> void:
 	GameState.player_arrived_from_sector = str(save_data.get("player_arrived_from_sector", ""))
 	GameState.player_arrival_direction = _deserialize_vector3(save_data.get("player_arrival_direction", {}))
 	GameState.play_time = float(save_data.get("play_time", 0.0))
+	if mode == MODE_EVOLUTION and GameState.current_sector_id != Constants.EVO_SECTOR_ID:
+		_rehome_in_arena()  # A save from when evolution lived in the game's sector
 	var evolution = save_data.get("evolution", {})
 	if evolution is Dictionary:
 		Evolution.deserialize(evolution)
+
+
+# Evolution moved to its own sector (EVO_SECTOR_ID): the run's player is docked at its start's haven
+# there, and the evolving lives resume from its havens (Evolution._haven_for).
+func _rehome_in_arena() -> void:
+	var start = game_start(Constants.EVO_GAME_START_ID)
+	if start == null:
+		return
+	GameState.current_sector_id = Constants.EVO_SECTOR_ID
+	GameState.player_docked_at = start.player_starting_location
+	GameState.home_location_id = start.player_starting_location
+	GameState.player_position = Vector3.ZERO
+	GameState.player_arrived_from_sector = ""
 
 
 # --- Vector3 Serialization Helpers ---
