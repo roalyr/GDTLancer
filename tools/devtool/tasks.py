@@ -160,7 +160,7 @@ def _era_default(part):
 
 def _new_era(v):
     return ["python3", "tools/devtool/evolution.py"] + ["%s=%s" % (key, v[key]) for key in
-                                                       ("era", "label", "next", "kind", "hours", "speed", "min_lives", "commit", "start")]
+                                                       ("era", "label", "next", "kind", "hours", "speed", "min_lives", "redo_drafts", "commit", "start")]
 
 
 def _lance_duel(v):
@@ -242,6 +242,7 @@ TASKS = [
                     Ask("kind", "Next era: era (genomes stay, their records start over) or fresh (a new evolution)", "choice", "era", ["era", "fresh"]),
                     Ask("hours", "Simulated hours (0: until stopped)", default="20"), Ask("speed", "Speed", default="8"),
                     Ask("min_lives", "Drafts for these minimum lives", default="10,5"),
+                    Ask("redo_drafts", "Export again over this era's drafts if they exist (they may be edited)", "flag", "no", fresh=True),
                     Ask("commit", "Commit the drafts and catalog", "flag", "yes"),
                     Ask("start", "Start the next era now", "flag", "yes")]),
     Task("evolution_report", "Evolution", "Evolution report", "Summary of the newest evolution life log.",

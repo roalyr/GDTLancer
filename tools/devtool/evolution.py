@@ -8,7 +8,8 @@ before the rules change under evolution, in order, each step checked before the 
 2. The save is copied to backups/era<N>_<label>_t<hours>h_<date>.sav and the copy compared byte
    for byte: everything after this works from that copy.
 3. Preset drafts are exported from the copy, one folder per minimum of lives:
-   database/presets/drafts_era<N>_min<k>/ (an earlier export of that era is replaced).
+   database/presets/drafts_era<N>_min<k>/. A folder already there is left as it is (drafts get
+   edited after export), unless redo_drafts=yes.
 4. tools/classify_presets.gd rewrites database/presets/CATALOG.md for them.
 5. The drafts and the catalog are committed (database/presets/ only, nothing else).
 6. era.json records the new era (number, label, when it started, at what simulated time).
@@ -134,10 +135,11 @@ class NewEra:
     log)` starts the sim detached and returns its pid (both stand-ins in the tests)."""
 
     def __init__(self, folder, label, next_label, hours="20", speed="8", min_lives=MIN_LIVES, fresh=False,
-                 commit=True, start=True, number=None, run=None, start_process=None, presets_dir=PRESETS_DIR, say=print):
+                 commit=True, start=True, number=None, redo_drafts=False, run=None, start_process=None, presets_dir=PRESETS_DIR, say=print):
         self.folder, self.label, self.next_label = folder, label, next_label
         self.hours, self.speed, self.min_lives, self.fresh = str(hours), str(speed), list(min_lives), fresh
         self.commit, self.start, self.number, self.presets_dir = commit, start, number, presets_dir
+        self.redo_drafts = redo_drafts
         self.run = run or (lambda command: subprocess.call(command, cwd=ROOT))
         self.start_process = start_process or start_detached
         self.say = say
@@ -192,6 +194,10 @@ class NewEra:
         folders = []
         for lives in self.min_lives:
             out = "res://database/presets/drafts_era%d_min%d/" % (number, lives)
+            if os.path.isdir(os.path.join(self.presets_dir, "drafts_era%d_min%d" % (number, lives))) and not self.redo_drafts:
+                self.finish("%s is there already (perhaps edited since): left as it is (redo_drafts=yes exports it again)"
+                            % out.replace("res://", ""))
+                continue
             code = self.run(godot_script("tools/export_presets.gd", "--", "--save=" + backup, "--min-lives=%d" % lives,
                                          "--out=" + out, "--clean"))
             if code != 0:
@@ -251,7 +257,8 @@ def main(argv):
     yes = lambda key, default: str(values.get(key, default)).lower() in ("yes", "y", "true", "1")
     flow = NewEra(evolution_dir(), values.get("label", ""), values.get("next", ""), values.get("hours", "20"), values.get("speed", "8"),
                   [int(n) for n in values.get("min_lives", "10,5").split(",") if n.strip()], fresh=values.get("kind") == "fresh",
-                  commit=yes("commit", "yes"), start=yes("start", "yes"), number=values.get("era") or None)
+                  commit=yes("commit", "yes"), start=yes("start", "yes"), number=values.get("era") or None,
+                  redo_drafts=yes("redo_drafts", "no"))
     return flow.go()
 
 

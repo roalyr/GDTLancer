@@ -40,7 +40,7 @@ class NewEraTest(unittest.TestCase):
         self.folder = os.path.join(self.scratch.name, "evolution")
         self.presets = os.path.join(self.scratch.name, "presets")
         os.makedirs(os.path.join(self.folder, "backups"))
-        os.makedirs(os.path.join(self.presets, "drafts_era51_min10"))
+        os.makedirs(os.path.join(self.presets, "drafts_era50_min10"))
         with open(os.path.join(self.folder, "save_0.sav"), "wb") as handle:
             handle.write(b"evolution" * 100)
         open(os.path.join(self.folder, "backups", "era51_freeze_h20_20261104.sav"), "w").close()
@@ -119,6 +119,19 @@ class NewEraTest(unittest.TestCase):
         names = sorted(os.listdir(os.path.join(self.folder, "backups")))
         self.assertEqual(len([n for n in names if n.startswith("era51_freeze_2")]), 2)
         self.assertTrue(any(n.endswith("_2.sav") for n in names))
+
+    def test_drafts_already_there_are_left_unless_asked(self):
+        os.makedirs(os.path.join(self.presets, "drafts_era51_min5"))
+        os.makedirs(os.path.join(self.presets, "drafts_era51_min10"))
+        open(os.path.join(self.presets, "drafts_era51_min5", "edited.tres"), "w").close()
+        runs = Runs(self.presets)
+        self.assertEqual(self.flow(runs, start=False).go(), 0)
+        self.assertFalse(any("export_presets" in " ".join(c) for c in runs.commands), "Both folders exist: no export")
+        self.assertTrue(any("classify_presets" in " ".join(c) for c in runs.commands))
+        os.remove(os.path.join(self.folder, "era.json"))
+        runs = Runs(self.presets)
+        self.flow(runs, start=False, redo_drafts=True).go()
+        self.assertEqual(len([c for c in runs.commands if "export_presets" in " ".join(c)]), 2)
 
     def test_a_fresh_start_and_no_commit(self):
         runs = Runs(self.presets)
