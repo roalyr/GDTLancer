@@ -67,7 +67,7 @@ New designs reach the game only when you export them as presets (`tools/export_p
 
 **A new era** (the rules changed, so fitness earned under the old ones no longer counts) always goes through the tool: Tools, `n`, or `tools/dev.py new_era label=<this era> next=<next era>`. With evolution stopped, it:
 1. copies the save to `backups/era<N>_<name>_t<hours>h_<date>.sav` and checks the copy byte for byte (a backup is never overwritten);
-2. exports that copy's drafts to `database/presets/drafts_era<N>_min10/` and `_min5/`;
+2. exports that copy's drafts to `database/presets/drafts_era<N>_min10/` and `_min5/` (folders already there are left as they are, since drafts get edited after export, unless you ask to export again);
 3. rewrites `database/presets/CATALOG.md`, and commits the drafts and the catalog (nothing else);
 4. records the new era in `user://evolution/era.json`, and starts it in the background, its console going to `era<N+1>_<name>.log`.
 
