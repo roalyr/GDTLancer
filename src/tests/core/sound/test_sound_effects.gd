@@ -14,9 +14,13 @@ class FakeShip:
 	var is_wreck := false
 	var afterburner_lit := false
 	var activity := 0.0
+	var linear_velocity := Vector3.ZERO
 
 	func get_engine_activity() -> float:
 		return activity
+
+	func get_top_speed() -> float:
+		return 100.0
 
 
 func _sample(looped: bool = false) -> AudioStreamSample:
@@ -151,18 +155,22 @@ func test_tool_controllers_are_heard_as_they_enter():
 	assert_true(tools.is_connected("tool_cycled", fx, "_on_tool_cycled"))
 
 
-func test_the_engine_loop_follows_thrust():
+func test_the_engine_loop_follows_speed_and_thrust():
 	var fx = _effects(["engine"])
 	var ship := FakeShip.new()
 	add_child_autofree(ship)
 	var loop = fx._attach_loop("engine", ship)
 	assert_eq(loop.get_parent(), ship, "Carried by the ship")
 	fx._drive_engine(loop, ship)
-	assert_almost_eq(loop.unit_db, Constants.SOUND_EFFECTS_VOLUME_DB + Constants.SOUND_ENGINE_IDLE_DB, 0.001, "Idle: quiet")
+	assert_lt(loop.unit_db, -60.0, "At rest: silent")
 	ship.activity = 1.0
+	ship.linear_velocity = Vector3(0, 0, -50)
 	fx._drive_engine(loop, ship)
-	assert_almost_eq(loop.unit_db, Constants.SOUND_EFFECTS_VOLUME_DB, 0.001, "Full thrust: full")
-	assert_almost_eq(loop.pitch_scale, Constants.SOUND_ENGINE_PITCH[1], 0.001)
+	assert_almost_eq(db2linear(loop.unit_db - Constants.SOUND_EFFECTS_VOLUME_DB), Constants.SOUND_ENGINE_MAX_GAIN * 0.5, 0.001, "Half speed: half as loud")
+	assert_almost_eq(loop.pitch_scale, Constants.SOUND_ENGINE_PITCH[1], 0.001, "Pitch by thrust")
+	ship.linear_velocity = Vector3(0, 0, -300)
+	fx._drive_engine(loop, ship)
+	assert_almost_eq(db2linear(loop.unit_db - Constants.SOUND_EFFECTS_VOLUME_DB), Constants.SOUND_ENGINE_MAX_GAIN, 0.001, "Capped at top speed")
 	ship.is_wreck = true
 	fx._drive_engine(loop, ship)
 	assert_false(loop.playing, "A wreck's engine is silent")
