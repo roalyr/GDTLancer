@@ -525,7 +525,7 @@ const FUEL_STARTING_UNITS = 6  # In the hold of a new game's ship and of the shi
 # LooseLance, harpooned out). Each piece is crusted: laser fire burns the crust off (MINING_CRUST_HP)
 # and bares the ore, a metal lump unlike the rock, glowing hot, that cools in MINING_COOL_TIME s;
 # cooled, a harpoon tows it and strips it like a wreck.
-const MINING_DAMAGE_PER_UNIT = 15.0  # Lance damage per unit broken out
+const MINING_DAMAGE_PER_UNIT = 9.0  # Lance damage per unit broken out (15 before the lance's damage went to 0.6x: the same ore per strike)
 const MINING_CHUNK_MAX = 12  # Units broken out by one strike
 const MINING_PIECES_MAX = 3
 const MINING_PIECE_SPREAD = 30.0  # Degrees the pieces fan out off the face

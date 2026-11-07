@@ -319,6 +319,47 @@ func test_burns_a_chunks_crust_off_waits_for_the_slag_to_cool_then_harpoons_it()
 	assert_true(tools.is_active(1), "Cooled: harpoon on it")
 
 
+class ReeledInTether extends Node:
+	var retracting := false
+	var launching := false
+	var snapped := false
+	func is_reeled_in() -> bool:
+		return true
+	func start_retract() -> void:
+		retracting = true
+
+
+func test_a_harpoon_with_the_hold_full_keeps_towing_and_says_so_once():
+	hostile.cargo_capacity = 2
+	hostile.add_cargo("test_scrap", 2)
+	var chunk = OreChunkScript.new()
+	chunk.setup({"test_scrap": 3}, null, 2.0)
+	add_child_autofree(chunk)
+	chunk.global_transform.origin = Vector3(0, 0, -20)
+	chunk.crust = 0.0
+	var harpoon = UtilityToolTemplate.new()
+	harpoon.tool_type = "harpoon"
+	harpoon.optimal_range = 300.0
+	var tools = hostile.get_node("ToolController")
+	tools.set_tools([harpoon])
+	assert_true(tools.activate(0, chunk).get("success", false))
+	var tether := ReeledInTether.new()
+	add_child_autofree(tether)
+	tools._tethers[0] = tether
+	watch_signals(tools)
+	for i in range(3):
+		tools._cycle_timers[0] = 0.0
+		tools._process_harpoon(0, chunk)
+	assert_signal_emit_count(tools, "hold_full", 1, "Said once a tow")
+	assert_true(tools.is_active(0), "Still towing")
+	assert_eq(chunk.get_salvage_units(), 3, "Nothing stripped")
+	hostile.cargo_capacity = 10
+	for i in range(3):
+		tools._cycle_timers[0] = 0.0
+		tools._process_harpoon(0, chunk)
+	assert_signal_emitted_with_parameters(tools, "tool_deactivated", [0, "stripped"])
+
+
 func test_a_lancer_out_of_lances_collects_a_loose_one_before_fighting():
 	ai.initialize({"patrol_center": Vector3.ZERO, "behavior": {"engage": 0.0}})
 	var lance = LanceScript.new()

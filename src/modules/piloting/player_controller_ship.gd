@@ -60,6 +60,7 @@ func _ready():
 	if is_instance_valid(_tool_controller) and not _tool_controller.is_connected("tool_deactivated", self, "_on_tool_deactivated"):
 		_tool_controller.connect("tool_deactivated", self, "_on_tool_deactivated")
 		_tool_controller.connect("projectile_fired", self, "_on_projectile_fired")
+		_tool_controller.connect("hold_full", self, "_on_hold_full")
 
 	_states = {
 		"default": _register_input_state("StateDefault", StateDefault.new()),
@@ -290,8 +291,7 @@ func _on_tool_button_pressed(index: int) -> void:
 		return
 	var target = _get_current_target()
 	if not _tool_controller.can_target(tool_template, target):
-		var needs: String = "a wreck" if tool_template.tool_type == "harpoon" else "a ship or rock"
-		EventBus.emit_signal("attack_action_feedback", false, "%s needs %s selected" % [tool_template.tool_name, needs])
+		EventBus.emit_signal("attack_action_feedback", false, _cannot_target_message(tool_template, target))
 		return
 	if _tool_controller.has_magazine(index) and _tool_controller.get_ammo(index) <= 0:
 		EventBus.emit_signal("attack_action_feedback", false, _empty_message(tool_template))
@@ -308,11 +308,42 @@ func _on_projectile_fired(index: int, _projectile) -> void:
 		_tool_controller.deactivate(index, "fired")
 
 
-# A magazine ran dry.
+# A tool that stops by itself says why: a magazine ran dry; a harpoon let go of its wreck (pressing
+# it again, or a target lost, says nothing: the player saw that).
+const HARPOON_RELEASES = {
+	"stripped": [true, "Harpoon: nothing left to strip, cable released"],
+	"snapped": [false, "Harpoon: the cable snapped"],
+	"missed": [false, "Harpoon: missed, winching in"],
+	"no_power": [false, "Harpoon: not enough energy to fire"],
+}
+
+
 func _on_tool_deactivated(index: int, reason: String) -> void:
 	var tool_template = _tool_controller.get_tool(index) if is_instance_valid(_tool_controller) else null
-	if tool_template != null and reason == "empty":
+	if tool_template == null:
+		return
+	if reason == "empty":
 		EventBus.emit_signal("attack_action_feedback", false, _empty_message(tool_template))
+	elif tool_template.tool_type == "harpoon" and HARPOON_RELEASES.has(reason):
+		EventBus.emit_signal("attack_action_feedback", HARPOON_RELEASES[reason][0], HARPOON_RELEASES[reason][1])
+
+
+func _on_hold_full(_index: int) -> void:
+	EventBus.emit_signal("attack_action_feedback", false, "Hold full: nothing more can be stripped. The harpoon keeps towing; sell cargo at a station")
+
+
+# Why `tool_template` cannot take `target`: off the sensors, an ore chunk still crusted or hot, or
+# the wrong kind of target.
+func _cannot_target_message(tool_template, target) -> String:
+	if is_instance_valid(target) and agent_body.has_method("detects") and not agent_body.detects(target):
+		return "%s: the target is off the sensors, close in" % tool_template.tool_name
+	if tool_template.tool_type == "harpoon" and is_instance_valid(target) and target.has_method("has_crust"):
+		if target.has_crust():
+			return "%s: burn the crust off with a laser first" % tool_template.tool_name
+		if target.is_hot():
+			return "%s: the ore is still hot, wait for it to cool" % tool_template.tool_name
+	var needs: String = "a wreck or bared ore" if tool_template.tool_type == "harpoon" else "a ship or rock"
+	return "%s needs %s selected" % [tool_template.tool_name, needs]
 
 
 func _empty_message(tool_template) -> String:

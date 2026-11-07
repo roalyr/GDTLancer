@@ -36,6 +36,7 @@ signal tool_activated(tool_index, target)
 signal tool_deactivated(tool_index, reason)
 signal tool_cycled(tool_index, target, hit_quality, damage)
 signal salvage_stripped(tool_index, commodities)
+signal hold_full(tool_index)  # A harpoon has its wreck in, but the hold has no room: once per tow
 signal lance_recovered(tool_index)
 signal ammo_recovered(tool_index, rounds)
 signal ammo_changed(tool_index, ammo)
@@ -50,6 +51,7 @@ var _tools: Array = []  # UtilityToolTemplate per mount, in ship order
 var _targets: Dictionary = {}  # tool_index -> target body while switched on
 var _cycle_timers: Dictionary = {}  # tool_index -> seconds until the next cycle may start
 var _tethers: Dictionary = {}  # tool_index -> Tether node while a harpoon is attached
+var _hold_full_told: Dictionary = {}  # Harpoon index -> true once hold_full went out this tow
 var _retracting: Dictionary = {}  # tool_index -> Tether node winching its cable in
 var _last_cycle_ms: int = -1000000  # When a tool last cycled (drives the firing signature)
 var _ammo: Dictionary = {}  # tool_index -> rounds left, for tools with a magazine
@@ -334,6 +336,7 @@ func deactivate(index: int, reason: String = "manual") -> void:
 	if not _targets.has(index):
 		return
 	_targets.erase(index)
+	_hold_full_told.erase(index)
 	if _tethers.has(index):
 		var tether = _tethers[index]
 		_tethers.erase(index)
@@ -395,7 +398,6 @@ func get_damage_per_second() -> float:
 	return total
 
 
-# The fitted cannon with rounds left that works on `target`, or -1.
 # The range to fight `target` at with the weapons on it now (the player's APPROACH holds there, as
 # NPCs keep to theirs, ShipControllerAI.get_engagement_range): an active cannon's optimal range,
 # else the shortest optimal range among the active weapons on it, so all of them reach; never past
@@ -414,6 +416,7 @@ func fighting_range(target) -> float:
 	return best if best < INF else 0.0
 
 
+# The fitted cannon with rounds left that works on `target`, or -1.
 func find_cannon_for(target) -> int:
 	for index in range(_tools.size()):
 		if _tools[index].tool_type == "cannon" and get_ammo(index) > 0 and can_target(_tools[index], target):
@@ -694,6 +697,9 @@ func _process_harpoon(index: int, target: Node) -> void:
 		var rounds: Dictionary = wreck_tools.recover_ammo_into(self)  # Then missiles and rounds that fit its magazines
 		emit_signal("ammo_recovered", rounds.index, rounds.rounds)
 	elif _agent_body.get_free_cargo() <= 0:
+		if not _hold_full_told.has(index):
+			_hold_full_told[index] = true
+			emit_signal("hold_full", index)
 		return  # Hold full: keep towing.
 	else:
 		var taken: Dictionary = target.take_salvage(1)
