@@ -1,6 +1,20 @@
-[gd_resource type="Resource" load_steps=2 format=2]
+[gd_resource type="Resource" load_steps=9 format=2]
 
 [ext_resource path="res://src/core/sound/sound_bank.gd" type="Script" id=1]
+[ext_resource path="res://assets/audio/placeholders/hull_hit.wav" type="AudioStream" id=2]
+[ext_resource path="res://assets/audio/placeholders/laser_fire.wav" type="AudioStream" id=3]
+[ext_resource path="res://assets/audio/placeholders/cannon_fire.wav" type="AudioStream" id=4]
+[ext_resource path="res://assets/audio/placeholders/missile_launch.wav" type="AudioStream" id=5]
+[ext_resource path="res://assets/audio/placeholders/engine.ogg" type="AudioStream" id=6]
+[ext_resource path="res://assets/audio/placeholders/hostile_detected.wav" type="AudioStream" id=7]
+[ext_resource path="res://assets/audio/placeholders/hostile_aware.wav" type="AudioStream" id=8]
 
 [resource]
 script = ExtResource( 1 )
+laser_fire = ExtResource( 3 )
+cannon_fire = ExtResource( 4 )
+missile_launch = ExtResource( 5 )
+hull_hit = ExtResource( 2 )
+engine = ExtResource( 6 )
+hostile_detected = ExtResource( 7 )
+hostile_aware = ExtResource( 8 )

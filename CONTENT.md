@@ -135,7 +135,9 @@ The sound bank has one slot per game event: guns, missiles, the harpoon and the 
 - **Loop** slots (`engine`, `missile_engine`) are carried by every ship or missile while it flies; the engine gets louder and higher with thrust. Their files must loop, and the other slots' must not. The Overview says when one is wrong; `l` there (or `tools/dev.py fix_loops`) sets each file's import loop setting and imports it again.
 - **UI** slots are heard as they are.
 
-Short `.wav` files suit effects; `.ogg` suits loops. Make the files about equally loud: `Constants.gd` ("SOUND") sets the overall volume, the hearing distance and how many sounds play at once. The tests check that every filled slot holds a sound and loops as its kind says. Music is separate: the Look tab sets the ambient track (the main scene's `AmbientMusic`).
+Short `.wav` files suit effects; `.ogg` suits loops. Make the files about equally loud: `Constants.gd` ("SOUND") sets the overall volume, the hearing distance and how many sounds play at once. The tests check that every filled slot holds a sound and loops as its kind says. Music is separate: the Look tab sets the sector's three tracks (the main scene's `AmbientMusic`): the calm one (`stream`), `danger_stream` (hostiles on the sensors, none has seen you) and `combat_stream` (one has, or you are under fire); the music crossfades between them as the danger changes. The `hostile_detected` and `hostile_aware` slots are the matching notices.
+
+**Placeholders:** `tools/make_placeholder_sounds.py` synthesizes the hull hit, the guns, the engine loop, the two notices and the danger and combat tracks into `assets/audio/placeholders/` and `assets/audio/music/`. Replace a slot's file to replace it.
 
 ## Parts — `database/presets/parts/`
 

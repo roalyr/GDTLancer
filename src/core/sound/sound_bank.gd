@@ -34,6 +34,8 @@ const SLOTS = {
 	"notice_warning": "ui",
 	"notice_danger": "ui",
 	"radio": "ui",  # An NPC on the common frequency
+	"hostile_detected": "ui",  # A hostile comes onto the sensors (ThreatWatch)
+	"hostile_aware": "ui",  # A hostile the player sees has detected it
 	"dock_ready": "ui",  # In docking range
 	"docked": "ui",
 	"undocked": "ui",
@@ -60,6 +62,8 @@ export(AudioStream) var notice_info
 export(AudioStream) var notice_warning
 export(AudioStream) var notice_danger
 export(AudioStream) var radio
+export(AudioStream) var hostile_detected
+export(AudioStream) var hostile_aware
 export(AudioStream) var dock_ready
 export(AudioStream) var docked
 export(AudioStream) var undocked

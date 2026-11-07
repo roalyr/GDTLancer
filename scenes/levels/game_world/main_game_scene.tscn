@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=2]
+[gd_scene load_steps=15 format=2]
 
 [ext_resource path="res://src/scenes/game_world/world_manager.gd" type="Script" id=1]
 [ext_resource path="res://scenes/ui/hud/main_hud.tscn" type="PackedScene" id=2]
@@ -12,6 +12,8 @@
 [ext_resource path="res://src/scenes/game_world/ambient_music.gd" type="Script" id=31]
 [ext_resource path="res://src/core/sound/sound_effects.gd" type="Script" id=32]
 [ext_resource path="res://database/sounds/sound_bank.tres" type="Resource" id=33]
+[ext_resource path="res://assets/audio/music/danger/placeholder_danger.ogg" type="AudioStream" id=34]
+[ext_resource path="res://assets/audio/music/combat/placeholder_combat.ogg" type="AudioStream" id=35]
 
 [node name="MainGameScene" type="Node"]
 
@@ -63,3 +65,5 @@ bank = ExtResource( 33 )
 stream = ExtResource( 30 )
 volume_db = -80.0
 script = ExtResource( 31 )
+danger_stream = ExtResource( 34 )
+combat_stream = ExtResource( 35 )

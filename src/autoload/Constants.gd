@@ -577,6 +577,9 @@ const THREAT_REFRESH_INTERVAL = 0.25  # s between rechecks of who is hostile
 const THREAT_RING_RADIUS_SHARE = 0.25  # Ring radius, of the screen's shorter side
 const THREAT_ARROW_SIZE = [28.0, 56.0]  # px, far to near
 const THREAT_COLOR = Color(1.0, 0.36, 0.12, 1.0)  # Red-orange, as hostile brackets
+const THREAT_WATCH_INTERVAL = 0.5  # s between ThreatWatch's looks
+const THREAT_NOTICE_COOLDOWN = 30.0  # s before the same ship is announced again (seen, or seeing the player)
+const THREAT_COMBAT_HOLD = 12.0  # s the "combat" level (and its music) lasts after the last hostile that saw the player, or the last hit
 
 # Traffic (Traffic): persistent NPCs travelling the sector graph, the population besides the evolving NPCs.
 const TRAFFIC_ROSTER = [  # Kind (faction, niche role; "" any) and how many
@@ -1220,6 +1223,7 @@ func get_reference_origin_offset(world_position: Vector3) -> Vector3:
 const MUSIC_AMBIENT_VOLUME_DB = -8.0  # Space ambient soundtrack (AmbientMusic)
 const MUSIC_AMBIENT_FADE_IN = 6.0  # s
 const MUSIC_SILENT_DB = -60.0
+const MUSIC_CROSSFADE = 4.0  # s from one of the sector's tracks to the next (AmbientMusic: calm, danger, combat)
 
 # Sound effects (SoundEffects plays the slots of database/sounds/sound_bank.tres). World sounds are
 # heard from the player's ship (the camera's when there is none), turned the camera's way.

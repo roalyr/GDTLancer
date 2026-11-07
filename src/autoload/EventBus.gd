@@ -54,6 +54,9 @@ signal player_undocked
 signal dock_action_feedback(success, message)  # Feedback from dock button press
 signal attack_action_feedback(success, message)  # Feedback from attack button press
 signal announcement(message, level)  # A HUD announcement: level "info", "warning" or "danger" (threats)
+signal hostile_detected(ship)  # A hostile ship has come onto the player's sensors (ThreatWatch)
+signal hostile_aware(ship)  # A hostile ship the player sees has detected the player (ThreatWatch)
+signal threat_level_changed(level)  # "calm", "danger" or "combat" (ThreatWatch): the music follows it
 signal radio_message(speaker, text)  # An NPC on the common frequency (Radio.say): heard within RADIO_RANGE of the speaker
 
 # --- Jumping ---

@@ -28,6 +28,7 @@ const DebugMapScene = preload("res://scenes/ui/menus/debug_map.tscn")
 const DebugTools = preload("res://src/core/ui/debug_tools/debug_tools.gd")
 const RadioScript = preload("res://src/core/systems/radio.gd")
 const ThreatRing = preload("res://src/core/ui/main_hud/threat_ring.gd")
+const ThreatWatch = preload("res://src/core/systems/threat_watch.gd")
 const HUDTargetProjectorClass = preload("res://src/core/ui/main_hud/hud_target_projector.gd")
 
 
@@ -212,6 +213,9 @@ func _ready():
 	debug_map = DebugMapScene.instance()
 	add_child(debug_map)
 	$ScreenControls/DebugOverlay/RightColumn/ButtonDebugMap.connect("pressed", debug_map, "open")
+	var threat_watch = ThreatWatch.new()
+	threat_watch.name = "ThreatWatch"
+	add_child(threat_watch)
 	threat_ring = ThreatRing.new()
 	threat_ring.name = "ThreatRing"
 	add_child(threat_ring)

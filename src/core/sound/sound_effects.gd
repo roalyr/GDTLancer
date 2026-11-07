@@ -1,6 +1,6 @@
 # SoundEffects: plays the game's sound effects from a SoundBank (`bank`; the main scene gives it
 # database/sounds/sound_bank.tres). It sits in the world's viewport and listens to what the game
-# already signals: EventBus (damage, wrecks, notices, radio, docking), each ship's ToolController and
+# already signals: EventBus (damage, wrecks, notices, radio, threats, docking), each ship's ToolController and
 # LanceController and every button, picked up as they enter the tree. An empty slot costs nothing.
 # World sounds are heard from the player's ship (the camera's position when there is none), turned
 # the camera's way; Constants "SOUND" sets distances, the voice cap and the engine loop's range.
@@ -35,6 +35,8 @@ func _ready() -> void:
 	_connect(EventBus, "agent_disabled", "_on_agent_disabled")
 	_connect(EventBus, "announcement", "_on_announcement")
 	_connect(EventBus, "radio_message", "_on_radio_message")
+	_connect(EventBus, "hostile_detected", "_on_hostile_detected")
+	_connect(EventBus, "hostile_aware", "_on_hostile_aware")
 	_connect(EventBus, "dock_available", "_on_dock_available")
 	_connect(EventBus, "player_docked", "_on_player_docked")
 	_connect(EventBus, "player_undocked", "_on_player_undocked")
@@ -271,6 +273,14 @@ func _on_announcement(_message, level) -> void:
 
 func _on_radio_message(_speaker, _text) -> void:
 	play("radio")
+
+
+func _on_hostile_detected(_ship) -> void:
+	play("hostile_detected")
+
+
+func _on_hostile_aware(_ship) -> void:
+	play("hostile_aware")
 
 
 func _on_dock_available(_location_id) -> void:
