@@ -67,12 +67,13 @@ func test_law():
 
 
 func test_a_strike_damages_shoves_and_leaves_the_lance_in():
-	thrower.linear_velocity = Vector3(0, 0, -200)  # Nose on (-Z) at 200 m/s
+	var speed: float = Constants.LAW_LANCE_REF_SPEED
+	thrower.linear_velocity = Vector3(0, 0, -speed)  # Nose on (-Z) at the reference speed
 	var damage: float = lance.strike(target, Vector3(0, 0, -20), Vector3(0, 0, 1))
 	assert_almost_eq(damage, lance.lance.damage, 0.01)
 	assert_almost_eq(target.hull, 200.0 - damage, 0.01)
-	assert_almost_eq(thrower.linear_velocity.z, -200.0, 0.01, "The ship flies on: only the lance met it")
-	assert_almost_eq(target.linear_velocity.z, -200.0 * lance.lance.nail_mass / target.mass, 0.01, "Shoved by the lance's momentum")
+	assert_almost_eq(thrower.linear_velocity.z, -speed, 0.01, "The ship flies on: only the lance met it")
+	assert_almost_eq(target.linear_velocity.z, -speed * lance.lance.nail_mass / target.mass, 0.01, "Shoved by the lance's momentum")
 	var stuck := 0
 	for child in target.get_children():
 		if child.is_in_group(LanceScript.LANCE_GROUP):

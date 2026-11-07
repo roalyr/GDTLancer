@@ -719,10 +719,10 @@ const LAW_BAY_LOAD_SHARE = 0.85
 # Genes: lance (nail) mass m and count n.
 #   damage = DAMAGE * (m/m0)^a * (v / REF_SPEED)^SPEED_EXP, past the nose LENGTH * (m/m0)^(1/3) m,
 #   reload RELOAD * (m/m0)^b s, module mass m * (n + SEAT_NAILS) (the seat weighs as much as that).
-const LAW_LANCE_DAMAGE = [200.0, 120.0, 0.8]  # A 200 kg lance kills a reference ship at 200 m/s
+const LAW_LANCE_DAMAGE = [200.0, 108.0, 0.8]  # A 200 kg lance kills a reference ship at about 300 m/s: thrown (LANCE_LAUNCH_SPEED) at a typical 240 m/s closing, 85% of its hull, so a kill is two strikes or one and the guns
 const LAW_LANCE_LENGTH = [200.0, 12.0, 1.0 / 3.0]
 const LAW_LANCE_RELOAD = [200.0, 4.0, 0.5]
-const LAW_LANCE_REF_SPEED = 200.0  # m/s
+const LAW_LANCE_REF_SPEED = 300.0  # m/s
 const LAW_LANCE_SPEED_EXP = 1.0
 const LAW_LANCE_MIN_SPEED = 60.0  # m/s; slower, it glances off
 const LAW_LANCE_GLANCE_ANGLE = 60.0  # degrees off square-on: the hit chance falls from 1 square-on to the slip chance here

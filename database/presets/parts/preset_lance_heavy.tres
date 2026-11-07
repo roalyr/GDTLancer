@@ -6,7 +6,7 @@
 script = ExtResource( 1 )
 template_id = "preset_lance_heavy"
 module_name = "Lance Mk I-heavy"
-description = "2100 kg: 4 lances of 350 kg, 188 damage at 200 m/s (none under 60 m/s); an armoured prow, +84 hull."
+description = "2100 kg: 4 lances of 350 kg, 141 damage at 300 m/s (none under 60 m/s); an armoured prow, +84 hull."
 base_value = 525
 mass = 2100.0
 stat_modifiers = {
@@ -14,7 +14,7 @@ stat_modifiers = {
 }
 lance = {
 "count": 4,
-"damage": 187.764,
+"damage": 168.987,
 "length": 14.4609,
 "mass": 2100.0,
 "nail_mass": 350.0,
