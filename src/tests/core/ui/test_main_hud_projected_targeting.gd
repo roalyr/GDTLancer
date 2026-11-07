@@ -11,6 +11,7 @@ var RouteTargetScript = load("res://src/core/targeting/route_target.gd")
 var NavigationSystemScript = load("res://src/core/agents/components/navigation_system.gd")
 var DockableStationScript = load("res://src/scenes/game_world/station/dockable_station.gd")
 var AgentScript = load("res://src/core/agents/agent.gd")
+var HUDTargetProjectorClass = load("res://src/core/ui/main_hud/hud_target_projector.gd")
 var PlayerControllerShipScript = load("res://src/modules/piloting/player_controller_ship.gd")
 var StateFreeFlightScript = load("res://src/modules/piloting/player_input_states/state_free_flight.gd")
 
@@ -743,6 +744,31 @@ func test_hostile_marks_fill_once_they_see_you_and_show_their_distance_unselecte
 	assert_eq(label.text, "", "A wreck's distance shows only when selected")
 
 
+func test_only_the_nearest_hostiles_show_their_distance():
+	var player = AgentScript.new()
+	player.faction = "player"
+	add_child_autofree(player)
+	GlobalRefs.player_agent_body = player
+	var hud = {"_world_target_buttons": {}}
+	var projector = HUDTargetProjectorClass.new(FakeHud.new(hud))
+	var labels: Array = []
+	for index in range(Constants.HUD_MARK_DISTANCES + 2):
+		var hostile = AgentScript.new()
+		add_child_autofree(hostile)
+		hostile.faction = "raiders"
+		hostile.global_transform.origin = Vector3(0, 0, -1000.0 * (index + 1))
+		var bracket = ProjectedTargetBracketScene.instance()
+		add_child_autofree(bracket)
+		bracket.configure_target(hostile, "Raider")
+		hud._world_target_buttons[index] = bracket
+		labels.append(bracket.get_node("DistancePanel/DistanceLabel"))
+	projector._limit_mark_distances()
+	for index in range(labels.size()):
+		var seen: bool = player.detects(hud._world_target_buttons[index].target_ref)
+		if seen:
+			assert_eq(labels[index].text != "", index < Constants.HUD_MARK_DISTANCES, "Raider %d" % index)
+
+
 func test_xenohive_is_purple_whatever_its_side():
 	var player = AgentScript.new()
 	player.faction = "player"
@@ -757,3 +783,11 @@ func test_xenohive_is_purple_whatever_its_side():
 	assert_eq(bracket.get_node("BracketNormal/Marker").kind, "ship")
 	var shade: Color = bracket.get_node("BracketNormal").modulate
 	assert_true(shade.b > shade.r and shade.r > shade.g, "Purple (dimmed or not)")
+
+
+class FakeHud extends Control:
+	var _data: Dictionary
+	func _init(data: Dictionary) -> void:
+		_data = data
+	func _get(property):
+		return _data.get(property)

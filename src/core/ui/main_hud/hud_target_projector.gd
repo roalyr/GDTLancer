@@ -253,6 +253,8 @@ func update_world_target_overlay(full: bool = true) -> void:
 		_last_full_refresh_ms = now
 	var camera_fwd = -_hud._main_camera.global_transform.basis.z.normalized()
 	var viewport_rect = _hud.get_viewport_rect()
+	if full:
+		_limit_mark_distances()
 	for instance_id in _hud._world_target_buttons:
 		var button = _hud._world_target_buttons[instance_id]
 		if not is_instance_valid(button):
@@ -279,6 +281,33 @@ func update_world_target_overlay(full: bool = true) -> void:
 			apply_projected_target_distance_fade(button, get_projected_target_distance_fade_alpha(screen_pos, viewport_rect))
 		else:
 			apply_projected_target_distance_fade(button, 1.0)
+
+# Only the nearest Constants.HUD_MARK_DISTANCES hostiles the player sees show their distance by their
+# mark (the selected target always does): a crowd's numbers would stack.
+func _limit_mark_distances() -> void:
+	var player = GlobalRefs.player_agent_body
+	if not (is_instance_valid(player) and player is Spatial and player.is_inside_tree()):
+		return
+	var hostiles: Array = []
+	for instance_id in _hud._world_target_buttons:
+		var button = _hud._world_target_buttons[instance_id]
+		if not is_instance_valid(button) or button.get("mark_distance_allowed") == null:
+			continue
+		var target_node = button.target_ref
+		var hostile: bool = is_instance_valid(target_node) and target_node is Spatial and target_node.is_inside_tree() and target_node.has_method("is_enemy_of") \
+			and not target_node.get("is_wreck") and target_node.is_enemy_of(player) and (not player.has_method("detects") or player.detects(target_node))
+		if hostile:
+			hostiles.append([player.global_transform.origin.distance_squared_to(target_node.global_transform.origin), button])
+		else:
+			button.mark_distance_allowed = true  # Not hostile: shows none anyway
+	hostiles.sort_custom(self, "_nearer")
+	for index in range(hostiles.size()):
+		hostiles[index][1].mark_distance_allowed = index < Constants.HUD_MARK_DISTANCES
+
+
+func _nearer(a: Array, b: Array) -> bool:
+	return a[0] < b[0]
+
 
 # The slow part of a world bracket: whether it shows (detected, its overlay on) and its cues and
 # colours. Returns whether it shows.

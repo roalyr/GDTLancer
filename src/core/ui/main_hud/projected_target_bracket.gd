@@ -33,10 +33,12 @@ var _target_label: String = ""
 var _context_hint: String = ""
 var _distance_fade_alpha: float = 1.0
 var _shows_mark_distance: bool = false  # Unselected, a live hostile ship: its distance shown
+var mark_distance_allowed: bool = true setget set_mark_distance_allowed  # The projector: one of the nearest HUD_MARK_DISTANCES hostiles
 var _distance_style = null  # [selected, colour] the distance label was last styled with
 
 
 func _ready() -> void:
+	add_to_group("projected_target_bracket")
 	flat = true
 	focus_mode = Control.FOCUS_NONE
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -73,6 +75,13 @@ func set_selected_state(is_selected: bool) -> void:
 	_sync_label()
 	_sync_distance_label()
 	_refresh_distance_process_state()
+
+
+func set_mark_distance_allowed(allowed: bool) -> void:
+	if mark_distance_allowed == allowed:
+		return
+	mark_distance_allowed = allowed
+	_apply_bracket_style()
 
 
 func set_context_hint(new_context_hint: String = "") -> void:
@@ -155,7 +164,7 @@ func _apply_bracket_style() -> void:
 	if is_instance_valid(_selected_bracket):
 		_selected_bracket.visible = _is_selected
 		_apply_selected_color()
-	var shows_mark_distance: bool = not _is_selected and _is_hostile_to_player()
+	var shows_mark_distance: bool = not _is_selected and mark_distance_allowed and _is_hostile_to_player()
 	if shows_mark_distance != _shows_mark_distance:
 		_shows_mark_distance = shows_mark_distance
 		_sync_distance_label()
@@ -317,6 +326,8 @@ func _build_label_text() -> String:
 	# keeps a crowded battlefield readable and spares a label's draw calls per bracket.
 	if not _is_selected:
 		return ""
+	if _strip_shows_target():
+		return ""  # The top strip names it (and says how a fight would go)
 	var primary_text = _resolve_primary_label()
 	var secondary_text = _resolve_secondary_label()
 	if primary_text == "":
@@ -324,6 +335,17 @@ func _build_label_text() -> String:
 	if secondary_text == "":
 		return primary_text
 	return "%s\n%s" % [primary_text, secondary_text]
+
+
+# Whether the HUD's top strip (AwarenessZone) is up: it then carries the selected target's name and
+# threat word, and the bracket keeps only its distance.
+func _strip_shows_target() -> bool:
+	if not is_inside_tree():
+		return false
+	for zone in get_tree().get_nodes_in_group("hud_awareness_zone"):
+		if not zone.suppressed:
+			return true
+	return false
 
 
 func _resolve_primary_label() -> String:

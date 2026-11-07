@@ -1,10 +1,11 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://src/core/ui/main_hud/awareness_zone.gd" type="Script" id=1]
 [ext_resource path="res://src/core/ui/main_hud/hud_bar.gd" type="Script" id=2]
 [ext_resource path="res://assets/themes/main_theme.tres" type="Theme" id=3]
 [ext_resource path="res://assets/themes/font_large.tres" type="DynamicFont" id=4]
 [ext_resource path="res://assets/themes/font_small.tres" type="DynamicFont" id=5]
+[ext_resource path="res://src/core/ui/main_hud/hud_pips.gd" type="Script" id=6]
 
 [node name="AwarenessZone" type="Control"]
 anchor_right = 1.0
@@ -41,6 +42,11 @@ margin_bottom = 40.0
 custom_fonts/font = ExtResource( 4 )
 text = "0"
 
+[node name="Threat" type="Label" parent="Layout/TargetRow"]
+margin_right = 80.0
+margin_bottom = 40.0
+text = ""
+
 [node name="Hull" type="Control" parent="Layout/TargetRow"]
 margin_right = 160.0
 margin_bottom = 40.0
@@ -59,24 +65,28 @@ alignment = 1
 [node name="Speed" type="Label" parent="Layout/StatusRow"]
 text = "0 M/S"
 
-[node name="Ships" type="Label" parent="Layout/StatusRow"]
-text = "SHIPS 0"
+[node name="Ships" type="Control" parent="Layout/StatusRow"]
+rect_min_size = Vector2( 200, 26 )
+mouse_filter = 2
+script = ExtResource( 6 )
 
-[node name="Hostiles" type="Label" parent="Layout/StatusRow"]
-text = "HOSTILE 0"
-
-[node name="Signature" type="Label" parent="Layout/StatusRow"]
-text = "SIG QUIET"
+[node name="Signature" type="Control" parent="Layout/StatusRow"]
+rect_min_size = Vector2( 180, 26 )
+mouse_filter = 2
+script = ExtResource( 2 )
+caption = "SIG"
+caption_width = 50.0
 
 [node name="Bars" type="HBoxContainer" parent="Layout"]
 margin_right = 1170.0
 margin_bottom = 26.0
 mouse_filter = 2
-custom_constants/separation = 40
+custom_constants/separation = 32
 alignment = 1
 
 [node name="Hull" type="Control" parent="Layout/Bars"]
-rect_min_size = Vector2( 280, 26 )
+rect_min_size = Vector2( 150, 26 )
+size_flags_horizontal = 3
 mouse_filter = 2
 script = ExtResource( 2 )
 caption = "HULL"
@@ -84,7 +94,8 @@ low_share = 0.35
 caption_width = 80.0
 
 [node name="Energy" type="Control" parent="Layout/Bars"]
-rect_min_size = Vector2( 280, 26 )
+rect_min_size = Vector2( 150, 26 )
+size_flags_horizontal = 3
 mouse_filter = 2
 script = ExtResource( 2 )
 caption = "ENERGY"
@@ -94,7 +105,8 @@ low_color = Color( 1, 0.6, 0.2, 1 )
 caption_width = 80.0
 
 [node name="Cargo" type="Control" parent="Layout/Bars"]
-rect_min_size = Vector2( 280, 26 )
+rect_min_size = Vector2( 150, 26 )
+size_flags_horizontal = 3
 mouse_filter = 2
 script = ExtResource( 2 )
 caption = "CARGO"
@@ -102,7 +114,6 @@ color = Color( 0.85, 0.75, 0.55, 0.85 )
 caption_width = 80.0
 
 [node name="Radio" type="Label" parent="Layout"]
-modulate = Color( 1, 1, 1, 0.5 )
 margin_right = 1170.0
 margin_bottom = 40.0
 custom_fonts/font = ExtResource( 5 )

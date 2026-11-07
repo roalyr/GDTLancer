@@ -30,6 +30,7 @@ const RadioScript = preload("res://src/core/systems/radio.gd")
 const ThreatRing = preload("res://src/core/ui/main_hud/threat_ring.gd")
 const ThreatWatch = preload("res://src/core/systems/threat_watch.gd")
 const AwarenessZoneScene = preload("res://scenes/ui/hud/awareness_zone.tscn")
+const HudBarScript = preload("res://src/core/ui/main_hud/hud_bar.gd")
 const HUDTargetProjectorClass = preload("res://src/core/ui/main_hud/hud_target_projector.gd")
 
 
@@ -66,7 +67,7 @@ onready var button_afterburner: TextureButton = $ScreenControls/TemporaryToolZon
 var fitting_window: Control = null
 var debug_map: Control = null
 var debug_tools: Control = null
-var radio_lines: Array = []  # The radio lines heard last (Radio), oldest first: in the debug overlay until the HUD has a place for them
+var radio_lines: Array = []  # The radio lines heard last (Radio), oldest first, with their time: the debug overlay's (the top strip keeps its own, fading)
 var threat_ring: Control = null
 var awareness_zone: Control = null  # The top strip (AwarenessZone)
 var _tool_rows: Array = []  # Rows of tool buttons above TemporaryToolZone (_layout_tool_rows)
@@ -217,7 +218,6 @@ func _ready():
 	$ScreenControls/DebugOverlay/RightColumn/ButtonDebugMap.connect("pressed", debug_map, "open")
 	awareness_zone = AwarenessZoneScene.instance()
 	$ScreenControls.add_child(awareness_zone)
-	awareness_zone.radio_lines = radio_lines  # The same array: it reads the lines as they come
 	var threat_watch = ThreatWatch.new()
 	threat_watch.name = "ThreatWatch"
 	add_child(threat_watch)
@@ -411,6 +411,7 @@ func _on_ButtonDebug_pressed() -> void:
 	if is_instance_valid(awareness_zone):
 		awareness_zone.suppressed = debug_overlay.visible  # The overlay's top rows sit where the strip does
 		awareness_zone.refresh()
+		get_tree().call_group("projected_target_bracket", "_sync_label")  # The name moves back under the bracket
 	_update_debug_overlay()
 
 
@@ -509,8 +510,10 @@ func _on_ButtonInteract_pressed():
 		EventBus.emit_signal("player_interact_pressed")
 
 
-# One button per fitted tool (TemporaryToolZone; more are made as a ship needs them), two states
-# each: the tool's action while off (FIRE, LAUNCH), CEASE / RELEASE while on, highlighted then.
+# One button per fitted tool (TemporaryToolZone; more are made as a ship needs them): its short
+# name, highlighted while on, and a bar along its foot: rounds left of a full magazine (cannons,
+# racks), else the cycle while on. A word only when pressing it would not do the usual: EMPTY,
+# WINCHING. (TOOL_ACTIONS: the words the debug overlay and the old labels used.)
 # Buttons past the fitted tools are hidden. The buttons (tools, then LANCE and AFTERBURNER) sit in
 # centred rows of at most TOOL_ROW_MAX, the last row lowest; the rows above are made as needed.
 const TOOL_ROW_MAX = 8
@@ -537,15 +540,39 @@ func _update_tool_buttons() -> void:
 		var active: bool = tools.is_active(index)
 		var actions: Array = TOOL_ACTIONS.get(tool_template.tool_type, ["USE", "STOP"])
 		var name: String = tool_template.hud_label if tool_template.hud_label != "" else tool_template.tool_name.to_upper()
-		var action: String = actions[1] if active else actions[0]
+		var action: String = ""
+		var fill: float = tools.get_cycle_progress(index) if active else 0.0
 		if tools.has_method("is_retracting") and tools.is_retracting(index):
 			action = "WINCHING"
 		if tools.has_method("has_magazine") and tools.has_magazine(index):
-			name += " %d" % tools.get_ammo(index)  # Rounds left
+			fill = float(tools.get_ammo(index)) / max(1.0, float(tools.get_capacity(index)))
 			if tools.get_ammo(index) <= 0:
 				action = "EMPTY"
-		button.get_node("Label").text = "%s\n%s" % [name, action]
+		var text: String = name if action == "" else "%s\n%s" % [name, action]
+		var label: Label = button.get_node("Label")
+		if label.text != text:
+			label.text = text
+		_tool_bar(button).set_value(fill)
 		_apply_button_toggle_state(button, active)
+
+
+# The bar along a tool button's foot (HudBar), made the first time.
+func _tool_bar(button: Control) -> Control:
+	var bar = button.get_node_or_null("Bar")
+	if bar == null:
+		bar = HudBarScript.new()
+		bar.name = "Bar"
+		bar.bar_height = 4.0
+		bar.anchor_right = 1.0
+		bar.anchor_top = 1.0
+		bar.anchor_bottom = 1.0
+		bar.margin_left = 10.0
+		bar.margin_right = -10.0
+		bar.margin_top = -16.0
+		bar.margin_bottom = -8.0
+		bar.low_share = 0.25
+		button.add_child(bar)
+	return bar
 
 
 # Spreads the shown buttons over rows of at most TOOL_ROW_MAX, the first ones highest; only when
@@ -824,6 +851,8 @@ func _on_radio_message(speaker, text: String) -> void:
 		return
 	var seconds: int = int(Evolution.game_time)
 	radio_lines.append("%02d:%02d %s: %s" % [(seconds / 60) % 60, seconds % 60, RadioScript.call_sign(speaker), text])
+	if is_instance_valid(awareness_zone):
+		awareness_zone.add_radio_line("%s: %s" % [RadioScript.call_sign(speaker), text])  # No clock: it fades instead
 	while radio_lines.size() > Constants.RADIO_LOG_LINES:
 		radio_lines.pop_front()
 	if is_instance_valid(debug_overlay) and debug_overlay.visible:

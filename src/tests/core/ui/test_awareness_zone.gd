@@ -31,7 +31,8 @@ func test_it_shows_the_target_and_own_state():
 	add_child_autofree(zone)
 	zone.target = raider
 	zone.target_name = "Raider"
-	zone.radio_lines = ["one", "two", "three"]
+	for line in ["one", "two", "three"]:
+		zone.add_radio_line(line)
 	zone.refresh()
 	assert_true(zone.visible)
 	assert_eq(zone.get_node("Layout/TargetRow/Name").text, "RAIDER")
@@ -39,5 +40,25 @@ func test_it_shows_the_target_and_own_state():
 	assert_almost_eq(zone.get_node("Layout/TargetRow/Hull").value, 0.25, 0.01, "Its hull")
 	assert_almost_eq(zone.get_node("Layout/Bars/Hull").value, 0.5, 0.01, "Own hull")
 	assert_eq(zone.get_node("Layout/Radio").text, "two\\nthree".c_unescape(), "The last lines only")
+	assert_eq(zone.get_node("Layout/TargetRow/Threat").text, Zone.threat_word(player, raider), "How a fight would go")
 	var seen: Array = Zone.ships_seen(player, [player, raider])
 	assert_eq(seen[0], int(player.detects(raider)))
+	zone._process(Constants.HUD_RADIO_FADE + 0.1)
+	assert_eq(zone.get_node("Layout/Radio").text, "", "Radio lines fade out")
+
+
+func test_the_bracket_leaves_the_name_to_the_strip():
+	var bracket = load("res://scenes/ui/hud/projected_target_bracket.tscn").instance()
+	add_child_autofree(bracket)
+	var station = Spatial.new()
+	add_child_autofree(station)
+	bracket.configure_target(station, "Elace Exchange")
+	bracket.set_selected_state(true)
+	assert_eq(bracket.get_node("InfoPanel/InfoLabel").text, "Elace Exchange", "No strip: named under the bracket")
+	var zone = ZoneScene.instance()
+	add_child_autofree(zone)
+	bracket._sync_label()
+	assert_eq(bracket.get_node("InfoPanel/InfoLabel").text, "", "The strip names it")
+	zone.suppressed = true
+	bracket._sync_label()
+	assert_eq(bracket.get_node("InfoPanel/InfoLabel").text, "Elace Exchange", "Back while the strip is hidden")

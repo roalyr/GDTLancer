@@ -171,6 +171,7 @@ __meta__ = {
 }
 
 [node name="ButtonPlaceholder1" type="TextureButton" parent="ScreenControls/CenterLeftZone"]
+visible = false
 anchor_top = 1.0
 anchor_bottom = 1.0
 margin_left = 240.0
@@ -772,6 +773,7 @@ __meta__ = {
 }
 
 [node name="ButtonPlaceholder4" type="TextureButton" parent="ScreenControls/CenterRightZone"]
+visible = false
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
