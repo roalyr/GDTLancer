@@ -14,16 +14,16 @@ The picked designs, one per family and weight class (`archetypes/`: ship `preset
 
 | Archetype | Role | Temperament | Equipment | Modules | Lives | Fitness | Hull WP | Origin |
 |---|---|---|---|---|---|---|---|---|
-| fighter_light | cannon-fighter | cautious | Cannon Mk I-medium, Laser Mk I-heavy |  | 10 | +1.24 | 591 | cannon_fighter_light_15958 (era 51) |
+| fighter_light | cannon-fighter | cautious | Cannon Mk I-light, Laser Mk I-light |  | 10 | +1.24 | 591 | cannon_fighter_light_15958 (era 51) |
 | fighter_medium | missile-fighter | measured | Missile Rack Mk I-medium, Laser Mk I-light |  | 11 | +0.81 | 865 | missile_fighter_medium_14708 (era 51) |
 | fighter_heavy | missile-cannon-fighter | measured | Laser Mk I-light x2, Cannon Mk I-medium, Cannon Mk I-heavy, Laser Mk I-heavy x3, Laser Mk I-medium, Missile Rack Mk I-medium, Missile Rack Mk I-heavy | Plating Mk I-light | 10 | +0.42 | 7272 | missile_cannon_fighter_heavy_15260 (era 51) |
-| lance_light | lance-missile-fighter | aggressive | Missile Rack Mk I-medium | Afterburner Mk I-light, Lance Mk I-medium | 7 | +0.82 | 676 | lance_missile_fighter_light_12178 (era 51) |
+| lance_light | lance-missile-fighter | aggressive | Missile Rack Mk I-light | Afterburner Mk I-light, Lance Mk I-light | 7 | +0.82 | 676 | lance_missile_fighter_light_12178 (era 51) |
 | lance_medium | lancer | measured | Harpoon Mk I | Lance Mk I-light, Plating Mk I-medium | 10 | +0.39 | 1148 | lancer_medium_15466 (era 51) |
 | lance_heavy | lance-missile-cannon-fighter | measured | Missile Rack Mk I-light, Cannon Mk I-heavy | Decoy Launcher Mk I-heavy, Power Cell Mk I-light, Lance Mk I-light, Damper Mk I-medium | 11 | +0.17 | 2479 | lance_missile_cannon_fighter_heavy_16100 (era 51) |
 | prospector_light | prospector | cautious | Laser Mk I-light, Harpoon Mk I | Lance Mk I-light | 11 | +0.27 | 591 | prospector_light_15008 (era 51) |
-| prospector_medium | prospector | cautious | Laser Mk I-heavy, Harpoon Mk I, Laser Mk I-medium | Lance Mk I-light | 11 | +0.31 | 990 | prospector_medium_14901 (era 51) |
+| prospector_medium | prospector | cautious | Laser Mk I-medium x2, Harpoon Mk I | Lance Mk I-light | 11 | +0.31 | 990 | prospector_medium_14901 (era 51) |
 | prospector_heavy | prospector | measured | Laser Mk I-heavy, Harpoon Mk I, Cannon Mk I-medium | Lance Mk I-medium, Afterburner Mk I-medium | 6 | +0.35 | 2501 | prospector_heavy_16070 (era 51) |
-| raider_light | raider | cautious | Harpoon Mk I, Laser Mk I-medium |  | 10 | +1.78 | 818 | raider_light_15543 (era 51) |
+| raider_light | raider | cautious | Harpoon Mk I, Laser Mk I-light |  | 10 | +1.78 | 818 | raider_light_15543 (era 51) |
 | raider_medium | missile-cannon-raider | measured | Cannon Mk I-heavy, Laser Mk I-heavy, Harpoon Mk I, Missile Rack Mk I-heavy, Laser Mk I-light, Cannon Mk I-light | Decoy Launcher Mk I-medium | 10 | +0.82 | 2357 | missile_cannon_raider_medium_6673 (era 51) |
 | raider_heavy | missile-cannon-raider | measured | Laser Mk I-heavy x2, Harpoon Mk I, Missile Rack Mk I-light, Cannon Mk I-heavy | Damper Mk I-light | 10 | +0.64 | 3947 | missile_cannon_raider_heavy_15583 (era 51) |
 | scavenger_light | scavenger | cautious | Harpoon Mk I |  | 13 | +1.58 | 727 | scavenger_light_15723 (era 51) |
@@ -56,9 +56,14 @@ The picked designs, one per family and weight class (`archetypes/`: ship `preset
 
 | Design | Role | Temperament | Traits | Equipment | Modules | Proven | Lives | Fitness | Hull WP | Folder |
 |---|---|---|---|---|---|---|---|---|---|---|
-| missile_cannon_fighter_heavy_15260 | missile-cannon-fighter | measured | stubborn, merciful, shoots back, loner | Laser I x2, Rail Cannon II, Rail Cannon III, Laser III x3, Laser II, Missile Rack II, Missile Rack III | Hull Plating I | yes | 10 | +0.42 | 7272 | drafts_era51_min5 |
 | missile_fighter_heavy_13569 | missile-fighter | measured |  | Laser III x2, Laser II, Missile Rack I, Laser I | Sensor Damper I, Afterburner III |  | 5 | +0.15 | 3286 | drafts_era51_min5 |
 | cannon_fighter_heavy_8873 | cannon-fighter | measured |  | Rail Cannon II | Thruster III x2, Hull Plating II, Hull Plating I, Decoy Launcher III |  | 5 | -0.12 | 3263 | drafts_era51_min5 |
+
+### Superheavy
+
+| Design | Role | Temperament | Traits | Equipment | Modules | Proven | Lives | Fitness | Hull WP | Folder |
+|---|---|---|---|---|---|---|---|---|---|---|
+| missile_cannon_fighter_heavy_15260 | missile-cannon-fighter | measured | stubborn, merciful, shoots back, loner | Laser I x2, Rail Cannon II, Rail Cannon III, Laser III x3, Laser II, Missile Rack II, Missile Rack III | Hull Plating I | yes | 10 | +0.42 | 7272 | drafts_era51_min5 |
 
 ## Lance
 
@@ -83,13 +88,13 @@ The picked designs, one per family and weight class (`archetypes/`: ship `preset
 | lance_cannon_raider_medium_15532 | lance-cannon-raider | measured | loner | tool_harpoon, Rail Cannon III | Kinetic Lance I, Decoy Launcher II | yes | 10 | +0.35 | 1528 | drafts_era51_min5 |
 | lance_cannon_fighter_medium_12533 | lance-cannon-fighter | measured | stubborn, sells often | Rail Cannon III | Kinetic Lance I, Hull Plating II | yes | 11 | +0.12 | 1401 | drafts_era51_min10 |
 | lance_cannon_fighter_medium_14399 | lance-cannon-fighter | measured | quick to fight, ruthless | Laser I, Rail Cannon I | Thruster III, Kinetic Lance III |  | 8 | +0.20 | 1075 | drafts_era51_min5 |
-| lance_fighter_medium_15668 | lance-fighter | aggressive | quick to fight, stubborn, standoff, relentless, shoots back | Laser I | Extended Magazine II, Hull Plating I, Kinetic Lance I |  | 5 | +0.00 | 1698 | drafts_era51_min5 |
 
 ### Heavy
 
 | Design | Role | Temperament | Traits | Equipment | Modules | Proven | Lives | Fitness | Hull WP | Folder |
 |---|---|---|---|---|---|---|---|---|---|---|
 | lance_missile_cannon_fighter_heavy_16100 | lance-missile-cannon-fighter | measured |  | Missile Rack I, Rail Cannon III | Decoy Launcher III, Power Cell I, Kinetic Lance I, Sensor Damper II | yes | 11 | +0.17 | 2479 | drafts_era51_min5 |
+| lance_fighter_medium_15668 | lance-fighter | aggressive | quick to fight, stubborn, standoff, relentless, shoots back | Laser I | Extended Magazine II, Hull Plating I, Kinetic Lance I |  | 5 | +0.00 | 1698 | drafts_era51_min5 |
 | lance_missile_fighter_heavy_15648 | lance-missile-fighter | measured |  | Missile Rack I | Decoy Launcher III, Power Cell I, Kinetic Lance III, Sensor Damper II, Afterburner III |  | 5 | -0.02 | 2559 | drafts_era51_min5 |
 
 ## Prospector
@@ -127,15 +132,20 @@ The picked designs, one per family and weight class (`archetypes/`: ship `preset
 
 | Design | Role | Temperament | Traits | Equipment | Modules | Proven | Lives | Fitness | Hull WP | Folder |
 |---|---|---|---|---|---|---|---|---|---|---|
-| missile_cannon_raider_medium_6673 | missile-cannon-raider | measured |  | Rail Cannon III, Laser III, tool_harpoon, Missile Rack III, Laser I, Rail Cannon I | Decoy Launcher II | yes | 10 | +0.82 | 2357 | drafts_era51_min5 |
 | cannon_raider_medium_12795 | cannon-raider | cautious | lets runners go, sells often | Laser III, Rail Cannon II, tool_harpoon | Power Cell I | yes | 10 | +0.72 | 1184 | drafts_era51_min10 |
 | raider_medium_15609 | raider | cautious | picks its fights, close-in, skittish, lets runners go, sells often | tool_harpoon, Laser I | Sensor Booster I | yes | 10 | +0.65 | 1615 | drafts_era51_min10 |
-| missile_raider_medium_15522 | missile-raider | measured |  | Missile Rack II, Missile Rack III, tool_harpoon | Decoy Launcher II, Afterburner I | yes | 11 | +0.65 | 2139 | drafts_era51_min10 |
 | missile_raider_medium_14080 | missile-raider | cautious |  | Laser II, Missile Rack III, tool_harpoon |  |  | 7 | +1.11 | 1263 | drafts_era51_min5 |
 | cannon_raider_medium_15742 | cannon-raider | cautious |  | Rail Cannon III, tool_harpoon |  |  | 6 | +0.84 | 1111 | drafts_era51_min5 |
 | raider_medium_15639 | raider | cautious | stubborn, runs silent, sells often | tool_harpoon, Laser III |  |  | 6 | +0.68 | 1108 | drafts_era51_min5 |
 
 ### Heavy
+
+| Design | Role | Temperament | Traits | Equipment | Modules | Proven | Lives | Fitness | Hull WP | Folder |
+|---|---|---|---|---|---|---|---|---|---|---|
+| missile_cannon_raider_medium_6673 | missile-cannon-raider | measured |  | Rail Cannon III, Laser III, tool_harpoon, Missile Rack III, Laser I, Rail Cannon I | Decoy Launcher II | yes | 10 | +0.82 | 2357 | drafts_era51_min5 |
+| missile_raider_medium_15522 | missile-raider | measured |  | Missile Rack II, Missile Rack III, tool_harpoon | Decoy Launcher II, Afterburner I | yes | 11 | +0.65 | 2139 | drafts_era51_min10 |
+
+### Superheavy
 
 | Design | Role | Temperament | Traits | Equipment | Modules | Proven | Lives | Fitness | Hull WP | Folder |
 |---|---|---|---|---|---|---|---|---|---|---|

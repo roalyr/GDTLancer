@@ -25,8 +25,8 @@ behavior = {
 }
 role = "missile-cannon-raider"
 family = "raider"
-weight_class = "heavy"
-archetype = "missile-cannon-raider heavy"
+weight_class = "superheavy"
+archetype = "missile-cannon-raider superheavy"
 temperament = "measured"
 traits = [  ]
 lives = 10

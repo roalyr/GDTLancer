@@ -23,8 +23,8 @@ behavior = {
 }
 role = "raider"
 family = "raider"
-weight_class = "heavy"
-archetype = "raider heavy"
+weight_class = "superheavy"
+archetype = "raider superheavy"
 temperament = "measured"
 traits = [ "quick to fight", "stubborn", "standoff" ]
 lives = 6

@@ -24,8 +24,8 @@ behavior = {
 }
 role = "missile-cannon-fighter"
 family = "fighter"
-weight_class = "heavy"
-archetype = "missile-cannon-fighter heavy"
+weight_class = "superheavy"
+archetype = "missile-cannon-fighter superheavy"
 temperament = "measured"
 traits = [ "stubborn", "merciful", "shoots back", "loner" ]
 lives = 10

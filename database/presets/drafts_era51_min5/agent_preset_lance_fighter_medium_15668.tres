@@ -25,8 +25,8 @@ behavior = {
 }
 role = "lance-fighter"
 family = "lance"
-weight_class = "medium"
-archetype = "lance-fighter medium"
+weight_class = "heavy"
+archetype = "lance-fighter heavy"
 temperament = "aggressive"
 traits = [ "quick to fight", "stubborn", "standoff", "relentless", "shoots back" ]
 lives = 5
