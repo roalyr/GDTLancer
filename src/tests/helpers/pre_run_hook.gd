@@ -11,4 +11,5 @@ func run() -> void:
 	GameStateManager.save_dir = TEST_SAVE_DIR
 	Evolution.log_lives = false
 	Evolution.frozen = false  # The tests exercise evolving; frozen worlds have their own
+	Settings.use_file = false  # The player's options (user://settings.cfg) stay out of the tests
 	Constants.jumps_enabled = true  # The tests exercise jumping; jumps off has its own

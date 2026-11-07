@@ -4,6 +4,9 @@
 # in for half its price) and every commodity
 # (into the hold, sold back at the station's cargo price). Every refit is applied to the ship at once
 # (stats, mass, tools) and repairs it.
+# Cargo is the one trade at every station (can_sell_cargo): docking never sells the hold, the
+# player does, a unit or all at once, at the station's price for it (Market.commodity_sale_price:
+# what it buys, its markup and the player's standing with its faction), salvage included.
 # Returns "" on success or a message saying why not.
 
 extends Reference
@@ -16,6 +19,21 @@ const PartCatalog = preload("res://src/core/systems/part_catalog.gd")
 
 static func is_available() -> bool:
 	return HomePort.is_home(GameState.player_docked_at)
+
+
+# Docked anywhere: the hold can be sold.
+static func can_sell_cargo() -> bool:
+	return GameState.player_docked_at != ""
+
+
+# The faction of the station docked at ("" for none).
+static func docked_faction() -> String:
+	var tree = Engine.get_main_loop()
+	if tree is SceneTree:
+		for station in tree.get_nodes_in_group("dockable_station"):
+			if station.get("location_id") == GameState.player_docked_at:
+				return str(station.get("faction")) if station.get("faction") != null else ""
+	return ""
 
 
 # Parts the home station sells: the catalogue, nothing else.
@@ -56,9 +74,9 @@ static func sale_price(part_id: String) -> int:
 	return Market.part_sale_price(_value(part_id), GameState.home_location_id)
 
 
-# What it pays for a unit of cargo.
+# What the station docked at pays for a unit of cargo (0: it does not buy it).
 static func cargo_sale_price(commodity_id: String) -> int:
-	return Market.cargo_sale_price(_value(commodity_id), GameState.home_location_id)
+	return Market.commodity_sale_price(commodity_id, GameState.player_docked_at, docked_faction())
 
 
 static func _value(part_id: String) -> float:
@@ -142,14 +160,26 @@ static func buy_cargo(ship_body: Node, commodity_id: String) -> String:
 	return ""
 
 
-# One unit of a commodity from the hold, at the station's cargo price.
-static func sell_cargo(ship_body: Node, commodity_id: String) -> String:
-	if not is_available():
-		return "Dock at the home station to trade"
-	if ship_body.remove_cargo(commodity_id, 1) <= 0:
+# `units` of a commodity from the hold (-1: all of it), at the station's cargo price.
+static func sell_cargo(ship_body: Node, commodity_id: String, units: int = 1) -> String:
+	if not can_sell_cargo():
+		return "Dock to sell cargo"
+	var price: int = cargo_sale_price(commodity_id)
+	if price <= 0:
+		return "This station does not buy it"
+	var held: int = int(ship_body.cargo.get(commodity_id, 0))
+	var taken: int = ship_body.remove_cargo(commodity_id, held if units < 0 else int(min(units, held))) if held > 0 else 0
+	if taken <= 0:
 		return "None in the hold"
-	GameState.player_bank += cargo_sale_price(commodity_id)
+	GameState.player_bank += taken * price
 	return ""
+
+
+# The whole hold but the fuel, as the station buys it (Market.sell_hold). Returns {"banked", "units"}.
+static func sell_hold(ship_body: Node) -> Dictionary:
+	if not can_sell_cargo():
+		return {"banked": 0, "units": 0}
+	return Market.sell_hold(ship_body, GameState.player_docked_at, docked_faction())
 
 
 static func sell(part_id: String) -> String:

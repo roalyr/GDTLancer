@@ -3,6 +3,15 @@
 
 extends Node
 
+## Developer options (the debug overlay's DEV page, DebugTools.CHEATS): name -> on. They change what
+## happens to the player's ship, never what NPCs read of it (its fit, signature, threat), and are
+## never saved.
+var dev_cheats: Dictionary = {}
+
+
+func cheat(name: String) -> bool:
+	return not dev_cheats.empty() and bool(dev_cheats.get(name, false))
+
 ## Ship template the player flies (set from the game start).
 var player_ship_template_id: String = ""
 

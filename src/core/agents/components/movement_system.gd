@@ -119,7 +119,10 @@ func integrate_forces(state: PhysicsDirectBodyState):
 	state.add_torque(angular_drag_torque)
 	
 	# Apply accumulated forces from navigation commands (scaled by throttle)
-	state.add_central_force(_accumulated_force * thrust_throttle + _external_force)
+	var engines: Vector3 = _accumulated_force * thrust_throttle
+	if not GameState.dev_cheats.empty() and GameState.cheat("speed_x5") and agent_body.has_method("is_player") and agent_body.is_player():
+		engines *= Constants.DEV_SPEED_FACTOR  # Top speed is thrust over drag: this many times as fast, what NPCs read unchanged
+	state.add_central_force(engines + _external_force)
 	state.add_torque(_accumulated_torque + _external_torque)
 	
 	last_thrust_fraction = clamp(_accumulated_force.length() * thrust_throttle / max(linear_thrust, 0.001), 0.0, 1.0)

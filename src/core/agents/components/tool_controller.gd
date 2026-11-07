@@ -557,7 +557,8 @@ func _process_cannon(index: int, target: Node) -> void:
 func _after_shot(index: int, tool_template, projectile) -> void:
 	_cycle_timers[index] = tool_template.cycle_time
 	_last_cycle_ms = OS.get_ticks_msec()
-	_set_ammo(index, get_ammo(index) - 1)
+	if not (_agent_body.has_method("is_player") and _agent_body.is_player() and GameState.cheat("infinite_ammo")):
+		_set_ammo(index, get_ammo(index) - 1)
 	emit_signal("projectile_fired", index, projectile)
 	emit_signal("tool_cycled", index, projectile.target, 1.0, 0.0)
 

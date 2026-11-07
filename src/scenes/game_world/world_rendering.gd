@@ -30,6 +30,12 @@ var _world_viewport: Viewport = null
 
 
 func _ready():
+	Settings.load_file()
+	viewport_downscale_factor = float(Settings.get_option("render_scale"))
+	if not Settings.is_connected("changed", self, "_on_settings_changed"):
+		Settings.connect("changed", self, "_on_settings_changed")
+	if not Settings.get_option("particles"):
+		call_deferred("set_particles_enabled", false)
 	_world_viewport = get_parent().get_node_or_null("WorldViewContainer/WorldViewport")
 	if not is_instance_valid(_world_viewport):
 		printerr("WorldRendering: no WorldViewContainer/WorldViewport next to it")
@@ -51,6 +57,19 @@ func _ready():
 func _process(_delta):
 	if _world_viewport.size != get_world_render_size_for_window():
 		_apply_downscale()
+
+
+# Options (Settings) as they change: particles, render scale and hit effects.
+func _on_settings_changed(key: String, value) -> void:
+	match key:
+		"particles":
+			set_particles_enabled(bool(value))
+		"render_scale":
+			set_downscale_factor(float(value))
+		"hit_effects":
+			for body in get_tree().get_nodes_in_group("agent_body"):
+				if body.has_method("set_hit_effects"):
+					body.set_hit_effects(bool(value))
 
 
 func set_downscale_factor(factor: float) -> void:

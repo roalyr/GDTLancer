@@ -257,7 +257,8 @@ func fire(target: Spatial, solution: Dictionary) -> void:
 	var world = _agent.get_parent()
 	world.add_child(shot)
 	shot.launch(self, target, get_tip(), velocity, (velocity - (target.linear_velocity if target is RigidBody else Vector3.ZERO)).normalized(), _lance_mesh(float(lance.length)))
-	nails -= 1
+	if not (_agent.has_method("is_player") and _agent.is_player() and GameState.cheat("infinite_ammo")):
+		nails -= 1
 	reload_left = float(lance.reload) if nails > 0 else 0.0
 	_update_visuals()
 	emit_signal("nails_changed", nails)
@@ -480,6 +481,12 @@ func _build_visuals() -> void:
 
 
 func _update_visuals() -> void:
+	if not Constants.LANCE_SHOW_ON_HULL:
+		if is_instance_valid(_seat_mesh):
+			_seat_mesh.visible = false
+		if is_instance_valid(_quiver):
+			_quiver.visible = false
+		return
 	if is_instance_valid(_seat_mesh):
 		_seat_mesh.visible = is_seated()
 	if is_instance_valid(_quiver):

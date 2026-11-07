@@ -134,8 +134,10 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 				_add_collision_hull(ship_visual, model_node.transform * ship_visual.transform)
 				_measure_hull_bounds(ship_visual)
 				MeshLod.attach(ship_visual, ViewDetail.attach(self, get_apparent_radius()))  # One view band for the model, scars and effects
-				CollisionHull.add_hit_surface(self, ship_visual)  # Where shots land: the plating, not the hull round it
+				if Settings.get_option("hit_effects"):  # Off (Options): shots land on the convex hull, no scars
+					CollisionHull.add_hit_surface(self, ship_visual)  # Where shots land: the plating, not the hull round it
 				_hull_scars = HullScars.new(interaction_radius / Constants.HULL_SCAR_REFERENCE_RADIUS)
+				_hull_scars.visible = Settings.get_option("hit_effects")
 				ship_visual.add_child(_hull_scars)
 				if is_player():
 					_hull_scars.import_scars(GameState.player_hull_scars)
@@ -586,6 +588,8 @@ func _hold_grudge(source) -> void:
 func apply_damage(amount: float, source: Node = null) -> void:
 	if is_wreck or amount <= 0.0:
 		return
+	if is_player() and GameState.cheat("no_damage"):
+		amount = 0.0  # Hit all the same (grudges, standing, the hit's sound), the hull kept
 	hull = max(0.0, hull - amount)
 	_update_damage_trails()
 	_hold_grudge(source)
@@ -629,7 +633,8 @@ func become_wreck() -> void:
 func try_spend_power(amount: float) -> bool:
 	if is_wreck or power < amount:
 		return false
-	power -= amount
+	if not (is_player() and GameState.cheat("infinite_energy")):
+		power -= amount
 	return true
 
 
@@ -663,7 +668,7 @@ func register_hit(from_global: Vector3, damage: float, aim_at = null) -> Vector3
 		if not hit.empty():
 			point = hit.position
 			normal = hit.normal
-			if hit.collider != self and is_instance_valid(_hull_scars) and damage > 0.0:  # On the plating
+			if hit.collider != self and is_instance_valid(_hull_scars) and _hull_scars.visible and damage > 0.0:  # On the plating
 				_hull_scars.add_scar(point, normal, aim - from_global, damage, hit.collider)
 				if is_player():
 					GameState.player_hull_scars = _hull_scars.export_scars()
@@ -742,7 +747,7 @@ func _update_damage_trails() -> void:
 		_damage_trails.append(trail)
 	for trail in _damage_trails:
 		trail.strength = lost
-	if is_instance_valid(_hull_scars):
+	if is_instance_valid(_hull_scars) and _hull_scars.visible:
 		_hull_scars.set_slag_count(int(floor(lost * _hull_scars.get_slag_capacity() + 0.0001)))
 
 
@@ -750,6 +755,13 @@ func _update_damage_trails() -> void:
 # hits land on the collision hull, which can sit well outside the plating.
 func _ember_point(point: Vector3) -> Vector3:
 	return point.linear_interpolate(to_global(hull_bounds.position + hull_bounds.size * 0.5), Constants.EMBER_INSET_SHARE)
+
+
+# Hit effects (Settings "hit_effects") on or off for this ship as it is: its scars and slag shown or
+# hidden, and made from now on or not. Its hit surface stays as it was built.
+func set_hit_effects(on: bool) -> void:
+	if is_instance_valid(_hull_scars):
+		_hull_scars.visible = on
 
 
 func get_damage_trail_count() -> int:
@@ -902,7 +914,8 @@ func _launch_decoys() -> void:
 		if closing <= 0.0 or distance / closing > Constants.DECOY_TRIGGER_TIME:
 			continue
 		missile.set_meta("decoy_drawn", true)
-		decoys -= 1
+		if not (is_player() and GameState.cheat("infinite_ammo")):
+			decoys -= 1
 		var side: Vector3 = offset.cross(Vector3.UP)
 		side = (side.normalized() if side.length_squared() > 0.01 else Vector3.RIGHT) * (1.0 if randf() < 0.5 else -1.0)
 		var decoy = DecoyScript.new()
@@ -955,6 +968,11 @@ func detects(other) -> bool:
 		return true
 	if other.get("is_docked"):
 		return false
+	if not GameState.dev_cheats.empty():
+		if GameState.cheat("invisible") and other.has_method("is_player") and other.is_player():
+			return false
+		if GameState.cheat("max_scanner") and is_player():
+			return true
 	return global_transform.origin.distance_to(other.global_transform.origin) <= other.get_signature() * get_sensor_strength()
 
 

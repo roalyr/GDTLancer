@@ -117,3 +117,28 @@ func test_to_target_puts_the_ship_beside_the_selected_target_at_its_speed():
 	assert_eq(ship.linear_velocity, Vector3(0, 0, 50), "Moving with it")
 	EventBus.emit_signal("player_target_deselected")
 	assert_false(tools.go_to_target())
+
+
+func test_dev_options_change_what_happens_not_what_npcs_read():
+	ship.hull_max = 100.0
+	ship.hull = 100.0
+	ship.power = 10.0
+	var signature: float = ship.get_signature()
+	tools.open_dev()
+	assert_eq(tools._list.get_child_count(), DebugTools.CHEATS.size(), "A switch each")
+	tools.toggle_cheat("no_damage")
+	tools.toggle_cheat("infinite_energy")
+	ship.apply_damage(30.0)
+	assert_eq(ship.hull, 100.0, "No damage")
+	assert_true(ship.try_spend_power(5.0))
+	assert_eq(ship.power, 10.0, "Infinite energy")
+	assert_eq(ship.get_signature(), signature, "Signature as it was")
+	var npc = AgentScript.new()
+	add_child_autofree(npc)
+	npc.global_transform.origin = Vector3(0, 0, -100)
+	tools.toggle_cheat("invisible")
+	assert_false(npc.detects(ship), "Invisible to NPCs")
+	tools.toggle_cheat("no_damage")
+	ship.apply_damage(30.0)
+	assert_eq(ship.hull, 70.0, "Off again: damage as ever")
+	GameState.dev_cheats.clear()

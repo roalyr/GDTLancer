@@ -1,5 +1,6 @@
 # FittingWindow: the home station's store and refitting, mouse-only. Covers the screen for as
-# long as the player is docked at home (the docked ship is out of the world); UNDOCK leaves. Slots (click to unfit), storage (fit or sell) and the store, which
+# long as the player is docked (the docked ship is out of the world); UNDOCK leaves. Away from home
+# it shows the cargo tab only: the hold is sold here, by the player, never on docking (Fitting). Slots (click to unfit), storage (fit or sell) and the store, which
 # sells every ship (the one flown is traded in; preset designs come fitted), part and commodity
 # (bought into the hold, sold back from it). The store shows one tab at a time (STORE_TABS), its
 # goods under headings (weight class, part kind), each a two-line row: name over what it is, its
@@ -11,6 +12,7 @@ extends Control
 const Fitting = preload("res://src/core/systems/fitting.gd")
 const ShipFit = preload("res://src/core/systems/ship_fit.gd")
 const PresetClassifier = preload("res://src/core/evolution/preset_classifier.gd")
+const Market = preload("res://src/core/systems/market.gd")
 
 onready var _title: Label = $Panel/Layout/Header/Title
 onready var _stats: Label = $Panel/Layout/Body/Content/Stats
@@ -45,7 +47,7 @@ func _ready() -> void:
 
 
 func open() -> void:
-	if not Fitting.is_available():
+	if not Fitting.can_sell_cargo():
 		return
 	_status.text = ""
 	visible = true
@@ -72,6 +74,11 @@ func refresh() -> void:
 		return
 	_title.text = "DOCKED AT %s  -  BANK %d WP" % [_station_name(GameState.player_docked_at).to_upper(), GameState.player_bank]
 	_stats.text = describe_stats(ship_body)
+	var home: bool = Fitting.is_available()
+	_slots.get_parent().visible = home
+	_storage.get_parent().get_parent().visible = home
+	if not home:
+		_tab = "cargo"
 	_rebuild_slots(ship_body)
 	_rebuild_storage(ship_body)
 	_rebuild_store(ship_body)
@@ -189,7 +196,7 @@ func _rebuild_storage(_ship_body) -> void:
 
 func _rebuild_tabs() -> void:
 	_clear(_tabs)
-	for tab in STORE_TABS:
+	for tab in STORE_TABS if Fitting.is_available() else ["cargo"]:
 		var button: Button = _add_button(_tabs, ("[%s]" if tab == _tab else "%s") % tab, false, "_on_tab", [tab])
 		button.align = Button.ALIGN_CENTER
 		button.size_flags_horizontal = SIZE_EXPAND_FILL
@@ -277,16 +284,33 @@ func _store_parts(groups: Array) -> void:
 			_add_row(_store, i, Fitting.part_name(part_id), part_detail(part_id), [["BUY %d" % cost, GameState.player_bank < cost, "_on_buy", [part_id]]])
 
 
+# The hold, sold here a unit or all at once at this station's price (salvage too); at home, every
+# commodity can be bought as well.
 func _store_cargo(ship_body) -> void:
+	var home: bool = Fitting.is_available()
 	_add_heading(_store, "CARGO  hold %d / %d" % [ship_body.get_cargo_units(), ship_body.cargo_capacity])
-	var ids: Array = Fitting.cargo_catalog()
+	var worth: int = Market.hold_value(ship_body, GameState.player_docked_at).units
+	_add_button(_store, "SELL HOLD", worth <= 0, "_on_sell_hold", [])
+	var ids: Array = Fitting.cargo_catalog() if home else []
+	for commodity_id in ship_body.cargo:
+		if not commodity_id in ids:
+			ids.append(commodity_id)
+	if ids.empty():
+		_add_note(_store, "The hold is empty")
 	for i in range(ids.size()):
 		var commodity_id: String = ids[i]
-		var cost: int = Fitting.price(commodity_id)
 		var held: int = int(ship_body.cargo.get(commodity_id, 0))
-		_add_row(_store, i, Fitting.part_name(commodity_id), "%d in the hold" % held, [
-			["BUY %d" % cost, GameState.player_bank < cost or ship_body.get_free_cargo() <= 0, "_on_buy_cargo", [commodity_id]],
-			["SELL %d" % Fitting.cargo_sale_price(commodity_id), held <= 0, "_on_sell_cargo", [commodity_id]]])
+		var sale: int = Fitting.cargo_sale_price(commodity_id)
+		var buttons: Array = []
+		if home:
+			var cost: int = Fitting.price(commodity_id)
+			buttons.append(["BUY %d" % cost, GameState.player_bank < cost or ship_body.get_free_cargo() <= 0, "_on_buy_cargo", [commodity_id]])
+		if sale <= 0:
+			buttons.append(["NOT BOUGHT", true, "_on_sell_cargo", [commodity_id, 1]])
+		else:
+			buttons.append(["SELL %d" % sale, held <= 0, "_on_sell_cargo", [commodity_id, 1]])
+			buttons.append(["ALL %d" % (sale * held), held <= 1, "_on_sell_cargo", [commodity_id, -1]])
+		_add_row(_store, i, Fitting.part_name(commodity_id), "%d in the hold" % held, buttons)
 
 
 static func part_kind(part) -> String:
@@ -450,8 +474,16 @@ func _on_buy_cargo(commodity_id: String) -> void:
 	_report(Fitting.buy_cargo(GlobalRefs.player_agent_body, commodity_id), "Bought 1 %s" % Fitting.part_name(commodity_id))
 
 
-func _on_sell_cargo(commodity_id: String) -> void:
-	_report(Fitting.sell_cargo(GlobalRefs.player_agent_body, commodity_id), "Sold 1 %s for %d WP" % [Fitting.part_name(commodity_id), Fitting.cargo_sale_price(commodity_id)])
+func _on_sell_cargo(commodity_id: String, units: int) -> void:
+	var body = GlobalRefs.player_agent_body
+	var count: int = int(body.cargo.get(commodity_id, 0)) if units < 0 else units
+	var price: int = Fitting.cargo_sale_price(commodity_id)
+	_report(Fitting.sell_cargo(body, commodity_id, units), "Sold %d %s for %d WP" % [count, Fitting.part_name(commodity_id), count * price])
+
+
+func _on_sell_hold() -> void:
+	var sold: Dictionary = Fitting.sell_hold(GlobalRefs.player_agent_body)
+	_report("" if sold.units > 0 else "Nothing here buys it", "Sold %d units for %d WP" % [sold.units, sold.banked])
 
 
 func _on_sell(part_id: String) -> void:

@@ -316,8 +316,31 @@ func test_station_window_is_shown_while_docked_at_home():
 	GameState.player_docked_at = "elsewhere"
 	EventBus.emit_signal("player_docked", "elsewhere")
 	yield(get_tree(), "idle_frame")
-	assert_false(window.visible, "Other stations have no store.")
+	assert_true(window.visible, "Other stations open it too, to sell the hold,")
+	assert_eq(window._tab, "cargo", "on the cargo tab only")
+	assert_false(window._slots.get_parent().visible, "with no refitting.")
 	GlobalRefs.player_agent_body = null
+
+
+func test_docking_never_sells_the_hold_the_player_sells_it_anywhere():
+	_with_ships_and_cargo()
+	var body = _player_ship()
+	body.cargo_capacity = 10
+	body.add_cargo("c_fuel", 3)
+	GameState.player_docked_at = "elsewhere"
+	GameState.player_bank = 0
+	var price: int = Fitting.cargo_sale_price("c_fuel")
+	assert_true(price > 0)
+	assert_eq(Fitting.sell_cargo(body, "c_fuel", -1), "", "All of it")
+	assert_eq(GameState.player_bank, 3 * price)
+	assert_eq(int(body.cargo.get("c_fuel", 0)), 0)
+	GameState.player_docked_at = ""
+	body.add_cargo("c_fuel", 1)
+	assert_ne(Fitting.sell_cargo(body, "c_fuel"), "", "Not docked: no sale")
+	var HomePort = load("res://src/core/systems/home_port.gd")
+	GameState.player_docked_at = GameState.home_location_id
+	HomePort.service(body)
+	assert_eq(int(body.cargo.get("c_fuel", 0)), 1, "Home service repairs and rearms; it sells nothing")
 
 
 func test_a_small_reactor_runs_quieter():

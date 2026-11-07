@@ -1,5 +1,7 @@
 # ProjectedTargetBracket: on-screen bracket for a world or jump-route target, with label, distance and selection.
 # Visual only: it never takes the mouse. PointerRouter hit-tests brackets and emits "pressed".
+# Distance: the selected target's, in the large font (font_large.tres); a live hostile ship shows
+# its own while unselected too, beside its mark. Distances are never dimmed for awareness.
 
 extends Button
 
@@ -11,6 +13,9 @@ const DISTANCE_PLAIN_THRESHOLD = 2000.0
 const DISTANCE_DECIMAL_K_THRESHOLD = 10000.0
 const DISTANCE_SINGLE_DECIMAL_K_THRESHOLD = 100000.0
 const DISTANCE_FAR_THRESHOLD = 1000000.0
+const FontLarge = preload("res://assets/themes/font_large.tres")
+const DISTANCE_RECT_SELECTED = Rect2(12, -62, 130, 50)  # The distance's box, from the bracket's centre
+const DISTANCE_RECT_MARK = Rect2(10, -38, 90, 30)  # Beside an unselected mark
 
 var target_ref = null
 var _is_selected: bool = false
@@ -27,6 +32,8 @@ var _info_label: Label = null
 var _target_label: String = ""
 var _context_hint: String = ""
 var _distance_fade_alpha: float = 1.0
+var _shows_mark_distance: bool = false  # Unselected, a live hostile ship: its distance shown
+var _distance_style = null  # [selected, colour] the distance label was last styled with
 
 
 func _ready() -> void:
@@ -44,8 +51,9 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
 	if _is_selected:
-		_sync_distance_label()
 		_apply_selected_color()  # A hostile can become a wreck while selected
+	if _is_selected or _shows_mark_distance:
+		_sync_distance_label()
 
 
 func configure_target(new_target_ref, new_target_label: String = "") -> void:
@@ -92,8 +100,8 @@ static func mark_fade(distance: float) -> float:
 func _cache_scene_nodes() -> void:
 	_normal_bracket = get_node_or_null("BracketNormal")
 	_selected_bracket = get_node_or_null("BracketSelected")
-	_distance_panel = get_node_or_null("BracketSelected/DistancePanel")
-	_distance_label = get_node_or_null("BracketSelected/DistancePanel/DistanceLabel")
+	_distance_panel = get_node_or_null("DistancePanel")
+	_distance_label = get_node_or_null("DistancePanel/DistanceLabel")
 	_info_panel = get_node_or_null("InfoPanel")
 	_info_label = get_node_or_null("InfoPanel/InfoLabel")
 
@@ -140,21 +148,35 @@ func _apply_bracket_style() -> void:
 				_normal_bracket.modulate.a *= Constants.UI_CELESTIAL_ALPHA
 		var hostile: bool = kind in ["ship", "station"] and TargetKinds.side_of(target_ref, GlobalRefs.player_agent_body) == "hostile"
 		if is_instance_valid(_marker):
-			_marker.set_mark(kind, hostile)
+			_marker.set_mark(kind, hostile, kind == "ship" and hostile and _is_live_ship() and _sees_player())
 			var player = GlobalRefs.player_agent_body
 			var near: bool = not (target_ref is Spatial and is_instance_valid(player) and player.is_inside_tree() and target_ref.is_inside_tree())
 			_marker.modulate.a = 1.0 if near else mark_fade(player.global_transform.origin.distance_to(target_ref.global_transform.origin))
 	if is_instance_valid(_selected_bracket):
 		_selected_bracket.visible = _is_selected
 		_apply_selected_color()
+	var shows_mark_distance: bool = not _is_selected and _is_hostile_to_player()
+	if shows_mark_distance != _shows_mark_distance:
+		_shows_mark_distance = shows_mark_distance
+		_sync_distance_label()
 
 
-# Red while the selected target is a live ship hostile to the player (dim while it has not detected
-# the player), yellow otherwise (wrecks included).
+# Red while the selected target is a live ship hostile to the player (purple for the xenohive's;
+# dim while it has not detected the player), yellow otherwise (wrecks included).
 func _apply_selected_color() -> void:
 	if not is_instance_valid(_selected_bracket):
 		return
-	_selected_bracket.modulate = _awareness_shade(Constants.COLOR_UI_TARGET_HOSTILE) if _is_hostile_to_player() else Constants.COLOR_UI_TARGET_SELECTED
+	_selected_bracket.modulate = _awareness_shade(_hostile_color()) if _is_hostile_to_player() else TargetKinds.graded(Constants.COLOR_UI_TARGET_SELECTED)
+
+
+func _hostile_color() -> Color:
+	return TargetKinds.graded(Constants.COLOR_UI_XENOHIVE if TargetKinds.is_xenohive(target_ref) else Constants.COLOR_UI_TARGET_HOSTILE)
+
+
+# Whether the target (a ship) has detected the player; true for anything that cannot tell.
+func _sees_player() -> bool:
+	var player = GlobalRefs.player_agent_body
+	return not target_ref.has_method("detects") or not is_instance_valid(player) or target_ref.detects(player)
 
 
 func refresh_style() -> void:
@@ -172,8 +194,7 @@ func _get_ship_color() -> Color:
 
 # `color` as it is if the ship detects the player, dimmed (Constants UI_UNAWARE_*) if not.
 func _awareness_shade(color: Color) -> Color:
-	var player = GlobalRefs.player_agent_body
-	if not target_ref.has_method("detects") or not is_instance_valid(player) or target_ref.detects(player):
+	if _sees_player():
 		return color
 	return Color(color.r * Constants.UI_UNAWARE_DIM, color.g * Constants.UI_UNAWARE_DIM, color.b * Constants.UI_UNAWARE_DIM, color.a * Constants.UI_UNAWARE_ALPHA)
 
@@ -219,11 +240,29 @@ func _sync_label() -> void:
 func _sync_distance_label() -> void:
 	if not is_instance_valid(_distance_label):
 		return
-	_distance_label.text = _build_distance_label_text()
+	var text: String = _build_distance_label_text()
+	if _distance_label.text != text:
+		_distance_label.text = text
+	var color: Color = _hostile_color() if _is_hostile_to_player() else TargetKinds.graded(Constants.COLOR_UI_TARGET_SELECTED)
+	var style: Array = [_is_selected, color]
+	if style == _distance_style:
+		return
+	_distance_style = style
+	_distance_label.add_color_override("font_color", color)  # Full strength: never dimmed for awareness
+	if _is_selected:
+		_distance_label.add_font_override("font", FontLarge)
+	else:
+		_distance_label.remove_font_override("font")
+	if is_instance_valid(_distance_panel):
+		var box: Rect2 = DISTANCE_RECT_SELECTED if _is_selected else DISTANCE_RECT_MARK
+		_distance_panel.margin_left = box.position.x
+		_distance_panel.margin_top = box.position.y
+		_distance_panel.margin_right = box.end.x
+		_distance_panel.margin_bottom = box.end.y
 
 
 func _build_distance_label_text() -> String:
-	if not _is_selected:
+	if not (_is_selected or _shows_mark_distance):
 		return ""
 	if _is_route_target(target_ref):
 		return "FAR"

@@ -170,7 +170,7 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="ButtonParticlesToggle" type="TextureButton" parent="ScreenControls/CenterLeftZone"]
+[node name="ButtonPlaceholder1" type="TextureButton" parent="ScreenControls/CenterLeftZone"]
 anchor_top = 1.0
 anchor_bottom = 1.0
 margin_left = 240.0
@@ -178,25 +178,6 @@ margin_top = -100.0
 margin_right = 340.0
 texture_normal = ExtResource( 4 )
 expand = true
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="LabelButtonParticles" type="Label" parent="ScreenControls/CenterLeftZone/ButtonParticlesToggle"]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -35.0
-margin_top = -13.5
-margin_right = 35.0
-margin_bottom = 13.5
-grow_horizontal = 2
-theme = ExtResource( 9 )
-text = "PARTICLES
-ON"
-align = 1
-script = ExtResource( 14 )
 __meta__ = {
 "_edit_lock_": true
 }
@@ -727,7 +708,7 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="ButtonRenderScale" type="TextureButton" parent="ScreenControls/CenterRightZone"]
+[node name="ButtonHudLook" type="TextureButton" parent="ScreenControls/CenterRightZone"]
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
@@ -741,7 +722,7 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="LabelButtonScale" type="Label" parent="ScreenControls/CenterRightZone/ButtonRenderScale"]
+[node name="LabelButtonHudLook" type="Label" parent="ScreenControls/CenterRightZone/ButtonHudLook"]
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -752,7 +733,8 @@ margin_right = 35.0
 margin_bottom = 13.5
 grow_horizontal = 2
 theme = ExtResource( 9 )
-text = "x1.0"
+text = "HUD
+STANDARD"
 align = 1
 script = ExtResource( 14 )
 __meta__ = {
@@ -999,6 +981,12 @@ rect_min_size = Vector2( 0, 64 )
 focus_mode = 0
 theme = ExtResource( 9 )
 text = "EVOLUTION"
+
+[node name="ButtonDebugDev" type="Button" parent="ScreenControls/DebugOverlay/LeftColumn"]
+rect_min_size = Vector2( 0, 64 )
+focus_mode = 0
+theme = ExtResource( 9 )
+text = "DEV OPTIONS"
 
 [node name="LabelShip" type="Label" parent="ScreenControls/DebugOverlay/LeftColumn"]
 margin_top = 80.0

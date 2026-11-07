@@ -1,6 +1,6 @@
-# HomePort: what docking at the run's home station does. Cargo is sold into the bank at the
-# station's cargo price (Market), and the ship is repaired (hull restored, scars cleared). Banked
-# value is the run's score and what fitting is paid with.
+# HomePort: what docking at the run's home station does: the ship is repaired (hull restored, scars
+# cleared) and rearmed from the bank. The hold is not sold: the player sells it (Fitting.sell_cargo,
+# sell_hold), here or at any station. Banked value is the run's score and what fitting is paid with.
 
 extends Reference
 
@@ -11,18 +11,15 @@ static func is_home(location_id: String) -> bool:
 	return location_id != "" and location_id == GameState.home_location_id
 
 
-# Banks the ship's cargo, repairs it and refills its lance quiver and magazines (paid from the bank,
-# a lance's part value and a round's value each at the station's prices, as many as the bank covers). Returns {"banked":
-# value added, "units": units sold, "repaired": hull points restored, "lances": lances bought,
+# Repairs the ship and refills its lance quiver and magazines (paid from the bank, a lance's part
+# value and a round's value each at the station's prices, as many as the bank covers). Returns
+# {"repaired": hull points restored, "lances": lances bought,
 # "lance_cost": WP paid, "rounds": missiles and rounds bought, "ammo_cost": WP paid, "decoys": decoys
 # bought, at LAW_DECOY_VALUE each before the markup, "decoy_cost"}.
 static func service(ship: Node) -> Dictionary:
-	var result := {"banked": 0, "units": 0, "repaired": 0.0, "lances": 0, "lance_cost": 0, "rounds": 0, "ammo_cost": 0, "decoys": 0, "decoy_cost": 0}
+	var result := {"repaired": 0.0, "lances": 0, "lance_cost": 0, "rounds": 0, "ammo_cost": 0, "decoys": 0, "decoy_cost": 0}
 	if not is_instance_valid(ship):
 		return result
-	var sold: Dictionary = Market.sell_hold(ship, GameState.home_location_id)
-	result.banked = sold.banked
-	result.units = sold.units
 	result.repaired = ship.repair_hull()
 	for lance in (ship.get_lances() if ship.has_method("get_lances") else []):
 		var price: int = Market.price(float(lance.lance.nail_value), GameState.home_location_id)

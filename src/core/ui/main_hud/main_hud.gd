@@ -55,10 +55,8 @@ onready var _debug_label_world: Label = $ScreenControls/DebugOverlay/RightColumn
 onready var _debug_label_render: Label = $ScreenControls/DebugOverlay/LabelRender
 onready var _debug_label_frame: Label = $ScreenControls/DebugOverlay/LabelFrame
 onready var _debug_label_radio: Label = $ScreenControls/DebugOverlay/LabelRadio
-onready var button_render_scale: TextureButton = $ScreenControls/CenterRightZone/ButtonRenderScale
-onready var label_render_scale: Label = $ScreenControls/CenterRightZone/ButtonRenderScale/LabelButtonScale
-onready var button_particles: TextureButton = $ScreenControls/CenterLeftZone/ButtonParticlesToggle
-onready var label_particles: Label = $ScreenControls/CenterLeftZone/ButtonParticlesToggle/LabelButtonParticles
+onready var button_hud_look: TextureButton = $ScreenControls/CenterRightZone/ButtonHudLook
+onready var label_hud_look: Label = $ScreenControls/CenterRightZone/ButtonHudLook/LabelButtonHudLook
 onready var tool_buttons: Array = _tool_button_nodes()
 onready var button_lance: TextureButton = $ScreenControls/TemporaryToolZone/ButtonLance
 onready var button_afterburner: TextureButton = $ScreenControls/TemporaryToolZone/ButtonAfterburner
@@ -205,10 +203,9 @@ func _ready():
 		tool_buttons[index].connect("pressed", self, "_on_tool_button_pressed", [index])
 	button_lance.connect("pressed", self, "_on_lance_button_pressed")
 	button_afterburner.connect("pressed", self, "_on_afterburner_button_pressed")
-	button_render_scale.connect("pressed", self, "_on_ButtonRenderScale_pressed")
-	_update_render_scale_label()
-	button_particles.connect("pressed", self, "_on_ButtonParticlesToggle_pressed")
-	_update_particles_label()
+	button_hud_look.connect("pressed", self, "_on_ButtonHudLook_pressed")
+	Settings.connect("changed", self, "_on_settings_changed")
+	apply_hud_preset()
 	fitting_window = FittingWindowScene.instance()
 	add_child(fitting_window)
 	debug_map = DebugMapScene.instance()
@@ -226,6 +223,7 @@ func _ready():
 	$ScreenControls/DebugOverlay/RightColumn/ButtonDebugToTarget.connect("pressed", debug_tools, "go_to_target")
 	$ScreenControls/DebugOverlay/LeftColumn/ButtonDebugRefit.connect("pressed", debug_tools, "open_refit")
 	$ScreenControls/DebugOverlay/LeftColumn/ButtonDebugEvolution.connect("pressed", debug_tools, "open_evolution")
+	$ScreenControls/DebugOverlay/LeftColumn/ButtonDebugDev.connect("pressed", debug_tools, "open_dev")
 	_refresh_toggle_button_states()
 
 	pause_mode = PAUSE_MODE_PROCESS
@@ -992,32 +990,29 @@ func describe_frame_stats() -> String:
 	]).join("\n")
 
 
-# Cycles the render resolution (WorldRendering.viewport_downscale_factor): x1.0, x0.5, x0.25.
-func _on_ButtonRenderScale_pressed() -> void:
-	var world_rendering = _get_world_rendering()
-	if is_instance_valid(world_rendering):
-		world_rendering.cycle_downscale_factor()
-	_update_render_scale_label()
+# The HUD's look (Settings "hud_preset", Constants.HUD_PRESETS): the next preset, kept.
+func _on_ButtonHudLook_pressed() -> void:
+	var names: Array = Constants.HUD_PRESET_ORDER
+	var index: int = names.find(Settings.get_option("hud_preset"))
+	Settings.set_option("hud_preset", names[(index + 1) % names.size()])
 
 
-func _update_render_scale_label() -> void:
-	var world_rendering = _get_world_rendering()
-	var factor: float = float(world_rendering.viewport_downscale_factor) if is_instance_valid(world_rendering) else 1.0
-	label_render_scale.text = "x%s" % str(factor) if str(factor).find(".") >= 0 else "x%s.0" % str(factor)
+func _on_settings_changed(key: String, _value) -> void:
+	if key == "hud_preset":
+		apply_hud_preset()
 
 
-# Switches every particle effect on or off (WorldRendering.particles_enabled): they cost a slow CPU.
-func _on_ButtonParticlesToggle_pressed() -> void:
-	var world_rendering = _get_world_rendering()
-	if is_instance_valid(world_rendering):
-		world_rendering.toggle_particles()
-	_update_particles_label()
-
-
-func _update_particles_label() -> void:
-	var world_rendering = _get_world_rendering()
-	var enabled: bool = world_rendering.particles_enabled if is_instance_valid(world_rendering) else true
-	label_particles.text = "PARTICLES\n%s" % ("ON" if enabled else "OFF")
+# Tints the HUD by its preset (with the opacity button's share) and re-colours the marks, whose
+# colours the preset grades (TargetKinds.graded).
+func apply_hud_preset() -> void:
+	var preset: Dictionary = Constants.hud_preset(Settings.get_option("hud_preset"))
+	var tint: Color = preset.tint
+	set_modulate(Color(tint.r, tint.g, tint.b, _hud_alpha))
+	if is_instance_valid(label_hud_look):
+		label_hud_look.text = "HUD\n%s" % str(Settings.get_option("hud_preset")).to_upper()
+	for button in _world_target_buttons.values():
+		if is_instance_valid(button) and button.has_method("refresh_style"):
+			button.refresh_style()
 
 
 func _get_world_rendering() -> Node:
@@ -1028,9 +1023,9 @@ func _get_world_rendering() -> Node:
 func _on_ButtonUIOpacity_pressed() -> void:
 	"""Handle main HUD transparency (cycle)."""
 	_hud_alpha -= 0.25
-	self.set_modulate(Color(1, 1, 1, _hud_alpha))
 	if _hud_alpha <= 0.0:
 		_hud_alpha = 1.0
+	apply_hud_preset()
 
 
 func _on_zone_unloading(_zone_node) -> void:

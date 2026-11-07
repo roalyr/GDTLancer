@@ -1,0 +1,96 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://assets/themes/main_theme.tres" type="Theme" id=1]
+[ext_resource path="res://src/core/ui/options_window/options_window.gd" type="Script" id=2]
+
+[node name="OptionsWindow" type="Control"]
+pause_mode = 2
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 1 )
+script = ExtResource( 2 )
+
+[node name="Shade" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 0, 0, 0, 0.6 )
+
+[node name="Panel" type="PanelContainer" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -360.0
+margin_top = -300.0
+margin_right = 360.0
+margin_bottom = 300.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Layout" type="VBoxContainer" parent="Panel"]
+margin_left = 40.0
+margin_top = 32.0
+margin_right = 680.0
+margin_bottom = 568.0
+custom_constants/separation = 16
+
+[node name="Header" type="HBoxContainer" parent="Panel/Layout"]
+margin_right = 640.0
+margin_bottom = 64.0
+custom_constants/separation = 16
+
+[node name="Title" type="Label" parent="Panel/Layout/Header"]
+margin_top = 19.0
+margin_right = 464.0
+margin_bottom = 45.0
+size_flags_horizontal = 3
+text = "OPTIONS"
+
+[node name="ButtonClose" type="Button" parent="Panel/Layout/Header"]
+margin_left = 480.0
+margin_right = 640.0
+margin_bottom = 64.0
+rect_min_size = Vector2( 160, 64 )
+focus_mode = 0
+text = "CLOSE"
+
+[node name="ButtonParticles" type="Button" parent="Panel/Layout"]
+margin_top = 80.0
+margin_right = 640.0
+margin_bottom = 144.0
+rect_min_size = Vector2( 0, 64 )
+focus_mode = 0
+text = "PARTICLES: ON"
+
+[node name="ButtonRenderScale" type="Button" parent="Panel/Layout"]
+margin_top = 160.0
+margin_right = 640.0
+margin_bottom = 224.0
+rect_min_size = Vector2( 0, 64 )
+focus_mode = 0
+text = "RENDER SCALE: X1.0"
+
+[node name="ButtonHitEffects" type="Button" parent="Panel/Layout"]
+margin_top = 240.0
+margin_right = 640.0
+margin_bottom = 304.0
+rect_min_size = Vector2( 0, 64 )
+focus_mode = 0
+text = "HIT EFFECTS: ON"
+
+[node name="ButtonHudLook" type="Button" parent="Panel/Layout"]
+margin_top = 320.0
+margin_right = 640.0
+margin_bottom = 384.0
+rect_min_size = Vector2( 0, 64 )
+focus_mode = 0
+text = "HUD LOOK: STANDARD"
+
+[node name="Note" type="Label" parent="Panel/Layout"]
+margin_top = 400.0
+margin_right = 640.0
+margin_bottom = 426.0
+modulate = Color( 1, 1, 1, 0.6 )
+autowrap = true
+text = "THE GAME IS PAUSED WHILE THIS IS OPEN."

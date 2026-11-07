@@ -816,6 +816,8 @@ const LANCE_LOOSE_MAX = 12
 const LANCE_SCOOP_RANGE = 60.0  # m, centre to centre
 const LANCE_SCOOP_SPEED = 20.0  # m/s
 const LANCE_SCOOP_INTERVAL = 0.25  # s
+const DEV_SPEED_FACTOR = 5.0  # The DEV page's MAXIMUM SPEED X5: the player's engines push this many times harder
+const LANCE_SHOW_ON_HULL = false  # Seated and stowed lances drawn on the hull; off: every equipment piece gets a model of its own
 const LANCE_QUIVER_RING = 0.25  # Spares sit round the stern this share of the nose distance off the axis
 const LANCE_QUIVER_SCALE = 0.6  # and are drawn this much shorter (stowed)
 
@@ -1247,12 +1249,17 @@ const ANNOUNCE_SLIDE_RATE = 12.0  # How fast pushed ones slide up to their place
 # Selected-target bracket.
 const COLOR_UI_TARGET_SELECTED = Color(1.0, 0.9, 0.35, 1.0)  # Yellow: the selected target, anything not hostile, wrecks included
 # Unselected targets' marks and labels. Ships and stations by their side to the player only, not
-# their factions' colours: green allied (standing friendly), blue neutral, red hostile (attacking it
-# on sight, a refused dock, a territorial alien). Everything else by its kind.
+# their factions' colours: green allied (standing friendly), white-grey neutral, red hostile
+# (attacking it on sight, a refused dock). The xenohive's ships and hives are always purple,
+# whatever their mood. Everything else by its kind.
 const COLOR_UI_TARGET_HOSTILE = Color(1.0, 0.22, 0.12, 1.0)  # Red
 const COLOR_UI_TARGET_ALLIED = Color(0.35, 1.0, 0.45, 1.0)  # Green
-const COLOR_UI_TARGET_SIDE_NEUTRAL = Color(0.35, 0.65, 1.0, 1.0)  # Blue
+const COLOR_UI_TARGET_SIDE_NEUTRAL = Color(0.88, 0.9, 0.92, 1.0)  # White-grey
+const COLOR_UI_XENOHIVE = Color(0.72, 0.38, 1.0, 1.0)  # Purple: the xenohive (XENOHIVE_FACTION)
+const XENOHIVE_FACTION = "xenohive"
 const COLOR_UI_BEACON = Color(1.0, 0.75, 0.3, 1.0)  # Amber: beacons (SectorLayout)
+const COLOR_UI_DISTRESS = Color(1.0, 0.45, 0.05, 1.0)  # Orange: a mayday's beacon, its mark dimly filled
+const UI_DISTRESS_FILL_ALPHA = 0.35
 const COLOR_UI_BODY = Color(0.95, 0.92, 0.8, 1.0)  # Pale sand: stars, planets, moons
 const COLOR_UI_ROCK = Color(0.8, 0.65, 0.5, 1.0)  # Tan: rocks
 const COLOR_UI_PICKUP = Color(1.0, 0.5, 0.9, 1.0)  # Pink: ore chunks and loose lances
@@ -1261,6 +1268,20 @@ const COLOR_UI_WRECK = Color(0.55, 0.55, 0.55, 0.9)  # Grey: wrecks
 const UI_UNAWARE_DIM = 0.55  # A live ship that has not detected the player shows its colour this bright
 const UI_UNAWARE_ALPHA = 0.85  # and this opaque (its mark only: labels stay readable)
 const UI_CELESTIAL_ALPHA = 0.45  # Marks on rocks, planets and the like are this faint
+# The HUD's looks (the HUD LOOK button, Settings "hud_preset"): `tint` multiplies the whole HUD
+# (grey: less contrast against space), `saturation` grades the marks' colours (1 as they are, 0 grey).
+const HUD_PRESETS = {
+	"standard": {"tint": Color(1, 1, 1), "saturation": 1.0},
+	"soft": {"tint": Color(0.82, 0.82, 0.82), "saturation": 0.65},
+	"dim": {"tint": Color(0.62, 0.62, 0.64), "saturation": 0.45},
+}
+const HUD_PRESET_ORDER = ["standard", "soft", "dim"]
+
+
+static func hud_preset(name: String) -> Dictionary:
+	return HUD_PRESETS.get(name, HUD_PRESETS.standard)
+
+
 # Unselected marks fade with distance from the player, never out of sight.
 const HUD_MARK_FADE_NEAR = 3000.0  # m: full strength within
 const HUD_MARK_FADE_FAR = 40000.0  # m: HUD_MARK_FADE_MIN beyond

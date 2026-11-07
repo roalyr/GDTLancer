@@ -1,4 +1,4 @@
-# MainMenu: new game, save, load and exit; it asks nothing at start. Load reads the game's own save
+# MainMenu: new game, save, load, settings (OptionsWindow) and exit; it asks nothing at start. Load reads the game's own save
 # only (GameStateManager mode "play": never evolution's); exiting a game in progress (the button or
 # closing the window) asks whether to save first; a new game starts a fresh world, its havens flying
 # the presets.
@@ -10,6 +10,9 @@ onready var btn_load_game = $ScreenControls/MainButtonsHBoxContainer/ButtonLoadG
 onready var btn_save_game = $ScreenControls/MainButtonsHBoxContainer/ButtonSaveGame
 onready var btn_exit_game = $ScreenControls/MainButtonsHBoxContainer/ButtonExitgame
 onready var btn_close = $ScreenControls/ButtonClose
+onready var btn_settings = $ScreenControls/MainButtonsHBoxContainer/ButtonSettings
+var options_window: Control = null
+const OptionsWindowScene = preload("res://scenes/ui/menus/options_window.tscn")
 
 const PromptDialog = preload("res://src/core/ui/helpers/prompt_dialog.gd")
 
@@ -28,6 +31,11 @@ func _ready() -> void:
 		btn_exit_game.connect("pressed", self, "_on_exit_game_pressed")
 	if is_instance_valid(btn_close) and not btn_close.is_connected("pressed", self, "_on_close_pressed"):
 		btn_close.connect("pressed", self, "_on_close_pressed")
+	options_window = OptionsWindowScene.instance()
+	add_child(options_window)
+	if is_instance_valid(btn_settings):
+		btn_settings.disabled = false
+		btn_settings.connect("pressed", options_window, "open")
 
 	if is_instance_valid(EventBus) and EventBus.has_signal("main_menu_requested"):
 		if not EventBus.is_connected("main_menu_requested", self, "_show_menu"):

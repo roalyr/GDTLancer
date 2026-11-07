@@ -5,6 +5,8 @@
 # - TO TARGET: straight to the selected target, TARGET_STANDOFF off its edge, at its speed.
 # - REFIT: every tool slot and module slot of the ship; pick one, then any part that fits it (or
 #   none). Free and at once, without docking or storage.
+# - DEV OPTIONS: switches for testing (CHEATS, GameState.dev_cheats): what happens to the player's
+#   ship changes, what NPCs read of it does not (its threat to them stays its own).
 # - EVOLUTION (desktop, from the project: EvolutionRunner): pauses the game and runs evolution mode as
 #   a process of its own, writing only its own data, while the page shows how it goes; STOP has it
 #   save and end, then the game goes on. The page stays up while it runs.
@@ -19,6 +21,14 @@ const MainTheme = preload("res://assets/themes/main_theme.tres")
 const BUTTON_HEIGHT = 64
 const STANDOFF_MIN = 1500.0  # m off a place's edge the ship is put
 const TARGET_STANDOFF = 300.0  # m off the selected target's edge
+const CHEATS = [
+	["no_damage", "NO DAMAGE"],
+	["infinite_ammo", "INFINITE AMMO"],  # Rounds, missiles, lances, decoys
+	["infinite_energy", "INFINITE ENERGY"],
+	["invisible", "INVISIBILITY"],  # No NPC detects the player
+	["max_scanner", "MAXIMUM SCANNER STRENGTH"],  # The player detects everything
+	["speed_x5", "MAXIMUM SPEED X5"],  # Constants.DEV_SPEED_FACTOR
+]
 const PLACE_GROUPS = [["dockable_station", "STATION"], ["beacon", "BEACON"], ["jump_point", "JUMP POINT"], ["celestial", "BODY"], ["megastructure", "MEGASTRUCTURE"]]
 
 var _title: Label = null
@@ -123,6 +133,24 @@ func _show(title: String, with_coords: bool) -> void:
 	_coords.visible = with_coords
 	_clear_list()
 	visible = true
+
+
+# --- DEV OPTIONS ---
+
+func open_dev() -> void:
+	_show("DEV OPTIONS", false)
+	_status.text = "FOR TESTING. NPCS STILL JUDGE YOUR SHIP BY WHAT IT IS."
+	for cheat in CHEATS:
+		var on: bool = GameState.cheat(cheat[0])
+		_list.add_child(_button("%s: %s" % [cheat[1], "ON" if on else "OFF"], self, "toggle_cheat", [cheat[0]]))
+
+
+func toggle_cheat(name: String) -> void:
+	if GameState.cheat(name):
+		GameState.dev_cheats.erase(name)
+	else:
+		GameState.dev_cheats[name] = true
+	open_dev()
 
 
 # --- JUMP ---

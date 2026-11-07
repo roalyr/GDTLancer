@@ -403,8 +403,8 @@ func test_projected_target_bracket_selected_jump_route_shows_far_distance_label(
 	bracket.set_selected_state(true)
 	yield(get_tree(), "idle_frame")
 
-	var distance_panel = bracket.get_node("BracketSelected/DistancePanel")
-	var distance_label = bracket.get_node("BracketSelected/DistancePanel/DistanceLabel")
+	var distance_panel = bracket.get_node("DistancePanel")
+	var distance_label = bracket.get_node("DistancePanel/DistanceLabel")
 	assert_true(distance_panel.is_visible_in_tree(), "Selected jump routes should not suppress the distance panel visibility.")
 	assert_eq(distance_label.text, "FAR", "Selected jump routes should render FAR in the distance label.")
 
@@ -427,7 +427,7 @@ func test_projected_target_bracket_selected_local_target_updates_distance_label_
 	bracket.set_selected_state(true)
 	yield(get_tree(), "idle_frame")
 
-	var distance_label = bracket.get_node("BracketSelected/DistancePanel/DistanceLabel")
+	var distance_label = bracket.get_node("DistancePanel/DistanceLabel")
 	assert_eq(distance_label.text, "3k", "Selected local targets should use the compact distance format without leading zeros.")
 
 	station.translation = Vector3(4000, 0, 0)
@@ -453,7 +453,7 @@ func test_projected_target_bracket_selected_jump_point_shows_far_distance_label(
 	bracket.set_selected_state(true)
 	yield(get_tree(), "idle_frame")
 
-	var distance_label = bracket.get_node("BracketSelected/DistancePanel/DistanceLabel")
+	var distance_label = bracket.get_node("DistancePanel/DistanceLabel")
 	assert_eq(distance_label.text, "FAR", "Jump points should render FAR in the selected-target distance label.")
 
 
@@ -630,7 +630,7 @@ func test_unselected_ship_brackets_take_their_side_colour():
 	ship.faction = "verdant"
 	ship.hull = 10.0
 	bracket.configure_target(ship, "Verdant Fighter")
-	assert_eq(bracket.get_node("BracketNormal").modulate, Constants.COLOR_UI_TARGET_SIDE_NEUTRAL, "Neutral to you: blue, not its faction colour.")
+	assert_eq(bracket.get_node("BracketNormal").modulate, Constants.COLOR_UI_TARGET_SIDE_NEUTRAL, "Neutral to you: white-grey, not its faction colour.")
 	ship.apply_damage(1.0, player)
 	bracket.refresh_style()
 	assert_eq(bracket.get_node("BracketNormal").modulate, Constants.COLOR_UI_TARGET_HOSTILE, "Shot by you: hostile.")
@@ -714,3 +714,46 @@ func test_with_jumps_off_the_hud_shows_no_routes_and_no_jump_toggle() -> void:
 	Constants.jumps_enabled = true  # As the pre-run hook leaves it
 	assert_eq(routes, 0, "Jumps off: no routes")
 	assert_false(toggle_visible, "and no jump overlay toggle")
+
+
+func test_hostile_marks_fill_once_they_see_you_and_show_their_distance_unselected():
+	var player = AgentScript.new()
+	player.faction = "player"
+	add_child_autofree(player)
+	GlobalRefs.player_agent_body = player
+	var bracket = ProjectedTargetBracketScene.instance()
+	add_child_autofree(bracket)
+	var hostile = AgentScript.new()
+	add_child_autofree(hostile)
+	hostile.faction = "raiders"
+	hostile.global_transform.origin = Vector3(0, 0, -1500)
+	bracket.configure_target(hostile, "Raider")
+	var marker = bracket.get_node("BracketNormal/Marker")
+	var label: Label = bracket.get_node("DistancePanel/DistanceLabel")
+	assert_eq(marker.filled, hostile.detects(player), "Filled exactly when it sees you")
+	assert_eq(label.text, "1500", "Unselected, a hostile still shows its distance")
+	assert_eq(label.get_color("font_color"), Constants.COLOR_UI_TARGET_HOSTILE, "At full strength, aware or not")
+	bracket.set_selected_state(true)
+	assert_true(label.has_font_override("font"), "Selected: the large font")
+	bracket.set_selected_state(false)
+	assert_false(label.has_font_override("font"))
+	hostile.become_wreck()
+	bracket.refresh_style()
+	bracket._process(0.016)
+	assert_eq(label.text, "", "A wreck's distance shows only when selected")
+
+
+func test_xenohive_is_purple_whatever_its_side():
+	var player = AgentScript.new()
+	player.faction = "player"
+	add_child_autofree(player)
+	GlobalRefs.player_agent_body = player
+	var bracket = ProjectedTargetBracketScene.instance()
+	add_child_autofree(bracket)
+	var drone = AgentScript.new()
+	add_child_autofree(drone)
+	drone.faction = "xenohive"
+	bracket.configure_target(drone, "Drone")
+	assert_eq(bracket.get_node("BracketNormal/Marker").kind, "ship")
+	var shade: Color = bracket.get_node("BracketNormal").modulate
+	assert_true(shade.b > shade.r and shade.r > shade.g, "Purple (dimmed or not)")

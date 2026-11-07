@@ -31,7 +31,6 @@ var _nearest_dock_type: String = ""      # "station" or "jump"
 var escort_ward = null  # The worker it escorts (INTERACT on one: Wages), if any
 
 const HomePort = preload("res://src/core/systems/home_port.gd")
-const Market = preload("res://src/core/systems/market.gd")
 const Standing = preload("res://src/core/systems/standing.gd")
 const Wages = preload("res://src/core/systems/wages.gd")
 
@@ -936,8 +935,8 @@ func _on_player_docked(location_id):
 		agent_body.dock_at(_find_station(location_id))
 	if HomePort.is_home(location_id):
 		var result: Dictionary = HomePort.service(agent_body)
-		if result.units > 0 or result.repaired > 0.0 or result.lances > 0 or result.rounds > 0 or result.decoys > 0:
-			var message: String = "Home port: banked %d WP from %d units, repaired %d hull" % [result.banked, result.units, result.repaired]
+		if result.repaired > 0.0 or result.lances > 0 or result.rounds > 0 or result.decoys > 0:
+			var message: String = "Home port: repaired %d hull" % result.repaired
 			if result.lances > 0:
 				message += ", %d lances for %d WP" % [result.lances, result.lance_cost]
 			if result.rounds > 0:
@@ -945,23 +944,12 @@ func _on_player_docked(location_id):
 			if result.decoys > 0:
 				message += ", %d decoys for %d WP" % [result.decoys, result.decoy_cost]
 			EventBus.emit_signal("dock_action_feedback", true, message)
-	else:
-		_sell_hold_at(_find_station(location_id), location_id)
 	_collect_patrol_wage(_find_station(location_id))
 	set_process_unhandled_input(false)
 	set_physics_process(false)
 	# Stop the ship
 	if agent_script.has_method("command_stop"):
 		agent_script.command_stop()
-
-# Docked at a faction's station: it buys the hold at its cargo price (Market), into the bank.
-func _sell_hold_at(station: Node, location_id: String) -> void:
-	var faction = station.get("faction") if is_instance_valid(station) else null
-	if not Standing.has_standing(faction) or agent_body.get_cargo_units() <= 0:
-		return
-	var sold: Dictionary = Market.sell_hold(agent_body, location_id, faction)
-	EventBus.emit_signal("dock_action_feedback", true, "%s: sold %d units for %d WP (standing %+.2f)" % [TemplateDatabase.factions[faction].get("name", faction), sold.units, sold.banked, Standing.of(faction)])
-
 
 # Docked at a faction's station that pays patrol wages and thinks well of it: paid for the time at its pickets.
 func _collect_patrol_wage(station: Node) -> void:

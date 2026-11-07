@@ -22,7 +22,7 @@ func test_stations_by_side():
 	var verdant = _station("verdant")
 	var hive = _station("xenohive")
 	assert_eq(TargetKinds.kind_of(verdant), "other", "Not in the tree yet: no groups")
-	assert_eq(TargetKinds.side_of(verdant, null), "neutral", "Neutral standing: blue")
+	assert_eq(TargetKinds.side_of(verdant, null), "neutral", "Neutral standing: white-grey")
 	GameState.player_standing["verdant"] = 1.0
 	assert_eq(TargetKinds.side_of(verdant, null), "allied", "Friendly standing: green")
 	GameState.player_standing["verdant"] = -1.0
@@ -50,3 +50,12 @@ func test_marks_fade_with_distance_but_never_out():
 	assert_eq(Bracket.mark_fade(Constants.HUD_MARK_FADE_FAR * 10.0), Constants.HUD_MARK_FADE_MIN, "Far: faint, not gone")
 	var middle: float = Bracket.mark_fade((Constants.HUD_MARK_FADE_NEAR + Constants.HUD_MARK_FADE_FAR) * 0.5)
 	assert_true(middle < 1.0 and middle > Constants.HUD_MARK_FADE_MIN, "Between: in between")
+
+
+func test_a_maydays_beacon_is_its_own_kind_in_orange():
+	var beacon = StaticBody.new()
+	beacon.set_script(load("res://src/scenes/game_world/sector_layout/beacon.gd"))
+	beacon.kind = "distress"
+	add_child_autofree(beacon)
+	assert_eq(TargetKinds.kind_of(beacon), "distress")
+	assert_eq(TargetKinds.color_of(beacon, null), Constants.COLOR_UI_DISTRESS)
