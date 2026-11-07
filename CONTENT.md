@@ -52,6 +52,8 @@ A body is `star_<word>` (then `star_<word>_b`, `_c`...), `planet_<word>_<letter>
 
 **The sector scene** (`<sector>.tscn`) places its bodies and belts under `SceneAssets`, with its layout (`SectorLayout`). Nothing else is placed there: no stations (they come with their haven) and no entry point (a beacon). A sector with no layout yet keeps an `EntryPoint` node instead, where ships arrive until it has one.
 
+**Scenery** goes under the sector scene's `AmbientVisuals` node: what is only seen, never solid, never a target, never in the way (nebulas, glows, dust). Whatever sits there is made so as it loads (`src/scenes/game_world/ambient/ambient_visuals.gd`). `scenes/prefabs/ambient/nebula_cloud.tscn` is a local nebula: soft glows in a ball (`radius`, `puffs`, `puff_size`, `tint`, `strength`, `seed_value`), fading out as the camera nears so flying through it never blanks the screen.
+
 **The layout** (`<sector>_layout.tscn`) is a scene of markers among the bodies. Move a marker (`translation`, in m) to move what it stands for. The layout's root sets the play area. A marker can be **attached** to a body (`attached_to`): its translation is then from that body, and it moves with it (the star's radiation, a planet's ring of rocks). In the Godot editor the markers sit under `SceneAssets/SectorLayout/Layout`, each drawing its reach as a ring (an attached one's round its body, where the game puts it).
 - **Havens** (`HavenMarker`): stations NPCs live from. Each sets:
   - its id, name and owner (`faction`);

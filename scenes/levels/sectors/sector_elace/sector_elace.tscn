@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=2]
+[gd_scene load_steps=14 format=2]
 
 [ext_resource path="res://src/scenes/game_world/starsphere_slot.gd" type="Script" id=2]
 [ext_resource path="res://scenes/starspheres/global_nebulas_starsphere/global_nebulas.tscn" type="PackedScene" id=3]
@@ -12,6 +12,7 @@
 [ext_resource path="res://src/scenes/game_world/sector_layout/sector_layout.gd" type="Script" id=25]
 [ext_resource path="res://scenes/levels/sectors/sector_elace/sector_elace_layout.tscn" type="PackedScene" id=26]
 [ext_resource path="res://scenes/levels/sectors/sector_elace/belt_elace_deep/belt_elace_deep.tscn" type="PackedScene" id=27]
+[ext_resource path="res://src/scenes/game_world/ambient/ambient_visuals.gd" type="Script" id=1]
 
 [node name="Sector Elace" type="Spatial"]
 
@@ -61,3 +62,6 @@ script = ExtResource( 25 )
 
 [node name="Belt Elace Deep" parent="SceneAssets" instance=ExtResource( 27 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -25700, -20500 )
+
+[node name="AmbientVisuals" type="Spatial" parent="."]
+script = ExtResource( 1 )

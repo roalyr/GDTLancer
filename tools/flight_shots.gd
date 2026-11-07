@@ -1,6 +1,7 @@
 # Flight shots: starts a new game, undocks and flies on for a while, then screenshots the HUD in
 # flight (and with the nearest ship selected), for before/after checks of HUD changes. As a scene:
 #     godot res://tools/flight_shots.tscn out=/abs/dir [wait=12] [near=raiders]
+# nebula=1: a NebulaCloud is put under the sector's AmbientVisuals ahead of the ship.
 # near=<faction>: `wait` s after undocking, the ship is put NEAR_DISTANCE m off the nearest ship of that faction.
 # Writes flight.png and flight_selected.png there, then quits. Nothing is saved.
 extends Node
@@ -8,6 +9,7 @@ extends Node
 var out: String = "user://flight_shots"
 var wait: float = 12.0
 var near: String = ""
+var nebula: bool = false
 const NEAR_DISTANCE = 2500.0
 
 
@@ -18,6 +20,8 @@ func _ready() -> void:
 			out = a.trim_prefix("out=")
 		elif a.begins_with("wait="):
 			wait = float(a.trim_prefix("wait="))
+		elif a == "nebula=1":
+			nebula = true
 		elif a.begins_with("near="):
 			near = a.trim_prefix("near=")
 	Directory.new().make_dir_recursive(out)
@@ -39,6 +43,13 @@ func _ready() -> void:
 				player.look_at(body.global_transform.origin, Vector3.UP)
 				player.linear_velocity = Vector3.ZERO
 				break
+	if nebula:
+		var ambient = get_tree().get_nodes_in_group("ambient_visuals")
+		var player = GlobalRefs.player_agent_body
+		if not ambient.empty() and is_instance_valid(player):
+			var cloud = load("res://scenes/prefabs/ambient/nebula_cloud.tscn").instance()
+			ambient[0].add_child(cloud)
+			cloud.global_transform.origin = player.global_transform.origin - player.global_transform.basis.z * 40000.0
 	yield(_wait(1.0), "completed")
 	_shot("flight")
 	var player = GlobalRefs.player_agent_body

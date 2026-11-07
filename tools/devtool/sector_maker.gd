@@ -12,10 +12,11 @@ const SECTOR_LAYOUT_SCRIPT = "res://src/scenes/game_world/sector_layout/sector_l
 const SCENE_ASSETS = "SceneAssets"
 const ENTRY_REACH = 20000.0  # m: a new sector's entry, as far out as Elace's, when its location has none
 
-const SCENE_TEMPLATE = """[gd_scene load_steps=3 format=2]
+const SCENE_TEMPLATE = """[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://src/scenes/game_world/starsphere_slot.gd" type="Script" id=1]
 [ext_resource path="res://scenes/starspheres/global_nebulas_starsphere/global_nebulas.tscn" type="PackedScene" id=2]
+[ext_resource path="res://src/scenes/game_world/ambient/ambient_visuals.gd" type="Script" id=999]
 
 [node name="%s" type="Spatial"]
 
@@ -37,6 +38,9 @@ visible = false
 __meta__ = {
 "_edit_lock_": true
 }
+
+[node name="AmbientVisuals" type="Spatial" parent="."]
+script = ExtResource( 999 )
 """
 
 const LAYOUT_TEMPLATE = """[gd_scene load_steps=3 format=2]

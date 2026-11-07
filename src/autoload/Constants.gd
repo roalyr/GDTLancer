@@ -1281,6 +1281,10 @@ const HUD_PRESETS = {
 	"dim": {"tint": Color(0.62, 0.62, 0.64), "saturation": 0.45},
 }
 const HUD_PRESET_ORDER = ["standard", "soft", "dim"]
+# Groups a piece of scenery under a sector's AmbientVisuals leaves: what the HUD targets, the
+# autopilot avoids, sensors and tools look for.
+const AMBIENT_STRIPPED_GROUPS = ["agent_body", "Agents", "asteroid", "beacon", "celestial", "dockable_station", "faction_station",
+	"hazard", "jump_point", "megastructure", "mineable", "obstacle", "ore_chunk", "loose_lance", "wreck"]
 
 
 static func hud_preset(name: String) -> Dictionary:
