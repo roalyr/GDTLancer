@@ -161,17 +161,15 @@ func _drive_engine(loop: AudioStreamPlayer3D, body: Spatial) -> void:
 			loop.stop()
 		return
 	var activity: float = clamp(body.get_engine_activity(), 0.0, 1.0) if body.has_method("get_engine_activity") else 0.0
-	loop.unit_db = Constants.SOUND_EFFECTS_VOLUME_DB + linear2db(max(engine_gain(body), 0.0001))
+	loop.unit_db = Constants.SOUND_EFFECTS_VOLUME_DB + linear2db(max(engine_gain(body, activity), 0.0001))
 	loop.pitch_scale = lerp(Constants.SOUND_ENGINE_PITCH[0], Constants.SOUND_ENGINE_PITCH[1], activity)
 
 
-# The engine loop's loudness (linear): in proportion to the ship's speed against its top speed,
-# up to SOUND_ENGINE_MAX_GAIN; its pitch follows thrust.
-static func engine_gain(body: Spatial) -> float:
-	var velocity = body.get("linear_velocity")
-	var speed: float = velocity.length() if velocity is Vector3 else 0.0
-	var top: float = body.get_top_speed() if body.has_method("get_top_speed") else 0.0
-	return Constants.SOUND_ENGINE_MAX_GAIN * clamp(speed / top, 0.0, 1.0) if top > 0.0 else 0.0
+# The engine loop's loudness (linear): in proportion to thrust (`activity`, 0..1), up to
+# SOUND_ENGINE_MAX_GAIN; other ships' at SOUND_ENGINE_OTHERS_SHARE of that. Coasting is silent.
+static func engine_gain(body: Spatial, activity: float) -> float:
+	var share: float = 1.0 if body == GlobalRefs.player_agent_body else Constants.SOUND_ENGINE_OTHERS_SHARE
+	return Constants.SOUND_ENGINE_MAX_GAIN * share * clamp(activity, 0.0, 1.0)
 
 
 func _shape_3d(player: AudioStreamPlayer3D) -> void:

@@ -26,7 +26,7 @@ const SLOTS = {
 	"hull_hit": "world",  # Any damage to a ship, at the ship
 	"ship_wrecked": "world",  # Hull at zero
 	"afterburner": "world",  # The afterburner lights
-	"engine": "loop",  # Every ship's engine; louder with speed, higher with thrust
+	"engine": "loop",  # Every ship's engine; louder and higher with thrust
 	"missile_engine": "loop",
 	# The player's screen
 	"ui_press": "ui",  # Any button

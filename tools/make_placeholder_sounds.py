@@ -122,7 +122,7 @@ def engine_loop():
     t = t_of(seconds)
     # Low and dull: a deep hum with no bright partials, rumble low-passed hard, a slow gentle swell.
     hum = tone(looped(36, seconds), t) * 0.55 + tone(looped(54, seconds), t) * 0.2 + tone(looped(72, seconds), t) * 0.05
-    rumble = seamless_noise(seconds, 90) * 12.0
+    rumble = seamless_noise(seconds, 90) * 4.0  # A third of the hum's level: the hum carries it
     wobble = 1.0 + 0.08 * tone(looped(1, seconds), t)
     return normal((hum + rumble) * wobble, 0.6)
 

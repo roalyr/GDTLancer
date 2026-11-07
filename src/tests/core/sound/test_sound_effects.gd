@@ -155,22 +155,29 @@ func test_tool_controllers_are_heard_as_they_enter():
 	assert_true(tools.is_connected("tool_cycled", fx, "_on_tool_cycled"))
 
 
-func test_the_engine_loop_follows_speed_and_thrust():
+func test_the_engine_loop_follows_thrust():
 	var fx = _effects(["engine"])
 	var ship := FakeShip.new()
 	add_child_autofree(ship)
 	var loop = fx._attach_loop("engine", ship)
 	assert_eq(loop.get_parent(), ship, "Carried by the ship")
 	fx._drive_engine(loop, ship)
-	assert_lt(loop.unit_db, -60.0, "At rest: silent")
-	ship.activity = 1.0
+	var saved_player = GlobalRefs.player_agent_body
+	GlobalRefs.player_agent_body = ship
 	ship.linear_velocity = Vector3(0, 0, -50)
 	fx._drive_engine(loop, ship)
-	assert_almost_eq(db2linear(loop.unit_db - Constants.SOUND_EFFECTS_VOLUME_DB), Constants.SOUND_ENGINE_MAX_GAIN * 0.5, 0.001, "Half speed: half as loud")
-	assert_almost_eq(loop.pitch_scale, Constants.SOUND_ENGINE_PITCH[1], 0.001, "Pitch by thrust")
-	ship.linear_velocity = Vector3(0, 0, -300)
+	assert_lt(loop.unit_db, -60.0, "Coasting, engine off: silent")
+	ship.activity = 0.5
 	fx._drive_engine(loop, ship)
-	assert_almost_eq(db2linear(loop.unit_db - Constants.SOUND_EFFECTS_VOLUME_DB), Constants.SOUND_ENGINE_MAX_GAIN, 0.001, "Capped at top speed")
+	assert_almost_eq(db2linear(loop.unit_db - Constants.SOUND_EFFECTS_VOLUME_DB), Constants.SOUND_ENGINE_MAX_GAIN * 0.5, 0.001, "Half thrust: half as loud")
+	ship.activity = 1.0
+	fx._drive_engine(loop, ship)
+	assert_almost_eq(db2linear(loop.unit_db - Constants.SOUND_EFFECTS_VOLUME_DB), Constants.SOUND_ENGINE_MAX_GAIN, 0.001, "Full thrust: the cap")
+	assert_almost_eq(loop.pitch_scale, Constants.SOUND_ENGINE_PITCH[1], 0.001)
+	GlobalRefs.player_agent_body = null
+	fx._drive_engine(loop, ship)
+	assert_almost_eq(db2linear(loop.unit_db - Constants.SOUND_EFFECTS_VOLUME_DB), Constants.SOUND_ENGINE_MAX_GAIN * Constants.SOUND_ENGINE_OTHERS_SHARE, 0.001, "Another ship's: quieter")
+	GlobalRefs.player_agent_body = saved_player
 	ship.is_wreck = true
 	fx._drive_engine(loop, ship)
 	assert_false(loop.playing, "A wreck's engine is silent")
