@@ -396,6 +396,24 @@ func get_damage_per_second() -> float:
 
 
 # The fitted cannon with rounds left that works on `target`, or -1.
+# The range to fight `target` at with the weapons on it now (the player's APPROACH holds there, as
+# NPCs keep to theirs, ShipControllerAI.get_engagement_range): an active cannon's optimal range,
+# else the shortest optimal range among the active weapons on it, so all of them reach; never past
+# where they lock through its jamming. 0 with no weapon on it.
+func fighting_range(target) -> float:
+	var best: float = INF
+	for index in _targets:
+		if _targets[index] != target or _tools[index].tool_type == "harpoon":
+			continue
+		if has_magazine(index) and get_ammo(index) <= 0:
+			continue
+		var at: float = min(_tools[index].optimal_range, reach_on(index, target))
+		if _tools[index].tool_type == "cannon":
+			return at
+		best = min(best, at)
+	return best if best < INF else 0.0
+
+
 func find_cannon_for(target) -> int:
 	for index in range(_tools.size()):
 		if _tools[index].tool_type == "cannon" and get_ammo(index) > 0 and can_target(_tools[index], target):

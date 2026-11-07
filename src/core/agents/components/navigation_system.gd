@@ -87,11 +87,13 @@ func set_command_move_direction(direction: Vector3):
 	_current_command = {"type": CommandType.MOVE_DIRECTION, "target_dir": direction.normalized()}
 
 
-func set_command_approach(target: Spatial):
+# `at_weapons`: while weapons are on the target, hold at their range (ToolController.fighting_range)
+# rather than close in (the player's APPROACH; NPCs choose their own range).
+func set_command_approach(target: Spatial, at_weapons: bool = false):
 	if not is_instance_valid(target):
 		set_command_stopping()
 		return
-	_current_command = {"type": CommandType.APPROACH, "target_node": target, "is_new": true}
+	_current_command = {"type": CommandType.APPROACH, "target_node": target, "is_new": true, "at_weapons": at_weapons}
 
 
 func set_command_orbit(target: Spatial, distance: float, clockwise: bool):

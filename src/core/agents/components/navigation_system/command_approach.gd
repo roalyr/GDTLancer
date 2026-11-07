@@ -1,5 +1,6 @@
-# Navigation command: close in on a (possibly moving) target and hold at approach distance. The
-# command stays on once there: the ship keeps pace with the target, and closes in again if it
+# Navigation command: close in on a (possibly moving) target and hold at approach distance (with
+# "at_weapons", at the range of the weapons on it while any are: ToolController.fighting_range,
+# times NAV_APPROACH_WEAPON_SHARE, so it holds inside their reach). The command stays on once there: the ship keeps pace with the target, and closes in again if it
 # drops more than Constants.NAV_APPROACH_RESUME_MARGIN behind (so a pursuit does not end on arrival).
 
 extends Node
@@ -32,6 +33,10 @@ func execute(delta: float):
 	var target_pos = target_node.global_transform.origin
 	var target_size = _nav_sys._get_target_effective_size(target_node)
 	var safe_distance = max(Constants.NAV_APPROACH_MIN_DISTANCE, target_size * Constants.NAV_APPROACH_DISTANCE_MULTIPLIER)
+	if cmd.get("at_weapons", false):
+		var tools = _agent_body.get_node_or_null("ToolController")
+		if tools != null and tools.has_method("fighting_range"):
+			safe_distance = max(safe_distance, tools.fighting_range(target_node) * Constants.NAV_APPROACH_WEAPON_SHARE)
 
 	# Estimate target velocity
 	if cmd.get("is_new", true):

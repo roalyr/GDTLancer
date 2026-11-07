@@ -47,6 +47,7 @@ onready var button_dock: TextureButton = $ScreenControls/BottomCenterZone/Button
 onready var label_button_dock: Label = $ScreenControls/BottomCenterZone/ButtonDock/LabelButtonDock
 onready var button_interact: TextureButton = $ScreenControls/BottomCenterZone/ButtonInteract
 onready var label_button_interact: Label = $ScreenControls/BottomCenterZone/ButtonInteract/LabelButtonInteract
+onready var label_button_approach: Label = $ScreenControls/BottomCenterZone/ButtonApproach/LabelButtonApproach
 onready var debug_overlay: Control = $ScreenControls/DebugOverlay
 onready var _debug_label_ship: Label = $ScreenControls/DebugOverlay/LeftColumn/LabelShip
 onready var _debug_label_tools: Label = $ScreenControls/DebugOverlay/LeftColumn/LabelTools
@@ -257,6 +258,31 @@ func _update_hud() -> void:
 	_layout_tool_rows()
 	_update_dock_button_label()
 	_update_interact_button_label()
+	_update_approach_button_label()
+
+
+# APPROACH reads where it would stop: HOLD and the range with weapons on the selected target
+# (ToolController.fighting_range: it holds there, as NPCs fight), CHARGE with the lance armed.
+func _update_approach_button_label() -> void:
+	if not is_instance_valid(label_button_approach):
+		return
+	var text := "APPROACH"
+	var player = GlobalRefs.player_agent_body
+	var controller = _get_player_controller()
+	if _current_target != null and is_instance_valid(player):
+		var tools = player.get_node_or_null("ToolController")
+		if is_instance_valid(controller) and controller.has_method("is_charge_ready") and controller.is_charge_ready(_current_target):
+			text = "CHARGE"
+		elif tools != null and tools.has_method("fighting_range"):
+			var hold: float = tools.fighting_range(_current_target) * Constants.NAV_APPROACH_WEAPON_SHARE
+			if hold > 0.0:
+				text = "HOLD %s" % _short_distance(hold)
+	if label_button_approach.text != text:
+		label_button_approach.text = text
+
+
+static func _short_distance(metres: float) -> String:
+	return "%.1fk" % (metres / 1000.0) if metres >= 1000.0 else "%d" % int(round(metres))
 
 
 # INTERACT reads what it would do: ESCORT a friendly worker selected (Wages), STOP ESCORT on the one

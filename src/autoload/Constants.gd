@@ -64,6 +64,7 @@ const PID_POSITION_KD = 0.8
 const NAV_APPROACH_DISTANCE_MULTIPLIER = 1.3
 const NAV_APPROACH_MIN_DISTANCE = 50.0  # m
 const NAV_ARRIVAL_DISTANCE_THRESHOLD = 20.0  # m
+const NAV_APPROACH_WEAPON_SHARE = 0.9  # The player's APPROACH with weapons on the target holds at this share of their range
 const NAV_APPROACH_RESUME_MARGIN = 30.0  # m past the hold distance before a holding approach closes in again
 # Charging (command_charge): charges at the target's lead point, or beside it for a ship (lead time
 # distance / closing speed, at least MIN_LEAD_SPEED, at most MAX_LEAD_TIME s), thrusting while the
@@ -786,8 +787,8 @@ const AI_MISSILE_FIGHT_TIME = 30.0  # s: missiles' damage counts as spread over 
 const AI_MISSILE_HIT_SHARE = 0.7  # Expected share of missiles that hit
 const AI_CANNON_HIT_SHARE = 0.75  # and of cannon rounds (duels: 73-94%)
 const LANCE_RADIUS = 0.15  # m at the lance's base, for a 200 kg lance (grows as mass^(1/3))
-const LANCE_LAUNCH_SPEED = 100.0  # m/s a thrown lance gains on the ship's own speed (LanceController.fire)
-const LANCE_RELEASE_RANGE = 80.0  # m from the tip to the target's hull (or a rock's surface) within which an armed lance is thrown
+const LANCE_LAUNCH_SPEED = 150.0  # m/s a thrown lance gains on the ship's own speed (LanceController.fire)
+const LANCE_RELEASE_RANGE = 110.0  # m from the tip to the target's hull (or a rock's surface) within which an armed lance is thrown
 const LANCE_AIM_CONE = 60.0  # degrees off the nose the seat can throw it, to cancel the ship's drift past the target
 const LANCE_SHOT_LIFE = 1.5  # s a thrown lance flies before it is lost
 const LANCE_CATCH_SPEED = 20.0  # m/s a lancer must be able to gain on a runner to get within release range (Agent.outruns_charge)

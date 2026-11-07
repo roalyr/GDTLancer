@@ -332,3 +332,11 @@ func test_thrust_off_the_way_it_moves_is_checked_too():
 	var moving := Vector3(50, 0, 0)  # Clear along its way
 	assert_eq(Nav.compute_avoidance(Vector3.ZERO, moving, 12.0, [planet]), Vector3.ZERO)
 	assert_gt(Nav.compute_avoidance(Vector3.ZERO, moving, 12.0, [planet], Vector3(0, 0, -1000)).length(), 0.0, "But it thrusts toward the planet: pushed")
+
+
+func test_a_charge_leads_a_crossing_target_to_where_they_meet():
+	var Charge = load("res://src/core/agents/components/navigation_system/command_charge.gd")
+	var t: float = Charge.intercept_time(Vector3(0, 0, -1000), Vector3(100, 0, 0), 200.0)
+	var meet: Vector3 = Vector3(0, 0, -1000) + Vector3(100, 0, 0) * t
+	assert_almost_eq(meet.length(), 200.0 * t, 0.01, "Both get there at once")
+	assert_eq(Charge.intercept_time(Vector3(0, 0, -1000), Vector3(0, 0, -300), 200.0), -1.0, "A faster runner is never caught")

@@ -1,5 +1,6 @@
 # Navigation command: a pass at a (possibly moving) target with a kinetic lance. Charges at where
-# the target will be (a lead point), at full thrust, never braking: an approach that does not slow
+# the target will be when it gets there (the intercept point: intercept_time, at its own speed or
+# NAV_CHARGE_MIN_LEAD_SPEED, whichever is more, at most NAV_CHARGE_MAX_LEAD_TIME ahead), at full thrust, never braking: an approach that does not slow
 # down; it leans a little against its sideways slip relative to the target (NAV_CHARGE_DRIFT_GAIN). At a
 # ship it aims to pass beside it, NAV_CHARGE_PASS_CLEARANCE m clear of its hull, on the side it already
 # slips toward: the lance is thrown at the ship on the way (LanceController, within
@@ -97,7 +98,11 @@ func execute(delta: float):
 			aim_pos = target_pos + side * (_agent_body.get_apparent_radius() + _nav_sys._get_target_effective_size(target_node) + Constants.NAV_CHARGE_PASS_CLEARANCE)
 		var aim_offset: Vector3 = aim_pos - _agent_body.global_transform.origin
 		var aim_direction: Vector3 = aim_offset.normalized() if aim_offset.length() > 0.01 else direction
-		var lead_time: float = min(distance / max(closing, Constants.NAV_CHARGE_MIN_LEAD_SPEED), Constants.NAV_CHARGE_MAX_LEAD_TIME)
+		var speed: float = max(_movement_system.get_velocity().length(), Constants.NAV_CHARGE_MIN_LEAD_SPEED)
+		var lead_time: float = intercept_time(aim_pos - _agent_body.global_transform.origin, _target_velocity, speed)
+		if lead_time < 0.0:
+			lead_time = distance / max(closing, Constants.NAV_CHARGE_MIN_LEAD_SPEED)  # It cannot catch it at that speed: lead as it closes
+		lead_time = min(lead_time, Constants.NAV_CHARGE_MAX_LEAD_TIME)
 		var lead: Vector3 = (aim_pos + _target_velocity * lead_time - _agent_body.global_transform.origin).normalized()
 		var relative: Vector3 = _movement_system.get_velocity() - _target_velocity
 		var drift: Vector3 = relative - aim_direction * relative.dot(aim_direction)  # Sideways slip off the pass line: it would miss it by this
@@ -111,6 +116,27 @@ func execute(delta: float):
 	_movement_system.request_rotation_to_pid(heading, delta, 1.0 if cmd.running_up else aim_gain(distance))
 	if _movement_system.get_forward().dot(heading) > Constants.NAV_CHARGE_THRUST_ALIGNMENT:
 		_movement_system.request_thrust_forward()
+
+
+# s until a ship flying straight at `speed` meets a point `offset` away moving at `velocity` (the
+# first time |offset + velocity t| = speed t); -1 if it never can.
+static func intercept_time(offset: Vector3, velocity: Vector3, speed: float) -> float:
+	var a: float = velocity.length_squared() - speed * speed
+	var b: float = 2.0 * offset.dot(velocity)
+	var c: float = offset.length_squared()
+	if abs(a) < 0.0001:
+		return -c / b if b < 0.0 else -1.0
+	var disc: float = b * b - 4.0 * a * c
+	if disc < 0.0:
+		return -1.0
+	var root: float = sqrt(disc)
+	var t1: float = (-b - root) / (2.0 * a)
+	var t2: float = (-b + root) / (2.0 * a)
+	var best: float = INF
+	for t in [t1, t2]:
+		if t > 0.0:
+			best = min(best, t)
+	return best if best < INF else -1.0
 
 
 # Share of NAV_CHARGE_WEAVE_ANGLE a charge at `distance` m comes in at: 1 from NAV_CHARGE_WEAVE_FULL out,

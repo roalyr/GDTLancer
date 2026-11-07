@@ -729,7 +729,8 @@ func _coast() -> void:
 		agent_script.command_idle()
 
 
-# APPROACH: with the lance armed, at a ship or a rock with ore, the pass that throws it (command_charge).
+# APPROACH: with the lance armed, at a ship or a rock with ore, the pass that throws it (command_charge);
+# with weapons on the target, it closes to their range and holds there (as NPCs fight), not to the hull.
 func _on_Player_Approach_Pressed():
 	if _toggled_off([NavigationSystem.CommandType.APPROACH, NavigationSystem.CommandType.CHARGE]):
 		return
@@ -741,7 +742,7 @@ func _approach_selected() -> void:
 		if is_charge_ready(_selected_target):
 			agent_script.command_charge(_selected_target)
 		else:
-			agent_script.command_approach(_selected_target)
+			agent_script.command_approach(_selected_target, true)
 
 
 # Whether approaching `target` means charging it: the lance armed with lances left, and something it
@@ -774,7 +775,7 @@ func _sync_charge_command() -> void:
 	if type == NavigationSystem.CommandType.APPROACH and is_charge_ready(target):
 		agent_script.command_charge(target)
 	elif type == NavigationSystem.CommandType.CHARGE and not is_charge_ready(target):
-		agent_script.command_approach(target)
+		agent_script.command_approach(target, true)
 
 
 func _on_Player_Flee_Pressed():

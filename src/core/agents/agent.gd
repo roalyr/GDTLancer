@@ -1256,9 +1256,9 @@ func command_idle():
 		printerr("AgentBody: Cannot command_idle - NavigationSystem invalid.")
 
 
-func command_approach(target: Spatial):
+func command_approach(target: Spatial, at_weapons: bool = false):
 	if is_instance_valid(navigation_system):
-		navigation_system.set_command_approach(target)
+		navigation_system.set_command_approach(target, at_weapons)
 	else:
 		printerr("AgentBody: Cannot command_approach - NavigationSystem invalid.")
 

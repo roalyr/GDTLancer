@@ -754,3 +754,10 @@ func test_a_harpoons_progress_is_its_strip():
 	controller._cycle_timers[0] = 0.5
 	assert_almost_eq(controller.get_cycle_progress(0), 0.5, 0.001, "Half of a 1 s strip, not seven eighths of 4 s")
 	controller._targets.clear()
+
+
+func test_fighting_range_is_the_range_of_the_weapons_on_the_target():
+	assert_eq(controller.fighting_range(target), 0.0, "Nothing on it")
+	controller._targets[0] = target
+	assert_eq(controller.fighting_range(target), 500.0, "The laser's optimal range")
+	assert_eq(controller.fighting_range(shooter), 0.0, "Only what is on that target")

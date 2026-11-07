@@ -133,7 +133,7 @@ class CommandRecorder:
 	var last := ""
 	func command_charge(_target):
 		last = "charge"
-	func command_approach(_target):
+	func command_approach(_target, _at_weapons = false):
 		last = "approach"
 	func command_stop():
 		last = "stop"
