@@ -17,10 +17,10 @@
 # and every gene bends with desperation: a broke pilot (little WP for its ship's worth) fights at
 # worse odds, chases harder, spares less, shoots back more and runs later.
 # Prospectors (prospect gene, with a laser, a lance and a harpoon) mine when they have nothing else to
-# do: burn a rock's shell off with the laser, ram the bared rock, then harpoon and strip the chunk
+# do: burn a rock's shell off with the laser, charge the bared rock, then harpoon and strip the chunk
 # (SALVAGE) and haul it home (Constants MINING).
-# Ships with a kinetic lance (lances left, fast enough to strike) ram instead of closing to laser
-# range and orbiting, their lasers firing as they reach; the lance is armed only while ramming.
+# Ships with a kinetic lance (lances left, fast enough to strike) charge instead of closing to laser
+# range and orbiting, their lasers firing as they reach; the lance is armed only while charging.
 # Decisions take time (skill, how close the call is): meanwhile the ship HESITATES, a state of its
 # own the player can read. It turns its nose on the ship in question and eases off to a drift,
 # holding fire; one wavering over breaking off a fight keeps fighting meanwhile. Being shot while
@@ -105,7 +105,7 @@ var _since_hit: float = INF  # s since the ship it fights last hit it
 var _runner_judged: bool = false  # Its target's current run has had its mercy roll
 var _letting_go: bool = false  # and the roll was to let it go
 var _spared: Dictionary = {}  # Instance id -> s left during which it does not go after that ship again
-var _ramming: bool = false  # Charging its target with an armed lance (command_ram)
+var _in_charge: bool = false  # Charging its target with an armed lance (command_charge)
 var _prospect: float = 0.0  # Behaviour gene: mines when idle at 0.5 or more (can_mine)
 var _haul: float = Constants.AI_HAUL_SHARE  # Behaviour gene: goes home to sell once its hold is worth this share of its ship
 var _rock: Spatial = null  # The rock it is mining
@@ -167,8 +167,8 @@ func get_state() -> int:
 
 
 func get_activity_label() -> String:
-	if _ramming and _current_state == AIState.COMBAT:
-		return "RAMMING"
+	if _in_charge and _current_state == AIState.COMBAT:
+		return "CHARGING"
 	if _quiet_now and _current_state == AIState.PATROL:
 		return "LYING LOW"
 	if _stalking and _current_state == AIState.COMBAT:
@@ -478,7 +478,7 @@ func _update_afterburner() -> void:
 		want = true
 	elif _current_state == AIState.COMBAT and _is_live_target(_target_agent):
 		var distance: float = agent_script.global_transform.origin.distance_to(_target_agent.global_transform.origin)
-		want = is_ram_committed() or is_running_from_me(_target_agent) or distance > get_engagement_range() * Constants.AI_AFTERBURNER_CLOSE_FACTOR
+		want = is_charge_committed() or is_running_from_me(_target_agent) or distance > get_engagement_range() * Constants.AI_AFTERBURNER_CLOSE_FACTOR
 		if agent_script.power < agent_script.power_max * _burn_reserve:
 			want = false
 	agent_script.set_afterburner(want)
@@ -497,7 +497,7 @@ func _change_state(new_state: int) -> void:
 	if not keeps_fighting and new_state != AIState.COMBAT:
 		_covering = null
 	if not keeps_fighting:
-		_stop_ramming()
+		_stop_in_charge()
 	if is_instance_valid(_tool_controller) and not keeps_fighting:
 		_tool_controller.deactivate_all("state_change")
 
@@ -549,7 +549,7 @@ func _change_state(new_state: int) -> void:
 				agent_script.command_watch(_target_agent)
 		AIState.MINE:
 			_mine_time = 0.0
-			_ramming = false
+			_in_charge = false
 	_announce(new_state)
 
 
@@ -659,7 +659,7 @@ func _process_combat() -> void:
 	if not _in_play_area(agent_script.global_transform.origin, 1.1):
 		_change_state(AIState.PATROL)  # Chased out of the play area: back to its beacons
 		return
-	var committed: bool = is_ram_committed()
+	var committed: bool = is_charge_committed()
 	if not committed and _should_retreat():
 		_change_state(AIState.FLEE)
 		return
@@ -674,10 +674,10 @@ func _process_combat() -> void:
 			_consider("let_go", _target_agent, chase_margin(_target_agent) * _pursuit_level(), 1.0)
 			return
 
-	if _ram(_target_agent):
+	if _charge(_target_agent):
 		_fire_at(_target_agent)
 		return
-	if can_ram() and is_instance_valid(_tool_controller) and _tool_controller.find_tool_for(_target_agent) < 0:
+	if can_charge() and is_instance_valid(_tool_controller) and _tool_controller.find_tool_for(_target_agent) < 0:
 		_hold_off(_target_agent)  # Only a lance, and charging does not pay now
 		return
 
@@ -685,7 +685,7 @@ func _process_combat() -> void:
 	# Close to optimal range, then orbit at it (closing in or easing out to it); re-approach if
 	# pushed out. A cannon on holds the nose on its lead meanwhile (MovementSystem.facing).
 	var engagement_range: float = get_engagement_range()
-	_stalk(distance > engagement_range and not _ramming)
+	_stalk(distance > engagement_range and not _in_charge)
 	if distance > engagement_range * 1.2:
 		if _orbiting or _repath_timer <= 0.0:
 			_orbiting = false
@@ -896,44 +896,44 @@ func _process_depart() -> void:
 		agent_script.command_move_to(_home_point)
 
 
-# --- Ramming (kinetic lance) ---
+# --- Charging (kinetic lance) ---
 
-func can_ram() -> bool:
+func can_charge() -> bool:
 	return agent_script.has_method("get_lance_nails") and agent_script.get_lance_nails() > 0 \
 		and agent_script.get_top_speed() >= Constants.LANCE_CATCH_SPEED
 
 
-# A target running from it that it cannot outpace by strike speed (Agent.outruns_ram).
-func outruns_ram(target) -> bool:
-	return agent_script.outruns_ram(target)
+# A target running from it that it cannot outpace by strike speed (Agent.outruns_charge).
+func outruns_charge(target) -> bool:
+	return agent_script.outruns_charge(target)
 
 
-# Rams `target` if it can and it pays (ram_worth: weighed as it starts and again between passes);
+# Charges `target` if it can and it pays (charge_worth: weighed as it starts and again between passes);
 # true while it does. Out of lances, against a runner too fast to strike (even mid-charge: running,
 # it never turns to fight), or when a charge no longer pays, it stops, and the fight goes on with
 # its other weapons (a lancer without any hangs back: _hold_off).
-func _ram(target) -> bool:
-	var weigh: bool = not _ramming or _running_up()
-	if not can_ram() or outruns_ram(target) or (weigh and not ram_worth(target)):
-		if _ramming:
-			_stop_ramming()
+func _charge(target) -> bool:
+	var weigh: bool = not _in_charge or _running_up()
+	if not can_charge() or outruns_charge(target) or (weigh and not charge_worth(target)):
+		if _in_charge:
+			_stop_in_charge()
 			_orbiting = false
 			_repath_timer = 0.0
 		return false
-	if not _ramming:
-		_ramming = true
+	if not _in_charge:
+		_in_charge = true
 		agent_script.set_lances_armed(true)
-		agent_script.command_ram(target)
+		agent_script.command_charge(target)
 	return true
 
 
-# Charging (not running up) within AI_RAM_NO_RETURN of the target: a charge that far in is seen
+# Charging (not running up) within AI_CHARGE_NO_RETURN of the target: a charge that far in is seen
 # through, since breaking off would only give the target a free shot at its back; further out it
 # may still break off (its retreat level), and it reconsiders while it runs up for the next.
-func is_ram_committed() -> bool:
-	if not _ramming or not _is_live_target(_target_agent) or _running_up():
+func is_charge_committed() -> bool:
+	if not _in_charge or not _is_live_target(_target_agent) or _running_up():
 		return false
-	return agent_script.global_transform.origin.distance_to(_target_agent.global_transform.origin) < Constants.AI_RAM_NO_RETURN
+	return agent_script.global_transform.origin.distance_to(_target_agent.global_transform.origin) < Constants.AI_CHARGE_NO_RETURN
 
 
 func _running_up() -> bool:
@@ -941,13 +941,13 @@ func _running_up() -> bool:
 	return not is_instance_valid(nav) or nav._current_command.get("running_up", true)
 
 
-# Whether a charge at `target` pays (Agent.ram_outlook, Constants AI_RAM_*): the hull it would lose
+# Whether a charge at `target` pays (Agent.charge_outlook, Constants AI_CHARGE_*): the hull it would lose
 # keeps it above its retreat level, or a throw would finish the target and the loss would not finish
 # it. A rock, a wreck or a chunk always does (nothing shoots back).
-func ram_worth(target) -> bool:
+func charge_worth(target) -> bool:
 	if not (target is RigidBody and target.get("is_wreck") == false):
 		return true
-	var outlook: Dictionary = agent_script.ram_outlook(target)
+	var outlook: Dictionary = agent_script.charge_outlook(target)
 	var hull: float = float(agent_script.hull)
 	if outlook.strike >= float(target.get("hull") if target.get("hull") != null else INF):
 		return outlook.cost < hull
@@ -955,7 +955,7 @@ func ram_worth(target) -> bool:
 
 
 # A lancer whose charge does not pay and that has no other weapon on `target`: waits outside the
-# reach of the target's guns (AI_RAM_HOLD_OFF), for its friends to wear it down.
+# reach of the target's guns (AI_CHARGE_HOLD_OFF), for its friends to wear it down.
 func _hold_off(target) -> void:
 	if _repath_timer > 0.0:
 		return
@@ -964,11 +964,11 @@ func _hold_off(target) -> void:
 	var away: Vector3 = agent_script.global_transform.origin - target.global_transform.origin
 	away = away.normalized() if away.length_squared() > 1.0 else Vector3.BACK
 	var reach: float = max(agent_script.weapon_reach_of(target), Constants.LANCE_RELEASE_RANGE)
-	agent_script.command_move_to(target.global_transform.origin + away * reach * Constants.AI_RAM_HOLD_OFF)
+	agent_script.command_move_to(target.global_transform.origin + away * reach * Constants.AI_CHARGE_HOLD_OFF)
 
 
-func _stop_ramming() -> void:
-	_ramming = false
+func _stop_in_charge() -> void:
+	_in_charge = false
 	if is_instance_valid(agent_script) and agent_script.has_method("set_lances_armed"):
 		agent_script.set_lances_armed(false)
 
@@ -1033,7 +1033,7 @@ func can_mine() -> bool:
 
 # A miner by its genes and kit, whether or not its hold has room now (an escort keeps by it home).
 func is_prospector() -> bool:
-	if _prospect < 0.5 or not is_instance_valid(_tool_controller) or not can_ram():
+	if _prospect < 0.5 or not is_instance_valid(_tool_controller) or not can_charge():
 		return false
 	return _mining_laser() >= 0 and _has_harpoon()
 
@@ -1067,7 +1067,7 @@ func scan_for_rock() -> Spatial:
 	return best
 
 
-# Throws a lance into the rock (command_ram holds it off the face); the strike (_on_lance_struck)
+# Throws a lance into the rock (command_charge holds it off the face); the strike (_on_lance_struck)
 # sends it after the biggest chunk, and the rest are picked up as wrecks. Enemies that show up come
 # first.
 func _process_mine(delta: float) -> void:
@@ -1087,7 +1087,7 @@ func _process_mine(delta: float) -> void:
 		if is_instance_valid(enemy) and not _busy_mining_past(enemy):
 			_consider("engage", enemy, desire_against(enemy), _engage_level())
 			return
-	_ram(_rock)
+	_charge(_rock)
 
 
 # --- Runners: chase or let go ---
@@ -1491,7 +1491,7 @@ func roams() -> bool:
 func get_job() -> String:
 	if can_mine():
 		return "mine"
-	if agent_script.get_damage_per_second() <= 0.0 and not can_ram():
+	if agent_script.get_damage_per_second() <= 0.0 and not can_charge():
 		return "scavenge"
 	if agent_script.faction == "raiders":
 		return "hunt"

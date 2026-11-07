@@ -1,6 +1,6 @@
 # Tests for the kinetic lance: its law (ShipLaws.lance_stats, lance_damage), LanceController
 # (the throw and its aim, strikes, glances, the shove, lances left in the hull, reload, restock) and
-# the ram command's run-up distance.
+# the charge command's run-up distance.
 
 extends GutTest
 
@@ -8,7 +8,7 @@ const PartCatalog = preload("res://src/tests/helpers/reference_parts.gd")  # Fix
 
 const AgentScript = preload("res://src/core/agents/agent.gd")
 const LanceScript = preload("res://src/core/agents/components/lance_controller.gd")
-const CommandRam = preload("res://src/core/agents/components/navigation_system/command_ram.gd")
+const CommandCharge = preload("res://src/core/agents/components/navigation_system/command_charge.gd")
 const ShipLaws = preload("res://src/core/systems/ship_laws.gd")
 
 
@@ -17,17 +17,17 @@ class NavigationStub extends Node:
 	func get_command_target():
 		return target
 
-var rammer: RigidBody = null
+var thrower: RigidBody = null
 var target: RigidBody = null
 var lance: Spatial = null
 
 
 func before_each():
-	rammer = _make_body(Vector3.ZERO)
+	thrower = _make_body(Vector3.ZERO)
 	target = _make_body(Vector3(0, 0, -30))
 	lance = LanceScript.new()
-	rammer.add_child(lance)
-	lance.setup(rammer, "test_lance", ShipLaws.lance_stats(PartCatalog.genes("lance", 2)))
+	thrower.add_child(lance)
+	lance.setup(thrower, "test_lance", ShipLaws.lance_stats(PartCatalog.genes("lance", 2)))
 
 
 func after_each():
@@ -67,11 +67,11 @@ func test_law():
 
 
 func test_a_strike_damages_shoves_and_leaves_the_lance_in():
-	rammer.linear_velocity = Vector3(0, 0, -200)  # Nose on (-Z) at 200 m/s
+	thrower.linear_velocity = Vector3(0, 0, -200)  # Nose on (-Z) at 200 m/s
 	var damage: float = lance.strike(target, Vector3(0, 0, -20), Vector3(0, 0, 1))
 	assert_almost_eq(damage, lance.lance.damage, 0.01)
 	assert_almost_eq(target.hull, 200.0 - damage, 0.01)
-	assert_almost_eq(rammer.linear_velocity.z, -200.0, 0.01, "The ship flies on: only the lance met it")
+	assert_almost_eq(thrower.linear_velocity.z, -200.0, 0.01, "The ship flies on: only the lance met it")
 	assert_almost_eq(target.linear_velocity.z, -200.0 * lance.lance.nail_mass / target.mass, 0.01, "Shoved by the lance's momentum")
 	var stuck := 0
 	for child in target.get_children():
@@ -85,7 +85,7 @@ func test_a_strike_damages_shoves_and_leaves_the_lance_in():
 
 
 func test_in_release_range_it_throws_straight_at_the_target_cancelling_its_drift():
-	rammer.linear_velocity = Vector3(40, 0, -150)  # Slipping sideways past it
+	thrower.linear_velocity = Vector3(40, 0, -150)  # Slipping sideways past it
 	target.global_transform.origin = Vector3(0, 0, -(lance.get_reach() + 5.0 + Constants.LANCE_RELEASE_RANGE + 20.0))
 	assert_true(lance.firing_solution(target).empty(), "Out of release range")
 	target.global_transform.origin = Vector3(0, 0, -(lance.get_reach() + Constants.LANCE_RELEASE_RANGE * 0.5))
@@ -96,21 +96,21 @@ func test_in_release_range_it_throws_straight_at_the_target_cancelling_its_drift
 	assert_almost_eq(relative.normalized().dot(line), 1.0, 0.0001, "Relative to the target, the lance flies straight at its middle")
 	assert_almost_eq(solution.closing, relative.length(), 0.01)
 	assert_gt(solution.closing, 150.0, "The throw adds to the ship's own closing speed")
-	rammer.linear_velocity = Vector3(300, 0, -100)
+	thrower.linear_velocity = Vector3(300, 0, -100)
 	assert_true(lance.firing_solution(target).empty(), "Slipping by faster than a throw can make up")
-	rammer.linear_velocity = Vector3.ZERO
+	thrower.linear_velocity = Vector3.ZERO
 	assert_false(lance.firing_solution(target).empty(), "From a standstill the throw alone is past strike speed")
 
 
 func test_a_lance_that_glances_off_or_misses_drifts_on_to_be_harpooned():
-	rammer.linear_velocity = Vector3(0, 0, -(Constants.LAW_LANCE_MIN_SPEED - 10.0))
+	thrower.linear_velocity = Vector3(0, 0, -(Constants.LAW_LANCE_MIN_SPEED - 10.0))
 	lance.nails -= 1  # Thrown
 	assert_eq(lance.strike(target, Vector3(0, 0, -20), Vector3(0, 0, 1), 0.0), 0.0, "Too slow: glances")
 	var loose: Array = get_tree().get_nodes_in_group("loose_lance")
 	assert_eq(loose.size(), 1, "Adrift")
 	assert_gt(loose[0].linear_velocity.z, 0.0, "Off the face, back the way it came")
-	assert_eq(loose[0].recoverable_lances_for(rammer), 1, "A harpoon brings it back")
-	assert_true(loose[0].recover_lance_into(rammer))
+	assert_eq(loose[0].recoverable_lances_for(thrower), 1, "A harpoon brings it back")
+	assert_true(loose[0].recover_lance_into(thrower))
 	assert_eq(lance.nails, int(lance.lance.count))
 	loose[0].free()
 	var missed = lance.drop_lance(Vector3(0, 0, -100), Vector3(0, 0, -250))
@@ -121,15 +121,15 @@ func test_a_lance_that_glances_off_or_misses_drifts_on_to_be_harpooned():
 
 func test_a_loose_lance_is_scooped_up_by_a_ship_close_and_slow():
 	lance.nails -= 1  # Thrown
-	var own: Vector3 = rammer.global_transform.origin
+	var own: Vector3 = thrower.global_transform.origin
 	var loose = lance.drop_lance(own + Vector3(0, 0, -(Constants.LANCE_SCOOP_RANGE + 20.0)), Vector3.ZERO)
-	rammer.linear_velocity = Vector3.ZERO
-	assert_false(loose.can_be_scooped_by(rammer), "Too far")
+	thrower.linear_velocity = Vector3.ZERO
+	assert_false(loose.can_be_scooped_by(thrower), "Too far")
 	loose.global_transform.origin = own + Vector3(0, 0, -(Constants.LANCE_SCOOP_RANGE - 10.0))
-	rammer.linear_velocity = Vector3(0, 0, -(Constants.LANCE_SCOOP_SPEED + 30.0))
-	assert_false(loose.can_be_scooped_by(rammer), "Too fast: it flies past")
-	rammer.linear_velocity = Vector3(0, 0, -5.0)
-	assert_true(loose.can_be_scooped_by(rammer), "Close and slow: no harpoon needed")
+	thrower.linear_velocity = Vector3(0, 0, -(Constants.LANCE_SCOOP_SPEED + 30.0))
+	assert_false(loose.can_be_scooped_by(thrower), "Too fast: it flies past")
+	thrower.linear_velocity = Vector3(0, 0, -5.0)
+	assert_true(loose.can_be_scooped_by(thrower), "Close and slow: no harpoon needed")
 	loose._physics_process(Constants.LANCE_SCOOP_INTERVAL)
 	assert_eq(lance.nails, int(lance.lance.count), "Back in the seat")
 	yield(get_tree(), "idle_frame")
@@ -137,21 +137,21 @@ func test_a_loose_lance_is_scooped_up_by_a_ship_close_and_slow():
 
 
 func test_the_players_lances_disarm_after_a_throw():
-	rammer.set_lances_armed(true)
-	rammer._on_player_lance_launched(target)
+	thrower.set_lances_armed(true)
+	thrower._on_player_lance_launched(target)
 	yield(get_tree(), "idle_frame")
 	assert_false(lance.armed, "One volley per arming: lances are few")
 
 
 func test_a_thrown_lance_flies_kicks_the_ship_back_and_strikes():
-	rammer.linear_velocity = Vector3(0, 0, -100)
+	thrower.linear_velocity = Vector3(0, 0, -100)
 	target.global_transform.origin = Vector3(0, 0, -(lance.get_reach() + 40.0))
 	var solution: Dictionary = lance.firing_solution(target)
 	watch_signals(lance)
 	lance.fire(target, solution)
 	assert_eq(lance.nails, int(lance.lance.count) - 1, "One lance thrown")
 	assert_false(lance.is_seated(), "The next is sliding in")
-	assert_almost_eq(rammer.linear_velocity.z, -100.0 + Constants.LANCE_LAUNCH_SPEED * lance.lance.nail_mass / rammer.mass, 0.01, "Kicked back by the throw")
+	assert_almost_eq(thrower.linear_velocity.z, -100.0 + Constants.LANCE_LAUNCH_SPEED * lance.lance.nail_mass / thrower.mass, 0.01, "Kicked back by the throw")
 	assert_signal_emitted(lance, "launched")
 	for i in range(30):
 		yield(get_tree(), "physics_frame")
@@ -161,21 +161,21 @@ func test_a_thrown_lance_flies_kicks_the_ship_back_and_strikes():
 
 
 func test_too_slow_or_oblique_glances_off():
-	rammer.linear_velocity = Vector3(0, 0, -(Constants.LAW_LANCE_MIN_SPEED - 10.0))
+	thrower.linear_velocity = Vector3(0, 0, -(Constants.LAW_LANCE_MIN_SPEED - 10.0))
 	assert_eq(lance.strike(target, Vector3(0, 0, -20), Vector3(0, 0, 1), 0.0), 0.0)
 	assert_eq(target.hull, 200.0)
-	rammer.linear_velocity = Vector3(0, 0, -250)
+	thrower.linear_velocity = Vector3(0, 0, -250)
 	assert_eq(lance.strike(target, Vector3(8, 0, -30), Vector3(1, 0, 0.2).normalized(), 0.99), 0.0, "Nearly side-on, off the hull's middle: glances off")
 	lance._glanced.clear()
 	assert_gt(lance.strike(target, Vector3(8, 0, -30), Vector3(1, 0, 0.2).normalized(), 0.0), 0.0, "unless it slips between parts")
 	lance._glanced.clear()
 	lance.reload_left = 0.0
-	rammer.linear_velocity = Vector3(0, 0, -250)
+	thrower.linear_velocity = Vector3(0, 0, -250)
 	target.linear_velocity = Vector3.ZERO
 	assert_gt(lance.strike(target, Vector3(0, 0, -25), Vector3(1, 0, 0.2).normalized(), 0.5), 0.0, "Driving at the hull's middle: in, whichever face of its box it meets")
 	lance._glanced.clear()
 	lance.reload_left = 0.0
-	rammer.linear_velocity = Vector3(-250, 0, -60)
+	thrower.linear_velocity = Vector3(-250, 0, -60)
 	target.linear_velocity = Vector3.ZERO
 	assert_eq(lance.strike(target, Vector3(0, 0, -25), Vector3(0, 0, 1), 0.99), 0.0, "Moving mostly sideways: a sideswipe glances")
 
@@ -193,30 +193,30 @@ func test_last_lance_then_restock():
 
 func test_a_lance_adds_to_damage_per_second_while_it_has_lances():
 	var movement = load("res://src/core/agents/components/movement_system.gd").new()
-	rammer.add_child(movement)
-	rammer.movement_system = movement
-	movement.linear_thrust = Constants.LAW_LANCE_REF_SPEED * rammer.mass * Constants.LINEAR_DRAG  # Top speed: the reference speed
+	thrower.add_child(movement)
+	thrower.movement_system = movement
+	movement.linear_thrust = Constants.LAW_LANCE_REF_SPEED * thrower.mass * Constants.LINEAR_DRAG  # Top speed: the reference speed
 	var throw: float = lance.lance.damage * (Constants.LAW_LANCE_REF_SPEED + Constants.LANCE_LAUNCH_SPEED) / Constants.LAW_LANCE_REF_SPEED
-	assert_almost_eq(rammer.get_damage_per_second(), throw / max(lance.lance.reload, Constants.AI_RAM_PASS_TIME), 0.01, "One throw per pass, at top speed plus the launch")
+	assert_almost_eq(thrower.get_damage_per_second(), throw / max(lance.lance.reload, Constants.AI_CHARGE_PASS_TIME), 0.01, "One throw per pass, at top speed plus the launch")
 	lance.nails = 0
-	assert_eq(rammer.get_damage_per_second(), 0.0, "No lasers, no lances left")
+	assert_eq(thrower.get_damage_per_second(), 0.0, "No lasers, no lances left")
 
 
 func test_aim_stiffens_as_the_charge_closes():
-	assert_eq(CommandRam.aim_gain(Constants.NAV_RAM_PID_GAIN_FROM + 1.0), 1.0, "Usual aim from afar")
-	assert_almost_eq(CommandRam.aim_gain(Constants.NAV_RAM_PID_GAIN_FULL), Constants.NAV_RAM_PID_GAIN, 0.001)
-	var middle: float = CommandRam.aim_gain((Constants.NAV_RAM_PID_GAIN_FROM + Constants.NAV_RAM_PID_GAIN_FULL) * 0.5)
-	assert_almost_eq(middle, (1.0 + Constants.NAV_RAM_PID_GAIN) * 0.5, 0.001, "Eases between")
+	assert_eq(CommandCharge.aim_gain(Constants.NAV_CHARGE_PID_GAIN_FROM + 1.0), 1.0, "Usual aim from afar")
+	assert_almost_eq(CommandCharge.aim_gain(Constants.NAV_CHARGE_PID_GAIN_FULL), Constants.NAV_CHARGE_PID_GAIN, 0.001)
+	var middle: float = CommandCharge.aim_gain((Constants.NAV_CHARGE_PID_GAIN_FROM + Constants.NAV_CHARGE_PID_GAIN_FULL) * 0.5)
+	assert_almost_eq(middle, (1.0 + Constants.NAV_CHARGE_PID_GAIN) * 0.5, 0.001, "Eases between")
 
 
 func test_run_up_distance():
-	assert_eq(CommandRam.run_up_distance(150.0, 0.0, 0.0), 0.0, "The throw alone is past strike speed: no run-up while closing")
-	assert_eq(CommandRam.run_up_distance(150.0, 10.0, 90.0), 0.0, "Gaining on a runner: none either")
-	assert_eq(CommandRam.run_up_distance(150.0, -250.0, 200.0), INF, "Never fast enough for a runner faster than its top speed")
+	assert_eq(CommandCharge.run_up_distance(150.0, 0.0, 0.0), 0.0, "The throw alone is past strike speed: no run-up while closing")
+	assert_eq(CommandCharge.run_up_distance(150.0, 10.0, 90.0), 0.0, "Gaining on a runner: none either")
+	assert_eq(CommandCharge.run_up_distance(150.0, -250.0, 200.0), INF, "Never fast enough for a runner faster than its top speed")
 
 
 func test_salvage_recovers_lances_that_fit_the_seat():
-	rammer.linear_velocity = Vector3(0, 0, -200)
+	thrower.linear_velocity = Vector3(0, 0, -200)
 	lance.nails -= 1  # Thrown (fire)
 	lance.strike(target, Vector3(0, 0, -20), Vector3(0, 0, 1))
 	target.is_wreck = true
@@ -225,49 +225,49 @@ func test_salvage_recovers_lances_that_fit_the_seat():
 	other.add_child(heavy)
 	heavy.setup(other, "heavy", ShipLaws.lance_stats({"nail_mass": 600.0, "count": 3.0}), 1)
 	assert_eq(target.recoverable_lances_for(other), 0, "A lance of another size does not fit that seat")
-	assert_eq(target.recoverable_lances_for(rammer), 1)
-	assert_true(target.recover_lance_into(rammer))
+	assert_eq(target.recoverable_lances_for(thrower), 1)
+	assert_true(target.recover_lance_into(thrower))
 	assert_eq(lance.nails, 3, "Back in the quiver")
-	assert_eq(target.recoverable_lances_for(rammer), 0)
-	assert_false(target.recover_lance_into(rammer), "Nothing left to recover (and the quiver is full)")
+	assert_eq(target.recoverable_lances_for(thrower), 0)
+	assert_false(target.recover_lance_into(thrower), "Nothing left to recover (and the quiver is full)")
 
 
 func test_a_run_up_never_runs_away_for_good():
-	assert_lt(min(CommandRam.run_up_distance(150.0, 0.0, 0.0) + Constants.NAV_RAM_TURN_ROOM, Constants.NAV_RAM_MAX_RUN_UP), INF)
-	assert_eq(CommandRam.run_up_distance(150.0, -250.0, 200.0), INF, "Against a target pulling away faster than it can fly the run-up must not use this")
+	assert_lt(min(CommandCharge.run_up_distance(150.0, 0.0, 0.0) + Constants.NAV_CHARGE_TURN_ROOM, Constants.NAV_CHARGE_MAX_RUN_UP), INF)
+	assert_eq(CommandCharge.run_up_distance(150.0, -250.0, 200.0), INF, "Against a target pulling away faster than it can fly the run-up must not use this")
 
 
 func test_a_charge_is_seen_coming_and_makes_the_charger_an_enemy():
 	target.global_transform.origin = Vector3(0, 0, -400)
-	rammer.linear_velocity = Vector3(0, 0, -150)
+	thrower.linear_velocity = Vector3(0, 0, -150)
 	assert_false(lance.is_charging(target), "Disarmed: no charge")
 	lance.armed = true
 	assert_true(lance.is_charging(target), "Armed, nose on, closing fast on a line that meets it")
-	rammer.linear_velocity = Vector3(0, 0, 30)
+	thrower.linear_velocity = Vector3(0, 0, 30)
 	assert_false(lance.is_charging(target), "Not closing")
-	rammer.linear_velocity = Vector3(60, 0, -150)
+	thrower.linear_velocity = Vector3(60, 0, -150)
 	assert_false(lance.is_charging(target), "Its drift would carry it well wide")
-	rammer.linear_velocity = Vector3(0, 0, -150)
+	thrower.linear_velocity = Vector3(0, 0, -150)
 	target.global_transform.origin = Vector3(0, 0, -1500)
 	assert_false(lance.is_charging(target), "Still too far to tell")
 	target.global_transform.origin = Vector3(0, 0, -400)
 	var navigation = NavigationStub.new()
-	rammer.navigation_system = navigation
+	thrower.navigation_system = navigation
 	var elsewhere = Spatial.new()
 	navigation.target = elsewhere
 	assert_false(lance.is_charging(target), "Flying at something else: it only passes")
 	navigation.target = target
 	assert_true(lance.is_charging(target), "Flying at it")
-	rammer.navigation_system = null
+	thrower.navigation_system = null
 	elsewhere.free()
 	navigation.free()
 	target.faction = "verdant"
-	rammer.faction = "verdant_other"
-	assert_false(target.is_enemy_of(rammer))
+	thrower.faction = "verdant_other"
+	assert_false(target.is_enemy_of(thrower))
 	watch_signals(EventBus)
 	lance._announce_charges()
-	assert_signal_emitted_with_parameters(EventBus, "agent_charged", [target, rammer])
-	assert_true(target.is_enemy_of(rammer), "Charged at: the charger is an enemy now")
+	assert_signal_emitted_with_parameters(EventBus, "agent_charged", [target, thrower])
+	assert_true(target.is_enemy_of(thrower), "Charged at: the charger is an enemy now")
 	lance._announce_charges()
 	assert_signal_emit_count(EventBus, "agent_charged", 1, "Once a pass")
 
@@ -276,15 +276,15 @@ func test_an_off_axis_launcher_twists_the_ship_and_a_pair_cancels():
 	var left = LanceScript.new()
 	var right = LanceScript.new()
 	for launcher in [left, right]:
-		rammer.add_child(launcher)
-	left.setup(rammer, "left", lance.lance, -1, 0, 2)
-	right.setup(rammer, "right", lance.lance, -1, 1, 2)
+		thrower.add_child(launcher)
+	left.setup(thrower, "left", lance.lance, -1, 0, 2)
+	right.setup(thrower, "right", lance.lance, -1, 1, 2)
 	assert_lt(left.mount_offset, 0.0)
 	assert_gt(right.mount_offset, 0.0)
 	var throw := {"direction": Vector3.FORWARD, "velocity": Vector3(0, 0, -300)}
 	left.fire(target, throw)
-	var twist: float = rammer.angular_velocity.y
+	var twist: float = thrower.angular_velocity.y
 	assert_ne(twist, 0.0, "Thrown off the axis: the kick twists the ship")
 	right.fire(target, throw)
-	assert_almost_eq(rammer.angular_velocity.y, 0.0, 0.0001, "A volley from both sides cancels")
-	assert_almost_eq(rammer.linear_velocity.z, 2.0 * Constants.LANCE_LAUNCH_SPEED * lance.lance.nail_mass / rammer.mass, 0.01, "but the kicks add up")
+	assert_almost_eq(thrower.angular_velocity.y, 0.0, 0.0001, "A volley from both sides cancels")
+	assert_almost_eq(thrower.linear_velocity.z, 2.0 * Constants.LANCE_LAUNCH_SPEED * lance.lance.nail_mass / thrower.mass, 0.01, "but the kicks add up")

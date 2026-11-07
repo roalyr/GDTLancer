@@ -172,16 +172,16 @@ static func _count(counts: Dictionary, key: String) -> void:
 	counts[key] = int(counts.get(key, 0)) + 1
 
 
-func _on_struck(_target, damage, result, rammer):
+func _on_struck(_target, damage, result, thrower):
 	result.strikes += 1
 	result.damage += damage
-	var lance = rammer.get_lance()
+	var lance = thrower.get_lance()
 	result.speeds.append(int(damage / float(lance.lance.damage) * root.get_node("Constants").LAW_LANCE_REF_SPEED))  # Damage is linear in speed
 
 
-func _on_glanced(target, _reason, result, rammer):
+func _on_glanced(target, _reason, result, thrower):
 	result.glances += 1
-	var lance = rammer.get_lance()
+	var lance = thrower.get_lance()
 	result.speeds.append(-int(lance.closing_speed_on(target)) if lance != null else 0)
 
 

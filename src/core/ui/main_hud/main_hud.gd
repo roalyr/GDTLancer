@@ -17,7 +17,7 @@ const NAV_COMMAND_IDLE = 0
 const NAV_COMMAND_APPROACH = 4
 const NAV_COMMAND_ORBIT = 5
 const NAV_COMMAND_FLEE = 6
-const NAV_COMMAND_RAM = 9
+const NAV_COMMAND_CHARGE = 9
 const OVERLAY_KIND_STRUCTURES = "structures"
 const OVERLAY_KIND_STELLAR = "stellar"
 const OVERLAY_KIND_JUMP = "jump"
@@ -571,8 +571,8 @@ func _update_lance_button() -> void:
 	button_lance.visible = lance != null
 	var controller = _get_player_controller()
 	var selected = controller.get("_selected_target") if is_instance_valid(controller) else null
-	var ram: bool = is_instance_valid(controller) and controller.has_method("is_ram_ready") and controller.is_ram_ready(selected if is_instance_valid(selected) else null)  # As APPROACH will act
-	var ram_target = selected if ram and is_instance_valid(selected) else null
+	var charge: bool = is_instance_valid(controller) and controller.has_method("is_charge_ready") and controller.is_charge_ready(selected if is_instance_valid(selected) else null)  # As APPROACH will act
+	var charge_target = selected if charge and is_instance_valid(selected) else null
 	if lance == null:
 		return
 	var state: String = "ARM"
@@ -588,9 +588,9 @@ func _update_lance_button() -> void:
 	elif lance.armed:
 		state = "ARMED"
 		var target = _current_target
-		if ram_target != null and player.outruns_ram(ram_target):
+		if charge_target != null and player.outruns_charge(charge_target):
 			state = "TOO SLOW"
-		elif ram_target is RigidBody and ram_target.get("is_wreck") == false and player.ram_outlook(ram_target).cost >= player.hull:
+		elif charge_target is RigidBody and charge_target.get("is_wreck") == false and player.charge_outlook(charge_target).cost >= player.hull:
 			state = "TOO HOT"
 		elif is_instance_valid(target) and target is RigidBody:
 			state = "%d / %d" % [int(seated.strike_speed_on(target)), int(Constants.LAW_LANCE_MIN_SPEED)]
@@ -729,7 +729,7 @@ func _refresh_toggle_button_states() -> void:
 	var active_navigation_command_type = _get_player_navigation_command_type()
 	_apply_button_toggle_state(button_manual_flight, is_free_flight_active)
 	_apply_button_toggle_state(button_orbit, not is_free_flight_active and active_navigation_command_type == NAV_COMMAND_ORBIT)
-	_apply_button_toggle_state(button_approach, not is_free_flight_active and active_navigation_command_type in [NAV_COMMAND_APPROACH, NAV_COMMAND_RAM])
+	_apply_button_toggle_state(button_approach, not is_free_flight_active and active_navigation_command_type in [NAV_COMMAND_APPROACH, NAV_COMMAND_CHARGE])
 	_apply_button_toggle_state(button_flee, not is_free_flight_active and active_navigation_command_type == NAV_COMMAND_FLEE)
 	_apply_button_toggle_state(button_camera, _is_camera_target_follow_active())
 

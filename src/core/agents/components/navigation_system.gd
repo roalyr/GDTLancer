@@ -1,4 +1,4 @@
-# NavigationSystem: runs the active autopilot command (stop, move, approach, orbit, flee, align, watch, ram, aim) for an agent.
+# NavigationSystem: runs the active autopilot command (stop, move, approach, orbit, flee, align, watch, charge, aim) for an agent.
 
 extends Node
 
@@ -6,7 +6,7 @@ const FrameProfiler = preload("res://src/core/utils/frame_profiler.gd")
 const OBSTACLES_META = "nav_obstacles"
 
 # --- Enums and Constants ---
-enum CommandType { IDLE, STOPPING, MOVE_TO, MOVE_DIRECTION, APPROACH, ORBIT, FLEE, ALIGN_TO, WATCH, RAM }
+enum CommandType { IDLE, STOPPING, MOVE_TO, MOVE_DIRECTION, APPROACH, ORBIT, FLEE, ALIGN_TO, WATCH, CHARGE }
 
 # --- References ---
 var agent_body: RigidBody = null
@@ -55,7 +55,7 @@ func _initialize_command_handlers():
 		CommandType.FLEE: load(command_path + "command_flee.gd").new(),
 		CommandType.ALIGN_TO: load(command_path + "command_align_to.gd").new(),
 		CommandType.WATCH: load(command_path + "command_watch.gd").new(),
-		CommandType.RAM: load(command_path + "command_ram.gd").new(),
+		CommandType.CHARGE: load(command_path + "command_charge.gd").new(),
 	}
 
 	for handler_script in _command_handlers.values():
@@ -121,11 +121,11 @@ func set_command_watch(target: Spatial):
 	_current_command = {"type": CommandType.WATCH, "target_node": target}
 
 
-func set_command_ram(target: Spatial):
+func set_command_charge(target: Spatial):
 	if not is_instance_valid(target):
 		set_command_stopping()
 		return
-	_current_command = {"type": CommandType.RAM, "target_node": target, "is_new": true}
+	_current_command = {"type": CommandType.CHARGE, "target_node": target, "is_new": true}
 
 
 func set_command_align_to(
@@ -170,15 +170,15 @@ func _update_navigation(delta: float):
 	var cmd_type = _current_command.get("type", CommandType.IDLE)
 	var target_node = _current_command.get("target_node", null)
 
-	var is_target_cmd = cmd_type in [CommandType.APPROACH, CommandType.ORBIT, CommandType.FLEE, CommandType.WATCH, CommandType.RAM]
+	var is_target_cmd = cmd_type in [CommandType.APPROACH, CommandType.ORBIT, CommandType.FLEE, CommandType.WATCH, CommandType.CHARGE]
 	if is_target_cmd and not is_instance_valid(target_node):
 		set_command_stopping()
 		cmd_type = CommandType.STOPPING
 
 	# An active cannon holds the nose on its lead; the course below steers a heading of its own. Not
-	# while ramming: a lance is thrown along the nose (LanceController), so the ram keeps it.
+	# while charging: a lance is thrown along the nose (LanceController), so the charge keeps it.
 	var tools = agent_body.get_node_or_null("ToolController")
-	var cannon_ok: bool = cmd_type != CommandType.RAM and tools != null and tools.has_method("cannon_facing")
+	var cannon_ok: bool = cmd_type != CommandType.CHARGE and tools != null and tools.has_method("cannon_facing")
 	movement_system.facing = tools.cannon_facing() if cannon_ok else Vector3.ZERO
 
 	if _command_handlers.has(cmd_type):

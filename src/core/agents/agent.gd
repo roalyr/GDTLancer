@@ -435,9 +435,9 @@ func _on_lance_nails_changed(_nails: int) -> void:
 
 
 # `target` is running from this ship too fast to be lanced: this ship cannot gain LANCE_CATCH_SPEED
-# on it, so it never gets within release range (LANCE_RELEASE_RANGE). NPCs do not ram such a runner;
-# the player's RAM button says so.
-func outruns_ram(target) -> bool:
+# on it, so it never gets within release range (LANCE_RELEASE_RANGE). NPCs do not charge such a runner;
+# the player's LANCE button says so.
+func outruns_charge(target) -> bool:
 	if not (is_instance_valid(target) and target is RigidBody and target.has_method("get_top_speed")):
 		return false
 	var away: Vector3 = target.global_transform.origin - global_transform.origin
@@ -447,21 +447,21 @@ func outruns_ram(target) -> bool:
 	return running and get_burst_top_speed() - target.get_top_speed() < Constants.LANCE_CATCH_SPEED  # An afterburner counts
 
 
-# What a lance charge at `target` from here would cost and bring (Constants AI_RAM_*: the AI's
-# ram_worth and the player's RAM button go by it): {"cost": hull it can expect to lose to the
+# What a lance charge at `target` from here would cost and bring (Constants AI_CHARGE_*: the AI's
+# charge_worth and the player's LANCE button go by it): {"cost": hull it can expect to lose to the
 # target's side on the way in and round for the next pass, "strike": what a throw from each launcher
 # with lances would do at top speed, less misses}.
-func ram_outlook(target) -> Dictionary:
+func charge_outlook(target) -> Dictionary:
 	var side: Dictionary = CombatAssessment.side_of(target)
 	var offset: Vector3 = target.global_transform.origin - global_transform.origin
 	var away: float = max(0.0, target.linear_velocity.dot(offset.normalized())) if target is RigidBody and offset.length() > 0.01 else 0.0
 	var closing: float = max(get_top_speed() - away, Constants.LANCE_CATCH_SPEED)
 	var exposed: float = max(0.0, min(offset.length(), weapon_reach_of(target)) - Constants.LANCE_RELEASE_RANGE)
-	var cost: float = float(side.dps) * (exposed / closing + Constants.AI_RAM_TURN_EXPOSURE) * Constants.AI_RAM_HIT_SHARE
+	var cost: float = float(side.dps) * (exposed / closing + Constants.AI_CHARGE_TURN_EXPOSURE) * Constants.AI_CHARGE_HIT_SHARE
 	var strike := 0.0
 	for lance in get_lances():
 		if lance.nails > 0:
-			strike += lance.damage_at(get_top_speed() + Constants.LANCE_LAUNCH_SPEED) * (1.0 - Constants.AI_RAM_MISS_SHARE)
+			strike += lance.damage_at(get_top_speed() + Constants.LANCE_LAUNCH_SPEED) * (1.0 - Constants.AI_CHARGE_MISS_SHARE)
 	return {"cost": cost, "strike": strike}
 
 
@@ -1004,13 +1004,13 @@ func get_desperation() -> float:
 
 
 # Weapons' damage per second (ToolController: lasers, missiles, cannons), plus a lance with lances left at this ship's top speed, over
-# Constants AI_RAM_PASS_TIME between strikes (or its reload, if longer).
+# Constants AI_CHARGE_PASS_TIME between strikes (or its reload, if longer).
 func get_damage_per_second() -> float:
 	var tools = get_node_or_null("ToolController")
 	var dps: float = tools.get_damage_per_second() if is_instance_valid(tools) and tools.has_method("get_damage_per_second") else 0.0
 	for lance in get_lances():
 		if lance.nails > 0:
-			dps += lance.damage_at(get_top_speed() + Constants.LANCE_LAUNCH_SPEED) / max(float(lance.lance.reload), Constants.AI_RAM_PASS_TIME)
+			dps += lance.damage_at(get_top_speed() + Constants.LANCE_LAUNCH_SPEED) / max(float(lance.lance.reload), Constants.AI_CHARGE_PASS_TIME)
 	return dps
 
 
@@ -1294,12 +1294,12 @@ func command_watch(target: Spatial):
 		printerr("AgentBody: Cannot command_watch - NavigationSystem invalid.")
 
 
-# Charge `target` at full speed, nose first (a kinetic lance; command_ram), running up as needed.
-func command_ram(target: Spatial):
+# Charge `target` at full speed, nose first (a kinetic lance; command_charge), running up as needed.
+func command_charge(target: Spatial):
 	if is_instance_valid(navigation_system):
-		navigation_system.set_command_ram(target)
+		navigation_system.set_command_charge(target)
 	else:
-		printerr("AgentBody: Cannot command_ram - NavigationSystem invalid.")
+		printerr("AgentBody: Cannot command_charge - NavigationSystem invalid.")
 
 
 func command_flee(target: Spatial):

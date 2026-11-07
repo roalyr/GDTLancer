@@ -1,12 +1,12 @@
 # LanceController: a kinetic lance launcher (a "lance" module; ShipLaws.lance_stats, Constants
 # LAW_LANCE_*). A ship may carry several, side by side across its bow (mount_offset: one sits on the
 # axis). A lance sits in the seat; spares wait in a quiver on the hull (salvaging a wreck with a harpoon recovers the lances stuck in it that fit this seat:
-# Agent.recoverable_lances_for). Only while armed (the player's LANCE button; an NPC while it rams)
-# does it fire, and only at the ram's target (NavigationSystem RAM): once within
+# Agent.recoverable_lances_for). Only while armed (the player's LANCE button; an NPC while it charges)
+# does it fire, and only at the charge's target (NavigationSystem CHARGE): once within
 # Constants.LANCE_RELEASE_RANGE of it, the seat throws the lance at LANCE_LAUNCH_SPEED toward it,
 # aimed (within LANCE_AIM_CONE of the nose) so that the lance's flight relative to the target runs
 # straight at its middle, cancelling the ship's sideways drift (firing_solution); the ship flies by
-# (command_ram passes beside the target). The throw kicks the ship back by the lance's momentum, at
+# (command_charge passes beside the target). The throw kicks the ship back by the lance's momentum, at
 # the launcher's mount: one off the axis also twists the ship, the price of a bank of launchers. In
 # flight it is a LanceShot. On a ship, a lance meeting it at a closing speed along the lance of at
 # least LAW_LANCE_MIN_SPEED goes in with a chance that falls with the angle off square-on
@@ -202,16 +202,16 @@ func _physics_process(delta: float) -> void:
 			_announce_charges()
 
 
-# What it fires at: the target of the ship's ram (NavigationSystem RAM), or null.
+# What it fires at: the target of the ship's charge (NavigationSystem CHARGE), or null.
 func get_aim_target() -> Spatial:
 	var nav = _agent.get("navigation_system")
-	if not is_instance_valid(nav) or nav.get_current_command_type() != nav.CommandType.RAM:
+	if not is_instance_valid(nav) or nav.get_current_command_type() != nav.CommandType.CHARGE:
 		return null
 	var target = nav._current_command.get("target_node")
 	if not (target is Spatial and is_instance_valid(target) and target.is_inside_tree()):
 		return null
 	if target is RigidBody:
-		return target if target.get("is_wreck") == false else null  # Wrecks and chunks are rammed, not lanced
+		return target if target.get("is_wreck") == false else null  # Wrecks and chunks are charged at, not lanced
 	return target if target.is_in_group("mineable") else null
 
 

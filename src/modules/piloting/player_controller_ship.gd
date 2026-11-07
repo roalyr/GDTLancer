@@ -137,7 +137,7 @@ func _physics_process(delta: float):
 		_set_selected_target(null)
 	_poll_docking_proximity()
 	_process_queued_jump()
-	_sync_ram_command()
+	_sync_charge_command()
 
 
 func _unhandled_input(event: InputEvent):
@@ -426,7 +426,7 @@ func _set_selected_target(new_target):
 
 
 # The target is lost (out of sensor range, gone): whatever the ship was doing to it stops, its
-# course (approach, orbit, ram, flee...) and the tools on it.
+# course (approach, orbit, charge, flee...) and the tools on it.
 func _drop_commands_on(target) -> void:
 	if target == null or not is_instance_valid(agent_body):
 		return
@@ -729,32 +729,32 @@ func _coast() -> void:
 		agent_script.command_idle()
 
 
-# APPROACH: with the lance armed, at a ship or a rock with ore, the pass that throws it (command_ram).
+# APPROACH: with the lance armed, at a ship or a rock with ore, the pass that throws it (command_charge).
 func _on_Player_Approach_Pressed():
-	if _toggled_off([NavigationSystem.CommandType.APPROACH, NavigationSystem.CommandType.RAM]):
+	if _toggled_off([NavigationSystem.CommandType.APPROACH, NavigationSystem.CommandType.CHARGE]):
 		return
 	_approach_selected()
 
 
 func _approach_selected() -> void:
 	if is_instance_valid(_selected_target) and _selected_target is Spatial:
-		if is_ram_ready(_selected_target):
-			agent_script.command_ram(_selected_target)
+		if is_charge_ready(_selected_target):
+			agent_script.command_charge(_selected_target)
 		else:
 			agent_script.command_approach(_selected_target)
 
 
-# Whether approaching `target` means ramming it: the lance armed with lances left, and something it
+# Whether approaching `target` means charging it: the lance armed with lances left, and something it
 # can strike: a ship, a wreck or an ore chunk (shoved), or a rock with ore left (to break chunks off),
-# as NPCs ram them (null: any of these would do). A station or a worked-out rock is approached.
-func is_ram_ready(target = null) -> bool:
+# as NPCs charge them (null: any of these would do). A station or a worked-out rock is approached.
+func is_charge_ready(target = null) -> bool:
 	var lance = agent_body.get_lance() if is_instance_valid(agent_body) and agent_body.has_method("get_lance") else null
 	if lance == null or not lance.armed or agent_body.get_lance_nails() <= 0:
 		return false
-	return target == null or is_rammable(target)
+	return target == null or is_chargeable(target)
 
 
-static func is_rammable(target) -> bool:
+static func is_chargeable(target) -> bool:
 	if not (target is Spatial and is_instance_valid(target)):
 		return false
 	if target is RigidBody and target.has_method("apply_damage"):
@@ -762,8 +762,8 @@ static func is_rammable(target) -> bool:
 	return target.is_in_group("mineable") and target.has_method("get_deposit") and target.get_deposit() > 0
 
 
-# Arming the lance turns an approach into a ram; making it safe (or running out) turns it back.
-func _sync_ram_command() -> void:
+# Arming the lance turns an approach into a charge; making it safe (or running out) turns it back.
+func _sync_charge_command() -> void:
 	var nav = agent_body.get_node_or_null("NavigationSystem") if is_instance_valid(agent_body) else null
 	if not is_instance_valid(nav):
 		return
@@ -771,9 +771,9 @@ func _sync_ram_command() -> void:
 	var target = nav._current_command.get("target_node", null)
 	if not is_instance_valid(target):
 		return
-	if type == NavigationSystem.CommandType.APPROACH and is_ram_ready(target):
-		agent_script.command_ram(target)
-	elif type == NavigationSystem.CommandType.RAM and not is_ram_ready(target):
+	if type == NavigationSystem.CommandType.APPROACH and is_charge_ready(target):
+		agent_script.command_charge(target)
+	elif type == NavigationSystem.CommandType.CHARGE and not is_charge_ready(target):
 		agent_script.command_approach(target)
 
 

@@ -218,7 +218,7 @@ func request_thrust_brake():
 
 # Request PID-controlled rotation torque to align ship's forward (-Z) to target direction
 # `gain` scales the proportional term: above 1 the ship swings harder at small errors (fine aim,
-# as when ramming), at the cost of some overshoot.
+# as when charging), at the cost of some overshoot.
 func request_rotation_to_pid(target_direction: Vector3, delta: float, gain: float = 1.0):
 	if _steer_heading(target_direction):
 		return

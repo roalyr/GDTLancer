@@ -585,7 +585,7 @@ func test_a_broke_pilot_takes_worse_odds_and_spares_less():
 	assert_almost_eq(ai._return_fire_level(), 1.0, 0.001, "always shoots back")
 
 
-# --- Ramming ---
+# --- Charging ---
 
 func _give_lance(body: RigidBody) -> Spatial:
 	var lance = load("res://src/core/agents/components/lance_controller.gd").new()
@@ -601,11 +601,11 @@ func test_rams_with_a_lance_while_firing_and_arms_it_only_then():
 	hostile.power_max = 100.0
 	hostile.power = 100.0
 	ai.initialize({"patrol_center": Vector3.ZERO})
-	assert_false(lance.armed, "Safe until it rams")
+	assert_false(lance.armed, "Safe until it charges")
 	_fighting(prey)
 	ai._process_combat()
-	assert_true(ai.can_ram())
-	assert_eq(ai.get_activity_label(), "RAMMING", "The player can see it coming")
+	assert_true(ai.can_charge())
+	assert_eq(ai.get_activity_label(), "CHARGING", "The player can see it coming")
 	assert_true(lance.armed)
 	assert_true(hostile.get_node("ToolController").is_active(0), "Lasers fire as it charges")
 	lance.nails = 0
@@ -624,9 +624,9 @@ func test_it_does_not_charge_into_guns_that_would_take_its_hull_and_a_lone_lance
 	hostile.power_max = 100.0
 	hostile.power = 100.0
 	ai.initialize({"patrol_center": Vector3.ZERO})
-	var outlook: Dictionary = hostile.ram_outlook(fortress)
+	var outlook: Dictionary = hostile.charge_outlook(fortress)
 	assert_gt(outlook.cost, hostile.hull, "Its guns would take the whole hull on the way in")
-	assert_false(ai.ram_worth(fortress))
+	assert_false(ai.charge_worth(fortress))
 	_fighting(fortress)
 	ai._scan_timer = 10.0  # Not weighing whether to break off this tick
 	ai._process_combat()
@@ -640,17 +640,17 @@ func test_it_does_not_charge_into_guns_that_would_take_its_hull_and_a_lone_lance
 	assert_gt(ai._repath_timer, 0.0, "Hangs back out of its reach (a move, then a while before the next)")
 	fortress.hull = 30.0  # Worn down by friends: one throw finishes it, and its guns would not finish this one
 	fortress.get_node("ToolController").get_tool(0).damage = 6.0
-	assert_true(ai.ram_worth(fortress), "Now it pays")
+	assert_true(ai.charge_worth(fortress), "Now it pays")
 
 
-func test_too_slow_to_catch_anything_it_does_not_ram():
+func test_too_slow_to_catch_anything_it_does_not_charge():
 	var prey = _make_ship(Vector3(0, 0, -500), "verdant", 20.0)
 	var lance = _give_lance(hostile)
 	_set_speed(hostile, Constants.LANCE_CATCH_SPEED * 0.9, false)
 	ai.initialize({"patrol_center": Vector3.ZERO})
 	_fighting(prey)
 	ai._process_combat()
-	assert_false(ai.can_ram())
+	assert_false(ai.can_charge())
 	assert_false(lance.armed)
 
 
@@ -673,13 +673,13 @@ func test_a_lancer_short_of_lances_goes_for_wrecks_with_its_lances_first_even_wh
 	assert_eq(ai.scan_for_wreck(), far, "Its lance, further off, comes first")
 
 
-func test_does_not_ram_a_runner_it_cannot_outpace_by_strike_speed():
+func test_does_not_charge_a_runner_it_cannot_outpace_by_strike_speed():
 	ai.initialize({"patrol_center": Vector3.ZERO})
 	var runner = _make_ship(Vector3(0, 0, -800), "verdant", 50.0)
 	runner.linear_velocity = Vector3(0, 0, -50)  # Running (test ships have no engines: neither is faster)
-	assert_true(ai.outruns_ram(runner), "Same top speed: it could never close at strike speed")
+	assert_true(ai.outruns_charge(runner), "Same top speed: it could never close at strike speed")
 	runner.linear_velocity = Vector3.ZERO
-	assert_false(ai.outruns_ram(runner), "Standing: rammable")
+	assert_false(ai.outruns_charge(runner), "Standing: chargeable")
 
 
 func test_friends_near_a_ship_count_on_its_side():

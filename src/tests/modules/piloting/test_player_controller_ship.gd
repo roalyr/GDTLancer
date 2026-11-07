@@ -131,8 +131,8 @@ func test_double_click_approaches_and_the_buttons_toggle_to_a_coast():
 class CommandRecorder:
 	extends Node
 	var last := ""
-	func command_ram(_target):
-		last = "ram"
+	func command_charge(_target):
+		last = "charge"
 	func command_approach(_target):
 		last = "approach"
 	func command_stop():
@@ -177,24 +177,24 @@ func test_approach_rams_while_the_lance_is_armed():
 	assert_eq(recorder.last, "approach", "Safe lance: approach")
 	lance.armed = true
 	controller._on_Player_Approach_Pressed()
-	assert_eq(recorder.last, "ram", "Armed: the button rams")
+	assert_eq(recorder.last, "charge", "Armed: the button charges")
 
 	nav._current_command = {"target_node": enemy}
-	nav.type = Nav.CommandType.RAM
+	nav.type = Nav.CommandType.CHARGE
 	lance.armed = false
-	controller._sync_ram_command()
-	assert_eq(recorder.last, "approach", "Made safe while ramming: back to approaching")
+	controller._sync_charge_command()
+	assert_eq(recorder.last, "approach", "Made safe while charging: back to approaching")
 	nav.type = Nav.CommandType.APPROACH
 	lance.armed = true
-	controller._sync_ram_command()
-	assert_eq(recorder.last, "ram", "Armed while approaching: ramming")
+	controller._sync_charge_command()
+	assert_eq(recorder.last, "charge", "Armed while approaching: charging")
 	enemy.is_wreck = true
-	assert_true(controller.is_ram_ready(enemy), "A derelict is rammed too (to harpoon it)")
+	assert_true(controller.is_charge_ready(enemy), "A derelict is charged at too (to harpoon it)")
 	var station := StaticBody.new()
 	add_child_autofree(station)
-	assert_false(controller.is_ram_ready(station), "A station is approached")
+	assert_false(controller.is_charge_ready(station), "A station is approached")
 	lance.nails = 0
-	assert_false(controller.is_ram_ready(enemy), "No lances left: no ramming")
+	assert_false(controller.is_charge_ready(enemy), "No lances left: no charging")
 	controller.free()
 	recorder.free()
 
