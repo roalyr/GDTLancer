@@ -170,7 +170,10 @@ func test_the_engine_loop_follows_thrust_and_speed():
 	ship.activity = 1.0
 	ship.linear_velocity = Vector3.ZERO
 	fx._drive_engine(loop, ship)
-	assert_almost_eq(gain.call_func(loop), Constants.SOUND_ENGINE_MAX_GAIN * Constants.SOUND_ENGINE_THRUST_FLOOR, 0.001, "Full thrust holding still: only the floor")
+	assert_lt(loop.unit_db, -60.0, "Full thrust standing still: mute")
+	ship.linear_velocity = Vector3(0, 0, -Constants.SOUND_ENGINE_STILL_SPEED * 0.9)
+	fx._drive_engine(loop, ship)
+	assert_lt(loop.unit_db, -60.0, "Keeping station's jitter: still mute")
 	ship.linear_velocity = Vector3(0, 0, -100)  # Top speed
 	fx._drive_engine(loop, ship)
 	assert_almost_eq(gain.call_func(loop), Constants.SOUND_ENGINE_MAX_GAIN, 0.001, "Full thrust at top speed: the cap")
@@ -178,8 +181,8 @@ func test_the_engine_loop_follows_thrust_and_speed():
 	ship.activity = 0.5
 	ship.linear_velocity = Vector3(0, 0, -50)
 	fx._drive_engine(loop, ship)
-	var floor_share: float = Constants.SOUND_ENGINE_THRUST_FLOOR
-	assert_almost_eq(gain.call_func(loop), Constants.SOUND_ENGINE_MAX_GAIN * 0.5 * (floor_share + (1.0 - floor_share) * 0.5), 0.001, "Limited to half, at half speed")
+	var still: float = Constants.SOUND_ENGINE_STILL_SPEED
+	assert_almost_eq(gain.call_func(loop), Constants.SOUND_ENGINE_MAX_GAIN * 0.5 * (50.0 - still) / (100.0 - still), 0.001, "Limited to half, at half speed")
 	GlobalRefs.player_agent_body = null
 	ship.activity = 1.0
 	ship.linear_velocity = Vector3(0, 0, -100)
