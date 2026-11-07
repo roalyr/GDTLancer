@@ -1239,6 +1239,7 @@ const SOUND_MAX_DISTANCE = 3000.0  # m beyond which a world sound is not played 
 const SOUND_MAX_VOICES = 24  # World sounds at once; more are dropped
 const SOUND_REPEAT_GAP = 0.06  # s: the same slot from the same source plays at most this often
 const SOUND_ENGINE_MAX_GAIN = 0.85  # The engine loop's loudness at full thrust (linear, of the file's own); it grows in proportion to thrust, silent with the engine off
+const SOUND_ENGINE_THRUST_FLOOR = 0.15  # Share of the engine's loudness that follows thrust alone; the rest is thrust times speed
 const SOUND_ENGINE_OTHERS_SHARE = 0.5  # Other ships' engines play at this share of the player's loudness
 const SOUND_ENGINE_PITCH = [0.95, 1.05]  # Engine loop pitch from idle to full thrust: a nudge (the low, dull sound is baked into engine.ogg)
 

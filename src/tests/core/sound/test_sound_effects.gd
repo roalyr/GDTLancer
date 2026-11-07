@@ -155,32 +155,44 @@ func test_tool_controllers_are_heard_as_they_enter():
 	assert_true(tools.is_connected("tool_cycled", fx, "_on_tool_cycled"))
 
 
-func test_the_engine_loop_follows_thrust():
+func test_the_engine_loop_follows_thrust_and_speed():
 	var fx = _effects(["engine"])
 	var ship := FakeShip.new()
 	add_child_autofree(ship)
 	var loop = fx._attach_loop("engine", ship)
 	assert_eq(loop.get_parent(), ship, "Carried by the ship")
-	fx._drive_engine(loop, ship)
 	var saved_player = GlobalRefs.player_agent_body
 	GlobalRefs.player_agent_body = ship
+	var gain = funcref(self, "_gain_of")
 	ship.linear_velocity = Vector3(0, 0, -50)
 	fx._drive_engine(loop, ship)
 	assert_lt(loop.unit_db, -60.0, "Coasting, engine off: silent")
-	ship.activity = 0.5
-	fx._drive_engine(loop, ship)
-	assert_almost_eq(db2linear(loop.unit_db - Constants.SOUND_EFFECTS_VOLUME_DB), Constants.SOUND_ENGINE_MAX_GAIN * 0.5, 0.001, "Half thrust: half as loud")
 	ship.activity = 1.0
+	ship.linear_velocity = Vector3.ZERO
 	fx._drive_engine(loop, ship)
-	assert_almost_eq(db2linear(loop.unit_db - Constants.SOUND_EFFECTS_VOLUME_DB), Constants.SOUND_ENGINE_MAX_GAIN, 0.001, "Full thrust: the cap")
+	assert_almost_eq(gain.call_func(loop), Constants.SOUND_ENGINE_MAX_GAIN * Constants.SOUND_ENGINE_THRUST_FLOOR, 0.001, "Full thrust holding still: only the floor")
+	ship.linear_velocity = Vector3(0, 0, -100)  # Top speed
+	fx._drive_engine(loop, ship)
+	assert_almost_eq(gain.call_func(loop), Constants.SOUND_ENGINE_MAX_GAIN, 0.001, "Full thrust at top speed: the cap")
 	assert_almost_eq(loop.pitch_scale, Constants.SOUND_ENGINE_PITCH[1], 0.001)
-	GlobalRefs.player_agent_body = null
+	ship.activity = 0.5
+	ship.linear_velocity = Vector3(0, 0, -50)
 	fx._drive_engine(loop, ship)
-	assert_almost_eq(db2linear(loop.unit_db - Constants.SOUND_EFFECTS_VOLUME_DB), Constants.SOUND_ENGINE_MAX_GAIN * Constants.SOUND_ENGINE_OTHERS_SHARE, 0.001, "Another ship's: quieter")
+	var floor_share: float = Constants.SOUND_ENGINE_THRUST_FLOOR
+	assert_almost_eq(gain.call_func(loop), Constants.SOUND_ENGINE_MAX_GAIN * 0.5 * (floor_share + (1.0 - floor_share) * 0.5), 0.001, "Limited to half, at half speed")
+	GlobalRefs.player_agent_body = null
+	ship.activity = 1.0
+	ship.linear_velocity = Vector3(0, 0, -100)
+	fx._drive_engine(loop, ship)
+	assert_almost_eq(gain.call_func(loop), Constants.SOUND_ENGINE_MAX_GAIN * Constants.SOUND_ENGINE_OTHERS_SHARE, 0.001, "Another ship's: quieter")
 	GlobalRefs.player_agent_body = saved_player
 	ship.is_wreck = true
 	fx._drive_engine(loop, ship)
 	assert_false(loop.playing, "A wreck's engine is silent")
+
+
+func _gain_of(loop) -> float:
+	return db2linear(loop.unit_db - Constants.SOUND_EFFECTS_VOLUME_DB)
 
 
 func test_the_afterburner_plays_as_it_lights():

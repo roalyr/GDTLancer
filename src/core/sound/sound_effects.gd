@@ -165,12 +165,20 @@ func _drive_engine(loop: AudioStreamPlayer3D, body: Spatial) -> void:
 	loop.pitch_scale = lerp(Constants.SOUND_ENGINE_PITCH[0], Constants.SOUND_ENGINE_PITCH[1], activity)
 
 
-# The engine loop's loudness (linear): in proportion to thrust (`activity`, 0..1), up to
-# SOUND_ENGINE_MAX_GAIN; other ships' at SOUND_ENGINE_OTHERS_SHARE of that. Coasting is silent.
-# The sound itself is baked (engine.ogg): only its volume and, a little, its pitch change.
+# The engine loop's loudness (linear): thrust used (`activity`, 0..1; the THRUST limiter scales it)
+# times speed against top speed, so the engine is loud only when it drives the ship: holding still
+# (the autopilot keeps station on full thrust) and coasting are near silent. SOUND_ENGINE_THRUST_FLOOR
+# of it follows thrust alone (a burn from a standstill is heard). Up to SOUND_ENGINE_MAX_GAIN;
+# other ships' at SOUND_ENGINE_OTHERS_SHARE of that. The sound itself is baked (engine.ogg): only its
+# volume and, a little, its pitch change.
 static func engine_gain(body: Spatial, activity: float) -> float:
 	var share: float = 1.0 if body == GlobalRefs.player_agent_body else Constants.SOUND_ENGINE_OTHERS_SHARE
-	return Constants.SOUND_ENGINE_MAX_GAIN * share * clamp(activity, 0.0, 1.0)
+	var velocity = body.get("linear_velocity")
+	var speed: float = velocity.length() if velocity is Vector3 else 0.0
+	var top: float = body.get_top_speed() if body.has_method("get_top_speed") else 0.0
+	var moving: float = clamp(speed / top, 0.0, 1.0) if top > 0.0 else 0.0
+	var floor_share: float = Constants.SOUND_ENGINE_THRUST_FLOOR
+	return Constants.SOUND_ENGINE_MAX_GAIN * share * clamp(activity, 0.0, 1.0) * (floor_share + (1.0 - floor_share) * moving)
 
 
 func _shape_3d(player: AudioStreamPlayer3D) -> void:
