@@ -3,7 +3,8 @@
 # seen the player) and `combat_stream` (one has, or the player is under fire). Set in the main
 # scene. Each loops; the one for the level fades in over MUSIC_CROSSFADE s as the others fade out,
 # all at MUSIC_AMBIENT_VOLUME_DB. An empty track stays with the one playing. The music starts
-# (fading in) when the first sector loads and plays on across jumps.
+# (fading in) when the first sector loads and plays on across jumps. With the "music" option off
+# (Settings; the default) nothing plays.
 
 extends AudioStreamPlayer
 
@@ -58,7 +59,7 @@ func track_for(wanted: String) -> String:
 func _process(delta: float) -> void:
 	if not _started:
 		return
-	var current: String = track_for(level)
+	var current: String = track_for(level) if Settings.get_option("music") else ""  # Off: all fade out
 	var step: float = delta / max(_fade_time, 0.01)
 	for key in _players:
 		var player: AudioStreamPlayer = _players[key]

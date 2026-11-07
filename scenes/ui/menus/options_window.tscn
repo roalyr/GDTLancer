@@ -87,6 +87,14 @@ rect_min_size = Vector2( 0, 64 )
 focus_mode = 0
 text = "HUD LOOK: STANDARD"
 
+[node name="ButtonMusic" type="Button" parent="Panel/Layout"]
+margin_top = 400.0
+margin_right = 640.0
+margin_bottom = 464.0
+rect_min_size = Vector2( 0, 64 )
+focus_mode = 0
+text = "MUSIC: OFF"
+
 [node name="Note" type="Label" parent="Panel/Layout"]
 margin_top = 400.0
 margin_right = 640.0

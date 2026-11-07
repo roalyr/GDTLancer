@@ -12,6 +12,7 @@ const OPTIONS = {
 	"ButtonRenderScale": ["render_scale", "RENDER_SCALE_STEPS", "RENDER SCALE"],
 	"ButtonHitEffects": ["hit_effects", null, "HIT EFFECTS"],
 	"ButtonHudLook": ["hud_preset", "HUD_PRESET_ORDER", "HUD LOOK"],
+	"ButtonMusic": ["music", null, "MUSIC"],
 }
 
 var _was_paused: bool = false
