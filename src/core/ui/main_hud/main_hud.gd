@@ -29,6 +29,7 @@ const DebugTools = preload("res://src/core/ui/debug_tools/debug_tools.gd")
 const RadioScript = preload("res://src/core/systems/radio.gd")
 const ThreatRing = preload("res://src/core/ui/main_hud/threat_ring.gd")
 const ThreatWatch = preload("res://src/core/systems/threat_watch.gd")
+const AwarenessZoneScene = preload("res://scenes/ui/hud/awareness_zone.tscn")
 const HUDTargetProjectorClass = preload("res://src/core/ui/main_hud/hud_target_projector.gd")
 
 
@@ -67,6 +68,7 @@ var debug_map: Control = null
 var debug_tools: Control = null
 var radio_lines: Array = []  # The radio lines heard last (Radio), oldest first: in the debug overlay until the HUD has a place for them
 var threat_ring: Control = null
+var awareness_zone: Control = null  # The top strip (AwarenessZone)
 var _tool_rows: Array = []  # Rows of tool buttons above TemporaryToolZone (_layout_tool_rows)
 var _tool_rows_key: String = ""
 var _world_rebuild_queued: bool = false  # A bracket rebuild is due at the end of the frame
@@ -213,6 +215,9 @@ func _ready():
 	debug_map = DebugMapScene.instance()
 	add_child(debug_map)
 	$ScreenControls/DebugOverlay/RightColumn/ButtonDebugMap.connect("pressed", debug_map, "open")
+	awareness_zone = AwarenessZoneScene.instance()
+	$ScreenControls.add_child(awareness_zone)
+	awareness_zone.radio_lines = radio_lines  # The same array: it reads the lines as they come
 	var threat_watch = ThreatWatch.new()
 	threat_watch.name = "ThreatWatch"
 	add_child(threat_watch)
@@ -311,6 +316,9 @@ func _on_player_escort_changed(ward) -> void:
 func _on_Player_Target_Selected(target_node):
 	if _is_target_valid(target_node):
 		_current_target = target_node
+		if is_instance_valid(awareness_zone):
+			awareness_zone.target = target_node
+			awareness_zone.target_name = _resolve_target_display_name(target_node)
 		_refresh_process_state()
 		_update_route_target_selection_state()
 		_update_world_target_selection_state()
@@ -327,6 +335,8 @@ func _on_Player_Target_Selected(target_node):
 
 func _on_Player_Target_Deselected():
 	_current_target = null
+	if is_instance_valid(awareness_zone):
+		awareness_zone.target = null
 	_update_route_target_selection_state()
 	_update_world_target_selection_state()
 	_refresh_process_state()
@@ -398,6 +408,9 @@ func _on_ButtonDebug_pressed() -> void:
 	if not is_instance_valid(debug_overlay):
 		return
 	debug_overlay.visible = not debug_overlay.visible
+	if is_instance_valid(awareness_zone):
+		awareness_zone.suppressed = debug_overlay.visible  # The overlay's top rows sit where the strip does
+		awareness_zone.refresh()
 	_update_debug_overlay()
 
 

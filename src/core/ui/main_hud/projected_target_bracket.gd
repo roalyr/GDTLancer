@@ -280,6 +280,11 @@ func _build_distance_label_text() -> String:
 
 
 func _format_distance_label(distance_units: float) -> String:
+	return format_distance(distance_units)
+
+
+# A distance as the HUD writes it: metres under 2 km, then km to two, one or no decimals; FAR past 1000 km.
+static func format_distance(distance_units: float) -> String:
 	var safe_distance_units = max(0.0, distance_units)
 	if safe_distance_units >= DISTANCE_FAR_THRESHOLD:
 		return "FAR"
@@ -288,13 +293,13 @@ func _format_distance_label(distance_units: float) -> String:
 
 	var distance_kilounits = safe_distance_units / DISTANCE_KILOUNIT_SCALE
 	if safe_distance_units < DISTANCE_DECIMAL_K_THRESHOLD:
-		return "%sk" % _trim_trailing_decimal_zeros("%.2f" % distance_kilounits)
+		return "%sk" % trim_trailing_decimal_zeros("%.2f" % distance_kilounits)
 	if safe_distance_units < DISTANCE_SINGLE_DECIMAL_K_THRESHOLD:
-		return "%sk" % _trim_trailing_decimal_zeros("%.1f" % distance_kilounits)
+		return "%sk" % trim_trailing_decimal_zeros("%.1f" % distance_kilounits)
 	return "%dk" % int(floor(distance_kilounits))
 
 
-func _trim_trailing_decimal_zeros(value_text: String) -> String:
+static func trim_trailing_decimal_zeros(value_text: String) -> String:
 	var trimmed_text = value_text
 	while trimmed_text.find(".") != -1 and trimmed_text.ends_with("0"):
 		trimmed_text = trimmed_text.substr(0, trimmed_text.length() - 1)
