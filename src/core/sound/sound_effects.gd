@@ -165,12 +165,12 @@ func _drive_engine(loop: AudioStreamPlayer3D, body: Spatial) -> void:
 	loop.pitch_scale = lerp(Constants.SOUND_ENGINE_PITCH[0], Constants.SOUND_ENGINE_PITCH[1], activity)
 
 
-# The engine loop's loudness (linear): thrust (`activity`, 0..1) to the power SOUND_ENGINE_CURVE, up to
-# SOUND_ENGINE_MAX_GAIN (holding speed against drag takes some thrust: a curve keeps cruising quiet
-# and full burn clear); other ships' at SOUND_ENGINE_OTHERS_SHARE of that. Coasting is silent.
+# The engine loop's loudness (linear): in proportion to thrust (`activity`, 0..1), up to
+# SOUND_ENGINE_MAX_GAIN; other ships' at SOUND_ENGINE_OTHERS_SHARE of that. Coasting is silent.
+# The sound itself is baked (engine.ogg): only its volume and, a little, its pitch change.
 static func engine_gain(body: Spatial, activity: float) -> float:
 	var share: float = 1.0 if body == GlobalRefs.player_agent_body else Constants.SOUND_ENGINE_OTHERS_SHARE
-	return Constants.SOUND_ENGINE_MAX_GAIN * share * pow(clamp(activity, 0.0, 1.0), Constants.SOUND_ENGINE_CURVE)
+	return Constants.SOUND_ENGINE_MAX_GAIN * share * clamp(activity, 0.0, 1.0)
 
 
 func _shape_3d(player: AudioStreamPlayer3D) -> void:

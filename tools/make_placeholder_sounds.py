@@ -132,27 +132,26 @@ def missile_launch():
 
 
 def engine_loop():
-    """A low, dull drone: a 70 Hz tone whose harmonics fall off fast (dull), a second voice a hair
-    sharp beating slowly against it, a gentle swell; over it a soft exhaust, noise at 300-2000 Hz
-    a third as loud as the drone, fluttering a little. Its body sits at 70-500 Hz so laptop and
-    phone speakers play it (they drop most of what is under ~150 Hz: a 36 Hz hum and its rumble
-    left only the rumble's hiss audible)."""
+    """The engine, baked as it plays (the game only turns its volume with thrust and nudges its
+    pitch a little): a low, dull 56 Hz drone whose harmonics fall off fast, a second voice a hair
+    sharp beating slowly against it, a gentle swell, and under it a faint, dark exhaust (noise at
+    200-900 Hz, EXHAUST_SHARE of the drone's loudness). Its body sits at 56-400 Hz so laptop and
+    phone speakers still play it."""
     seconds = 2.0
     t = t_of(seconds)
     drone = np.zeros(t.size)
     for n in range(1, 8):
         amplitude = 1.0 / n ** 1.6
-        drone += tone(looped(70.0 * n, seconds), t) * amplitude
-        drone += tone(looped(70.5 * n, seconds), t) * amplitude * 0.5
+        drone += tone(looped(56.0 * n, seconds), t) * amplitude
+        drone += tone(looped(56.5 * n, seconds), t) * amplitude * 0.5
     swell = 1.0 + 0.06 * tone(looped(0.5, seconds), t)
     drone = drone * swell / np.sqrt(np.mean(drone ** 2))
-    exhaust = seamless_band(seconds, 300, 2000)
-    flutter = 1.0 + 0.15 * tone(looped(7, seconds), t) + 0.1 * tone(looped(11.5, seconds), t)
-    exhaust = exhaust * flutter / np.sqrt(np.mean(exhaust ** 2))
+    exhaust = seamless_band(seconds, 200, 900)
+    exhaust = exhaust / np.sqrt(np.mean(exhaust ** 2))
     return normal(drone + exhaust * EXHAUST_SHARE, 0.6)
 
 
-EXHAUST_SHARE = 0.33  # The exhaust's loudness against the drone's
+EXHAUST_SHARE = 0.1  # The exhaust's loudness against the drone's: a faint breath
 
 
 def notice(freqs, beep, gap, peak):
