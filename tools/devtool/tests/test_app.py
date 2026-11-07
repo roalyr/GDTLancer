@@ -575,7 +575,7 @@ class AppTest(unittest.IsolatedAsyncioTestCase):
             app._show_look_item({"look": "music"})
             await pilot.pause()
             form = app.query_one("#music-form", devapp.Form)
-            form.fields[0].editor.value = "res://assets/audio/music/ambient/GDTLancer ambient 1.mp3"
+            form.fields[0].editor.value = "res://assets/audio/music/ambient/placeholder_ambient.ogg"
             app.action_save_music()
             await self._started(pilot, app)
             self.assertEqual(fake.writes[-1]["command"], "scene_write")

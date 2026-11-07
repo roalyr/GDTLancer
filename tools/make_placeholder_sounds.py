@@ -1,7 +1,7 @@
 """
-Placeholder sounds, synthesized: the hull hit, the guns, the engine loop, the two threat notices
-and the danger and combat music, until real ones are made. Writes them under assets/audio/
-(placeholders/ and music/danger, music/combat); the sound bank and the main scene's AmbientMusic
+Placeholder sounds, synthesized: the hull hit, the guns, the engine loop, the two threat notices and
+the calm, danger and combat music, until real ones are made. Writes them under assets/audio/
+(placeholders/ and music/ambient, music/danger, music/combat); the sound bank and the main scene's AmbientMusic
 point at them. Effects are .wav (they must not loop), loops and music .ogg (oggenc), every loop
 seamless. Run it again to remake them (same seed, same sounds), then import them (open the editor,
 or `godot --no-window -e --quit`).
@@ -144,6 +144,22 @@ def notice(freqs, beep, gap, peak):
 
 # --- Music (loops) ---
 
+def calm_music():
+    """The calm sector track: a slow, soft pad of three chords (8 s each), no noise, in the range
+    small speakers play; each chord swells in and out, the next overlapping it, so the loop is seamless."""
+    seconds = 32.0
+    t = t_of(seconds)
+    chords = [[110.0, 164.8, 220.0, 277.2], [98.0, 146.8, 196.0, 246.9], [87.3, 130.8, 174.6, 220.0], [98.0, 146.8, 196.0, 293.7]]
+    out = np.zeros(t.size)
+    span = seconds / len(chords)
+    for index, chord in enumerate(chords):
+        phase = (t - index * span) % seconds  # Its swell wraps round the loop's end
+        swell = np.where(phase < span * 1.5, np.sin(np.pi * phase / (span * 1.5)) ** 2, 0.0)
+        voice = sum(tone(looped(f, seconds), t) * (0.6 if k == 0 else 0.35) + tone(looped(f * 2.0, seconds), t) * 0.06 for k, f in enumerate(chord))
+        out += voice * swell
+    shimmer = 1.0 + 0.04 * tone(looped(0.25, seconds), t)
+    return normal(out * shimmer, 0.35)
+
 def danger_music():
     seconds = 32.0
     t = t_of(seconds)
@@ -183,6 +199,7 @@ def main():
     write_ogg(os.path.join(SFX, "engine.ogg"), engine_loop())
     write_ogg(os.path.join(MUSIC, "danger", "placeholder_danger.ogg"), danger_music())
     write_ogg(os.path.join(MUSIC, "combat", "placeholder_combat.ogg"), combat_music())
+    write_ogg(os.path.join(MUSIC, "ambient", "placeholder_ambient.ogg"), calm_music())
 
 
 if __name__ == "__main__":

@@ -6,7 +6,7 @@
 #   "hit_effects"  (bool)  Agent: hull scars and slag, and the hit surface shots land on (off: the
 #                          convex hull, cheaper); ships made after a change take it in full
 #   "hud_preset"   (String) MainHUD.apply_hud_preset (Constants.HUD_PRESETS)
-#   "music"        (bool)  AmbientMusic: off (the default), every track fades out and none plays
+#   "music"        (bool)  AmbientMusic: off, every track fades out and none plays
 # The file is read only by load_file() (the main scene's start), and written only after it: tests
 # and tools run on the defaults, whatever the player chose, and never touch the file.
 
@@ -21,7 +21,7 @@ const DEFAULTS = {
 	"render_scale": 1.0,
 	"hit_effects": true,
 	"hud_preset": "standard",
-	"music": false,
+	"music": true,
 }
 
 var _values: Dictionary = DEFAULTS.duplicate()

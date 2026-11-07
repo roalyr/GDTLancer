@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=2]
+[gd_scene load_steps=15 format=2]
 
 [ext_resource path="res://src/scenes/game_world/world_manager.gd" type="Script" id=1]
 [ext_resource path="res://scenes/ui/hud/main_hud.tscn" type="PackedScene" id=2]
@@ -8,8 +8,12 @@
 [ext_resource path="res://src/scenes/game_world/world_rendering.gd" type="Script" id=16]
 [ext_resource path="res://scenes/ui/menus/main_menu.tscn" type="PackedScene" id=17]
 [ext_resource path="res://scenes/prefabs/navigation/jump_transition_rig.tscn" type="PackedScene" id=29]
+[ext_resource path="res://assets/audio/music/ambient/placeholder_ambient.ogg" type="AudioStream" id=30]
+[ext_resource path="res://src/scenes/game_world/ambient_music.gd" type="Script" id=31]
 [ext_resource path="res://src/core/sound/sound_effects.gd" type="Script" id=32]
 [ext_resource path="res://database/sounds/sound_bank.tres" type="Resource" id=33]
+[ext_resource path="res://assets/audio/music/danger/placeholder_danger.ogg" type="AudioStream" id=34]
+[ext_resource path="res://assets/audio/music/combat/placeholder_combat.ogg" type="AudioStream" id=35]
 
 [node name="MainGameScene" type="Node"]
 
@@ -56,3 +60,10 @@ bank = ExtResource( 33 )
 [node name="MainHUD" parent="." instance=ExtResource( 2 )]
 
 [node name="MainMenu" parent="." instance=ExtResource( 17 )]
+
+[node name="AmbientMusic" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 30 )
+volume_db = -80.0
+script = ExtResource( 31 )
+danger_stream = ExtResource( 34 )
+combat_stream = ExtResource( 35 )

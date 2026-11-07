@@ -367,7 +367,7 @@ func test_the_look_view_and_the_music_stream():
 	assert_gt(by_path["res://assets/art/shaders/solid.gdshader"].materials.size(), 10)
 	assert_gt(by_path["res://assets/art/shaders/star_surface.gdshader"].scenes.size(), 0, "Named in a star scene")
 	assert_eq(view.paints.size(), BridgeCommands.Validator.faction_files().size() * 2)
-	assert_string_ends_with(view.music.stream, ".mp3")
+	assert_true(view.music.stream.begins_with("res://assets/audio/music/"), "The calm track (a music file)")
 	var copy := "user://test_bridge_main.tscn"
 	Directory.new().copy(BridgeCommands.MAIN_SCENE, copy)
 	var before: String = _text(copy)

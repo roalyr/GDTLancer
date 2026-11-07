@@ -4,7 +4,7 @@
 # scene. Each loops; the one for the level fades in over MUSIC_CROSSFADE s as the others fade out,
 # all at MUSIC_AMBIENT_VOLUME_DB. An empty track stays with the one playing. The music starts
 # (fading in) when the first sector loads and plays on across jumps. With the "music" option off
-# (Settings; the default) nothing plays.
+# (Settings) nothing plays.
 
 extends AudioStreamPlayer
 

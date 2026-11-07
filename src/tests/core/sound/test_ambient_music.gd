@@ -1,4 +1,4 @@
-# Tests for AmbientMusic: the "music" option (off by default) silences every track.
+# Tests for AmbientMusic: the "music" option (on by default) silences every track when off.
 
 extends GutTest
 
@@ -22,8 +22,9 @@ func _music() -> AudioStreamPlayer:
 	return music
 
 
-func test_off_by_default_nothing_plays():
-	assert_false(Settings.get_option("music"), "Off by default")
+func test_switched_off_nothing_plays():
+	assert_true(Settings.get_option("music"), "On by default")
+	Settings._values["music"] = false
 	var music = _music()
 	music._process(2.0)
 	assert_false(music.playing)
