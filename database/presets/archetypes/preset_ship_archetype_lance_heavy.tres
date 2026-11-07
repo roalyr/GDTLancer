@@ -16,16 +16,17 @@ apparent_radius = 16.2407
 signature = 2030.09
 sensor_strength = 1.0
 tool_slots_small = 0
-tool_slots_medium = 2
-tool_slots_large = 0
+tool_slots_medium = 0
+tool_slots_large = 2
 module_slots = 5
+module_slot_size = "large"
 equipped_tools = [ "preset_missile_light", "preset_cannon_heavy" ]
 equipped_modules = [ "preset_decoy_heavy", "preset_power_cell_light", "preset_lance_light", "preset_damper_medium" ]
 salvage_yield = {
 "commodity_scrap": 50,
 "commodity_tech": 14
 }
-power_capacity = 157.566
+power_capacity = 157.565
 power_regen = 20.8585
 mass = 14873.9
 linear_thrust = 549390.0

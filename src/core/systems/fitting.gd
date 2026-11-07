@@ -207,6 +207,8 @@ static func fit_part(ship_body: Node, part_id: String) -> String:
 			return "No free %s or larger tool slot" % part.mount_size
 		fit.tools[slot] = part_id
 	elif part is ModuleTemplate:
+		if not ShipFit.module_fits_slot(part, ShipFit.module_slot_size(ship)):
+			return "Too big: this hull's module bays are %s" % ShipFit.module_slot_size(ship)
 		var slot: int = ShipFit.free_module_slot(fit)
 		if slot < 0:
 			return "No free module slot"

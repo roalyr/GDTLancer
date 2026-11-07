@@ -69,11 +69,11 @@ genome = {
 },
 "tools": [ {
 "genes": {
-"energy": 11.719,
-"mass": 675.553
+"energy": 6.5,
+"mass": 450.0
 },
 "kind": "laser",
-"type": 3
+"type": 2
 }, {
 "genes": {
 },
@@ -81,8 +81,8 @@ genome = {
 "type": 0
 }, {
 "genes": {
-"energy": 5.151,
-"mass": 300.0
+"energy": 6.5,
+"mass": 450.0
 },
 "kind": "laser",
 "type": 2

@@ -8,7 +8,7 @@
 #   look   "paint" (takes the owner's paint: ModelLooks), "metal" or "glow" (optional, default metal)
 #   mirror true: a copy on the other side (x flipped)
 #   around n: n copies round the Y axis
-#   from   "medium" or "heavy": only on hulls of that weight class or heavier
+#   from   "medium", "heavy" or "superheavy": only on hulls of that weight class or heavier
 # `girth` scales the form across (x and y), so weight classes share one silhouette.
 
 tool
@@ -20,7 +20,7 @@ const MATERIALS = {
 	"metal": preload("res://assets/art/materials_generic/mat_hull_dark_metal.tres"),
 	"glow": preload("res://assets/art/materials_generic/mat_hull_glow.tres"),
 }
-const WEIGHTS = ["light", "medium", "heavy"]
+const WEIGHTS = ["light", "medium", "heavy", "superheavy"]
 
 static func build(parts: Array, length: float, girth: float = 1.0, weight: String = "heavy") -> Spatial:
 	var root := Spatial.new()

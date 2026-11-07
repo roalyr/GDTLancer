@@ -15,10 +15,11 @@ interaction_radius = 14.953
 apparent_radius = 11.9624
 signature = 1495.3
 sensor_strength = 1.0
-tool_slots_small = 3
-tool_slots_medium = 0
+tool_slots_small = 0
+tool_slots_medium = 3
 tool_slots_large = 0
 module_slots = 1
+module_slot_size = "medium"
 equipped_tools = [ "preset_harpoon" ]
 equipped_modules = [  ]
 salvage_yield = {
@@ -26,9 +27,9 @@ salvage_yield = {
 "commodity_tech": 13
 }
 power_capacity = 107.421
-power_regen = 9.55593
+power_regen = 9.55592
 mass = 5943.8
-linear_thrust = 723078.0
+linear_thrust = 723077.0
 angular_thrust = 800102.0
 alignment_threshold_angle_deg = 45.0
 model_scale = 0.996868

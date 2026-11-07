@@ -70,11 +70,11 @@ genome = {
 "type": 0
 }, {
 "genes": {
-"energy": 5.151,
-"mass": 300.0
+"energy": 2.511,
+"mass": 150.0
 },
 "kind": "laser",
-"type": 2
+"type": 1
 }, {
 } ]
 }

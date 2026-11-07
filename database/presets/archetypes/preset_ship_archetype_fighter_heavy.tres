@@ -19,17 +19,18 @@ tool_slots_small = 0
 tool_slots_medium = 0
 tool_slots_large = 12
 module_slots = 1
+module_slot_size = "large"
 equipped_tools = [ "preset_laser_light", "preset_laser_light", "preset_cannon_medium", "preset_cannon_heavy", "preset_laser_heavy", "preset_laser_heavy", "preset_laser_medium", "preset_missile_medium", "preset_missile_heavy", "preset_laser_heavy" ]
 equipped_modules = [ "preset_plating_light" ]
 salvage_yield = {
 "commodity_scrap": 145,
 "commodity_tech": 77
 }
-power_capacity = 836.769
+power_capacity = 836.77
 power_regen = 88.0511
 mass = 43630.6
 linear_thrust = 2.64833e+06
-angular_thrust = 5.6952e+06
+angular_thrust = 5.69519e+06
 alignment_threshold_angle_deg = 45.0
 model_scale = 1.93737
 variant_type = 3

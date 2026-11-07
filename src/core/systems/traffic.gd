@@ -98,7 +98,7 @@ static func best_genome(faction: String, role: String) -> Dictionary:
 		var genome_id: String = Evolution.pools[faction].cells[niche]
 		if not Evolution.genomes.has(genome_id) or (role != "" and niche.find(marker) < 0):
 			continue
-		var fitness: float = Evolution.shrunk_fitness(genome_id)
+		var fitness: float = Evolution.ranked_fitness(genome_id)
 		if fitness > best_fitness:
 			best_fitness = fitness
 			best = Evolution.genomes[genome_id].genome

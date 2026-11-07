@@ -19,17 +19,18 @@ tool_slots_small = 2
 tool_slots_medium = 0
 tool_slots_large = 0
 module_slots = 2
-equipped_tools = [ "preset_missile_medium" ]
-equipped_modules = [ "preset_afterburner_light", "preset_lance_medium" ]
+module_slot_size = "small"
+equipped_tools = [ "preset_missile_light" ]
+equipped_modules = [ "preset_afterburner_light", "preset_lance_light" ]
 salvage_yield = {
 "commodity_scrap": 14,
 "commodity_tech": 7
 }
-power_capacity = 70.0887
-power_regen = 8.86652
+power_capacity = 70.0888
+power_regen = 8.8665
 mass = 4054.99
-linear_thrust = 368042.0
-angular_thrust = 358509.0
+linear_thrust = 368043.0
+angular_thrust = 358510.0
 alignment_threshold_angle_deg = 45.0
 model_scale = 0.877565
 variant_type = 1

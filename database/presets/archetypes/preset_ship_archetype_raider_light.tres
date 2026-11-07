@@ -19,7 +19,8 @@ tool_slots_small = 3
 tool_slots_medium = 0
 tool_slots_large = 0
 module_slots = 1
-equipped_tools = [ "preset_harpoon", "preset_laser_medium" ]
+module_slot_size = "small"
+equipped_tools = [ "preset_harpoon", "preset_laser_light" ]
 equipped_modules = [  ]
 salvage_yield = {
 "commodity_scrap": 16,
@@ -31,7 +32,7 @@ mass = 4907.7
 linear_thrust = 611629.0
 angular_thrust = 634922.0
 alignment_threshold_angle_deg = 45.0
-model_scale = 0.935209
+model_scale = 0.93521
 variant_type = 1
 law_genes = {
 "shares": {

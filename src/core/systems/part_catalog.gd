@@ -116,6 +116,16 @@ static func genes(kind: String, part_type: int) -> Dictionary:
 	return found.law_genes.duplicate() if found != null and found.get("law_genes") != null else {}
 
 
+# The slot size a part needs: a tool's follows the mass it puts on its hardpoint (ShipLaws.laser_mount_size
+# of mount_mass), a module's its weight (light small, medium medium, heavy large); the harpoon is small.
+static func mount_size(kind: String, part_type: int, part_genes: Dictionary) -> String:
+	if kind == "harpoon":
+		return "small"
+	if kind in TOOL_KINDS:
+		return load("res://src/core/systems/ship_laws.gd").laser_mount_size(mount_mass(kind, part_genes))
+	return ["small", "medium", "large"][int(clamp(part_type - 1, 0, 2))]
+
+
 # kg a part takes on its hardpoint, from its genes (a missile rack with its rounds, a cannon with its
 # magazine); modules take no hardpoint (0).
 static func mount_mass(kind: String, part_genes: Dictionary) -> float:

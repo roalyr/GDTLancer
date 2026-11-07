@@ -105,6 +105,7 @@ func new_era() -> void:
 		for key in ["lives", "kills", "deaths", "earned"]:
 			entry[key] = 0
 		entry.fitness_sum = 0.0
+		entry.fitness_sq = 0.0
 	_log(1, "EVO NEW ERA: %d genomes start over, %d seeds planted" % [genomes.size(), plant_seeds()])
 
 
@@ -407,7 +408,9 @@ func _on_agent_damaged(body, amount, source) -> void:
 		live[source_uid].damage_dealt = float(live[source_uid].damage_dealt) + float(amount)
 		if live.has(victim_uid) and live[victim_uid].faction != live[source_uid].faction and float(body.get("hull_max")) > 0.0:
 			var share: float = min(float(amount), float(body.hull_max)) / float(body.hull_max)
-			live[source_uid].destroyed = float(live[source_uid].get("destroyed", 0.0)) + share * float(live[victim_uid].cost)
+			var credit: Dictionary = live[victim_uid].get("credit", {})  # Paid out if it dies (_end_life)
+			credit[source_uid] = float(credit.get(source_uid, 0.0)) + share * float(live[victim_uid].cost)
+			live[victim_uid]["credit"] = credit
 	if live.has(victim_uid):
 		live[victim_uid].damage_taken = float(live[victim_uid].damage_taken) + float(amount)
 		if source_uid != "":  # Radiation and the like credit no one and keep the last attacker's credit
@@ -443,7 +446,7 @@ func _on_agent_despawning(body) -> void:
 
 # Fitness: return on cost, (earned + bounties - repairs - upkeep) / cost, less 1 if the ship was lost.
 # A combat niche's also counts the enemy value it destroyed (Constants EVO_COMBAT_EXCHANGE_WEIGHT):
-# what it took from the other side against what it cost its own.
+# what it took from the other side against what it cost its own; only ships that died count.
 static func fitness_of(record: Dictionary, died: bool, age: float) -> float:
 	var takings: float = net_of(record, age)
 	if record.get("combat", false):
@@ -469,6 +472,11 @@ func _end_life(uid: String, died: bool, killer: String) -> void:
 	var record: Dictionary = live[uid]
 	live.erase(uid)
 	_bodies.erase(uid)
+	if died:  # Its attackers still flying get the value they took off it (at most its cost each)
+		var credit: Dictionary = record.get("credit", {})
+		for attacker in credit:
+			if live.has(attacker):
+				live[attacker].destroyed = float(live[attacker].get("destroyed", 0.0)) + min(float(credit[attacker]), float(record.cost))
 	var age: float = game_time - float(record.born)
 	var fitness: float = fitness_of(record, died, age)
 	var entry: Dictionary = genomes.get(record.genome_id, {})
@@ -479,6 +487,7 @@ func _end_life(uid: String, died: bool, killer: String) -> void:
 	elif not entry.empty():
 		entry.lives = int(entry.lives) + 1
 		entry.fitness_sum = float(entry.fitness_sum) + fitness
+		entry.fitness_sq = float(entry.get("fitness_sq", 0.0)) + fitness * fitness
 		entry.kills = int(entry.kills) + int(record.kills)
 		entry.deaths = int(entry.deaths) + (1 if died else 0)
 		entry.earned = int(entry.earned) + int(record.earned)
@@ -501,6 +510,13 @@ func shrunk_fitness(genome_id: String) -> float:
 	return float(entry.fitness_sum) / (float(entry.lives) + Constants.EVO_PRIOR_LIVES)
 
 
+# The cautious estimate (PresetExporter.ranked: the mean less its standard error) that niches,
+# proving and presets rank by; selection weights use the plain shrunk mean.
+func ranked_fitness(genome_id: String) -> float:
+	var entry: Dictionary = genomes.get(genome_id, {})
+	return PresetExporter.ranked(entry) if not entry.empty() else 0.0
+
+
 # Takes the genome's niche if it is empty or the genome now beats its best. Returns a note.
 func _place_in_archive(genome_id: String) -> String:
 	var entry: Dictionary = genomes[genome_id]
@@ -512,7 +528,7 @@ func _place_in_archive(genome_id: String) -> String:
 	if best == "" or not genomes.has(best):
 		cells[niche] = genome_id
 		return "NEW NICHE " + niche
-	if shrunk_fitness(genome_id) > shrunk_fitness(best):
+	if ranked_fitness(genome_id) > ranked_fitness(best):
 		cells[niche] = genome_id
 		return "TAKES " + niche + " from " + best
 	return "below best of " + niche
@@ -581,17 +597,23 @@ func archetype_genome(faction: String, name: String) -> String:
 	return genome_id
 
 
-# A spawn's genome. Its family first (Genome.family; drifters only when there is nothing else), each
-# as likely as the others whatever their fitness, so every family keeps evolving; within it, a leading
-# genome short of its proving lives, or a parent picked by fitness, re-flown or mutated. A zone's
-# preferred `role` (the sector's layout scene) takes the family's place.
+# A spawn's genome. Its family first (Genome.family; drifters only when there is nothing else), then
+# a weight class among the family's (ShipLaws.weight_class), each as likely as the others whatever
+# their fitness, so every family and weight keeps evolving (fitness is return on cost, which favours
+# small hulls: picked by it, the big ones starved); within them, a leading genome short of its proving
+# lives (by family), or a parent picked by fitness, re-flown or mutated. A zone's preferred `role`
+# (the sector's layout scene) takes the family's place.
 func _pick_genome(faction: String, role: String = "") -> Dictionary:
 	var pool: Dictionary = pools[faction]
 	var family: String = "" if role != "" else _pick_family(pool)
-	var cells: Array = []
+	var by_weight := {}  # Weight class -> the cells' genome ids
 	for niche in pool.cells:
 		if genomes.has(pool.cells[niche]) and (role == "" or niche.find(role) >= 0) and (family == "" or Genome.family(niche) == family):
-			cells.append(pool.cells[niche])
+			var weight_class: String = niche_weight(niche)
+			if not by_weight.has(weight_class):
+				by_weight[weight_class] = []
+			by_weight[weight_class].append(pool.cells[niche])
+	var cells: Array = by_weight.values()[randi() % by_weight.size()] if not by_weight.empty() else []
 	if Constants.EVO_PROVING and role == "" and not cells.empty() and randf() < Constants.EVO_PROVE_REFLY_CHANCE:
 		var unproven: Array = []
 		for genome_id in _unproven(faction):
@@ -621,6 +643,11 @@ func _pick_genome(faction: String, role: String = "") -> Dictionary:
 	return {"genome_id": _add_genome(Genome.mutate(genomes[parent].genome, behavior_on), faction, parent), "how": "mutant"}
 
 
+# A niche's weight class, from its size class ("s+1.5|...").
+static func niche_weight(niche: String) -> String:
+	return PresetExporter.weight_class(float(niche.split("|")[0].substr(1)))
+
+
 # One of the pool's families, each as likely ("" if it has no niches yet); drifters (unarmed, no
 # harpoon: no use as presets) only if there is nothing else.
 func _pick_family(pool: Dictionary) -> String:
@@ -645,7 +672,7 @@ func _unproven(faction: String) -> Array:
 				var kind: String = PresetExporter.archetype(niche)
 				if not ranked.has(kind):
 					ranked[kind] = []
-				ranked[kind].append([shrunk_fitness(cells[niche]), cells[niche]])
+				ranked[kind].append([ranked_fitness(cells[niche]), cells[niche]])
 	var unproven: Array = []
 	for kind in ranked:
 		var picks: Array = ranked[kind]
@@ -733,7 +760,7 @@ func print_report() -> void:
 		for niche in pool.cells:
 			var genome_id: String = pool.cells[niche]
 			if genomes.has(genome_id):
-				ranked.append([shrunk_fitness(genome_id), niche, genome_id])
+				ranked.append([ranked_fitness(genome_id), niche, genome_id])
 		ranked.sort_custom(self, "_fitter_first")
 		print("[%s] EVO REPORT %s: %d niches, %d lives ended, behaviour %s" % [_clock(), faction, ranked.size(), int(pool.lives),
 			"evolving" if int(pool.lives) >= Constants.EVO_BEHAVIOR_START_LIVES else "fixed until %d lives" % Constants.EVO_BEHAVIOR_START_LIVES])

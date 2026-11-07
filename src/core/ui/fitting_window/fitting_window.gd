@@ -167,7 +167,7 @@ static func part_detail(part_id: String) -> String:
 				continue
 			var label: Array = STAT_LABELS.get(stat, ["%+d " + stat, 1.0])
 			effects.append(label[0] % (part.stat_modifiers[stat] * label[1]))
-		return "%s, %.1f t" % [PoolStringArray(effects).join(", "), part.mass / 1000.0]
+		return "%s, %s, %.1f t" % [ShipFit.module_mount_size(part), PoolStringArray(effects).join(", "), part.mass / 1000.0]
 	return ""
 
 
@@ -179,7 +179,7 @@ func _rebuild_slots(ship_body) -> void:
 		_add_button(_slots, "%s tool: %s" % [sizes[i].capitalize(), Fitting.part_name(part_id) if part_id != "" else "empty"], part_id == "", "_on_unfit", ["tools", i])
 	for i in range(ship_body.fit.modules.size()):
 		var part_id: String = ship_body.fit.modules[i]
-		_add_button(_slots, "Module: %s" % (Fitting.part_name(part_id) if part_id != "" else "empty"), part_id == "", "_on_unfit", ["modules", i])
+		_add_button(_slots, "%s module: %s" % [ShipFit.module_slot_size(ship_body.ship_template).capitalize(), Fitting.part_name(part_id) if part_id != "" else "empty"], part_id == "", "_on_unfit", ["modules", i])
 
 
 func _rebuild_storage(_ship_body) -> void:
@@ -341,8 +341,8 @@ static func describe_ship(ship_id: String) -> String:
 	if agent != null and agent.temperament != "":
 		role += ", " + agent.temperament  # How its evolved pilot flies it (NPCs; a hint to the player)
 	var fit_note: String = "Evolved with: " if TemplateDatabase.presets.has(ship_id) else "Comes with: "
-	return "%s   hull %d   tools %s   modules %d   %.1f t\n%s" % [role.to_upper(), ship.hull_integrity, PoolStringArray(tools).join(" + "),
-		ship.module_slots, ship.mass / 1000.0, (fit_note + PoolStringArray(fitted).join(", ")) if not fitted.empty() else "Bare hull"]
+	return "%s   hull %d   tools %s   modules %d %s   %.1f t\n%s" % [role.to_upper(), ship.hull_integrity, PoolStringArray(tools).join(" + "),
+		ship.module_slots, ShipFit.module_slot_size(ship), ship.mass / 1000.0, (fit_note + PoolStringArray(fitted).join(", ")) if not fitted.empty() else "Bare hull"]
 
 
 func _ships_first(a: String, b: String) -> bool:

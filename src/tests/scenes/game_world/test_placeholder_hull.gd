@@ -18,13 +18,10 @@ func _hull(family: String, weight: String) -> Spatial:
 func test_every_archetype_flies_its_placeholder_hull():
 	for family in Constants.HULL_FORMS:
 		for weight in Constants.HULL_FORM_GIRTH:
-			var ship = load(ARCHETYPES + "preset_ship_archetype_%s_%s.tres" % [family, weight])
-			assert_not_null(ship, "%s %s archetype" % [family, weight])
-			if ship == null:
-				continue
-			assert_eq(ship.ship_scene.resource_path, "res://scenes/prefabs/ships/placeholders/%s_%s.tscn" % [family, weight])
-			var hull: Spatial = ship.ship_scene.instance()
-			autofree(hull)
+			var path: String = ARCHETYPES + "preset_ship_archetype_%s_%s.tres" % [family, weight]
+			if ResourceLoader.exists(path):  # Every family and weight has a hull; archetypes come as they are picked
+				assert_eq(load(path).ship_scene.resource_path, "res://scenes/prefabs/ships/placeholders/%s_%s.tscn" % [family, weight])
+			var hull: Spatial = _hull(family, weight)
 			assert_gt(hull.get_node("Model/PrimitiveForm").get_child_count(), 4, "%s %s: a model as it instances" % [family, weight])
 			assert_gt(hull.get_node("Engines").get_child_count(), 0, "Engines")
 			assert_not_null(hull.get_node_or_null("CollisionShape"), "A collision shape for the ship to take")

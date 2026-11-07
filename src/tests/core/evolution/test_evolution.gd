@@ -59,7 +59,7 @@ func test_a_new_run_plants_the_seed_designs_each_in_its_niche():
 	for niche in Evolution.pools.verdant.cells:
 		if niche.find("|prospector|") >= 0:
 			prospectors += 1
-	assert_eq(prospectors, 2, "Two prospector seeds, light and medium")
+	assert_eq(prospectors, 3, "Three prospector seeds, light, medium and superheavy")
 	assert_eq(Evolution.plant_seeds(), 0, "Planted once")
 	var life: Dictionary = Evolution.begin_life("xenohive", "frontier")
 	assert_true(TemplateDatabase.get_template(life.ship_template_id) is ShipTemplate)
@@ -288,16 +288,17 @@ func test_renown_puts_off_retiring():
 	assert_almost_eq(Evolution.lifetime_of(life.uid), Constants.NPC_MAX_LIFETIME * Constants.NPC_LIFETIME_MAX_FACTOR, 0.01, "At most this long")
 
 
-func test_presets_come_in_three_weights_per_role():
+func test_presets_come_in_four_weights_per_role():
 	var Exporter = load("res://src/core/evolution/preset_exporter.gd")
 	assert_eq(Exporter.archetype("s-1.5|missile-raider|-"), "missile-raider light")
 	assert_eq(Exporter.archetype("s+0.5|missile-raider|-"), "missile-raider medium")
-	assert_eq(Exporter.archetype("s+2.5|missile-raider|-"), "missile-raider heavy")
+	assert_eq(Exporter.archetype("s+1.5|missile-raider|-"), "missile-raider heavy")
+	assert_eq(Exporter.archetype("s+2.5|missile-raider|-"), "missile-raider superheavy")
 
 
 func test_proving_reflies_the_leading_unproven_of_each_archetype():
 	var ids: Array = []
-	var niches: Array = ["s+1.5|raider|long", "s+1.5|raider|mid", "s+2.0|raider|short", "s+2.5|raider|-", "s+1.5|drifter|-"]
+	var niches: Array = ["s+1.0|raider|long", "s+1.0|raider|mid", "s+1.5|raider|short", "s+1.5|raider|-", "s+1.5|drifter|-"]
 	for i in range(niches.size()):
 		var faction: String = "violet" if i == 1 else "verdant"
 		var genome_id: String = Evolution._add_genome(Evolution.Genome.random_genome(), faction, "")

@@ -26,6 +26,21 @@ static func tool_fits_slot(tool_template, slot_size: String) -> bool:
 	return SIZES.find(tool_template.mount_size) <= SIZES.find(slot_size)
 
 
+# A module's size: its weight's (PartCatalog: light small, medium medium, heavy large); a hand-made one
+# (no weight) is small.
+static func module_mount_size(module) -> String:
+	return SIZES[int(clamp(int(module.variant_type) - 1, 0, SIZES.size() - 1))]
+
+
+static func module_slot_size(ship) -> String:
+	var size = ship.get("module_slot_size")
+	return str(size) if size != null and str(size) in SIZES else "large"
+
+
+static func module_fits_slot(module, slot_size: String) -> bool:
+	return SIZES.find(module_mount_size(module)) <= SIZES.find(slot_size)
+
+
 # The hull's default fit: equipped tools into the first slots that take them, then its modules.
 static func default_fit(ship) -> Dictionary:
 	var fit: Dictionary = empty_fit(ship)
@@ -65,7 +80,8 @@ static func random_fit(ship) -> Dictionary:
 			fit.tools[i] = choices[randi() % choices.size()]
 	var modules: Array = []
 	for module_id in PartCatalog.module_ids():
-		if TemplateDatabase.get_template(module_id) is ModuleTemplate:
+		var module = TemplateDatabase.get_template(module_id)
+		if module is ModuleTemplate and module_fits_slot(module, module_slot_size(ship)):
 			modules.append(module_id)
 	for i in range(fit.modules.size()):
 		var pick: int = randi() % (modules.size() + 1)  # One chance in (modules + 1) of an empty slot
@@ -98,7 +114,7 @@ static func normalized(ship, fit: Dictionary) -> Dictionary:
 	var modules: Array = fit.get("modules", [])
 	for i in range(min(modules.size(), result.modules.size())):
 		var module = TemplateDatabase.get_template(str(modules[i]))
-		if module is ModuleTemplate:
+		if module is ModuleTemplate and module_fits_slot(module, module_slot_size(ship)):
 			result.modules[i] = str(modules[i])
 	return result
 

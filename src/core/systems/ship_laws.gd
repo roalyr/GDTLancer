@@ -78,12 +78,24 @@ static func slot_counts(size: float, tool_share: float = -1.0) -> Array:
 	return [tools, total - tools]
 
 
+# A hull's size class: half-octaves of its size gene (Genome.niche names niches by it).
+static func size_class(size: float) -> float:
+	var size_class: float = round(log(max(size, 0.001)) / log(2.0) * 2.0) / 2.0
+	return 0.0 if abs(size_class) < 0.01 else size_class  # Not "-0.0"
+
+
+# Light, medium, heavy or superheavy (Constants PRESET_WEIGHT_CLASSES), from the size gene.
+static func weight_class(size: float) -> String:
+	var size_class: float = size_class(size)
+	for weight in Constants.PRESET_WEIGHT_CLASSES:
+		if size_class <= weight[1]:
+			return weight[0]
+	return Constants.PRESET_WEIGHT_CLASSES.back()[0]
+
+
+# The size of every hardpoint and module bay on a hull of this size (Constants LAW_SLOT_SIZES).
 static func slot_size_for(size: float) -> String:
-	if size >= Constants.LAW_SLOT_LARGE_SIZE:
-		return "large"
-	if size >= Constants.LAW_SLOT_MEDIUM_SIZE:
-		return "medium"
-	return "small"
+	return Constants.LAW_SLOT_SIZES[weight_class(size)]
 
 
 # Every ShipTemplate field that follows from the genes.
@@ -112,6 +124,7 @@ static func ship_stats(genes: Dictionary) -> Dictionary:
 		"tool_slots_medium": slots if slot_size == "medium" else 0,
 		"tool_slots_large": slots if slot_size == "large" else 0,
 		"module_slots": counts[1],
+		"module_slot_size": slot_size,
 		"base_value": int(round(Constants.LAW_SHIP_VALUE_PER_KG * mass)),
 		"salvage_yield": {
 			"commodity_scrap": int(round(Constants.LAW_SCRAP_PER_KG * mass)),
@@ -151,9 +164,9 @@ static func clamp_laser_genes(genes: Dictionary) -> Dictionary:
 
 
 static func laser_mount_size(mass: float) -> String:
-	if mass >= Constants.LAW_LASER_LARGE_MASS:
+	if mass >= Constants.LAW_MOUNT_LARGE_MASS:
 		return "large"
-	if mass >= Constants.LAW_LASER_MEDIUM_MASS:
+	if mass >= Constants.LAW_MOUNT_MEDIUM_MASS:
 		return "medium"
 	return "small"
 

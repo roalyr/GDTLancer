@@ -11,25 +11,26 @@ base_value = 1148
 ship_scene = ExtResource( 2 )
 hull_integrity = 146
 cargo_capacity = 20
-interaction_radius = 15.7064
-apparent_radius = 12.5651
-signature = 1570.64
+interaction_radius = 15.7065
+apparent_radius = 12.5652
+signature = 1570.65
 sensor_strength = 1.0
-tool_slots_small = 2
-tool_slots_medium = 0
+tool_slots_small = 0
+tool_slots_medium = 2
 tool_slots_large = 0
 module_slots = 2
+module_slot_size = "medium"
 equipped_tools = [ "preset_harpoon" ]
 equipped_modules = [ "preset_lance_light", "preset_plating_medium" ]
 salvage_yield = {
 "commodity_scrap": 23,
 "commodity_tech": 9
 }
-power_capacity = 104.205
-power_regen = 9.76553
-mass = 6888.27
-linear_thrust = 437993.0
-angular_thrust = 509069.0
+power_capacity = 104.206
+power_regen = 9.76556
+mass = 6888.3
+linear_thrust = 437994.0
+angular_thrust = 509071.0
 alignment_threshold_angle_deg = 45.0
 model_scale = 1.0471
 variant_type = 2

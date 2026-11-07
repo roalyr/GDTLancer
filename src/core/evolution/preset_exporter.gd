@@ -1,8 +1,8 @@
 # PresetExporter: writes a saved evolution's best genomes as template files (tools/export_presets.gd).
 # Presets are what the evolution is for, whatever the faction: the factions' pools are ranked as one.
 # Each archetype (a niche's role: "lance-missile-raider", "scavenger", ...) in each weight class
-# (light, medium, heavy: PRESET_WEIGHT_CLASSES) gives its fittest genome with at least `min_lives`
-# lives, fittest first, `top` of them. Each becomes a
+# (light, medium, heavy, superheavy: PRESET_WEIGHT_CLASSES) gives its fittest genome (ranked: the
+# cautious estimate) with at least `min_lives` lives, fittest first, `top` of them. Each becomes a
 # ShipTemplate (its default fit the genome's parts, one harpoon at most), the part templates it names,
 # and a faction-free AgentTemplate with the behaviour genes. Ids and names are generic (design_id: the
 # archetype and the genome's number, never its faction's letter), as the factions are not known yet;
@@ -19,6 +19,20 @@ static func shrunk(entry: Dictionary) -> float:
 	return float(entry.fitness_sum) / (float(entry.lives) + Constants.EVO_PRIOR_LIVES)
 
 
+# The cautious estimate genomes are ranked by (Constants EVO_RANK_SE_WEIGHT): the shrunk mean less
+# its standard error, the spread of its lives taken with EVO_PRIOR_LIVES lives of EVO_PRIOR_SD. A record
+# without its squares (before they were kept) counts as no spread past the prior's.
+static func ranked(entry: Dictionary) -> float:
+	var lives: float = float(entry.get("lives", 0))
+	var total: float = float(entry.get("fitness_sum", 0.0))
+	var prior: float = Constants.EVO_PRIOR_LIVES
+	var spread: float = 0.0
+	if lives > 0.0 and entry.has("fitness_sq"):
+		spread = max(float(entry.fitness_sq) - total * total / lives, 0.0)
+	var variance: float = (spread + prior * Constants.EVO_PRIOR_SD * Constants.EVO_PRIOR_SD) / (max(lives - 1.0, 0.0) + prior)
+	return total / (lives + prior) - Constants.EVO_RANK_SE_WEIGHT * sqrt(variance / (lives + prior))
+
+
 # "role weight": a niche's role and its hull's weight class.
 static func archetype(niche: String) -> String:
 	var fields: PoolStringArray = niche.split("|")
@@ -27,7 +41,7 @@ static func archetype(niche: String) -> String:
 	return "%s %s" % [fields[1], weight_class(float(fields[0].substr(1)))]
 
 
-# Light, medium or heavy, from the niche's size class (log2 of the hull's size, in half steps).
+# Light, medium, heavy or superheavy, from the niche's size class (log2 of the hull's size, in half steps).
 static func weight_class(size_class: float) -> String:
 	for weight in Constants.PRESET_WEIGHT_CLASSES:
 		if size_class <= weight[1]:
@@ -56,7 +70,7 @@ static func export_all(evolution: Dictionary, top: int, min_lives: int, folder: 
 				continue
 			if niche.find("|drifter|") >= 0:
 				continue  # Unarmed and without a harpoon: no use as a preset
-			var pick := {"fitness": shrunk(entry), "niche": niche, "id": cells[niche], "entry": entry}
+			var pick := {"fitness": ranked(entry), "niche": niche, "id": cells[niche], "entry": entry}
 			var kind: String = archetype(niche)
 			if not best.has(kind) or pick.fitness > best[kind].fitness:
 				best[kind] = pick

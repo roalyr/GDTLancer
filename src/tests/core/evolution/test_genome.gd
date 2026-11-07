@@ -18,13 +18,11 @@ func _assert_lawful(genome: Dictionary) -> void:
 	var counts: Array = ShipLaws.slot_counts(size, float(genome.ship.get("tool_share", -1.0)))
 	assert_eq(genome.tools.size(), counts[0], "One part (or none) per hardpoint")
 	assert_eq(genome.modules.size(), counts[1], "One part (or none) per bay")
-	for part in genome.tools:
-		if not part.empty() and part.kind == "laser":
-			assert_true(part.genes.mass <= Genome.slot_mass_limit(genome), "The laser fits the hardpoints")
-		elif not part.empty() and part.kind == "missile":
-			assert_true(ShipLaws.missile_stats(part.genes).mass <= Genome.slot_mass_limit(genome) + 0.01, "The rack fits the hardpoints: %s %.1f" % [part.genes, Genome.slot_mass_limit(genome)])
-		elif not part.empty() and part.kind == "cannon":
-			assert_true(ShipLaws.cannon_stats(part.genes).mass <= Genome.slot_mass_limit(genome) + 0.01, "The cannon fits the hardpoints")
+	var slot: int = Genome.SLOT_SIZES.find(Genome.slot_size(genome))
+	for part in genome.tools + genome.modules:
+		if not part.empty():
+			assert_true(Genome.SLOT_SIZES.find(PartCatalog.mount_size(part.kind, int(part.type), part.genes)) <= slot,
+				"The %s fits the %s slots" % [part.kind, Genome.slot_size(genome)])
 	for gene in genome.behavior:
 		var bounds: Array = Constants.EVO_BEHAVIOR_RANGES[gene]
 		assert_between(float(genome.behavior[gene]), float(bounds[0]), float(bounds[1]))
@@ -135,24 +133,22 @@ func test_missiles_and_cannons_are_lawful_weapons_on_their_own_branches():
 		genome.tools[i] = {}
 	for i in range(genome.modules.size()):
 		genome.modules[i] = {}
-	genome.tools[0] = Genome.random_part("missile", Genome.slot_mass_limit(genome))
+	genome.tools[0] = Genome.random_part("missile", Genome.slot_size(genome))
 	assert_eq(Genome.niche(genome).split("|")[1], "missile-fighter")
 	var rack = TemplateDatabase.get_template(Genome.ensure_part_template(genome.tools[0]))
 	assert_true(rack is UtilityToolTemplate and rack.tool_type == "missile" and rack.ammo == int(round(genome.tools[0].genes.count)))
-	genome.tools[0] = Genome.random_part("cannon", Genome.slot_mass_limit(genome))
+	genome.tools[0] = Genome.random_part("cannon", Genome.slot_size(genome))
 	assert_eq(Genome.niche(genome).split("|")[1], "cannon-fighter")
 	var gun = TemplateDatabase.get_template(Genome.ensure_part_template(genome.tools[0]))
 	assert_true(gun is UtilityToolTemplate and gun.tool_type == "cannon" and gun.ammo > 0 and gun.projectile_speed > 0.0)
 	assert_gt(Genome.cost(genome), ShipLaws.ship_stats(genome.ship).base_value, "Priced with its rounds")
-	var heavy: Dictionary = Genome._fitted({"kind": "missile", "type": 3, "genes": {}}, 600.0)
-	assert_true(heavy.empty() or int(heavy.type) < 3, "Too heavy for the hardpoint: the next lighter rack")
-	if not heavy.empty():
-		assert_true(PartCatalog.mount_mass("missile", heavy.genes) <= 600.0)
-	var big_gun: Dictionary = Genome._fitted({"kind": "cannon", "type": 3, "genes": {}}, 799.0)
-	assert_false(big_gun.empty(), "A lighter cannon on a small hardpoint")
-	assert_true(PartCatalog.mount_mass("cannon", big_gun.genes) <= 799.0)
-	assert_eq_deep(big_gun.genes, PartCatalog.genes("cannon", int(big_gun.type)))
-	assert_true(Genome._fitted({"kind": "cannon", "type": 1, "genes": {}}, 10.0).empty(), "Nothing fits: the slot stays empty")
+	var heavy: Dictionary = Genome._fitted({"kind": "missile", "type": 3, "genes": {}}, "medium")
+	assert_eq(int(heavy.type), 2, "Too big for a medium hardpoint: the medium rack")
+	var big_gun: Dictionary = Genome._fitted({"kind": "cannon", "type": 3, "genes": {}}, "small")
+	assert_eq(int(big_gun.type), 1, "The light cannon on a small hardpoint")
+	assert_eq_deep(big_gun.genes, PartCatalog.genes("cannon", 1))
+	assert_eq(int(Genome._fitted({"kind": "cannon", "type": 3, "genes": {}}, "large").type), 3, "A large hardpoint takes the heavy one")
+	assert_eq(int(Genome._fitted({"kind": "plating", "type": 3, "genes": {}}, "small").type), 1, "Modules too: a small bay takes light plating")
 
 
 func test_mutation_can_shift_slots_between_hardpoints_and_bays():

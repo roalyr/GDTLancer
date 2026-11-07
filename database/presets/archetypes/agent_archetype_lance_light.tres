@@ -55,11 +55,11 @@ genome = {
 "type": 1
 }, {
 "genes": {
-"count": 2.781,
-"nail_mass": 300.238
+"count": 3.092,
+"nail_mass": 109.356
 },
 "kind": "lance",
-"type": 2
+"type": 1
 } ],
 "ship": {
 "shares": {
@@ -76,10 +76,10 @@ genome = {
 "tools": [ {
 }, {
 "genes": {
-"count": 4.0,
-"round_mass": 100.034
+"count": 3.5,
+"round_mass": 39.03
 },
 "kind": "missile",
-"type": 2
+"type": 1
 } ]
 }

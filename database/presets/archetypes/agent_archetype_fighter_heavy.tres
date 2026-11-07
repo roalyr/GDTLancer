@@ -97,23 +97,23 @@ genome = {
 }, {
 }, {
 "genes": {
-"energy": 11.719,
-"mass": 675.553
+"energy": 16.0,
+"mass": 1100.0
 },
 "kind": "laser",
 "type": 3
 }, {
 "genes": {
-"energy": 11.719,
-"mass": 675.553
+"energy": 16.0,
+"mass": 1100.0
 },
 "kind": "laser",
 "type": 3
 }, {
 }, {
 "genes": {
-"energy": 5.151,
-"mass": 300.0
+"energy": 6.5,
+"mass": 450.0
 },
 "kind": "laser",
 "type": 2
@@ -127,14 +127,14 @@ genome = {
 }, {
 "genes": {
 "count": 3.0,
-"round_mass": 225.821
+"round_mass": 260.0
 },
 "kind": "missile",
 "type": 3
 }, {
 "genes": {
-"energy": 11.719,
-"mass": 675.553
+"energy": 16.0,
+"mass": 1100.0
 },
 "kind": "laser",
 "type": 3

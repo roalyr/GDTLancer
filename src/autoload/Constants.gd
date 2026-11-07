@@ -638,7 +638,7 @@ const LAW_HOLD = [600.0, 20.0, 1.0]  # Hold mass -> cargo units
 # The mass splits into structure, engines, reactor, capacitor and hold by the ship's shares.
 const LAW_SHIP_REF_MASS = 6000.0  # kg (the reference ship)
 const LAW_SHIP_SIZE_MIN = 0.2
-const LAW_SHIP_SIZE_MAX = 8.0
+const LAW_SHIP_SIZE_MAX = 16.0  # 96 t: the super-heavies (PRESET_WEIGHT_CLASSES)
 const LAW_SHIP_SHARES = {"structure": 0.55, "engine": 0.2, "reactor": 0.1, "capacitor": 0.05, "hold": 0.1}  # The reference ship's
 const LAW_SHIP_SHARE_MIN = {"structure": 0.2, "engine": 0.03, "reactor": 0.02, "capacitor": 0.01, "hold": 0.0}
 const LAW_SHIP_RADIUS = 12.0  # m apparent radius at s = 1, times length
@@ -647,8 +647,11 @@ const LAW_SHIP_SIGNATURE = 1500.0  # m at s = 1, times length (cross-section see
 const LAW_TORQUE_PER_THRUST = 1.11  # N*m of turning torque per N of engine thrust at s = 1, times length (lever)
 const LAW_TOOL_SLOTS = 2.0  # Hardpoints at s = 1, times surface (rounded, at least 1)
 const LAW_MODULE_SLOTS = 2.0  # Module bays at s = 1, times s^(1/2) (rounded)
-const LAW_SLOT_MEDIUM_SIZE = 2.0  # s from which hardpoints take medium tools
-const LAW_SLOT_LARGE_SIZE = 5.0  # and large ones
+# A hull's hardpoints and module bays are all of one size, its weight class's (ShipLaws.weight_class):
+# a part fits a slot of its size or larger. Parts are small, medium or large as they are light, medium
+# or heavy (PartCatalog; a tool's mount size follows its mass, LAW_MOUNT_*_MASS, and the catalogue's
+# masses are set so the two agree: test_part_catalog).
+const LAW_SLOT_SIZES = {"light": "small", "medium": "medium", "heavy": "large", "superheavy": "large"}
 const LAW_SHIP_VALUE_PER_KG = 1.0 / 6.0  # WP
 const LAW_SCRAP_PER_KG = 1.0 / 300.0  # Salvage units of scrap in a wreck, per kg of ship
 const LAW_TECH_PER_KG = 1.0 / 200.0  # and of tech, per kg of engines and reactor
@@ -664,8 +667,8 @@ const LAW_LASER_FALLOFF_SHARE = 0.25  # Falloff as a share of optimal range
 const LAW_LASER_TRACKING = [0.1, -0.5]  # [rad/s at m0, exponent of m]: heavier turrets swing slower
 const LAW_LASER_CYCLE = [1.0, 0.5]  # [s at m0 and E0, exponent k of m the cooling grows with]
 const LAW_LASER_CYCLE_RANGE = [0.25, 8.0]  # s
-const LAW_LASER_MEDIUM_MASS = 800.0  # kg from which a laser needs a medium hardpoint
-const LAW_LASER_LARGE_MASS = 2500.0  # and a large one
+const LAW_MOUNT_MEDIUM_MASS = 400.0  # kg from which a tool (a laser; a cannon with its magazine, a rack with its rounds) needs a medium hardpoint
+const LAW_MOUNT_LARGE_MASS = 1000.0  # and a large one
 const LAW_LASER_VALUE = [0.2, 8.0]  # WP per kg, per unit of shot energy
 const LAW_PART_VALUE_PER_KG = 0.25  # WP for modules
 
@@ -836,6 +839,7 @@ const SHIP_TYPE_SEEDS = {
 	1: {"size": 0.5, "shares": {"structure": 0.45, "engine": 0.3, "reactor": 0.1, "capacitor": 0.05, "hold": 0.1}},
 	2: {"size": 1.0, "shares": {"structure": 0.55, "engine": 0.2, "reactor": 0.1, "capacitor": 0.05, "hold": 0.1}},
 	3: {"size": 2.5, "shares": {"structure": 0.65, "engine": 0.15, "reactor": 0.1, "capacitor": 0.04, "hold": 0.06}},
+	4: {"size": 6.0, "shares": {"structure": 0.6, "engine": 0.15, "reactor": 0.12, "capacitor": 0.05, "hold": 0.08}},
 }
 # The xenohive's forms (XenoForm): rings of petals, spikes and glowing cells round a spindle, at odd
 # counts, leaning `lean` degrees off the tail-ward axis (over 90: forward) and twisted `twist` about
@@ -864,7 +868,7 @@ const XENO_HIVE_SEED = 13
 const SHIP_MODEL_LENGTH = 17.0  # m
 const SHIP_MODEL_LENGTH_TOLERANCE = 0.2  # The content test lets a model be this share longer or shorter (imported models fit exactly; the squat scavenger placeholder is 0.18 short)
 const PLACEHOLDER_HULLS_DIR = "res://scenes/prefabs/ships/placeholders/"  # <family>_<weight>.tscn
-const HULL_FORM_GIRTH = {"light": 0.85, "medium": 1.0, "heavy": 1.25}  # Across, by weight class
+const HULL_FORM_GIRTH = {"light": 0.85, "medium": 1.0, "heavy": 1.25, "superheavy": 1.5}  # Across, by weight class
 const HULL_FORM_EXHAUST_SCALE = 0.7
 const HULL_FORMS = {
 	"fighter": {"engines": [Vector3(0.07, 0, 0.47)], "parts": [
@@ -876,6 +880,7 @@ const HULL_FORMS = {
 		{"shape": "cylinder", "size": Vector3(0.07, 0.07, 0.16), "at": Vector3(0.07, 0, 0.38), "mirror": true},
 		{"shape": "box", "size": Vector3(0.24, 0.015, 0.14), "at": Vector3(0.14, -0.05, 0.26), "turn": Vector3(0, -30, 10), "mirror": true, "from": "medium"},
 		{"shape": "cylinder", "size": Vector3(0.04, 0.04, 0.32), "at": Vector3(0.33, 0, 0.08), "mirror": true, "from": "heavy"},
+		{"shape": "box", "size": Vector3(0.16, 0.06, 0.3), "at": Vector3(0, -0.07, 0.1), "look": "paint", "from": "superheavy"},
 	]},
 	"lance": {"engines": [Vector3(0.11, 0, 0.44)], "parts": [
 		{"shape": "cylinder", "size": Vector3(0.06, 0.06, 0.8), "at": Vector3(0, 0, -0.05)},
@@ -885,6 +890,7 @@ const HULL_FORMS = {
 		{"shape": "cylinder", "size": Vector3(0.06, 0.06, 0.3), "at": Vector3(0.11, 0, 0.27), "mirror": true},
 		{"shape": "box", "size": Vector3(0.012, 0.1, 0.12), "at": Vector3(0, 0.08, 0.3), "turn": Vector3(-25, 0, 0), "from": "medium"},
 		{"shape": "cylinder", "size": Vector3(0.16, 0.16, 0.03), "at": Vector3(0, 0, -0.24), "look": "paint", "from": "heavy"},
+		{"shape": "box", "size": Vector3(0.08, 0.08, 0.3), "at": Vector3(0.12, 0, 0.1), "look": "paint", "mirror": true, "from": "superheavy"},
 	]},
 	"prospector": {"engines": [Vector3(0, 0, 0.43)], "parts": [
 		{"shape": "sphere", "size": Vector3(0.32, 0.24, 0.5), "at": Vector3(0, 0, 0.05), "look": "paint"},
@@ -894,6 +900,7 @@ const HULL_FORMS = {
 		{"shape": "cylinder", "size": Vector3(0.1, 0.1, 0.12), "at": Vector3(0, 0, 0.35)},
 		{"shape": "box", "size": Vector3(0.12, 0.12, 0.2), "at": Vector3(0.2, 0, 0.15), "look": "paint", "mirror": true, "from": "medium"},
 		{"shape": "box", "size": Vector3(0.2, 0.1, 0.3), "at": Vector3(0, -0.14, 0.1), "from": "heavy"},
+		{"shape": "cylinder", "size": Vector3(0.16, 0.16, 0.3), "at": Vector3(0, 0.16, 0.12), "look": "paint", "from": "superheavy"},
 	]},
 	"raider": {"engines": [Vector3(0, 0, 0.46)], "parts": [
 		{"shape": "box", "size": Vector3(0.22, 0.06, 0.6), "at": Vector3(0, 0, 0.05), "look": "paint"},
@@ -904,6 +911,7 @@ const HULL_FORMS = {
 		{"shape": "cylinder", "size": Vector3(0.08, 0.08, 0.15), "at": Vector3(0, 0, 0.38)},
 		{"shape": "box", "size": Vector3(0.06, 0.06, 0.2), "at": Vector3(0, -0.05, -0.1), "from": "medium"},
 		{"shape": "box", "size": Vector3(0.08, 0.08, 0.35), "at": Vector3(0.14, -0.02, 0.05), "look": "paint", "mirror": true, "from": "heavy"},
+		{"shape": "box", "size": Vector3(0.3, 0.05, 0.3), "at": Vector3(0, -0.06, 0.12), "look": "paint", "from": "superheavy"},
 	]},
 	"scavenger": {"engines": [Vector3(0.06, 0, 0.43)], "parts": [
 		{"shape": "box", "size": Vector3(0.18, 0.14, 0.55), "at": Vector3(0, 0, 0.08)},
@@ -914,6 +922,7 @@ const HULL_FORMS = {
 		{"shape": "cylinder", "size": Vector3(0.07, 0.07, 0.12), "at": Vector3(0.06, 0, 0.36), "mirror": true},
 		{"shape": "box", "size": Vector3(0.12, 0.12, 0.15), "at": Vector3(0.16, 0, 0.02), "look": "paint", "mirror": true, "from": "medium"},
 		{"shape": "box", "size": Vector3(0.12, 0.12, 0.15), "at": Vector3(0.16, 0, 0.2), "look": "paint", "mirror": true, "from": "heavy"},
+		{"shape": "box", "size": Vector3(0.22, 0.1, 0.4), "at": Vector3(0, -0.13, 0.08), "from": "superheavy"},
 	]},
 }
 # A frozen world (Evolution.frozen, the game; the arena sim evolves): each faction's havens fly the
@@ -1059,7 +1068,7 @@ const EVO_FACTIONS = ["verdant", "violet", "raiders", "xenohive"]  # Each keeps 
 const XENOHIVE_MASS_PER_DRONE = 5000.0  # kg
 const XENOHIVE_DRONES_MAX = 3
 const PRESETS_DIR = "res://database/presets"  # Exported designs (tools/export_presets.gd): the home station sells them
-const PRESET_WEIGHT_CLASSES = [["light", -0.5], ["medium", 1.0], ["heavy", INF]]  # Preset export: niche size class up to this
+const PRESET_WEIGHT_CLASSES = [["light", -0.5], ["medium", 0.5], ["heavy", 1.5], ["superheavy", INF]]  # Hull weight classes: niche size class (half-octaves of size) up to this; s under 0.84, 1.68, 3.36, then up to LAW_SHIP_SIZE_MAX
 # Wages (Wages): escorts take ESCORT_SHARE of their ward's sales; factions that pay patrol wages pay
 # armed ships PATROL_WAGE_SHARE_PER_HOUR of their value an hour spent at their pickets, up to
 # PATROL_WAGE_MAX_TIME between dockings.
@@ -1099,10 +1108,16 @@ const EVO_WEAPON_ODDS = {"laser": 0.5, "missile": 0.25, "cannon": 0.25}  # A new
 const EVO_REPAIR_COST_SHARE = 0.5  # A full repair costs this share of the hull's value (less for less)
 const EVO_UPKEEP_PER_HOUR = 0.5  # Running costs: this share of the ship's value per hour alive
 # Combat niches (fighters, raiders, lancers: Genome.is_combat_role) are judged on the exchange: the
-# value of enemy ships they destroyed (each hit worth its share of the victim's hull, times the
-# victim's cost) counts toward fitness at this weight, next to what they earned and lost.
+# value of enemy ships they destroyed counts toward fitness at this weight, next to what they earned
+# and lost. Each hit is worth its share of the victim's hull times the victim's cost, credited only
+# when the victim dies (and to attackers still flying): damage on a ship that gets away counts nothing.
 const EVO_COMBAT_EXCHANGE_WEIGHT = 1.0
 const EVO_PRIOR_LIVES = 2.0  # Fitness mean = sum / (lives + this)
+# Archive places, proving and export rank a genome by a cautious estimate (PresetExporter.ranked): its
+# shrunk mean less EVO_RANK_SE_WEIGHT standard errors, its lives' spread taken with EVO_PRIOR_LIVES lives
+# of EVO_PRIOR_SD (one life's fitness spreads about 1.1 either way), so a lucky few lives do not take a niche.
+const EVO_PRIOR_SD = 1.1
+const EVO_RANK_SE_WEIGHT = 1.0
 const EVO_SELECTION_TEMPERATURE = 0.2  # Niche pick weight = exp(fitness / this)
 const EVO_REFLY_CHANCE = 0.25  # A spawn flies a niche's genome unchanged (to measure it again)
 const EVO_IMMIGRANT_CHANCE = 0.05  # A spawn is a fresh random genome
@@ -1141,6 +1156,10 @@ const EVO_FACTION_SEEDS = [
 	{"type": 2, "size": 1.0, "tools": ["laser", "harpoon"], "modules": ["lance", "plating"], "behavior": {"prospect": 1.0, "engage": 2.0, "retreat_hull": 0.4}},
 	{"type": 1, "size": 0.7, "tools": ["laser", "harpoon"], "modules": ["lance", "thruster"], "behavior": {"prospect": 1.0, "engage": 2.5, "retreat_hull": 0.5}},
 	{"type": 2, "size": 1.2, "tools": [["laser", 2], ["laser", 2]], "modules": [["plating", 2], "sensor"], "behavior": {"teamwork": 2.0, "engage": 0.8}},
+	# Super-heavies (PRESET_WEIGHT_CLASSES): a gun line, a big prospector, a salvage tug
+	{"type": 4, "size": 6.0, "tools": [["laser", 3], ["laser", 3], ["missile", 3], ["laser", 2]], "modules": [["plating", 3], ["power_cell", 3]], "behavior": {"teamwork": 1.5, "engage": 0.8}},
+	{"type": 4, "size": 5.0, "tools": [["laser", 3], "harpoon", ["laser", 2]], "modules": [["lance", 3], ["plating", 3]], "behavior": {"prospect": 1.0, "engage": 2.0, "retreat_hull": 0.4}},
+	{"type": 4, "size": 4.0, "tools": ["harpoon", "harpoon"], "modules": [["plating", 3], ["thruster", 3]], "behavior": {"engage": 0.5, "haul": 0.5}},
 ]
 const EVO_SEEDS = {
 	"verdant": EVO_FACTION_SEEDS,
@@ -1149,11 +1168,13 @@ const EVO_SEEDS = {
 		{"type": 1, "size": 0.7, "tools": ["laser", "harpoon"], "modules": ["afterburner", "plating"], "behavior": {"engage": 0.7, "mercy": 0.1, "pursuit": 2.0}},
 		{"type": 2, "size": 1.0, "tools": ["laser", "harpoon"], "modules": [["lance", 2], "afterburner"], "behavior": {"engage": 0.8, "mercy": 0.2}},
 		{"type": 2, "size": 1.3, "tools": [["cannon", 2], "harpoon"], "modules": [["plating", 2], ["afterburner", 2]], "behavior": {"engage": 0.8}},
+		{"type": 4, "size": 5.0, "tools": [["cannon", 3], "harpoon", ["cannon", 3], ["laser", 2]], "modules": [["plating", 3], ["afterburner", 3]], "behavior": {"engage": 0.8}},
 	],
 	"xenohive": [
 		{"type": 1, "size": 0.5, "tools": ["laser"], "modules": ["thruster"], "behavior": {"teamwork": 2.0, "engage": 0.6}},
 		{"type": 1, "size": 0.7, "tools": ["harpoon", "laser"], "modules": ["plating", "thruster"], "behavior": {"engage": 2.5, "retreat_hull": 0.5}},
 		{"type": 2, "size": 1.5, "tools": [["laser", 2], "laser"], "modules": ["lance", ["plating", 2]], "behavior": {"engage": 0.6, "teamwork": 1.5}},
+		{"type": 4, "size": 6.0, "tools": [["laser", 3], ["laser", 3], ["laser", 3]], "modules": [["lance", 3], ["plating", 3]], "behavior": {"engage": 0.6, "teamwork": 1.5}},
 	],
 }
 const EVO_GENOME_MEMORY = 3000  # Genomes whose records are kept (elites and live ones always are)

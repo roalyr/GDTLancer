@@ -11,7 +11,7 @@ const MeshLod = preload("res://src/core/agents/components/mesh_lod.gd")
 const ModelLooks = preload("res://src/scenes/game_world/models/model_looks.gd")
 
 const FAMILIES = ["fighter", "lance", "prospector", "raider", "scavenger"]
-const WEIGHTS = ["light", "medium", "heavy"]
+const WEIGHTS = ["light", "medium", "heavy", "superheavy"]
 const SPACING = 30.0  # m between placeholder hulls; a model sheet spaces by the model's size
 const MODEL_GAP = 1.3  # A model sheet's spacing, times the model's widest span (stations are big)
 

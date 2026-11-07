@@ -10,6 +10,7 @@
 extends Reference
 
 const Genome = preload("res://src/core/evolution/genome.gd")
+const ShipLaws = preload("res://src/core/systems/ship_laws.gd")
 
 # Gene -> [word when low, word when high]: a gene PRESET_TRAIT_SHARE of the way from its default to
 # the bottom or top of its range.
@@ -72,17 +73,13 @@ static func ship_role(ship, behavior: Dictionary = {}) -> String:
 	return role
 
 
-# Light, medium or heavy, from the hull's size gene; a hull without one by its mass against the
+# Its weight class (ShipLaws.weight_class), from the hull's size gene; a hull without one by its mass against the
 # reference hull's.
 static func ship_weight(ship) -> String:
 	var size: float = float(ship.law_genes.get("size", 0.0)) if ship.law_genes is Dictionary else 0.0
 	if size <= 0.0:
 		size = float(ship.mass) / Constants.LAW_SHIP_REF_MASS
-	var size_class: float = round(log(max(size, 0.001)) / log(2.0) * 2.0) / 2.0
-	for weight in Constants.PRESET_WEIGHT_CLASSES:
-		if size_class <= weight[1]:
-			return weight[0]
-	return Constants.PRESET_WEIGHT_CLASSES.back()[0]
+	return ShipLaws.weight_class(size)
 
 
 static func temperament(behavior: Dictionary) -> String:

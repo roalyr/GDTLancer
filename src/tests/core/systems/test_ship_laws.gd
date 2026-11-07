@@ -19,8 +19,9 @@ func test_reference_genes_give_the_reference_ship():
 	assert_almost_eq(stats.power_regen, 10.0, 0.01)
 	assert_almost_eq(stats.signature, 1500.0, 0.01)
 	assert_almost_eq(stats.apparent_radius, 12.0, 0.01)
-	assert_eq(stats.tool_slots_small, 2)
+	assert_eq(stats.tool_slots_medium, 2, "The reference ship is a medium hull: medium hardpoints")
 	assert_eq(stats.module_slots, 2)
+	assert_eq(stats.module_slot_size, "medium", "and medium bays")
 	assert_eq(stats.base_value, 1000)
 
 
@@ -45,7 +46,7 @@ func test_bigger_ships_are_longer_tougher_and_turn_slower():
 	assert_almost_eq(big.apparent_radius / small.apparent_radius, pow(16.0, 1.0 / 3.0), 0.001)
 	assert_lt(big.linear_thrust / big.mass, small.linear_thrust / small.mass, "Thrust per kg falls with size")
 	assert_eq(small.tool_slots_small, 1, "Even the smallest ship has one hardpoint")
-	assert_eq(big.tool_slots_medium, 5, "Hardpoints grow with the surface, and take bigger tools")
+	assert_eq(big.tool_slots_large, 5, "Hardpoints grow with the surface, and take bigger tools")
 
 
 func test_shares_are_normalized_with_minimums():
@@ -66,7 +67,27 @@ func test_laser_energy_trades_reach_and_punch_for_cycle_time():
 	assert_lt(hot.damage / hot.cycle_time, light.damage / light.cycle_time, "Hotter shots: less damage per second")
 	var heavy: Dictionary = ShipLaws.laser_stats({"mass": 1200.0, "energy": 5.0})
 	assert_lt(heavy.tracking, light.tracking, "Heavier turrets track worse")
-	assert_eq(heavy.mount_size, "medium")
+	assert_eq(heavy.mount_size, "large")
+	assert_eq(ShipLaws.laser_stats({"mass": 600.0, "energy": 5.0}).mount_size, "medium")
+
+
+func test_weight_classes_set_the_slot_sizes():
+	var expect := [[0.3, "light", "small"], [0.8, "light", "small"], [1.0, "medium", "medium"], [1.6, "medium", "medium"],
+		[2.0, "heavy", "large"], [3.3, "heavy", "large"], [4.0, "superheavy", "large"], [16.0, "superheavy", "large"]]
+	for row in expect:
+		assert_eq(ShipLaws.weight_class(row[0]), row[1], "s=%.1f" % row[0])
+		assert_eq(ShipLaws.slot_size_for(row[0]), row[2], "s=%.1f" % row[0])
+		assert_eq(ShipLaws.ship_stats({"size": row[0]}).module_slot_size, row[2])
+
+
+func test_a_parts_weight_is_its_mount_size():
+	for kind in PartCatalog.weighted_kinds():
+		for part_type in PartCatalog.WEIGHTS:
+			var expected: String = ["small", "medium", "large"][part_type - 1]
+			assert_eq(PartCatalog.mount_size(kind, part_type, PartCatalog.genes(kind, part_type)), expected, "%s %s" % [kind, PartCatalog.weight_name(part_type)])
+			var part = PartCatalog.template(kind, part_type)
+			if part is UtilityToolTemplate:
+				assert_eq(part.mount_size, expected, "%s %s as stored" % [kind, PartCatalog.weight_name(part_type)])
 
 
 func test_module_laws_match_the_ship_subsystems():

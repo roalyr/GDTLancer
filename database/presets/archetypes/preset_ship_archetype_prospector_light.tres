@@ -19,6 +19,7 @@ tool_slots_small = 2
 tool_slots_medium = 0
 tool_slots_large = 0
 module_slots = 1
+module_slot_size = "small"
 equipped_tools = [ "preset_laser_light", "preset_harpoon" ]
 equipped_modules = [ "preset_lance_light" ]
 salvage_yield = {
@@ -26,12 +27,12 @@ salvage_yield = {
 "commodity_tech": 7
 }
 power_capacity = 77.2956
-power_regen = 7.37443
+power_regen = 7.37444
 mass = 3543.42
-linear_thrust = 387394.0
-angular_thrust = 360772.0
+linear_thrust = 387395.0
+angular_thrust = 360773.0
 alignment_threshold_angle_deg = 45.0
-model_scale = 0.83899
+model_scale = 0.838991
 variant_type = 1
 law_genes = {
 "shares": {

@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://src/scenes/game_world/models/placeholder_hull.gd" type="Script" id=1]
+
+[sub_resource type="CapsuleShape" id=1]
+radius = 4.0
+height = 8.0
+
+[node name="raider_superheavy" type="Spatial"]
+script = ExtResource( 1 )
+form = "raider_superheavy"
+
+[node name="CollisionShape" type="CollisionShape" parent="."]
+shape = SubResource( 1 )

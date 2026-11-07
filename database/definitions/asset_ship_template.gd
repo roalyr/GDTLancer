@@ -19,6 +19,7 @@ export var tool_slots_small: int = 2  # Number of small weapon mounts
 export var tool_slots_medium: int = 0  # Number of medium weapon mounts
 export var tool_slots_large: int = 0  # Number of large weapon mounts
 export var module_slots: int = 2  # Number of module slots
+export var module_slot_size: String = "large"  # Every bay's size: a module fits a bay of its size or larger (ShipFit; a hand-made hull's take any)
 export var equipped_tools: Array = []  # Default fit: UtilityToolTemplate ids, small slots first, then medium, then large
 export var equipped_modules: Array = []  # Default fit: ModuleTemplate ids
 export var salvage_yield: Dictionary = {}  # Commodity id -> units left in this ship's wreck (plus its cargo)

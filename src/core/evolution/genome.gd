@@ -16,12 +16,13 @@ const PartCatalog = preload("res://src/core/systems/part_catalog.gd")
 
 const TOOL_KINDS = ["laser", "missile", "cannon", "harpoon"]
 const WEAPON_KINDS = ["laser", "missile", "cannon"]
+const SLOT_SIZES = ["small", "medium", "large"]
 
 
 # --- Making genomes ---
 
 static func random_genome() -> Dictionary:
-	var ship_type: int = 1 + randi() % 3
+	var ship_type: int = 1 + randi() % Constants.SHIP_TYPE_SEEDS.size()
 	var seed_genes: Dictionary = Constants.SHIP_TYPE_SEEDS[ship_type]
 	var genome := {
 		"ship": {"type": ship_type, "size": float(seed_genes["size"]), "shares": seed_genes.shares.duplicate()},
@@ -32,9 +33,9 @@ static func random_genome() -> Dictionary:
 	_mutate_ship(genome.ship, 3.0)
 	_fit_slots(genome)
 	for i in range(genome.tools.size()):
-		genome.tools[i] = random_part(_random_weapon_kind() if i == 0 else _random_tool_kind(_harpoons_in(genome.tools, i)), slot_mass_limit(genome))
+		genome.tools[i] = random_part(_random_weapon_kind() if i == 0 else _random_tool_kind(_harpoons_in(genome.tools, i)), slot_size(genome))
 	for i in range(genome.modules.size()):
-		genome.modules[i] = {} if randf() < Constants.EVO_EMPTY_SLOT_CHANCE else random_part(ShipLaws.MODULE_KINDS[randi() % ShipLaws.MODULE_KINDS.size()])
+		genome.modules[i] = {} if randf() < Constants.EVO_EMPTY_SLOT_CHANCE else random_part(ShipLaws.MODULE_KINDS[randi() % ShipLaws.MODULE_KINDS.size()], slot_size(genome))
 	return genome
 
 
@@ -56,7 +57,7 @@ static func seed_genome(spec: Dictionary) -> Dictionary:
 	for gene in spec.get("behavior", {}):
 		genome.behavior[gene] = float(spec.behavior[gene])
 	_fit_slots(genome)
-	var max_mass: float = slot_mass_limit(genome)
+	var slot: String = slot_size(genome)
 	for group in [["tools", spec.get("tools", [])], ["modules", spec.get("modules", [])]]:
 		var parts: Array = genome[group[0]]
 		for i in range(min(parts.size(), group[1].size())):
@@ -68,7 +69,7 @@ static func seed_genome(spec: Dictionary) -> Dictionary:
 			elif kind == "harpoon":
 				parts[i] = {"kind": "harpoon", "type": 0, "genes": {}}
 			else:
-				parts[i] = _fitted({"kind": kind, "type": part_type, "genes": {}}, max_mass if group[0] == "tools" else INF)
+				parts[i] = _fitted({"kind": kind, "type": part_type, "genes": {}}, slot)
 	return genome
 
 
@@ -122,29 +123,30 @@ static func retire_parts(genome: Dictionary) -> bool:
 			changed = true
 	if not genome.has("ship"):
 		return changed
-	var max_mass: float = slot_mass_limit(genome)
+	var slot: String = slot_size(genome)
 	for group in ["tools", "modules"]:
 		var parts: Array = genome.get(group, [])
 		for i in range(parts.size()):
-			var fitted: Dictionary = _fitted(parts[i], max_mass if group == "tools" else INF)
+			var fitted: Dictionary = _fitted(parts[i], slot)
 			if fitted.hash() != parts[i].hash():
 				parts[i] = fitted
 				changed = true
 	return changed
 
 
-# The catalogue's part of `kind` ("" for an empty slot) of a random weight that fits the hardpoint.
-static func random_part(kind: String, max_mass: float = INF) -> Dictionary:
+# The catalogue's part of `kind` ("" for an empty slot) of a random weight that fits the slot.
+static func random_part(kind: String, slot: String = "large") -> Dictionary:
 	if kind == "":
 		return {}
 	if kind == "harpoon":
 		return {"kind": "harpoon", "type": 0, "genes": {}}
-	return _fitted({"kind": kind, "type": 1 + randi() % 3, "genes": {}}, max_mass)
+	return _fitted({"kind": kind, "type": 1 + randi() % 3, "genes": {}}, slot)
 
 
 # `part` as the catalogue has it: its kind and weight, the catalogue's genes; the next lighter weight
-# where it is too heavy for the hardpoint (`max_mass`, tools); {} if even the light one is.
-static func _fitted(part: Dictionary, max_mass: float = INF) -> Dictionary:
+# where it is too big for the slot (`slot`: "small", "medium" or "large"; PartCatalog.mount_size);
+# {} if even the light one is.
+static func _fitted(part: Dictionary, slot: String = "large") -> Dictionary:
 	if part.empty():
 		return {}
 	if part.kind == "harpoon":
@@ -152,7 +154,7 @@ static func _fitted(part: Dictionary, max_mass: float = INF) -> Dictionary:
 	var part_type: int = int(clamp(int(part.get("type", 1)), 1, 3))
 	while part_type >= 1:
 		var genes: Dictionary = PartCatalog.genes(part.kind, part_type)
-		if not genes.empty() and PartCatalog.mount_mass(part.kind, genes) <= max_mass:
+		if not genes.empty() and SLOT_SIZES.find(PartCatalog.mount_size(part.kind, part_type, genes)) <= SLOT_SIZES.find(slot):
 			return {"kind": part.kind, "type": part_type, "genes": genes}
 		part_type -= 1
 	return {}
@@ -160,11 +162,11 @@ static func _fitted(part: Dictionary, max_mass: float = INF) -> Dictionary:
 
 # A heavier or lighter part of the same kind, now and then (EVO_GENE_MUTATION_CHANCE): the part's
 # own genes never vary, its weight does.
-static func _mutate_weight(part: Dictionary, scale: float, max_mass: float) -> Dictionary:
+static func _mutate_weight(part: Dictionary, scale: float, slot: String) -> Dictionary:
 	if part.empty() or part.kind == "harpoon" or randf() >= Constants.EVO_GENE_MUTATION_CHANCE * scale:
-		return _fitted(part, max_mass)
+		return _fitted(part, slot)
 	var part_type: int = int(clamp(int(part.type) + (1 if randf() < 0.5 else -1), 1, 3))
-	return _fitted({"kind": part.kind, "type": part_type, "genes": {}}, max_mass)
+	return _fitted({"kind": part.kind, "type": part_type, "genes": {}}, slot)
 
 
 # --- Mutation ---
@@ -176,18 +178,18 @@ static func mutate(genome: Dictionary, behavior_on: bool) -> Dictionary:
 	var scale: float = 5.0 if randf() < Constants.EVO_MACRO_MUTATION_CHANCE else 1.0
 	_mutate_ship(child.ship, scale)
 	_fit_slots(child)
-	var max_mass: float = slot_mass_limit(child)
+	var slot: String = slot_size(child)
 	for i in range(child.tools.size()):
 		if randf() < Constants.EVO_PART_SWAP_CHANCE * scale:
-			child.tools[i] = random_part(_random_tool_kind(_harpoons_in(child.tools, i)), max_mass)
+			child.tools[i] = random_part(_random_tool_kind(_harpoons_in(child.tools, i)), slot)
 		else:
-			child.tools[i] = _mutate_weight(child.tools[i], scale, max_mass)
+			child.tools[i] = _mutate_weight(child.tools[i], scale, slot)
 	for i in range(child.modules.size()):
 		if randf() < Constants.EVO_PART_SWAP_CHANCE * scale:
 			var kind: String = "" if randf() < Constants.EVO_EMPTY_SLOT_CHANCE else ShipLaws.MODULE_KINDS[randi() % ShipLaws.MODULE_KINDS.size()]
-			child.modules[i] = random_part(kind)
+			child.modules[i] = random_part(kind, slot)
 		else:
-			child.modules[i] = _mutate_weight(child.modules[i], scale, INF)
+			child.modules[i] = _mutate_weight(child.modules[i], scale, slot)
 	if behavior_on:
 		_mutate_behavior(child, scale)
 	return child
@@ -241,14 +243,9 @@ static func _resized(parts: Array, count: int) -> Array:
 	return result
 
 
-# Heaviest laser the ship's hardpoints take (a laser's mount size follows its mass).
-static func slot_mass_limit(genome: Dictionary) -> float:
-	match ShipLaws.slot_size_for(float(genome.ship["size"])):
-		"small":
-			return Constants.LAW_LASER_MEDIUM_MASS - 1.0
-		"medium":
-			return Constants.LAW_LASER_LARGE_MASS - 1.0
-	return INF
+# The size of the ship's hardpoints and bays (ShipLaws.slot_size_for): parts of that size or smaller fit.
+static func slot_size(genome: Dictionary) -> String:
+	return ShipLaws.slot_size_for(float(genome.ship["size"]))
 
 
 # --- Templates ---
@@ -426,9 +423,7 @@ static func niche(genome: Dictionary) -> String:
 	if lasers > 0:
 		var mean_range: float = range_sum / lasers
 		range_class = "short" if mean_range < 800.0 else ("mid" if mean_range < 1400.0 else "long")
-	var size_class: float = round(log(float(genome.ship["size"])) / log(2.0) * 2.0) / 2.0
-	if abs(size_class) < 0.01:
-		size_class = 0.0  # Not "-0.0"
+	var size_class: float = ShipLaws.size_class(float(genome.ship["size"]))
 	return "s%+.1f|%s|%s" % [size_class, role, range_class]
 
 
