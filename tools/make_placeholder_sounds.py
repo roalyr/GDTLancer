@@ -143,8 +143,8 @@ def danger_music():
     t = t_of(seconds)
     drone = sum(tone(looped(f, seconds), t) * a for f, a in [(73.4, 0.5), (110.0, 0.35), (146.8, 0.2), (155.6, 0.08)])
     pulse = 0.65 + 0.35 * tone(looped(0.5, seconds), t)
-    air = seamless_noise(seconds, 600) * 1.5 * (0.5 + 0.5 * tone(looped(0.125, seconds), t))
-    return normal(drone * pulse + air, 0.5)
+    air = seamless_noise(seconds, 300) * 0.15 * (0.5 + 0.5 * tone(looped(0.125, seconds), t))  # A faint breath only: louder, it read as a steady hiss
+    return normal(drone * pulse + air, 0.31)  # As loud as it was with the hiss
 
 
 def combat_music():
