@@ -169,7 +169,7 @@ func test_the_engine_loop_follows_thrust():
 	assert_lt(loop.unit_db, -60.0, "Coasting, engine off: silent")
 	ship.activity = 0.5
 	fx._drive_engine(loop, ship)
-	assert_almost_eq(db2linear(loop.unit_db - Constants.SOUND_EFFECTS_VOLUME_DB), Constants.SOUND_ENGINE_MAX_GAIN * 0.5, 0.001, "Half thrust: half as loud")
+	assert_almost_eq(db2linear(loop.unit_db - Constants.SOUND_EFFECTS_VOLUME_DB), Constants.SOUND_ENGINE_MAX_GAIN * pow(0.5, Constants.SOUND_ENGINE_CURVE), 0.001, "Half thrust: quieter by the curve")
 	ship.activity = 1.0
 	fx._drive_engine(loop, ship)
 	assert_almost_eq(db2linear(loop.unit_db - Constants.SOUND_EFFECTS_VOLUME_DB), Constants.SOUND_ENGINE_MAX_GAIN, 0.001, "Full thrust: the cap")

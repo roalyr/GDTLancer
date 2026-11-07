@@ -15,6 +15,27 @@ bg_color = Color( 0, 0, 0, 0.25 )
 
 [sub_resource type="StyleBoxEmpty" id=8]
 
+[sub_resource type="StyleBoxFlat" id=11]
+content_margin_left = 14.0
+content_margin_right = 14.0
+content_margin_top = 14.0
+content_margin_bottom = 14.0
+bg_color = Color( 1, 1, 1, 0.35 )
+
+[sub_resource type="StyleBoxFlat" id=12]
+content_margin_left = 14.0
+content_margin_right = 14.0
+content_margin_top = 14.0
+content_margin_bottom = 14.0
+bg_color = Color( 1, 1, 1, 0.6 )
+
+[sub_resource type="StyleBoxFlat" id=10]
+content_margin_left = 14.0
+content_margin_right = 14.0
+content_margin_top = 14.0
+content_margin_bottom = 14.0
+bg_color = Color( 0, 0, 0, 0.25 )
+
 [sub_resource type="DynamicFont" id=1]
 size = 18
 use_mipmaps = true
@@ -43,27 +64,6 @@ bg_color = Color( 0, 0, 0, 0 )
 border_width_left = 50
 border_width_right = 50
 border_color = Color( 0, 0, 0, 0 )
-
-[sub_resource type="StyleBoxFlat" id=10]
-content_margin_left = 14.0
-content_margin_right = 14.0
-content_margin_top = 14.0
-content_margin_bottom = 14.0
-bg_color = Color( 0, 0, 0, 0.25 )
-
-[sub_resource type="StyleBoxFlat" id=11]
-content_margin_left = 14.0
-content_margin_right = 14.0
-content_margin_top = 14.0
-content_margin_bottom = 14.0
-bg_color = Color( 1, 1, 1, 0.35 )
-
-[sub_resource type="StyleBoxFlat" id=12]
-content_margin_left = 14.0
-content_margin_right = 14.0
-content_margin_top = 14.0
-content_margin_bottom = 14.0
-bg_color = Color( 1, 1, 1, 0.6 )
 
 [resource]
 default_font = SubResource( 2 )

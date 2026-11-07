@@ -118,13 +118,19 @@ def missile_launch():
 
 
 def engine_loop():
+    """A low, dull drone with no noise: a 70 Hz tone whose harmonics fall off fast (dull), a second
+    voice a hair sharp beating slowly against it, a gentle swell. Its body sits at 70-500 Hz so
+    laptop and phone speakers play it (they drop most of what is under ~150 Hz: a 36 Hz hum and its
+    rumble left only the rumble's hiss audible)."""
     seconds = 2.0
     t = t_of(seconds)
-    # Low and dull: a deep hum with no bright partials, rumble low-passed hard, a slow gentle swell.
-    hum = tone(looped(36, seconds), t) * 0.55 + tone(looped(54, seconds), t) * 0.2 + tone(looped(72, seconds), t) * 0.05
-    rumble = seamless_noise(seconds, 90) * 4.0  # A third of the hum's level: the hum carries it
-    wobble = 1.0 + 0.08 * tone(looped(1, seconds), t)
-    return normal((hum + rumble) * wobble, 0.6)
+    drone = np.zeros(t.size)
+    for n in range(1, 8):
+        amplitude = 1.0 / n ** 1.6
+        drone += tone(looped(70.0 * n, seconds), t) * amplitude
+        drone += tone(looped(70.5 * n, seconds), t) * amplitude * 0.5
+    swell = 1.0 + 0.06 * tone(looped(0.5, seconds), t)
+    return normal(drone * swell, 0.6)
 
 
 def notice(freqs, beep, gap, peak):
