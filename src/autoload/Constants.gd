@@ -1243,7 +1243,8 @@ const SOUND_ENGINE_OTHERS_SHARE = 0.5
 const SOUND_AFTERBURNER_PITCH = 1.35  # The engine's pitch while the afterburner burns
 const SOUND_AFTERBURNER_PITCH_TIME = 0.4  # s to pitch up (and back down)
 const SOUND_LASER_HUM_GAIN = 0.3  # A laser's hum while on (linear, of the file's own): low
-const SOUND_LASER_HUM_FADE = 0.3  # s for the hum to come up or die away  # Other ships' engines play at this share of the player's loudness
+const SOUND_REEL_GAIN = 0.6  # The harpoon winch while it turns
+const SOUND_LOOP_FADE = 0.3  # s for a carried loop (laser hum, winch) to come up or die away  # Other ships' engines play at this share of the player's loudness
 
 
 # ==================================================================================================

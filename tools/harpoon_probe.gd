@@ -66,6 +66,11 @@ func _ready() -> void:
 		wreck.global_transform.origin = player.global_transform.origin - player.global_transform.basis.z * start_distance
 		wreck.linear_velocity = Vector3.ZERO
 		wreck.become_wreck()
+		var boom := -200.0
+		for f in range(10):
+			yield(_wait(0.05), "completed")
+			boom = max(boom, AudioServer.get_bus_peak_volume_left_db(0, 0))
+		print("HARPOON wrecked at %.0f m: %s peak %.0f dB" % [start_distance, PoolStringArray(_playing(get_tree().root)).join(" "), boom])
 	if cargo_full:
 		player.add_cargo(wreck.salvage.keys()[0] if chunk_target else "commodity_ore_iron", player.cargo_capacity - player.get_cargo_units())
 	yield(_wait(0.5), "completed")
@@ -81,7 +86,14 @@ func _ready() -> void:
 	print("HARPOON pressing the harpoon button")
 	GlobalRefs.main_hud._on_tool_button_pressed(harpoon)
 	for t in range(seconds):
-		yield(_wait(1.0), "completed")
+		var heard := {}
+		var peak := -200.0
+		for f in range(10):
+			yield(_wait(0.1), "completed")
+			peak = max(peak, AudioServer.get_bus_peak_volume_left_db(0, 0))
+			for node in _playing(get_tree().root):
+				heard[node] = true
+		print("HARPOON sounds %s peak %.0f dB" % [PoolStringArray(heard.keys()).join(" "), peak])
 		var tether = tools.get_tether(harpoon)
 		var nav = player.get_node("NavigationSystem")
 		var state := "none"
@@ -92,6 +104,16 @@ func _ready() -> void:
 			wreck.global_transform.origin.distance_to(player.global_transform.origin) if is_instance_valid(wreck) else -1.0,
 			wreck.get_salvage_units() if is_instance_valid(wreck) else -1, player.get_cargo_units(), player.cargo_capacity])
 	get_tree().quit()
+
+
+# What plays near the player (within 300 m): 3D players' stream files or node names.
+func _playing(node: Node) -> Array:
+	var out: Array = []
+	if node is AudioStreamPlayer3D and node.playing and node.global_transform.origin.distance_to(GlobalRefs.player_agent_body.global_transform.origin) < 300.0:
+		out.append(node.stream.resource_path.get_file().get_basename() if node.stream != null else node.name)
+	for child in node.get_children():
+		out += _playing(child)
+	return out
 
 
 func _all_units(pieces: Array) -> Array:

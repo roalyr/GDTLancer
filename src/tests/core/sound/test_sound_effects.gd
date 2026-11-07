@@ -222,15 +222,15 @@ func test_a_laser_hums_while_on():
 	var tools := FakeTools.new()
 	tools.name = "ToolController"
 	ship.add_child(tools)
-	fx._drive_laser_hum(ship, 0.1)
+	fx._drive_loop(ship, "laser_hum", fx.LASER_HUM_NAME, fx.laser_on(ship), Constants.SOUND_LASER_HUM_GAIN, 0.1)
 	assert_null(ship.get_node_or_null(fx.LASER_HUM_NAME), "Off: no hum")
 	tools.on = true
-	fx._drive_laser_hum(ship, Constants.SOUND_LASER_HUM_FADE)
+	fx._drive_loop(ship, "laser_hum", fx.LASER_HUM_NAME, fx.laser_on(ship), Constants.SOUND_LASER_HUM_GAIN, Constants.SOUND_LOOP_FADE)
 	var hum = ship.get_node(fx.LASER_HUM_NAME)
 	assert_true(hum.playing)
 	assert_almost_eq(db2linear(hum.unit_db - Constants.SOUND_EFFECTS_VOLUME_DB), Constants.SOUND_LASER_HUM_GAIN, 0.001, "Low")
 	tools.on = false
-	fx._drive_laser_hum(ship, Constants.SOUND_LASER_HUM_FADE)
+	fx._drive_loop(ship, "laser_hum", fx.LASER_HUM_NAME, fx.laser_on(ship), Constants.SOUND_LASER_HUM_GAIN, Constants.SOUND_LOOP_FADE)
 	assert_false(hum.playing, "Off again: dies away")
 
 
@@ -245,3 +245,40 @@ func test_a_weapon_hit_takes_the_place_of_the_hull_hit():
 	fx._weapon_hits.clear()
 	fx._hull_hit(weakref(ship))
 	assert_eq(fx.get_child_count(), before + 2, "Other damage: the hull hit")
+
+
+class FakeTether extends Node:
+	var length := 50.0
+	var min_length := 10.0
+	func is_valid() -> bool:
+		return true
+
+
+class FakeHarpoonTools extends Node:
+	var tether = null
+	var retracting := false
+	func get_tool_count() -> int:
+		return 1
+	func get_tether(_index: int):
+		return tether
+	func is_retracting(_index: int) -> bool:
+		return retracting
+
+
+func test_the_winch_turns_while_a_harpoon_reels_in_or_pulls_its_cable_back():
+	var fx = _effects(["harpoon_reel"])
+	var ship := FakeShip.new()
+	add_child_autofree(ship)
+	var tools := FakeHarpoonTools.new()
+	tools.name = "ToolController"
+	ship.add_child(tools)
+	assert_false(fx.winching(ship), "No harpoon out")
+	var tether := FakeTether.new()
+	autofree(tether)
+	tools.tether = tether
+	assert_true(fx.winching(ship), "Reeling in")
+	tether.length = tether.min_length
+	assert_false(fx.winching(ship), "Reeled in: the winch stops")
+	tools.tether = null
+	tools.retracting = true
+	assert_true(fx.winching(ship), "Pulling a loose cable back")

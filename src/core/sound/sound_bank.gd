@@ -17,17 +17,18 @@ const SLOTS = {
 	"missile_launch": "world",  # The hardpoint lets the missile go: a click
 	"missile_burst": "world",  # A missile goes off: on a hit, or shot down
 	"rock_hit": "world",  # A round or missile meets a rock
-	"harpoon_launch": "world",
-	"harpoon_hook": "world",  # The hook catches, at the towed body
+	"harpoon_launch": "world",  # The hook fired: a pneumatic thump
+	"harpoon_hook": "world",  # The hook clamps on, at the towed body: a metal clank and latch
 	"salvage": "world",  # A harpoon strips salvage, rounds or a lance off a wreck
 	"lance_launch": "world",  # A massive mechanical throw
 	"lance_strike": "world",  # A dull thud, at the target
 	"lance_glance": "world",  # Too slow or at an angle: at the target
 	# Ships
 	"hull_hit": "world",  # Damage no weapon's own hit sound covers (radiation, a collision), at the ship
-	"ship_wrecked": "world",  # Hull at zero
+	"ship_wrecked": "world",  # Hull at zero: the ship blows up
 	"engine": "loop",  # Every ship's engine; louder with speed, pitched up while the afterburner burns
 	"laser_hum": "loop",  # A ship with a laser on: the low hum of high-current circuits, quiet
+	"harpoon_reel": "loop",  # A ship's harpoon winch turning: reeling in, or pulling a loose cable back
 	"missile_engine": "loop",  # A missile's thruster
 	# The player's screen
 	"ui_press": "ui",  # Any button
@@ -58,6 +59,7 @@ export(AudioStream) var hull_hit
 export(AudioStream) var ship_wrecked
 export(AudioStream) var engine
 export(AudioStream) var laser_hum
+export(AudioStream) var harpoon_reel
 export(AudioStream) var missile_engine
 export(AudioStream) var ui_press
 export(AudioStream) var notice_info

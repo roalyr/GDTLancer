@@ -1,4 +1,4 @@
-[gd_resource type="Resource" load_steps=15 format=2]
+[gd_resource type="Resource" load_steps=19 format=2]
 
 [ext_resource path="res://src/core/sound/sound_bank.gd" type="Script" id=1]
 [ext_resource path="res://assets/audio/placeholders/hull_hit.wav" type="AudioStream" id=2]
@@ -14,6 +14,10 @@
 [ext_resource path="res://assets/audio/placeholders/lance_launch.wav" type="AudioStream" id=12]
 [ext_resource path="res://assets/audio/placeholders/lance_strike.wav" type="AudioStream" id=13]
 [ext_resource path="res://assets/audio/placeholders/laser_hum.ogg" type="AudioStream" id=14]
+[ext_resource path="res://assets/audio/placeholders/harpoon_launch.wav" type="AudioStream" id=15]
+[ext_resource path="res://assets/audio/placeholders/harpoon_hook.wav" type="AudioStream" id=16]
+[ext_resource path="res://assets/audio/placeholders/harpoon_reel.ogg" type="AudioStream" id=17]
+[ext_resource path="res://assets/audio/placeholders/ship_wrecked.wav" type="AudioStream" id=18]
 
 [resource]
 script = ExtResource( 1 )
@@ -22,11 +26,15 @@ cannon_fire = ExtResource( 4 )
 cannon_hit = ExtResource( 9 )
 missile_launch = ExtResource( 5 )
 missile_burst = ExtResource( 11 )
+harpoon_launch = ExtResource( 15 )
+harpoon_hook = ExtResource( 16 )
 lance_launch = ExtResource( 12 )
 lance_strike = ExtResource( 13 )
 hull_hit = ExtResource( 2 )
+ship_wrecked = ExtResource( 18 )
 engine = ExtResource( 6 )
 laser_hum = ExtResource( 14 )
+harpoon_reel = ExtResource( 17 )
 missile_engine = ExtResource( 10 )
 hostile_detected = ExtResource( 7 )
 hostile_aware = ExtResource( 8 )

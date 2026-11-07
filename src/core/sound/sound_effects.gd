@@ -15,6 +15,7 @@ const LanceScript = preload("res://src/core/agents/components/lance_controller.g
 const MissileScript = preload("res://src/core/agents/components/missile.gd")
 const LOOP_NAME = "EngineSound"
 const LASER_HUM_NAME = "LaserHum"
+const REEL_NAME = "HarpoonReel"
 const WEAPON_HIT_WINDOW = 150  # ms: damage this soon after a weapon's own hit sound plays no hull_hit
 const ONE_SHOT_FALLBACK = 10.0  # s a one-shot of unknown length is kept before it is freed
 
@@ -109,14 +110,16 @@ func _process(delta: float) -> void:
 		var body: Spatial = ship[0]
 		if ship[1] != null and is_instance_valid(ship[1]):
 			_drive_engine(ship[1], body, delta)
-		_drive_laser_hum(body, delta)
+		var live: bool = not body.get("is_wreck")
+		_drive_loop(body, "laser_hum", LASER_HUM_NAME, live and laser_on(body), Constants.SOUND_LASER_HUM_GAIN, delta)
+		_drive_loop(body, "harpoon_reel", REEL_NAME, live and winching(body), Constants.SOUND_REEL_GAIN, delta)
 
 
 # --- Hooking onto what enters the tree ---
 
 func _on_node_added(node: Node) -> void:
 	if node is AgentScript:
-		if bank.stream("engine") != null or bank.stream("laser_hum") != null:
+		if bank.stream("engine") != null or bank.stream("laser_hum") != null or bank.stream("harpoon_reel") != null:
 			call_deferred("_track_ship", node)
 	elif node is ToolControllerScript:
 		_connect(node, "tool_cycled", "_on_tool_cycled", [node])
@@ -170,25 +173,39 @@ func _drive_engine(loop: AudioStreamPlayer3D, body: Spatial, delta: float = 0.0)
 	loop.pitch_scale = move_toward(loop.pitch_scale, pitch, (Constants.SOUND_AFTERBURNER_PITCH - 1.0) * step)
 
 
-# A laser on (any of the ship's): its hum (a "laser_hum" loop, made the first time) fades in over
-# SOUND_LASER_HUM_FADE s at SOUND_LASER_HUM_GAIN, and out again; silent, it stops.
-func _drive_laser_hum(body: Spatial, delta: float) -> void:
-	if bank.stream("laser_hum") == null:
+# A loop the ship carries while `on` (a laser's hum, the harpoon winch): the `slot` loop, made the
+# first time as the child `node_name`, fades in over SOUND_LOOP_FADE s to `level` (linear, of the
+# file's own) and out again; silent, it stops.
+func _drive_loop(body: Spatial, slot: String, node_name: String, on: bool, level: float, delta: float) -> void:
+	if bank.stream(slot) == null:
 		return
-	var loop = body.get_node_or_null(LASER_HUM_NAME)
-	var on: bool = not body.get("is_wreck") and laser_on(body)
+	var loop = body.get_node_or_null(node_name)
 	if loop == null:
 		if not on:
 			return
-		loop = _attach_loop("laser_hum", body, LASER_HUM_NAME)
+		loop = _attach_loop(slot, body, node_name)
 		loop.set_meta("gain", 0.0)
-	var gain: float = move_toward(float(loop.get_meta("gain", 0.0)), 1.0 if on else 0.0, delta / Constants.SOUND_LASER_HUM_FADE)
+	var gain: float = move_toward(float(loop.get_meta("gain", 0.0)), 1.0 if on else 0.0, delta / Constants.SOUND_LOOP_FADE)
 	loop.set_meta("gain", gain)
-	set_volume_3d(loop, Constants.SOUND_EFFECTS_VOLUME_DB + linear2db(max(gain * Constants.SOUND_LASER_HUM_GAIN, 0.0001)))
+	set_volume_3d(loop, Constants.SOUND_EFFECTS_VOLUME_DB + linear2db(max(gain * level, 0.0001)))
 	if gain > 0.0 and not loop.playing:
 		loop.play()
 	elif gain <= 0.0 and loop.playing:
 		loop.stop()
+
+
+# Whether the ship's harpoon winch is turning: reeling a hooked body in, or a loose cable back.
+static func winching(body: Node) -> bool:
+	var tools = body.get_node_or_null("ToolController")
+	if tools == null or not tools.has_method("get_tether"):
+		return false
+	for index in range(tools.get_tool_count()):
+		if tools.is_retracting(index):
+			return true
+		var tether = tools.get_tether(index)
+		if tether != null and tether.is_valid() and tether.length > tether.min_length + 0.01:
+			return true
+	return false
 
 
 # Whether any of the ship's lasers is on.

@@ -305,15 +305,76 @@ def lance_strike():
     return normal(thud + body * 3.0, 0.85)
 
 
+def harpoon_launch():
+    """The hook fired: a pneumatic thump (a burst of low air) and the cable paying out behind it,
+    a hiss that falls away."""
+    r = own_rng(18)
+    t = t_of(0.7)
+    thump = np.sin(2.0 * np.pi * np.cumsum(90.0 + 80.0 * np.exp(-t * 40.0)) / RATE) * envelope(t, 0.001, 0.05)
+    air = lowpass(r.standard_normal(t.size), 1200) * envelope(t, 0.001, 0.04)
+    payout = highpass(lowpass(r.standard_normal(t.size), 5000), 1500) * envelope(t, 0.03, 0.25) * 0.5
+    return normal(thump + air * 1.5 + payout, 0.7)
+
+
+def harpoon_hook():
+    """The hook clamps on: a hard metal clank, then the jaws' latch a moment later."""
+    r = own_rng(19)
+    t = t_of(0.5)
+    clank = sum(tone(f, t) * a * np.exp(-t / d) for f, a, d in [(420, 0.6, 0.08), (1130, 0.45, 0.05), (2650, 0.25, 0.03)])
+    clank += highpass(r.standard_normal(t.size), 800) * np.exp(-t / 0.006)
+    latch = np.zeros(t.size)
+    start = int(0.09 * RATE)
+    k = t[:t.size - start]
+    latch[start:] = (highpass(r.standard_normal(k.size), 2000) * np.exp(-k / 0.003) + tone(3200, k) * 0.3 * np.exp(-k / 0.015)) * 0.6
+    return normal(clank + latch, 0.7)
+
+
+def harpoon_reel():
+    """The winch turning: a motor's whine (a geared drone, 180 Hz and its harmonics) with the drum's
+    ratchet ticking 12 times a second. Loops seamlessly."""
+    r = own_rng(20)
+    seconds = 1.0
+    t = t_of(seconds)
+    whine = sum(tone(looped(180.0 * n, seconds), t) / n ** 1.5 for n in (1, 2, 3, 4, 6))
+    whine *= 1.0 + 0.15 * tone(looped(6.0, seconds), t)
+    ticks = np.zeros(t.size)
+    tick = highpass(r.standard_normal(int(0.004 * RATE)), 2500) * np.exp(-np.arange(int(0.004 * RATE)) / (0.001 * RATE))
+    for n in range(12):
+        at = int(n * t.size / 12)
+        ticks[at:at + tick.size] += tick[:t.size - at]
+    return normal(whine * 0.6 + ticks * 0.5, 0.5)
+
+
+def ship_wrecked():
+    """A ship blows up: a sharp crack, a deep rolling boom that lasts, and the crackle of debris
+    breaking up, all dying away over two and a half seconds."""
+    r = own_rng(21)
+    t = t_of(2.8)
+    noise = r.standard_normal(t.size)
+    crack = lowpass(noise, 6000) * envelope(t, 0.0005, 0.03)
+    boom = np.sin(2.0 * np.pi * np.cumsum(45.0 + 60.0 * np.exp(-t * 4.0)) / RATE) * envelope(t, 0.005, 0.6)
+    roll = lowpass(noise, 300) * envelope(t, 0.02, 0.8) * (1.0 + 0.3 * np.sin(2 * np.pi * 3.0 * t))
+    debris = np.zeros(t.size)
+    for at in r.integers(int(0.1 * RATE), int(1.8 * RATE), 60):
+        width = int(r.integers(30, 200))
+        debris[at:at + width] += r.choice([-1.0, 1.0]) * np.exp(-np.arange(width) / (width / 4.0))[:max(0, t.size - at)]
+    debris = highpass(debris, 800) * envelope(t, 0.1, 0.6)
+    return normal(crack * 1.5 + boom * 1.2 + roll * 3.0 + debris * 0.8, 0.95)
+
+
 WEAPONS = {
     "laser_hit.wav": laser_hit, "laser_hum.ogg": laser_hum, "cannon_hit.wav": cannon_hit,
     "missile_launch.wav": missile_launch, "missile_engine.ogg": missile_engine, "missile_burst.wav": missile_burst,
     "lance_launch.wav": lance_launch, "lance_strike.wav": lance_strike,
+    "harpoon_launch.wav": harpoon_launch, "harpoon_hook.wav": harpoon_hook, "harpoon_reel.ogg": harpoon_reel,
+    "ship_wrecked.wav": ship_wrecked,
 }
 
 
-def write_weapons():
+def write_weapons(only=None):
     for name, make in WEAPONS.items():
+        if only is not None and name not in only:
+            continue
         (write_ogg if name.endswith(".ogg") else write_wav)(os.path.join(SFX, name), make())
 
 
