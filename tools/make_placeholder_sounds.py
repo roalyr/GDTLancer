@@ -75,6 +75,20 @@ def seamless_noise(seconds, cutoff):
     return x
 
 
+def seamless_band(seconds, low, high):
+    """Noise between `low` and `high` Hz that loops: one noise through two low-passes, their
+    difference, the tail crossfaded into the head."""
+    fade = int(0.25 * RATE)
+    n = int(seconds * RATE)
+    raw = rng.standard_normal(n + fade)
+    x = lowpass(raw, high) - lowpass(raw, low)
+    head, tail = x[:fade], x[n:n + fade]
+    ramp = np.linspace(0.0, 1.0, fade)
+    x = x[:n].copy()
+    x[:fade] = head * ramp + tail * (1.0 - ramp)
+    return x
+
+
 def tone(freq, t):
     return np.sin(2.0 * np.pi * freq * t)
 
@@ -118,10 +132,11 @@ def missile_launch():
 
 
 def engine_loop():
-    """A low, dull drone with no noise: a 70 Hz tone whose harmonics fall off fast (dull), a second
-    voice a hair sharp beating slowly against it, a gentle swell. Its body sits at 70-500 Hz so
-    laptop and phone speakers play it (they drop most of what is under ~150 Hz: a 36 Hz hum and its
-    rumble left only the rumble's hiss audible)."""
+    """A low, dull drone: a 70 Hz tone whose harmonics fall off fast (dull), a second voice a hair
+    sharp beating slowly against it, a gentle swell; over it a soft exhaust, noise at 300-2000 Hz
+    a third as loud as the drone, fluttering a little. Its body sits at 70-500 Hz so laptop and
+    phone speakers play it (they drop most of what is under ~150 Hz: a 36 Hz hum and its rumble
+    left only the rumble's hiss audible)."""
     seconds = 2.0
     t = t_of(seconds)
     drone = np.zeros(t.size)
@@ -130,7 +145,14 @@ def engine_loop():
         drone += tone(looped(70.0 * n, seconds), t) * amplitude
         drone += tone(looped(70.5 * n, seconds), t) * amplitude * 0.5
     swell = 1.0 + 0.06 * tone(looped(0.5, seconds), t)
-    return normal(drone * swell, 0.6)
+    drone = drone * swell / np.sqrt(np.mean(drone ** 2))
+    exhaust = seamless_band(seconds, 300, 2000)
+    flutter = 1.0 + 0.15 * tone(looped(7, seconds), t) + 0.1 * tone(looped(11.5, seconds), t)
+    exhaust = exhaust * flutter / np.sqrt(np.mean(exhaust ** 2))
+    return normal(drone + exhaust * EXHAUST_SHARE, 0.6)
+
+
+EXHAUST_SHARE = 0.33  # The exhaust's loudness against the drone's
 
 
 def notice(freqs, beep, gap, peak):
