@@ -2,12 +2,12 @@
 
 importer="wav"
 type="AudioStreamSample"
-path="res://.import/laser_fire.wav-04afe3da35ddb486ec627922266bad33.sample"
+path="res://.import/laser_hit.wav-f3721e90f82ca8db7ee4fa17dbd92262.sample"
 
 [deps]
 
-source_file="res://assets/audio/placeholders/laser_fire.wav"
-dest_files=[ "res://.import/laser_fire.wav-04afe3da35ddb486ec627922266bad33.sample" ]
+source_file="res://assets/audio/placeholders/laser_hit.wav"
+dest_files=[ "res://.import/laser_hit.wav-f3721e90f82ca8db7ee4fa17dbd92262.sample" ]
 
 [params]
 

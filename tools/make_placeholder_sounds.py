@@ -107,14 +107,6 @@ def hull_hit():
     return normal(clank * envelope(t, 0.002, 0.09) + noise * 1.5, 0.85)
 
 
-def laser_fire():
-    t = t_of(0.28)
-    freq = 1400.0 * np.exp(-t * 4.0) + 380.0
-    phase = 2.0 * np.pi * np.cumsum(freq) / RATE
-    x = np.sin(phase + 0.6 * np.sin(phase * 0.5))
-    return normal(x * envelope(t, 0.003, 0.09), 0.6)
-
-
 def cannon_fire():
     t = t_of(0.45)
     freq = 90.0 * np.exp(-t * 6.0) + 45.0
@@ -123,12 +115,9 @@ def cannon_fire():
     return normal(body + crack * 0.8, 0.9)
 
 
-def missile_launch():
-    t = t_of(0.9)
-    noise = rng.standard_normal(t.size)
-    swell = np.minimum(1.0, t / 0.15) * np.exp(-np.maximum(0.0, t - 0.15) / 0.3)
-    bright = lowpass(noise, 1800) - lowpass(noise, 300)
-    return normal(bright * swell + tone(220 + 120 * t, t) * swell * 0.15, 0.7)
+def _old_missile_launch_draws():
+    """The old launch's noise draws, kept so the sounds after it come out as they were."""
+    rng.standard_normal(int(0.9 * RATE))
 
 
 def engine_loop():
@@ -210,17 +199,135 @@ def combat_music():
     return normal(drone * 0.8 + kick * 1.2 + tick * 0.5, 0.6)
 
 
+# --- Weapons, heard as the game plays them (SoundBank's slots). Each has its own generator, so
+# remaking one leaves the others as they are. ---
+
+def own_rng(seed):
+    return np.random.default_rng(seed)
+
+
+def highpass(x, cutoff):
+    return x - lowpass(x, cutoff)
+
+
+def laser_hit():
+    """Where a beam lands: a welding spark, metal flashing to vapour. A bright sizzle of crackles
+    (random sharp spikes over high, hissing noise), quick in, dying over a fifth of a second."""
+    r = own_rng(11)
+    t = t_of(0.32)
+    hiss = highpass(r.standard_normal(t.size), 2500) * envelope(t, 0.002, 0.08)
+    crackle = np.zeros(t.size)
+    for at in r.integers(0, int(0.22 * RATE), 40):
+        width = int(r.integers(20, 90))
+        crackle[at:at + width] += r.choice([-1.0, 1.0]) * np.exp(-np.arange(width) / (width / 4.0))[:max(0, t.size - at)]
+    crackle = highpass(crackle, 1500) * envelope(t, 0.001, 0.12)
+    return normal(hiss * 0.6 + crackle, 0.6)
+
+
+def laser_hum():
+    """A ship with a laser on: the low hum of high-current circuits, 100 Hz and its odd harmonics
+    (a transformer's buzz), a faint slow throb. Loops seamlessly; played quiet."""
+    seconds = 2.0
+    t = t_of(seconds)
+    hum = sum(tone(looped(100.0 * n, seconds), t) / n ** 1.3 for n in (1, 2, 3, 5, 7))
+    throb = 1.0 + 0.1 * tone(looped(1.5, seconds), t)
+    return normal(hum * throb, 0.5)
+
+
+def cannon_hit():
+    """A round meets a hull: a hard metallic clank (inharmonic partials, ringing briefly) over a
+    short crunch."""
+    r = own_rng(12)
+    t = t_of(0.5)
+    clank = sum(tone(f, t) * a * np.exp(-t / d) for f, a, d in [(310, 0.7, 0.12), (744, 0.5, 0.07), (1290, 0.35, 0.05), (2210, 0.2, 0.03)])
+    crunch = lowpass(r.standard_normal(t.size), 3500) * envelope(t, 0.0005, 0.04)
+    return normal(clank + crunch * 1.2, 0.8)
+
+
+def missile_launch():
+    """The hardpoint lets the missile go: a mechanical click, two short clacks with a small ring."""
+    r = own_rng(13)
+    t = t_of(0.18)
+    out = np.zeros(t.size)
+    for at, level in [(0.0, 1.0), (0.035, 0.6)]:
+        start = int(at * RATE)
+        k = t[:t.size - start]
+        click = highpass(r.standard_normal(k.size), 1200) * np.exp(-k / 0.004) + tone(2400, k) * 0.4 * np.exp(-k / 0.02)
+        out[start:] += click * level
+    return normal(out, 0.6)
+
+
+def missile_engine():
+    """A missile's thruster: a rushing roar (noise at 300-3000 Hz) with a fast flutter. Loops."""
+    global rng
+    saved, rng = rng, own_rng(14)
+    seconds = 1.0
+    t = t_of(seconds)
+    roar = seamless_band(seconds, 300, 3000)
+    rng = saved
+    flutter = 1.0 + 0.2 * tone(looped(23, seconds), t) + 0.1 * tone(looped(37, seconds), t)
+    return normal(roar * flutter, 0.6)
+
+
+def missile_burst():
+    """A missile goes off: a deep boom (a falling low tone) under a burst of noise that dies away
+    over a second, darker as it fades."""
+    r = own_rng(15)
+    t = t_of(1.4)
+    boom = np.sin(2.0 * np.pi * np.cumsum(70.0 * np.exp(-t * 3.0) + 30.0) / RATE) * envelope(t, 0.003, 0.35)
+    noise = r.standard_normal(t.size)
+    blast = (lowpass(noise, 2500) * envelope(t, 0.002, 0.12) + lowpass(noise, 500) * envelope(t, 0.01, 0.45))
+    return normal(boom * 1.2 + blast * 2.0, 0.9)
+
+
+def lance_launch():
+    """The lance thrown: something massive let go. A heavy low slam (a 55 Hz thump), the clatter of
+    a big latch (a few metallic knocks), and a low ring of the seat as it springs back."""
+    r = own_rng(16)
+    t = t_of(0.9)
+    slam = np.sin(2.0 * np.pi * np.cumsum(55.0 + 40.0 * np.exp(-t * 20.0)) / RATE) * envelope(t, 0.002, 0.18)
+    knocks = np.zeros(t.size)
+    for at, level in [(0.0, 1.0), (0.06, 0.5), (0.11, 0.3)]:
+        start = int(at * RATE)
+        k = t[:t.size - start]
+        knocks[start:] += (sum(tone(f, k) * a for f, a in [(180, 0.6), (431, 0.4), (820, 0.25)]) * np.exp(-k / 0.05)
+            + lowpass(r.standard_normal(k.size), 1500) * np.exp(-k / 0.01)) * level
+    ring = (tone(98, t) * 0.5 + tone(147, t) * 0.3) * envelope(t, 0.02, 0.35)
+    return normal(slam * 1.5 + knocks + ring * 0.5, 0.9)
+
+
+def lance_strike():
+    """The lance goes in: a dull thud, low and short, with no ring."""
+    r = own_rng(17)
+    t = t_of(0.45)
+    thud = np.sin(2.0 * np.pi * np.cumsum(65.0 + 50.0 * np.exp(-t * 30.0)) / RATE) * envelope(t, 0.002, 0.09)
+    body = lowpass(r.standard_normal(t.size), 400) * envelope(t, 0.001, 0.05)
+    return normal(thud + body * 3.0, 0.85)
+
+
+WEAPONS = {
+    "laser_hit.wav": laser_hit, "laser_hum.ogg": laser_hum, "cannon_hit.wav": cannon_hit,
+    "missile_launch.wav": missile_launch, "missile_engine.ogg": missile_engine, "missile_burst.wav": missile_burst,
+    "lance_launch.wav": lance_launch, "lance_strike.wav": lance_strike,
+}
+
+
+def write_weapons():
+    for name, make in WEAPONS.items():
+        (write_ogg if name.endswith(".ogg") else write_wav)(os.path.join(SFX, name), make())
+
+
 def main():
     write_wav(os.path.join(SFX, "hull_hit.wav"), hull_hit())
-    write_wav(os.path.join(SFX, "laser_fire.wav"), laser_fire())
     write_wav(os.path.join(SFX, "cannon_fire.wav"), cannon_fire())
-    write_wav(os.path.join(SFX, "missile_launch.wav"), missile_launch())
+    _old_missile_launch_draws()
     write_wav(os.path.join(SFX, "hostile_detected.wav"), notice([880.0, 659.3], 0.12, 0.05, 0.5))
     write_wav(os.path.join(SFX, "hostile_aware.wav"), notice([1318.5, 1318.5, 1318.5], 0.08, 0.05, 0.55))
     write_ogg(os.path.join(SFX, "engine.ogg"), engine_loop())
     write_ogg(os.path.join(MUSIC, "danger", "placeholder_danger.ogg"), danger_music())
     write_ogg(os.path.join(MUSIC, "combat", "placeholder_combat.ogg"), combat_music())
     write_ogg(os.path.join(MUSIC, "ambient", "placeholder_ambient.ogg"), calm_music())
+    write_weapons()
 
 
 if __name__ == "__main__":

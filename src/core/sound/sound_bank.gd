@@ -11,23 +11,24 @@ extends Resource
 
 const SLOTS = {
 	# Weapons and tools, at the ship using them
-	"laser_fire": "world",  # A laser cycle (also shooting down a missile)
+	"laser_hit": "world",  # Where a laser beam lands (a ship, a rock, a missile it shoots down): a welding spark
 	"cannon_fire": "world",
-	"missile_launch": "world",
+	"cannon_hit": "world",  # A cannon round meets a ship, at the hit
+	"missile_launch": "world",  # The hardpoint lets the missile go: a click
 	"missile_burst": "world",  # A missile goes off: on a hit, or shot down
 	"rock_hit": "world",  # A round or missile meets a rock
 	"harpoon_launch": "world",
 	"harpoon_hook": "world",  # The hook catches, at the towed body
 	"salvage": "world",  # A harpoon strips salvage, rounds or a lance off a wreck
-	"lance_launch": "world",
-	"lance_strike": "world",  # At the target
+	"lance_launch": "world",  # A massive mechanical throw
+	"lance_strike": "world",  # A dull thud, at the target
 	"lance_glance": "world",  # Too slow or at an angle: at the target
 	# Ships
-	"hull_hit": "world",  # Any damage to a ship, at the ship
+	"hull_hit": "world",  # Damage no weapon's own hit sound covers (radiation, a collision), at the ship
 	"ship_wrecked": "world",  # Hull at zero
-	"afterburner": "world",  # The afterburner lights
-	"engine": "loop",  # Every ship's engine; louder and higher with thrust
-	"missile_engine": "loop",
+	"engine": "loop",  # Every ship's engine; louder with speed, pitched up while the afterburner burns
+	"laser_hum": "loop",  # A ship with a laser on: the low hum of high-current circuits, quiet
+	"missile_engine": "loop",  # A missile's thruster
 	# The player's screen
 	"ui_press": "ui",  # Any button
 	"notice_info": "ui",  # HUD announcements, by level
@@ -41,8 +42,9 @@ const SLOTS = {
 	"undocked": "ui",
 }
 
-export(AudioStream) var laser_fire
+export(AudioStream) var laser_hit
 export(AudioStream) var cannon_fire
+export(AudioStream) var cannon_hit
 export(AudioStream) var missile_launch
 export(AudioStream) var missile_burst
 export(AudioStream) var rock_hit
@@ -54,8 +56,8 @@ export(AudioStream) var lance_strike
 export(AudioStream) var lance_glance
 export(AudioStream) var hull_hit
 export(AudioStream) var ship_wrecked
-export(AudioStream) var afterburner
 export(AudioStream) var engine
+export(AudioStream) var laser_hum
 export(AudioStream) var missile_engine
 export(AudioStream) var ui_press
 export(AudioStream) var notice_info

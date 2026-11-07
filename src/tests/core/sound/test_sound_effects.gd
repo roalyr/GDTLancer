@@ -125,12 +125,12 @@ func test_one_source_does_not_repeat_a_slot_too_fast():
 
 
 func test_voices_are_capped():
-	var fx = _effects(["laser_fire"])
+	var fx = _effects(["laser_hit"])
 	var played := 0
 	for i in range(Constants.SOUND_MAX_VOICES + 5):
 		var source := Node.new()
 		autofree(source)
-		if fx.play("laser_fire", Vector3.ZERO, source) != null:
+		if fx.play("laser_hit", Vector3.ZERO, source) != null:
 			played += 1
 	assert_eq(played, Constants.SOUND_MAX_VOICES)
 
@@ -155,7 +155,7 @@ func test_tool_controllers_are_heard_as_they_enter():
 	assert_true(tools.is_connected("tool_cycled", fx, "_on_tool_cycled"))
 
 
-func test_the_engine_loop_follows_thrust_and_speed():
+func test_the_engine_loop_follows_speed():
 	var fx = _effects(["engine"])
 	var ship := FakeShip.new()
 	add_child_autofree(ship)
@@ -164,28 +164,16 @@ func test_the_engine_loop_follows_thrust_and_speed():
 	var saved_player = GlobalRefs.player_agent_body
 	GlobalRefs.player_agent_body = ship
 	var gain = funcref(self, "_gain_of")
-	ship.linear_velocity = Vector3(0, 0, -50)
-	fx._drive_engine(loop, ship)
-	assert_lt(loop.unit_db, -60.0, "Coasting, engine off: silent")
 	ship.activity = 1.0
-	ship.linear_velocity = Vector3.ZERO
 	fx._drive_engine(loop, ship)
-	assert_lt(loop.unit_db, -60.0, "Full thrust standing still: mute")
-	ship.linear_velocity = Vector3(0, 0, -Constants.SOUND_ENGINE_STILL_SPEED * 0.9)
-	fx._drive_engine(loop, ship)
-	assert_lt(loop.unit_db, -60.0, "Keeping station's jitter: still mute")
-	ship.linear_velocity = Vector3(0, 0, -100)  # Top speed
-	fx._drive_engine(loop, ship)
-	assert_almost_eq(gain.call_func(loop), Constants.SOUND_ENGINE_MAX_GAIN, 0.001, "Full thrust at top speed: the cap")
-	assert_almost_eq(loop.pitch_scale, Constants.SOUND_ENGINE_PITCH[1], 0.001)
-	ship.activity = 0.5
+	assert_lt(loop.unit_db, -60.0, "Standing still, whatever the thrust: mute")
 	ship.linear_velocity = Vector3(0, 0, -50)
 	fx._drive_engine(loop, ship)
-	var still: float = Constants.SOUND_ENGINE_STILL_SPEED
-	assert_almost_eq(gain.call_func(loop), Constants.SOUND_ENGINE_MAX_GAIN * 0.5 * (50.0 - still) / (100.0 - still), 0.001, "Limited to half, at half speed")
+	assert_almost_eq(gain.call_func(loop), Constants.SOUND_ENGINE_MAX_GAIN * 0.5, 0.001, "Half speed: half as loud")
+	ship.linear_velocity = Vector3(0, 0, -300)
+	fx._drive_engine(loop, ship)
+	assert_almost_eq(gain.call_func(loop), Constants.SOUND_ENGINE_MAX_GAIN, 0.001, "Past top speed: the cap")
 	GlobalRefs.player_agent_body = null
-	ship.activity = 1.0
-	ship.linear_velocity = Vector3(0, 0, -100)
 	fx._drive_engine(loop, ship)
 	assert_almost_eq(gain.call_func(loop), Constants.SOUND_ENGINE_MAX_GAIN * Constants.SOUND_ENGINE_OTHERS_SHARE, 0.001, "Another ship's: quieter")
 	GlobalRefs.player_agent_body = saved_player
@@ -198,16 +186,62 @@ func _gain_of(loop) -> float:
 	return db2linear(loop.unit_db - Constants.SOUND_EFFECTS_VOLUME_DB)
 
 
-func test_the_afterburner_plays_as_it_lights():
-	var fx = _effects(["afterburner"])
+func test_the_afterburner_pitches_the_engine_up():
+	var fx = _effects(["engine"])
 	var ship := FakeShip.new()
 	add_child_autofree(ship)
-	fx._track_ship(ship)
-	var before: int = fx.get_child_count()
-	fx._process(0.0)
-	assert_eq(fx.get_child_count(), before, "Not lit")
+	var loop = fx._attach_loop("engine", ship)
+	fx._drive_engine(loop, ship, 0.0)
+	assert_almost_eq(loop.pitch_scale, 1.0, 0.001, "Not lit: as baked")
 	ship.afterburner_lit = true
-	fx._process(0.0)
-	assert_eq(fx.get_child_count(), before + 1, "Lit: plays once")
-	fx._process(0.0)
-	assert_eq(fx.get_child_count(), before + 1, "Stays lit: no repeat")
+	fx._drive_engine(loop, ship, Constants.SOUND_AFTERBURNER_PITCH_TIME * 0.5)
+	assert_almost_eq(loop.pitch_scale, lerp(1.0, Constants.SOUND_AFTERBURNER_PITCH, 0.5), 0.001, "Pitching up")
+	fx._drive_engine(loop, ship, Constants.SOUND_AFTERBURNER_PITCH_TIME)
+	assert_almost_eq(loop.pitch_scale, Constants.SOUND_AFTERBURNER_PITCH, 0.001, "Lit: up")
+	ship.afterburner_lit = false
+	fx._drive_engine(loop, ship, Constants.SOUND_AFTERBURNER_PITCH_TIME)
+	assert_almost_eq(loop.pitch_scale, 1.0, 0.001, "Out: back down")
+
+
+class FakeTools extends Node:
+	var on := false
+	func get_tool_count() -> int:
+		return 1
+	func get_tool(_index: int):
+		var tool_template = UtilityToolTemplate.new()
+		tool_template.tool_type = "laser"
+		return tool_template
+	func is_active(_index: int) -> bool:
+		return on
+
+
+func test_a_laser_hums_while_on():
+	var fx = _effects(["laser_hum"])
+	var ship := FakeShip.new()
+	add_child_autofree(ship)
+	var tools := FakeTools.new()
+	tools.name = "ToolController"
+	ship.add_child(tools)
+	fx._drive_laser_hum(ship, 0.1)
+	assert_null(ship.get_node_or_null(fx.LASER_HUM_NAME), "Off: no hum")
+	tools.on = true
+	fx._drive_laser_hum(ship, Constants.SOUND_LASER_HUM_FADE)
+	var hum = ship.get_node(fx.LASER_HUM_NAME)
+	assert_true(hum.playing)
+	assert_almost_eq(db2linear(hum.unit_db - Constants.SOUND_EFFECTS_VOLUME_DB), Constants.SOUND_LASER_HUM_GAIN, 0.001, "Low")
+	tools.on = false
+	fx._drive_laser_hum(ship, Constants.SOUND_LASER_HUM_FADE)
+	assert_false(hum.playing, "Off again: dies away")
+
+
+func test_a_weapon_hit_takes_the_place_of_the_hull_hit():
+	var fx = _effects(["laser_hit", "hull_hit"])
+	var ship := FakeShip.new()
+	add_child_autofree(ship)
+	var before: int = fx.get_child_count()
+	fx._weapon_hit("laser_hit", ship)
+	fx._hull_hit(weakref(ship))
+	assert_eq(fx.get_child_count(), before + 1, "The spark only")
+	fx._weapon_hits.clear()
+	fx._hull_hit(weakref(ship))
+	assert_eq(fx.get_child_count(), before + 2, "Other damage: the hull hit")

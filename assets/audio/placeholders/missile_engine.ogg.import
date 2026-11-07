@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/missile_engine.ogg-5fde200ca551f9af3d676d2ae5a6905d.oggstr"
+
+[deps]
+
+source_file="res://assets/audio/placeholders/missile_engine.ogg"
+dest_files=[ "res://.import/missile_engine.ogg-5fde200ca551f9af3d676d2ae5a6905d.oggstr" ]
+
+[params]
+
+loop=true
+loop_offset=0
