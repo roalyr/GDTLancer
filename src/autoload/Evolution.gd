@@ -39,6 +39,8 @@ var _report_due: float = 0.0
 var active: bool = false  # Havens populated (AgentSystem); time only counts then
 var frozen: bool = Constants.EVO_WORLD_FROZEN  # Havens fly the archetypes, nothing evolves (see above)
 var log_lives: bool = true  # Writes the life log (off in tests: GUT pre-run hook)
+var log_dir: String = Constants.EVO_LOG_DIR  # Where it goes (a run with a save folder of its own: tools/evolution_sim.gd keeps it there)
+var island: int = 0  # One of several runs side by side (tools/evolution_sim.gd --island, IslandMerge): its new genomes' ids end "i<island>", so none clash
 
 
 func _ready():
@@ -685,7 +687,7 @@ func _unproven(faction: String) -> Array:
 
 
 func _add_genome(genome: Dictionary, faction: String, parent: String) -> String:
-	var genome_id: String = "%s%d" % [faction.substr(0, 1).to_upper(), _next_genome]
+	var genome_id: String = "%s%d" % [faction.substr(0, 1).to_upper(), _next_genome] + ("i%d" % island if island > 0 else "")
 	_next_genome += 1
 	genomes[genome_id] = {"genome": genome, "faction": faction, "parent": parent, "born": game_time, "lives": 0, "fitness_sum": 0.0, "kills": 0, "deaths": 0, "earned": 0}
 	return genome_id
@@ -729,9 +731,9 @@ func _write_life(record: Dictionary, died: bool, killer: String, fitness: float,
 	if not log_lives or frozen:  # Life logs are evolution's
 		return
 	var dir := Directory.new()
-	if not dir.dir_exists(Constants.EVO_LOG_DIR):
-		dir.make_dir_recursive(Constants.EVO_LOG_DIR)
-	var path: String = Constants.EVO_LOG_DIR + "run_%s.jsonl" % run_id
+	if not dir.dir_exists(log_dir):
+		dir.make_dir_recursive(log_dir)
+	var path: String = log_dir + "run_%s.jsonl" % run_id
 	var file := File.new()
 	var err: int = file.open(path, File.READ_WRITE) if file.file_exists(path) else file.open(path, File.WRITE)
 	if err != OK:

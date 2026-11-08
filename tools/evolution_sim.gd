@@ -18,6 +18,9 @@
 #                  EVOSIM_BACKUPS_KEPT are kept): a blackout loses at most that much
 #   --frozen       play mode instead: the game's world (the presets) headless, for watching how it
 #                  plays out; needs --save-dir (never the game's saves), use with --new
+#   --island=K     one of several runs side by side (tools/devtool/islands.py merges them, IslandMerge):
+#                  its own random seed, its new genomes' ids end "i<K>", its life log run_<id>_i<K>.jsonl;
+#                  needs --save-dir
 #   --probe        every 10 simulated minutes, list NPCs stuck in one activity for 30 minutes or more
 #                  (state, target, throttle, speed): for finding ships that never finish a life
 # Vsync is switched off: with it, a monitor gone to sleep (DPMS) stalls every frame and the run with it.
@@ -32,9 +35,11 @@ var new_era := false
 var probe := false
 var frozen := false
 var backup_every := 2.0
+var island := 0
 const EVOSIM_BACKUPS_KEPT = 3
 const Defaults = preload("res://src/autoload/Constants.gd")  # A -s script: no autoloads by name here
 var _status_path := ""
+var _stop_path := ""  # Its presence asks the run to save and end: the overlay's STOP, or a run apart's own (<save-dir>/stop)
 var _saved_at := 0  # Unix time of the last save
 var _t0 := 0
 var _start_time := 0.0
@@ -61,6 +66,8 @@ func _initialize():
 			probe = true
 		elif arg == "--frozen":
 			frozen = true
+		elif arg.begins_with("--island="):
+			island = int(arg.split("=")[1])
 		elif arg.begins_with("--backup-every="):
 			backup_every = max(0.25, float(arg.split("=")[1]))
 	OS.vsync_enabled = false
@@ -79,11 +86,16 @@ func _run():
 		printerr("EVOSIM --frozen plays the game's world: give it a --save-dir of its own")
 		quit(1)
 		return
+	if island > 0 and save_dir == "":
+		printerr("EVOSIM --island runs beside others: give it a --save-dir of its own")
+		quit(1)
+		return
 	manager.mode = manager.MODE_PLAY if frozen else manager.MODE_EVOLUTION  # Where it saves, what it loads, whether it evolves
 	if save_dir != "":
 		manager.save_dir = save_dir
 	_status_path = Defaults.EVOLUTION_STATUS_FILE if save_dir == "" else save_dir.plus_file("status.json")
-	Directory.new().remove(Defaults.EVOLUTION_STOP_FILE)  # A stale request from a run that died
+	_stop_path = Defaults.EVOLUTION_STOP_FILE if save_dir == "" else save_dir.plus_file("stop")
+	Directory.new().remove(_stop_path)  # A stale request from a run that died
 	change_scene("res://scenes/levels/game_world/main_game_scene.tscn")
 	yield(_wait(1.0), "completed")
 	refs.agent_spawner.run_traffic = false  # No travellers among the evolving NPCs
@@ -96,6 +108,13 @@ func _run():
 		root.get_node("EventBus").emit_signal("new_game_requested")
 	while not is_instance_valid(refs.player_agent_body):
 		yield(_wait(0.25), "completed")
+	if save_dir != "":
+		evolution.log_dir = save_dir.plus_file("logs/")  # A run apart logs apart (never into the era's log)
+	if island > 0:
+		evolution.island = island
+		evolution.run_id = "%s_i%d" % [evolution.run_id.split("_i")[0], island]
+		seed(OS.get_unix_time() * 7919 + island * 104729)
+		print("EVOSIM island %d: run %s, log in %s" % [island, evolution.run_id, evolution.log_dir])
 	if new_era:
 		evolution.new_era()
 	var menu = _find_menu()
@@ -117,8 +136,8 @@ func _run():
 		yield(_wait(5.0), "completed")
 		_write_status(evolution, "running")
 		var stop := Directory.new()
-		if stop.file_exists(Defaults.EVOLUTION_STOP_FILE):  # The overlay's STOP: save and end
-			stop.remove(Defaults.EVOLUTION_STOP_FILE)
+		if stop.file_exists(_stop_path):  # The overlay's STOP (a run apart: its own stop file): save and end
+			stop.remove(_stop_path)
 			print("EVOSIM asked to stop")
 			break
 		if paused:
