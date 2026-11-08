@@ -154,7 +154,10 @@ Write `.dev/islands.json` in the project. It is this machine's own and is not co
 - `islands` per host: about `nproc / 2`.
 - `live` per host (optional): `true` for a live session whose SSH host keys change every boot. The
   master then does not check them, which is fine on a home network.
-- `hours`: simulated hours per segment. At a pace of about 2.4, 1.2 h takes about 30 minutes.
+- `hours`: simulated hours per segment. With two islands per laptop, 1.2 h takes about 45 minutes.
+  The file is reread before every segment, so it can be changed while a run goes on.
+- `battery_hours` (optional): simulated hours per segment while the master's charger is off, so a
+  blackout loses less.
 - `godot` (optional): the Godot binary sent to the workers. The default is the master's `godot`
   on the PATH (the 3.6.2 x11 build), with links followed.
 

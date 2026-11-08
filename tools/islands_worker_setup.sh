@@ -67,27 +67,44 @@ if [ "$(hostname)" != "$NAME" ]; then
 		printf '127.0.1.1\t%s\n' "$NAME" >> /etc/hosts
 	fi
 	note "renamed $OLD -> $NAME"
+	if pgrep -x avahi-daemon >/dev/null; then  # It announced the old name: tell it the new one
+		avahi-set-host-name "$NAME" 2>/dev/null || service avahi-daemon restart >/dev/null 2>&1
+	fi
 else
 	note "already $NAME"
+	if pgrep -x avahi-daemon >/dev/null && ! avahi-resolve -n "$NAME.local" >/dev/null 2>&1; then
+		avahi-set-host-name "$NAME" 2>/dev/null || service avahi-daemon restart >/dev/null 2>&1
+	fi
 fi
 
 say "2. SSH server"
-if dpkg -s openssh-server >/dev/null 2>&1; then
-	note "openssh-server already installed"
+# Installed means the files are there, not what dpkg says: an MX live system can list openssh-server as
+# installed with its /etc files gone (no sshd_config, no init script), and dpkg never puts back a config
+# file that was deleted unless told to (--force-confmiss).
+ssh_whole() { [ -x /usr/sbin/sshd ] && [ -f /etc/ssh/sshd_config ] && [ -f /usr/share/openssh/sshd_config ]; }
+if ssh_whole && dpkg-query -W -f='${Status}' openssh-server 2>/dev/null | grep -q "install ok installed"; then
+	note "openssh-server installed"
 else
+	note "openssh-server missing or incomplete ($(dpkg-query -W -f='${Status}' openssh-server 2>/dev/null || echo 'not known')): installing"
 	if ls "$KIT"/debs/*.deb >/dev/null 2>&1; then
-		note "installing from the kit (no internet needed)"
-		dpkg -i "$KIT"/debs/*.deb >/dev/null 2>&1 || true
-		dpkg --configure -a >/dev/null 2>&1 || true
+		note "from the kit (no internet needed)"
+		dpkg -i --force-confmiss --force-confnew "$KIT"/debs/*.deb 2>&1 | grep -iE "error|warn" | sed 's/^/      /'
+		dpkg --configure -a --force-confmiss >/dev/null 2>&1 || true
 	fi
-	if ! dpkg -s openssh-server >/dev/null 2>&1; then
-		note "installing from the internet (apt)"
-		apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq openssh-server
+	if ! ssh_whole; then
+		note "from the internet (apt)"
+		apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --reinstall \
+			-o Dpkg::Options::=--force-confmiss -o Dpkg::Options::=--force-confnew openssh-server openssh-sftp-server
 	fi
-	if dpkg -s openssh-server >/dev/null 2>&1; then
+	if [ ! -f /etc/ssh/sshd_config ] && [ -f /usr/share/openssh/sshd_config ]; then
+		cp /usr/share/openssh/sshd_config /etc/ssh/sshd_config  # The package's own default, as its install would write it
+		note "sshd_config put back from the package's default"
+	fi
+	if [ -x /usr/sbin/sshd ] && [ -f /etc/ssh/sshd_config ]; then
 		note "openssh-server installed"
 	else
-		warn "could not install openssh-server: connect to the internet (or rebuild the kit) and run this again"
+		warn "openssh-server is still incomplete (sshd: $([ -x /usr/sbin/sshd ] && echo there || echo missing), sshd_config: $([ -f /etc/ssh/sshd_config ] && echo there || echo missing))"
+		warn "connect to the internet and run this again, or send this screen to the master's user"
 		exit 1
 	fi
 fi
@@ -105,16 +122,27 @@ else
 		mkdir -p "$KEYS" && cp /etc/ssh/ssh_host_* "$KEYS"/ && note "host keys made and kept in the kit"
 	fi
 fi
+mkdir -p /run/sshd && chmod 755 /run/sshd
+rm -f /etc/ssh/sshd_not_to_be_run
 if command -v systemctl >/dev/null 2>&1 && [ -d /run/systemd/system ]; then
-	systemctl enable --now ssh >/dev/null 2>&1 || systemctl restart ssh
-else
+	systemctl enable --now ssh >/dev/null 2>&1 || systemctl restart ssh >/dev/null 2>&1
+elif [ -x /etc/init.d/ssh ]; then
 	update-rc.d ssh enable >/dev/null 2>&1 || true
-	service ssh restart >/dev/null 2>&1 || service ssh start >/dev/null 2>&1
+	/etc/init.d/ssh restart >/dev/null 2>&1 || /etc/init.d/ssh start >/dev/null 2>&1
 fi
-if service ssh status >/dev/null 2>&1 || pgrep -x sshd >/dev/null; then
-	note "sshd is running"
+listening() { ss -ltn 2>/dev/null | grep -qE '[:.]22[[:space:]]'; }
+if ! listening; then
+	# The service did not bring it up (an MX live session can refuse: sshd_not_to_be_run, no /run/sshd): start it directly
+	/usr/sbin/sshd 2>&1 | sed 's/^/   sshd: /'
+	sleep 1
+fi
+if listening; then
+	note "sshd is listening on port 22"
 else
-	warn "sshd did not start: see 'sudo service ssh status'"
+	warn "sshd is NOT listening on port 22. What it says:"
+	/usr/sbin/sshd -t 2>&1 | sed 's/^/      /'
+	warn "send this screen to the master's user"
+	exit 1
 fi
 if command -v ufw >/dev/null 2>&1 && ufw status 2>/dev/null | grep -q "Status: active"; then
 	ufw allow ssh >/dev/null && note "firewall: ssh let in"

@@ -16,7 +16,8 @@ one core, so islands are how evolution uses more than one.
 Configuration: .dev/islands.json (this machine's, not committed):
     {"local": 2,                       islands on this machine
      "hosts": [{"host": "laptop2.local", "user": "me", "islands": 2}],
-     "hours": 1.2, "speed": 8,          per segment
+     "hours": 1.2, "speed": 8,          per segment (simulated hours), reread before every segment
+     "battery_hours": 0.4,              per segment while this machine's charger is off (a blackout)
      "godot": "<this machine's Godot 3.6.2, the x11 build>"}   (default: godot on the PATH)
 Godot runs with --no-window but still needs an X display: on a host, the desktop of its logged-in user
 (DISPLAY=:0, the user the islands log in as). The headless server build is no use here: its dummy
@@ -198,8 +199,24 @@ def push(config):
 # --- a segment ---
 
 def _sim_args(config, save_dir, k):
-    return ["--no-window", "-s", "tools/evolution_sim.gd", "--", "--hours=%s" % config["hours"], "--speed=%s" % config["speed"],
+    return ["--no-window", "-s", "tools/evolution_sim.gd", "--", "--hours=%s" % segment_hours(config), "--speed=%s" % config["speed"],
             "--save-dir=" + save_dir, "--island=%d" % k, "--backup-every=1000", "--save-every=10"]
+
+
+def on_battery():
+    """True if this machine's charger is off (a blackout): then segments are battery_hours long."""
+    for path in glob.glob("/sys/class/power_supply/A*/online"):
+        try:
+            with open(path) as handle:
+                if handle.read().strip() == "0":
+                    return True
+        except OSError:
+            pass
+    return False
+
+
+def segment_hours(config):
+    return float(config.get("battery_hours", config["hours"])) if on_battery() else float(config["hours"])
 
 
 def start(config, island, base):
@@ -219,8 +236,10 @@ def start(config, island, base):
         code, out = run(["rsync", "-az", "-e", rsh(dest), base, "%s:%s/islands/island%d/save_0.sav" % (dest, REMOTE, k)], timeout=600)
     if code == 0:
         args = " ".join(shlex.quote(a) for a in _sim_args(config, "REMOTEDIR", k)).replace("REMOTEDIR", folder)
-        code, out = ssh(dest, "cd ~/%s/project && DISPLAY=:0 XAUTHORITY=$HOME/.Xauthority setsid nohup ~/%s/godot %s > %s/console.log 2>&1 < /dev/null & echo started"
-                        % (REMOTE, REMOTE, args, folder))
+        # Only Godot goes to the background, all its streams away from the SSH channel: a backgrounded
+        # "cd && godot" list would be a subshell holding the channel open until Godot ends.
+        code, out = ssh(dest, "cd ~/%s/project || exit 1; DISPLAY=:0 XAUTHORITY=$HOME/.Xauthority setsid nohup ~/%s/godot %s > %s/console.log 2>&1 < /dev/null & echo started"
+                        % (REMOTE, REMOTE, args, folder), timeout=30)
     if code != 0:
         say("island %d on %s did not start: %s" % (k, dest, out.strip()[-200:]))
         return False
@@ -402,6 +421,9 @@ def main(argv):
         count = int(argv[1]) if command == "run" and len(argv) > 1 else 1
         for number in range(count):
             say("== segment %d of %d" % (number + 1, count))
+            config = load_config()  # Settings may change between segments (.dev/islands.json)
+            LIVE_DESTS.update(target({"host": h["host"], "user": h.get("user")}) for h in config.get("hosts", []) if h.get("live"))
+            say("segments of %.2f h%s" % (segment_hours(config), " (on battery)" if on_battery() else ""))
             result = segment(config)
             if result != "ok":
                 return 0 if result == "stopped" else 1
