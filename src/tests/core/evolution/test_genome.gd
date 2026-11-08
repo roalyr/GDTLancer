@@ -40,6 +40,7 @@ func test_random_genomes_and_their_mutants_are_lawful():
 
 func test_saved_capacitors_become_power_cells():
 	var genome: Dictionary = Genome.random_genome()
+	genome.ship.size = 2.0  # A bay that takes a medium part (a small random hull would cap it at light)
 	genome.modules = [{"kind": "capacitor", "type": 2, "genes": {"mass": 200.0}}, {}]
 	assert_true(Genome.retire_parts(genome))
 	assert_eq(genome.modules[0].kind, "power_cell")
@@ -109,9 +110,9 @@ func test_lances_are_lawful_parts_with_their_own_niche():
 	for i in range(genome.tools.size()):
 		genome.tools[i] = {}
 	genome.modules[0] = part
-	assert_eq(Genome.niche(genome).split("|")[1], "lancer")
+	assert_eq(Genome.niche(genome).split("|")[1], "lance", "A lancer's family (niches are families since era 54)")
 	genome.tools[0] = Genome.random_part("laser")
-	assert_eq(Genome.niche(genome).split("|")[1], "lance-fighter")
+	assert_eq(Genome.niche(genome).split("|")[1], "lance", "An armed lance ship is still the lance family")
 	var template = TemplateDatabase.get_template(Genome.ensure_part_template(part))
 	assert_true(template is ModuleTemplate and not template.lance.empty())
 	assert_eq(template.lance.count, int(round(part.genes.count)))
@@ -134,11 +135,11 @@ func test_missiles_and_cannons_are_lawful_weapons_on_their_own_branches():
 	for i in range(genome.modules.size()):
 		genome.modules[i] = {}
 	genome.tools[0] = Genome.random_part("missile", Genome.slot_size(genome))
-	assert_eq(Genome.niche(genome).split("|")[1], "missile-fighter")
+	assert_eq(Genome.niche(genome).split("|")[1], "fighter", "Missiles alone make a fighter")
 	var rack = TemplateDatabase.get_template(Genome.ensure_part_template(genome.tools[0]))
 	assert_true(rack is UtilityToolTemplate and rack.tool_type == "missile" and rack.ammo == int(round(genome.tools[0].genes.count)))
 	genome.tools[0] = Genome.random_part("cannon", Genome.slot_size(genome))
-	assert_eq(Genome.niche(genome).split("|")[1], "cannon-fighter")
+	assert_eq(Genome.niche(genome).split("|")[1], "fighter", "A cannon alone makes a fighter")
 	var gun = TemplateDatabase.get_template(Genome.ensure_part_template(genome.tools[0]))
 	assert_true(gun is UtilityToolTemplate and gun.tool_type == "cannon" and gun.ammo > 0 and gun.projectile_speed > 0.0)
 	assert_gt(Genome.cost(genome), ShipLaws.ship_stats(genome.ship).base_value, "Priced with its rounds")
@@ -180,3 +181,14 @@ func test_extra_harpoons_are_rare():
 			extra += 1
 	assert_almost_eq(first / 2000.0, Constants.EVO_HARPOON_CHANCE, 0.03, "A first harpoon now and then")
 	assert_almost_eq(extra / 2000.0, Constants.EVO_EXTRA_HARPOON_CHANCE, 0.02, "a second one seldom")
+
+
+func test_niches_are_family_and_weight_class():
+	var genome: Dictionary = Genome.random_genome()
+	genome.ship.size = 0.5
+	var light: String = Genome.niche(genome)
+	genome.ship.size = 0.7
+	assert_eq(Genome.niche(genome), light, "Two light hulls share a niche")
+	assert_true(light.begins_with("s-1.0|"), light)
+	genome.ship.size = 12.0
+	assert_true(Genome.niche(genome).begins_with("s+2.0|"), "Superheavy")

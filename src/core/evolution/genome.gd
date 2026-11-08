@@ -378,6 +378,11 @@ static func placeholder_model(family_name: String, weight: String) -> String:
 	return "%s_%s" % [family_name, weight]
 
 
+# A weight class's size class in a niche's name ("s-1.0|..."): one per class, so the niche name keeps
+# its form (PresetExporter.weight_class reads it back) but a class is one niche, not several.
+const WEIGHT_SIZE_CLASS = {"light": -1.0, "medium": 0.0, "heavy": 1.0, "superheavy": 2.0}
+
+
 static func family(niche_name: String) -> String:
 	var role: String = niche_name.split("|")[1] if niche_name.count("|") >= 2 else niche_name
 	if role == "lancer" or role.begins_with("lance-"):
@@ -423,8 +428,9 @@ static func niche(genome: Dictionary) -> String:
 	if lasers > 0:
 		var mean_range: float = range_sum / lasers
 		range_class = "short" if mean_range < 800.0 else ("mid" if mean_range < 1400.0 else "long")
-	var size_class: float = ShipLaws.size_class(float(genome.ship["size"]))
-	return "s%+.1f|%s|%s" % [size_class, role, range_class]
+	# Coarse on purpose (era 54): the role's family and the hull's weight class, not the exact mix of
+	# parts and half-step size, so lives pile up on fewer genomes instead of 1,200 thin niches.
+	return "s%+.1f|%s|%s" % [WEIGHT_SIZE_CLASS[ShipLaws.weight_class(float(genome.ship["size"]))], family(role), range_class]
 
 
 static func describe_part(part: Dictionary) -> String:

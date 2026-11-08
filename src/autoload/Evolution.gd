@@ -102,6 +102,7 @@ func plant_seeds() -> int:
 # A new era of rules: every genome's record starts over (lives, fitness, kills), so what is measured
 # from now on is not mixed with fitness earned under the old rules. The genomes and niches stay.
 func new_era() -> void:
+	_rekey_cells()
 	for genome_id in genomes:
 		var entry: Dictionary = genomes[genome_id]
 		for key in ["lives", "kills", "deaths", "earned"]:
@@ -109,6 +110,24 @@ func new_era() -> void:
 		entry.fitness_sum = 0.0
 		entry.fitness_sq = 0.0
 	_log(1, "EVO NEW ERA: %d genomes start over, %d seeds planted" % [genomes.size(), plant_seeds()])
+
+
+# The archive under the niches as Genome.niche names them now (they were made coarser): each cell's
+# genome moves to its new niche, the fitter of the old era taking a niche several land in.
+func _rekey_cells() -> void:
+	for faction in pools:
+		var cells: Dictionary = pools[faction].cells
+		var rekeyed := {}
+		for niche in cells:
+			var genome_id: String = cells[niche]
+			if not genomes.has(genome_id):
+				continue
+			var new_niche: String = Genome.niche(genomes[genome_id].genome)
+			if not rekeyed.has(new_niche) or ranked_fitness(genome_id) > ranked_fitness(rekeyed[new_niche]):
+				rekeyed[new_niche] = genome_id
+		if rekeyed.size() != cells.size():
+			_log(1, "EVO NICHES %s: %d cells become %d" % [faction, cells.size(), rekeyed.size()])
+		pools[faction].cells = rekeyed
 
 
 func serialize() -> Dictionary:
@@ -145,6 +164,8 @@ func deserialize(data: Dictionary) -> bool:
 	for genome_id in genomes:
 		Genome.retire_parts(genomes[genome_id].genome)  # Capacitor modules became power cells
 	resume = data.get("lives", [])
+	if island > 1:  # Ships in flight when an island segment began fly on island 1 only: flown on every island, each copy was scored
+		resume = []
 	for record in resume:
 		record.zone = _haven_for(str(record.get("faction", "")), str(record.get("zone", "")))  # The arenas' zones became havens
 	_next_uid = int(data.get("next_uid", 0))
@@ -196,7 +217,7 @@ func begin_life(faction: String, zone_id: String) -> Dictionary:
 	var entry: Dictionary = genomes[genome_id]
 	var prefix: String = TemplateDatabase.factions.get(faction, {}).get("name", faction).substr(0, 2).to_upper()
 	var record := {
-		"uid": "%s-%05d" % [prefix, _next_uid], "faction": faction, "zone": zone_id, "genome_id": genome_id,
+		"uid": "%s-%05d%s" % [prefix, _next_uid, ("i%d" % island if island > 0 else "")], "faction": faction, "zone": zone_id, "genome_id": genome_id,
 		"parent": entry.parent, "how": pick.how, "born": game_time, "skill": rand_range(0.3, 0.8),
 		"cost": Genome.cost(entry.genome), "hull_value": Genome.hull_value(entry.genome), "kills": 0, "victims": [], "earned": 0, "bounty": 0.0, "spent": 0.0,
 		"damage_dealt": 0.0, "damage_taken": 0.0, "docks": 0,

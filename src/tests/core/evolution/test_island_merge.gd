@@ -67,3 +67,17 @@ func test_an_island_names_its_genomes_apart():
 	Evolution.island = was
 	assert_true(genome_id.ends_with("i2"), genome_id)
 	Evolution.genomes.erase(genome_id)
+
+
+func test_an_island_past_the_first_drops_ships_in_flight():
+	var data: Dictionary = Evolution.serialize()
+	data.lives = [{"uid": "VE-00001", "faction": "verdant", "zone": "", "genome_id": "V1"}]
+	var was: int = Evolution.island
+	Evolution.island = 2
+	Evolution.deserialize(data)
+	assert_eq(Evolution.resume.size(), 0, "Flown on island 1 only")
+	Evolution.island = 1
+	Evolution.deserialize(data)
+	assert_eq(Evolution.resume.size(), 1, "Island 1 flies it on")
+	Evolution.island = was
+	Evolution.new_run()

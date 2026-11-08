@@ -100,6 +100,7 @@ func _run():
 	yield(_wait(1.0), "completed")
 	refs.agent_spawner.run_traffic = false  # No travellers among the evolving NPCs
 	refs.agent_spawner.offscreen.enabled = false  # Every NPC flown: fitness from real fights only
+	evolution.island = island  # Before the save loads: an island past the first drops the ships in flight (Evolution.deserialize)
 	if not fresh and manager.has_save_file(0):
 		print("EVOSIM loading the saved game")
 		manager.load_game(0)
@@ -111,7 +112,6 @@ func _run():
 	if save_dir != "":
 		evolution.log_dir = save_dir.plus_file("logs/")  # A run apart logs apart (never into the era's log)
 	if island > 0:
-		evolution.island = island
 		evolution.run_id = "%s_i%d" % [evolution.run_id.split("_i")[0], island]
 		seed(OS.get_unix_time() * 7919 + island * 104729)
 		print("EVOSIM island %d: run %s, log in %s" % [island, evolution.run_id, evolution.log_dir])
