@@ -36,10 +36,16 @@ func _run() -> void:
 		var data = _read(path)
 		if data == null:
 			return
+		if float(data.evolution.get("game_time", 0.0)) <= float(base.evolution.get("game_time", 0.0)):
+			_fail(path + " is not newer than the base (a last segment's save?): nothing merged")
+			return
 		datas.append(data)
 		evolutions.append(data.evolution)
 	var merged: Dictionary = datas[0].duplicate(true)
 	merged.evolution = IslandMerge.merge(base.evolution, evolutions)
+	if not (merged.evolution is Dictionary and merged.evolution.get("genomes") is Dictionary and merged.evolution.has("totals")):
+		_fail("the merge came out incomplete: nothing written")  # Once wrote a save without evolution over the real one
+		return
 	var file := File.new()
 	if file.open(out_path + ".tmp", File.WRITE) != OK:
 		_fail("cannot write " + out_path + ".tmp")

@@ -230,6 +230,7 @@ def start(config, island, base):
         island["process"] = subprocess.Popen([config["godot"]] + _sim_args(config, folder, k), cwd=ROOT, stdout=log, stderr=subprocess.STDOUT,
                                              stdin=subprocess.DEVNULL, start_new_session=True)
         return True
+    shutil.rmtree(local_dir(k), ignore_errors=True)  # Last segment's copy here must never pass for this one's
     dest, folder = target(island), remote_dir(k)
     code, out = ssh(dest, "rm -rf %s && mkdir -p %s" % (folder, folder))
     if code == 0:
@@ -356,6 +357,7 @@ def segment(config):
     stop_file = os.path.join(folder, "stop")
     stopped = False
     pending = {i["k"]: i for i in started}
+    done_ks = set()  # Islands seen finishing this segment: only they are merged
     last_seen = {k: time.time() for k in pending}
     time.sleep(POLL)
     while pending:
@@ -369,6 +371,7 @@ def segment(config):
             info_k = status(pending[k])
             if info_k.get("state") == "done":
                 say("island %d done: t=%.1fh, %s lives ended, pace x%.2f" % (k, float(info_k.get("game_time", 0)) / 3600.0, info_k.get("lives"), float(info_k.get("pace", 0))))
+                done_ks.add(k)
                 del pending[k]
                 continue
             if info_k:
@@ -376,7 +379,7 @@ def segment(config):
             if gone(pending[k], info_k):
                 status_again = status(pending[k])  # It may have written "done" as it ended
                 if status_again.get("state") == "done":
-                    continue
+                    continue  # Seen as done on the next pass
                 say("island %d ended without finishing its segment (see its console.log): left out" % k)
                 del pending[k]
             elif time.time() - last_seen[k] > STALE:
@@ -386,7 +389,7 @@ def segment(config):
         write_master_status("running", game_time, {"waiting": sorted(pending)})
         if pending:
             time.sleep(POLL)
-    finished = [i for i in started if collect(i)]
+    finished = [i for i in started if i["k"] in done_ks and collect(i)]
     if not finished:
         say("no island finished: the save is as it was")
         write_master_status("done", game_time)
