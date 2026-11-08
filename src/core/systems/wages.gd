@@ -80,6 +80,38 @@ static func on_patrol(ship, beacon, seconds: float, arrived: bool) -> void:
 		EventBus.emit_signal("announcement", "%s: on %s patrol, paid at its havens" % [beacon.get_display_name(), TemplateDatabase.factions[beacon.faction].get("name", beacon.faction)], "info")
 
 
+# The worker `ship` escorts now, within ESCORT_PAY_RANGE: an NPC's ward, or the player's
+# (PlayerControllerShip escort_ward); null if none.
+static func escorted_ward(ship):
+	var ward = null
+	var ai = ship.get_node_or_null(Constants.AI_CONTROLLER_NODE_NAME)
+	if ai != null and ai.has_method("get_ward"):
+		ward = ai.get_ward()
+	elif ship.has_method("is_player") and ship.is_player():
+		var controller = ship.get_node_or_null("PlayerInputHandler")  # PlayerControllerShip (player_agent.tscn)
+		ward = controller.get("escort_ward") if controller != null else null
+	if not (is_instance_valid(ward) and ward.is_inside_tree()) or ward.get("is_wreck"):
+		return null
+	if ward.global_transform.origin.distance_to(ship.global_transform.origin) > Constants.ESCORT_PAY_RANGE:
+		return null
+	return ward
+
+
+# `seconds` more escorting: counted with the ship's patrol time for the ward's faction (if it pays
+# patrol wages), so the faction pays it at its havens by the hour and by the ship's value, as a patrol:
+# a big escort earns as much for its cost as a small one (its share of the ward's sales comes besides).
+static func on_escort(ship, seconds: float) -> void:
+	var ward = escorted_ward(ship)
+	if ward == null:
+		return
+	var faction: String = str(ward.get("faction"))
+	if not TemplateDatabase.factions.get(faction, {}).get("patrol_wages", false):
+		return
+	var time: Dictionary = ship.get_meta("patrol_time") if ship.has_meta("patrol_time") else {}
+	time[faction] = float(time.get(faction, 0.0)) + seconds
+	ship.set_meta("patrol_time", time)
+
+
 # The time `ship` has patrolled for `faction` since it last took it, and starts the count over.
 static func take_patrol_time(ship, faction: String) -> float:
 	if not (is_instance_valid(ship) and ship.has_meta("patrol_time")):

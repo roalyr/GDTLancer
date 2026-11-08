@@ -109,6 +109,7 @@ func _update(dt: float) -> void:
 		if body.get("is_wreck") != false or body.get("is_docked") or not body.has_method("apply_damage"):
 			continue
 		var faction: String = str(body.get("faction"))
+		Wages.on_escort(body, dt)  # Escorting a worker is duty, paid as patrol time is
 		var beacon = nearest(body.global_transform.origin, Constants.BEACON_TRAFFIC_RADIUS, true)
 		var id: int = body.get_instance_id()
 		if beacon == null:

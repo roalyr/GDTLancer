@@ -162,3 +162,21 @@ func test_the_player_patrols_only_as_a_friend():
 	GameState.player_standing["verdant"] = Constants.STANDING_FRIENDLY
 	Wages.on_patrol(player, picket, 10.0, true)
 	assert_almost_eq(Wages.take_patrol_time(player, "verdant"), 10.0, 0.01, "Friendly: its patrol")
+
+
+func test_escorting_counts_as_patrol_time_paid_by_the_ships_value():
+	var worker = _ship(Vector3.ZERO, "verdant", false)
+	var escort = _ship(Vector3(0, 0, 300), "verdant", true)
+	assert_true(_ai(escort)._take_ward(), "Takes the worker for its ward")
+	Wages.on_escort(escort, 600.0)
+	var seconds: float = Wages.take_patrol_time(escort, "verdant")
+	if TemplateDatabase.factions.get("verdant", {}).get("patrol_wages", false):
+		assert_almost_eq(seconds, 600.0, 0.01, "Ten minutes by its ward")
+		var small: int = Wages.patrol_wage("verdant", 1000.0, seconds)
+		var big: int = Wages.patrol_wage("verdant", 8000.0, seconds)
+		assert_eq(big, small * 8, "A ship eight times the value earns eight times the wage: the same for its cost")
+	else:
+		assert_eq(seconds, 0.0, "A faction without patrol wages pays no escort time")
+	escort.global_transform.origin = Vector3(0, 0, Constants.ESCORT_PAY_RANGE + 500.0)
+	Wages.on_escort(escort, 600.0)
+	assert_eq(Wages.take_patrol_time(escort, "verdant"), 0.0, "Out of range: not escorting")
