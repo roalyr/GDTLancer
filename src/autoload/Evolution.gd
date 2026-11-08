@@ -102,6 +102,10 @@ func plant_seeds() -> int:
 # A new era of rules: every genome's record starts over (lives, fitness, kills), so what is measured
 # from now on is not mixed with fitness earned under the old rules. The genomes and niches stay.
 func new_era() -> void:
+	for genome_id in genomes:  # A faction with nowhere to trade keeps no trade gene (_add_genome)
+		var entry: Dictionary = genomes[genome_id]
+		if float(entry.genome.get("behavior", {}).get("trade", 0.0)) > 0.0 and not Havens.trades(str(entry.faction)):
+			entry.genome.behavior.trade = 0.0
 	_rekey_cells()
 	for genome_id in genomes:
 		var entry: Dictionary = genomes[genome_id]
