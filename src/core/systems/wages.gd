@@ -25,7 +25,7 @@ static func is_worker(ship) -> bool:
 	var ai = ship.get_node_or_null(Constants.AI_CONTROLLER_NODE_NAME)
 	if ai == null:
 		return false
-	return (ai.has_method("is_prospector") and ai.is_prospector()) or (ship.has_method("get_damage_per_second") and ship.get_damage_per_second() <= 0.0)
+	return (ai.has_method("is_prospector") and ai.is_prospector()) or (ai.has_method("is_trader") and ai.is_trader()) or (ship.has_method("get_damage_per_second") and ship.get_damage_per_second() <= 0.0)
 
 
 # Whether `escort` may escort `ward`: armed, the ward a worker of a faction that hires escorts, and

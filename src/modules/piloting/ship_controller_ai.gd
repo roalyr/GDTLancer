@@ -107,6 +107,8 @@ var _letting_go: bool = false  # and the roll was to let it go
 var _spared: Dictionary = {}  # Instance id -> s left during which it does not go after that ship again
 var _in_charge: bool = false  # Charging its target with an armed lance (command_charge)
 var _prospect: float = 0.0  # Behaviour gene: mines when idle at 0.5 or more (can_mine)
+var _trade: float = 0.0  # Behaviour gene: trades at 0.5 or more (is_trader)
+var _last_dock: Spatial = null  # Where it last docked: a trader buys and sells elsewhere
 var _haul: float = Constants.AI_HAUL_SHARE  # Behaviour gene: goes home to sell once its hold is worth this share of its ship
 var _rock: Spatial = null  # The rock it is mining
 var _mine_time: float = 0.0  # s on _rock without a chunk
@@ -146,6 +148,7 @@ func initialize(config: Dictionary) -> void:
 	_burn_reserve = float(behavior.get("burn", Constants.AI_AFTERBURNER_RESERVE))
 	_prospect = float(behavior.get("prospect", 0.0))
 	_haul = float(behavior.get("haul", Constants.AI_HAUL_SHARE))
+	_trade = float(behavior.get("trade", 0.0))
 	_quiet = float(behavior.get("quiet", Constants.EVO_BEHAVIOR_RANGES.quiet[2]))
 	if is_instance_valid(_tool_controller) and not _tool_controller.is_connected("lance_recovered", self, "_on_lance_recovered"):
 		_tool_controller.connect("lance_recovered", self, "_on_lance_recovered")
@@ -234,7 +237,7 @@ func remove_escort(escort: Node) -> void:
 # for), of a faction that hires escorts, takes the nearest worker of its own that has no NPC escort
 # yet. Returns whether it has one.
 func _take_ward() -> bool:
-	if (_teamwork < Constants.AI_ESCORT_MIN_TEAMWORK and not is_outpost_guard()) or is_prospector() or not TemplateDatabase.factions.get(agent_script.faction, {}).get("escorts", false):
+	if (_teamwork < Constants.AI_ESCORT_MIN_TEAMWORK and not is_outpost_guard()) or is_prospector() or is_trader() or not TemplateDatabase.factions.get(agent_script.faction, {}).get("escorts", false):
 		return false
 	var best: Node = null
 	var best_distance: float = Constants.ESCORT_PICK_RANGE
@@ -621,7 +624,7 @@ func _process_patrol() -> void:
 		elif _pending.empty():
 			var wreck = scan_for_wreck()
 			var lances_there: bool = is_instance_valid(wreck) and (wreck.recoverable_lances_for(agent_script) > 0 or _recoverable_ammo(wreck) > 0)
-			if ((agent_script.get_free_cargo() <= 0 or hold_worth_hauling()) and not lances_there) or _due_home():
+			if is_trader() or ((agent_script.get_free_cargo() <= 0 or hold_worth_hauling()) and not lances_there) or _due_home():
 				_change_state(AIState.DEPART)
 				return
 			if is_instance_valid(wreck):
@@ -1031,6 +1034,13 @@ func can_mine() -> bool:
 	return is_prospector() and agent_script.get_free_cargo() > 0
 
 
+# A trader by its genes and kit: the trade gene, no harpoon and no lance (Genome role "trader").
+func is_trader() -> bool:
+	if _trade < 0.5 or _havens.empty() or not is_instance_valid(_tool_controller):
+		return false
+	return not _has_harpoon() and agent_script.get_lances().empty()
+
+
 # A miner by its genes and kit, whether or not its hold has room now (an escort keeps by it home).
 func is_prospector() -> bool:
 	if _prospect < 0.5 or not is_instance_valid(_tool_controller) or not can_charge():
@@ -1177,11 +1187,14 @@ func _process_run_home() -> void:
 # arrived; a ship spawned docked has nothing to sell). An old ship retires there instead.
 func _dock(station: Spatial, service: bool) -> void:
 	_station = station
+	_last_dock = station
 	agent_script.dock_at(station)
 	_change_state(AIState.DOCKED)
 	_dock_timer = Constants.HAVEN_DOCK_TIME
 	if service and Evolution.on_docked(agent_script, str(station.get("location_id"))):
 		agent_script.despawn()  # Retired: its record is in the log
+	elif service and is_trader():
+		Evolution.trade_buy(agent_script, str(station.get("location_id")))  # Its next cargo, where it pays
 
 
 # Undocks once its dock time is up and no enemy waits outside (Constants HAVEN_UNDOCK_CLEAR_RADIUS),
@@ -1239,19 +1252,46 @@ func _set_trip(point: Vector3) -> void:
 	agent_script.command_move_to(_trip[0])
 
 
+# Where a trader with an empty hold goes to buy: the welcoming station whose best trade (Market.best_trade:
+# margin per unit) is best against the way there; not the one it has just left (nothing there to buy).
+func _pick_supplier(network) -> Spatial:
+	var planned: Dictionary = network.plan(agent_script.global_transform.origin, max(agent_script.get_top_speed(), 1.0), _caution, agent_script.hull_max)
+	var best: Spatial = null
+	var best_score := 0.0
+	for station in _havens.get("stations", []):
+		if not is_instance_valid(station) or station == _last_dock:
+			continue
+		var index: int = -1
+		for i in range(network.beacons.size()):
+			if network.beacons[i].haven == station:
+				index = i
+		var cost: float = planned.cost[index] if index >= 0 else INF
+		var trade: Dictionary = Market.best_trade(str(station.get("location_id")), str(agent_script.faction))
+		var score: float = float(trade.get("margin", 0.0)) / (cost + Constants.AI_MARKET_FILL_TIME)
+		if score > best_score:
+			best = station
+			best_score = score
+	return best
+
+
 # Where to sell the hold: the welcoming station that pays most for it against the whole round (there
 # and back, route cost: danger counts as time, and AI_MARKET_FILL_TIME to fill the hold again), so a
 # far market that pays well can beat a near one; the nearest refuge if none buys any of it.
 func _pick_market() -> Spatial:
 	var network = BeaconNetwork.of(agent_script)
+	if network != null and is_trader() and agent_script.get_cargo_value() <= 0.0:
+		var supplier: Spatial = _pick_supplier(network)
+		if supplier != null:
+			return supplier
 	if network == null or agent_script.get_cargo_value() <= 0.0:
 		return _pick_refuge(null)
 	var planned: Dictionary = network.plan(agent_script.global_transform.origin, max(agent_script.get_top_speed(), 1.0), _caution, agent_script.hull_max)
 	var best: Spatial = null
 	var best_score := 0.0
+	var trader: bool = is_trader()
 	for station in _havens.get("stations", []):
-		if not is_instance_valid(station):
-			continue
+		if not is_instance_valid(station) or (trader and station == _last_dock):
+			continue  # A trader sells elsewhere than where it bought
 		var index: int = -1
 		for i in range(network.beacons.size()):
 			if network.beacons[i].haven == station:

@@ -21,6 +21,7 @@ export var prefer_share: float = 0.0
 export var repair: bool = false  # Services: repairs hulls
 export var rearm: bool = false  # refills lances, rounds and decoys
 export var buys: Dictionary = {}  # Commodity id (or "*" for any) -> price factor on its cargo price; it buys nothing else
+export var sells: Dictionary = {}  # Commodity id -> price factor on its value: what it makes and sells (traders buy it)
 
 
 func _ring_radius() -> float:
@@ -34,7 +35,7 @@ func _ring_color() -> Color:
 func to_spec(at: Vector3) -> Dictionary:
 	var spec := {
 		"id": haven_id, "name": display_name, "faction": faction, "at": at, "ships": ships.duplicate(),
-		"services": {"repair": repair, "rearm": rearm, "buys": buys.duplicate()},
+		"services": {"repair": repair, "rearm": rearm, "buys": buys.duplicate(), "sells": sells.duplicate()},
 	}
 	if seen_anywhere:
 		spec["seen_anywhere"] = true

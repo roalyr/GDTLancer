@@ -40,9 +40,15 @@ prefer_share = 0.0
 repair = true
 rearm = true
 buys = {
-"*": 1.0
+"*": 1.0,
+"commodity_biotech": 1.2,
+"commodity_tech": 1.2
 }
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 30000, 0, 5000 )
+sells = {
+"commodity_biotech": 1.0,
+"commodity_tech": 1.0
+}
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 28000, 0, 0 )
 
 [node name="VerdantHaven" type="Position3D" parent="Havens"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 6000, 0, 25000 )
@@ -59,7 +65,11 @@ prefer_share = 0.0
 repair = true
 rearm = true
 buys = {
-"*": 0.9
+"*": 0.9,
+"commodity_tech": 1.3
+}
+sells = {
+"commodity_biotech": 0.7
 }
 
 [node name="VerdantPost" type="Position3D" parent="Havens"]
@@ -95,7 +105,11 @@ prefer_share = 0.0
 repair = true
 rearm = true
 buys = {
-"*": 0.9
+"*": 0.9,
+"commodity_biotech": 1.3
+}
+sells = {
+"commodity_tech": 0.7
 }
 
 [node name="VioletPost" type="Position3D" parent="Havens"]

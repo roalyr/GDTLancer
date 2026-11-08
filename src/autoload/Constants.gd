@@ -1149,7 +1149,10 @@ const EVO_BEHAVIOR_RANGES = {  # Gene -> [min, max, default]
 	"prospect": [0.0, 1.0, 0.0],  # At 0.5 or more, with a laser, a lance and a harpoon, it mines when it has nothing else to do
 	"haul": [0.05, 1.0, 0.25],  # Goes home to sell once its hold is worth this share of its ship; a prospector once it is this share full (AI_HAUL_SHARE)
 	"quiet": [0.0, 0.9, 0.3],  # Share of its thrust it cuts while keeping clear of an enemy that has not seen it (a lower signature)
+	"trade": [0.0, 1.0, 0.0],  # At 0.5 or more, with no harpoon and no lance, it trades: buys where a station sells, sells where one buys (a trader)
 }
+# A trader seed's hull (ShipLaws shares): mostly hold.
+const EVO_TRADER_SHARES = {"structure": 0.25, "engine": 0.2, "hold": 0.45, "reactor": 0.05, "capacitor": 0.05}
 # Starting designs, guessed, planted in each pool's empty niches (Evolution.plant_seeds; Genome.seed_genome):
 # prospectors and escorts for the factions, raiders, and the xenohive's drones, gatherers and wardens.
 const EVO_FACTION_SEEDS = [
@@ -1160,6 +1163,11 @@ const EVO_FACTION_SEEDS = [
 	{"type": 4, "size": 6.0, "tools": [["laser", 3], ["laser", 3], ["missile", 3], ["laser", 2]], "modules": [["plating", 3], ["power_cell", 3]], "behavior": {"teamwork": 1.5, "engage": 0.8}},
 	{"type": 4, "size": 5.0, "tools": [["laser", 3], "harpoon", ["laser", 2]], "modules": [["lance", 3], ["plating", 3]], "behavior": {"prospect": 1.0, "engage": 2.0, "retreat_hull": 0.4}},
 	{"type": 4, "size": 4.0, "tools": ["harpoon", "harpoon"], "modules": [["plating", 3], ["thruster", 3]], "behavior": {"engage": 0.5, "haul": 0.5}},
+	# Traders (haulers: the trade gene, big holds), one per weight class
+	{"type": 1, "size": 0.6, "shares": EVO_TRADER_SHARES, "tools": [], "modules": ["thruster"], "behavior": {"trade": 1.0, "engage": 3.0, "retreat_hull": 0.6}},
+	{"type": 2, "size": 1.2, "shares": EVO_TRADER_SHARES, "tools": [], "modules": [["plating", 2]], "behavior": {"trade": 1.0, "engage": 3.0, "retreat_hull": 0.5}},
+	{"type": 3, "size": 2.4, "shares": EVO_TRADER_SHARES, "tools": [["laser", 2]], "modules": [["plating", 3]], "behavior": {"trade": 1.0, "engage": 2.5, "retreat_hull": 0.5}},
+	{"type": 4, "size": 6.0, "shares": EVO_TRADER_SHARES, "tools": [["laser", 3]], "modules": [["plating", 3], ["thruster", 3]], "behavior": {"trade": 1.0, "engage": 2.5, "retreat_hull": 0.4}},
 ]
 const EVO_SEEDS = {
 	"verdant": EVO_FACTION_SEEDS,

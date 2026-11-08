@@ -279,6 +279,27 @@ func mark_offscreen(uid: String) -> void:
 		live[uid]["offscreen"] = true
 
 
+# A trader docked at `location_id` buys its next cargo (Market.best_trade): as much as its hold takes
+# and its wallet pays for. The cost counts as spent (fitness: what the cargo fetches, less this).
+func trade_buy(body: Node, location_id: String) -> int:
+	var uid: String = str(body.get("evo_uid"))
+	if not live.has(uid):
+		return 0
+	var trade: Dictionary = Market.best_trade(location_id, str(body.faction))
+	if trade.empty():
+		return 0
+	var record: Dictionary = live[uid]
+	var price: int = int(trade.price)
+	var afford: int = int(floor(max(wallet_of(uid), 0.0) / max(price, 1)))
+	var units: int = body.add_cargo(str(trade.commodity), min(afford, body.get_free_cargo()))
+	if units <= 0:
+		return 0
+	record.spent = float(record.get("spent", 0.0)) + units * price
+	note(uid, "bought")
+	_log(2, "EVO TRADE %s bought %d %s at %d WP for %s (%d each there)" % [uid, units, trade.commodity, price, trade.to, int(trade.sale)])
+	return units
+
+
 func get_record(uid: String) -> Dictionary:
 	return live.get(uid, {})
 

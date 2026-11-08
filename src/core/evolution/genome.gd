@@ -54,6 +54,8 @@ static func seed_genome(spec: Dictionary) -> Dictionary:
 	}
 	if spec.has("tool_share"):
 		genome.ship["tool_share"] = float(spec.tool_share)
+	if spec.has("shares"):  # A seed's own hull proportions (a trader's big hold)
+		genome.ship.shares = spec.shares.duplicate()
 	for gene in spec.get("behavior", {}):
 		genome.behavior[gene] = float(spec.behavior[gene])
 	_fit_slots(genome)
@@ -416,6 +418,12 @@ static func niche(genome: Dictionary) -> String:
 	for kind in ["cannon", "missile"]:
 		if kinds.has(kind):
 			role = kind + "-" + role
+	if harpoons == 0 and float(genome.get("behavior", {}).get("trade", 0.0)) >= 0.5:
+		var has_lance := false
+		for part in genome.modules:
+			has_lance = has_lance or (not part.empty() and part.kind == "lance")
+		if not has_lance:
+			role = "trader"  # Buys and sells between stations (ShipControllerAI is_trader); armed or not
 	var lance := false
 	for part in genome.modules:
 		if not part.empty() and part.kind == "lance":
@@ -425,7 +433,7 @@ static func niche(genome: Dictionary) -> String:
 	if lance and lasers > 0 and harpoons > 0 and float(genome.get("behavior", {}).get("prospect", 0.0)) >= 0.5:
 		role = "prospector"  # Mines (ShipControllerAI): laser, lance and harpoon, and the will to
 	var range_class: String = "-"
-	if lasers > 0:
+	if lasers > 0 and role != "trader":  # A trader's guns are for its own defence: one niche per weight
 		var mean_range: float = range_sum / lasers
 		range_class = "short" if mean_range < 800.0 else ("mid" if mean_range < 1400.0 else "long")
 	# Coarse on purpose (era 54): the role's family and the hull's weight class, not the exact mix of

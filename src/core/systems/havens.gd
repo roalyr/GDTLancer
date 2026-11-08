@@ -14,6 +14,21 @@ static func spec(location_id: String) -> Dictionary:
 	return {}
 
 
+# The ids of the other havens in the sector of the haven `location_id` (where its traders can sell).
+static func neighbours(location_id: String) -> Array:
+	for sector_id in TemplateDatabase.sector_layouts:
+		var ids: Array = []
+		var found := false
+		for haven in TemplateDatabase.sector_layouts[sector_id].get("havens", []):
+			if haven.id == location_id:
+				found = true
+			else:
+				ids.append(haven.id)
+		if found:
+			return ids
+	return []
+
+
 # The havens of `sector_id` with ships living from them (the evolving NPCs' groups).
 static func populated(sector_id: String) -> Array:
 	var found: Array = []
@@ -30,6 +45,11 @@ static func buys(location_id: String, commodity_id: String) -> float:
 		return 1.0
 	var prices: Dictionary = haven.get("services", {}).get("buys", {})
 	return float(prices.get(commodity_id, prices.get("*", 0.0)))
+
+
+# What the station sells, commodity id -> price factor on its value ({} if nothing): what it makes.
+static func sells(location_id: String) -> Dictionary:
+	return spec(location_id).get("services", {}).get("sells", {})
 
 
 # Whether the station repairs ("repair") or refills lances, rounds and decoys ("rearm").

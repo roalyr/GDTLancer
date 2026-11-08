@@ -45,6 +45,34 @@ static func part_sale_price(value: float, location_id: String, faction: String =
 	return int(Constants.PRICE_PART_SELL_SHARE * price(value, location_id, faction))
 
 
+# What one unit of `commodity_id` costs at the station (0: it does not sell it): its value times the
+# station's factor for it (Havens.sells), then its markup and standing (price).
+static func commodity_buy_price(commodity_id: String, location_id: String, faction: String = "") -> int:
+	var commodity = TemplateDatabase.get_template(commodity_id)
+	var factor: float = float(Havens.sells(location_id).get(commodity_id, 0.0))
+	if not (commodity is CommodityTemplate) or factor <= 0.0:
+		return 0
+	return price(float(commodity.base_value) * factor, location_id, faction)
+
+
+# The best buy at the station for a trader of `faction`: the commodity it sells whose dearest sale at
+# another station that welcomes the faction (Havens.welcome) beats its price by most. Returns
+# {"commodity", "price" (to buy one), "sale" (one fetches there), "margin", "to" (location id)}, or {}.
+static func best_trade(location_id: String, faction: String) -> Dictionary:
+	var best := {}
+	for commodity_id in Havens.sells(location_id):
+		var cost: int = commodity_buy_price(commodity_id, location_id)
+		if cost <= 0:
+			continue
+		for other in Havens.neighbours(location_id):
+			if not Havens.welcome(faction, other):
+				continue
+			var sale: int = commodity_sale_price(commodity_id, other)
+			if sale - cost > int(best.get("margin", 0)):
+				best = {"commodity": commodity_id, "price": cost, "sale": sale, "margin": sale - cost, "to": other}
+	return best
+
+
 # What one unit of `commodity_id` fetches at the station (0: it does not buy it).
 static func commodity_sale_price(commodity_id: String, location_id: String, faction: String = "") -> int:
 	var commodity = TemplateDatabase.get_template(commodity_id)
