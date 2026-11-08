@@ -1207,8 +1207,8 @@ func _dock(station: Spatial, service: bool) -> void:
 	_dock_timer = Constants.HAVEN_DOCK_TIME
 	if service and Evolution.on_docked(agent_script, str(station.get("location_id"))):
 		agent_script.despawn()  # Retired: its record is in the log
-	elif service and is_trader():
-		Evolution.trade_buy(agent_script, str(station.get("location_id")))  # Its next cargo, where it pays
+	elif is_trader() and (service or agent_script.get_cargo_value() <= 0.0):
+		Evolution.trade_buy(agent_script, str(station.get("location_id")))  # Its next cargo, where it pays (born here: its first)
 
 
 # Undocks once its dock time is up and no enemy waits outside (Constants HAVEN_UNDOCK_CLEAR_RADIUS),

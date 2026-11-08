@@ -302,12 +302,15 @@ func trade_buy(body: Node, location_id: String) -> int:
 	if trade.empty():
 		return 0
 	var record: Dictionary = live[uid]
+	if record.has("cargo"):
+		return 0  # A life resumed from a save: its own hold comes back (attach_body), it buys none on top
 	var price: int = int(trade.price)
 	var afford: int = int(floor(max(wallet_of(uid), 0.0) / max(price, 1)))
 	var units: int = body.add_cargo(str(trade.commodity), min(afford, body.get_free_cargo()))
 	if units <= 0:
 		return 0
 	record.spent = float(record.get("spent", 0.0)) + units * price
+	record.cargo_cost = float(record.get("cargo_cost", 0.0)) + units * price  # What its goods cost: its escorts share the margin
 	note(uid, "bought")
 	_log(2, "EVO TRADE %s bought %d %s at %d WP for %s (%d each there)" % [uid, units, trade.commodity, price, trade.to, int(trade.sale)])
 	return units
@@ -327,6 +330,10 @@ func on_docked(body: Node, location_id: String = "") -> bool:
 	var sale: Dictionary = Market.hold_value(body, location_id)  # At the station's cargo price, as the player; what it buys (Havens)
 	var value: int = int(sale.value)
 	var units: int = int(sale.units)
+	var held: int = 0
+	for commodity_id in body.cargo:
+		held += int(body.cargo[commodity_id]) if commodity_id != Constants.FUEL_COMMODITY else 0
+	var goods_cost: float = float(record.get("cargo_cost", 0.0)) * (float(units) / max(held, 1))  # Of what it sells now (traders)
 	var delivered: float = float(sale.mass)
 	for commodity_id in sale.sold:
 		body.remove_cargo(commodity_id, int(body.cargo.get(commodity_id, 0)))
@@ -339,7 +346,9 @@ func on_docked(body: Node, location_id: String = "") -> bool:
 		repair_cost += _rearm(uid, body)
 	var ai = body.get_node_or_null(Constants.AI_CONTROLLER_NODE_NAME)
 	var escorts: int = ai.get_escorts().size() if ai != null and ai.has_method("get_escorts") else 0
-	var escort_share: int = Wages.pay_escorts(body, value)  # Its escorts' share of the sale
+	var escort_share: int = Wages.pay_escorts(body, int(max(value - goods_cost, 0.0)))  # Its escorts' share of the sale (a trader's: of its margin)
+	if record.has("cargo_cost"):
+		record.cargo_cost = max(float(record.cargo_cost) - goods_cost, 0.0)
 	value -= escort_share
 	var wage: int = 0
 	if record.get("combat", false) and Havens.faction_of(location_id) == record.faction:
