@@ -133,7 +133,11 @@ func _rekey_cells() -> void:
 func serialize() -> Dictionary:
 	var lives: Array = resume.duplicate(true)
 	for uid in live:
-		lives.append(live[uid].duplicate(true))
+		var record: Dictionary = live[uid].duplicate(true)
+		var body = _bodies.get(uid)
+		if is_instance_valid(body) and body.get("cargo") is Dictionary:
+			record["cargo"] = body.cargo.duplicate()  # Its hold flies on with it (a trader's goods, a miner's ore)
+		lives.append(record)
 	if frozen:  # Play: the NPCs flying, by archetype; no genomes, no pools
 		return {
 			"version": SAVE_VERSION, "play": true, "run_id": run_id, "game_time": game_time, "real_time": real_time,
@@ -263,6 +267,11 @@ func _deserialize_play(data: Dictionary) -> bool:
 
 func attach_body(uid: String, body: Node) -> void:
 	_bodies[uid] = body
+	var record: Dictionary = live.get(uid, {})
+	for commodity_id in record.get("cargo", {}):  # A life resumed from a save: its hold as it was
+		if commodity_id != Constants.FUEL_COMMODITY and body.has_method("add_cargo"):
+			body.add_cargo(str(commodity_id), int(record.cargo[commodity_id]))
+	record.erase("cargo")
 
 
 # Extra drones a xenohive has grown from what its drones brought home (Constants XENOHIVE_*).
@@ -729,6 +738,8 @@ func _unproven(faction: String) -> Array:
 
 
 func _add_genome(genome: Dictionary, faction: String, parent: String) -> String:
+	if float(genome.get("behavior", {}).get("trade", 0.0)) > 0.0 and not Havens.trades(faction):
+		genome.behavior.trade = 0.0  # Nowhere to trade: no trader niche for this faction
 	var genome_id: String = "%s%d" % [faction.substr(0, 1).to_upper(), _next_genome] + ("i%d" % island if island > 0 else "")
 	_next_genome += 1
 	genomes[genome_id] = {"genome": genome, "faction": faction, "parent": parent, "born": game_time, "lives": 0, "fitness_sum": 0.0, "kills": 0, "deaths": 0, "earned": 0}

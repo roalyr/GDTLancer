@@ -62,3 +62,39 @@ func test_traders_are_their_own_family():
 	assert_true(Genome.niche(genome).ends_with("|trader|-"), "Its guns make no range niche: " + Genome.niche(genome))
 	genome.behavior.trade = 0.0
 	assert_ne(Genome.family(Genome.niche(genome)), "trader", "Not without the gene")
+
+
+func test_only_factions_with_somewhere_to_trade_keep_the_gene():
+	assert_true(Havens.trades("verdant") and Havens.trades("violet"), "Their havens and the free port sell")
+	assert_false(Havens.trades("raiders"), "Nowhere that welcomes raiders sells")
+	assert_false(Havens.trades("xenohive"))
+	var genome: Dictionary = Genome.seed_genome(Constants.EVO_FACTION_SEEDS[8])
+	var raider_id: String = Evolution._add_genome(genome.duplicate(true), "raiders", "")
+	assert_eq(float(Evolution.genomes[raider_id].genome.behavior.trade), 0.0, "A raider's trade gene is kept at 0")
+	assert_ne(Genome.family(Genome.niche(Evolution.genomes[raider_id].genome)), "trader")
+	var verdant_id: String = Evolution._add_genome(genome.duplicate(true), "verdant", "")
+	assert_eq(float(Evolution.genomes[verdant_id].genome.behavior.trade), 1.0)
+	Evolution.genomes.erase(raider_id)
+	Evolution.genomes.erase(verdant_id)
+
+
+func test_a_hold_flies_on_across_a_save():
+	var body = preload("res://src/core/agents/agent.gd").new()
+	body.cargo_capacity = 100
+	add_child_autofree(body)
+	Evolution.live["TT-1"] = {"uid": "TT-1", "faction": "verdant", "genome_id": "none"}
+	Evolution.attach_body("TT-1", body)
+	body.add_cargo("commodity_biotech", 30)
+	var saved: Dictionary = {}
+	for record in Evolution.serialize().lives:
+		if record.uid == "TT-1":
+			saved = record
+	assert_eq(int(saved.get("cargo", {}).get("commodity_biotech", 0)), 30, "Saved with its life")
+	var again = preload("res://src/core/agents/agent.gd").new()
+	again.cargo_capacity = 100
+	add_child_autofree(again)
+	Evolution.live["TT-1"] = saved
+	Evolution.attach_body("TT-1", again)
+	assert_eq(int(again.cargo.get("commodity_biotech", 0)), 30, "Back in the hold when it flies again")
+	Evolution.live.erase("TT-1")
+	Evolution._bodies.erase("TT-1")

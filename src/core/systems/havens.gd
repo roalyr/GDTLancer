@@ -29,6 +29,17 @@ static func neighbours(location_id: String) -> Array:
 	return []
 
 
+# Whether `faction` has anywhere to trade: a haven that welcomes it and sells something. Without
+# one its traders would only fly between stations (the raiders, the xenohive: the trade gene is
+# inert for them, Evolution keeps it at 0).
+static func trades(faction: String) -> bool:
+	for sector_id in TemplateDatabase.sector_layouts:
+		for haven in TemplateDatabase.sector_layouts[sector_id].get("havens", []):
+			if not haven.get("services", {}).get("sells", {}).empty() and welcome(faction, haven.id):
+				return true
+	return false
+
+
 # The havens of `sector_id` with ships living from them (the evolving NPCs' groups).
 static func populated(sector_id: String) -> Array:
 	var found: Array = []

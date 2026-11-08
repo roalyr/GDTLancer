@@ -1152,6 +1152,7 @@ const EVO_BEHAVIOR_RANGES = {  # Gene -> [min, max, default]
 	"trade": [0.0, 1.0, 0.0],  # At 0.5 or more, with no harpoon and no lance, it trades: buys where a station sells, sells where one buys (a trader)
 }
 # A trader seed's hull (ShipLaws shares): mostly hold.
+const ESCORT_TRADER_PULL = 0.5  # An escort weighs a trader's distance by this when choosing its ward (ShipControllerAI _take_ward)
 const EVO_TRADER_SHARES = {"structure": 0.25, "engine": 0.2, "hold": 0.45, "reactor": 0.05, "capacitor": 0.05}
 # Starting designs, guessed, planted in each pool's empty niches (Evolution.plant_seeds; Genome.seed_genome):
 # prospectors and escorts for the factions, raiders, and the xenohive's drones, gatherers and wardens.

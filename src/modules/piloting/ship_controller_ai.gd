@@ -244,6 +244,9 @@ func _take_ward() -> bool:
 	var here: Vector3 = agent_script.global_transform.origin
 	for ship in get_tree().get_nodes_in_group("agent_body"):
 		var distance: float = here.distance_to(ship.global_transform.origin)
+		var ward_ai = ship.get_node_or_null(Constants.AI_CONTROLLER_NODE_NAME)
+		if ward_ai != null and ward_ai.has_method("is_trader") and ward_ai.is_trader():
+			distance *= Constants.ESCORT_TRADER_PULL  # A trader's cargo pays its escort best: it looks nearer
 		if distance >= best_distance or not Wages.can_escort(agent_script, ship):
 			continue
 		var ai = ship.get_node_or_null(Constants.AI_CONTROLLER_NODE_NAME)
@@ -624,7 +627,7 @@ func _process_patrol() -> void:
 		elif _pending.empty():
 			var wreck = scan_for_wreck()
 			var lances_there: bool = is_instance_valid(wreck) and (wreck.recoverable_lances_for(agent_script) > 0 or _recoverable_ammo(wreck) > 0)
-			if is_trader() or ((agent_script.get_free_cargo() <= 0 or hold_worth_hauling()) and not lances_there) or _due_home():
+			if (is_trader() and has_trade_to_make()) or ((agent_script.get_free_cargo() <= 0 or hold_worth_hauling()) and not lances_there) or _due_home():
 				_change_state(AIState.DEPART)
 				return
 			if is_instance_valid(wreck):
@@ -1038,7 +1041,18 @@ func can_mine() -> bool:
 func is_trader() -> bool:
 	if _trade < 0.5 or _havens.empty() or not is_instance_valid(_tool_controller):
 		return false
-	return not _has_harpoon() and agent_script.get_lances().empty()
+	return not _has_harpoon() and agent_script.get_lances().empty() and Havens.trades(str(agent_script.faction))
+
+
+# A trader has somewhere to go: a hold to sell, or a station (not the one it has just left) with a
+# trade that pays (Market.best_trade). Otherwise it patrols like anyone, rather than dock and undock.
+func has_trade_to_make() -> bool:
+	if agent_script.get_cargo_value() > 0.0:
+		return true
+	for station in _havens.get("stations", []):
+		if is_instance_valid(station) and station != _last_dock and not Market.best_trade(str(station.get("location_id")), str(agent_script.faction)).empty():
+			return true
+	return false
 
 
 # A miner by its genes and kit, whether or not its hold has room now (an escort keeps by it home).
@@ -1279,7 +1293,7 @@ func _pick_supplier(network) -> Spatial:
 # far market that pays well can beat a near one; the nearest refuge if none buys any of it.
 func _pick_market() -> Spatial:
 	var network = BeaconNetwork.of(agent_script)
-	if network != null and is_trader() and agent_script.get_cargo_value() <= 0.0:
+	if network != null and is_trader() and agent_script.get_cargo_value() <= 0.0 and not _due_home():
 		var supplier: Spatial = _pick_supplier(network)
 		if supplier != null:
 			return supplier
