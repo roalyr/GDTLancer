@@ -483,6 +483,8 @@ const AI_COVER_RANGE_SHARE = 0.6
 const AI_SALVAGE_SEARCH_RANGE = 6000.0  # m; wrecks further than this are not worth the trip
 const AI_MINER_SALVAGE_RANGE = 1500.0  # m; a prospector strips only wrecks this near: it is out to mine, not to scavenge
 const AI_MINE_SEARCH_RANGE = 6000.0  # m; rocks further than this are not worth the trip
+const AI_MINE_HEAT_WEIGHT = 1.0  # A rock seems (1 + caution * this * beacon heat) times further (ShipControllerAI _rock_danger)
+const AI_MINE_PICKET_PULL = 0.7  # and this times as far near its own faction's picket (era 57: prospectors died in 35% of lives)
 const AI_MINE_GIVE_UP = 120.0  # s on one rock without a chunk before it tries another
 const AI_SALVAGE_GIVE_UP = 120.0  # s on one wreck, chunk or loose lance without getting anything off it before it gives that up
 const AI_DEPART_ARRIVAL_DISTANCE = 300.0  # m from its spawn point at which a hauler leaves the sector
@@ -1082,6 +1084,9 @@ const AI_ESCORT_GUARD_FACTOR = 2.0  # Times its desire to take on whoever attack
 const PATROL_WAGE_SHARE_PER_HOUR = 0.6
 const PATROL_WAGE_MAX_TIME = 3600.0  # s
 const NPC_MAX_LIFETIME = 900.0  # s; after this an NPC retires at its next dock (its record is kept)
+# Times NPC_MAX_LIFETIME by weight class (ShipLaws.weight_class): a heavy hull is slow, and a life of
+# the same length was a trip or two for it against many for a light one (era 57: superheavy traders).
+const NPC_LIFETIME_BY_WEIGHT = {"light": 1.0, "medium": 1.15, "heavy": 1.35, "superheavy": 1.6}
 # Rank (Evolution): a faction's ships living from one haven are a group, ranked by renown, what they have
 # won in this life (RENOWN_PER_KILL a kill, RENOWN_PER_ASSIST going to help a friend, RENOWN_PER_DAMAGE
 # per hull point dealt). The first, with RENOWN_LEADER_MIN and a group to lead, is its leader: the
@@ -1106,7 +1111,7 @@ const AI_FOLLOW_MIN_TEAMWORK = 0.5  # A loner (teamwork gene under this) patrols
 # re-flies its genome or a mutant. Fitness is noisy, so it is shrunk toward 0 by EVO_PRIOR_LIVES.
 const EVO_WEAPON_ODDS = {"laser": 0.5, "missile": 0.25, "cannon": 0.25}  # A new weapon is of this kind this often
 const EVO_REPAIR_COST_SHARE = 0.5  # A full repair costs this share of the hull's value (less for less)
-const EVO_UPKEEP_PER_HOUR = 0.5  # Running costs: this share of the ship's value per hour alive
+const EVO_UPKEEP_PER_HOUR = 0.4  # Running costs: this share of the ship's value per hour alive (0.5 to era 57: most designs lost money)
 # Combat niches (fighters, raiders, lancers: Genome.is_combat_role) are judged on the exchange: the
 # value of enemy ships they destroyed counts toward fitness at this weight, next to what they earned
 # and lost. Each hit is worth its share of the victim's hull times the victim's cost, credited only

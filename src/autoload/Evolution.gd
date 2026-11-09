@@ -22,6 +22,7 @@ const PresetExporter = preload("res://src/core/evolution/preset_exporter.gd")
 const Market = preload("res://src/core/systems/market.gd")
 const Havens = preload("res://src/core/systems/havens.gd")
 const Wages = preload("res://src/core/systems/wages.gd")
+const ShipLaws = preload("res://src/core/systems/ship_laws.gd")
 const SAVE_VERSION = 1
 
 var run_id: String = ""  # Names the log file; a new game starts a new run
@@ -424,8 +425,13 @@ static func renown_of(record: Dictionary) -> float:
 
 # How long it flies before it retires: longer the more renown it has won.
 func lifetime_of(uid: String) -> float:
-	var renown: float = renown_of(live.get(uid, {}))
-	return Constants.NPC_MAX_LIFETIME * min(Constants.NPC_LIFETIME_MAX_FACTOR, 1.0 + renown * Constants.NPC_LIFETIME_PER_RENOWN)
+	var record: Dictionary = live.get(uid, {})
+	var renown: float = renown_of(record)
+	var weight: float = 1.0
+	var entry: Dictionary = genomes.get(str(record.get("genome_id", "")), {})
+	if entry.has("genome"):
+		weight = float(Constants.NPC_LIFETIME_BY_WEIGHT.get(ShipLaws.weight_class(float(entry.genome.ship["size"])), 1.0))
+	return weight * Constants.NPC_MAX_LIFETIME * min(Constants.NPC_LIFETIME_MAX_FACTOR, 1.0 + renown * Constants.NPC_LIFETIME_PER_RENOWN)
 
 
 # The group's lives, most renowned first (the older first on a tie).
@@ -543,6 +549,9 @@ func _end_life(uid: String, died: bool, killer: String) -> void:
 		for attacker in credit:
 			if live.has(attacker):
 				live[attacker].destroyed = float(live[attacker].get("destroyed", 0.0)) + min(float(credit[attacker]), float(record.cost))
+	if not died and float(record.get("cargo_cost", 0.0)) > 0.0:
+		record.earned = int(record.earned) + int(record.cargo_cost)  # Retired with goods unsold: its faction keeps them, at what they cost
+		record.cargo_cost = 0.0
 	var age: float = game_time - float(record.born)
 	var fitness: float = fitness_of(record, died, age)
 	var entry: Dictionary = genomes.get(record.genome_id, {})

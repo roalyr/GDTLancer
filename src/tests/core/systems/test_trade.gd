@@ -99,3 +99,29 @@ func test_a_hold_flies_on_across_a_save():
 	Evolution.live.erase("TT-1")
 	Evolution._bodies.erase("TT-1")
 
+
+
+func test_heavier_hulls_live_longer():
+	var light: Dictionary = Genome.seed_genome(Constants.EVO_FACTION_SEEDS[6])  # Light trader
+	var heavy: Dictionary = Genome.seed_genome(Constants.EVO_FACTION_SEEDS[9])  # Superheavy trader
+	Evolution.genomes["TL"] = {"genome": light}
+	Evolution.genomes["TH"] = {"genome": heavy}
+	Evolution.live["TT-L"] = {"uid": "TT-L", "genome_id": "TL"}
+	Evolution.live["TT-H"] = {"uid": "TT-H", "genome_id": "TH"}
+	assert_almost_eq(Evolution.lifetime_of("TT-L"), Constants.NPC_MAX_LIFETIME, 0.1)
+	assert_almost_eq(Evolution.lifetime_of("TT-H"), Constants.NPC_MAX_LIFETIME * Constants.NPC_LIFETIME_BY_WEIGHT.superheavy, 0.1)
+	for key in ["TL", "TH"]:
+		Evolution.genomes.erase(key)
+	for key in ["TT-L", "TT-H"]:
+		Evolution.live.erase(key)
+
+
+func test_goods_unsold_at_retirement_count_at_cost():
+	var genome: Dictionary = Genome.seed_genome(Constants.EVO_FACTION_SEEDS[7])
+	var genome_id: String = Evolution._add_genome(genome, "verdant", "")
+	Evolution.live["TT-R"] = {"uid": "TT-R", "faction": "verdant", "zone": "", "genome_id": genome_id, "born": Evolution.game_time,
+		"cost": 1000.0, "earned": 0, "bounty": 0.0, "spent": 600.0, "cargo_cost": 600.0, "kills": 0, "victims": [],
+		"damage_dealt": 0.0, "damage_taken": 0.0, "docks": 1}
+	Evolution._end_life("TT-R", false, "")
+	assert_almost_eq(float(Evolution.genomes[genome_id].fitness_sum), 0.0, 0.01, "Bought 600, kept 600: even (no time, no upkeep)")
+	Evolution.genomes.erase(genome_id)

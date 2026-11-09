@@ -61,6 +61,7 @@ static func design_id(genome_id: String, niche: String) -> String:
 static func export_all(evolution: Dictionary, top: int, min_lives: int, folder: String) -> Array:
 	var lines: Array = []
 	var genomes: Dictionary = evolution.get("genomes", {})
+	var baseline: Dictionary = baselines(genomes)
 	var best: Dictionary = {}  # Archetype -> its fittest pick
 	for faction in evolution.get("pools", {}):
 		var cells: Dictionary = evolution.pools[faction].cells
@@ -70,7 +71,10 @@ static func export_all(evolution: Dictionary, top: int, min_lives: int, folder: 
 				continue
 			if niche.find("|drifter|") >= 0:
 				continue  # Unarmed and without a harpoon: no use as a preset
-			var pick := {"fitness": ranked(entry), "niche": niche, "id": cells[niche], "entry": entry}
+			# Against its own faction's family: a design is not better for flying where its faction does well
+			# (era 53-57: xenohive and raider genomes won archetypes on their faction's luck)
+			var own: float = float(baseline.get("%s|%s" % [faction, Genome.family(niche)], 0.0))
+			var pick := {"fitness": ranked(entry) - own, "raw": ranked(entry), "niche": niche, "id": cells[niche], "entry": entry}
 			var kind: String = archetype(niche)
 			if not best.has(kind) or pick.fitness > best[kind].fitness:
 				best[kind] = pick
@@ -79,11 +83,41 @@ static func export_all(evolution: Dictionary, top: int, min_lives: int, folder: 
 	Directory.new().make_dir_recursive(folder)
 	for i in range(min(top, ranked.size())):
 		var pick: Dictionary = ranked[i]
-		lines.append("#%d %s (%s) %s fit %+.2f n=%d -> %s" % [i + 1, archetype(pick.niche), pick.niche, pick.id, pick.fitness, int(pick.entry.lives),
+		lines.append("#%d %s (%s) %s fit %+.2f over its faction's family (%+.2f) n=%d -> %s" % [i + 1, archetype(pick.niche), pick.niche, pick.id, pick.fitness, pick.raw, int(pick.entry.lives),
 			write_preset(pick.entry.genome, pick.id, folder, {"lives": int(pick.entry.lives), "fitness": pick.fitness})])
 	if ranked.empty():
 		lines.append("no niche's best has %d lives yet" % min_lives)
 	return lines
+
+
+# Faction and family ("verdant|fighter") -> the mean fitness of all its lives: what a design is
+# measured against at export.
+static func baselines(genomes: Dictionary) -> Dictionary:
+	var sums := {}
+	var lives := {}
+	for genome_id in genomes:
+		var entry: Dictionary = genomes[genome_id]
+		if int(entry.get("lives", 0)) <= 0 or not entry.has("genome"):
+			continue
+		var key: String = "%s|%s" % [str(entry.get("faction", "")), Genome.family(Genome.niche(entry.genome))]
+		sums[key] = float(sums.get(key, 0.0)) + float(entry.fitness_sum)
+		lives[key] = int(lives.get(key, 0)) + int(entry.lives)
+	var result := {}
+	for key in sums:
+		result[key] = float(sums[key]) / max(lives[key], 1)
+	return result
+
+
+# Parts that do nothing on this design: a shell bay without a cannon, a missile bay without a
+# missile rack (the exporter leaves them off; a spare harpoon likewise).
+static func is_junk(part: Dictionary, genome: Dictionary) -> bool:
+	if part.empty() or not part.get("kind", "") in ["magazine", "rack"]:
+		return false
+	var feeds: String = "cannon" if part.kind == "magazine" else "missile"
+	for weapon in genome.tools:
+		if not weapon.empty() and weapon.get("kind", "") == feeds:
+			return false
+	return true
 
 
 # Writes one genome's files; returns the agent template's path.
@@ -100,7 +134,7 @@ static func write_preset(genome: Dictionary, genome_id: String, dir_path: String
 		tools.append(template_id)
 	var modules: Array = []
 	for part in genome.modules:
-		modules.append(_write_part(part, dir_path))
+		modules.append("" if is_junk(part, genome) else _write_part(part, dir_path))
 	var niche: String = Genome.niche(genome)
 	var design: String = design_id(genome_id, niche)
 	var ship_id: String = "preset_ship_%s" % design

@@ -178,7 +178,7 @@ func test_docking_sells_the_hold_and_charges_repairs():
 
 func test_old_ships_retire_at_the_dock():
 	var life: Dictionary = Evolution.begin_life("verdant", "arena_verdant_haven")
-	Evolution.game_time += Constants.NPC_MAX_LIFETIME + 1.0
+	Evolution.game_time += Evolution.lifetime_of(life.uid) + 1.0  # Its hull's lifetime (heavier: longer)
 	assert_true(Evolution.on_docked(_body(life.uid)))
 	assert_eq(int(Evolution.totals.retired), 1)
 
@@ -280,12 +280,14 @@ func test_groups_rank_by_renown_and_the_first_leads():
 func test_renown_puts_off_retiring():
 	var life: Dictionary = Evolution.begin_life("verdant", "arena_verdant_haven")
 	Evolution.live[life.uid].kills = 2
-	var longer: float = min(2.0, Constants.NPC_LIFETIME_MAX_FACTOR)
+	var genome: Dictionary = Evolution.genomes[life.genome_id].genome
+	var weight: float = Constants.NPC_LIFETIME_BY_WEIGHT[Evolution.ShipLaws.weight_class(float(genome.ship["size"]))]  # Heavier hulls live longer
+	var longer: float = weight * min(2.0, Constants.NPC_LIFETIME_MAX_FACTOR)
 	assert_almost_eq(Evolution.lifetime_of(life.uid), Constants.NPC_MAX_LIFETIME * longer, 0.01, "Two kills: twice as long (if on)")
 	Evolution.game_time += Constants.NPC_MAX_LIFETIME * longer - 1.0
 	assert_false(Evolution.on_docked(_body(life.uid)), "Not old yet")
 	Evolution.live[life.uid].kills = 100
-	assert_almost_eq(Evolution.lifetime_of(life.uid), Constants.NPC_MAX_LIFETIME * Constants.NPC_LIFETIME_MAX_FACTOR, 0.01, "At most this long")
+	assert_almost_eq(Evolution.lifetime_of(life.uid), weight * Constants.NPC_MAX_LIFETIME * Constants.NPC_LIFETIME_MAX_FACTOR, 0.01, "At most this long")
 
 
 func test_presets_come_in_four_weights_per_role():

@@ -1081,14 +1081,30 @@ func scan_for_rock() -> Spatial:
 	var best: Spatial = null
 	var best_distance: float = Constants.AI_MINE_SEARCH_RANGE
 	var own_pos: Vector3 = agent_script.global_transform.origin
+	var network = BeaconNetwork.of(agent_script)
 	for rock in get_tree().get_nodes_in_group("mineable"):
 		if _given_up.has(rock.get_instance_id()) or rock.get_deposit() <= 0 or not _in_play_area(rock.global_transform.origin) or not agent_script.detects(rock):
 			continue
-		var distance: float = own_pos.distance_to(rock.global_transform.origin)
+		var distance: float = own_pos.distance_to(rock.global_transform.origin) * _rock_danger(network, rock.global_transform.origin)
 		if distance < best_distance:
 			best = rock
 			best_distance = distance
 	return best
+
+
+# How much further a rock seems for the danger round it, as its caution gene weighs it: the heat
+# (fights lately) at the nearest beacon makes it further, its own faction's picket nearby nearer
+# (Constants AI_MINE_HEAT_WEIGHT, AI_MINE_PICKET_PULL). 1.0 with no network.
+func _rock_danger(network, point: Vector3) -> float:
+	if network == null:
+		return 1.0
+	var beacon = network.nearest(point, Constants.BEACON_HEAT_RADIUS)
+	if beacon == null:
+		return 1.0
+	var factor: float = 1.0 + _caution * Constants.AI_MINE_HEAT_WEIGHT * float(beacon.heat)
+	if beacon.kind == "patrol" and beacon.faction == str(agent_script.faction):
+		factor *= Constants.AI_MINE_PICKET_PULL
+	return factor
 
 
 # Throws a lance into the rock (command_charge holds it off the face); the strike (_on_lance_struck)
