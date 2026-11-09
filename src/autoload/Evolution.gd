@@ -496,6 +496,7 @@ func _on_agent_disabled(body) -> void:
 	if not live.has(uid):
 		return
 	var killer: String = str(live[uid].get("last_hit_by", ""))
+	_note_territory_death(uid, body, killer)
 	if live.has(killer):
 		var bounty: float = float(body.get("bounty_paid")) if body.get("bounty_paid") != null else 0.0  # Bounty.on_kill
 		live[killer].kills = int(live[killer].kills) + 1
@@ -503,6 +504,54 @@ func _on_agent_disabled(body) -> void:
 		live[killer].bounty = float(live[killer].bounty) + bounty
 		_log(2, "EVO KILL %s killed %s (zone %s), bounty %.0f WP" % [killer, uid, live[uid].zone, bounty])
 	_end_life(uid, true, killer)
+
+
+# --- Territory (the xenohive's): who comes in, who falls where. Notes only, for the records ---
+
+var _inside := {}  # uid -> the territorial faction whose territory it is in now
+
+
+# The territorial faction (FactionTemplate.territory) whose hive `point` is within, or "".
+func territory_at(point: Vector3) -> String:
+	if not is_inside_tree():
+		return ""
+	for station in get_tree().get_nodes_in_group("faction_station"):
+		var owner: String = str(station.get("faction"))
+		var radius: float = float(TemplateDatabase.factions.get(owner, {}).get("territory", 0.0))
+		if radius > 0.0 and point.distance_to(station.global_transform.origin) <= radius:
+			return owner
+	return ""
+
+
+# A flying ship counted (BeaconNetwork's tick): coming into another faction's territory notes
+# "trespassed" in its life.
+func on_position(body: Node) -> void:
+	var uid: String = str(body.get("evo_uid"))
+	if not live.has(uid):
+		return
+	var owner: String = territory_at(body.global_transform.origin)
+	if owner == str(body.get("faction")):
+		owner = ""
+	if owner != "" and str(_inside.get(uid, "")) != owner:
+		note(uid, "trespassed")
+	if owner == "":
+		_inside.erase(uid)
+	else:
+		_inside[uid] = owner
+
+
+# Where a ship fell, for a territorial faction's records: its own fall at home or abroad, an
+# intruder falls trespassing, and a hive ship that kills one there "defended_hive".
+func _note_territory_death(uid: String, body: Node, killer: String) -> void:
+	_inside.erase(uid)
+	var owner: String = territory_at(body.global_transform.origin)
+	var faction: String = str(live[uid].faction)
+	if TemplateDatabase.factions.get(faction, {}).get("territory", 0.0) > 0.0:
+		note(uid, "fell_at_home" if owner == faction else "fell_abroad")
+	elif owner != "":
+		note(uid, "fell_trespassing")
+		if live.has(killer) and str(live[killer].faction) == owner:
+			note(killer, "defended_hive")
 
 
 # A ship that leaves without dying (sector unloaded, game reset): it flies again later.
@@ -544,6 +593,7 @@ func _end_life(uid: String, died: bool, killer: String) -> void:
 	var record: Dictionary = live[uid]
 	live.erase(uid)
 	_bodies.erase(uid)
+	_inside.erase(uid)
 	if died:  # Its attackers still flying get the value they took off it (at most its cost each)
 		var credit: Dictionary = record.get("credit", {})
 		for attacker in credit:

@@ -110,6 +110,7 @@ func _update(dt: float) -> void:
 			continue
 		var faction: String = str(body.get("faction"))
 		Wages.on_escort(body, dt)  # Escorting a worker is duty, paid as patrol time is
+		Evolution.on_position(body)  # Trespassing (the records)
 		var beacon = nearest(body.global_transform.origin, Constants.BEACON_TRAFFIC_RADIUS, true)
 		var id: int = body.get_instance_id()
 		if beacon == null:
