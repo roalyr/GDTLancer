@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://src/scenes/game_world/models/placeholder_hull.gd" type="Script" id=1]
+
+[sub_resource type="SphereShape" id=1]
+radius = 5.0
+
+[node name="platform_heavy" type="Spatial"]
+script = ExtResource( 1 )
+form = "platform_heavy"
+
+[node name="CollisionShape" type="CollisionShape" parent="."]
+shape = SubResource( 1 )

@@ -4,6 +4,7 @@ extends Node
 
 const Traffic = preload("res://src/core/systems/traffic.gd")
 const Offscreen = preload("res://src/core/systems/offscreen.gd")
+const PlatformController = preload("res://src/modules/piloting/platform_controller.gd")
 
 var populate_sectors: bool = true  # Tests switch this off to spawn only the player.
 var run_traffic: bool = true  # The evolution sim switches this off: no travellers among the evolving NPCs
@@ -15,6 +16,7 @@ var _respawn_timer: Timer = null
 var traffic: Node = null  # The travelling NPCs (Traffic)
 var offscreen: Node = null  # Far ships resolved by rule (Offscreen)
 var _haven_slots: Array = []  # [{"haven", "faction", "body", "ready_at", "extra"}], reset per sector
+var _platform_slots: Array = []  # [{"haven", "at", "body", "ready_at"}]: weapon platforms round havens (HavenMarker.platforms), reset per sector
 
 
 func _ready():
@@ -47,6 +49,7 @@ func _on_Zone_Loaded(_zone_instance, _zone_path, agent_container_node):
 			spawn_player()
 		_npc_bodies.clear()
 		_haven_slots = []
+		_platform_slots = []
 		Evolution.suspend_all()  # Ships left behind with the last sector fly again when it is back
 		if populate_sectors:
 			_top_up_population(true)
@@ -238,7 +241,43 @@ func _top_up_population(_fill: bool = false) -> void:
 			continue  # The hive has not grown that far yet
 		if now >= slot.ready_at:
 			slot.body = _spawn_haven_npc(layout, slot.haven, slot.faction)
+	_top_up_platforms(layout, now)
 	clear_old_wrecks()
+
+
+# Weapon platforms round each haven that has them, spread evenly in its station's plane
+# (PLATFORM_RING_RADIUS); one lost is rebuilt after PLATFORM_RESPAWN_DELAY.
+func _top_up_platforms(layout: Node, now: float) -> void:
+	if _platform_slots.empty():
+		for haven in layout.havens:
+			var count: int = int(haven.get("platforms", 0))
+			for index in range(count):
+				var angle: float = TAU * (float(index) + 0.5) / float(count)
+				var basis: Basis = haven.station.global_transform.basis.orthonormalized()
+				var at: Vector3 = haven.station.global_transform.origin + basis.xform(Vector3(cos(angle), 0.0, sin(angle)) * Constants.PLATFORM_RING_RADIUS)
+				_platform_slots.append({"haven": haven, "at": at, "body": null, "ready_at": 0.0})
+	for slot in _platform_slots:
+		var body = slot.body
+		if is_instance_valid(body) and body.is_inside_tree() and not body.is_wreck:
+			continue
+		if body != null:
+			slot.body = null
+			slot.ready_at = now + Constants.PLATFORM_RESPAWN_DELAY
+		if now >= slot.ready_at:
+			slot.body = spawn_platform(slot.haven.station, str(slot.haven.faction), slot.at)
+
+
+func spawn_platform(station: Spatial, faction: String, at: Vector3) -> RigidBody:
+	var built: Dictionary = PlatformController.build(faction)
+	var template = load(Constants.NPC_BASE_TEMPLATE_PATH)
+	var body = spawn_agent(Constants.PLATFORM_SCENE_PATH, at, template, {
+		"agent_type": "npc", "template_id": "platform", "faction": faction, "platform": true,
+		"ship_template_id": built.ship_template_id, "fit": built.fit, "wallet": 0.0,
+	}, _get_next_agent_uid())
+	if is_instance_valid(body):
+		body.look_at(station.global_transform.origin + (at - station.global_transform.origin) * 2.0, station.global_transform.basis.y)  # Facing out
+		body.get_node(Constants.PLATFORM_CONTROLLER_NODE_NAME).setup(station)
+	return body
 
 
 # A new life for a haven slot, spawned docked at its haven. It may dock wherever it is welcome

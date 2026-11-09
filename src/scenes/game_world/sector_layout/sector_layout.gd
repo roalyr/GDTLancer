@@ -128,7 +128,7 @@ func _build_haven(spec: Dictionary) -> Dictionary:
 	var stations := {}
 	for ship_faction in spec.get("ships", {}):
 		stations[ship_faction] = [station]
-	return {"id": spec.id, "faction": faction, "factions": spec.get("ships", {}).duplicate(), "station": station, "stations": stations, "beacon": beacon}
+	return {"id": spec.id, "faction": faction, "factions": spec.get("ships", {}).duplicate(), "station": station, "stations": stations, "beacon": beacon, "platforms": int(spec.get("platforms", 0))}
 
 
 func _add_beacon(kind: String, beacon_faction: String, beacon_name: String, at: Vector3, radius: float) -> Node:

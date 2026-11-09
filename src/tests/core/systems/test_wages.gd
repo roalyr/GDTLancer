@@ -208,39 +208,59 @@ func test_traders_bound_alike_travel_as_a_caravan():
 	assert_eq(_ai(one).get_activity_label(), "IN CARAVAN")
 
 
-func test_a_loaded_trader_waits_docked_for_company_by_its_teamwork():
+func test_a_loaded_trader_musters_outside_and_leaves_with_a_mate():
 	var saved: Dictionary = TemplateDatabase.assets_commodities
 	var tech := CommodityTemplate.new()
 	tech.template_id = "commodity_tech"
 	tech.base_value = 60
 	TemplateDatabase.assets_commodities = {"commodity_tech": tech}  # Its cargo is worth something
-	var station := Spatial.new()
+	var station = load("res://src/scenes/game_world/station/dockable_station.gd").new()
 	add_child_autofree(station)
 	var one = _trader(Vector3.ZERO, station)
 	var ai = _ai(one)
-	ai._current_state = AIScript.AIState.DOCKED
-	ai._teamwork = 2.0
-	ai._dock_timer = 0.0
-	assert_true(ai.waits_for_caravan(), "Alone: it waits a while for one")
-	ai._dock_timer = -Constants.CARAVAN_WAIT - 1.0
-	assert_false(ai.waits_for_caravan(), "Not for ever")
-	ai._dock_timer = 0.0
+	ai._current_state = AIScript.AIState.PATROL
 	ai._teamwork = 0.0
-	assert_false(ai.waits_for_caravan(), "A loner does not wait")
+	ai.start_muster(station)
+	assert_null(ai.mustering_at(), "A loner does not wait")
 	ai._teamwork = 2.0
+	ai.start_muster(station)
+	assert_eq(ai.mustering_at(), station, "Loaded, it gathers a caravan outside")
+	assert_almost_eq(ai._muster_left, Constants.CARAVAN_WAIT, 0.01, "For CARAVAN_WAIT x half its teamwork")
+	assert_eq(ai.get_activity_label(), "FORMING CARAVAN")
 	var two = _trader(Vector3(0, 0, 100), station)
 	two.is_docked = true
 	_ai(two)._current_state = AIScript.AIState.DOCKED
-	_ai(two)._dock_timer = 5.0
-	assert_true(ai.waits_for_caravan(), "Its mate is still busy: it waits")
-	_ai(two)._dock_timer = 0.0
-	assert_false(ai.waits_for_caravan(), "Both ready: they go together")
+	_ai(two)._dock_timer = 30.0
+	_ai(two)._process_docked(0.1)
+	assert_almost_eq(_ai(two)._dock_timer, Constants.CARAVAN_HURRY_DOCK, 0.01, "Docked there, it is called out")
 	two.is_docked = false
-	two.global_transform.origin = Vector3(0, 0, 50000)
-	assert_true(ai.waits_for_caravan(), "Alone again: waits")
-	var guard = _ship(Vector3(0, 0, 500), "verdant", true)
-	assert_false(ai.waits_for_caravan(), "A free escort near the station: it goes, to be taken as it comes out")
+	_ai(two)._current_state = AIScript.AIState.PATROL
+	_ai(two).start_muster(station)
+	assert_true(one in _ai(two).muster_mates(), "They muster together")
+	ai._scan_timer = 0.0
+	assert_false(ai._hold_muster(), "Gathered: it goes")
+	assert_null(ai.mustering_at())
+	assert_null(_ai(two).mustering_at(), "and so does its mate")
 	TemplateDatabase.assets_commodities = saved
+
+
+func test_an_escort_turns_on_its_wards_attacker_even_mid_fight():
+	var station := Spatial.new()
+	add_child_autofree(station)
+	var trader = _trader(Vector3.ZERO, station)
+	var escort = _ship(Vector3(0, 0, 300), "verdant", true)
+	assert_true(_ai(escort)._take_ward())
+	var foe = _ship(Vector3(0, 0, 2000), "violet", true)
+	var raider = _ship(Vector3(0, 0, -2000), "raiders", true)
+	_ai(escort)._start_combat(foe, true)
+	_ai(escort)._on_agent_damaged(trader, 5.0, raider)
+	assert_eq(_ai(escort)._pending.get("kind"), "guard", "Its ward shot at: it means to turn on the attacker")
+	assert_eq(_ai(escort)._resume_target, foe, "still firing at its foe while it decides")
+	assert_lt(_ai(escort)._pending.timer, Constants.AI_DECISION_DELAY_SLOW * 2.0 * Constants.ESCORT_GUARD_DELAY_FACTOR + 0.01, "and sooner than any other decision")
+	_ai(escort)._pending.timer = 0.0
+	_ai(escort)._tick_decision(0.1)
+	assert_eq(_ai(escort)._current_state, AIScript.AIState.COMBAT)
+	assert_eq(_ai(escort)._target_agent, raider, "On the ward's attacker")
 
 
 func test_a_trader_takes_more_escorts():
@@ -251,7 +271,9 @@ func test_a_trader_takes_more_escorts():
 	var second = _ship(Vector3(0, 0, 400), "verdant", true)
 	assert_true(_ai(first)._take_ward(), "One escort")
 	assert_true(_ai(second)._take_ward(), "And a second for a trader (ESCORTS_PER_TRADER)")
-	assert_eq(_ai(trader).get_escorts().size(), 2)
+	var third = _ship(Vector3(0, 0, 500), "verdant", true)
+	assert_true(_ai(third)._take_ward(), "And a third")
+	assert_eq(_ai(trader).get_escorts().size(), 3)
 
 
 func test_no_ship_hunts_its_own_side_for_a_bounty():

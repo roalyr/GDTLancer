@@ -22,6 +22,7 @@ export var repair: bool = false  # Services: repairs hulls
 export var rearm: bool = false  # refills lances, rounds and decoys
 export var buys: Dictionary = {}  # Commodity id (or "*" for any) -> price factor on its cargo price; it buys nothing else
 export var sells: Dictionary = {}  # Commodity id -> price factor on its value: what it makes and sells (traders buy it)
+export var platforms: int = 0  # Weapon platforms round its station (PlatformController), rebuilt when lost
 
 
 func _ring_radius() -> float:
@@ -39,6 +40,8 @@ func to_spec(at: Vector3) -> Dictionary:
 	}
 	if seen_anywhere:
 		spec["seen_anywhere"] = true
+	if platforms > 0:
+		spec["platforms"] = platforms
 	if rotation_degrees != Vector3.ZERO:
 		spec["turn"] = rotation_degrees  # Its station's, degrees (the marker's own rotation)
 	attach(spec)

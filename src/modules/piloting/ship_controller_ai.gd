@@ -49,7 +49,7 @@ const ACTIVITY_LABELS = {
 }
 
 # Which pending decision gives way to which (higher wins): being shot outranks anything else.
-const DECISION_PRIORITY = {"engage": 0, "disengage": 0, "let_go": 0, "assist": 1, "respond": 2}
+const DECISION_PRIORITY = {"engage": 0, "disengage": 0, "let_go": 0, "assist": 1, "respond": 2, "guard": 2}
 
 
 var agent_script: RigidBody = null
@@ -112,6 +112,9 @@ var _last_dock: Spatial = null  # Where it last docked: a trader buys and sells 
 var _caravan: Array = []  # Traders of its faction bound for the same station near it (caravan_mates), kept for CARAVAN_CHECK s
 var _caravan_timer: float = 0.0
 var _caravan_noted := false  # This trip counted as a caravan's (Evolution.note "in_caravan")
+var _muster_left := 0.0  # s it still holds by its station gathering a caravan (start_muster)
+var _muster_at: Spatial = null
+var _muster_moving := false  # Sent to its muster point
 var _haul: float = Constants.AI_HAUL_SHARE  # Behaviour gene: goes home to sell once its hold is worth this share of its ship
 var _rock: Spatial = null  # The rock it is mining
 var _mine_time: float = 0.0  # s on _rock without a chunk
@@ -187,7 +190,7 @@ func get_activity_label() -> String:
 		return "ESCORTING"
 	if _current_state == AIState.DEPART and is_trader() and not get_caravan().empty():
 		return "IN CARAVAN"
-	if _current_state == AIState.DOCKED and _dock_timer <= 0.0 and is_trader() and agent_script.get_cargo_value() > 0.0:
+	if mustering_at() != null:
 		return "FORMING CARAVAN"
 	return ACTIVITY_LABELS.get(_current_state, "")
 
@@ -322,7 +325,8 @@ func _set_cruise() -> void:
 	var speed: float = cruise_speed() if is_cruising() else INF
 	if _current_state == AIState.DEPART and is_trader():
 		for mate in get_caravan():  # A caravan keeps together at its slowest one's pace
-			speed = min(speed, _cruise_share * max(mate.get_top_speed(), 1.0))
+			if is_instance_valid(mate):  # Kept for CARAVAN_CHECK s: one may be gone since
+				speed = min(speed, _cruise_share * max(mate.get_top_speed(), 1.0))
 	nav.cruise_speed = speed
 
 
@@ -333,6 +337,9 @@ func _set_cruise() -> void:
 func get_caravan() -> Array:
 	if _caravan_timer > 0.0:
 		_caravan_timer -= get_physics_process_delta_time()
+		for mate in _caravan.duplicate():
+			if not is_instance_valid(mate):
+				_caravan.erase(mate)
 		return _caravan
 	_caravan_timer = Constants.CARAVAN_CHECK
 	_caravan = []
@@ -358,39 +365,78 @@ func bound_for() -> Spatial:
 	return _station if _current_state == AIState.DEPART and is_instance_valid(_station) else null
 
 
-# A loaded trader about to leave waits for company: another trader of its faction docked here that
-# is not ready yet, or (none here) one to come in or a free escort to come by, for up to CARAVAN_WAIT
-# times half its teamwork gene: a loner does not wait, a team player waits long. Two ready together
-# leave together; an armed friend without a ward near the station (it will take the trader as it
-# comes out) is company enough.
-func waits_for_caravan() -> bool:
-	if not is_trader() or agent_script.get_cargo_value() <= 0.0 or not is_instance_valid(_station):
-		return false
-	if -_dock_timer >= Constants.CARAVAN_WAIT * _teamwork * 0.5:
-		return false
-	for ship in get_tree().get_nodes_in_group("agent_body"):
-		if ship == agent_script or not ship.get("is_docked") or str(ship.get("faction")) != str(agent_script.faction):
-			continue
-		var ai = ship.get_node_or_null(Constants.AI_CONTROLLER_NODE_NAME)
-		if ai == null or not ai.has_method("docked_at") or ai.docked_at() != _station or not ai.is_trader():
-			continue
-		return ai.dock_time_left() > 0.0  # It is still busy: wait for it; it is ready too: go together
-	return not escort_at_hand()  # No one here yet: wait a while for one, or for an escort
+# --- Musters: a loaded trader gathers its caravan outside the station it leaves ---
+# Undocking loaded, a trader holds just off the undock point (CARAVAN_MUSTER_OFFSET; under the
+# station's platforms, where escorts can take it as a docked ship cannot be) for up to CARAVAN_WAIT
+# times half its teamwork gene (a loner does not wait), calling its faction's traders: one docked
+# there hurries out (CARAVAN_HURRY_DOCK) to join it. As soon as another trader musters by it, they
+# all leave together (and travel as a caravan, get_caravan); otherwise it goes when its time is up.
+func start_muster(station: Spatial) -> void:
+	_muster_left = 0.0
+	_muster_at = null
+	if is_trader() and agent_script.get_cargo_value() > 0.0 and is_instance_valid(station) and _teamwork > 0.0:
+		_muster_left = Constants.CARAVAN_WAIT * _teamwork * 0.5
+		_muster_at = station
+		_muster_moving = false
 
 
-# An armed friend of its faction near its station that could take it for its ward as it undocks.
-func escort_at_hand() -> bool:
-	var at: Vector3 = _station.global_transform.origin
+func end_muster() -> void:
+	_muster_left = 0.0
+
+
+# The station it musters at now, or null.
+func mustering_at() -> Spatial:
+	if _muster_left > 0.0 and _current_state == AIState.PATROL and is_instance_valid(_muster_at):
+		return _muster_at
+	return null
+
+
+# Traders of its faction mustering at the same station near it.
+func muster_mates() -> Array:
+	var mates := []
+	var here: Vector3 = agent_script.global_transform.origin
 	for ship in get_tree().get_nodes_in_group("agent_body"):
 		if ship == agent_script or ship.get("is_wreck") or ship.get("is_docked") or str(ship.get("faction")) != str(agent_script.faction):
 			continue
-		if ship.global_transform.origin.distance_to(at) > Constants.ESCORT_PICK_RANGE:
+		if ship.global_transform.origin.distance_to(here) > Constants.CARAVAN_RANGE:
 			continue
 		var ai = ship.get_node_or_null(Constants.AI_CONTROLLER_NODE_NAME)
-		if ai != null and ai.has_method("get_ward") and ai.get_ward() == null and not ai.is_trader() and not ai.is_prospector() \
-				and ship.has_method("get_damage_per_second") and ship.get_damage_per_second() > 0.0:
+		if ai != null and ai.has_method("mustering_at") and ai.mustering_at() == _muster_at:
+			mates.append(ship)
+	return mates
+
+
+# A trader of its faction musters at `station`: one docked there is called out.
+func is_called_out(station: Spatial) -> bool:
+	for ship in get_tree().get_nodes_in_group("agent_body"):
+		if ship == agent_script or str(ship.get("faction")) != str(agent_script.faction):
+			continue
+		var ai = ship.get_node_or_null(Constants.AI_CONTROLLER_NODE_NAME)
+		if ai != null and ai.has_method("mustering_at") and ai.mustering_at() == station:
 			return true
 	return false
+
+
+# Mustering: true while it holds by its station (the patrol waits); false once the caravan is
+# gathered or its time is up.
+func _hold_muster() -> bool:
+	if mustering_at() == null:
+		return false
+	if _scan_timer <= 0.0:
+		_scan_timer = Constants.AI_SCAN_INTERVAL
+		var mates: Array = muster_mates()
+		if not mates.empty():
+			for mate in mates:
+				mate.get_node(Constants.AI_CONTROLLER_NODE_NAME).end_muster()
+				mate.get_node(Constants.AI_CONTROLLER_NODE_NAME)._note("mustered")
+			end_muster()
+			_note("mustered")
+			return false
+	if not _muster_moving:
+		_muster_moving = true
+		var out: Vector3 = _muster_at.get_undock_position() - _muster_at.global_transform.origin
+		agent_script.command_move_to(_muster_at.get_undock_position() + (out.normalized() if out.length() > 0.1 else Vector3.FORWARD) * Constants.CARAVAN_MUSTER_OFFSET)
+	return true
 
 
 func docked_at() -> Spatial:
@@ -529,6 +575,7 @@ func _think(delta: float) -> void:
 	_repath_timer = max(0.0, _repath_timer - delta)
 	_scan_timer = max(0.0, _scan_timer - delta)
 	_since_hit += delta
+	_muster_left = max(0.0, _muster_left - delta)
 	for id in _spared.keys():
 		_spared[id] -= delta
 		if _spared[id] <= 0.0:
@@ -686,6 +733,8 @@ func _call_distress() -> bool:
 
 
 func _process_patrol() -> void:
+	if _hold_muster():
+		return
 	if _scan_timer <= 0.0:
 		_scan_timer = Constants.AI_SCAN_INTERVAL
 		var lance = _lance_to_collect()
@@ -1319,14 +1368,15 @@ func _dock(station: Spatial, service: bool) -> void:
 # or once it has waited HAVEN_DOCK_MAX_WAIT s more for one to leave.
 func _process_docked(delta: float) -> void:
 	_dock_timer -= delta
+	if _dock_timer > Constants.CARAVAN_HURRY_DOCK and is_trader() and is_called_out(_station):
+		_dock_timer = Constants.CARAVAN_HURRY_DOCK  # A caravan gathers outside: out to join it
 	if _dock_timer > 0.0:
 		return
 	if _dock_timer > -Constants.HAVEN_DOCK_MAX_WAIT and is_station_watched():
 		return
-	if waits_for_caravan():
-		return
 	agent_script.undock()
 	_change_state(AIState.PATROL)
+	start_muster(_station)
 
 
 # An enemy waits near its station's undock point: undocking would only send it running back in.
@@ -1565,6 +1615,8 @@ func scan_for_target() -> RigidBody:
 	for body in get_tree().get_nodes_in_group("agent_body"):
 		if body == agent_script or not _is_live_target(body) or not agent_script.is_enemy_of(body):
 			continue
+		if body.get("is_platform"):
+			continue  # A station's guns: no one sets out to fight them (fired on, it answers: _react_to_attack)
 		if is_sparing(body):
 			continue
 		if not _in_play_area(body.global_transform.origin):
@@ -1740,6 +1792,9 @@ func _assist(friend, source) -> void:
 		return
 	if friend.get("faction") != agent_script.faction or agent_script.faction == "" or source.get("faction") == agent_script.faction:
 		return
+	if friend == _ward:
+		_guard(source)
+		return
 	if not _current_state in [AIState.PATROL, AIState.SALVAGE, AIState.HESITATE]:
 		return
 	if _current_state == AIState.HESITATE and _resume_state == AIState.COMBAT:
@@ -1756,6 +1811,24 @@ func _assist(friend, source) -> void:
 		return  # A prospector at work leaves fights to others
 	var guard: float = Constants.AI_ESCORT_GUARD_FACTOR if friend == _ward else 1.0  # Its ward: what it is paid for
 	_consider("assist", source, desire_against(source) * _teamwork * cover_factor(friend) * guard, _engage_level(), friend)
+
+
+# Its ward shot at: an escort turns on the attacker, mid-fight or not (what it is paid for). It still
+# makes up its mind, but sooner (ESCORT_GUARD_DELAY_FACTOR), and it goes unless it is beaten
+# (_should_retreat) or the attacker is outside the play area; while it decides it keeps firing at
+# whatever it was fighting (_process_hesitate). Already on that attacker, or running: nothing.
+func _guard(source) -> void:
+	if _current_state in [AIState.DISABLED, AIState.FLEE, AIState.DOCKED] or not _in_play_area(source.global_transform.origin):
+		return
+	if (_current_state == AIState.COMBAT and _target_agent == source) or (not _pending.empty() and _pending.target == source):
+		return
+	if _current_state == AIState.HESITATE and _resume_state == AIState.COMBAT and _resume_target == source:
+		return
+	if _current_state == AIState.HESITATE and _pending.empty():
+		return
+	_consider("guard", source, desire_against(source), _disengage_level(), _ward)
+	if not _pending.empty() and _pending.kind == "guard":
+		_pending.timer *= Constants.ESCORT_GUARD_DELAY_FACTOR
 
 
 # How much more a ship wants to take on the attacker of `friend` for being the sturdier of the two
@@ -1887,6 +1960,13 @@ func _tick_decision(delta: float) -> void:
 				if _is_live_target(friend) and cover_factor(friend) > 1.0:
 					_covering = friend
 					_note("covered")
+			else:
+				_resume()
+		"guard":
+			if not _should_retreat():
+				agent_script._hold_grudge(target)
+				_note("guarded_ward")
+				_start_combat(target, true)
 			else:
 				_resume()
 		"respond":

@@ -33,6 +33,7 @@ display_name = "Arena Free Port"
 faction = ""
 model = ExtResource( 6 )
 seen_anywhere = true
+platforms = 3
 ships = {
 }
 prefer_role = ""
@@ -56,9 +57,10 @@ script = ExtResource( 1 )
 haven_id = "arena_verdant_haven"
 display_name = "Verdant Haven"
 faction = "verdant"
+platforms = 3
 model = ExtResource( 6 )
 ships = {
-"verdant": 5
+"verdant": 7
 }
 prefer_role = ""
 prefer_share = 0.0
@@ -96,9 +98,10 @@ script = ExtResource( 1 )
 haven_id = "arena_violet_haven"
 display_name = "Violet Haven"
 faction = "violet"
+platforms = 3
 model = ExtResource( 6 )
 ships = {
-"violet": 5
+"violet": 7
 }
 prefer_role = ""
 prefer_share = 0.0
@@ -156,7 +159,7 @@ display_name = "Raider Den"
 faction = "raiders"
 model = ExtResource( 5 )
 ships = {
-"raiders": 4
+"raiders": 5
 }
 prefer_role = ""
 prefer_share = 0.0

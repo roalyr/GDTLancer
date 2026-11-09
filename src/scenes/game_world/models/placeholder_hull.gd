@@ -21,10 +21,10 @@ func set_form(value: String) -> void:
 			remove_child(old)
 			old.free()
 	var parts: PoolStringArray = value.split("_")
-	if parts.size() != 2 or not Defaults.HULL_FORMS.has(parts[0]):
+	if parts.size() != 2 or not (Defaults.HULL_FORMS.has(parts[0]) or parts[0] == "platform"):
 		printerr("PlaceholderHull: no hull form ", value)
 		return
-	var spec: Dictionary = Defaults.HULL_FORMS[parts[0]]
+	var spec: Dictionary = Defaults.PLATFORM_FORM if parts[0] == "platform" else Defaults.HULL_FORMS[parts[0]]  # A weapon platform: its own form
 	var girth: float = float(Defaults.HULL_FORM_GIRTH.get(parts[1], 1.0))
 	var length: float = Defaults.SHIP_MODEL_LENGTH
 	var model := Spatial.new()

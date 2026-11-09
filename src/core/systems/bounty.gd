@@ -45,9 +45,15 @@ static func same_side(hunter, ship) -> bool:
 	return own != null and own != "" and own == ship.get("faction")
 
 
+# Weapon platforms (Agent.is_platform) are no one's prey and no one's price: nothing is paid for one,
+# and none carries a posting (so no ship hunts one, and none is posted for the ships it kills).
+static func is_platform(ship) -> bool:
+	return is_instance_valid(ship) and bool(ship.get("is_platform"))
+
+
 # What `hunter` would be paid for killing `ship`: the postings it can claim plus the war bounty.
 static func claimable(hunter, ship) -> float:
-	if not (is_instance_valid(hunter) and is_instance_valid(ship)) or hunter == ship or same_side(hunter, ship):
+	if not (is_instance_valid(hunter) and is_instance_valid(ship)) or hunter == ship or same_side(hunter, ship) or is_platform(ship):
 		return 0.0
 	var total := 0.0
 	var posted: Dictionary = postings(ship)
@@ -72,7 +78,7 @@ static func on_kill(killer, victim) -> float:
 		return 0.0
 	var paid: float = claimable(killer, victim)
 	var victim_faction = victim.get("faction")
-	if Standing.has_standing(victim_faction) and killer.get("faction") != victim_faction:
+	if Standing.has_standing(victim_faction) and killer.get("faction") != victim_faction and not is_platform(killer):
 		var posted: Dictionary = postings(killer)
 		var amount: float = Constants.BOUNTY_POST_SHARE * _value(victim)
 		posted[victim_faction] = float(posted.get(victim_faction, 0.0)) + amount
@@ -91,7 +97,7 @@ static func on_kill(killer, victim) -> float:
 
 # Whether `hunter` goes after `ship` for its price.
 static func is_worth_hunting(hunter, ship) -> bool:
-	if not is_instance_valid(ship) or ship.get("is_wreck") or same_side(hunter, ship):
+	if not is_instance_valid(ship) or ship.get("is_wreck") or same_side(hunter, ship) or is_platform(ship):
 		return false
 	var posted := 0.0
 	var on_ship: Dictionary = postings(ship)

@@ -15,6 +15,7 @@ var bounty_paid: float = 0.0  # A wreck: what its killer was paid for it (Bounty
 var _last_hit_by = null  # weakref to the ship that hit it last: the killer, when it becomes a wreck
 var ship_template = null  # ShipTemplate this agent flies
 var evo_uid: String = ""  # Arena NPCs: their life in Evolution
+var is_platform: bool = false  # A weapon platform (PlatformController): turns, never moves; no one's prey
 var wallet: float = 0.0  # WP a non-evolving NPC has (random at spawn; see get_wallet)
 var _fit_override: Dictionary = {}  # A fit given at spawn (evolving NPCs' genomes); otherwise random
 
@@ -90,6 +91,7 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 	self.faction = "player" if is_player() else str(overrides.get("faction", template.faction))
 	var ship_template_id: String = str(overrides.get("ship_template_id", template.ship_template_id))
 	self.evo_uid = str(overrides.get("evo_uid", ""))
+	self.is_platform = bool(overrides.get("platform", false))
 	_fit_override = overrides.get("fit", {})
 
 	movement_system = get_node_or_null("MovementSystem")

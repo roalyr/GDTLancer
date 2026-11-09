@@ -475,7 +475,7 @@ func _on_agent_damaged(body, amount, source) -> void:
 	var victim_uid: String = str(body.get("evo_uid")) if is_instance_valid(body) and body.get("evo_uid") != null else ""
 	var source_uid: String = ""
 	if is_instance_valid(source):
-		source_uid = str(source.get("evo_uid")) if source.get("evo_uid") != null and str(source.get("evo_uid")) != "" else ("player" if source.has_method("is_player") and source.is_player() else "")
+		source_uid = str(source.get("evo_uid")) if source.get("evo_uid") != null and str(source.get("evo_uid")) != "" else ("player" if source.has_method("is_player") and source.is_player() else ("platform:%s" % source.faction if source.get("is_platform") else ""))  # A station's guns: "platform:<faction>" ("platform:" neutral)
 	if live.has(source_uid):
 		live[source_uid].damage_dealt = float(live[source_uid].damage_dealt) + float(amount)
 		if live.has(victim_uid) and live[victim_uid].faction != live[source_uid].faction and float(body.get("hull_max")) > 0.0:
@@ -544,6 +544,8 @@ func on_position(body: Node) -> void:
 # intruder falls trespassing, and a hive ship that kills one there "defended_hive".
 func _note_territory_death(uid: String, body: Node, killer: String) -> void:
 	_inside.erase(uid)
+	if not body is Spatial:
+		return
 	var owner: String = territory_at(body.global_transform.origin)
 	var faction: String = str(live[uid].faction)
 	if TemplateDatabase.factions.get(faction, {}).get("territory", 0.0) > 0.0:

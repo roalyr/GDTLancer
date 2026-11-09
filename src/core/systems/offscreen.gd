@@ -109,7 +109,7 @@ func restore(body: RigidBody) -> void:
 
 func _set_flown(body: Node, on: bool) -> void:
 	body.set_physics_process(on)
-	for name in [Constants.AI_CONTROLLER_NODE_NAME, "NavigationSystem", "ToolController"]:
+	for name in [Constants.AI_CONTROLLER_NODE_NAME, Constants.PLATFORM_CONTROLLER_NODE_NAME, "NavigationSystem", "ToolController"]:
 		var node = body.get_node_or_null(name)
 		if node != null:
 			node.set_physics_process(on)

@@ -372,6 +372,8 @@ func get_ship_cues(target_ref, detailed: bool = true) -> Array:
 		if price >= 1.0:
 			cues.append("BOUNTY %d" % int(round(price)))
 	var ai = target_ref.get_node_or_null(Constants.AI_CONTROLLER_NODE_NAME)
+	if ai == null:
+		ai = target_ref.get_node_or_null(Constants.PLATFORM_CONTROLLER_NODE_NAME)  # A weapon platform
 	if ai != null and ai.has_method("get_activity_label") and ai.get_activity_label() != "":
 		cues.append(ai.get_activity_label())
 	var uid = target_ref.get("evo_uid")

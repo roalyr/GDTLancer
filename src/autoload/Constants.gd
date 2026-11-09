@@ -21,6 +21,7 @@ const CURRENT_ZONE_CONTAINER_NAME = "CurrentZoneContainer"
 const AGENT_CONTAINER_NAME = "AgentContainer"
 const AGENT_BODY_NODE_NAME = "AgentBody"
 const AI_CONTROLLER_NODE_NAME = "AIController"
+const PLATFORM_CONTROLLER_NODE_NAME = "PlatformController"  # A weapon platform's (PlatformController), in place of an AIController
 const PLAYER_INPUT_HANDLER_NAME = "PlayerInputHandler"
 
 const INITIAL_SECTOR_ID: String = "sector_elace"  # Starting sector for a new game
@@ -934,6 +935,17 @@ const ARCHETYPES_DIR = "res://database/presets/archetypes/"
 # Placeholder stations (PlaceholderStation, scenes/prefabs/station/placeholders/<form>.tscn: a
 # HavenMarker's `model`), PrimitiveForms like the hulls: a haven a hub in a ring,
 # a post a rock with silos, a refinery a spine of tanks and stacks, a den a spiked rock.
+# A weapon platform's form (PlaceholderHull "platform_heavy"): a squat hub, three barrels forward
+# (laser, missile pod, cannon), radiator fins; no engines.
+const PLATFORM_FORM = {"engines": [], "parts": [
+	{"shape": "sphere", "size": Vector3(0.5, 0.36, 0.5), "at": Vector3(0, 0, 0.05), "look": "paint"},
+	{"shape": "cylinder", "size": Vector3(0.62, 0.62, 0.06), "at": Vector3(0, -0.16, 0.05), "turn": Vector3(90, 0, 0)},
+	{"shape": "cylinder", "size": Vector3(0.05, 0.05, 0.5), "at": Vector3(0, 0.06, -0.38)},
+	{"shape": "box", "size": Vector3(0.12, 0.1, 0.22), "at": Vector3(0.2, 0, -0.2), "look": "paint"},
+	{"shape": "cylinder", "size": Vector3(0.08, 0.08, 0.4), "at": Vector3(-0.2, 0, -0.3)},
+	{"shape": "sphere", "size": Vector3(0.08, 0.06, 0.08), "at": Vector3(0, 0.18, -0.1), "look": "glow"},
+	{"shape": "box", "size": Vector3(0.3, 0.015, 0.16), "at": Vector3(0.36, 0.05, 0.2), "turn": Vector3(0, 0, 15), "mirror": true},
+]}
 const STATION_FORMS = {
 	"haven": {"length": 220.0, "parts": [
 		{"shape": "cylinder", "size": Vector3(0.14, 0.14, 0.5), "at": Vector3(0, 0, 0), "turn": Vector3(90, 0, 0), "look": "paint"},
@@ -1043,6 +1055,23 @@ const DISTRESS_MERGE = 3000.0  # m
 const DISTRESS_COOLDOWN = 60.0  # s between one ship's calls
 const CHOICE_DISTRESS = 3.0
 const HAVEN_RESPAWN_DELAY = 8.0  # s between a loss and its replacement undocking
+# Weapon platforms (PlatformController; HavenMarker.platforms): stationary ships round a station that
+# turn to aim, built by the ship laws from PLATFORM_SEED (a heavy hull: its engine share turns it,
+# it never moves), with every weapon kind but the lance. They fire on their faction's enemies and on
+# whoever opens fire near them (a neutral station's: only those). Rounds come back on a timer; a
+# platform lost is rebuilt after PLATFORM_RESPAWN_DELAY. Not prey: no ship sets out to hunt one
+# (ShipControllerAI.scan_for_target), and none carries or pays a bounty (Bounty).
+const PLATFORM_SCENE_PATH = "res://scenes/prefabs/agents/platform_agent.tscn"
+const PLATFORM_HULL_SCENE = "res://scenes/prefabs/ships/platform.tscn"
+const PLATFORM_SEED = {"type": 3, "size": 2.5, "tool_share": 0.43,
+	"shares": {"structure": 0.62, "engine": 0.05, "reactor": 0.2, "capacitor": 0.13, "hold": 0.0},
+	"tools": [["laser", 3], ["missile", 3], ["cannon", 3]], "modules": [["plating", 3], ["plating", 3], ["magazine", 3], ["rack", 3]]}
+const PLATFORM_RING_RADIUS = 700.0  # m from its station's centre, spread evenly round it
+const PLATFORM_GUARD_RADIUS = 4000.0  # m from the platform: a ship opening fire on another within it is fired upon
+const PLATFORM_SCAN_INTERVAL = 0.5  # s between looks for a target
+const PLATFORM_CLEAR_SHOT = 80.0  # m (plus the ship's size) from its line of fire a ship not its foe holds its fire
+const PLATFORM_REARM_INTERVAL = 120.0  # s for its magazines and racks to fill again
+const PLATFORM_RESPAWN_DELAY = 600.0  # s of game time before a lost platform is rebuilt
 const HAVEN_DOCK_TIME = 10.0  # s an NPC stays docked (selling, repairs) before undocking
 const HAVEN_UNDOCK_CLEAR_RADIUS = 3500.0  # m: with an enemy this near its undock point (past a heavy laser's reach), a docked NPC waits
 const HAVEN_DOCK_MAX_WAIT = 90.0  # s, at most, past its dock time (upkeep runs on meanwhile)
@@ -1158,10 +1187,13 @@ const EVO_BEHAVIOR_RANGES = {  # Gene -> [min, max, default]
 }
 # A trader seed's hull (ShipLaws shares): mostly hold.
 const ESCORT_TRADER_PULL = 0.25  # An escort weighs a trader's distance by this when choosing its ward (ShipControllerAI _take_ward; 0.5 in era 58: traders died in 31% of lives)
-const ESCORTS_PER_TRADER = 2  # NPC escorts a trader takes (ESCORTS_PER_WARD for other workers)
+const ESCORTS_PER_TRADER = 3  # NPC escorts a trader takes (ESCORTS_PER_WARD for other workers); 2 in era 59
+const ESCORT_GUARD_DELAY_FACTOR = 0.4  # An escort decides this much sooner to turn on its ward's attacker, even mid-fight (ShipControllerAI _guard; era 59: traders died in 35% of lives, two thirds at the rival's hands)
 const CARAVAN_RANGE = 3000.0  # m: traders of a faction bound for the same station this near travel as a caravan, at the slowest one's pace
 const CARAVAN_CHECK = 2.0  # s between looks for caravan mates
-const CARAVAN_WAIT = 120.0  # s a loaded trader waits docked for company, times half its teamwork gene
+const CARAVAN_WAIT = 120.0  # s a loaded trader musters outside its station for company, times half its teamwork gene (ShipControllerAI.start_muster; docked in era 59)
+const CARAVAN_MUSTER_OFFSET = 400.0  # m out from the undock point where a trader musters
+const CARAVAN_HURRY_DOCK = 2.0  # s a trader docked where its faction's caravan musters still takes before it comes out
 const EVO_TRADER_SHARES = {"structure": 0.25, "engine": 0.2, "hold": 0.45, "reactor": 0.05, "capacitor": 0.05}
 # Starting designs, guessed, planted in each pool's empty niches (Evolution.plant_seeds; Genome.seed_genome):
 # prospectors and escorts for the factions, raiders, and the xenohive's drones, gatherers and wardens.
