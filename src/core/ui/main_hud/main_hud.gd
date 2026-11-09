@@ -631,7 +631,7 @@ func _tool_button_nodes() -> Array:
 
 # The LANCE button, after the tools (only with a lance fitted): lances left and ARM while safe;
 # ARMED (highlighted) and the speed a throw would strike the selected target at against the speed a
-# strike needs, or TOO SLOW (it runs faster than the ship can gain on it) or TOO HOT (its side's guns
+# strike needs, or TOO SLOW (it runs faster than the ship can gain on it) or WOULD DIE (its side's guns
 # would take the whole hull on the way in: what NPCs weigh); LOADING while the next lance slides in.
 # Armed, APPROACH flies the throwing pass at a ship or a rock; one throw (a volley from launchers
 # side by side) and it disarms.
@@ -661,7 +661,7 @@ func _update_lance_button() -> void:
 		if charge_target != null and player.outruns_charge(charge_target):
 			state = "TOO SLOW"
 		elif charge_target is RigidBody and charge_target.get("is_wreck") == false and player.charge_outlook(charge_target).cost >= player.hull:
-			state = "TOO HOT"
+			state = "WOULD DIE"
 		elif is_instance_valid(target) and target is RigidBody:
 			state = "%d / %d" % [int(seated.strike_speed_on(target)), int(Constants.LAW_LANCE_MIN_SPEED)]
 	button_lance.get_node("Label").text = "LANCE %d\n%s" % [player.get_lance_nails(), state]

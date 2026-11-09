@@ -447,7 +447,7 @@ const AI_CHARGE_PASS_TIME = 10.0  # s between strikes: run-up, turn and charge
 # it above its retreat level, or when a throw would finish the target (and not it); it weighs it
 # again between passes, and may break off a charge until NO_RETURN m from the target. A lancer with
 # no other weapon on the target hangs back, HOLD_OFF times the side's reach away. The player's LANCE
-# button reads TOO HOT when the loss would be its whole hull.
+# button reads WOULD DIE when the loss would be its whole hull.
 const AI_CHARGE_HIT_SHARE = 0.5
 const AI_CHARGE_TURN_EXPOSURE = 4.0  # s
 const AI_CHARGE_MISS_SHARE = 0.2
