@@ -15,6 +15,7 @@
 # rope is not simulated and is drawn straight. Child of the holder's ToolController.
 
 extends Node
+const Interp = preload("res://src/core/utils/interp.gd")
 
 signal hooked
 signal retracted
@@ -65,6 +66,7 @@ func _ready() -> void:
 	_cable.material_override = CableMaterial
 	add_child(_cable)
 	_hook = HookScene.instance()
+	Interp.keep_out(_hook)  # Placed each frame (_process)
 	_hook.set_as_toplevel(true)
 	_hook.visible = false
 	add_child(_hook)

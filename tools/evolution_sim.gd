@@ -25,6 +25,7 @@
 #                  (state, target, throttle, speed): for finding ships that never finish a life
 # Vsync is switched off: with it, a monitor gone to sleep (DPMS) stalls every frame and the run with it.
 extends SceneTree
+const Interp = preload("res://src/core/utils/interp.gd")
 
 var hours := 1.0
 var speed := 6.0
@@ -121,7 +122,7 @@ func _run():
 	if menu != null:
 		menu.visible = false
 	paused = false
-	Engine.iterations_per_second = int(60 * speed)
+	Engine.iterations_per_second = int(Interp.physics_rate() * speed)  # A step stays one physics step of game time
 	Engine.time_scale = speed
 	var start_time: float = evolution.game_time
 	var end_time: float = start_time + hours * 3600.0
@@ -160,7 +161,7 @@ func _run():
 				next_backup = evolution.game_time + backup_every * 3600.0
 				_backup(manager, evolution.game_time)
 	Engine.time_scale = 1.0
-	Engine.iterations_per_second = 60
+	Engine.iterations_per_second = Interp.physics_rate()
 	evolution.print_report()
 	var saved_last: bool = manager.save_game(0)
 	if saved_last:

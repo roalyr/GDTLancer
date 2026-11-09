@@ -6,6 +6,7 @@
 # - Shared material (laser_beam_material.tres); colour and brightness per beam in the vertex colour.
 
 extends ImmediateGeometry
+const Interp = preload("res://src/core/utils/interp.gd")
 
 const BeamMaterial = preload("res://assets/art/effects/laser_beam_material.tres")
 
@@ -46,7 +47,7 @@ func get_brightness() -> float:
 
 
 func get_end_points() -> Array:
-	return [_from.global_transform.origin, _to.to_global(_to_local)]
+	return [Interp.origin(_from), Interp.transform(_to).xform(_to_local)]  # Where they are drawn
 
 
 func _redraw() -> void:

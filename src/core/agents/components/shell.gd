@@ -35,3 +35,4 @@ func _burst_effect(body) -> void:
 	effect.outward = -velocity.normalized()
 	body.add_child(effect)
 	effect.global_transform = Transform(Basis(), global_transform.origin)
+	Interp.placed(effect)

@@ -1,6 +1,7 @@
 # OrbitCamera: follows and orbits the player ship; supports target tracking and jump transition hand-off.
 
 extends Camera
+const Interp = preload("res://src/core/utils/interp.gd")
 
 const WorldRendering = preload("res://src/scenes/game_world/world_rendering.gd")
 
@@ -66,6 +67,7 @@ var _local_scene_particle_emitters = []
 # --- Initialization ---
 func _ready():
 	set_as_toplevel(true)
+	Interp.keep_out(self)
 	GlobalRefs.main_camera = self
 
 	# --- Instantiate and Initialize Components ---
@@ -145,7 +147,19 @@ func apply_rotation_input(event: InputEventMouseMotion) -> void:
 		_rotation_controller.handle_input(event)
 
 
+# The camera follows in physics steps; with physics interpolation, every drawn frame instead, from
+# its target's drawn transform (Interp), and it is left out of interpolation itself.
 func _physics_process(delta):
+	if not Interp.enabled():
+		_follow(delta)
+
+
+func _process(delta):
+	if Interp.enabled():
+		_follow(delta)
+
+
+func _follow(delta: float) -> void:
 	_rotation_controller.physics_update(delta)
 	_zoom_controller.physics_update()
 	_position_controller.physics_update(delta)

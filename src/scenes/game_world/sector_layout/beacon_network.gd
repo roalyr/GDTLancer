@@ -16,6 +16,7 @@
 # beacons patrols have left, miners to rich fields that are not hot, careful haulers round danger.
 
 extends Node
+const Interp = preload("res://src/core/utils/interp.gd")
 
 const Wages = preload("res://src/core/systems/wages.gd")
 const BeaconScript = preload("res://src/scenes/game_world/sector_layout/beacon.gd")
@@ -187,6 +188,7 @@ func call_distress(faction: String, at: Vector3, caller_name: String) -> Node:
 	var holder: Node = get_parent() if get_parent() is Spatial else self
 	holder.add_child(beacon)
 	beacon.global_transform.origin = at
+	Interp.placed(beacon)
 	register(beacon)
 	return beacon
 

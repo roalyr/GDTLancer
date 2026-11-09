@@ -8,6 +8,7 @@
 
 tool
 extends Position3D
+const Interp = preload("res://src/core/utils/interp.gd")
 
 const Defaults = preload("res://src/autoload/Constants.gd")  # Read in the editor too, where autoloads are not
 const MarkerRing = preload("res://src/scenes/game_world/sector_layout/markers/marker_ring.gd")
@@ -22,6 +23,7 @@ func _ready() -> void:
 	if not Engine.editor_hint:
 		return
 	_ring = MarkerRing.new()
+	Interp.keep_out(_ring)  # Placed each frame
 	add_child(_ring)
 	_update_ring()
 

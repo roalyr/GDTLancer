@@ -1,6 +1,7 @@
 # Manages camera positioning, smoothing, and bobbing effect.
 
 extends Node
+const Interp = preload("res://src/core/utils/interp.gd")
 class_name CameraPositionController
 
 # --- References ---
@@ -47,7 +48,7 @@ func set_target(new_target: Spatial):
 	_target = new_target
 	# When the target changes, immediately snap the smoothed position to it.
 	if is_instance_valid(_target):
-		_smoothed_target_pos = _target.global_transform.origin
+		_smoothed_target_pos = Interp.origin(_target)
 
 
 func set_look_at_target(look_target: Spatial):
@@ -70,7 +71,7 @@ func physics_update(delta: float):
 		return
 
 	# --- Attached Mode ---
-	var actual_target_pos = _target.global_transform.origin
+	var actual_target_pos = Interp.origin(_target)
 
 	# --- SMOOTHING LOGIC ---
 	_smoothed_target_pos = _smoothed_target_pos.linear_interpolate(
@@ -129,7 +130,7 @@ const TRACKING_SOLVER_STEPS = 14
 
 func _update_target_tracking_mode(delta: float, bob_offset: Vector3):
 	var player_pos = _smoothed_target_pos
-	var target_pos = _look_at_target.global_transform.origin
+	var target_pos = Interp.origin(_look_at_target)
 	var to_target = target_pos - player_pos
 	var distance_to_target = to_target.length()
 	if distance_to_target < 1.0:
@@ -167,7 +168,7 @@ static func get_hull_corners(ship: Spatial) -> Array:
 	if not is_instance_valid(ship) or not ship.get("hull_bounds") is AABB:
 		return corners
 	var bounds: AABB = ship.hull_bounds
-	var basis: Basis = ship.global_transform.basis
+	var basis: Basis = Interp.transform(ship).basis
 	for i in range(8):
 		corners.append(basis.xform(bounds.get_endpoint(i)))
 	return corners

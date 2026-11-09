@@ -1,6 +1,7 @@
 # Agent: a physical space vessel (RigidBody, 6DOF thrust flight) driven by a player or AI controller.
 
 extends RigidBody
+const Interp = preload("res://src/core/utils/interp.gd")
 const StepCache = preload("res://src/core/utils/step_cache.gd")
 
 # --- Core State & Identity ---
@@ -536,6 +537,7 @@ func dock_at(station: Spatial) -> void:
 	angular_velocity = Vector3.ZERO
 	if is_instance_valid(station) and station.has_method("get_undock_position"):
 		global_transform.origin = station.get_undock_position()
+		Interp.placed(self)
 	mode = MODE_STATIC  # Out of the physics while docked: no integration, no _integrate_forces
 
 
@@ -721,6 +723,7 @@ func _add_smoulder(point: Vector3, normal, damage: float) -> void:
 	spot.duration_factor = Constants.SMOULDER_WRECK_FACTOR if is_wreck else 1.0
 	add_child(spot)
 	spot.global_transform.origin = spot_point
+	Interp.placed(spot)
 	_smoulders.append(spot)
 
 
@@ -757,6 +760,7 @@ func _update_damage_trails() -> void:
 		trail.size_scale = clamp(get_apparent_radius() / Constants.SMOULDER_REFERENCE_RADIUS, 0.5, 5.0)
 		add_child(trail)
 		trail.global_transform.origin = point
+		Interp.placed(trail)
 		_damage_trails.append(trail)
 	for trail in _damage_trails:
 		trail.strength = lost
@@ -826,6 +830,7 @@ func _accumulate_leak_damage(point: Vector3, normal, damage: float) -> void:
 	leak.size_scale = clamp(get_apparent_radius() / 12.0, 0.5, 5.0)
 	add_child(leak)
 	leak.global_transform.origin = point
+	Interp.placed(leak)
 	_leaks.append(leak)
 
 
@@ -846,6 +851,7 @@ func _spawn_explosion() -> void:
 	explosion.radius = get_apparent_radius()
 	holder.add_child(explosion)
 	explosion.global_transform.origin = global_transform.origin
+	Interp.placed(explosion)
 
 
 # --- Signature & Detection (one rule for everyone; see Constants SIGNATURE block) ---

@@ -4,6 +4,7 @@
 # it (Missile). Burnt out, it is gone, and a missile still after it flies on blind.
 
 extends Spatial
+const Interp = preload("res://src/core/utils/interp.gd")
 
 const GROUP = "decoy"
 
@@ -16,6 +17,7 @@ func launch(holder: Node, position: Vector3, velocity: Vector3) -> void:
 	linear_velocity = velocity
 	holder.add_child(self)
 	global_transform.origin = position
+	Interp.placed(self)
 
 
 func _ready() -> void:

@@ -5,6 +5,7 @@
 # A lance thrown into it breaks a few OreChunks off its face (break_chunks); lasers only chip it.
 
 extends StaticBody
+const Interp = preload("res://src/core/utils/interp.gd")
 
 const MeshLod = preload("res://src/core/agents/components/mesh_lod.gd")
 const ViewDetail = preload("res://src/core/agents/components/view_detail.gd")
@@ -99,6 +100,7 @@ func break_chunks(point: Vector3, axis: Vector3, damage: float) -> Array:
 		if pieces > 1:  # Fanned round the face
 			heading = outward.rotated(side.rotated(outward, TAU * index / pieces), deg2rad(Constants.MINING_PIECE_SPREAD)).normalized()
 		chunk.global_transform = Transform(Basis(), point + heading * chunk.get_apparent_radius() * 1.5)
+		Interp.placed(chunk)
 		chunk.linear_velocity = heading * Constants.MINING_CHUNK_SPEED
 		chunks.append(chunk)
 	return chunks
@@ -155,6 +157,7 @@ func register_hit(from_global: Vector3, damage: float) -> Vector3:
 		dust.outward = (from_global - point).normalized()
 		add_child(dust)
 		dust.global_transform = Transform(Basis(), point)  # Unscaled: rocks are scaled up a lot
+		Interp.placed(dust)
 	return point
 
 

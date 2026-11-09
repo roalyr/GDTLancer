@@ -22,6 +22,7 @@
 # A child of AgentSystem; off in the evolution sim (everything is flown there).
 
 extends Node
+const Interp = preload("res://src/core/utils/interp.gd")
 
 const NavigationSystem = preload("res://src/core/agents/components/navigation_system.gd")
 
@@ -234,6 +235,7 @@ func _move(body: RigidBody, entry: Dictionary, point: Vector3, dt: float, short:
 	var facing: Vector3 = velocity.normalized()
 	var up: Vector3 = Vector3.UP if abs(facing.dot(Vector3.UP)) < 0.98 else Vector3.RIGHT
 	body.global_transform = Transform(Basis(), origin).looking_at(origin + facing, up)
+	Interp.placed(body)
 	entry.velocity = velocity
 
 

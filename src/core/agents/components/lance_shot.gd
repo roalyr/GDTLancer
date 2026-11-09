@@ -9,6 +9,7 @@
 # lance outlives a pass; if its ship is gone before it lands, it is lost.
 
 extends Spatial
+const Interp = preload("res://src/core/utils/interp.gd")
 
 var velocity: Vector3 = Vector3.ZERO
 var direction: Vector3 = Vector3.FORWARD  # Its axis: the line it was launched along
@@ -28,6 +29,7 @@ func launch(launcher: Node, target: Spatial, tip: Vector3, p_velocity: Vector3, 
 	name = "LanceShot"
 	add_child(mesh)
 	global_transform = Transform(launcher._basis_along(direction), tip)  # The mesh hangs back from the tip
+	Interp.placed(self)
 	mesh.transform = Transform(Basis(), Vector3(0, -float(launcher.lance.length) * 0.5, 0))
 
 

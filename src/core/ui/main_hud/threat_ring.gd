@@ -8,6 +8,7 @@
 # THREAT_REFRESH_INTERVAL s, the arrows every frame.
 
 extends Control
+const Interp = preload("res://src/core/utils/interp.gd")
 
 var _threats: Array = []  # Hostile ships in range (weak refs)
 var _refresh_left: float = 0.0
@@ -75,12 +76,12 @@ func _draw() -> void:
 	var view_size: Vector2 = camera.get_viewport().size
 	var centre: Vector2 = rect_size * 0.5
 	var radius: float = min(rect_size.x, rect_size.y) * Constants.THREAT_RING_RADIUS_SHARE
-	var from: Vector3 = player.global_transform.origin
+	var from: Vector3 = Interp.origin(player)
 	for ref in _threats:
 		var ship = ref.get_ref()
 		if not is_instance_valid(ship) or ship.get("is_wreck") or ship.get("is_docked"):
 			continue
-		var point: Vector3 = ship.global_transform.origin
+		var point: Vector3 = Interp.origin(ship)
 		if not camera.is_position_behind(point):
 			var on_screen: Vector2 = camera.unproject_position(point)
 			if Rect2(Vector2.ZERO, view_size).grow(-view_size.y * 0.05).has_point(on_screen):

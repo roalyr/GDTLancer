@@ -1,6 +1,7 @@
 # JumpTransitionRig: transition camera, particles, nebula and fade overlay used during sector jumps.
 
 extends Spatial
+const Interp = preload("res://src/core/utils/interp.gd")
 
 const WorldRendering = preload("res://src/scenes/game_world/world_rendering.gd")
 
@@ -41,6 +42,7 @@ var _target_sector_id: String = ""
 func _ready() -> void:
 	pause_mode = Node.PAUSE_MODE_PROCESS
 	_transition_camera = get_node_or_null("TransitionCamera")
+	Interp.keep_out(_transition_camera)  # Flown each frame
 	_nebula_holder = get_node_or_null("NebulaHolder")
 	_jump_transition_particles = get_node_or_null("TransitionCamera/JumpTransitionParticles")
 	_transition_overlay = get_node_or_null("TransitionOverlayLayer/TransitionOverlay")

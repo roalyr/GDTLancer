@@ -1,6 +1,7 @@
 # AgentSystem (AgentSpawner): spawns the player and NPC agents from AgentTemplates when a zone loads.
 
 extends Node
+const Interp = preload("res://src/core/utils/interp.gd")
 
 const Traffic = preload("res://src/core/systems/traffic.gd")
 const Offscreen = preload("res://src/core/systems/offscreen.gd")
@@ -430,6 +431,7 @@ func spawn_agent(
 
 	container.add_child(agent_root_instance)
 	agent_node.global_transform.origin = position
+	Interp.placed(agent_node)
 
 	if agent_node.has_method("initialize"):
 		agent_node.initialize(agent_template, final_overrides, agent_uid)

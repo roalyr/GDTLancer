@@ -140,3 +140,4 @@ func _explode(drift: Vector3) -> void:
 	explosion.velocity = drift
 	get_parent().add_child(explosion)
 	explosion.global_transform.origin = global_transform.origin
+	Interp.placed(explosion)

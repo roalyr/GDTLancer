@@ -12,6 +12,7 @@
 #   save and end, then the game goes on. The page stays up while it runs.
 
 extends Control
+const Interp = preload("res://src/core/utils/interp.gd")
 
 const PartCatalog = preload("res://src/core/systems/part_catalog.gd")
 const ShipFit = preload("res://src/core/systems/ship_fit.gd")
@@ -261,6 +262,7 @@ func put_ship_at(position: Vector3, velocity: Vector3 = Vector3.ZERO) -> void:
 		EventBus.emit_signal("player_undocked")
 		yield(get_tree(), "idle_frame")
 	ship.global_transform.origin = position
+	Interp.placed(ship)
 	ship.linear_velocity = velocity
 	ship.angular_velocity = Vector3.ZERO
 	if velocity == Vector3.ZERO and ship.has_method("command_stop"):

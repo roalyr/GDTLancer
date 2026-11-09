@@ -8,6 +8,7 @@
 # Recovered, it is gone; AgentSystem clears the oldest past Constants.LANCE_LOOSE_MAX.
 
 extends RigidBody
+const Interp = preload("res://src/core/utils/interp.gd")
 
 const LANCE_CONTROLLER_PATH = "res://src/core/agents/components/lance_controller.gd"  # Loaded when used: it preloads this
 
@@ -38,6 +39,7 @@ func setup(mesh: MeshInstance, length: float, nail_mass: float, centre: Vector3,
 	mesh.set_meta("nail_mass", nail_mass)
 	add_child(mesh)
 	global_transform = Transform(lances._basis_along(axis), centre)
+	Interp.placed(self)
 	linear_velocity = velocity
 
 

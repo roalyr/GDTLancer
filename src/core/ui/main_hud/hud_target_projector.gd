@@ -1,6 +1,7 @@
 # HUD target projector: builds, positions and filters projected target brackets for MainHUD.
 
 extends Reference
+const Interp = preload("res://src/core/utils/interp.gd")
 
 const CombatAssessment = preload("res://src/core/systems/combat_assessment.gd")
 const ScreenSpace = preload("res://src/core/ui/screen_space.gd")
@@ -78,7 +79,7 @@ func is_target_valid(target_ref) -> bool:
 
 func get_projection_origin() -> Vector3:
 	if is_instance_valid(GlobalRefs.player_agent_body):
-		return GlobalRefs.player_agent_body.global_transform.origin
+		return Interp.origin(GlobalRefs.player_agent_body)
 	if is_instance_valid(_hud._main_camera):
 		return _hud._main_camera.global_transform.origin
 	return Vector3.ZERO
@@ -90,7 +91,7 @@ func get_target_world_position(target_ref) -> Vector3:
 			Constants.SECTOR_JUMP_ARRIVAL_RADIUS
 		)
 	if is_instance_valid(target_ref) and target_ref is Spatial:
-		return target_ref.global_transform.origin
+		return Interp.origin(target_ref)
 	return Vector3.ZERO
 
 func clear_route_target_overlay() -> void:

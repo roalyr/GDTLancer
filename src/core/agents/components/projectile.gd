@@ -6,6 +6,7 @@
 # Subclasses steer (_steer) and choose the burst (_burst_effect). Added to the agent container.
 
 extends Spatial
+const Interp = preload("res://src/core/utils/interp.gd")
 const StepCache = preload("res://src/core/utils/step_cache.gd")
 
 const LanceController = preload("res://src/core/agents/components/lance_controller.gd")
@@ -31,6 +32,7 @@ func launch(p_shooter: Spatial, p_target: Spatial, position: Vector3, p_velocity
 	var holder: Node = GlobalRefs.agent_container if is_instance_valid(GlobalRefs.agent_container) else p_shooter.get_parent()
 	holder.add_child(self)
 	global_transform = Transform(_basis_along(velocity if velocity.length_squared() > 0.01 else -p_shooter.global_transform.basis.z), position)
+	Interp.placed(self)
 
 
 func _physics_process(delta: float) -> void:

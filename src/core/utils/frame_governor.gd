@@ -1,21 +1,21 @@
 # FrameGovernor: with Settings "slow_down_on_lag" on, the game slows down instead of piling up
-# physics steps when frames get long. Godot runs as many 60 Hz steps a frame as the frame took
+# physics steps when frames get long. Godot runs as many physics steps (physics_fps) a frame as the frame took
 # (up to 8): a slow frame brings more steps, which make the next frame slower still (a crowded fight
 # on a phone fell to 5-10 FPS). The governor watches the real frame time (averaged, LAG_AVERAGE_FRAMES)
 # and sets the game speed so a frame runs at most LAG_MAX_STEPS steps, never below LAG_MIN_SPEED:
-# Engine.time_scale and Engine.iterations_per_second go down together, so each step is still 1/60 s
+# Engine.time_scale and Engine.iterations_per_second go down together, so each step is still one physics step
 # of game time (flight, weapons and AI work exactly as at full speed), only fewer run each second.
 # Speed falls at once and comes back gradually (LAG_RECOVERY per frame). Off, it leaves the engine
 # at full speed (and touches nothing unless it had slowed it). The HUD frame readout shows the speed.
 # The evolution sim runs on Settings' defaults (off) and sets the engine itself.
 
 extends Node
+const Interp = preload("res://src/core/utils/interp.gd")
 
-const BASE_RATE = 60  # Physics steps per second of game time
 
 var speed: float = 1.0  # Game speed now (1: full)
 var _enabled: bool = false
-var _average: float = 1.0 / BASE_RATE  # s per frame, real time
+var _average: float = 1.0 / 60.0  # s per frame, real time
 var _last_usec: int = 0
 
 
@@ -49,14 +49,14 @@ func _process(_delta: float) -> void:
 
 # The game speed at which a frame of `frame_seconds` runs at most LAG_MAX_STEPS steps.
 static func wanted_speed(frame_seconds: float) -> float:
-	return clamp(Constants.LAG_MAX_STEPS / (BASE_RATE * max(frame_seconds, 0.0001)), Constants.LAG_MIN_SPEED, 1.0)
+	return clamp(Constants.LAG_MAX_STEPS / (Interp.physics_rate() * max(frame_seconds, 0.0001)), Constants.LAG_MIN_SPEED, 1.0)
 
 
 # Whole steps per second (iterations_per_second is an int): speed is set to match them exactly, so a
-# step stays 1/60 s of game time.
+# step stays one physics step of game time.
 func _set_speed(value: float) -> void:
-	var rate: int = int(clamp(round(BASE_RATE * value), 1, BASE_RATE))
-	var new_speed: float = float(rate) / BASE_RATE
+	var rate: int = int(clamp(round(Interp.physics_rate() * value), 1, Interp.physics_rate()))
+	var new_speed: float = float(rate) / Interp.physics_rate()
 	if is_equal_approx(new_speed, speed) and Engine.iterations_per_second == rate:
 		return
 	if new_speed >= 1.0 and is_equal_approx(speed, 1.0):

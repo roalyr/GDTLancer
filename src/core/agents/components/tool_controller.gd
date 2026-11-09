@@ -22,6 +22,7 @@
 #             free) = the hook lets go and the cable winches in; it cannot fire again until it is in.
 
 extends Node
+const Interp = preload("res://src/core/utils/interp.gd")
 
 const LaserHitEffect = preload("res://src/core/agents/effects/laser_hit_effect.gd")
 const LaserHitScene = preload("res://scenes/prefabs/effects/laser_hit.tscn")
@@ -770,6 +771,7 @@ func _spawn_hit_effect(target: Spatial, hit_point: Vector3, damage: float) -> vo
 	effect.outward = (_agent_body.global_transform.origin - hit_point).normalized()
 	target.add_child(effect)
 	effect.global_transform = Transform(Basis(), hit_point)  # Unscaled even on scaled bodies (asteroids)
+	Interp.placed(effect)
 
 
 func _spawn_beam(body: Spatial, hit_point: Vector3, damage: float) -> void:

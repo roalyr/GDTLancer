@@ -6,6 +6,7 @@
 # scales, fades and aims them. Parent it to the target body, then set its global position.
 
 extends Spatial
+const Interp = preload("res://src/core/utils/interp.gd")
 
 const ViewDetail = preload("res://src/core/agents/components/view_detail.gd")
 const ViewBand = preload("res://src/core/utils/view_band.gd")
@@ -41,6 +42,7 @@ func _ready() -> void:
 		Constants.HIT_FX_HOT_COLOR, clamp(_intensity / Constants.HIT_FX_HOT_INTENSITY, 0.0, 1.0)
 	)
 	_light = $Light
+	Interp.keep_out(_light)  # Placed each frame
 	_light.visible = false  # Decided once placed (_start_vapor)
 	_light.light_color = flash_color
 	_glow_material = _glow.material_override.duplicate()
