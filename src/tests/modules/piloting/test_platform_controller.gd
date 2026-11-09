@@ -147,3 +147,60 @@ func test_it_holds_fire_with_a_friend_in_the_line_and_forgives_a_stray_shot():
 	fighter.get_node("ToolController").activate(0, platform)
 	guns._on_agent_damaged(platform, 5.0, fighter)
 	assert_true(guns.is_foe(fighter), "Aimed at it: a foe")
+
+
+var _damage_signals := 0
+
+
+func _count_damage(_victim, _amount, _source) -> void:
+	_damage_signals += 1
+
+
+# Future-proofing (no platforms are placed in belts): mining by a station's guns is no attack. A
+# lance struck into a rock and a laser burning the crust off its chunks raise no agent_damaged, so
+# the platform holds no grudge and picks no target.
+func test_mining_by_a_platform_does_not_set_it_off():
+	var platform = _platform("")
+	yield(get_tree(), "idle_frame")
+	var guns = platform.get_node(Constants.PLATFORM_CONTROLLER_NODE_NAME)
+	var rock = load("res://scenes/prefabs/celestial/asteroid.tscn").instance()
+	add_child_autofree(rock)
+	rock.global_transform.origin = Vector3(0, 0, -1000)
+	rock.scale = Vector3.ONE * 30.0
+	rock.deposit = 20
+	var miner = _ship(Vector3(0, 0, -800), "verdant")
+	miner.mass = 6000.0
+	miner.power = 1000.0
+	miner.power_max = 1000.0
+	var lance = load("res://src/core/agents/components/lance_controller.gd").new()
+	miner.add_child(lance)
+	lance.setup(miner, "test_lance", load("res://src/core/systems/ship_laws.gd").lance_stats(load("res://src/tests/helpers/reference_parts.gd").genes("lance", 2)))
+	EventBus.connect("agent_damaged", self, "_count_damage")
+	_damage_signals = 0
+	miner.linear_velocity = Vector3(0, 0, -200)  # Closing on the rock (TestMining._strike)
+	lance.nails -= 1
+	assert_gt(lance.strike_rock(rock, Vector3(0, 0, -980), Vector3(0, 0, 1), 0.0), 0.0, "The lance bit")
+	var chunks: Array = get_tree().get_nodes_in_group("ore_chunk")
+	assert_gt(chunks.size(), 0, "Pieces broke off")
+	var tools = miner.get_node("ToolController")
+	var laser = tools.get_tool(0)
+	laser.optimal_range = 5000.0
+	laser.cycle_time = 0.05
+	laser.power_per_cycle = 0.0
+	assert_true(tools.activate(0, chunks[0]).success, "The laser on a crusted chunk")
+	for i in range(30):
+		yield(get_tree(), "physics_frame")
+	assert_false(chunks[0].has_crust(), "Burnt bare: the mining happened")
+	tools.deactivate_all()
+	assert_true(tools.activate(0, rock).success, "and on the rock itself")
+	for i in range(10):
+		yield(get_tree(), "physics_frame")
+	EventBus.disconnect("agent_damaged", self, "_count_damage")
+	assert_eq(_damage_signals, 0, "Mining hurts no ship")
+	assert_false(guns.is_foe(miner), "No grudge on the miner")
+	guns._scan_timer = 0.0
+	guns._physics_process(0.1)
+	assert_null(guns.get_target(), "Nothing to fire on")
+	for node in chunks + get_tree().get_nodes_in_group("loose_lance"):
+		if is_instance_valid(node):
+			node.free()
