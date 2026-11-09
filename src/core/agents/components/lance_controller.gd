@@ -34,6 +34,7 @@ var lance: Dictionary = {}  # ShipLaws.lance_stats
 var module_id: String = ""
 var armed: bool = false
 var nails: int = 0  # Lances left, the seated one included
+var throws: int = 0  # Lances thrown since it was fitted (a charge counts its throws by it, ammo cheat or not)
 var reload_left: float = 0.0  # s until the next lance is seated
 var _agent: RigidBody = null
 var _nose: float = 0.0  # m from the ship's origin to its nose, along -Z
@@ -257,6 +258,7 @@ func fire(target: Spatial, solution: Dictionary) -> void:
 	var world = _agent.get_parent()
 	world.add_child(shot)
 	shot.launch(self, target, get_tip(), velocity, (velocity - (target.linear_velocity if target is RigidBody else Vector3.ZERO)).normalized(), _lance_mesh(float(lance.length)))
+	throws += 1
 	if not (_agent.has_method("is_player") and _agent.is_player() and GameState.cheat("infinite_ammo")):
 		nails -= 1
 	reload_left = float(lance.reload) if nails > 0 else 0.0

@@ -410,8 +410,11 @@ func _on_agent_charged(agent_body, charger) -> void:
 
 
 # The player's lances are thrown one volley per arming (their stock is limited): a throw disarms them,
-# after launchers side by side have thrown together this frame.
+# after launchers side by side have thrown together this frame. Not in a charge (command_charge): it
+# was told to come round for pass after pass, armed, as an NPC's is; making them safe ends it.
 func _on_player_lance_launched(_target) -> void:
+	if is_instance_valid(navigation_system) and navigation_system.get_current_command_type() == navigation_system.CommandType.CHARGE:
+		return
 	call_deferred("set_lances_armed", false)
 
 
@@ -492,6 +495,13 @@ func get_lances() -> Array:
 
 
 # Lances left in all its launchers.
+func get_lance_throws() -> int:
+	var total := 0
+	for lance in get_lances():
+		total += lance.throws
+	return total
+
+
 func get_lance_nails() -> int:
 	var total := 0
 	for lance in get_lances():

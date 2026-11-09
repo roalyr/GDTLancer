@@ -71,10 +71,10 @@ func execute(delta: float):
 	var closing: float = (_movement_system.get_velocity() - _target_velocity).dot(direction)
 	var is_ship: bool = target_node.get("is_wreck") == false
 	var strike_at: float = strike_range(target_node)
-	var nails: int = _agent_body.get_lance_nails() if _agent_body.has_method("get_lance_nails") else 0
+	var throws: int = _agent_body.get_lance_throws() if _agent_body.has_method("get_lance_throws") else 0
 	if not cmd.started:  # Once, as the charge starts: from how it moves now, can it charge?
 		cmd.started = true
-		cmd["nails"] = nails
+		cmd["throws"] = throws
 		cmd.running_up = closing < Constants.LAW_LANCE_MIN_SPEED and distance < reengage_range(target_node) - Constants.NAV_CHARGE_TURN_ROOM - Constants.NAV_CHARGE_STRAFE_EASE
 	elif cmd.running_up:
 		cmd.run_up_time += delta
@@ -83,7 +83,7 @@ func execute(delta: float):
 	else:
 		if distance <= strike_at:
 			cmd.faced = true  # In its strike: from here a pass or a throw ends it
-		var thrown: bool = nails < int(cmd.get("nails", nails))
+		var thrown: bool = throws > int(cmd.get("throws", throws))
 		var passed: bool = cmd.faced and distance < Constants.NAV_CHARGE_PASS_DISTANCE and closing < 0.0
 		var stalled: bool = closing < Constants.LAW_LANCE_MIN_SPEED and distance < Constants.NAV_CHARGE_STALL_DISTANCE
 		if thrown or passed or stalled:
@@ -91,7 +91,7 @@ func execute(delta: float):
 			cmd.faced = false
 	if not cmd.running_up:
 		cmd.run_up_time = 0.0
-	cmd.nails = nails
+	cmd.throws = throws
 
 	var side: Vector3 = _pass_side(cmd, direction) if is_ship else Vector3.ZERO
 	var nose: Vector3

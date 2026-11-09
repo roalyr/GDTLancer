@@ -13,9 +13,13 @@ const ShipLaws = preload("res://src/core/systems/ship_laws.gd")
 
 
 class NavigationStub extends Node:
+	const CommandType = preload("res://src/core/agents/components/navigation_system.gd").CommandType
 	var target = null
+	var type: int = 0
 	func get_command_target():
 		return target
+	func get_current_command_type() -> int:
+		return type
 
 var thrower: RigidBody = null
 var target: RigidBody = null
@@ -142,6 +146,15 @@ func test_the_players_lances_disarm_after_a_throw():
 	thrower._on_player_lance_launched(target)
 	yield(get_tree(), "idle_frame")
 	assert_false(lance.armed, "One volley per arming: lances are few")
+	var navigation = NavigationStub.new()
+	add_child_autofree(navigation)
+	navigation.type = NavigationStub.CommandType.CHARGE
+	thrower.navigation_system = navigation
+	thrower.set_lances_armed(true)
+	thrower._on_player_lance_launched(target)
+	yield(get_tree(), "idle_frame")
+	assert_true(lance.armed, "In a charge it stays armed: pass after pass, until made safe")
+	thrower.navigation_system = null
 
 
 func test_a_thrown_lance_flies_kicks_the_ship_back_and_strikes():
