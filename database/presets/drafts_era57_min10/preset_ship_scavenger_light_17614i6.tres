@@ -1,14 +1,14 @@
 [gd_resource type="Resource" load_steps=3 format=2]
 
-[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
-[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=2]
+[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=1]
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=2]
 
 [resource]
-script = ExtResource( 1 )
+script = ExtResource( 2 )
 template_id = "preset_ship_scavenger_light_17614i6"
 ship_model_name = "Scavenger Light 17614 I 6 Mk I"
 base_value = 808
-ship_scene = ExtResource( 2 )
+ship_scene = ExtResource( 1 )
 hull_integrity = 72
 cargo_capacity = 32
 interaction_radius = 13.9735

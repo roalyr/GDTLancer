@@ -1,14 +1,14 @@
 [gd_resource type="Resource" load_steps=3 format=2]
 
-[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=1]
-[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=2]
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=2]
 
 [resource]
-script = ExtResource( 2 )
+script = ExtResource( 1 )
 template_id = "preset_ship_fighter_light_16923i5"
 ship_model_name = "Fighter Light 16923 I 5 Mk I"
 base_value = 486
-ship_scene = ExtResource( 1 )
+ship_scene = ExtResource( 2 )
 hull_integrity = 37
 cargo_capacity = 6
 interaction_radius = 11.7911

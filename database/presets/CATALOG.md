@@ -39,7 +39,7 @@ The picked designs, one per family and weight class (`archetypes/`: ship `preset
 | cannon_fighter_light_15958 | cannon-fighter | cautious | skittish | Rail Cannon II, Laser III |  | yes | 10 | +1.24 | 591 | drafts_era51_min5 |
 | missile_fighter_light_14955 | missile-fighter | cautious | picks its fights, stubborn, skittish, lets runners go | Laser I, Missile Rack III |  | yes | 10 | +0.48 | 727 | drafts_era51_min10 |
 | fighter_light_15585 | fighter | cautious | skittish, runs silent | Laser II |  | yes | 10 | +0.30 | 818 | drafts_era51_min10 |
-| fighter_light_16923i5 | fighter | cautious | picks its fights, standoff, relentless, shoots back | Laser Mk I-light |  | yes | 13 | -0.20 | 486 | drafts_era57_min10 |
+| fighter_light_16923i5 | fighter | cautious | picks its fights, standoff, relentless, shoots back | Laser Mk I-light |  | yes | 13 | -0.14 | 486 | drafts_era57_min10 |
 | missile_fighter_light_12256 | missile-fighter | measured | relentless, ruthless, wary | Missile Rack III | Afterburner I, Power Cell II |  | 8 | +0.85 | 690 | drafts_era51_min5 |
 | missile_cannon_fighter_light_10878 | missile-cannon-fighter | measured |  | Laser II, Rail Cannon II, Missile Rack III | Sensor Damper I |  | 7 | +0.50 | 692 | drafts_era51_min5 |
 | fighter_light_15559 | fighter | measured |  | Laser II | Hull Plating I |  | 6 | +0.32 | 351 | drafts_era51_min5 |
@@ -51,24 +51,23 @@ The picked designs, one per family and weight class (`archetypes/`: ship `preset
 | missile_fighter_medium_14708 | missile-fighter | measured | team player, sells often | Missile Rack III, Laser I |  | yes | 11 | +0.81 | 865 | drafts_era51_min5 |
 | missile_cannon_fighter_medium_11663 | missile-cannon-fighter | measured |  | Missile Rack II, Rail Cannon I | Power Cell II | yes | 11 | +0.68 | 845 | drafts_era51_min5 |
 | cannon_fighter_medium_14678 | cannon-fighter | measured | stubborn | Laser I x2, Rail Cannon III | Sensor Damper II | yes | 10 | +0.60 | 1138 | drafts_era51_min5 |
-| fighter_medium_17622i2 | fighter | cautious | picks its fights, skittish | Missile Rack Mk I-light, Cannon Mk I-light, Cannon Mk I-medium | Damper Mk I-light | yes | 11 | -0.16 | 847 | drafts_era57_min10 |
+| fighter_medium_17728i2 | fighter | aggressive | quick to fight, ruthless | Missile Rack Mk I-medium | Thruster Mk I-medium, Afterburner Mk I-light | yes | 13 | +0.07 | 1235 | drafts_era57_min10 |
 | fighter_medium_14266 | fighter | measured | ruthless | Laser III | Thruster III, Afterburner I |  | 7 | +1.04 | 1254 | drafts_era51_min5 |
-| fighter_medium_17790i2 | fighter | measured | picks its fights, stubborn, lets runners go, runs silent, loner | Laser Mk I-medium, Cannon Mk I-light, Missile Rack Mk I-medium |  |  | 5 | -0.13 | 948 | drafts_era57_min5 |
 
 ### Heavy
 
 | Design | Role | Temperament | Traits | Equipment | Modules | Proven | Lives | Fitness | Hull WP | Folder |
 |---|---|---|---|---|---|---|---|---|---|---|
 | missile_fighter_heavy_13569 | missile-fighter | measured |  | Laser III x2, Laser II, Missile Rack I, Laser I | Sensor Damper I, Afterburner III |  | 5 | +0.15 | 3286 | drafts_era51_min5 |
+| fighter_heavy_17229i5 | fighter | measured | quick to fight, stubborn, close-in, lets runners go, merciful | Laser Mk I-light, Missile Rack Mk I-heavy, Missile Rack Mk I-light, Cannon Mk I-medium | Plating Mk I-heavy, Thruster Mk I-light |  | 8 | -0.05 | 2577 | drafts_era57_min5 |
 | cannon_fighter_heavy_8873 | cannon-fighter | measured |  | Rail Cannon II | Thruster III x2, Hull Plating II, Hull Plating I, Decoy Launcher III |  | 5 | -0.12 | 3263 | drafts_era51_min5 |
-| fighter_heavy_17229i5 | fighter | measured | quick to fight, stubborn, close-in, lets runners go, merciful | Laser Mk I-light, Missile Rack Mk I-heavy, Missile Rack Mk I-light, Cannon Mk I-medium | Plating Mk I-heavy, Thruster Mk I-light |  | 8 | -0.20 | 2577 | drafts_era57_min5 |
 
 ### Superheavy
 
 | Design | Role | Temperament | Traits | Equipment | Modules | Proven | Lives | Fitness | Hull WP | Folder |
 |---|---|---|---|---|---|---|---|---|---|---|
 | missile_cannon_fighter_heavy_15260 | missile-cannon-fighter | measured | stubborn, merciful, shoots back, loner | Laser I x2, Rail Cannon II, Rail Cannon III, Laser III x3, Laser II, Missile Rack II, Missile Rack III | Hull Plating I | yes | 10 | +0.42 | 7272 | drafts_era51_min5 |
-| fighter_superheavy_17607i2 | fighter | measured | quick to fight, stubborn, standoff, runs silent | Cannon Mk I-medium x3, Laser Mk I-heavy, Cannon Mk I-heavy | Thruster Mk I-light | yes | 13 | -0.13 | 3431 | drafts_era57_min10 |
+| fighter_superheavy_17607i2 | fighter | measured | quick to fight, stubborn, standoff, runs silent | Cannon Mk I-medium x3, Laser Mk I-heavy, Cannon Mk I-heavy | Thruster Mk I-light | yes | 13 | -0.07 | 3431 | drafts_era57_min10 |
 
 ## Lance
 
@@ -84,7 +83,7 @@ The picked designs, one per family and weight class (`archetypes/`: ship `preset
 | lance_missile_fighter_light_12178 | lance-missile-fighter | aggressive | quick to fight, stubborn, relentless, ruthless | Missile Rack III | Afterburner I, Kinetic Lance II |  | 7 | +0.82 | 676 | drafts_era51_min5 |
 | lance_cannon_raider_light_12408 | lance-cannon-raider | cautious | picks its fights, standoff, lets runners go, ruthless, runs silent, team player, bold | Laser III, tool_harpoon, Rail Cannon III | Kinetic Lance III |  | 6 | +0.62 | 824 | drafts_era51_min5 |
 | lance_cannon_fighter_light_14749 | lance-cannon-fighter | cautious | quick to break off, lets runners go, ruthless, wary | Rail Cannon II | Kinetic Lance II |  | 9 | +0.44 | 489 | drafts_era51_min5 |
-| lance_light_17756i1 | lance | cautious | stubborn, sells often | Harpoon Mk I | Lance Mk I-light |  | 8 | -0.03 | 429 | drafts_era57_min5 |
+| lance_light_17756i1 | lance | cautious | stubborn, sells often | Harpoon Mk I | Lance Mk I-light |  | 8 | +0.19 | 429 | drafts_era57_min5 |
 
 ### Medium
 
@@ -93,15 +92,16 @@ The picked designs, one per family and weight class (`archetypes/`: ship `preset
 | lancer_medium_15466 | lancer | measured |  | tool_harpoon | Kinetic Lance I, Hull Plating II | yes | 10 | +0.39 | 1148 | drafts_era51_min5 |
 | lance_cannon_raider_medium_15532 | lance-cannon-raider | measured | loner | tool_harpoon, Rail Cannon III | Kinetic Lance I, Decoy Launcher II | yes | 10 | +0.35 | 1528 | drafts_era51_min5 |
 | lance_cannon_fighter_medium_12533 | lance-cannon-fighter | measured | stubborn, sells often | Rail Cannon III | Kinetic Lance I, Hull Plating II | yes | 11 | +0.12 | 1401 | drafts_era51_min10 |
-| lance_medium_17574i5 | lance | measured |  | Harpoon Mk I | Lance Mk I-medium, Decoy Launcher Mk I-medium | yes | 10 | -0.32 | 1426 | drafts_era57_min10 |
+| lance_medium_17574i5 | lance | measured |  | Harpoon Mk I | Lance Mk I-medium, Decoy Launcher Mk I-medium | yes | 10 | -0.11 | 1426 | drafts_era57_min10 |
 | lance_cannon_fighter_medium_14399 | lance-cannon-fighter | measured | quick to fight, ruthless | Laser I, Rail Cannon I | Thruster III, Kinetic Lance III |  | 8 | +0.20 | 1075 | drafts_era51_min5 |
+| lance_medium_17479i6 | lance | cautious | picks its fights, quick to break off, standoff, relentless, ruthless, hoards | Laser Mk I-light x2, Missile Rack Mk I-medium | Lance Mk I-light |  | 5 | -0.10 | 1228 | drafts_era57_min5 |
 
 ### Heavy
 
 | Design | Role | Temperament | Traits | Equipment | Modules | Proven | Lives | Fitness | Hull WP | Folder |
 |---|---|---|---|---|---|---|---|---|---|---|
 | lance_missile_cannon_fighter_heavy_16100 | lance-missile-cannon-fighter | measured |  | Missile Rack I, Rail Cannon III | Decoy Launcher III, Power Cell I, Kinetic Lance I, Sensor Damper II | yes | 11 | +0.17 | 2479 | drafts_era51_min5 |
-| lance_heavy_17611i2 | lance | measured | stubborn, skittish, relentless, merciful, bold, loud | Missile Rack Mk I-medium, Laser Mk I-light | Missile Bay Mk I-light, Thruster Mk I-heavy, Lance Mk I-light | yes | 11 | -0.32 | 1930 | drafts_era57_min10 |
+| lance_heavy_17611i2 | lance | measured | stubborn, skittish, relentless, merciful, bold, loud | Missile Rack Mk I-medium, Laser Mk I-light | Missile Bay Mk I-light, Thruster Mk I-heavy, Lance Mk I-light | yes | 11 | -0.10 | 1930 | drafts_era57_min10 |
 | lance_fighter_medium_15668 | lance-fighter | aggressive | quick to fight, stubborn, standoff, relentless, shoots back | Laser I | Extended Magazine II, Hull Plating I, Kinetic Lance I |  | 5 | +0.00 | 1698 | drafts_era51_min5 |
 | lance_missile_fighter_heavy_15648 | lance-missile-fighter | measured |  | Missile Rack I | Decoy Launcher III, Power Cell I, Kinetic Lance III, Sensor Damper II, Afterburner III |  | 5 | -0.02 | 2559 | drafts_era51_min5 |
 
@@ -109,8 +109,7 @@ The picked designs, one per family and weight class (`archetypes/`: ship `preset
 
 | Design | Role | Temperament | Traits | Equipment | Modules | Proven | Lives | Fitness | Hull WP | Folder |
 |---|---|---|---|---|---|---|---|---|---|---|
-| lance_superheavy_17581i1 | lance | measured | quick to fight, stubborn, close-in, merciful, sells often, loud | Harpoon Mk I | Plating Mk I-light x2, Damper Mk I-heavy, Power Cell Mk I-heavy, Decoy Launcher Mk I-heavy, Lance Mk I-heavy, Shell Bay Mk I-medium, Shell Bay Mk I-heavy, Afterburner Mk I-medium, Lance Mk I-light | yes | 12 | -0.34 | 9573 | drafts_era57_min10 |
-| lance_superheavy_16836i1 | lance | measured | lets runners go, team player, bold, hoards, sneaky | Laser Mk I-medium, Cannon Mk I-heavy, Laser Mk I-heavy, Cannon Mk I-light x2 | Lance Mk I-medium |  | 7 | -0.28 | 3934 | drafts_era57_min5 |
+| lance_superheavy_17581i1 | lance | measured | quick to fight, stubborn, close-in, merciful, sells often, loud | Harpoon Mk I | Plating Mk I-light x2, Damper Mk I-heavy, Power Cell Mk I-heavy, Decoy Launcher Mk I-heavy, Lance Mk I-heavy, Afterburner Mk I-medium, Lance Mk I-light | yes | 12 | +0.13 | 9573 | drafts_era57_min10 |
 
 ## Prospector
 
@@ -119,27 +118,27 @@ The picked designs, one per family and weight class (`archetypes/`: ship `preset
 | Design | Role | Temperament | Traits | Equipment | Modules | Proven | Lives | Fitness | Hull WP | Folder |
 |---|---|---|---|---|---|---|---|---|---|---|
 | prospector_light_15008 | prospector | cautious | picks its fights, skittish, relentless, runs silent, loner, wary, sells often | Laser I, tool_harpoon | Kinetic Lance I | yes | 11 | +0.27 | 591 | drafts_era51_min5 |
-| prospector_light_17709i2 | prospector | cautious | picks its fights, standoff, skittish, lets runners go, team player, wary | Laser Mk I-light, Harpoon Mk I | Lance Mk I-light |  | 6 | -0.76 | 681 | drafts_era57_min5 |
+| prospector_light_17709i2 | prospector | cautious | picks its fights, standoff, skittish, lets runners go, team player, wary | Laser Mk I-light, Harpoon Mk I | Lance Mk I-light |  | 6 | -0.52 | 681 | drafts_era57_min5 |
 
 ### Medium
 
 | Design | Role | Temperament | Traits | Equipment | Modules | Proven | Lives | Fitness | Hull WP | Folder |
 |---|---|---|---|---|---|---|---|---|---|---|
 | prospector_medium_14901 | prospector | cautious |  | Laser III, tool_harpoon, Laser II | Kinetic Lance I | yes | 11 | +0.31 | 990 | drafts_era51_min5 |
-| prospector_medium_17621i2 | prospector | cautious | picks its fights, quick to break off, standoff, lets runners go, ruthless, shoots back, team player, bold, hoards | Laser Mk I-medium, Harpoon Mk I, Laser Mk I-light | Lance Mk I-medium | yes | 11 | +0.03 | 1150 | drafts_era57_min10 |
+| prospector_medium_17621i2 | prospector | cautious | picks its fights, quick to break off, standoff, lets runners go, ruthless, shoots back, team player, bold, hoards | Laser Mk I-medium, Harpoon Mk I, Laser Mk I-light | Lance Mk I-medium | yes | 11 | +0.27 | 1150 | drafts_era57_min10 |
 
 ### Heavy
 
 | Design | Role | Temperament | Traits | Equipment | Modules | Proven | Lives | Fitness | Hull WP | Folder |
 |---|---|---|---|---|---|---|---|---|---|---|
 | prospector_heavy_16070 | prospector | measured | quick to fight, stubborn, shoots back, wary | Laser III, tool_harpoon, Rail Cannon II | Kinetic Lance II, Afterburner II |  | 6 | +0.35 | 2501 | drafts_era51_min5 |
-| prospector_heavy_17248i1 | prospector | measured |  | Missile Rack Mk I-light, Harpoon Mk I, Laser Mk I-medium | Lance Mk I-light, Plating Mk I-medium, Decoy Launcher Mk I-light |  | 6 | -0.32 | 3283 | drafts_era57_min5 |
+| prospector_heavy_17248i1 | prospector | measured |  | Missile Rack Mk I-light, Harpoon Mk I, Laser Mk I-medium | Lance Mk I-light, Plating Mk I-medium, Decoy Launcher Mk I-light |  | 6 | -0.07 | 3283 | drafts_era57_min5 |
 
 ### Superheavy
 
 | Design | Role | Temperament | Traits | Equipment | Modules | Proven | Lives | Fitness | Hull WP | Folder |
 |---|---|---|---|---|---|---|---|---|---|---|
-| prospector_superheavy_17425i2 | prospector | measured | stubborn, lets runners go, team player, bold, hoards, sneaky | Missile Rack Mk I-medium, Harpoon Mk I, Cannon Mk I-medium, Laser Mk I-heavy, Cannon Mk I-heavy | Lance Mk I-medium |  | 6 | -0.16 | 3853 | drafts_era57_min5 |
+| prospector_superheavy_17425i2 | prospector | measured | stubborn, lets runners go, team player, bold, hoards, sneaky | Missile Rack Mk I-medium, Harpoon Mk I, Cannon Mk I-medium, Laser Mk I-heavy, Cannon Mk I-heavy | Lance Mk I-medium |  | 6 | +0.09 | 3853 | drafts_era57_min5 |
 
 ## Raider
 
@@ -150,9 +149,8 @@ The picked designs, one per family and weight class (`archetypes/`: ship `preset
 | raider_light_15543 | raider | cautious | stubborn, skittish, runs silent | tool_harpoon, Laser II |  | yes | 10 | +1.78 | 818 | drafts_era51_min5 |
 | cannon_raider_light_15251 | cannon-raider | cautious | picks its fights, stubborn, close-in, skittish, runs silent | tool_harpoon, Rail Cannon II | Sensor Damper III | yes | 10 | +1.63 | 687 | drafts_era51_min5 |
 | missile_raider_light_12784 | missile-raider | cautious | picks its fights, standoff, lets runners go, ruthless, runs silent, team player, bold | Laser I, tool_harpoon, Missile Rack III | Afterburner I | yes | 10 | +0.88 | 814 | drafts_era51_min5 |
-| raider_light_9624 | raider | measured | standoff, lets runners go | Missile Rack Mk I-light, Harpoon Mk I |  | yes | 12 | -0.14 | 823 | drafts_era57_min10 |
+| raider_light_17328i6 | raider | cautious | picks its fights, stubborn, skittish, runs silent | Laser Mk I-light, Harpoon Mk I | Damper Mk I-light, Thruster Mk I-light | yes | 11 | -0.06 | 802 | drafts_era57_min10 |
 | missile_cannon_raider_light_16193 | missile-cannon-raider | cautious | picks its fights, skittish, runs silent | Missile Rack I, tool_harpoon, Rail Cannon II |  |  | 6 | +0.85 | 801 | drafts_era51_min5 |
-| raider_light_17659i6 | raider | cautious | picks its fights, stubborn, lets runners go, runs silent, bold, sells often, loud | Harpoon Mk I, Laser Mk I-light, Missile Rack Mk I-light |  |  | 8 | +0.10 | 790 | drafts_era57_min5 |
 
 ### Medium
 
@@ -160,7 +158,7 @@ The picked designs, one per family and weight class (`archetypes/`: ship `preset
 |---|---|---|---|---|---|---|---|---|---|---|
 | cannon_raider_medium_12795 | cannon-raider | cautious | lets runners go, sells often | Laser III, Rail Cannon II, tool_harpoon | Power Cell I | yes | 10 | +0.72 | 1184 | drafts_era51_min10 |
 | raider_medium_15609 | raider | cautious | picks its fights, close-in, skittish, lets runners go, sells often | tool_harpoon, Laser I | Sensor Booster I | yes | 10 | +0.65 | 1615 | drafts_era51_min10 |
-| raider_medium_17393i1 | raider | cautious | picks its fights, stubborn, lets runners go, runs silent, bold, sells often, loud | Harpoon Mk I, Laser Mk I-light, Missile Rack Mk I-medium |  | yes | 10 | +0.05 | 880 | drafts_era57_min10 |
+| raider_medium_17585i1 | raider | cautious | picks its fights, skittish | Missile Rack Mk I-light, Harpoon Mk I | Damper Mk I-light, Thruster Mk I-light | yes | 11 | -0.15 | 847 | drafts_era57_min10 |
 | missile_raider_medium_14080 | missile-raider | cautious |  | Laser II, Missile Rack III, tool_harpoon |  |  | 7 | +1.11 | 1263 | drafts_era51_min5 |
 | cannon_raider_medium_15742 | cannon-raider | cautious |  | Rail Cannon III, tool_harpoon |  |  | 6 | +0.84 | 1111 | drafts_era51_min5 |
 | raider_medium_15639 | raider | cautious | stubborn, runs silent, sells often | tool_harpoon, Laser III |  |  | 6 | +0.68 | 1108 | drafts_era51_min5 |
@@ -171,14 +169,14 @@ The picked designs, one per family and weight class (`archetypes/`: ship `preset
 |---|---|---|---|---|---|---|---|---|---|---|
 | missile_cannon_raider_medium_6673 | missile-cannon-raider | measured |  | Rail Cannon III, Laser III, tool_harpoon, Missile Rack III, Laser I, Rail Cannon I | Decoy Launcher II | yes | 10 | +0.82 | 2357 | drafts_era51_min5 |
 | missile_raider_medium_15522 | missile-raider | measured |  | Missile Rack II, Missile Rack III, tool_harpoon | Decoy Launcher II, Afterburner I | yes | 11 | +0.65 | 2139 | drafts_era51_min10 |
-| raider_heavy_17535i1 | raider | cautious | close-in, runs silent, wary, loud | Missile Rack Mk I-heavy, Harpoon Mk I | Thruster Mk I-light | yes | 11 | +0.23 | 1900 | drafts_era57_min10 |
+| raider_heavy_17535i1 | raider | cautious | close-in, runs silent, wary, loud | Missile Rack Mk I-heavy, Harpoon Mk I | Thruster Mk I-light | yes | 11 | +0.20 | 1900 | drafts_era57_min10 |
 
 ### Superheavy
 
 | Design | Role | Temperament | Traits | Equipment | Modules | Proven | Lives | Fitness | Hull WP | Folder |
 |---|---|---|---|---|---|---|---|---|---|---|
 | missile_cannon_raider_heavy_15583 | missile-cannon-raider | measured |  | Laser III x2, tool_harpoon, Missile Rack I, Rail Cannon III | Sensor Damper I | yes | 10 | +0.64 | 3947 | drafts_era51_min5 |
-| raider_superheavy_17240i1 | raider | measured | bold, hoards, sneaky | Cannon Mk I-heavy, Harpoon Mk I, Cannon Mk I-light x2, Laser Mk I-light, Missile Rack Mk I-heavy | Damper Mk I-heavy | yes | 10 | -0.08 | 3740 | drafts_era57_min10 |
+| raider_superheavy_17240i1 | raider | measured | bold, hoards, sneaky | Cannon Mk I-heavy, Harpoon Mk I, Cannon Mk I-light x2, Laser Mk I-light, Missile Rack Mk I-heavy | Damper Mk I-heavy | yes | 10 | -0.05 | 3740 | drafts_era57_min10 |
 | missile_raider_heavy_11412 | missile-raider | measured |  | Laser III x2, tool_harpoon, Missile Rack I, Laser I | Sensor Damper I, Afterburner III |  | 5 | +0.22 | 3733 | drafts_era51_min5 |
 | raider_heavy_9831 | raider | measured | quick to fight, stubborn, standoff | Laser I, Laser III, tool_harpoon | Hull Plating II x2 |  | 6 | +0.02 | 6854 | drafts_era51_min5 |
 
@@ -189,27 +187,27 @@ The picked designs, one per family and weight class (`archetypes/`: ship `preset
 | Design | Role | Temperament | Traits | Equipment | Modules | Proven | Lives | Fitness | Hull WP | Folder |
 |---|---|---|---|---|---|---|---|---|---|---|
 | scavenger_light_15723 | scavenger | cautious | picks its fights, stubborn, skittish, lets runners go | tool_harpoon |  | yes | 13 | +1.58 | 727 | drafts_era51_min5 |
-| scavenger_light_17614i6 | scavenger | cautious | picks its fights, stubborn, skittish, lets runners go, runs silent | Harpoon Mk I | Plating Mk I-light | yes | 20 | +0.00 | 808 | drafts_era57_min10 |
+| scavenger_light_17614i6 | scavenger | cautious | picks its fights, stubborn, skittish, lets runners go, runs silent | Harpoon Mk I | Plating Mk I-light | yes | 20 | -0.04 | 808 | drafts_era57_min10 |
 
 ### Medium
 
 | Design | Role | Temperament | Traits | Equipment | Modules | Proven | Lives | Fitness | Hull WP | Folder |
 |---|---|---|---|---|---|---|---|---|---|---|
 | scavenger_medium_15607 | scavenger | cautious | stubborn, skittish, runs silent | tool_harpoon |  | yes | 14 | +1.41 | 991 | drafts_era51_min5 |
-| scavenger_medium_17575i5 | scavenger | cautious | picks its fights, stubborn, skittish, lets runners go, runs silent, loud | Harpoon Mk I |  | yes | 13 | -0.15 | 958 | drafts_era57_min10 |
+| scavenger_medium_16261 | scavenger | measured |  | Harpoon Mk I | Power Cell Mk I-light, Thruster Mk I-medium | yes | 11 | -0.09 | 1238 | drafts_era57_min10 |
 
 ### Heavy
 
 | Design | Role | Temperament | Traits | Equipment | Modules | Proven | Lives | Fitness | Hull WP | Folder |
 |---|---|---|---|---|---|---|---|---|---|---|
+| scavenger_heavy_17072i6 | scavenger | measured |  | Harpoon Mk I | Power Cell Mk I-light, Plating Mk I-heavy, Thruster Mk I-light, Power Cell Mk I-medium, Decoy Launcher Mk I-medium | yes | 11 | +0.01 | 3357 | drafts_era57_min10 |
 | scavenger_heavy_14132 | scavenger | measured | stubborn, merciful | tool_harpoon | Sensor Damper I | yes | 10 | -0.20 | 2927 | drafts_era51_min5 |
-| scavenger_heavy_16529i1 | scavenger | measured |  | Harpoon Mk I | Thruster Mk I-heavy, Plating Mk I-medium x2, Power Cell Mk I-medium, Decoy Launcher Mk I-heavy, Decoy Launcher Mk I-light | yes | 10 | -0.24 | 3138 | drafts_era57_min10 |
 
 ### Superheavy
 
 | Design | Role | Temperament | Traits | Equipment | Modules | Proven | Lives | Fitness | Hull WP | Folder |
 |---|---|---|---|---|---|---|---|---|---|---|
-| scavenger_superheavy_17003i1 | scavenger | measured |  | Harpoon Mk I | Afterburner Mk I-heavy, Plating Mk I-light, Plating Mk I-medium, Shell Bay Mk I-heavy, Decoy Launcher Mk I-heavy x2 | yes | 12 | -0.22 | 3385 | drafts_era57_min10 |
+| scavenger_superheavy_17605i5 | scavenger | measured |  | Harpoon Mk I | Power Cell Mk I-light x2, Plating Mk I-heavy, Thruster Mk I-light, Afterburner Mk I-medium, Decoy Launcher Mk I-light | yes | 10 | -0.01 | 3712 | drafts_era57_min10 |
 
 ## Trader
 
@@ -217,22 +215,22 @@ The picked designs, one per family and weight class (`archetypes/`: ship `preset
 
 | Design | Role | Temperament | Traits | Equipment | Modules | Proven | Lives | Fitness | Hull WP | Folder |
 |---|---|---|---|---|---|---|---|---|---|---|
-| trader_light_17312i1 | trader | cautious | picks its fights, skittish |  | Thruster Mk I-light |  | 6 | +0.15 | 577 | drafts_era57_min5 |
+| trader_light_17312i1 | trader | cautious | picks its fights, skittish |  | Thruster Mk I-light |  | 6 | +0.07 | 577 | drafts_era57_min5 |
 
 ### Medium
 
 | Design | Role | Temperament | Traits | Equipment | Modules | Proven | Lives | Fitness | Hull WP | Folder |
 |---|---|---|---|---|---|---|---|---|---|---|
-| trader_medium_17271i5 | trader | cautious | picks its fights, skittish |  | Plating Mk I-medium | yes | 11 | -0.04 | 1200 | drafts_era57_min10 |
+| trader_medium_17271i5 | trader | cautious | picks its fights, skittish |  | Plating Mk I-medium | yes | 11 | -0.12 | 1200 | drafts_era57_min10 |
 
 ### Heavy
 
 | Design | Role | Temperament | Traits | Equipment | Modules | Proven | Lives | Fitness | Hull WP | Folder |
 |---|---|---|---|---|---|---|---|---|---|---|
-| trader_heavy_16963 | trader | cautious | skittish | Laser Mk I-medium | Plating Mk I-heavy |  | 7 | -0.08 | 2400 | drafts_era57_min5 |
+| trader_heavy_16963 | trader | cautious | skittish | Laser Mk I-medium | Plating Mk I-heavy |  | 7 | -0.05 | 2400 | drafts_era57_min5 |
 
 ### Superheavy
 
 | Design | Role | Temperament | Traits | Equipment | Modules | Proven | Lives | Fitness | Hull WP | Folder |
 |---|---|---|---|---|---|---|---|---|---|---|
-| trader_superheavy_16964 | trader | cautious |  | Laser Mk I-heavy | Plating Mk I-heavy, Thruster Mk I-heavy | yes | 10 | -0.22 | 6000 | drafts_era57_min10 |
+| trader_superheavy_16964 | trader | cautious |  | Laser Mk I-heavy | Plating Mk I-heavy, Thruster Mk I-heavy | yes | 10 | -0.19 | 6000 | drafts_era57_min10 |

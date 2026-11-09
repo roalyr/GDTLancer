@@ -32,7 +32,7 @@ archetype = "lance heavy"
 temperament = "measured"
 traits = [ "stubborn", "skittish", "relentless", "merciful", "bold", "loud" ]
 lives = 11
-fitness = -0.315782
+fitness = -0.0989064
 origin = ""
 genome = {
 }

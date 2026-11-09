@@ -32,7 +32,7 @@ archetype = "trader light"
 temperament = "cautious"
 traits = [ "picks its fights", "skittish" ]
 lives = 6
-fitness = 0.145022
+fitness = 0.0658864
 origin = ""
 genome = {
 }

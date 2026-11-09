@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_scavenger_medium_16261"
+ship_model_name = "Scavenger Medium 16261 Mk I"
+base_value = 1238
+ship_scene = ExtResource( 2 )
+hull_integrity = 186
+cargo_capacity = 18
+interaction_radius = 16.108
+apparent_radius = 12.8864
+signature = 1610.8
+sensor_strength = 1.0
+tool_slots_small = 0
+tool_slots_medium = 2
+tool_slots_large = 0
+module_slots = 2
+module_slot_size = "medium"
+equipped_tools = [ "preset_harpoon" ]
+equipped_modules = [ "preset_power_cell_light", "preset_thruster_medium" ]
+salvage_yield = {
+"commodity_scrap": 25,
+"commodity_tech": 5
+}
+power_capacity = 89.7876
+power_regen = 4.40102
+mass = 7430.17
+linear_thrust = 265915.0
+angular_thrust = 316967.0
+alignment_threshold_angle_deg = 45.0
+model_scale = 1.07386
+variant_type = 2
+law_genes = {
+"shares": {
+"capacitor": 0.0362526,
+"engine": 0.0900175,
+"hold": 0.0710136,
+"reactor": 0.0324415,
+"structure": 0.770275
+},
+"size": 1.23836,
+"tool_share": 0.528041,
+"type": 2
+}

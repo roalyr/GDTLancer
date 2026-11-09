@@ -1,0 +1,37 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_scavenger_superheavy_17605i5"
+agent_type = "npc"
+ship_template_id = "preset_ship_scavenger_superheavy_17605i5"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.472988,
+"caution": 0.561302,
+"disengage": 0.657728,
+"engage": 1.33436,
+"haul": 0.297774,
+"mercy": 0.419178,
+"prospect": 0.144995,
+"pursuit": 0.900376,
+"quiet": 0.2623,
+"range": 1.02491,
+"retreat_hull": 0.0,
+"return_fire": 0.70254,
+"teamwork": 1.28832
+}
+role = "scavenger"
+family = "scavenger"
+weight_class = "superheavy"
+archetype = "scavenger superheavy"
+temperament = "measured"
+traits = [  ]
+lives = 10
+fitness = -0.0134278
+origin = ""
+genome = {
+}

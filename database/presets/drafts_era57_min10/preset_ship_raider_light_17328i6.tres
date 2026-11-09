@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_raider_light_17328i6"
+ship_model_name = "Raider Light 17328 I 6 Mk I"
+base_value = 802
+ship_scene = ExtResource( 2 )
+hull_integrity = 85
+cargo_capacity = 18
+interaction_radius = 13.9368
+apparent_radius = 11.1494
+signature = 1393.68
+sensor_strength = 1.0
+tool_slots_small = 2
+tool_slots_medium = 0
+tool_slots_large = 0
+module_slots = 2
+module_slot_size = "small"
+equipped_tools = [ "preset_laser_light", "preset_harpoon" ]
+equipped_modules = [ "preset_damper_light", "preset_thruster_light" ]
+salvage_yield = {
+"commodity_scrap": 16,
+"commodity_tech": 10
+}
+power_capacity = 80.0908
+power_regen = 7.91805
+mass = 4812.44
+linear_thrust = 530885.0
+angular_thrust = 547514.0
+alignment_threshold_angle_deg = 45.0
+model_scale = 0.929119
+variant_type = 1
+law_genes = {
+"shares": {
+"capacitor": 0.0499273,
+"engine": 0.299627,
+"hold": 0.111237,
+"reactor": 0.0961921,
+"structure": 0.443017
+},
+"size": 0.802074,
+"tool_share": 0.599644,
+"type": 1
+}

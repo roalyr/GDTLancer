@@ -32,7 +32,7 @@ archetype = "fighter heavy"
 temperament = "measured"
 traits = [ "quick to fight", "stubborn", "close-in", "lets runners go", "merciful" ]
 lives = 8
-fitness = -0.196476
+fitness = -0.0462835
 origin = ""
 genome = {
 }

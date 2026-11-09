@@ -31,7 +31,7 @@ archetype = "lance medium"
 temperament = "measured"
 traits = [  ]
 lives = 10
-fitness = -0.324086
+fitness = -0.10721
 origin = ""
 genome = {
 }

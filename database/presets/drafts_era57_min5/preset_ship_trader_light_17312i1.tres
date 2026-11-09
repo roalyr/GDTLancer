@@ -1,14 +1,14 @@
 [gd_resource type="Resource" load_steps=3 format=2]
 
-[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=1]
-[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=2]
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=2]
 
 [resource]
-script = ExtResource( 2 )
+script = ExtResource( 1 )
 template_id = "preset_ship_trader_light_17312i1"
 ship_model_name = "Trader Light 17312 I 1 Mk I"
 base_value = 577
-ship_scene = ExtResource( 1 )
+ship_scene = ExtResource( 2 )
 hull_integrity = 42
 cargo_capacity = 51
 interaction_radius = 12.4884

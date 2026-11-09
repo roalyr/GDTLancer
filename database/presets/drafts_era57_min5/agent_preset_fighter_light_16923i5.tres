@@ -31,7 +31,7 @@ archetype = "fighter light"
 temperament = "cautious"
 traits = [ "picks its fights", "standoff", "relentless", "shoots back" ]
 lives = 13
-fitness = -0.197285
+fitness = -0.144716
 origin = ""
 genome = {
 }

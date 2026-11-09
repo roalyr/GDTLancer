@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_scavenger_superheavy_17605i5"
+ship_model_name = "Scavenger Superheavy 17605 I 5 Mk I"
+base_value = 3712
+ship_scene = ExtResource( 2 )
+hull_integrity = 333
+cargo_capacity = 82
+interaction_radius = 23.2249
+apparent_radius = 18.58
+signature = 2322.49
+sensor_strength = 1.0
+tool_slots_small = 0
+tool_slots_medium = 0
+tool_slots_large = 1
+module_slots = 8
+module_slot_size = "large"
+equipped_tools = [ "preset_harpoon" ]
+equipped_modules = [ "preset_power_cell_light", "preset_plating_heavy", "preset_thruster_light", "preset_power_cell_light", "preset_afterburner_medium", "preset_decoy_light" ]
+salvage_yield = {
+"commodity_scrap": 74,
+"commodity_tech": 35
+}
+power_capacity = 323.699
+power_regen = 34.8266
+mass = 22271.1
+linear_thrust = 1.51065e+06
+angular_thrust = 2.59627e+06
+alignment_threshold_angle_deg = 45.0
+model_scale = 1.54833
+variant_type = 3
+law_genes = {
+"shares": {
+"capacitor": 0.0436035,
+"engine": 0.206933,
+"hold": 0.110236,
+"reactor": 0.107779,
+"structure": 0.531449
+},
+"size": 3.71185,
+"tool_share": 0.0831882,
+"type": 3
+}

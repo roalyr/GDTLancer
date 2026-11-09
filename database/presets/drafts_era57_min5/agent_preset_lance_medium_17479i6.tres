@@ -1,0 +1,38 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_lance_medium_17479i6"
+agent_type = "npc"
+ship_template_id = "preset_ship_lance_medium_17479i6"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.142694,
+"caution": 0.479019,
+"disengage": 3.0,
+"engage": 4.0,
+"haul": 1.0,
+"mercy": 0.0,
+"prospect": 1.0,
+"pursuit": 2.236,
+"quiet": 0.459894,
+"range": 1.5,
+"retreat_hull": 0.178209,
+"return_fire": 0.390044,
+"teamwork": 0.430935,
+"trade": 0.18872
+}
+role = "lance"
+family = "lance"
+weight_class = "medium"
+archetype = "lance medium"
+temperament = "cautious"
+traits = [ "picks its fights", "quick to break off", "standoff", "relentless", "ruthless", "hoards" ]
+lives = 5
+fitness = -0.0951433
+origin = ""
+genome = {
+}

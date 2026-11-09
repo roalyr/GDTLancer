@@ -31,7 +31,7 @@ archetype = "scavenger light"
 temperament = "cautious"
 traits = [ "picks its fights", "stubborn", "skittish", "lets runners go", "runs silent" ]
 lives = 20
-fitness = 0.00146965
+fitness = -0.042487
 origin = ""
 genome = {
 }

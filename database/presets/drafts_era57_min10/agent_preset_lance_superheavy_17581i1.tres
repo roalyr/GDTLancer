@@ -31,7 +31,7 @@ archetype = "lance superheavy"
 temperament = "measured"
 traits = [ "quick to fight", "stubborn", "close-in", "merciful", "sells often", "loud" ]
 lives = 12
-fitness = -0.335491
+fitness = 0.134706
 origin = ""
 genome = {
 }

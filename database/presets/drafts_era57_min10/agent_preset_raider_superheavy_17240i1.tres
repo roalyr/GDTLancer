@@ -32,7 +32,7 @@ archetype = "raider superheavy"
 temperament = "measured"
 traits = [ "bold", "hoards", "sneaky" ]
 lives = 10
-fitness = -0.0840664
+fitness = -0.0537828
 origin = ""
 genome = {
 }

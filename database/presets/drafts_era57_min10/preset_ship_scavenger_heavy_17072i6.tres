@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=1]
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=2]
+
+[resource]
+script = ExtResource( 2 )
+template_id = "preset_ship_scavenger_heavy_17072i6"
+ship_model_name = "Scavenger Heavy 17072 I 6 Mk I"
+base_value = 3357
+ship_scene = ExtResource( 1 )
+hull_integrity = 326
+cargo_capacity = 68
+interaction_radius = 22.4596
+apparent_radius = 17.9677
+signature = 2245.96
+sensor_strength = 1.0
+tool_slots_small = 0
+tool_slots_medium = 0
+tool_slots_large = 1
+module_slots = 7
+module_slot_size = "large"
+equipped_tools = [ "preset_harpoon" ]
+equipped_modules = [ "preset_power_cell_light", "preset_plating_heavy", "preset_thruster_light", "preset_power_cell_medium", "preset_decoy_medium" ]
+salvage_yield = {
+"commodity_scrap": 67,
+"commodity_tech": 29
+}
+power_capacity = 267.723
+power_regen = 29.2495
+mass = 20141.2
+linear_thrust = 1.27788e+06
+angular_thrust = 2.12386e+06
+alignment_threshold_angle_deg = 45.0
+model_scale = 1.49731
+variant_type = 3
+law_genes = {
+"shares": {
+"capacitor": 0.0398769,
+"engine": 0.189994,
+"hold": 0.100815,
+"reactor": 0.098169,
+"structure": 0.571146
+},
+"size": 3.35687,
+"tool_share": 0.166211,
+"type": 3
+}
