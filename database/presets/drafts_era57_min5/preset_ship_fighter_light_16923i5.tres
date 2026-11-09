@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=1]
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=2]
+
+[resource]
+script = ExtResource( 2 )
+template_id = "preset_ship_fighter_light_16923i5"
+ship_model_name = "Fighter Light 16923 I 5 Mk I"
+base_value = 486
+ship_scene = ExtResource( 1 )
+hull_integrity = 37
+cargo_capacity = 6
+interaction_radius = 11.7911
+apparent_radius = 9.43285
+signature = 1179.11
+sensor_strength = 1.0
+tool_slots_small = 1
+tool_slots_medium = 0
+tool_slots_large = 0
+module_slots = 1
+module_slot_size = "small"
+equipped_tools = [ "preset_laser_light" ]
+equipped_modules = [  ]
+salvage_yield = {
+"commodity_scrap": 10,
+"commodity_tech": 9
+}
+power_capacity = 43.0608
+power_regen = 3.32295
+mass = 2914.31
+linear_thrust = 610656.0
+angular_thrust = 532821.0
+alignment_threshold_angle_deg = 45.0
+model_scale = 0.786071
+variant_type = 1
+law_genes = {
+"shares": {
+"capacitor": 0.0443269,
+"engine": 0.578044,
+"hold": 0.0601418,
+"reactor": 0.0605305,
+"structure": 0.256957
+},
+"size": 0.485719,
+"tool_share": 1.0,
+"type": 1
+}

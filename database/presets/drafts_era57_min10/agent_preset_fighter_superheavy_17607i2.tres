@@ -1,0 +1,36 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_fighter_superheavy_17607i2"
+agent_type = "npc"
+ship_template_id = "preset_ship_fighter_superheavy_17607i2"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.387143,
+"caution": 0.53018,
+"disengage": 0.1,
+"engage": 0.455428,
+"mercy": 0.34702,
+"prospect": 0.00626409,
+"pursuit": 1.33402,
+"quiet": 0.338864,
+"range": 1.36975,
+"retreat_hull": 0.11083,
+"return_fire": 0.151939,
+"teamwork": 0.735344
+}
+role = "fighter"
+family = "fighter"
+weight_class = "superheavy"
+archetype = "fighter superheavy"
+temperament = "measured"
+traits = [ "quick to fight", "stubborn", "standoff", "runs silent" ]
+lives = 13
+fitness = -0.126704
+origin = ""
+genome = {
+}

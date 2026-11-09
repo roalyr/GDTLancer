@@ -1,0 +1,38 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_trader_heavy_16963"
+agent_type = "npc"
+ship_template_id = "preset_ship_trader_heavy_16963"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.3,
+"caution": 0.5,
+"disengage": 0.8,
+"engage": 2.5,
+"haul": 0.25,
+"mercy": 0.5,
+"prospect": 0.0,
+"pursuit": 1.0,
+"quiet": 0.3,
+"range": 1.0,
+"retreat_hull": 0.5,
+"return_fire": 0.5,
+"teamwork": 1.0,
+"trade": 1.0
+}
+role = "trader"
+family = "trader"
+weight_class = "heavy"
+archetype = "trader heavy"
+temperament = "cautious"
+traits = [ "skittish" ]
+lives = 7
+fitness = -0.0775128
+origin = ""
+genome = {
+}

@@ -1,0 +1,37 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_lance_superheavy_16836i1"
+agent_type = "npc"
+ship_template_id = "preset_ship_lance_superheavy_16836i1"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.0400532,
+"caution": 0.0644277,
+"disengage": 0.897226,
+"engage": 1.22509,
+"haul": 0.887916,
+"mercy": 0.766304,
+"prospect": 0.730033,
+"pursuit": 0.184336,
+"quiet": 0.9,
+"range": 1.11773,
+"retreat_hull": 0.0282565,
+"return_fire": 0.755409,
+"teamwork": 1.85207
+}
+role = "lance"
+family = "lance"
+weight_class = "superheavy"
+archetype = "lance superheavy"
+temperament = "measured"
+traits = [ "lets runners go", "team player", "bold", "hoards", "sneaky" ]
+lives = 7
+fitness = -0.282909
+origin = ""
+genome = {
+}

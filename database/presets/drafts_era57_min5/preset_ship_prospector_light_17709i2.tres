@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_prospector_light_17709i2"
+ship_model_name = "Prospector Light 17709 I 2 Mk I"
+base_value = 681
+ship_scene = ExtResource( 2 )
+hull_integrity = 87
+cargo_capacity = 9
+interaction_radius = 13.1945
+apparent_radius = 10.5556
+signature = 1319.45
+sensor_strength = 1.0
+tool_slots_small = 3
+tool_slots_medium = 0
+tool_slots_large = 0
+module_slots = 1
+module_slot_size = "small"
+equipped_tools = [ "preset_laser_light", "preset_harpoon" ]
+equipped_modules = [ "preset_lance_light" ]
+salvage_yield = {
+"commodity_scrap": 14,
+"commodity_tech": 7
+}
+power_capacity = 69.4891
+power_regen = 6.33114
+mass = 4083.68
+linear_thrust = 391362.0
+angular_thrust = 382122.0
+alignment_threshold_angle_deg = 45.0
+model_scale = 0.87963
+variant_type = 1
+law_genes = {
+"shares": {
+"capacitor": 0.0510489,
+"engine": 0.251628,
+"hold": 0.0672382,
+"reactor": 0.0884145,
+"structure": 0.54167
+},
+"size": 0.680613,
+"tool_share": 0.694026,
+"type": 1
+}

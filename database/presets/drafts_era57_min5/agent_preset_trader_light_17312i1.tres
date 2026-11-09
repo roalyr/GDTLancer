@@ -1,0 +1,38 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_trader_light_17312i1"
+agent_type = "npc"
+ship_template_id = "preset_ship_trader_light_17312i1"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.322519,
+"caution": 0.42411,
+"disengage": 0.797117,
+"engage": 3.0,
+"haul": 0.25,
+"mercy": 0.443085,
+"prospect": 0.0546306,
+"pursuit": 1.0,
+"quiet": 0.357528,
+"range": 1.0,
+"retreat_hull": 0.510981,
+"return_fire": 0.5,
+"teamwork": 0.986306,
+"trade": 0.901494
+}
+role = "trader"
+family = "trader"
+weight_class = "light"
+archetype = "trader light"
+temperament = "cautious"
+traits = [ "picks its fights", "skittish" ]
+lives = 6
+fitness = 0.145022
+origin = ""
+genome = {
+}

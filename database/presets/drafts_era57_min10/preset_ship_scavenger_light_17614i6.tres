@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_scavenger_light_17614i6"
+ship_model_name = "Scavenger Light 17614 I 6 Mk I"
+base_value = 808
+ship_scene = ExtResource( 2 )
+hull_integrity = 72
+cargo_capacity = 32
+interaction_radius = 13.9735
+apparent_radius = 11.1788
+signature = 1397.35
+sensor_strength = 1.0
+tool_slots_small = 3
+tool_slots_medium = 0
+tool_slots_large = 0
+module_slots = 1
+module_slot_size = "small"
+equipped_tools = [ "preset_harpoon" ]
+equipped_modules = [ "preset_plating_light" ]
+salvage_yield = {
+"commodity_scrap": 16,
+"commodity_tech": 9
+}
+power_capacity = 112.492
+power_regen = 6.19109
+mass = 4850.58
+linear_thrust = 535130.0
+angular_thrust = 553345.0
+alignment_threshold_angle_deg = 45.0
+model_scale = 0.931567
+variant_type = 1
+law_genes = {
+"shares": {
+"capacitor": 0.0695747,
+"engine": 0.299913,
+"hold": 0.196275,
+"reactor": 0.0726085,
+"structure": 0.361629
+},
+"size": 0.808429,
+"tool_share": 1.0,
+"type": 1
+}

@@ -1,0 +1,38 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_scavenger_medium_17575i5"
+agent_type = "npc"
+ship_template_id = "preset_ship_scavenger_medium_17575i5"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.221323,
+"caution": 0.253314,
+"disengage": 0.318771,
+"engage": 2.93907,
+"haul": 0.202694,
+"mercy": 0.584538,
+"prospect": 0.148223,
+"pursuit": 0.0,
+"quiet": 0.0936038,
+"range": 1.09197,
+"retreat_hull": 0.563165,
+"return_fire": 0.115665,
+"teamwork": 0.641509,
+"trade": 0.0
+}
+role = "scavenger"
+family = "scavenger"
+weight_class = "medium"
+archetype = "scavenger medium"
+temperament = "cautious"
+traits = [ "picks its fights", "stubborn", "skittish", "lets runners go", "runs silent", "loud" ]
+lives = 13
+fitness = -0.150376
+origin = ""
+genome = {
+}

@@ -1,0 +1,38 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_fighter_heavy_17229i5"
+agent_type = "npc"
+ship_template_id = "preset_ship_fighter_heavy_17229i5"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.265732,
+"caution": 0.685232,
+"disengage": 0.196346,
+"engage": 0.396075,
+"haul": 0.443118,
+"mercy": 0.82053,
+"prospect": 0.0,
+"pursuit": 0.133963,
+"quiet": 0.2094,
+"range": 0.3,
+"retreat_hull": 0.128001,
+"return_fire": 0.241695,
+"teamwork": 1.13376,
+"trade": 0.130362
+}
+role = "fighter"
+family = "fighter"
+weight_class = "heavy"
+archetype = "fighter heavy"
+temperament = "measured"
+traits = [ "quick to fight", "stubborn", "close-in", "lets runners go", "merciful" ]
+lives = 8
+fitness = -0.196476
+origin = ""
+genome = {
+}

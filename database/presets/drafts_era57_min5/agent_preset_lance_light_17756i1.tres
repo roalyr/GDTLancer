@@ -1,0 +1,38 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_lance_light_17756i1"
+agent_type = "npc"
+ship_template_id = "preset_ship_lance_light_17756i1"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.245682,
+"caution": 0.426329,
+"disengage": 0.356109,
+"engage": 2.46445,
+"haul": 0.0821303,
+"mercy": 0.603085,
+"prospect": 0.0,
+"pursuit": 0.553338,
+"quiet": 0.332665,
+"range": 0.975071,
+"retreat_hull": 0.388703,
+"return_fire": 0.483772,
+"teamwork": 1.00749,
+"trade": 0.0
+}
+role = "lance"
+family = "lance"
+weight_class = "light"
+archetype = "lance light"
+temperament = "cautious"
+traits = [ "stubborn", "sells often" ]
+lives = 8
+fitness = -0.0252512
+origin = ""
+genome = {
+}

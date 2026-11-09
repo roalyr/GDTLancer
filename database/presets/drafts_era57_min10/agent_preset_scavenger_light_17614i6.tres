@@ -1,0 +1,37 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_scavenger_light_17614i6"
+agent_type = "npc"
+ship_template_id = "preset_ship_scavenger_light_17614i6"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.203709,
+"caution": 0.327268,
+"disengage": 0.216432,
+"engage": 3.4418,
+"haul": 0.193664,
+"mercy": 0.285136,
+"prospect": 0.0,
+"pursuit": 0.0485071,
+"quiet": 0.215987,
+"range": 1.17029,
+"retreat_hull": 0.760991,
+"return_fire": 0.120225,
+"teamwork": 0.426747
+}
+role = "scavenger"
+family = "scavenger"
+weight_class = "light"
+archetype = "scavenger light"
+temperament = "cautious"
+traits = [ "picks its fights", "stubborn", "skittish", "lets runners go", "runs silent" ]
+lives = 20
+fitness = 0.00146965
+origin = ""
+genome = {
+}

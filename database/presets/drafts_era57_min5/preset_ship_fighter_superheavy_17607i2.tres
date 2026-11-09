@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_fighter_superheavy_17607i2"
+ship_model_name = "Fighter Superheavy 17607 I 2 Mk I"
+base_value = 3431
+ship_scene = ExtResource( 2 )
+hull_integrity = 218
+cargo_capacity = 22
+interaction_radius = 22.6244
+apparent_radius = 18.0995
+signature = 2262.44
+sensor_strength = 1.0
+tool_slots_small = 0
+tool_slots_medium = 0
+tool_slots_large = 5
+module_slots = 4
+module_slot_size = "large"
+equipped_tools = [ "preset_cannon_medium", "preset_laser_heavy", "preset_cannon_medium", "preset_cannon_medium", "preset_cannon_heavy" ]
+equipped_modules = [ "preset_thruster_light" ]
+salvage_yield = {
+"commodity_scrap": 69,
+"commodity_tech": 62
+}
+power_capacity = 171.368
+power_regen = 26.2516
+mass = 20587.8
+linear_thrust = 3.2167e+06
+angular_thrust = 5.38543e+06
+alignment_threshold_angle_deg = 45.0
+model_scale = 1.5083
+variant_type = 3
+law_genes = {
+"shares": {
+"capacitor": 0.0249712,
+"engine": 0.518418,
+"hold": 0.0326837,
+"reactor": 0.0851666,
+"structure": 0.338761
+},
+"size": 3.43131,
+"tool_share": 0.568112,
+"type": 3
+}

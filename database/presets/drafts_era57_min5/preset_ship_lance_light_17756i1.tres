@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_lance_light_17756i1"
+ship_model_name = "Lance Light 17756 I 1 Mk I"
+base_value = 429
+ship_scene = ExtResource( 2 )
+hull_integrity = 63
+cargo_capacity = 10
+interaction_radius = 11.3162
+apparent_radius = 9.05296
+signature = 1131.62
+sensor_strength = 1.0
+tool_slots_small = 1
+tool_slots_medium = 0
+tool_slots_large = 0
+module_slots = 1
+module_slot_size = "small"
+equipped_tools = [ "preset_harpoon" ]
+equipped_modules = [ "preset_lance_light" ]
+salvage_yield = {
+"commodity_scrap": 9,
+"commodity_tech": 3
+}
+power_capacity = 35.9159
+power_regen = 2.9977
+mass = 2576.2
+linear_thrust = 218361.0
+angular_thrust = 182855.0
+alignment_threshold_angle_deg = 45.0
+model_scale = 0.754413
+variant_type = 1
+law_genes = {
+"shares": {
+"capacitor": 0.0418243,
+"engine": 0.208579,
+"hold": 0.111599,
+"reactor": 0.0610697,
+"structure": 0.576927
+},
+"size": 0.429366,
+"tool_share": 0.351651,
+"type": 1
+}

@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_lance_superheavy_16836i1"
+ship_model_name = "Lance Superheavy 16836 I 1 Mk I"
+base_value = 3934
+ship_scene = ExtResource( 2 )
+hull_integrity = 269
+cargo_capacity = 65
+interaction_radius = 23.6802
+apparent_radius = 18.9442
+signature = 2368.02
+sensor_strength = 1.0
+tool_slots_small = 0
+tool_slots_medium = 0
+tool_slots_large = 8
+module_slots = 1
+module_slot_size = "large"
+equipped_tools = [ "preset_laser_medium", "preset_cannon_heavy", "preset_laser_heavy", "preset_cannon_light", "preset_cannon_light" ]
+equipped_modules = [ "preset_lance_medium" ]
+salvage_yield = {
+"commodity_scrap": 79,
+"commodity_tech": 58
+}
+power_capacity = 363.843
+power_regen = 40.7989
+mass = 23606.6
+linear_thrust = 2.67164e+06
+angular_thrust = 4.68161e+06
+alignment_threshold_angle_deg = 45.0
+model_scale = 1.57868
+variant_type = 4
+law_genes = {
+"shares": {
+"capacitor": 0.0462383,
+"engine": 0.367846,
+"hold": 0.0819716,
+"reactor": 0.121232,
+"structure": 0.382713
+},
+"size": 3.93443,
+"tool_share": 1.0,
+"type": 4
+}

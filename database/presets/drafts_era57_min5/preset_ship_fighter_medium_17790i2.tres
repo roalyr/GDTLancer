@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_fighter_medium_17790i2"
+ship_model_name = "Fighter Medium 17790 I 2 Mk I"
+base_value = 948
+ship_scene = ExtResource( 2 )
+hull_integrity = 83
+cargo_capacity = 52
+interaction_radius = 14.7377
+apparent_radius = 11.7902
+signature = 1473.77
+sensor_strength = 1.0
+tool_slots_small = 0
+tool_slots_medium = 3
+tool_slots_large = 0
+module_slots = 1
+module_slot_size = "medium"
+equipped_tools = [ "preset_laser_medium", "preset_cannon_light", "preset_missile_medium" ]
+equipped_modules = [  ]
+salvage_yield = {
+"commodity_scrap": 19,
+"commodity_tech": 9
+}
+power_capacity = 92.2235
+power_regen = 5.78443
+mass = 5690.73
+linear_thrust = 536698.0
+angular_thrust = 585318.0
+alignment_threshold_angle_deg = 45.0
+model_scale = 0.982514
+variant_type = 1
+law_genes = {
+"shares": {
+"capacitor": 0.0486178,
+"engine": 0.256468,
+"hold": 0.274272,
+"reactor": 0.057389,
+"structure": 0.363253
+},
+"size": 0.948455,
+"tool_share": 0.870854,
+"type": 1
+}

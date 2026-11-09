@@ -1,0 +1,38 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_prospector_superheavy_17425i2"
+agent_type = "npc"
+ship_template_id = "preset_ship_prospector_superheavy_17425i2"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.0,
+"caution": 0.014789,
+"disengage": 0.254229,
+"engage": 0.639202,
+"haul": 0.816362,
+"mercy": 0.76473,
+"prospect": 0.899475,
+"pursuit": 0.0,
+"quiet": 0.9,
+"range": 1.00189,
+"retreat_hull": 0.122928,
+"return_fire": 0.708872,
+"teamwork": 2.0,
+"trade": 0.0
+}
+role = "prospector"
+family = "prospector"
+weight_class = "superheavy"
+archetype = "prospector superheavy"
+temperament = "measured"
+traits = [ "stubborn", "lets runners go", "team player", "bold", "hoards", "sneaky" ]
+lives = 6
+fitness = -0.157618
+origin = ""
+genome = {
+}

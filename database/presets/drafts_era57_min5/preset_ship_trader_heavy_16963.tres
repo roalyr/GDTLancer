@@ -1,0 +1,47 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_trader_heavy_16963"
+ship_model_name = "Trader Heavy 16963 Mk I"
+base_value = 2400
+ship_scene = ExtResource( 2 )
+hull_integrity = 129
+cargo_capacity = 216
+interaction_radius = 20.083
+apparent_radius = 16.0664
+signature = 2008.3
+sensor_strength = 1.0
+tool_slots_small = 0
+tool_slots_medium = 0
+tool_slots_large = 4
+module_slots = 3
+module_slot_size = "large"
+equipped_tools = [ "preset_laser_medium" ]
+equipped_modules = [ "preset_plating_heavy" ]
+salvage_yield = {
+"commodity_scrap": 48,
+"commodity_tech": 18
+}
+power_capacity = 240.0
+power_regen = 11.7832
+mass = 14400.0
+linear_thrust = 989470.0
+angular_thrust = 1.47049e+06
+alignment_threshold_angle_deg = 45.0
+model_scale = 1.33887
+variant_type = 3
+law_genes = {
+"shares": {
+"capacitor": 0.05,
+"engine": 0.2,
+"hold": 0.45,
+"reactor": 0.05,
+"structure": 0.25
+},
+"size": 2.4,
+"type": 3
+}

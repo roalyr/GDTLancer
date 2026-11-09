@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_raider_superheavy_17240i1"
+ship_model_name = "Raider Superheavy 17240 I 1 Mk I"
+base_value = 3740
+ship_scene = ExtResource( 2 )
+hull_integrity = 251
+cargo_capacity = 72
+interaction_radius = 23.2831
+apparent_radius = 18.6265
+signature = 2328.31
+sensor_strength = 1.0
+tool_slots_small = 0
+tool_slots_medium = 0
+tool_slots_large = 8
+module_slots = 1
+module_slot_size = "large"
+equipped_tools = [ "preset_cannon_heavy", "preset_harpoon", "preset_cannon_light", "preset_cannon_light", "preset_laser_light", "preset_missile_heavy" ]
+equipped_modules = [ "preset_damper_heavy" ]
+salvage_yield = {
+"commodity_scrap": 75,
+"commodity_tech": 54
+}
+power_capacity = 357.959
+power_regen = 37.621
+mass = 22438.7
+linear_thrust = 2.55659e+06
+angular_thrust = 4.40487e+06
+alignment_threshold_angle_deg = 45.0
+model_scale = 1.5522
+variant_type = 4
+law_genes = {
+"shares": {
+"capacitor": 0.0478581,
+"engine": 0.368519,
+"hold": 0.0963811,
+"reactor": 0.116552,
+"structure": 0.37069
+},
+"size": 3.73979,
+"tool_share": 0.980396,
+"type": 4
+}

@@ -1,0 +1,38 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_fighter_medium_17790i2"
+agent_type = "npc"
+ship_template_id = "preset_ship_fighter_medium_17790i2"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.0414266,
+"caution": 0.204595,
+"disengage": 0.1,
+"engage": 3.32675,
+"haul": 0.193954,
+"mercy": 0.263878,
+"prospect": 0.0,
+"pursuit": 0.0,
+"quiet": 0.149655,
+"range": 1.29076,
+"retreat_hull": 0.325416,
+"return_fire": 0.186034,
+"teamwork": 0.338712,
+"trade": 0.0
+}
+role = "fighter"
+family = "fighter"
+weight_class = "medium"
+archetype = "fighter medium"
+temperament = "measured"
+traits = [ "picks its fights", "stubborn", "lets runners go", "runs silent", "loner" ]
+lives = 5
+fitness = -0.131585
+origin = ""
+genome = {
+}

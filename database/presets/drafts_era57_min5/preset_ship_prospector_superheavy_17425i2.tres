@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=1]
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=2]
+
+[resource]
+script = ExtResource( 2 )
+template_id = "preset_ship_prospector_superheavy_17425i2"
+ship_model_name = "Prospector Superheavy 17425 I 2 Mk I"
+base_value = 3853
+ship_scene = ExtResource( 1 )
+hull_integrity = 246
+cargo_capacity = 72
+interaction_radius = 23.516
+apparent_radius = 18.8128
+signature = 2351.6
+sensor_strength = 1.0
+tool_slots_small = 0
+tool_slots_medium = 0
+tool_slots_large = 8
+module_slots = 1
+module_slot_size = "large"
+equipped_tools = [ "preset_missile_medium", "preset_harpoon", "preset_cannon_medium", "preset_laser_heavy", "preset_cannon_heavy" ]
+equipped_modules = [ "preset_lance_medium" ]
+salvage_yield = {
+"commodity_scrap": 77,
+"commodity_tech": 57
+}
+power_capacity = 476.049
+power_regen = 38.7718
+mass = 23119.0
+linear_thrust = 2.68154e+06
+angular_thrust = 4.66638e+06
+alignment_threshold_angle_deg = 45.0
+model_scale = 1.56773
+variant_type = 4
+law_genes = {
+"shares": {
+"capacitor": 0.0617739,
+"engine": 0.377151,
+"hold": 0.0939896,
+"reactor": 0.116974,
+"structure": 0.350112
+},
+"size": 3.85316,
+"tool_share": 1.0,
+"type": 4
+}

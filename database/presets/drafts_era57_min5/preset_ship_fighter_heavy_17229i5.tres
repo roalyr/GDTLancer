@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_fighter_heavy_17229i5"
+ship_model_name = "Fighter Heavy 17229 I 5 Mk I"
+base_value = 2577
+ship_scene = ExtResource( 2 )
+hull_integrity = 332
+cargo_capacity = 11
+interaction_radius = 20.5648
+apparent_radius = 16.4519
+signature = 2056.48
+sensor_strength = 1.0
+tool_slots_small = 0
+tool_slots_medium = 0
+tool_slots_large = 4
+module_slots = 3
+module_slot_size = "large"
+equipped_tools = [ "preset_laser_light", "preset_missile_heavy", "preset_missile_light", "preset_cannon_medium" ]
+equipped_modules = [ "preset_plating_heavy", "preset_thruster_light" ]
+salvage_yield = {
+"commodity_scrap": 52,
+"commodity_tech": 16
+}
+power_capacity = 51.5312
+power_regen = 18.1235
+mass = 15461.5
+linear_thrust = 714892.0
+angular_thrust = 1.08792e+06
+alignment_threshold_angle_deg = 45.0
+model_scale = 1.37099
+variant_type = 3
+law_genes = {
+"shares": {
+"capacitor": 0.00986062,
+"engine": 0.129824,
+"hold": 0.0220993,
+"reactor": 0.0751442,
+"structure": 0.763072
+},
+"size": 2.57692,
+"tool_share": 0.563766,
+"type": 3
+}

@@ -1,0 +1,38 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_lance_heavy_17611i2"
+agent_type = "npc"
+ship_template_id = "preset_ship_lance_heavy_17611i2"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.363651,
+"caution": 0.0,
+"disengage": 0.1,
+"engage": 2.2231,
+"haul": 0.279149,
+"mercy": 0.958629,
+"prospect": 0.0,
+"pursuit": 3.0,
+"quiet": 0.0,
+"range": 0.592586,
+"retreat_hull": 0.608043,
+"return_fire": 0.225521,
+"teamwork": 1.37918,
+"trade": 0.0
+}
+role = "lance"
+family = "lance"
+weight_class = "heavy"
+archetype = "lance heavy"
+temperament = "measured"
+traits = [ "stubborn", "skittish", "relentless", "merciful", "bold", "loud" ]
+lives = 11
+fitness = -0.315782
+origin = ""
+genome = {
+}
