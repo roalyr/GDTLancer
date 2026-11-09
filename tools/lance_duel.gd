@@ -76,7 +76,7 @@ func _run():
 	var genome_script = load("res://src/core/evolution/genome.gd")
 	var built := {}
 	for design in DESIGNS:
-		built[design] = genome_script.build(DESIGNS[design], "duel_" + design, "verdant")
+		built[design] = genome_script.build(_fitted(genome_script, DESIGNS[design]), "duel_" + design, "verdant")
 	var centre: Vector3 = refs.player_agent_body.global_transform.origin + ARENA_OFFSET
 	for pairing in matches:
 		print("DESIGNS %s vs %s" % [pairing[0], pairing[1]])
@@ -98,6 +98,18 @@ func _run():
 		print("DUEL %s vs %s: wins %s, draws %d, mean time %.0fs, lance strikes %d (%.0f damage), glances %d, closing speeds at contact %s, rounds %s" % [
 			pairing[0], pairing[1], tally.wins, tally.draws, _mean(tally.times), tally.strikes, tally.damage, tally.glances, _summary(tally.speeds), tally.rounds])
 	quit()
+
+
+# A design as the arena would fly it: every part the catalogue's of its kind and weight, the next
+# lighter one where it is too big for the hull's slots (Genome._fitted; parts never fitting a slot are
+# dropped by the fit, so a medium lance on a light hull flew without one).
+func _fitted(genome_script, design: Dictionary) -> Dictionary:
+	var genome: Dictionary = design.duplicate(true)
+	var slot: String = genome_script.slot_size(genome)
+	for group in ["tools", "modules"]:
+		for i in range(genome[group].size()):
+			genome[group][i] = genome_script._fitted(genome[group][i], slot)
+	return genome
 
 
 # One duel: two fresh ships 3 km apart, each told to fight the other. Returns {"winner": "a"/"b"/"",

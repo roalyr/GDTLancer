@@ -1,25 +1,28 @@
-# Navigation command: a pass at a (possibly moving) target with a kinetic lance. Charges at where
-# the target will be when it gets there (the intercept point: intercept_time, at its own speed or
-# NAV_CHARGE_MIN_LEAD_SPEED, whichever is more, at most NAV_CHARGE_MAX_LEAD_TIME ahead), at full thrust, never braking: an approach that does not slow
-# down; it leans a little against its sideways slip relative to the target (NAV_CHARGE_DRIFT_GAIN). At a
-# ship it aims to pass beside it, NAV_CHARGE_PASS_CLEARANCE m clear of its hull, on the side it already
-# slips toward: the lance is thrown at the ship on the way (LanceController, within
-# LANCE_RELEASE_RANGE) and the hulls never meet. A wreck or an ore chunk is charged at head-on (a
-# shove: lances are not thrown at them). From afar it comes in at a ship NAV_CHARGE_WEAVE_ANGLE off the
-# line, toward its passing side, straightening between NAV_CHARGE_WEAVE_FULL and NAV_CHARGE_WEAVE_NONE: a
-# ship flying straight at a turret is the easiest thing it can hit. The angle narrows as its closing
-# speed falls toward NAV_CHARGE_WEAVE_MIN_CLOSING (straight in below it): a target backing away or
-# circling at range is not lost. A rock: it closes to NAV_CHARGE_ROCK_STANDOFF off the surface
-# and holds there, facing it, to throw from. In the last metres it aims with a stiffer rotation
-# PID (aim_gain): a near miss is a few degrees, where the usual autopilot eases in.
-# A charge picks up from how the ship moves now, from any distance: it runs up first only if it starts
-# too close to reach Constants.LAW_LANCE_MIN_SPEED of closing speed. Charging, it runs up only once
-# past the target (a strike, a glance or a miss: behind it and opening within NAV_CHARGE_PASS_DISTANCE)
-# or stalled against it; running up (straight away, as a flee) it goes until it has the room to
-# build that speed from rest on a still target plus NAV_CHARGE_TURN_ROOM (at most NAV_CHARGE_MAX_RUN_UP m,
-# NAV_CHARGE_MAX_RUN_UP_TIME s: a target that follows it is charged anyway), then charges again. A target
-# running away is chased, never run from. Each phase holds until its event, so
-# the ship does not dither between them.
+# Navigation command: passes at a (possibly moving) target with a kinetic lance. At a ship, in three
+# phases, each held until its event so the ship never dithers between them:
+# - Approach: the nose on the lead (where the target will be when it gets there: intercept_time, at
+#   its own speed or NAV_CHARGE_MIN_LEAD_SPEED, whichever is more, at most NAV_CHARGE_MAX_LEAD_TIME
+#   ahead); within the target's weapon reach (NAV_CHARGE_STRAFE_REACH times it) it thrusts
+#   NAV_CHARGE_STRAFE_ANGLE off that line toward its passing side, crossing the target's guns while
+#   it closes (a ship flying straight at a turret is the easiest thing it can hit); outside it, straight in.
+# - Strike: from strike_range() in (NAV_CHARGE_STRIKE_RANGE times the lance's release range, plus both
+#   hulls; the strafe eases out over NAV_CHARGE_STRAFE_EASE m before it) it stops strafing and comes in
+#   head-on at the lead, at full thrust, aiming to pass NAV_CHARGE_PASS_CLEARANCE m beside the hull
+#   on the side it slips toward; the thrust, not the nose, leans against its sideways slip
+#   (NAV_CHARGE_DRIFT_GAIN), so the nose stays on the lead. The lance is thrown on the way
+#   (LanceController, within LANCE_RELEASE_RANGE) and the hulls never meet. In the last metres it aims
+#   with a stiffer rotation PID (aim_gain).
+# - Break-off ("running_up"): once its lance is thrown, or it is past the target (opening within
+#   NAV_CHARGE_PASS_DISTANCE: a glance or a miss), or stalled against it, it flies out on a spiral
+#   (NAV_CHARGE_BREAK_ANGLE off straight away, toward its passing side), its nose kept on the target,
+#   until it has the room to charge again (reengage_range(): to build strike speed from rest plus
+#   NAV_CHARGE_TURN_ROOM, at least past the strafe band; at most NAV_CHARGE_MAX_RUN_UP m and
+#   NAV_CHARGE_MAX_RUN_UP_TIME s: a target that keeps up with it is charged anyway). A charge starting
+#   too close to reach strike speed breaks off first.
+# Thrust is the same any way (MovementSystem), so it strafes and backs off with its nose where it
+# wants it. A wreck or an ore chunk is charged at head-on, no strafe (a shove: lances are not thrown
+# at them). A rock: it closes to NAV_CHARGE_ROCK_STANDOFF off the surface and holds there, facing
+# it, to throw from. A target running away is chased, never run from.
 
 extends Node
 
@@ -66,56 +69,96 @@ func execute(delta: float):
 	var distance: float = offset.length()
 	var direction: Vector3 = offset / distance if distance > 0.01 else _movement_system.get_forward()
 	var closing: float = (_movement_system.get_velocity() - _target_velocity).dot(direction)
-	# Run-up length: the room to build strike speed from rest on a still target, plus the turn, at
-	# most NAV_CHARGE_MAX_RUN_UP (a target running away is chased, never run from).
-	var run_up: float = min(run_up_distance(_agent_body.get_top_speed(), 0.0, 0.0) + Constants.NAV_CHARGE_TURN_ROOM, Constants.NAV_CHARGE_MAX_RUN_UP)
-	var behind: bool = _movement_system.get_forward().dot(direction) < 0.0
-	# Hysteresis: each phase holds until a clear event, so the ship never dithers between the two.
+	var is_ship: bool = target_node.get("is_wreck") == false
+	var strike_at: float = strike_range(target_node)
+	var nails: int = _agent_body.get_lance_nails() if _agent_body.has_method("get_lance_nails") else 0
 	if not cmd.started:  # Once, as the charge starts: from how it moves now, can it charge?
 		cmd.started = true
-		cmd.running_up = closing < Constants.LAW_LANCE_MIN_SPEED and distance < run_up - Constants.NAV_CHARGE_TURN_ROOM
+		cmd["nails"] = nails
+		cmd.running_up = closing < Constants.LAW_LANCE_MIN_SPEED and distance < reengage_range(target_node) - Constants.NAV_CHARGE_TURN_ROOM - Constants.NAV_CHARGE_STRAFE_EASE
 	elif cmd.running_up:
 		cmd.run_up_time += delta
-		if distance >= run_up or cmd.run_up_time >= Constants.NAV_CHARGE_MAX_RUN_UP_TIME:
-			cmd.running_up = false  # Room for a charge, or a target that keeps up: turn and charge anyway
-	elif cmd.faced and distance < Constants.NAV_CHARGE_PASS_DISTANCE and ((closing < 0.0 and behind) or (closing < Constants.LAW_LANCE_MIN_SPEED and distance < Constants.NAV_CHARGE_STALL_DISTANCE)):
-		cmd.running_up = true  # Just past it (behind and opening: a strike, a glance or a miss), or stalled against it
-		cmd.faced = false
-		cmd["side"] = Vector3.ZERO  # The next pass picks its side afresh
+		if distance >= reengage_range(target_node) or cmd.run_up_time >= Constants.NAV_CHARGE_MAX_RUN_UP_TIME:
+			cmd.running_up = false  # Room for a charge, or a target that keeps up: in again
+	else:
+		if distance <= strike_at:
+			cmd.faced = true  # In its strike: from here a pass or a throw ends it
+		var thrown: bool = nails < int(cmd.get("nails", nails))
+		var passed: bool = cmd.faced and distance < Constants.NAV_CHARGE_PASS_DISTANCE and closing < 0.0
+		var stalled: bool = closing < Constants.LAW_LANCE_MIN_SPEED and distance < Constants.NAV_CHARGE_STALL_DISTANCE
+		if thrown or passed or stalled:
+			cmd.running_up = true
+			cmd.faced = false
 	if not cmd.running_up:
 		cmd.run_up_time = 0.0
-		if not behind:
-			cmd.faced = true  # Only a charge that has turned to face the target can pass it
+	cmd.nails = nails
 
-	var heading: Vector3
+	var side: Vector3 = _pass_side(cmd, direction) if is_ship else Vector3.ZERO
+	var nose: Vector3
+	var thrust: Vector3
 	if cmd.running_up:
-		heading = -direction  # Straight away, as a flee
+		# Out on a spiral, watching it: back and across, toward its passing side.
+		nose = direction
+		var out: Vector3 = -direction
+		if side != Vector3.ZERO:
+			var angle: float = deg2rad(Constants.NAV_CHARGE_BREAK_ANGLE)
+			out = (out * cos(angle) + side * sin(angle)).normalized()
+		thrust = out
 	else:
 		var aim_pos: Vector3 = target_pos
-		var side: Vector3 = Vector3.ZERO
-		if target_node.get("is_wreck") == false:  # A ship: pass beside it
-			side = _pass_side(cmd, direction)
+		if is_ship:  # Pass beside it
 			aim_pos = target_pos + side * (_agent_body.get_apparent_radius() + _nav_sys._get_target_effective_size(target_node) + Constants.NAV_CHARGE_PASS_CLEARANCE)
 		var aim_offset: Vector3 = aim_pos - _agent_body.global_transform.origin
 		var aim_direction: Vector3 = aim_offset.normalized() if aim_offset.length() > 0.01 else direction
 		var speed: float = max(_movement_system.get_velocity().length(), Constants.NAV_CHARGE_MIN_LEAD_SPEED)
-		var lead_time: float = intercept_time(aim_pos - _agent_body.global_transform.origin, _target_velocity, speed)
+		var lead_time: float = intercept_time(aim_offset, _target_velocity, speed)
 		if lead_time < 0.0:
 			lead_time = distance / max(closing, Constants.NAV_CHARGE_MIN_LEAD_SPEED)  # It cannot catch it at that speed: lead as it closes
 		lead_time = min(lead_time, Constants.NAV_CHARGE_MAX_LEAD_TIME)
 		var lead: Vector3 = (aim_pos + _target_velocity * lead_time - _agent_body.global_transform.origin).normalized()
-		var relative: Vector3 = _movement_system.get_velocity() - _target_velocity
-		var drift: Vector3 = relative - aim_direction * relative.dot(aim_direction)  # Sideways slip off the pass line: it would miss it by this
-		var weave: float = weave_share(distance) if side != Vector3.ZERO else 0.0
-		heading = (lead - drift / max(relative.length(), Constants.NAV_CHARGE_MIN_LEAD_SPEED) * Constants.NAV_CHARGE_DRIFT_GAIN * (1.0 - weave)).normalized()
-		var turn_axis: Vector3 = heading.cross(side)
-		if weave > 0.0 and turn_axis.length_squared() > 0.000001:
-			var wanted: float = clamp(closing / Constants.NAV_CHARGE_WEAVE_MIN_CLOSING - 1.0, 0.0, 1.0)  # By how fast it closes now
-			cmd["weave"] = lerp(float(cmd.get("weave", 1.0)), wanted, min(1.0, delta * 2.0))  # Eased: no flutter
-			heading = heading.rotated(turn_axis.normalized(), deg2rad(Constants.NAV_CHARGE_WEAVE_ANGLE) * weave * cmd.weave)  # Toward its passing side
-	_movement_system.request_rotation_to_pid(heading, delta, 1.0 if cmd.running_up else aim_gain(distance))
-	if _movement_system.get_forward().dot(heading) > Constants.NAV_CHARGE_THRUST_ALIGNMENT:
-		_movement_system.request_thrust_forward()
+		nose = lead
+		var strafe: float = strafe_share(distance, strike_at, _agent_body.weapon_reach_of(target_node)) if is_ship else 0.0
+		cmd["strafe"] = strafe
+		var across: Vector3 = side - direction * side.dot(direction)
+		if strafe > 0.0 and across.length_squared() > 0.0001:  # Approach under its guns: across them
+			# Steers its own velocity, not its thrust: top speed, that angle off the line to the target
+			# (a thrust off a lead already off the line, at a target circling it, only circles with it).
+			var angle: float = deg2rad(Constants.NAV_CHARGE_STRAFE_ANGLE) * strafe
+			var wanted: Vector3 = (direction * cos(angle) + across.normalized() * sin(angle)) * _agent_body.get_top_speed()
+			thrust = wanted - _movement_system.get_velocity()
+			if thrust.length_squared() < 1.0:  # On it: hold it against the drag
+				thrust = wanted
+		else:  # Head-on: lean against the slip with the thrust
+			var relative: Vector3 = _movement_system.get_velocity() - _target_velocity
+			var drift: Vector3 = relative - aim_direction * relative.dot(aim_direction)
+			var gain: float = Constants.NAV_CHARGE_STRIKE_DRIFT_GAIN if is_ship else Constants.NAV_CHARGE_DRIFT_GAIN
+			thrust = (lead - drift / max(relative.length(), Constants.NAV_CHARGE_MIN_LEAD_SPEED) * gain).normalized()
+	_movement_system.request_rotation_to_pid(nose, delta, 1.0 if cmd.running_up else aim_gain(distance))
+	_movement_system.request_thrust_direction(thrust)
+
+
+
+# m from the target's centre where the strafe stops and the head-on strike begins:
+# NAV_CHARGE_STRIKE_RANGE times the lance's release range, plus both hulls.
+func strike_range(target) -> float:
+	return Constants.NAV_CHARGE_STRIKE_RANGE * Constants.LANCE_RELEASE_RANGE + _agent_body.get_apparent_radius() + _nav_sys._get_target_effective_size(target)
+
+
+# m out a break-off goes before it charges again: the room to build strike speed from rest plus the
+# turn, at least past the strafe band, at most NAV_CHARGE_MAX_RUN_UP.
+func reengage_range(target) -> float:
+	var run_up: float = run_up_distance(_agent_body.get_top_speed(), 0.0, 0.0) + Constants.NAV_CHARGE_TURN_ROOM
+	return min(max(run_up, strike_range(target) + Constants.NAV_CHARGE_STRAFE_EASE + Constants.NAV_CHARGE_TURN_ROOM), Constants.NAV_CHARGE_MAX_RUN_UP)
+
+
+# Share of NAV_CHARGE_STRAFE_ANGLE an approach at `distance` m strafes at: none within `strike_at`,
+# full from NAV_CHARGE_STRAFE_EASE m past it (smoothstep), and none outside the target's weapon
+# `reach` times NAV_CHARGE_STRAFE_REACH (nothing to dodge: straight in).
+static func strafe_share(distance: float, strike_at: float, reach: float) -> float:
+	if reach <= 0.0 or distance > reach * Constants.NAV_CHARGE_STRAFE_REACH:
+		return 0.0
+	var share: float = clamp((distance - strike_at) / Constants.NAV_CHARGE_STRAFE_EASE, 0.0, 1.0)
+	return share * share * (3.0 - 2.0 * share)
 
 
 # s until a ship flying straight at `speed` meets a point `offset` away moving at `velocity` (the
@@ -137,13 +180,6 @@ static func intercept_time(offset: Vector3, velocity: Vector3, speed: float) -> 
 		if t > 0.0:
 			best = min(best, t)
 	return best if best < INF else -1.0
-
-
-# Share of NAV_CHARGE_WEAVE_ANGLE a charge at `distance` m comes in at: 1 from NAV_CHARGE_WEAVE_FULL out,
-# 0 from NAV_CHARGE_WEAVE_NONE in (smoothstep between).
-static func weave_share(distance: float) -> float:
-	var far: float = clamp((distance - Constants.NAV_CHARGE_WEAVE_NONE) / (Constants.NAV_CHARGE_WEAVE_FULL - Constants.NAV_CHARGE_WEAVE_NONE), 0.0, 1.0)
-	return far * far * (3.0 - 2.0 * far)
 
 
 # The side it passes a ship on (unit, across the line to it): the way it already slips relative to

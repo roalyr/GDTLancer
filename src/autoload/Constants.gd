@@ -73,10 +73,12 @@ const NAV_APPROACH_RESUME_MARGIN = 30.0  # m past the hold distance before a hol
 # throw), it runs straight away until it has the room for that plus TURN_ROOM m to turn in.
 const NAV_AIM_PID_GAIN = 2.0  # Rotation PID gain while a cannon holds the nose on its lead (MovementSystem.facing)
 const NAV_CHARGE_TURN_ROOM = 150.0  # m
-const NAV_CHARGE_WEAVE_ANGLE = 35.0  # degrees off the line a charge at a ship comes in at from afar: turrets must track it (command_charge)
-const NAV_CHARGE_WEAVE_FULL = 400.0  # m: the full angle from here out
-const NAV_CHARGE_WEAVE_NONE = 200.0  # m: straight in from here in (smoothstep between)
-const NAV_CHARGE_WEAVE_MIN_CLOSING = 60.0  # m/s: closing slower than this, it comes straight in (twice this: the full angle); a target backing away or circling is not lost
+const NAV_CHARGE_STRIKE_RANGE = 2.0  # Times LANCE_RELEASE_RANGE (plus both hulls) from the target where a charge stops strafing and comes in head-on (command_charge)
+const NAV_CHARGE_STRAFE_ANGLE = 25.0  # degrees off the line to the lead a charge's thrust strafes at, nose on the lead, under the target's guns
+const NAV_CHARGE_STRAFE_EASE = 300.0  # m before the strike range over which the strafe eases out (smoothstep)
+const NAV_CHARGE_STRAFE_REACH = 1.2  # Times the target's weapon reach within which a charge strafes (outside: straight in)
+const NAV_CHARGE_BREAK_ANGLE = 45.0  # (see NAV_CHARGE_STRIKE_DRIFT_GAIN below)
+const NAV_CHARGE_STRIKE_DRIFT_GAIN = 3.0  # How hard the strike's thrust leans against its sideways slip off the pass line: the strafe's must be gone by the throw (LanceController.firing_solution)  # degrees off straight away a break-off spirals out at, toward its passing side, nose on the target
 const NAV_CHARGE_PASS_CLEARANCE = 10.0  # m between hulls a charge passes a ship by (it throws its lance on the way, LanceController)
 const NAV_CHARGE_ROCK_STANDOFF = 40.0  # m off a rock's surface a charge on a rock stops its lance's tip, to throw from
 const NAV_CHARGE_ROCK_SPEED_GAIN = 0.5  # 1/s: closing on that standoff at this times the distance left
