@@ -1,10 +1,12 @@
 # PlatformController: a weapon platform's mind (Constants PLATFORM_*). A platform is a ship built by
 # the ship laws (PLATFORM_SEED) that never moves (its body's translation is locked; its engine share
 # only turns it) and stands guard by a station (AgentSystem places and rebuilds them, HavenMarker.platforms).
-# - Targets: the nearest ship in reach that is its enemy (Agent.is_enemy_of; a neutral platform has
-#   none by faction) or that opened fire near it (PLATFORM_GUARD_RADIUS) on anyone but its own side
-#   or its enemies, and not in defence (at a ship it holds a grudge on: one that shot it, or its
-#   ward or friend it went to help): it holds a grudge on that ship from then on.
+# - Targets: the nearest ship it detects in reach that is its faction's enemy (Agent.is_enemy_of; a
+#   neutral platform has none by faction), or that attacked it (aiming at it), or a ship of its side
+#   near it (PLATFORM_GUARD_RADIUS) not in defence (a ship that ship attacked first, holding a grudge
+#   on it). It holds a grudge on that ship from then on. Fights between others are none of its
+#   business: it is no police (era 60: Free Port platforms shooting every fight round the port were
+#   a third of all deaths).
 # - It turns to face the target (NavigationSystem's watch; an active cannon holds the nose on its
 #   lead), and fires every weapon in reach, as the AI does (ShipControllerAI._fire_at), but only
 #   with a clear shot: it holds fire while a ship not its foe is near the line (PLATFORM_CLEAR_SHOT).
@@ -167,8 +169,8 @@ func _is_live_target(body) -> bool:
 	return is_instance_valid(body) and body.is_inside_tree() and not body.get("is_wreck") and not body.get("is_docked")
 
 
-# Someone shot at near it: unless that is its own side, or the one shot at is its foe, the shooter is
-# now its foe.
+# Someone shot at: the shooter is its foe if the shot was aimed at it, or hit a ship of its side near
+# it that the shooter had not been attacked by (self-defence is no hostility).
 func _on_agent_damaged(victim, _amount, source) -> void:
 	if not (is_instance_valid(agent_script) and not agent_script.is_wreck and _is_live_target(source) and is_instance_valid(victim)):
 		return
@@ -176,12 +178,14 @@ func _on_agent_damaged(victim, _amount, source) -> void:
 		return
 	if agent_script.faction != "" and source.get("faction") == agent_script.faction:
 		return
-	if victim != agent_script and is_foe(victim):
-		return  # Fire on its foes is welcome
-	if victim != agent_script and source.get("_grudges") is Dictionary and source._grudges.has(victim.get_instance_id()):
-		return  # Fighting back (era 59 smoke: escorts guarding their ward by the Free Port were shot down as aggressors)
-	if victim == agent_script and not _aims_at(source, agent_script):
-		return  # A stray shot (era 59 smoke: fighters whose shells missed and hit a platform were shot down)
-	if victim.global_transform.origin.distance_to(agent_script.global_transform.origin) > Constants.PLATFORM_GUARD_RADIUS:
-		return
+	if victim == agent_script:
+		if not _aims_at(source, agent_script):
+			return  # A stray shot (era 59 smoke: fighters whose shells missed and hit a platform were shot down)
+	else:
+		if agent_script.faction == "" or victim.get("faction") != agent_script.faction:
+			return  # Not its side: none of its business
+		if source.get("_grudges") is Dictionary and source._grudges.has(victim.get_instance_id()):
+			return  # Fighting back (era 59 smoke: escorts guarding their ward were shot down as aggressors)
+		if victim.global_transform.origin.distance_to(agent_script.global_transform.origin) > Constants.PLATFORM_GUARD_RADIUS:
+			return
 	agent_script._hold_grudge(source)

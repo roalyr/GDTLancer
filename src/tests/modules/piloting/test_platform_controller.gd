@@ -93,7 +93,7 @@ func test_it_fires_on_its_factions_enemies_not_on_friends():
 	assert_eq(guns._pick_target(), enemy)
 
 
-func test_a_neutral_platform_fires_only_on_whoever_opens_fire_near_it():
+func test_a_neutral_platform_keeps_out_of_others_fights():
 	var platform = _platform("")
 	yield(get_tree(), "idle_frame")  # Its tools load deferred (ToolController)
 	var guns = platform.get_node(Constants.PLATFORM_CONTROLLER_NODE_NAME)
@@ -101,16 +101,29 @@ func test_a_neutral_platform_fires_only_on_whoever_opens_fire_near_it():
 	var raider = _ship(Vector3(0, 0, -1000), "raiders")
 	assert_null(guns._pick_target(), "No one is its enemy by faction")
 	guns._on_agent_damaged(trader, 5.0, raider)
-	assert_true(guns.is_foe(raider), "It opened fire near the port")
-	assert_false(guns.is_foe(trader))
-	guns._on_agent_damaged(raider, 5.0, trader)
-	assert_false(guns.is_foe(trader), "Fire on its foe is welcome")
-	var guard = _ship(Vector3(0, 0, -700), "violet")
+	assert_false(guns.is_foe(raider), "A fight by the port is not its business")
+	raider.get_node("ToolController").activate(0, platform)
+	guns._on_agent_damaged(platform, 5.0, raider)
+	assert_true(guns.is_foe(raider), "Attacking it is")
+
+
+func test_a_faction_platform_fires_on_whoever_attacks_its_side():
+	var platform = _platform("verdant")
+	yield(get_tree(), "idle_frame")
+	var guns = platform.get_node(Constants.PLATFORM_CONTROLLER_NODE_NAME)
+	var trader = _ship(Vector3(0, 0, -600), "verdant")
+	var raider = _ship(Vector3(0, 0, -1000), "raiders")
+	var stranger = _ship(Vector3(0, 0, -700), "xenohive")
+	guns._on_agent_damaged(stranger, 5.0, raider)
+	assert_false(guns.is_foe(raider), "Fire on a ship not of its side: none of its business")
+	guns._on_agent_damaged(trader, 5.0, raider)
+	assert_true(guns.is_foe(raider), "Fire on its side")
+	var guard = _ship(Vector3(0, 0, -700), "xenohive")
 	var attacker = _ship(Vector3(0, 0, -900), "verdant")
-	guard._hold_grudge(attacker)  # It shot the guard's ward first (ShipControllerAI _guard / assist)
+	guard._hold_grudge(attacker)  # The verdant ship shot first
 	guns._on_agent_damaged(attacker, 5.0, guard)
-	assert_false(guns.is_foe(guard), "Fighting back is not opening fire")
-	var far_shooter = _ship(Vector3(0, 0, -20000), "violet")
+	assert_false(guns.is_foe(guard), "Fighting back is no hostility")
+	var far_shooter = _ship(Vector3(0, 0, -20000), "xenohive")
 	var far_victim = _ship(Vector3(0, 0, -20500), "verdant")
 	guns._on_agent_damaged(far_victim, 5.0, far_shooter)
 	assert_false(guns.is_foe(far_shooter), "Too far from it to care")
