@@ -68,6 +68,7 @@ var _local_scene_particle_emitters = []
 func _ready():
 	set_as_toplevel(true)
 	Interp.keep_out(self)
+	Settings.connect("changed", self, "_on_settings_changed")
 	GlobalRefs.main_camera = self
 
 	# --- Instantiate and Initialize Components ---
@@ -164,7 +165,14 @@ func _process(delta):
 		_follow(delta / steps)
 
 
+func _on_settings_changed(key, value) -> void:
+	if key == "dynamic_camera" and is_instance_valid(_position_controller):
+		_position_controller.dynamic = bool(value)
+
+
 func _follow(delta: float) -> void:
+	if is_instance_valid(_position_controller):
+		_position_controller.dynamic = bool(Settings.get_option("dynamic_camera"))
 	_rotation_controller.physics_update(delta)
 	_zoom_controller.physics_update()
 	_position_controller.physics_update(delta)

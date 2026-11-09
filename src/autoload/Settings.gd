@@ -8,6 +8,7 @@
 #   "hud_preset"   (String) MainHUD.apply_hud_preset (Constants.HUD_PRESETS)
 #   "music"        (bool)  AmbientMusic: off, every track fades out and none plays
 #   "slow_down_on_lag" (bool) FrameGovernor: the game slows down rather than its frame rate falling
+#   "dynamic_camera" (bool) OrbitCamera: eases after the ship (elastic); off, fixed to the ship
 # The file is read only by load_file() (the main scene's start), and written only after it: tests
 # and tools run on the defaults, whatever the player chose, and never touch the file.
 
@@ -24,6 +25,7 @@ const DEFAULTS = {
 	"hud_preset": "standard",
 	"music": true,
 	"slow_down_on_lag": false,
+	"dynamic_camera": true,
 }
 
 var _values: Dictionary = DEFAULTS.duplicate()

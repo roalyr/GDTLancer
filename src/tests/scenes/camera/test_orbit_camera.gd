@@ -195,3 +195,13 @@ func test_leaving_target_tracking_resets_the_zoom():
 	camera.set_zoom_level(0.9)
 	camera.set_camera_mode(camera.CameraMode.ORBIT)
 	assert_almost_eq(camera.get_zoom_level(), 0.9, 0.0001, "Already orbiting: the zoom stays.")
+
+
+func test_easing_is_the_same_however_a_second_is_cut():
+	var PositionController = load("res://src/scenes/camera/components/camera_position_controller.gd")
+	var left_whole: float = 1.0 - PositionController.ease_share(30.0, 1.0)
+	var left_cut := 1.0
+	for dt in [0.016, 0.033, 0.016, 0.1, 0.2, 0.3, 0.335]:
+		left_cut *= 1.0 - PositionController.ease_share(30.0, dt)
+	assert_almost_eq(left_cut, left_whole, 1e-9, "Uneven frames close the gap as one second does")
+	assert_between(PositionController.ease_share(50.0, 0.5), 0.0, 1.0, "Never past the target on a long frame")
