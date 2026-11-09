@@ -6,6 +6,7 @@
 # Subclasses steer (_steer) and choose the burst (_burst_effect). Added to the agent container.
 
 extends Spatial
+const StepCache = preload("res://src/core/utils/step_cache.gd")
 
 const LanceController = preload("res://src/core/agents/components/lance_controller.gd")
 
@@ -70,8 +71,8 @@ func _first_ship_on(from: Vector3, to: Vector3, delta: float) -> Dictionary:
 	var best: Dictionary = {}
 	var best_t: float = INF
 	var step: float = from.distance_to(to)
-	for body in get_tree().get_nodes_in_group("agent_body"):
-		if body == shooter or not body is RigidBody or body.get("is_wreck") != false or body.get("is_docked"):
+	for body in StepCache.group(get_tree(), "agent_body"):
+		if not is_instance_valid(body) or body == shooter or not body is RigidBody or body.get("is_wreck") != false or body.get("is_docked"):
 			continue
 		var radius: float = body.get_apparent_radius() if body.has_method("get_apparent_radius") else 10.0
 		if from.distance_to(body.global_transform.origin) > radius + step + body.linear_velocity.length() * delta + Constants.PROJECTILE_FUSE_MARGIN:

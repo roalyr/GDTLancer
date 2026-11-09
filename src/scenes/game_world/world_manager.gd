@@ -1,6 +1,7 @@
 # WorldManager: new game / load flow, sector loading and jump orchestration.
 
 extends Node
+const StepCache = preload("res://src/core/utils/step_cache.gd")
 
 ## WorldManager: Core scene orchestrator handling game initialization, zone loading, and save/load flow.
 ## Coordinates TemplateIndexer, WorldGenerator, AgentSpawner and JumpOrchestrator.
@@ -242,6 +243,7 @@ func load_sector(sector_id: String):
 	GlobalRefs.agent_container = agent_container
 
 	GameState.current_sector_id = resolved_sector_id
+	StepCache.set_active(true)  # Per-step caches for the game world (not for unit tests)
 	EventBus.emit_signal("zone_loaded", zone_root, resolved_sector_id, agent_container)
 
 

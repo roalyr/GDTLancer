@@ -1,6 +1,7 @@
 # Agent: a physical space vessel (RigidBody, 6DOF thrust flight) driven by a player or AI controller.
 
 extends RigidBody
+const StepCache = preload("res://src/core/utils/step_cache.gd")
 
 # --- Core State & Identity ---
 var agent_type: String = ""
@@ -862,7 +863,23 @@ func get_top_speed() -> float:
 	return movement_system.linear_thrust / max(mass * Constants.LINEAR_DRAG, 0.001)
 
 
+# Once per physics step (detects asks it for every weapon on every target each step); outside a
+# step (tests, UI) it is worked out fresh.
 func get_signature() -> float:
+	if not StepCache.active():
+		return _compute_signature()
+	var frame: int = Engine.get_physics_frames()
+	if frame != _signature_frame:
+		_signature_frame = frame
+		_signature = _compute_signature()
+	return _signature
+
+
+var _signature_frame := -1
+var _signature := 0.0
+
+
+func _compute_signature() -> float:
 	var base: float = float(fit_stats.get("signature", ship_template.signature if is_instance_valid(ship_template) else 1500.0))
 	if is_wreck:
 		return max(Constants.SIG_MIN, base * Constants.SIG_WRECK_FACTOR)

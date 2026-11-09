@@ -29,6 +29,7 @@ const LaserBeam = preload("res://src/core/agents/effects/laser_beam.gd")
 const Tether = preload("res://src/core/agents/components/tether.gd")
 const MissileScript = preload("res://src/core/agents/components/missile.gd")
 const ShellScript = preload("res://src/core/agents/components/shell.gd")
+const StepCache = preload("res://src/core/utils/step_cache.gd")
 const AMMO_TYPES = ["missile", "cannon"]
 const WEAPON_TYPES = ["laser", "missile", "cannon"]
 
@@ -57,6 +58,7 @@ var _last_cycle_ms: int = -1000000  # When a tool last cycled (drives the firing
 var _ammo: Dictionary = {}  # tool_index -> rounds left, for tools with a magazine
 var _capacity: Dictionary = {}  # tool_index -> rounds its magazine holds, bays included
 var _in_flight: Array = []  # Missiles launched and still flying
+var _held: Dictionary = {}  # tool_index -> s before it looks again at a rock or friend that held its fire
 
 
 func _ready() -> void:
@@ -448,6 +450,10 @@ func cannon_aim_direction(index: int, target: Spatial) -> Vector3:
 func _physics_process(delta: float) -> void:
 	for index in _cycle_timers.keys():
 		_cycle_timers[index] = max(0.0, _cycle_timers[index] - delta)
+	for index in _held.keys():
+		_held[index] -= delta
+		if _held[index] <= 0.0:
+			_held.erase(index)
 	if _agent_body.get("is_wreck"):
 		if not _targets.empty():
 			deactivate_all("wrecked")
@@ -474,7 +480,16 @@ func _physics_process(delta: float) -> void:
 # Each laser free to fire (cycle done) shoots the nearest missile coming at this ship within its
 # optimal range, if there is one.
 func _point_defence() -> void:
-	var missiles: Array = get_tree().get_nodes_in_group(MissileScript.GROUP) if is_inside_tree() else []
+	if not is_inside_tree():
+		return
+	var free_laser := false  # Only a laser done with its cycle looks for missiles
+	for index in range(_tools.size()):
+		if _tools[index].tool_type == "laser" and _cycle_timers.get(index, 0.0) <= 0.0:
+			free_laser = true
+			break
+	if not free_laser:
+		return
+	var missiles: Array = StepCache.group(get_tree(), MissileScript.GROUP)
 	if missiles.empty():
 		return
 	var from_pos: Vector3 = _agent_body.global_transform.origin
@@ -507,7 +522,7 @@ func _point_defence() -> void:
 
 
 func _process_missile(index: int, target: Node) -> void:
-	if _cycle_timers.get(index, 0.0) > 0.0:
+	if _cycle_timers.get(index, 0.0) > 0.0 or _held.has(index):
 		return
 	if get_ammo(index) <= 0:
 		deactivate(index, "empty")
@@ -519,9 +534,11 @@ func _process_missile(index: int, target: Node) -> void:
 	if inbound_damage(target) >= float(target.get("hull")):
 		return  # Enough on its way already
 	if rock_in_the_way(target):
-		return  # It would only fly into the rock
+		_hold(index)  # It would only fly into the rock
+		return
 	if friend_in_the_way(target):
-		return  # Holds fire: a friend is in the line
+		_hold(index)  # Holds fire: a friend is in the line
+		return
 	if not _agent_body.try_spend_power(tool_template.power_per_cycle):
 		return  # Waits for power
 	var direction: Vector3 = (target.global_transform.origin - from_pos).normalized()
@@ -548,7 +565,7 @@ func inbound_damage(target) -> float:
 
 
 func _process_cannon(index: int, target: Node) -> void:
-	if _cycle_timers.get(index, 0.0) > 0.0:
+	if _cycle_timers.get(index, 0.0) > 0.0 or _held.has(index):
 		return
 	if get_ammo(index) <= 0:
 		deactivate(index, "empty")
@@ -564,15 +581,25 @@ func _process_cannon(index: int, target: Node) -> void:
 	if nose.dot(aim) <= 0.0 or miss > _apparent_radius(target) * Constants.CANNON_AIM_SHARE:
 		return  # Not pointing where it will be
 	if rock_in_the_way(target):
-		return  # The round would only hit the rock
+		_hold(index)  # The round would only hit the rock
+		return
 	if friend_in_the_way(target):
-		return  # Holds fire: a friend is in the line
+		_hold(index)  # Holds fire: a friend is in the line
+		return
 	if not _agent_body.try_spend_power(tool_template.power_per_cycle):
 		return  # Waits for power
 	var shell = ShellScript.new()
 	shell.size = pow(float(tool_template.round_mass) / Constants.LAW_CANNON_REF_ROUND, 1.0 / 3.0)
 	shell.launch(_agent_body, target, from_pos + nose * (_apparent_radius(_agent_body) + 1.0), _agent_body.linear_velocity + nose * tool_template.projectile_speed, tool_template.damage, tool_template.flight_time)
 	_after_shot(index, tool_template, shell)
+
+
+# Fire held by a rock or a friend in the line: it looks again after SHOT_HOLD_RECHECK, not every
+# physics step (a raycast and a pass over every ship each). Only in the game world (StepCache.active):
+# a test sees each look.
+func _hold(index: int) -> void:
+	if StepCache.active():
+		_held[index] = Constants.SHOT_HOLD_RECHECK
 
 
 func _after_shot(index: int, tool_template, projectile) -> void:
@@ -585,7 +612,7 @@ func _after_shot(index: int, tool_template, projectile) -> void:
 
 
 func _process_laser(index: int, target: Node) -> void:
-	if _cycle_timers.get(index, 0.0) > 0.0:
+	if _cycle_timers.get(index, 0.0) > 0.0 or _held.has(index):
 		return
 	var tool_template = _tools[index]
 	var from_pos: Vector3 = _agent_body.global_transform.origin
@@ -594,7 +621,8 @@ func _process_laser(index: int, target: Node) -> void:
 	if distance > reach_on(index, target):
 		return  # Stays switched on; cycles resume once back in range (or near enough to lock through jamming).
 	if friend_in_the_way(target):
-		return  # Holds fire (and power) while a friend is in the line
+		_hold(index)  # Holds fire (and power) while a friend is in the line
+		return
 	if not _agent_body.try_spend_power(tool_template.power_per_cycle):
 		return  # Stays switched on: fires again once the capacitor has the charge
 
@@ -648,8 +676,8 @@ func friend_in_the_way(target: Spatial) -> bool:
 	if length < 1.0:
 		return false
 	var direction: Vector3 = line / length
-	for body in _agent_body.get_tree().get_nodes_in_group("agent_body"):
-		if body == _agent_body or body == target or body.get("faction") != faction or body.get("is_wreck") != false or body.get("is_docked"):
+	for body in StepCache.group(_agent_body.get_tree(), "agent_body"):
+		if not is_instance_valid(body) or body == _agent_body or body == target or body.get("faction") != faction or body.get("is_wreck") != false or body.get("is_docked"):
 			continue
 		var along: float = (body.global_transform.origin - from).dot(direction)
 		if along <= 0.0 or along >= length:

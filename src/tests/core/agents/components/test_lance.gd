@@ -16,6 +16,7 @@ class NavigationStub extends Node:
 	const CommandType = preload("res://src/core/agents/components/navigation_system.gd").CommandType
 	var target = null
 	var type: int = 0
+	var _current_command: Dictionary = {}
 	func get_command_target():
 		return target
 	func get_current_command_type() -> int:

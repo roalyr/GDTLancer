@@ -250,6 +250,7 @@ const HIT_RAY_PASSES = 4  # A shot's ray skips this many other bodies before giv
 # Only shot rays look at them; nothing collides with them.
 const HIT_SURFACE_LAYER = 1 << 19  # Collision layer 20
 const HIT_SURFACE_LOD = 1  # Level of detail the trimesh is made from (0 = the model itself)
+const SHOT_HOLD_RECHECK = 0.1  # s before a weapon whose fire a rock or a friend held looks again (ToolController._hold)
 const SHOT_BLOCK_MASK = 0x7FFFFFFF & ~HIT_SURFACE_LAYER  # What blocks a line of fire: every layer but the hit surfaces
 
 # Hull scars (HullScars): every hit on a ship's plating leaves a glowing blob that cools to a dark
