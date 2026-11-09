@@ -155,8 +155,13 @@ func _physics_process(delta):
 
 
 func _process(delta):
-	if Interp.enabled():
-		_follow(delta)
+	if not Interp.enabled():
+		return
+	# Its smoothing and turning were tuned at 1/60 s steps and blow up on long frames (a phone at
+	# 5 FPS, the evolution sim at x8): a long frame is flown in steps of at most CAMERA_STEP.
+	var steps: int = int(clamp(ceil(delta / Constants.CAMERA_STEP), 1, Constants.CAMERA_MAX_STEPS))
+	for i in range(steps):
+		_follow(delta / steps)
 
 
 func _follow(delta: float) -> void:

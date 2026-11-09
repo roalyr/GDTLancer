@@ -250,6 +250,9 @@ const HIT_RAY_PASSES = 4  # A shot's ray skips this many other bodies before giv
 # Only shot rays look at them; nothing collides with them.
 const HIT_SURFACE_LAYER = 1 << 19  # Collision layer 20
 const HIT_SURFACE_LOD = 1  # Level of detail the trimesh is made from (0 = the model itself)
+const CAMERA_STEP = 1.0 / 60.0  # s: a long frame's camera motion is worked out in steps no longer (OrbitCamera._process)
+const CAMERA_MAX_STEPS = 8  # Most such steps a frame
+
 # Slowing down on lag (Settings "slow_down_on_lag", FrameGovernor).
 const LAG_MAX_STEPS = 2.0  # Physics steps a frame at most: past that the game slows down
 const LAG_MIN_SPEED = 0.25  # Game speed it never goes below

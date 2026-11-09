@@ -75,7 +75,7 @@ func physics_update(delta: float):
 
 	# --- SMOOTHING LOGIC ---
 	_smoothed_target_pos = _smoothed_target_pos.linear_interpolate(
-		actual_target_pos, target_smoothing_speed * delta
+		actual_target_pos, min(1.0, target_smoothing_speed * delta)
 	)
 
 	var bob_offset = (
@@ -109,7 +109,7 @@ func _update_orbit_mode(delta: float, bob_offset: Vector3):
 
 	# Interpolate Camera's actual position
 	_camera.global_transform.origin = _camera.global_transform.origin.linear_interpolate(
-		desired_position, position_smoothing_speed * delta
+		desired_position, min(1.0, position_smoothing_speed * delta)
 	)
 
 	# Interpolate Look At to point towards the SMOOTHED target position
@@ -117,7 +117,7 @@ func _update_orbit_mode(delta: float, bob_offset: Vector3):
 		look_point, Vector3.UP
 	)
 	_camera.global_transform.basis = _camera.global_transform.basis.slerp(
-		target_look_transform.basis.orthonormalized(), rotation_smoothing_speed * delta
+		target_look_transform.basis.orthonormalized(), min(1.0, rotation_smoothing_speed * delta)
 	)
 
 
@@ -154,11 +154,11 @@ func _update_target_tracking_mode(delta: float, bob_offset: Vector3):
 	var desired_position = player_pos + offset_dir * camera_distance + bob_offset
 
 	_camera.global_transform.origin = _camera.global_transform.origin.linear_interpolate(
-		desired_position, position_smoothing_speed * delta * 0.5  # Slower for tracking mode
+		desired_position, min(1.0, position_smoothing_speed * delta * 0.5)  # Slower for tracking mode
 	)
 	var target_look_transform = _camera.global_transform.looking_at(target_pos, up)
 	_camera.global_transform.basis = _camera.global_transform.basis.slerp(
-		target_look_transform.basis.orthonormalized(), rotation_smoothing_speed * delta * 0.7
+		target_look_transform.basis.orthonormalized(), min(1.0, rotation_smoothing_speed * delta * 0.7)
 	)
 
 
