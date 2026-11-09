@@ -13,8 +13,13 @@
 extends Reference
 
 
+const _STATE := {}  # The project settings, read once (they hold for the run; brackets ask every frame)
+
+
 static func enabled() -> bool:
-	return bool(ProjectSettings.get_setting("physics/common/physics_interpolation"))
+	if not _STATE.has("on"):
+		_STATE["on"] = bool(ProjectSettings.get_setting("physics/common/physics_interpolation"))
+	return _STATE.on
 
 
 # Physics steps per second of game time (project setting physics/common/physics_fps).

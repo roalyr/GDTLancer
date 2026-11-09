@@ -8,6 +8,42 @@ const VERBOSE_RUNTIME_LOGS = false
 
 
 # ==================================================================================================
+# UPDATE CADENCES: how often periodic work runs (s), in one place
+# ==================================================================================================
+# Work that need not run every frame or physics step runs on its interval. Two rules keep it from
+# piling into the same frame (a stutter every so often): each entity's timer starts at a random
+# phase (ships, platforms, lances), and singletons use intervals that do not divide each other, so
+# they drift apart. Each line names the longest interval the thing stands, past which it shows
+# ("max"), and whether it is a game rule (evolution runs on it: change it with a new era) or only
+# looks and HUD.
+# - Every physics step, never on an interval: flight (navigation commands, the rotation PID,
+#   engines), rounds in flight, lances, tethers. Every drawn frame: the camera, bracket positions.
+# Game rules:
+const AI_THINK_INTERVAL = 0.1  # An NPC's decisions and commands; its commands and tools run on in between. Max ~0.2 (reaction time shows in fights)
+const AI_SCAN_INTERVAL = 1.0  # An NPC's look for targets and threats (inside a think). Max ~1.5
+const AI_REPATH_INTERVAL = 0.5  # An NPC's route recheck. Max ~1
+const NAV_AVOID_INTERVAL = 0.1  # A ship's obstacle avoidance check (the push holds in between). Max ~0.2 at top speed
+const SHOT_HOLD_RECHECK = 0.1  # A weapon held by a rock or friend in its line looks again (ToolController._hold). Max ~0.2
+const CHARGE_WATCH_INTERVAL = 0.25  # A charging ship's look for whom it is charging (their warning). Max ~0.5
+const PLATFORM_SCAN_INTERVAL = 0.5  # A weapon platform's look for a target. Max ~1
+const LANCE_SCOOP_INTERVAL = 0.25  # A loose lance's look for a ship to scoop it. Max ~0.5
+const HAZARD_TICK = 0.5  # Hazard damage steps. Max ~1
+const OFFSCREEN_CHECK_INTERVAL = 0.5  # Who is near and far (OffScreen). Max ~1
+const OFFSCREEN_TICK = 1.0  # An off-screen resolution step
+const BEACON_UPDATE_INTERVAL = 2.0  # Beacon traffic and decay steps
+# Looks and HUD only:
+const HUD_CONTROLS_INTERVAL = 0.1  # HUD buttons and labels: tool fill bars, LANCE, AFTERBURN, APPROACH, DOCK, INTERACT. Max ~0.15 (bars step visibly past it)
+const HUD_BRACKET_REFRESH_INTERVAL = 0.25  # Each target bracket's re-check (shown, cues, colours), a slice of them each frame (positions follow every frame). Max ~0.5
+const HUD_AWARENESS_INTERVAL = 0.13  # The HUD's top strip (AwarenessZone). Max ~0.25
+const THREAT_REFRESH_INTERVAL = 0.27  # The threat ring's recheck of who is hostile (its marks move every frame). Max ~0.5
+const THREAT_WATCH_INTERVAL = 0.5  # ThreatWatch's looks (danger announcements). Max ~1
+const HUD_DEBUG_INTERVAL = 0.5  # The debug readout's text (its frame figures are per-second averages). Max ~1
+const VIEW_CHECK_INTERVAL = 0.29  # View band (detail level) checks per host (and at once when the field of view changes). Max ~0.5
+const SMOULDER_CHECK_INTERVAL = 0.23  # Per smoulder spot: its ship's view band, the shown budget. Max ~0.5
+const HULL_SCAR_REBUILD_INTERVAL = 0.1  # A ship's changed scars and slag are rebuilt at most this often. Max ~0.25
+
+
+# ==================================================================================================
 # PATHS, NODE NAMES, GAME START
 # ==================================================================================================
 
@@ -109,7 +145,6 @@ const NAV_AVOID_THRUST = 1.0  # Share of linear thrust used to sidestep at full 
 const NAV_AVOID_INTENT_DOT = 0.9  # Thrust asked for further off the way it moves than this (cosine): checked too
 const NAV_CONTACT_MARGIN = 30.0  # m from touching a planet or moon at which thrust into it is dropped
 const NAV_AVOID_MIN_SPEED = 2.0  # m/s; slower than this, nothing to avoid
-const NAV_AVOID_INTERVAL = 0.1  # s between a ship's avoidance checks (the push holds in between)
 
 
 # ==================================================================================================
@@ -124,7 +159,6 @@ const POINTER_DRAG_THRESHOLD_PX = 10.0  # A press that moves further is a camera
 const POINTER_DOUBLE_CLICK_MS = 400
 
 # HUD target brackets.
-const HUD_BRACKET_REFRESH_INTERVAL = 0.25  # s between re-checks of which target brackets show and their cues (positions follow every frame)
 
 
 # ==================================================================================================
@@ -258,7 +292,6 @@ const LAG_MAX_STEPS = 2.0  # Physics steps a frame at most: past that the game s
 const LAG_MIN_SPEED = 0.25  # Game speed it never goes below
 const LAG_AVERAGE_FRAMES = 10.0  # Frames the frame time is averaged over
 const LAG_RECOVERY = 0.03  # Share of the way back toward full speed each frame (falls at once)
-const SHOT_HOLD_RECHECK = 0.1  # s before a weapon whose fire a rock or a friend held looks again (ToolController._hold)
 const SHOT_BLOCK_MASK = 0x7FFFFFFF & ~HIT_SURFACE_LAYER  # What blocks a line of fire: every layer but the hit surfaces
 
 # Hull scars (HullScars): every hit on a ship's plating leaves a glowing blob that cools to a dark
@@ -276,7 +309,6 @@ const HULL_SCAR_MIN_FACING = 0.5  # Cosine; glancing hits stretch along the beam
 const HULL_SCAR_ROUND_STRETCH = 1.3  # Below this stretch a scar turns freely about its normal; above, it stays along the beam
 const HULL_SCAR_COOL_TIME = 20.0  # s from the hit until the scar is cold char
 const HULL_SCAR_LUMP = 0.12  # Bumps on a scar's dome, as a share of its size
-const HULL_SCAR_REBUILD_INTERVAL = 0.1  # s; a ship's changed scar and slag chunks are rebuilt at most this often
 const HULL_SCAR_CHUNK_BLOBS = 16  # Blobs merged into one chunk mesh (one draw call; a change rebuilds only its chunk)
 # Slag (HullScars): lasting damage shows as small slag blobs on the scars that flare up again every
 # few seconds, as if re-igniting (timings in hull_slag_material.tres). More the more hull is lost.
@@ -341,7 +373,6 @@ const SMOULDER_MERGE_DISTANCE = 2.0  # m on a fighter (scaled with ship size); a
 const EMBER_INSET_SHARE = 0.4  # Ember emitters (smoulder spots, damage trails) sit this share of the way from the hit point to the hull centre (hits land on the collision hull, outside the plating)
 const SMOULDER_WRECK_FACTOR = 2.0  # Wrecks smoulder this much longer
 const SMOULDER_MAX_SHOWN = 12  # Spots emitting at once
-const SMOULDER_CHECK_INTERVAL = 0.25  # s between checks per spot (its ship's view band, the shown budget)
 # Damage trails (DamageTrail): lasting, sparse ember trails on a hurt hull, one more per share of
 # hull lost, until repaired. They start where the latest hit landed.
 const DAMAGE_TRAIL_HULL_STEP = 0.25  # One trail per this share of hull lost (so 75% lost = 3)
@@ -389,7 +420,6 @@ const VIEW_FAR = 3
 const VIEW_DOT = 4
 const VIEW_BAND_SHARES = [0.33, 0.12, 0.04, 0.013]  # Screen share to reach CLOSE, NEAR, MID, FAR
 const VIEW_BAND_HYSTERESIS = 0.1  # Share of a threshold to pass beyond before switching back
-const VIEW_CHECK_INTERVAL = 0.25  # s between band checks per host (and at once when the field of view changes)
 # Levels of detail by band (CLOSE, NEAR, MID, FAR, DOT), clamped to the levels a model has.
 const LOD_LEVEL_BY_BAND = [0, 0, 1, 2, 3]  # Low-poly models (ships): keep detail long
 const LOD_LEVEL_BY_BAND_DENSE = [0, 1, 2, 3, 3]  # Dense meshes (rocks, tens of thousands of triangles): drop it early
@@ -507,9 +537,6 @@ const AI_DECISION_DELAY_SLOW = 3.0  # s for a novice (skill 0)
 const AI_DECISION_DELAY_FAST = 0.3  # s for a veteran (skill 1)
 const AI_DECISION_AMBIGUITY_WEIGHT = 1.0  # A coin-flip situation takes up to this much longer again
 const AI_DECISION_RANDOMNESS = 0.4
-const AI_REPATH_INTERVAL = 0.5  # s
-const AI_SCAN_INTERVAL = 1.0  # s
-const AI_THINK_INTERVAL = 0.1  # s between an NPC's thinks (its commands and tools run on in between)
 
 # Factions: one FactionTemplate each in FACTIONS_DIR (who is at war with whom, standing, wages,
 # looks, rosters), read as TemplateDatabase.factions.
@@ -574,8 +601,6 @@ const MEGASTRUCTURE_SHAPES = ["box", "cylinder", "sphere", "prism", "capsule"]
 # Off-screen resolution (Offscreen): ships far from the player are not flown but resolved by rule.
 const OFFSCREEN_RADIUS = 12000.0  # m from the player past which a ship is resolved off-screen
 const OFFSCREEN_FULL_RADIUS = 10000.0  # m within which it is flown again (the gap stops flicker)
-const OFFSCREEN_CHECK_INTERVAL = 0.5  # s between looks at who is near and far
-const OFFSCREEN_TICK = 1.0  # s per resolution step
 const OFFSCREEN_AVOID_GAIN = 2.0  # How hard an off-screen ship turns from the obstacle push (NavigationSystem.compute_avoidance)
 const OFFSCREEN_SPEED_SHARE = 0.6  # Of its top speed it moves at (to be fitted to flown runs)
 const OFFSCREEN_ENGAGE_RANGE = 1500.0  # m at which an off-screen fight is resolved
@@ -586,17 +611,14 @@ const OFFSCREEN_PATROL_RADIUS = 1500.0  # m from the middle of its patrol it kee
 
 # Threat ring (HUD ThreatRing): arrows round the screen's middle toward hostile ships out of sight.
 const THREAT_RANGE = 15000.0  # m; detected hostiles further than this are not shown
-const THREAT_REFRESH_INTERVAL = 0.25  # s between rechecks of who is hostile
 const THREAT_RING_RADIUS_SHARE = 0.25  # Ring radius, of the screen's shorter side
 const THREAT_ARROW_SIZE = [28.0, 56.0]  # px, far to near
 const THREAT_COLOR = Color(1.0, 0.36, 0.12, 1.0)  # Red-orange, as hostile brackets
-const HUD_AWARENESS_INTERVAL = 0.1  # s between refreshes of the HUD's top strip (AwarenessZone)
 const HUD_RADIO_LINES = 2  # Radio lines the top strip shows
 const HUD_RADIO_ALPHA = 0.5  # The top strip's radio, dimmer than the rest
 const HUD_RADIO_FADE = 20.0  # s a radio line stays on the top strip, fading over its last quarter
 const HUD_MARK_DISTANCES = 3  # The nearest this many hostiles show their distance by their mark
 const HUD_SIGNATURE_ALPHA = [0.4, 1.0]  # The top strip's signature: this opaque while quiet, to this at its loudest
-const THREAT_WATCH_INTERVAL = 0.5  # s between ThreatWatch's looks
 const THREAT_NOTICE_COOLDOWN = 30.0  # s before the same ship is announced again (seen, or seeing the player)
 const THREAT_COMBAT_HOLD = 12.0  # s the "combat" level (and its music) lasts after the last hostile that saw the player, or the last hit
 
@@ -828,7 +850,6 @@ const CHARGE_ALERT_DISTANCE = 500.0  # m: a lance charging from nearer than this
 const CHARGE_ALERT_ALIGNMENT = 0.9  # Nose . direction to the target at least this (about 25 degrees)
 const CHARGE_ALERT_MISS = 60.0  # m past the target's size its line may pass and still count as a charge at it
 const CHARGE_ALERT_COOLDOWN = 10.0  # s before the same ship is warned of the same charger again
-const CHARGE_WATCH_INTERVAL = 0.25  # s between a charging ship's looks for whom it is charging
 const LANCE_STUCK_DEPTH = 0.5  # Share of a struck lance's length inside the hull
 # A lance that glances off or misses drifts on as a LooseLance, a harpoon's to recover: off a face
 # at LANCE_GLANCE_KEEP of its speed against it, mirrored; a miss at its own speed. It slows by
@@ -841,7 +862,6 @@ const LANCE_LOOSE_MAX = 12
 # it, checked every LANCE_SCOOP_INTERVAL.
 const LANCE_SCOOP_RANGE = 60.0  # m, centre to centre
 const LANCE_SCOOP_SPEED = 20.0  # m/s
-const LANCE_SCOOP_INTERVAL = 0.25  # s
 const DEV_SPEED_FACTOR = 5.0  # The DEV page's MAXIMUM SPEED X5: the player's engines push this many times harder
 const LANCE_SHOW_ON_HULL = false  # Seated and stowed lances drawn on the hull; off: every equipment piece gets a model of its own
 const LANCE_QUIVER_RING = 0.25  # Spares sit round the stern this share of the nose distance off the axis
@@ -1012,7 +1032,6 @@ const RADIO_RANGE = 20000.0  # m
 const RADIO_SPEAKER_COOLDOWN = 15.0  # s
 const RADIO_LOG_LINES = 8  # Lines the debug overlay keeps
 const HAZARD_RADIATION_DPS = 12.0  # Hull a second at a star's surface (a reference ship has 120)
-const HAZARD_TICK = 0.5  # s between hazard damage steps
 # Beacons (BeaconNetwork) remember what goes on round them: heat (hull lost to enemy fire within
 # BEACON_HEAT_RADIUS, as shares of the victims' hulls, a kill counting BEACON_HEAT_PER_KILL more) and
 # traffic (ships passing within BEACON_TRAFFIC_RADIUS), each halving every *_HALF_LIFE s; and when
@@ -1022,7 +1041,6 @@ const BEACON_HEAT_PER_KILL = 1.0
 const BEACON_HEAT_HALF_LIFE = 300.0  # s
 const BEACON_TRAFFIC_RADIUS = 3000.0  # m
 const BEACON_TRAFFIC_HALF_LIFE = 600.0  # s
-const BEACON_UPDATE_INTERVAL = 2.0  # s between traffic and decay steps
 const BEACON_FIELD_VALUE_INTERVAL = 10.0  # s between recounts of a field's ore
 const BEACON_LOITER_RADIUS = 1500.0  # m round a beacon a ship picks points to go to while there
 const BEACON_LOITER_TIME = [30.0, 90.0]  # s a ship stays at a beacon before choosing again
@@ -1078,7 +1096,6 @@ const PLATFORM_SEED = {"type": 3, "size": 2.5, "tool_share": 0.43,
 	"tools": [["laser", 3], ["missile", 3], ["cannon", 3]], "modules": [["plating", 3], ["plating", 3], ["magazine", 3], ["rack", 3]]}
 const PLATFORM_RING_RADIUS = 700.0  # m from its station's centre, spread evenly round it
 const PLATFORM_GUARD_RADIUS = 4000.0  # m from the platform: a ship opening fire on another within it is fired upon
-const PLATFORM_SCAN_INTERVAL = 0.5  # s between looks for a target
 const PLATFORM_CLEAR_SHOT = 80.0  # m (plus the ship's size) from its line of fire a ship not its foe holds its fire
 const PLATFORM_REARM_INTERVAL = 120.0  # s for its magazines and racks to fill again
 const PLATFORM_RESPAWN_DELAY = 600.0  # s of game time before a lost platform is rebuilt

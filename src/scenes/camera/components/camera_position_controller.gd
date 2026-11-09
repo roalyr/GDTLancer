@@ -1,5 +1,5 @@
 # Manages camera positioning, smoothing, and bobbing effect.
-# Dynamic (Settings "dynamic_camera"): the anchor and the camera ease after the ship (elastic), but in
+# Dynamic (Settings "camera_dynamic"): the anchor and the camera ease after the ship (elastic), but in
 # its moving frame: each step they first move on with the ship's velocity, then close the gap by a
 # share 1 - exp(-rate * dt). A ship at steady speed is held exactly, whatever the frame times (an
 # absolute lerp trails it by speed / rate, and by a bit more or less with each frame's length: a
@@ -33,7 +33,7 @@ var _camera_mode: int = CameraMode.ORBIT
 var _bob_timer: float = 0.0
 # NEW: This will be the point the camera actually tries to follow.
 var _smoothed_target_pos: Vector3 = Vector3.ZERO
-var dynamic: bool = true  # Settings "dynamic_camera" (OrbitCamera sets it)
+var dynamic: bool = false  # Settings "camera_dynamic" (OrbitCamera sets it)
 var _moved: Vector3 = Vector3.ZERO  # How far the target moved this step (its velocity times the step)
 
 

@@ -105,6 +105,9 @@ func _init() -> void:
 # --- Initialization ---
 var _frame_profiler: Node = null
 var _frame_governor: Node = null
+var _hud_last_usec: int = 0
+var _controls_left: float = 0.0  # s to the next HUD controls refresh (HUD_CONTROLS_INTERVAL)
+var _debug_left: float = Constants.HUD_DEBUG_INTERVAL * 0.5  # s to the next debug readout refresh, out of step with it
 
 
 func _ready():
@@ -262,17 +265,28 @@ func _update_hud() -> void:
 		_on_Player_Target_Deselected()
 		return
 
+	var now: int = OS.get_ticks_usec()
+	var dt: float = clamp((now - _hud_last_usec) / 1000000.0, 0.0, 1.0) if _hud_last_usec > 0 else 0.0
+	_hud_last_usec = now
+	# Every frame: what moves with the view (positions) and button highlights (a tap answers at once).
 	_update_route_target_overlay()
 	_update_world_target_overlay(false)
 	_refresh_toggle_button_states()
-	_update_debug_overlay()
-	_update_tool_buttons()
-	_update_lance_button()
-	_update_afterburner_button()
-	_layout_tool_rows()
-	_update_dock_button_label()
-	_update_interact_button_label()
-	_update_approach_button_label()
+	# On their cadences (Constants UPDATE CADENCES), out of step with the bracket slices and each other.
+	_controls_left -= dt
+	if _controls_left <= 0.0:
+		_controls_left = Constants.HUD_CONTROLS_INTERVAL
+		_update_tool_buttons()
+		_update_lance_button()
+		_update_afterburner_button()
+		_layout_tool_rows()
+		_update_dock_button_label()
+		_update_interact_button_label()
+		_update_approach_button_label()
+	_debug_left -= dt
+	if _debug_left <= 0.0:
+		_debug_left = Constants.HUD_DEBUG_INTERVAL
+		_update_debug_overlay()
 
 
 # APPROACH reads where it would stop: HOLD and the range with weapons on the selected target

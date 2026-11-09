@@ -10,6 +10,7 @@ const Bounty = preload("res://src/core/systems/bounty.gd")
 
 var _hud: Control
 var _last_full_refresh_ms := -1000000  # OS ticks of the last full world-bracket refresh
+var _slice_cursor: int = 0  # Next bracket of the refresh round (_refresh_bracket_slice)
 
 func _init(hud: Control) -> void:
 	_hud = hud
@@ -203,9 +204,13 @@ func update_route_target_overlay() -> void:
 		var is_in_front = target_dir.dot(camera_fwd) >= 0
 		var screen_pos = ScreenSpace.world_to_screen(_hud._main_camera, target_world_position)
 		var is_on_screen = viewport_rect.has_point(screen_pos)
-		button.visible = is_in_front and is_on_screen
-		if button.visible:
-			button.rect_position = screen_pos - (button.rect_size / 2.0)
+		var shown: bool = is_in_front and is_on_screen
+		if button.visible != shown:
+			button.visible = shown
+		if shown:
+			var at: Vector2 = screen_pos - (button.rect_size / 2.0)
+			if button.rect_position.distance_squared_to(at) > 0.04:  # Unmoved (a fifth of a pixel): no relayout
+				button.rect_position = at
 			apply_projected_target_distance_fade(button, get_projected_target_distance_fade_alpha(screen_pos, viewport_rect))
 		else:
 			apply_projected_target_distance_fade(button, 1.0)
@@ -248,14 +253,13 @@ func update_world_target_overlay(full: bool = true) -> void:
 	if not is_instance_valid(_hud._main_camera):
 		return
 	var now: int = OS.get_ticks_msec()
-	if not full and now - _last_full_refresh_ms >= Constants.HUD_BRACKET_REFRESH_INTERVAL * 1000.0:
-		full = true
 	if full:
 		_last_full_refresh_ms = now
+		_limit_mark_distances()
+	else:
+		_refresh_bracket_slice(now)
 	var camera_fwd = -_hud._main_camera.global_transform.basis.z.normalized()
 	var viewport_rect = _hud.get_viewport_rect()
-	if full:
-		_limit_mark_distances()
 	for instance_id in _hud._world_target_buttons:
 		var button = _hud._world_target_buttons[instance_id]
 		if not is_instance_valid(button):
@@ -276,12 +280,37 @@ func update_world_target_overlay(full: bool = true) -> void:
 		var is_in_front = target_dir.dot(camera_fwd) >= 0
 		var screen_pos = ScreenSpace.world_to_screen(_hud._main_camera, target_world_position)
 		var is_on_screen = viewport_rect.has_point(screen_pos)
-		button.visible = is_in_front and is_on_screen
-		if button.visible:
-			button.rect_position = screen_pos - (button.rect_size / 2.0)
+		var shown: bool = is_in_front and is_on_screen
+		if button.visible != shown:
+			button.visible = shown
+		if shown:
+			var at: Vector2 = screen_pos - (button.rect_size / 2.0)
+			if button.rect_position.distance_squared_to(at) > 0.04:  # Unmoved (a fifth of a pixel): no relayout
+				button.rect_position = at
 			apply_projected_target_distance_fade(button, get_projected_target_distance_fade_alpha(screen_pos, viewport_rect))
 		else:
 			apply_projected_target_distance_fade(button, 1.0)
+
+# The slow re-check of each bracket (shown, cues, colours: _refresh_world_bracket) spread over the
+# frames: a slice each frame, so each comes round every HUD_BRACKET_REFRESH_INTERVAL without all of
+# them in one frame (a crowd's brackets made a spike every quarter second). The distance marks are
+# re-ranked as a round begins.
+func _refresh_bracket_slice(now: int) -> void:
+	var keys: Array = _hud._world_target_buttons.keys()
+	if keys.empty():
+		return
+	var dt: float = clamp((now - _last_full_refresh_ms) / 1000.0, 0.0, Constants.HUD_BRACKET_REFRESH_INTERVAL)
+	_last_full_refresh_ms = now
+	var count: int = int(min(keys.size(), max(1.0, ceil(keys.size() * dt / Constants.HUD_BRACKET_REFRESH_INTERVAL))))
+	for i in range(count):
+		if _slice_cursor >= keys.size():
+			_slice_cursor = 0
+			_limit_mark_distances()
+		var button = _hud._world_target_buttons[keys[_slice_cursor]]
+		_slice_cursor += 1
+		if is_instance_valid(button) and is_instance_valid(button.target_ref) and button.target_ref is Spatial:
+			button.set_meta("shown", _refresh_world_bracket(button, button.target_ref))
+
 
 # Only the nearest Constants.HUD_MARK_DISTANCES hostiles the player sees show their distance by their
 # mark (the selected target always does): a crowd's numbers would stack.

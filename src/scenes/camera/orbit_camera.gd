@@ -166,13 +166,13 @@ func _process(delta):
 
 
 func _on_settings_changed(key, value) -> void:
-	if key == "dynamic_camera" and is_instance_valid(_position_controller):
+	if key == "camera_dynamic" and is_instance_valid(_position_controller):
 		_position_controller.dynamic = bool(value)
 
 
 func _follow(delta: float) -> void:
 	if is_instance_valid(_position_controller):
-		_position_controller.dynamic = bool(Settings.get_option("dynamic_camera"))
+		_position_controller.dynamic = bool(Settings.get_option("camera_dynamic"))
 	_rotation_controller.physics_update(delta)
 	_zoom_controller.physics_update()
 	_position_controller.physics_update(delta)

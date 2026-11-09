@@ -23,7 +23,7 @@ var agent_script: RigidBody = null
 var station: Spatial = null  # The station it guards
 var _tools: Node = null
 var _target = null
-var _scan_timer := 0.0
+var _scan_timer: float = randf() * Constants.PLATFORM_SCAN_INTERVAL  # Staggered: platforms are built together
 var _rearm_timer := 0.0
 
 
