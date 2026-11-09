@@ -250,6 +250,11 @@ const HIT_RAY_PASSES = 4  # A shot's ray skips this many other bodies before giv
 # Only shot rays look at them; nothing collides with them.
 const HIT_SURFACE_LAYER = 1 << 19  # Collision layer 20
 const HIT_SURFACE_LOD = 1  # Level of detail the trimesh is made from (0 = the model itself)
+# Slowing down on lag (Settings "slow_down_on_lag", FrameGovernor).
+const LAG_MAX_STEPS = 2.0  # Physics steps a frame at most: past that the game slows down
+const LAG_MIN_SPEED = 0.25  # Game speed it never goes below
+const LAG_AVERAGE_FRAMES = 10.0  # Frames the frame time is averaged over
+const LAG_RECOVERY = 0.03  # Share of the way back toward full speed each frame (falls at once)
 const SHOT_HOLD_RECHECK = 0.1  # s before a weapon whose fire a rock or a friend held looks again (ToolController._hold)
 const SHOT_BLOCK_MASK = 0x7FFFFFFF & ~HIT_SURFACE_LAYER  # What blocks a line of fire: every layer but the hit surfaces
 

@@ -13,6 +13,7 @@ const OPTIONS = {
 	"ButtonHitEffects": ["hit_effects", null, "HIT EFFECTS"],
 	"ButtonHudLook": ["hud_preset", "HUD_PRESET_ORDER", "HUD LOOK"],
 	"ButtonMusic": ["music", null, "MUSIC"],
+	"ButtonSlowDown": ["slow_down_on_lag", null, "SLOW DOWN ON LAG"],
 }
 
 var _was_paused: bool = false

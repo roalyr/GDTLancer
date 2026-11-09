@@ -4,6 +4,7 @@ extends Control
 ## Manages sub-screens (Station Menu) and docking prompts.
 
 const FrameProfiler = preload("res://src/core/utils/frame_profiler.gd")
+const FrameGovernor = preload("res://src/core/utils/frame_governor.gd")
 const Wages = preload("res://src/core/systems/wages.gd")
 const Announcements = preload("res://src/core/ui/main_hud/announcements.gd")
 const RouteTargetProviderScript = preload("res://src/core/targeting/route_target_provider.gd")
@@ -103,12 +104,16 @@ func _init() -> void:
 
 # --- Initialization ---
 var _frame_profiler: Node = null
+var _frame_governor: Node = null
 
 
 func _ready():
 	_frame_profiler = FrameProfiler.new()
 	_frame_profiler.name = "FrameProfiler"
 	add_child(_frame_profiler)
+	_frame_governor = FrameGovernor.new()
+	_frame_governor.name = "FrameGovernor"
+	add_child(_frame_governor)
 	_announcements = Announcements.new()
 	_announcements.name = "Announcements"
 	add_child(_announcements)
@@ -1056,6 +1061,7 @@ func describe_frame_stats() -> String:
 		"FRAME %.1f ms" % report.frame_ms,
 		"PHYSICS %.1f (%.1f steps)  REST %.1f" % [report.physics_ms, report.steps, report.idle_ms],
 		"of which ms: " + PoolStringArray(sections).join("  "),
+		"GAME SPEED X%.2f" % (_frame_governor.speed if is_instance_valid(_frame_governor) else 1.0),
 	]).join("\n")
 
 
