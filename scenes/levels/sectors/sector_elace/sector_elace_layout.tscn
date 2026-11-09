@@ -34,6 +34,7 @@ display_name = "Elace Free Port"
 faction = ""
 model = ExtResource( 6 )
 seen_anywhere = true
+platforms = 3
 ships = {
 }
 prefer_role = ""
@@ -52,6 +53,7 @@ haven_id = "verdant_haven"
 display_name = "Verdant Haven"
 faction = "verdant"
 model = ExtResource( 6 )
+platforms = 3
 ships = {
 "verdant": 5
 }
@@ -88,6 +90,7 @@ haven_id = "violet_haven"
 display_name = "Violet Haven"
 faction = "violet"
 model = ExtResource( 6 )
+platforms = 3
 ships = {
 "violet": 5
 }

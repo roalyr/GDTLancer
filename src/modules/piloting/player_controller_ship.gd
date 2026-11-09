@@ -794,7 +794,8 @@ static func is_chargeable(target) -> bool:
 	return target.is_in_group("mineable") and target.has_method("get_deposit") and target.get_deposit() > 0
 
 
-# Arming the lance turns an approach into a charge; making it safe (or running out) turns it back.
+# Arming the lance turns an approach into a charge; making it safe turns it back, and so does running
+# out, once the break-off after the last throw is flown (it does not follow the target in at once).
 func _sync_charge_command() -> void:
 	var nav = agent_body.get_node_or_null("NavigationSystem") if is_instance_valid(agent_body) else null
 	if not is_instance_valid(nav):
@@ -806,6 +807,11 @@ func _sync_charge_command() -> void:
 	if type == NavigationSystem.CommandType.APPROACH and is_charge_ready(target):
 		agent_script.command_charge(target)
 	elif type == NavigationSystem.CommandType.CHARGE and not is_charge_ready(target):
+		var lance = agent_body.get_lance() if agent_body.has_method("get_lance") else null
+		var cmd: Dictionary = nav._current_command
+		var unseen_throw: bool = int(cmd.get("nails", 0)) > agent_body.get_lance_nails()  # Before the command sees it
+		if lance != null and lance.armed and (cmd.get("running_up", false) or unseen_throw):
+			return  # Out of lances, still breaking off
 		agent_script.command_approach(target, true)
 
 

@@ -195,6 +195,19 @@ func test_approach_rams_while_the_lance_is_armed():
 	assert_false(controller.is_charge_ready(station), "A station is approached")
 	lance.nails = 0
 	assert_false(controller.is_charge_ready(enemy), "No lances left: no charging")
+
+	enemy.is_wreck = false
+	nav.type = Nav.CommandType.CHARGE
+	recorder.last = "charge"
+	nav._current_command = {"target_node": enemy, "nails": 1, "running_up": false}
+	controller._sync_charge_command()
+	assert_eq(recorder.last, "charge", "The last lance just thrown: it breaks off first")
+	nav._current_command = {"target_node": enemy, "nails": 0, "running_up": true}
+	controller._sync_charge_command()
+	assert_eq(recorder.last, "charge", "Still breaking off")
+	nav._current_command = {"target_node": enemy, "nails": 0, "running_up": false}
+	controller._sync_charge_command()
+	assert_eq(recorder.last, "approach", "Broken off, no lances: approaching at its weapons")
 	controller.free()
 	recorder.free()
 
