@@ -180,3 +180,86 @@ func test_escorting_counts_as_patrol_time_paid_by_the_ships_value():
 	escort.global_transform.origin = Vector3(0, 0, Constants.ESCORT_PAY_RANGE + 500.0)
 	Wages.on_escort(escort, 600.0)
 	assert_eq(Wages.take_patrol_time(escort, "verdant"), 0.0, "Out of range: not escorting")
+
+
+func _trader(position: Vector3, station: Spatial, speed_share: float = 1.0) -> RigidBody:
+	var body = _ship(position, "verdant", false)
+	body.cargo_capacity = 100
+	body.add_cargo("commodity_tech", 10)
+	var ai = _ai(body)
+	ai._trade = 1.0
+	ai._havens = {"zone_id": "arena_verdant_haven", "stations": [station]}
+	ai._station = station
+	return body
+
+
+func test_traders_bound_alike_travel_as_a_caravan():
+	var station := Spatial.new()
+	add_child_autofree(station)
+	var one = _trader(Vector3.ZERO, station)
+	var two = _trader(Vector3(0, 0, 1000), station)
+	var far = _trader(Vector3(0, 0, Constants.CARAVAN_RANGE + 2000.0), station)
+	for body in [one, two, far]:
+		_ai(body)._current_state = AIScript.AIState.DEPART
+	assert_true(_ai(one).is_trader(), "A trader")
+	var mates: Array = _ai(one).get_caravan()
+	assert_true(two in mates, "Its mate bound for the same station")
+	assert_false(far in mates, "Too far to be one")
+	assert_eq(_ai(one).get_activity_label(), "IN CARAVAN")
+
+
+func test_a_loaded_trader_waits_docked_for_company_by_its_teamwork():
+	var saved: Dictionary = TemplateDatabase.assets_commodities
+	var tech := CommodityTemplate.new()
+	tech.template_id = "commodity_tech"
+	tech.base_value = 60
+	TemplateDatabase.assets_commodities = {"commodity_tech": tech}  # Its cargo is worth something
+	var station := Spatial.new()
+	add_child_autofree(station)
+	var one = _trader(Vector3.ZERO, station)
+	var ai = _ai(one)
+	ai._current_state = AIScript.AIState.DOCKED
+	ai._teamwork = 2.0
+	ai._dock_timer = 0.0
+	assert_true(ai.waits_for_caravan(), "Alone: it waits a while for one")
+	ai._dock_timer = -Constants.CARAVAN_WAIT - 1.0
+	assert_false(ai.waits_for_caravan(), "Not for ever")
+	ai._dock_timer = 0.0
+	ai._teamwork = 0.0
+	assert_false(ai.waits_for_caravan(), "A loner does not wait")
+	ai._teamwork = 2.0
+	var two = _trader(Vector3(0, 0, 100), station)
+	two.is_docked = true
+	_ai(two)._current_state = AIScript.AIState.DOCKED
+	_ai(two)._dock_timer = 5.0
+	assert_true(ai.waits_for_caravan(), "Its mate is still busy: it waits")
+	_ai(two)._dock_timer = 0.0
+	assert_false(ai.waits_for_caravan(), "Both ready: they go together")
+	two.is_docked = false
+	two.global_transform.origin = Vector3(0, 0, 50000)
+	assert_true(ai.waits_for_caravan(), "Alone again: waits")
+	var guard = _ship(Vector3(0, 0, 500), "verdant", true)
+	assert_false(ai.waits_for_caravan(), "A free escort near the station: it goes, to be taken as it comes out")
+	TemplateDatabase.assets_commodities = saved
+
+
+func test_a_trader_takes_more_escorts():
+	var station := Spatial.new()
+	add_child_autofree(station)
+	var trader = _trader(Vector3.ZERO, station)
+	var first = _ship(Vector3(0, 0, 300), "verdant", true)
+	var second = _ship(Vector3(0, 0, 400), "verdant", true)
+	assert_true(_ai(first)._take_ward(), "One escort")
+	assert_true(_ai(second)._take_ward(), "And a second for a trader (ESCORTS_PER_TRADER)")
+	assert_eq(_ai(trader).get_escorts().size(), 2)
+
+
+func test_no_ship_hunts_its_own_side_for_a_bounty():
+	var Bounty = load("res://src/core/systems/bounty.gd")
+	var wanted = _ship(Vector3.ZERO, "xenohive", true)
+	wanted.bounties = {"verdant": 5000.0}  # Verdant's price on it, for a kill
+	var sibling = _ship(Vector3(0, 0, 500), "xenohive", true)
+	var hunter = _ship(Vector3(0, 0, 900), "verdant", true)
+	assert_false(Bounty.is_worth_hunting(sibling, wanted), "Its own hive does not hunt it")
+	assert_eq(Bounty.claimable(sibling, wanted), 0.0, "nor could claim it")
+	assert_true(Bounty.is_worth_hunting(hunter, wanted), "Verdant does")

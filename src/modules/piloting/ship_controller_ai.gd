@@ -109,6 +109,9 @@ var _in_charge: bool = false  # Charging its target with an armed lance (command
 var _prospect: float = 0.0  # Behaviour gene: mines when idle at 0.5 or more (can_mine)
 var _trade: float = 0.0  # Behaviour gene: trades at 0.5 or more (is_trader)
 var _last_dock: Spatial = null  # Where it last docked: a trader buys and sells elsewhere
+var _caravan: Array = []  # Traders of its faction bound for the same station near it (caravan_mates), kept for CARAVAN_CHECK s
+var _caravan_timer: float = 0.0
+var _caravan_noted := false  # This trip counted as a caravan's (Evolution.note "in_caravan")
 var _haul: float = Constants.AI_HAUL_SHARE  # Behaviour gene: goes home to sell once its hold is worth this share of its ship
 var _rock: Spatial = null  # The rock it is mining
 var _mine_time: float = 0.0  # s on _rock without a chunk
@@ -182,6 +185,10 @@ func get_activity_label() -> String:
 		return "COVERING"
 	if _current_state == AIState.PATROL and get_ward() != null:
 		return "ESCORTING"
+	if _current_state == AIState.DEPART and is_trader() and not get_caravan().empty():
+		return "IN CARAVAN"
+	if _current_state == AIState.DOCKED and _dock_timer <= 0.0 and is_trader() and agent_script.get_cargo_value() > 0.0:
+		return "FORMING CARAVAN"
 	return ACTIVITY_LABELS.get(_current_state, "")
 
 
@@ -245,7 +252,7 @@ func _take_ward() -> bool:
 	for ship in get_tree().get_nodes_in_group("agent_body"):
 		var distance: float = here.distance_to(ship.global_transform.origin)
 		var ward_ai = ship.get_node_or_null(Constants.AI_CONTROLLER_NODE_NAME)
-		if ward_ai != null and ward_ai.has_method("is_trader") and ward_ai.is_trader():
+		if ward_ai != null and ward_ai.has_method("is_trader") and ward_ai.is_trader() and distance < Constants.ESCORT_PICK_RANGE * 1.5:
 			distance *= Constants.ESCORT_TRADER_PULL  # A trader's cargo pays its escort best: it looks nearer
 		if distance >= best_distance or not Wages.can_escort(agent_script, ship):
 			continue
@@ -253,7 +260,8 @@ func _take_ward() -> bool:
 		var npc_escorts := 0
 		for escort in ai.get_escorts():
 			npc_escorts += 0 if escort.is_player() else 1
-		if npc_escorts < Constants.ESCORTS_PER_WARD:
+		var room: int = Constants.ESCORTS_PER_TRADER if ward_ai != null and ward_ai.has_method("is_trader") and ward_ai.is_trader() else Constants.ESCORTS_PER_WARD
+		if npc_escorts < room:
 			best = ship
 			best_distance = distance
 	if best == null:
@@ -311,7 +319,86 @@ func _set_cruise() -> void:
 	var nav = agent_script.navigation_system
 	if not is_instance_valid(nav):
 		return
-	nav.cruise_speed = cruise_speed() if is_cruising() else INF
+	var speed: float = cruise_speed() if is_cruising() else INF
+	if _current_state == AIState.DEPART and is_trader():
+		for mate in get_caravan():  # A caravan keeps together at its slowest one's pace
+			speed = min(speed, _cruise_share * max(mate.get_top_speed(), 1.0))
+	nav.cruise_speed = speed
+
+
+# --- Caravans: traders of a faction bound for the same station travel together ---
+
+# The traders of its own faction near it (CARAVAN_RANGE) on their way to the same station, rechecked
+# every CARAVAN_CHECK s; [] unless it is a trader on its way.
+func get_caravan() -> Array:
+	if _caravan_timer > 0.0:
+		_caravan_timer -= get_physics_process_delta_time()
+		return _caravan
+	_caravan_timer = Constants.CARAVAN_CHECK
+	_caravan = []
+	if _current_state != AIState.DEPART or not is_instance_valid(_station) or not is_trader():
+		return _caravan
+	var here: Vector3 = agent_script.global_transform.origin
+	for ship in get_tree().get_nodes_in_group("agent_body"):
+		if ship == agent_script or ship.get("is_wreck") or ship.get("is_docked") or str(ship.get("faction")) != str(agent_script.faction):
+			continue
+		if ship.global_transform.origin.distance_to(here) > Constants.CARAVAN_RANGE:
+			continue
+		var ai = ship.get_node_or_null(Constants.AI_CONTROLLER_NODE_NAME)
+		if ai != null and ai.has_method("bound_for") and ai.bound_for() == _station and ai.is_trader():
+			_caravan.append(ship)
+	if not _caravan.empty() and not _caravan_noted:
+		_caravan_noted = true
+		_note("in_caravan")
+	return _caravan
+
+
+# The station it is on its way to (DEPART), or null.
+func bound_for() -> Spatial:
+	return _station if _current_state == AIState.DEPART and is_instance_valid(_station) else null
+
+
+# A loaded trader about to leave waits for company: another trader of its faction docked here that
+# is not ready yet, or (none here) one to come in or a free escort to come by, for up to CARAVAN_WAIT
+# times half its teamwork gene: a loner does not wait, a team player waits long. Two ready together
+# leave together; an armed friend without a ward near the station (it will take the trader as it
+# comes out) is company enough.
+func waits_for_caravan() -> bool:
+	if not is_trader() or agent_script.get_cargo_value() <= 0.0 or not is_instance_valid(_station):
+		return false
+	if -_dock_timer >= Constants.CARAVAN_WAIT * _teamwork * 0.5:
+		return false
+	for ship in get_tree().get_nodes_in_group("agent_body"):
+		if ship == agent_script or not ship.get("is_docked") or str(ship.get("faction")) != str(agent_script.faction):
+			continue
+		var ai = ship.get_node_or_null(Constants.AI_CONTROLLER_NODE_NAME)
+		if ai == null or not ai.has_method("docked_at") or ai.docked_at() != _station or not ai.is_trader():
+			continue
+		return ai.dock_time_left() > 0.0  # It is still busy: wait for it; it is ready too: go together
+	return not escort_at_hand()  # No one here yet: wait a while for one, or for an escort
+
+
+# An armed friend of its faction near its station that could take it for its ward as it undocks.
+func escort_at_hand() -> bool:
+	var at: Vector3 = _station.global_transform.origin
+	for ship in get_tree().get_nodes_in_group("agent_body"):
+		if ship == agent_script or ship.get("is_wreck") or ship.get("is_docked") or str(ship.get("faction")) != str(agent_script.faction):
+			continue
+		if ship.global_transform.origin.distance_to(at) > Constants.ESCORT_PICK_RANGE:
+			continue
+		var ai = ship.get_node_or_null(Constants.AI_CONTROLLER_NODE_NAME)
+		if ai != null and ai.has_method("get_ward") and ai.get_ward() == null and not ai.is_trader() and not ai.is_prospector() \
+				and ship.has_method("get_damage_per_second") and ship.get_damage_per_second() > 0.0:
+			return true
+	return false
+
+
+func docked_at() -> Spatial:
+	return _station if _current_state == AIState.DOCKED else null
+
+
+func dock_time_left() -> float:
+	return _dock_timer
 
 
 func is_cruising() -> bool:
@@ -1218,6 +1305,7 @@ func _process_run_home() -> void:
 func _dock(station: Spatial, service: bool) -> void:
 	_station = station
 	_last_dock = station
+	_caravan_noted = false
 	agent_script.dock_at(station)
 	_change_state(AIState.DOCKED)
 	_dock_timer = Constants.HAVEN_DOCK_TIME
@@ -1234,6 +1322,8 @@ func _process_docked(delta: float) -> void:
 	if _dock_timer > 0.0:
 		return
 	if _dock_timer > -Constants.HAVEN_DOCK_MAX_WAIT and is_station_watched():
+		return
+	if waits_for_caravan():
 		return
 	agent_script.undock()
 	_change_state(AIState.PATROL)

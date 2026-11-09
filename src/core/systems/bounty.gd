@@ -37,9 +37,17 @@ static func pays(faction, ship) -> bool:
 	return not (own in TemplateDatabase.factions[faction].get("enemies", [])) and not (faction in TemplateDatabase.factions.get(own, {}).get("enemies", []))
 
 
+# Ships of one faction never price each other: a bounty another faction posted on one of them is not
+# its own side's to claim (era 58: the xenohive, at war with no one, hunted their own for the
+# bounties Verdant and Violet posted on them: three deaths in four were at a sibling's hands).
+static func same_side(hunter, ship) -> bool:
+	var own = hunter.get("faction") if is_instance_valid(hunter) else null
+	return own != null and own != "" and own == ship.get("faction")
+
+
 # What `hunter` would be paid for killing `ship`: the postings it can claim plus the war bounty.
 static func claimable(hunter, ship) -> float:
-	if not (is_instance_valid(hunter) and is_instance_valid(ship)) or hunter == ship:
+	if not (is_instance_valid(hunter) and is_instance_valid(ship)) or hunter == ship or same_side(hunter, ship):
 		return 0.0
 	var total := 0.0
 	var posted: Dictionary = postings(ship)
@@ -83,7 +91,7 @@ static func on_kill(killer, victim) -> float:
 
 # Whether `hunter` goes after `ship` for its price.
 static func is_worth_hunting(hunter, ship) -> bool:
-	if not is_instance_valid(ship) or ship.get("is_wreck"):
+	if not is_instance_valid(ship) or ship.get("is_wreck") or same_side(hunter, ship):
 		return false
 	var posted := 0.0
 	var on_ship: Dictionary = postings(ship)

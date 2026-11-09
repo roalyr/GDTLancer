@@ -1157,7 +1157,11 @@ const EVO_BEHAVIOR_RANGES = {  # Gene -> [min, max, default]
 	"trade": [0.0, 1.0, 0.0],  # At 0.5 or more, with no harpoon and no lance, it trades: buys where a station sells, sells where one buys (a trader)
 }
 # A trader seed's hull (ShipLaws shares): mostly hold.
-const ESCORT_TRADER_PULL = 0.5  # An escort weighs a trader's distance by this when choosing its ward (ShipControllerAI _take_ward)
+const ESCORT_TRADER_PULL = 0.25  # An escort weighs a trader's distance by this when choosing its ward (ShipControllerAI _take_ward; 0.5 in era 58: traders died in 31% of lives)
+const ESCORTS_PER_TRADER = 2  # NPC escorts a trader takes (ESCORTS_PER_WARD for other workers)
+const CARAVAN_RANGE = 3000.0  # m: traders of a faction bound for the same station this near travel as a caravan, at the slowest one's pace
+const CARAVAN_CHECK = 2.0  # s between looks for caravan mates
+const CARAVAN_WAIT = 120.0  # s a loaded trader waits docked for company, times half its teamwork gene
 const EVO_TRADER_SHARES = {"structure": 0.25, "engine": 0.2, "hold": 0.45, "reactor": 0.05, "capacitor": 0.05}
 # Starting designs, guessed, planted in each pool's empty niches (Evolution.plant_seeds; Genome.seed_genome):
 # prospectors and escorts for the factions, raiders, and the xenohive's drones, gatherers and wardens.
