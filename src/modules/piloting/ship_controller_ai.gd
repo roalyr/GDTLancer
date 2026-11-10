@@ -75,6 +75,8 @@ var _avoided = null  # The one it last kept clear of
 var _havens: Dictionary = {}  # Haven NPCs: {"zone_id" (its haven), "stations" (where it is welcome), "refuges" (faction -> those), "centre", "radius" (the play area), "territorial"}
 var _beacon: Node = null  # The beacon it is going to or staying at (BeaconNetwork)
 var _ward: Node = null  # The worker it escorts (Wages), if any
+var _charge_log: Dictionary = {}  # The charge under way, for Evolution.log_charge (_begin_charge_log)
+var _last_outlook: Dictionary = {}  # charge_outlook as charge_worth last weighed it
 var _orbiting_ward: bool = false
 var _escorts: Array = []  # Ships that have taken it as their ward (NPCs and the player): get_escorts
 var _distress_seen: int = 0  # The BeaconNetwork distress_serial it last chose by
@@ -637,6 +639,8 @@ func _change_state(new_state: int) -> void:
 	if not keeps_fighting and new_state != AIState.COMBAT:
 		_covering = null
 	if not keeps_fighting:
+		if not _charge_log.empty() and not _charge_log.has("why"):
+			_charge_log["why"] = "to_" + str(AIState.keys()[new_state]).to_lower()
 		_stop_in_charge()
 	if is_instance_valid(_tool_controller) and not keeps_fighting:
 		_tool_controller.deactivate_all("state_change")
@@ -1056,8 +1060,17 @@ func outruns_charge(target) -> bool:
 # its other weapons (a lancer without any hangs back: _hold_off).
 func _charge(target) -> bool:
 	var weigh: bool = not _in_charge or _running_up()
-	if not can_charge() or outruns_charge(target) or (weigh and not charge_worth(target)):
+	var why := ""
+	if not can_charge():
+		why = "spent"
+	elif outruns_charge(target):
+		why = "outrun"
+	elif weigh and not charge_worth(target, Constants.AI_CHARGE_BREAK_MARGIN if _in_charge else 1.0):
+		why = "not_worth"
+	if why != "":
 		if _in_charge:
+			if not _charge_log.empty():
+				_charge_log["why"] = why
 			_stop_in_charge()
 			_orbiting = false
 			_repath_timer = 0.0
@@ -1066,7 +1079,40 @@ func _charge(target) -> bool:
 		_in_charge = true
 		agent_script.set_lances_armed(true)
 		agent_script.command_charge(target)
+		_begin_charge_log(target)
 	return true
+
+
+# Each charge at a ship, for checking the cost it was started on (charge_outlook) against what it
+# cost (Evolution.log_charge, an EVO CHARGE line): the predicted loss per pass, the hull lost, throws
+# and hits, whether the target was on its ward, how it ended.
+func _begin_charge_log(target) -> void:
+	_charge_log = {}
+	if _havens.empty() or not (target is RigidBody and target.get("is_wreck") == false):
+		return
+	var focus = null
+	var ai = target.get_node_or_null(Constants.AI_CONTROLLER_NODE_NAME)
+	if ai != null and ai.has_method("get_focus"):
+		focus = ai.get_focus()
+	_charge_log = {"pred": float(_last_outlook.get("cost", 0.0)), "strike": float(_last_outlook.get("strike", 0.0)),
+		"distracted": int(_last_outlook.get("distracted", 0)), "hull": float(agent_script.hull), "hull_max": float(agent_script.hull_max),
+		"throws": agent_script.get_lance_throws(), "hits": 0, "ward": is_instance_valid(_ward) and focus == _ward,
+		"on_me": focus == agent_script, "target_hull": float(target.hull), "target": target}
+
+
+func _end_charge_log() -> void:
+	if _charge_log.empty():
+		return
+	var entry: Dictionary = _charge_log
+	_charge_log = {}
+	var target = entry.target
+	var killed: bool = not is_instance_valid(target) or target.get("is_wreck") != false
+	Evolution.log_charge(str(agent_script.evo_uid), {
+		"pred": entry.pred, "lost": entry.hull - max(float(agent_script.hull), 0.0), "hull": entry.hull, "hull_max": entry.hull_max,
+		"throws": agent_script.get_lance_throws() - int(entry.throws), "hits": int(entry.hits), "ward": entry.ward, "on_me": entry.on_me,
+		"distracted": entry.distracted, "killed": killed, "died": float(agent_script.hull) <= 0.0 or _current_state == AIState.DISABLED,
+		"why": str(entry.get("why", "other")),
+		"dealt": entry.target_hull - (max(float(target.hull), 0.0) if is_instance_valid(target) and target.get("hull") != null else 0.0)})
 
 
 # Charging (not running up) within AI_CHARGE_NO_RETURN of the target: a charge that far in is seen
@@ -1085,15 +1131,17 @@ func _running_up() -> bool:
 
 # Whether a charge at `target` pays (Agent.charge_outlook, Constants AI_CHARGE_*): the hull it would lose
 # keeps it above its retreat level, or a throw would finish the target and the loss would not finish
-# it. A rock, a wreck or a chunk always does (nothing shoots back).
-func charge_worth(target) -> bool:
+# it. `margin`: a charge under way goes on until the loss is BREAK_MARGIN times what it can spare
+# (re-weighed every tick of the run-up, a loss near the line started and stopped it each second). A rock, a wreck or a chunk always does (nothing shoots back).
+func charge_worth(target, margin: float = 1.0) -> bool:
 	if not (target is RigidBody and target.get("is_wreck") == false):
 		return true
 	var outlook: Dictionary = agent_script.charge_outlook(target)
+	_last_outlook = outlook
 	var hull: float = float(agent_script.hull)
 	if outlook.strike >= float(target.get("hull") if target.get("hull") != null else INF):
 		return outlook.cost < hull
-	return outlook.cost < hull - _retreat_level() * float(agent_script.hull_max)
+	return outlook.cost < (hull - _retreat_level() * float(agent_script.hull_max)) * margin
 
 
 # A lancer whose charge does not pay and that has no other weapon on `target`: waits outside the
@@ -1110,6 +1158,7 @@ func _hold_off(target) -> void:
 
 
 func _stop_in_charge() -> void:
+	_end_charge_log()
 	_in_charge = false
 	if is_instance_valid(agent_script) and agent_script.has_method("set_lances_armed"):
 		agent_script.set_lances_armed(false)
@@ -1131,6 +1180,8 @@ func _on_ammo_recovered(_index, _rounds) -> void:
 
 func _on_lance_struck(target, _damage) -> void:
 	_note("lance_hit")
+	if not _charge_log.empty() and target == _charge_log.target:
+		_charge_log.hits += 1
 	if _current_state == AIState.MINE and is_instance_valid(target) and target.is_in_group("ore_chunk"):
 		_note("mined")
 		_target_agent = target  # Its chunk, with its lance in it: harpoon it home

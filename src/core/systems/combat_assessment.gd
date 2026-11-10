@@ -51,6 +51,44 @@ static func side_of(body) -> Dictionary:
 	return side
 
 
+# The fire that can bear on `charger` as it strikes `target` (damage per second; a lance charge's
+# cost, Agent.charge_outlook): the target's own, and that of each of its side (as side_of) whose
+# weapons reach where the strike happens; a ship busy with another (its AI's focus is someone else:
+# a ward it is attacking, a fight of its own) counts AI_CHARGE_DISTRACTED_SHARE of its fire, since it
+# may turn but is not watching. {"dps", "distracted": how many of them were busy elsewhere}.
+static func fire_on(charger, target) -> Dictionary:
+	var bodies: Array = [target]
+	var faction = target.get("faction")
+	if faction is String and faction != "" and faction != "player" and target.is_inside_tree():
+		var here: Vector3 = target.global_transform.origin
+		for other in target.get_tree().get_nodes_in_group("agent_body"):
+			if other == target or other == charger or other.get("faction") != faction or other.get("is_wreck") != false or other.get("is_docked"):
+				continue
+			if other.global_transform.origin.distance_to(here) > min(Constants.AI_TEAM_RADIUS, _reach_of(other)):
+				continue  # Its guns do not reach where the strike happens
+			bodies.append(other)
+	var found := {"dps": 0.0, "distracted": 0}
+	for body in bodies:
+		var share := 1.0
+		var ai = body.get_node_or_null(Constants.AI_CONTROLLER_NODE_NAME)
+		if ai != null and ai.has_method("get_focus"):
+			var focus = ai.get_focus()
+			if is_instance_valid(focus) and focus != charger:
+				share = Constants.AI_CHARGE_DISTRACTED_SHARE
+				found.distracted += 1
+		found.dps += float(body.get_damage_per_second()) * share
+	return found
+
+
+static func _reach_of(body) -> float:
+	var reach := 0.0
+	var tools = body.get_node_or_null("ToolController")
+	if tools != null and tools.has_method("get_tool_count"):
+		for index in range(tools.get_tool_count()):
+			reach = max(reach, tools.get_tool(index).get_max_range())
+	return reach
+
+
 # The player's at-a-glance read of a target.
 static func difficulty_label(advantage: float) -> String:
 	if advantage >= Constants.DIFFICULTY_EASY_ADVANTAGE:

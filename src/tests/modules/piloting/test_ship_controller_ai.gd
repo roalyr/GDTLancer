@@ -1005,3 +1005,38 @@ func test_a_move_coasts_once_at_its_cruising_speed():
 	command.execute(0.016)
 	assert_almost_eq(movement._accumulated_force.length(), 0.0, 0.001, "At its cruise: coasts")
 	command.free()
+
+
+func test_a_charge_counts_only_guns_that_reach_the_strike_and_discounts_the_busy_ones():
+	var target = _make_ship(Vector3(0, 0, -500), "verdant", 100.0)
+	var near = _make_ship(Vector3(100, 0, -500), "verdant", 100.0)
+	var far = _make_ship(Vector3(2900, 0, -500), "verdant", 100.0)
+	var each: float = float(target.get_damage_per_second())
+	assert_gt(each, 0.0)
+	assert_lt(CombatAssessment._reach_of(far), 2900.0, "Its laser does not reach the target from there")
+	var fire: Dictionary = CombatAssessment.fire_on(hostile, target)
+	assert_almost_eq(fire.dps, each * 2.0, 0.01, "The target and its friend beside it; not the one out of reach")
+	assert_eq(fire.distracted, 0)
+	assert_gt(CombatAssessment.side_of(target).dps, fire.dps, "The whole side counted more")
+	var busy = AIScript.new()
+	busy.name = Constants.AI_CONTROLLER_NODE_NAME
+	target.add_child(busy)
+	busy._target_agent = far  # Shooting at someone else
+	fire = CombatAssessment.fire_on(hostile, target)
+	assert_almost_eq(fire.dps, each * (1.0 + Constants.AI_CHARGE_DISTRACTED_SHARE), 0.01, "Busy elsewhere: a share of its fire")
+	assert_eq(fire.distracted, 1)
+	busy._target_agent = hostile  # Watching the lancer
+	assert_almost_eq(CombatAssessment.fire_on(hostile, target).dps, each * 2.0, 0.01, "On the lancer: all of it")
+
+
+func test_a_charge_under_way_holds_until_well_past_the_line():
+	var target = _make_ship(Vector3(0, 0, -500), "verdant", 1000.0)
+	_give_lance(hostile)
+	_set_speed(hostile, 200.0, false)
+	ai.initialize({"patrol_center": Vector3.ZERO})
+	var cost: float = float(hostile.charge_outlook(target).cost)
+	var spare: float = float(hostile.hull) - ai._retreat_level() * float(hostile.hull_max)
+	var tool = target.get_node("ToolController").get_tool(0)
+	tool.damage *= spare * 1.2 / max(cost, 0.001)  # Its guns now cost 1.2 times what it can spare
+	assert_false(ai.charge_worth(target), "Not worth starting")
+	assert_true(ai.charge_worth(target, Constants.AI_CHARGE_BREAK_MARGIN), "Under way, it goes on")

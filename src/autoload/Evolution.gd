@@ -411,6 +411,13 @@ func note(uid: String, event: String) -> void:
 	_log(2, "EVO %s %s" % [event.to_upper().replace("_", " "), uid])
 
 
+# One lance charge at a ship ended (ShipControllerAI._end_charge_log): an EVO CHARGE line, for checking
+# the cost a charge is started on (pred, per pass) against what it cost (lost).
+func log_charge(uid: String, c: Dictionary) -> void:
+	_log(1, "EVO CHARGE %s pred=%.0f lost=%.0f hull=%.0f/%.0f throws=%d hits=%d dealt=%.0f killed=%d died=%d ward=%d on_me=%d distracted=%d why=%s" % [
+		uid, c.pred, c.lost, c.hull, c.hull_max, c.throws, c.hits, c.dealt, int(c.killed), int(c.died), int(c.ward), int(c.on_me), c.distracted, c.why])
+
+
 func is_old(uid: String) -> bool:
 	return live.has(uid) and game_time - float(live[uid].born) >= lifetime_of(uid)
 

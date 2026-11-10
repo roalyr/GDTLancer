@@ -455,11 +455,13 @@ func outruns_charge(target) -> bool:
 
 
 # What a lance charge at `target` from here would cost and bring (Constants AI_CHARGE_*: the AI's
-# charge_worth and the player's LANCE button go by it): {"cost": hull it can expect to lose to the
-# target's side on the way in and round for the next pass, "strike": what a throw from each launcher
-# with lances would do at top speed, less misses}.
+# charge_worth and the player's LANCE button go by it): {"cost": hull it can expect to lose on the way
+# in and round for the next pass, to the fire that can bear on it (CombatAssessment.fire_on: the
+# target and those of its side in reach of it, a busy one's fire discounted), "strike": what a throw
+# from each launcher with lances would do at top speed, less misses, "distracted": how many of them
+# were busy elsewhere}.
 func charge_outlook(target) -> Dictionary:
-	var side: Dictionary = CombatAssessment.side_of(target)
+	var side: Dictionary = CombatAssessment.fire_on(self, target)
 	var offset: Vector3 = target.global_transform.origin - global_transform.origin
 	var away: float = max(0.0, target.linear_velocity.dot(offset.normalized())) if target is RigidBody and offset.length() > 0.01 else 0.0
 	var closing: float = max(get_top_speed() - away, Constants.LANCE_CATCH_SPEED)
@@ -469,7 +471,7 @@ func charge_outlook(target) -> Dictionary:
 	for lance in get_lances():
 		if lance.nails > 0:
 			strike += lance.damage_at(get_top_speed() + Constants.LANCE_LAUNCH_SPEED) * (1.0 - Constants.AI_CHARGE_MISS_SHARE)
-	return {"cost": cost, "strike": strike}
+	return {"cost": cost, "strike": strike, "distracted": int(side.distracted)}
 
 
 # The furthest `body`'s weapons reach (m), 0 if it has none.

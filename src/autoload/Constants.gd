@@ -483,7 +483,9 @@ const AI_WALLET_MAX_SHARE = 2.0
 # longer). An NPC charges while its top speed is at least LANCE_CATCH_SPEED and it has lances left.
 const AI_CHARGE_PASS_TIME = 10.0  # s between strikes: run-up, turn and charge
 # Whether a charge pays (Agent.charge_outlook; ShipControllerAI.charge_worth): the hull it can expect to
-# lose on the way in (the target's side's damage per second, times HIT_SHARE for the angled approach,
+# lose on the way in (the damage per second that can bear: the target's, and that of its side within
+# their reach of it, a ship busy with another counted at DISTRACTED_SHARE (CombatAssessment.fire_on);
+# times HIT_SHARE for the angled approach,
 # over the time from the side's reach to release range, plus TURN_EXPOSURE s round for the next
 # pass) against what its throws would do (less MISS_SHARE). An NPC charges only while that loss keeps
 # it above its retreat level, or when a throw would finish the target (and not it); it weighs it
@@ -492,6 +494,8 @@ const AI_CHARGE_PASS_TIME = 10.0  # s between strikes: run-up, turn and charge
 const AI_CHARGE_HIT_SHARE = 0.5
 const AI_CHARGE_TURN_EXPOSURE = 4.0  # s
 const AI_CHARGE_MISS_SHARE = 0.2
+const AI_CHARGE_BREAK_MARGIN = 1.5  # A charge under way is broken off once its loss is this many times what the ship can spare (no on-off at the line)
+const AI_CHARGE_DISTRACTED_SHARE = 0.3  # Of a busy ship's fire (shooting another: a ward, its own fight), what counts against a charge
 const AI_CHARGE_NO_RETURN = 300.0  # m
 const AI_CHARGE_HOLD_OFF = 1.2
 const AI_TEAM_RADIUS = 3000.0  # m: friends this near a ship count on its side of a fight (CombatAssessment.side_of)
