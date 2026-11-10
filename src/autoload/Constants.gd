@@ -37,6 +37,7 @@ const HUD_BRACKET_REFRESH_INTERVAL = 0.25  # Each target bracket's re-check (sho
 const HUD_AWARENESS_INTERVAL = 0.13  # The HUD's top strip (AwarenessZone). Max ~0.25
 const THREAT_REFRESH_INTERVAL = 0.27  # The threat ring's recheck of who is hostile (its marks move every frame). Max ~0.5
 const THREAT_WATCH_INTERVAL = 0.5  # ThreatWatch's looks (danger announcements). Max ~1
+const HUD_FPS_INTERVAL = 0.47  # The FPS readout (Settings show_fps). Max ~1
 const HUD_DEBUG_INTERVAL = 0.5  # The debug readout's text (its frame figures are per-second averages). Max ~1
 const VIEW_CHECK_INTERVAL = 0.29  # View band (detail level) checks per host (and at once when the field of view changes). Max ~0.5
 const SMOULDER_CHECK_INTERVAL = 0.23  # Per smoulder spot: its ship's view band, the shown budget. Max ~0.5

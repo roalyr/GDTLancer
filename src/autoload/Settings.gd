@@ -8,6 +8,7 @@
 #   "hud_preset"   (String) MainHUD.apply_hud_preset (Constants.HUD_PRESETS)
 #   "music"        (bool)  AmbientMusic: off, every track fades out and none plays
 #   "slow_down_on_lag" (bool) FrameGovernor: the game slows down rather than its frame rate falling
+#   "show_fps"     (bool)  MainHUD: frames a second in the top left corner
 #   "camera_dynamic" (bool) OrbitCamera: eases after the ship (elastic); off, fixed to the ship.
 #                          Unfinished (it jitters): off by default, the Options button says so
 # The file is read only by load_file() (the main scene's start), and written only after it: tests
@@ -26,6 +27,7 @@ const DEFAULTS = {
 	"hud_preset": "standard",
 	"music": true,
 	"slow_down_on_lag": false,
+	"show_fps": false,
 	"camera_dynamic": false,  # Unfinished: jitters with 30 Hz physics (a new key: a saved "on" is not kept)
 }
 

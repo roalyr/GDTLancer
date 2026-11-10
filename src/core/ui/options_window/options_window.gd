@@ -14,6 +14,7 @@ const OPTIONS = {
 	"ButtonHudLook": ["hud_preset", "HUD_PRESET_ORDER", "HUD LOOK"],
 	"ButtonMusic": ["music", null, "MUSIC"],
 	"ButtonSlowDown": ["slow_down_on_lag", null, "SLOW DOWN ON LAG"],
+	"ButtonShowFps": ["show_fps", null, "SHOW FPS"],
 	"ButtonDynamicCamera": ["camera_dynamic", null, "DYNAMIC CAMERA (UNFINISHED, JITTERS)"],
 }
 

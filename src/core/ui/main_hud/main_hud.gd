@@ -106,6 +106,8 @@ func _init() -> void:
 var _frame_profiler: Node = null
 var _frame_governor: Node = null
 var _hud_last_usec: int = 0
+var _fps_label: Label = null  # Settings "show_fps": frames a second in the top left corner
+var _fps_left: float = 0.0
 var _controls_left: float = 0.0  # s to the next HUD controls refresh (HUD_CONTROLS_INTERVAL)
 var _debug_left: float = Constants.HUD_DEBUG_INTERVAL * 0.5  # s to the next debug readout refresh, out of step with it
 
@@ -202,6 +204,12 @@ func _ready():
 			button_debug.connect("pressed", self, "_on_ButtonDebug_pressed")
 	if is_instance_valid(debug_overlay):
 		debug_overlay.visible = false  # Until the debug button shows it
+		# No drop shadow on its long texts: the theme's shadow is a second pass of every line, which
+		# about doubled the overlay's 2D draw calls.
+		for label in [_debug_label_ship, _debug_label_tools, _debug_label_target, _debug_label_world, _debug_label_render, _debug_label_frame, _debug_label_radio]:
+			if is_instance_valid(label):
+				label.add_color_override("font_color_shadow", Color(0, 0, 0, 0))
+	_make_fps_label()
 	if not EventBus.is_connected("radio_message", self, "_on_radio_message"):
 		EventBus.connect("radio_message", self, "_on_radio_message")
 
@@ -287,6 +295,43 @@ func _update_hud() -> void:
 	if _debug_left <= 0.0:
 		_debug_left = Constants.HUD_DEBUG_INTERVAL
 		_update_debug_overlay()
+	_fps_left -= dt
+	if _fps_left <= 0.0:
+		_fps_left = Constants.HUD_FPS_INTERVAL
+		_update_fps_label()
+
+
+# Settings "show_fps": a small FPS readout in the screen's top left corner (no need of the debug
+# overlay), with the game speed while SLOW DOWN ON LAG holds it below full.
+func _make_fps_label() -> void:
+	var holder = get_node_or_null("ScreenControls")
+	if holder == null or is_instance_valid(_fps_label):
+		return
+	_fps_label = Label.new()
+	_fps_label.name = "FpsLabel"
+	_fps_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_fps_label.rect_position = Vector2.ZERO
+	holder.add_child(_fps_label)
+	_fps_label.visible = bool(Settings.get_option("show_fps"))
+	if not Settings.is_connected("changed", self, "_on_fps_setting_changed"):
+		Settings.connect("changed", self, "_on_fps_setting_changed")
+
+
+func _on_fps_setting_changed(key, value) -> void:
+	if key == "show_fps" and is_instance_valid(_fps_label):
+		_fps_label.visible = bool(value)
+		_update_fps_label()
+
+
+func _update_fps_label() -> void:
+	if not (is_instance_valid(_fps_label) and _fps_label.visible):
+		return
+	var text: String = "FPS %d" % Performance.get_monitor(Performance.TIME_FPS)
+	var speed: float = _frame_governor.speed if is_instance_valid(_frame_governor) else 1.0
+	if speed < 1.0:
+		text += "  SPEED X%.2f" % speed
+	if _fps_label.text != text:
+		_fps_label.text = text
 
 
 # APPROACH reads where it would stop: HOLD and the range with weapons on the selected target
