@@ -615,6 +615,9 @@ func test_detected_ship_in_view_gets_a_visible_bracket_undetected_one_does_not()
 	hud._main_camera = camera
 	hud._rebuild_world_target_overlay()
 	hud._update_world_target_overlay()
+	assert_false(hud._world_target_buttons[near.get_instance_id()].visible, "Placed first, it waits a moment (no flash in the corner)")
+	OS.delay_msec(int(Constants.HUD_BRACKET_APPEAR_DELAY * 1000.0) + 50)  # Real time: the wait is by the clock
+	hud._update_world_target_overlay()
 	assert_true(hud._world_target_buttons[near.get_instance_id()].visible, "Detected and in view: bracket shown.")
 	assert_false(hud._world_target_buttons[far.get_instance_id()].visible, "Beyond its signature: no bracket.")
 

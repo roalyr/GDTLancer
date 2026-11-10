@@ -33,10 +33,12 @@ const OFFSCREEN_TICK = 1.0  # An off-screen resolution step
 const BEACON_UPDATE_INTERVAL = 2.0  # Beacon traffic and decay steps
 # Looks and HUD only:
 const HUD_CONTROLS_INTERVAL = 0.1  # HUD buttons and labels: tool fill bars, LANCE, AFTERBURN, APPROACH, DOCK, INTERACT. Max ~0.15 (bars step visibly past it)
+const HUD_BRACKET_APPEAR_DELAY = 0.15  # A bracket about to show waits this, already placed (no flash in the corner). Max ~0.3
 const HUD_BRACKET_REFRESH_INTERVAL = 0.25  # Each target bracket's re-check (shown, cues, colours), a slice of them each frame (positions follow every frame). Max ~0.5
 const HUD_AWARENESS_INTERVAL = 0.13  # The HUD's top strip (AwarenessZone). Max ~0.25
 const THREAT_REFRESH_INTERVAL = 0.27  # The threat ring's recheck of who is hostile (its marks move every frame). Max ~0.5
 const THREAT_WATCH_INTERVAL = 0.5  # ThreatWatch's looks (danger announcements). Max ~1
+const HUD_FPS_OFFSET = Vector2(24, 16)  # px from the HUD's top left corner (inside its screen margin) to the FPS readout
 const HUD_FPS_INTERVAL = 0.47  # The FPS readout (Settings show_fps). Max ~1
 const HUD_DEBUG_INTERVAL = 0.5  # The debug readout's text (its frame figures are per-second averages). Max ~1
 const VIEW_CHECK_INTERVAL = 0.29  # View band (detail level) checks per host (and at once when the field of view changes). Max ~0.5

@@ -5,6 +5,7 @@ extends Control
 
 const FrameProfiler = preload("res://src/core/utils/frame_profiler.gd")
 const FrameGovernor = preload("res://src/core/utils/frame_governor.gd")
+const MainTheme = preload("res://assets/themes/main_theme.tres")
 const Wages = preload("res://src/core/systems/wages.gd")
 const Announcements = preload("res://src/core/ui/main_hud/announcements.gd")
 const RouteTargetProviderScript = preload("res://src/core/targeting/route_target_provider.gd")
@@ -310,7 +311,10 @@ func _make_fps_label() -> void:
 	_fps_label = Label.new()
 	_fps_label.name = "FpsLabel"
 	_fps_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_fps_label.rect_position = Vector2.ZERO
+	_fps_label.theme = MainTheme
+	if is_instance_valid(label_button_approach):  # The HUD's own lettering, as on its buttons
+		_fps_label.add_font_override("font", label_button_approach.get_font("font"))
+	_fps_label.rect_position = Constants.HUD_FPS_OFFSET
 	holder.add_child(_fps_label)
 	_fps_label.visible = bool(Settings.get_option("show_fps"))
 	if not Settings.is_connected("changed", self, "_on_fps_setting_changed"):

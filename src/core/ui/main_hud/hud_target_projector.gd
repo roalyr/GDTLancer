@@ -177,6 +177,7 @@ func add_world_target(target_node: Node) -> void:
 	button.name = "World_%s" % target_node.get_instance_id()
 	button.configure_target(target_node, _hud._resolve_target_display_name(target_node))
 	button.connect("pressed", _hud, "_on_world_target_button_pressed", [target_node])
+	button.visible = false  # Until placed (update_world_target_overlay, _appears)
 	_hud.projected_target_overlay.add_child(button)
 	_hud._world_target_buttons[target_node.get_instance_id()] = button
 
@@ -273,6 +274,7 @@ func update_world_target_overlay(full: bool = true) -> void:
 			button.set_meta("shown", _refresh_world_bracket(button, target_node))
 		if not button.get_meta("shown", false):
 			button.visible = false
+			button.set_meta("wanted_since", -1)
 			apply_projected_target_distance_fade(button, 1.0)
 			continue
 		var target_world_position: Vector3 = get_target_world_position(target_node)
@@ -280,16 +282,32 @@ func update_world_target_overlay(full: bool = true) -> void:
 		var is_in_front = target_dir.dot(camera_fwd) >= 0
 		var screen_pos = ScreenSpace.world_to_screen(_hud._main_camera, target_world_position)
 		var is_on_screen = viewport_rect.has_point(screen_pos)
-		var shown: bool = is_in_front and is_on_screen
-		if button.visible != shown:
-			button.visible = shown
-		if shown:
+		var wanted: bool = is_in_front and is_on_screen
+		if wanted:  # Placed even while it waits to appear: it shows where it belongs
 			var at: Vector2 = screen_pos - (button.rect_size / 2.0)
 			if button.rect_position.distance_squared_to(at) > 0.04:  # Unmoved (a fifth of a pixel): no relayout
 				button.rect_position = at
+		var shown: bool = _appears(button, wanted, now)
+		if button.visible != shown:
+			button.visible = shown
+		if shown:
 			apply_projected_target_distance_fade(button, get_projected_target_distance_fade_alpha(screen_pos, viewport_rect))
 		else:
 			apply_projected_target_distance_fade(button, 1.0)
+
+
+# A bracket about to show (new, just detected, come on screen) waits HUD_BRACKET_APPEAR_DELAY first,
+# placed meanwhile: it no longer flashes in the corner before its first placement and size. The wait
+# runs from when it was first wanted, until it is not.
+func _appears(button, wanted: bool, now: int) -> bool:
+	if not wanted:
+		button.set_meta("wanted_since", -1)
+		return false
+	var since: int = int(button.get_meta("wanted_since", -1))
+	if since < 0:
+		button.set_meta("wanted_since", now)
+		return false
+	return now - since >= int(Constants.HUD_BRACKET_APPEAR_DELAY * 1000.0)
 
 # The slow re-check of each bracket (shown, cues, colours: _refresh_world_bracket) spread over the
 # frames: a slice each frame, so each comes round every HUD_BRACKET_REFRESH_INTERVAL without all of
