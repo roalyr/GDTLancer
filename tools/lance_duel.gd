@@ -40,6 +40,7 @@ const ARENA_OFFSET = Vector3(0, 15000, 0)  # From the home station : well above 
 var duels := 6
 var matches: Array = MATCHES
 var speed := 6.0
+var rate := 0  # --rate=: physics steps per game second (0: the project's, Interp.physics_rate())
 var _shown: Dictionary = {}
 
 
@@ -51,6 +52,8 @@ func _initialize():
 			matches = MATCHES_WEAPONS
 		elif arg.begins_with("--match="):
 			matches = [arg.split("=")[1].split(",")]
+		elif arg.begins_with("--rate="):
+			rate = int(arg.split("=")[1])
 		elif arg.begins_with("--speed="):
 			speed = max(1.0, float(arg.split("=")[1]))
 	OS.vsync_enabled = false
@@ -71,7 +74,10 @@ func _run():
 	while not is_instance_valid(refs.player_agent_body):
 		yield(_wait(0.25), "completed")
 	paused = false
-	Engine.iterations_per_second = int(60 * speed)
+	if rate <= 0:
+		rate = load("res://src/core/utils/interp.gd").physics_rate()
+	print("RATE %d steps a game second" % rate)
+	Engine.iterations_per_second = int(rate * speed)  # A step stays 1/rate s of game time
 	Engine.time_scale = speed
 	var genome_script = load("res://src/core/evolution/genome.gd")
 	var built := {}
