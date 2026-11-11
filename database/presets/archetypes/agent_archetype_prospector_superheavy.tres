@@ -1,0 +1,116 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_archetype_prospector_superheavy"
+agent_type = "npc"
+ship_template_id = "preset_ship_archetype_prospector_superheavy"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.243775,
+"caution": 0.552661,
+"disengage": 0.912772,
+"engage": 1.73381,
+"haul": 0.320466,
+"mercy": 0.369782,
+"prospect": 0.999948,
+"pursuit": 1.17437,
+"quiet": 0.397505,
+"range": 1.29182,
+"retreat_hull": 0.537812,
+"return_fire": 0.70324,
+"teamwork": 1.64332,
+"trade": 0.153051
+}
+role = "prospector"
+family = "prospector"
+weight_class = "superheavy"
+archetype = "prospector superheavy"
+temperament = "cautious"
+traits = [ "skittish", "team player" ]
+lives = 16
+fitness = 0.0513363
+origin = "prospector_superheavy_20846i2 (era 65)"
+genome = {
+"behavior": {
+"burn": 0.243775,
+"caution": 0.552661,
+"disengage": 0.912772,
+"engage": 1.73381,
+"haul": 0.320466,
+"mercy": 0.369782,
+"prospect": 0.999948,
+"pursuit": 1.17437,
+"quiet": 0.397505,
+"range": 1.29182,
+"retreat_hull": 0.537812,
+"return_fire": 0.70324,
+"teamwork": 1.64332,
+"trade": 0.153051
+},
+"modules": [ {
+"genes": {
+"count": 4.0,
+"nail_mass": 350.0
+},
+"kind": "lance",
+"type": 3
+}, {
+"genes": {
+"mass": 167.938
+},
+"kind": "afterburner",
+"type": 1
+}, {
+}, {
+"genes": {
+"mass": 100.0
+},
+"kind": "decoy",
+"type": 1
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.0465765,
+"engine": 0.170408,
+"hold": 0.0674606,
+"reactor": 0.0987058,
+"structure": 0.616849
+},
+"size": 4.06372,
+"tool_share": 0.566289,
+"type": 4
+},
+"tools": [ {
+"genes": {
+"energy": 2.511,
+"mass": 150.0
+},
+"kind": "laser",
+"type": 1
+}, {
+"genes": {
+},
+"kind": "harpoon",
+"type": 0
+}, {
+"genes": {
+"count": 3.0,
+"round_mass": 260.0
+},
+"kind": "missile",
+"type": 3
+}, {
+"genes": {
+"count": 80.0,
+"mass": 150.0,
+"round_mass": 2.0
+},
+"kind": "cannon",
+"type": 1
+}, {
+} ]
+}

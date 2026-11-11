@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/placeholders/trader_medium.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_archetype_trader_medium"
+ship_model_name = "Trader Mk I-medium"
+base_value = 873
+ship_scene = ExtResource( 2 )
+hull_integrity = 58
+cargo_capacity = 78
+interaction_radius = 14.3371
+apparent_radius = 11.4697
+signature = 1433.71
+sensor_strength = 1.0
+tool_slots_small = 0
+tool_slots_medium = 2
+tool_slots_large = 0
+module_slots = 2
+module_slot_size = "medium"
+equipped_tools = [  ]
+equipped_modules = [ "preset_damper_medium", "preset_decoy_medium" ]
+salvage_yield = {
+"commodity_scrap": 17,
+"commodity_tech": 6
+}
+power_capacity = 94.103
+power_regen = 5.03257
+mass = 5239.19
+linear_thrust = 380786.0
+angular_thrust = 403994.0
+alignment_threshold_angle_deg = 45.0
+model_scale = 0.955809
+variant_type = 2
+law_genes = {
+"shares": {
+"capacitor": 0.0538841,
+"engine": 0.190251,
+"hold": 0.446857,
+"reactor": 0.0534001,
+"structure": 0.255608
+},
+"size": 0.873198,
+"tool_share": 0.544739,
+"type": 2
+}

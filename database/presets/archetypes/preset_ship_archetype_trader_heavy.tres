@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/placeholders/trader_heavy.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_archetype_trader_heavy"
+ship_model_name = "Trader Mk I-heavy"
+base_value = 3358
+ship_scene = ExtResource( 2 )
+hull_integrity = 173
+cargo_capacity = 308
+interaction_radius = 22.4622
+apparent_radius = 17.9697
+signature = 2246.22
+sensor_strength = 1.0
+tool_slots_small = 0
+tool_slots_medium = 0
+tool_slots_large = 3
+module_slots = 5
+module_slot_size = "large"
+equipped_tools = [ "preset_laser_medium", "preset_cannon_heavy" ]
+equipped_modules = [ "preset_plating_heavy", "preset_damper_medium", "preset_damper_medium" ]
+salvage_yield = {
+"commodity_scrap": 67,
+"commodity_tech": 23
+}
+power_capacity = 346.45
+power_regen = 14.5311
+mass = 20148.0
+linear_thrust = 1.24925e+06
+angular_thrust = 2.0765e+06
+alignment_threshold_angle_deg = 45.0
+model_scale = 1.49748
+variant_type = 3
+law_genes = {
+"shares": {
+"capacitor": 0.0515857,
+"engine": 0.185206,
+"hold": 0.459168,
+"reactor": 0.0451076,
+"structure": 0.258932
+},
+"size": 3.358,
+"tool_share": 0.421002,
+"type": 3
+}

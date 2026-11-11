@@ -5,7 +5,7 @@ This guide says where the game's content lives and how to change it without touc
 **Work through the development tool:** `tools/dev.py`. It opens a menu (the first run installs its one package into `.dev/`). `?` shows its keys; they mean the same on every tab (`ctrl+s` save, `ctrl+r` refresh, `ctrl+u` undo the last save, `ctrl+n` new, Enter open or run, Tab the next box), and the footer lists each tab's own:
 - **Overview:** every content rule below, checked at once, and what changed since the last commit. Models changed in Blender since their last import are listed too.
 - **Models:** every ship and station model, with its files, levels of detail, hit surface, who uses it and its check. Keys: `i` import, `o` open in Blender, `s` review sheet, `ctrl+n` new model from a starter.
-- **Archetypes:** the twelve designs side by side as the game flies them: fitted mass, speed (and with the afterburner), acceleration, gun damage per second, slots, price, and which factions fly each. The picked one's pilot genes are drawn against evolution's ranges. `s` review sheet; `p` and `h` open its pilot or ship in Data.
+- **Archetypes:** the twenty designs side by side as the game flies them: fitted mass, speed (and with the afterburner), acceleration, gun damage per second, slots, price, and which factions fly each. The picked one's pilot genes are drawn against evolution's ranges. `s` review sheet; `p` and `h` open its pilot or ship in Data.
 - **Factions:** every faction with its colour and paint, who is at war with whom (a matrix: pick a cell, `w` makes war or peace), its roster (tick archetypes, `ctrl+s`) and its havens (Enter opens one in World). `e` opens the faction in Data.
 - **Data:** every data file by kind (factions, archetypes, parts, commodities, the game start, locations, agents, the material library, the sound bank), in a form built from its script, with each field's note. `ctrl+s` saves, and the rules are checked at once on every save. `ctrl+u` puts the file back as it was before the last save, `ctrl+n` makes a new file of the kind, and `delete` deletes one, but only if no other file names it (by path or id; the tool says which do). A field the game does not read yet says so in orange ("Not in the game yet"): it is kept and saved, but changing it changes nothing in play.
 - **World:** each sector as two lists in a tree: **Scene** (the stars, planets, moons and asteroid belts its scene places) and its layout (havens, beacons, hazards). Pick one to move or turn it in the form (`translation` in m, `rotation_degrees` as in the Godot inspector); `ctrl+n` places a new one (a scene from a list, or a marker), `ctrl+d` copies, `delete` removes. The map is to scale, from above or from the side (heights), on a grid in round km, with owners' colours, the picked one's size or reach as a ring, and buttons to zoom on the picked one, see the whole sector or hide the map. Its legend is also its filter: click a kind to hide or show it. A sector with no layout yet is marked so; `ctrl+n` on it makes one, with its entry beacon, and places it in the sector scene.
@@ -69,10 +69,12 @@ Routes go round planets and moons by themselves.
 ## Ships: archetypes — `database/presets/archetypes/`
 
 There is one ship design per family and weight class:
-- families: fighter, prospector, raider, scavenger (a lance is a part any ship may fit, not a family);
-- weight classes: light, medium, heavy, superheavy (no superheavies are picked yet; until then there are twelve).
+- families: fighter, prospector, raider, scavenger, trader (a lance is a part any ship may fit, not a family);
+- weight classes: light, medium, heavy, superheavy.
 
-`tools/pick_archetypes.gd --from=<drafts folder> --era=<n>` replaces each archetype with that folder's design of the same family and weight class.
+Twenty in all. A design flies only once a faction's `roster` names it: traders and superheavies are not in any roster yet.
+
+`tools/pick_archetypes.gd --from=<drafts folder> --era=<n>` replaces each archetype with that folder's design of the same family and weight class (`--add`: makes the ones missing too).
 
 A hull's weight class also sets the size of all its hardpoints and module bays: small on a light hull, medium on a medium one, large on heavy and superheavy hulls. A part fits a slot of its own size or larger.
 

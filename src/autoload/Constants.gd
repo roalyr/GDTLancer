@@ -903,7 +903,8 @@ const XENO_HIVE_LENGTH = 240.0  # m
 const XENO_HIVE_SEED = 13
 # Placeholder hulls (PlaceholderHull, PrimitiveForm: the part fields are described there), one
 # silhouette per preset family: fighter a swept dart, lance a spear with coils, prospector a round
-# hull with claws, raider a flat wedge with prongs, scavenger a box frame with a crane. `engines`:
+# hull with claws, raider a flat wedge with prongs, scavenger a box frame with a crane, trader a
+# spine of cargo pods behind a cab (more pods by weight). `engines`:
 # exhaust nozzles, shares of the length (one off the centre line gets a twin across).
 # Ship models (ShipModel) are this long nose to tail at model scale 1 (tools/import_model.sh scales a
 # model made at any size to it); a ship's model_scale stretches it.
@@ -965,6 +966,16 @@ const HULL_FORMS = {
 		{"shape": "box", "size": Vector3(0.12, 0.12, 0.15), "at": Vector3(0.16, 0, 0.02), "look": "paint", "mirror": true, "from": "medium"},
 		{"shape": "box", "size": Vector3(0.12, 0.12, 0.15), "at": Vector3(0.16, 0, 0.2), "look": "paint", "mirror": true, "from": "heavy"},
 		{"shape": "box", "size": Vector3(0.22, 0.1, 0.4), "at": Vector3(0, -0.13, 0.08), "from": "superheavy"},
+	]},
+	"trader": {"engines": [Vector3(0.08, 0, 0.44)], "parts": [
+		{"shape": "box", "size": Vector3(0.08, 0.08, 0.76), "at": Vector3(0, 0, 0)},
+		{"shape": "box", "size": Vector3(0.16, 0.11, 0.14), "at": Vector3(0, 0.02, -0.38), "look": "paint"},
+		{"shape": "sphere", "size": Vector3(0.12, 0.04, 0.04), "at": Vector3(0, 0.05, -0.45), "look": "glow"},
+		{"shape": "box", "size": Vector3(0.13, 0.13, 0.18), "at": Vector3(0.105, 0, -0.14), "look": "paint", "mirror": true},
+		{"shape": "cylinder", "size": Vector3(0.07, 0.07, 0.12), "at": Vector3(0.08, 0, 0.38), "mirror": true},
+		{"shape": "box", "size": Vector3(0.13, 0.13, 0.18), "at": Vector3(0.105, 0, 0.08), "look": "paint", "mirror": true, "from": "medium"},
+		{"shape": "box", "size": Vector3(0.13, 0.13, 0.4), "at": Vector3(0, 0.105, -0.03), "from": "heavy"},
+		{"shape": "box", "size": Vector3(0.13, 0.13, 0.4), "at": Vector3(0, -0.105, -0.03), "look": "paint", "from": "superheavy"},
 	]},
 }
 # A frozen world (Evolution.frozen, the game; the arena sim evolves): each faction's havens fly the

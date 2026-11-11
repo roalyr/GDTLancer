@@ -1,0 +1,120 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_archetype_fighter_superheavy"
+agent_type = "npc"
+ship_template_id = "preset_ship_archetype_fighter_superheavy"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.268928,
+"caution": 0.207209,
+"disengage": 0.1,
+"engage": 0.453179,
+"haul": 0.934152,
+"mercy": 0.805718,
+"prospect": 1.0,
+"pursuit": 0.382802,
+"quiet": 0.755451,
+"range": 0.890513,
+"retreat_hull": 0.0,
+"return_fire": 0.53249,
+"teamwork": 1.643,
+"trade": 0.00942174
+}
+role = "fighter"
+family = "fighter"
+weight_class = "superheavy"
+archetype = "fighter superheavy"
+temperament = "measured"
+traits = [ "quick to fight", "stubborn", "lets runners go", "merciful", "team player", "hoards", "sneaky" ]
+lives = 12
+fitness = 0.464769
+origin = "fighter_superheavy_20675i1 (era 65)"
+genome = {
+"behavior": {
+"burn": 0.268928,
+"caution": 0.207209,
+"disengage": 0.1,
+"engage": 0.453179,
+"haul": 0.934152,
+"mercy": 0.805718,
+"prospect": 1.0,
+"pursuit": 0.382802,
+"quiet": 0.755451,
+"range": 0.890513,
+"retreat_hull": 0.0,
+"return_fire": 0.53249,
+"teamwork": 1.643,
+"trade": 0.00942174
+},
+"modules": [ {
+"genes": {
+"mass": 400.0
+},
+"kind": "decoy",
+"type": 3
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.0596958,
+"engine": 0.3592,
+"hold": 0.0983688,
+"reactor": 0.110404,
+"structure": 0.372331
+},
+"size": 4.80199,
+"tool_share": 0.885312,
+"type": 4
+},
+"tools": [ {
+"genes": {
+"count": 3.0,
+"round_mass": 260.0
+},
+"kind": "missile",
+"type": 3
+}, {
+"genes": {
+"count": 3.5,
+"round_mass": 39.03
+},
+"kind": "missile",
+"type": 1
+}, {
+"genes": {
+"count": 38.5,
+"mass": 701.101,
+"round_mass": 16.606
+},
+"kind": "cannon",
+"type": 3
+}, {
+"genes": {
+"energy": 16.0,
+"mass": 1100.0
+},
+"kind": "laser",
+"type": 3
+}, {
+"genes": {
+"energy": 16.0,
+"mass": 1100.0
+},
+"kind": "laser",
+"type": 3
+}, {
+}, {
+}, {
+}, {
+"genes": {
+"count": 3.5,
+"round_mass": 39.03
+},
+"kind": "missile",
+"type": 1
+} ]
+}

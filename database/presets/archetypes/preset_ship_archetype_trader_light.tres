@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/placeholders/trader_light.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_archetype_trader_light"
+ship_model_name = "Trader Mk I-light"
+base_value = 200
+ship_scene = ExtResource( 2 )
+hull_integrity = 40
+cargo_capacity = 3
+interaction_radius = 8.77205
+apparent_radius = 7.01764
+signature = 877.205
+sensor_strength = 1.0
+tool_slots_small = 1
+tool_slots_medium = 0
+tool_slots_large = 0
+module_slots = 1
+module_slot_size = "small"
+equipped_tools = [ "preset_laser_light" ]
+equipped_modules = [ "preset_plating_light" ]
+salvage_yield = {
+"commodity_scrap": 4,
+"commodity_tech": 1
+}
+power_capacity = 26.5288
+power_regen = 1.84026
+mass = 1200.0
+linear_thrust = 46954.0
+angular_thrust = 30479.4
+alignment_threshold_angle_deg = 45.0
+model_scale = 0.584804
+variant_type = 1
+law_genes = {
+"shares": {
+"capacitor": 0.066322,
+"engine": 0.0811709,
+"hold": 0.0767797,
+"reactor": 0.0762374,
+"structure": 0.69949
+},
+"size": 0.2,
+"tool_share": 0.323919,
+"type": 1
+}

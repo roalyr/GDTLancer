@@ -112,7 +112,7 @@ def sector_scenes():
 def title_of(scene):
     """A node name for a new instance of `scene`: "planet_elace_d.tscn" -> "Planet Elace D"."""
     return " ".join(word.capitalize() if len(word) > 1 else word.upper() for word in os.path.basename(scene)[:-5].split("_"))
-FAMILIES = ["fighter", "raider", "prospector", "scavenger"]
+FAMILIES = ["fighter", "raider", "prospector", "scavenger", "trader"]
 WEIGHTS = ["light", "medium", "heavy", "superheavy"]
 GENE_BAR = 30  # Characters of a gene's bar
 

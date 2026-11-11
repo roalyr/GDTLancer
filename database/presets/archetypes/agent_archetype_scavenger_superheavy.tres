@@ -1,0 +1,111 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_archetype_scavenger_superheavy"
+agent_type = "npc"
+ship_template_id = "preset_ship_archetype_scavenger_superheavy"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.503044,
+"caution": 0.561302,
+"disengage": 0.657728,
+"engage": 1.33436,
+"haul": 0.399901,
+"mercy": 0.367674,
+"prospect": 0.178426,
+"pursuit": 0.669269,
+"quiet": 0.319186,
+"range": 0.986501,
+"retreat_hull": 0.0,
+"return_fire": 0.70254,
+"teamwork": 1.20265,
+"trade": 0.0611045
+}
+role = "scavenger"
+family = "scavenger"
+weight_class = "superheavy"
+archetype = "scavenger superheavy"
+temperament = "measured"
+traits = [  ]
+lives = 15
+fitness = -0.0050475
+origin = "scavenger_superheavy_20505i2 (era 65)"
+genome = {
+"behavior": {
+"burn": 0.503044,
+"caution": 0.561302,
+"disengage": 0.657728,
+"engage": 1.33436,
+"haul": 0.399901,
+"mercy": 0.367674,
+"prospect": 0.178426,
+"pursuit": 0.669269,
+"quiet": 0.319186,
+"range": 0.986501,
+"retreat_hull": 0.0,
+"return_fire": 0.70254,
+"teamwork": 1.20265,
+"trade": 0.0611045
+},
+"modules": [ {
+"genes": {
+"mass": 300.0
+},
+"kind": "power_cell",
+"type": 2
+}, {
+"genes": {
+"mass": 2000.0
+},
+"kind": "plating",
+"type": 3
+}, {
+"genes": {
+"mass": 400.0
+},
+"kind": "thruster",
+"type": 2
+}, {
+"genes": {
+"mass": 300.0
+},
+"kind": "power_cell",
+"type": 2
+}, {
+"genes": {
+"mass": 147.716
+},
+"kind": "damper",
+"type": 1
+}, {
+"genes": {
+"mass": 100.0
+},
+"kind": "decoy",
+"type": 1
+}, {
+}, {
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.0386984,
+"engine": 0.212432,
+"hold": 0.0975815,
+"reactor": 0.109812,
+"structure": 0.541475
+},
+"size": 3.7492,
+"tool_share": 0.0216976,
+"type": 3
+},
+"tools": [ {
+"genes": {
+},
+"kind": "harpoon",
+"type": 0
+} ]
+}

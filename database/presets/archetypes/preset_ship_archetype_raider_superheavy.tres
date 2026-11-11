@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/placeholders/raider_superheavy.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_archetype_raider_superheavy"
+ship_model_name = "Raider Mk I-superheavy"
+base_value = 7373
+ship_scene = ExtResource( 2 )
+hull_integrity = 646
+cargo_capacity = 30
+interaction_radius = 29.1944
+apparent_radius = 23.3555
+signature = 2919.44
+sensor_strength = 1.0
+tool_slots_small = 0
+tool_slots_medium = 0
+tool_slots_large = 5
+module_slots = 8
+module_slot_size = "large"
+equipped_tools = [ "preset_cannon_light", "preset_missile_medium", "preset_cannon_heavy", "preset_harpoon" ]
+equipped_modules = [ "preset_power_cell_heavy", "preset_afterburner_heavy", "preset_thruster_light", "preset_decoy_heavy" ]
+salvage_yield = {
+"commodity_scrap": 147,
+"commodity_tech": 79
+}
+power_capacity = 181.646
+power_regen = 35.439
+mass = 44235.9
+linear_thrust = 3.91589e+06
+angular_thrust = 8.45982e+06
+alignment_threshold_angle_deg = 45.0
+model_scale = 1.94629
+variant_type = 3
+law_genes = {
+"shares": {
+"capacitor": 0.0123189,
+"engine": 0.30021,
+"hold": 0.0206521,
+"reactor": 0.0553237,
+"structure": 0.611495
+},
+"size": 7.37266,
+"tool_share": 0.364438,
+"type": 3
+}

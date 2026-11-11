@@ -1,0 +1,82 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_archetype_trader_medium"
+agent_type = "npc"
+ship_template_id = "preset_ship_archetype_trader_medium"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.24916,
+"caution": 0.892738,
+"disengage": 0.679949,
+"engage": 2.97068,
+"haul": 0.485665,
+"mercy": 0.833268,
+"prospect": 0.0848619,
+"pursuit": 1.27892,
+"quiet": 0.129891,
+"range": 0.97862,
+"retreat_hull": 0.745607,
+"return_fire": 0.675112,
+"teamwork": 1.20261,
+"trade": 0.910066
+}
+role = "trader"
+family = "trader"
+weight_class = "medium"
+archetype = "trader medium"
+temperament = "cautious"
+traits = [ "picks its fights", "skittish", "merciful", "wary" ]
+lives = 12
+fitness = 0.0518358
+origin = "trader_medium_21018i1 (era 65)"
+genome = {
+"behavior": {
+"burn": 0.24916,
+"caution": 0.892738,
+"disengage": 0.679949,
+"engage": 2.97068,
+"haul": 0.485665,
+"mercy": 0.833268,
+"prospect": 0.0848619,
+"pursuit": 1.27892,
+"quiet": 0.129891,
+"range": 0.97862,
+"retreat_hull": 0.745607,
+"return_fire": 0.675112,
+"teamwork": 1.20261,
+"trade": 0.910066
+},
+"modules": [ {
+"genes": {
+"mass": 300.0
+},
+"kind": "damper",
+"type": 2
+}, {
+"genes": {
+"mass": 200.0
+},
+"kind": "decoy",
+"type": 2
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.0538841,
+"engine": 0.190251,
+"hold": 0.446857,
+"reactor": 0.0534001,
+"structure": 0.255608
+},
+"size": 0.873198,
+"tool_share": 0.544739,
+"type": 2
+},
+"tools": [ {
+}, {
+} ]
+}
