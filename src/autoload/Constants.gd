@@ -497,6 +497,7 @@ const AI_CHARGE_TURN_EXPOSURE = 4.0  # s
 const AI_CHARGE_MISS_SHARE = 0.2
 const AI_CHARGE_BREAK_MARGIN = 1.5  # A charge under way is broken off once its loss is this many times what the ship can spare (no on-off at the line)
 const AI_CHARGE_DISTRACTED_SHARE = 0.3  # Of a busy ship's fire (shooting another: a ward, its own fight), what counts against a charge
+const AI_CHARGE_OUTRUN_WAIT = 8.0  # s a lancer holds off a ship that outran its charge, unless it turns to come at it
 const AI_CHARGE_NO_RETURN = 300.0  # m
 const AI_CHARGE_HOLD_OFF = 1.2
 const AI_TEAM_RADIUS = 3000.0  # m: friends this near a ship count on its side of a fight (CombatAssessment.side_of)

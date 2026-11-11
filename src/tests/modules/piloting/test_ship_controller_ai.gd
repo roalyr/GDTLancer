@@ -1040,3 +1040,25 @@ func test_a_charge_under_way_holds_until_well_past_the_line():
 	tool.damage *= spare * 1.2 / max(cost, 0.001)  # Its guns now cost 1.2 times what it can spare
 	assert_false(ai.charge_worth(target), "Not worth starting")
 	assert_true(ai.charge_worth(target, Constants.AI_CHARGE_BREAK_MARGIN), "Under way, it goes on")
+
+
+func test_a_ship_that_outran_a_charge_is_not_charged_again_until_the_wait_is_up_or_it_turns():
+	var target = _make_ship(Vector3(0, 0, -1500), "verdant", 1000.0)
+	_give_lance(hostile)
+	_set_speed(hostile, 200.0, false)
+	ai.initialize({"patrol_center": Vector3.ZERO})
+	assert_true(ai._charge(target), "Standing: it charges")
+	_set_speed(target, 200.0, false)
+	target.linear_velocity = Vector3(0, 0, -200)  # Running as fast as it can charge
+	assert_false(ai._charge(target), "Outrun: the charge ends")
+	target.linear_velocity = Vector3(0, 0, -50)  # Under runner speed for a moment
+	assert_false(ai.outruns_charge(target), "No runner now")
+	assert_false(ai._charge(target), "but it waits before charging it again")
+	target.linear_velocity = Vector3(0, 0, 50)  # Comes at it
+	assert_true(ai._charge(target), "A ship coming at it is charged at once")
+	ai._stop_in_charge()
+	ai._outran_by = target
+	ai._outran_left = Constants.AI_CHARGE_OUTRUN_WAIT
+	target.linear_velocity = Vector3(0, 0, -50)
+	ai._think(Constants.AI_CHARGE_OUTRUN_WAIT + 0.1)
+	assert_true(ai._charge(target), "The wait up, it charges again")

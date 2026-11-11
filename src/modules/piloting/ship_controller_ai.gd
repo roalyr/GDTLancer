@@ -108,6 +108,8 @@ var _runner_judged: bool = false  # Its target's current run has had its mercy r
 var _letting_go: bool = false  # and the roll was to let it go
 var _spared: Dictionary = {}  # Instance id -> s left during which it does not go after that ship again
 var _in_charge: bool = false  # Charging its target with an armed lance (command_charge)
+var _outran_by = null  # The last ship that outran a charge of its, not charged again for _outran_left s (_charge)
+var _outran_left: float = 0.0
 var _prospect: float = 0.0  # Behaviour gene: mines when idle at 0.5 or more (can_mine)
 var _trade: float = 0.0  # Behaviour gene: trades at 0.5 or more (is_trader)
 var _last_dock: Spatial = null  # Where it last docked: a trader buys and sells elsewhere
@@ -578,6 +580,7 @@ func _think(delta: float) -> void:
 	_scan_timer = max(0.0, _scan_timer - delta)
 	_since_hit += delta
 	_muster_left = max(0.0, _muster_left - delta)
+	_outran_left = max(0.0, _outran_left - delta)
 	for id in _spared.keys():
 		_spared[id] -= delta
 		if _spared[id] <= 0.0:
@@ -1057,7 +1060,9 @@ func outruns_charge(target) -> bool:
 # Charges `target` if it can and it pays (charge_worth: weighed as it starts and again between passes);
 # true while it does. Out of lances, against a runner too fast to strike (even mid-charge: running,
 # it never turns to fight), or when a charge no longer pays, it stops, and the fight goes on with
-# its other weapons (a lancer without any hangs back: _hold_off).
+# its other weapons (a lancer without any hangs back: _hold_off). A ship that outran a charge is not
+# charged again for AI_CHARGE_OUTRUN_WAIT s unless it comes at the lancer (a kiter, just under
+# runner speed for a moment, drew one charge after another, era 65).
 func _charge(target) -> bool:
 	var weigh: bool = not _in_charge or _running_up()
 	var why := ""
@@ -1065,9 +1070,14 @@ func _charge(target) -> bool:
 		why = "spent"
 	elif outruns_charge(target):
 		why = "outrun"
+	elif not _in_charge and _waits_out(target):
+		return false
 	elif weigh and not charge_worth(target, Constants.AI_CHARGE_BREAK_MARGIN if _in_charge else 1.0):
 		why = "not_worth"
 	if why != "":
+		if why == "outrun" and _in_charge:
+			_outran_by = target
+			_outran_left = Constants.AI_CHARGE_OUTRUN_WAIT
 		if _in_charge:
 			if not _charge_log.empty():
 				_charge_log["why"] = why
@@ -1081,6 +1091,15 @@ func _charge(target) -> bool:
 		agent_script.command_charge(target)
 		_begin_charge_log(target)
 	return true
+
+
+# Whether it still holds off charging `target`, which outran its last charge (_charge): until the wait
+# is up, or the target turns to come at it.
+func _waits_out(target) -> bool:
+	if _outran_left <= 0.0 or target != _outran_by or not (is_instance_valid(target) and target is RigidBody):
+		return false
+	var toward: Vector3 = agent_script.global_transform.origin - target.global_transform.origin
+	return toward.length() < 0.001 or target.linear_velocity.dot(toward.normalized()) <= 0.0
 
 
 # Each charge at a ship, for checking the cost it was started on (charge_outlook) against what it
