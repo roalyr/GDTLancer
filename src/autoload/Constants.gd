@@ -485,13 +485,14 @@ const AI_CHARGE_PASS_TIME = 10.0  # s between strikes: run-up, turn and charge
 # Whether a charge pays (Agent.charge_outlook; ShipControllerAI.charge_worth): the hull it can expect to
 # lose on the way in (the damage per second that can bear: the target's, and that of its side within
 # their reach of it, a ship busy with another counted at DISTRACTED_SHARE (CombatAssessment.fire_on);
-# times HIT_SHARE for the angled approach,
+# times HIT_SHARE for the angled approach (0.25: era 64's charges that threw lost 0.43 of the hull
+# predicted at 0.5),
 # over the time from the side's reach to release range, plus TURN_EXPOSURE s round for the next
 # pass) against what its throws would do (less MISS_SHARE). An NPC charges only while that loss keeps
 # it above its retreat level, or when a throw would finish the target (and not it); it weighs it
 # again between passes, and may break off a charge until NO_RETURN m from the target. A lancer with
 # no other weapon on the target hangs back, HOLD_OFF times the side's reach away.
-const AI_CHARGE_HIT_SHARE = 0.5
+const AI_CHARGE_HIT_SHARE = 0.25
 const AI_CHARGE_TURN_EXPOSURE = 4.0  # s
 const AI_CHARGE_MISS_SHARE = 0.2
 const AI_CHARGE_BREAK_MARGIN = 1.5  # A charge under way is broken off once its loss is this many times what the ship can spare (no on-off at the line)
