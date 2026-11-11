@@ -285,8 +285,23 @@ def collect(island):
         for name in ("status.json", "console.log", "save_0.sav", "logs/"):
             run(["rsync", "-az", "-e", rsh(target(island)), "%s:%s/islands/island%d/%s" % (target(island), REMOTE, island["k"], name),
                  os.path.join(folder, name.rstrip("/")) + ("/" if name.endswith("/") else "")], timeout=600)
+    keep_console(island["k"], os.path.join(folder, "console.log"))
     info = evolution.read_json(os.path.join(folder, "status.json")) or {}
     return info.get("state") == "done" and os.path.exists(os.path.join(folder, "save_0.sav"))
+
+
+def keep_console(k, path):
+    """The segment's EVO lines (charges, births, deaths...) added to evolution/logs/islands_console.log:
+    each segment's console.log is written afresh, so without this only the last one's survived."""
+    if not os.path.exists(path):
+        return
+    out = os.path.join(evolution.evolution_dir(), "logs", "islands_console.log")
+    os.makedirs(os.path.dirname(out), exist_ok=True)
+    with open(path, errors="replace") as source, open(out, "a") as sink:
+        sink.write("== island %d segment collected %s\n" % (k, time.strftime("%Y-%m-%d %H:%M:%S")))
+        for line in source:
+            if " EVO " in line or line.startswith("EVOSIM") or "SCRIPT ERROR" in line:
+                sink.write(line)
 
 
 def write_master_status(state, game_time, extra=None):
