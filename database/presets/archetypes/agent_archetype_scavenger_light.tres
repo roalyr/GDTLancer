@@ -10,57 +10,64 @@ ship_template_id = "preset_ship_archetype_scavenger_light"
 faction = ""
 skill = 0.5
 behavior = {
-"burn": 0.246604,
-"caution": 0.298234,
-"disengage": 0.15785,
-"engage": 2.86499,
-"haul": 0.165785,
-"mercy": 0.487901,
-"prospect": 0.17309,
-"pursuit": 0.186212,
-"quiet": 0.289838,
-"range": 1.14484,
-"retreat_hull": 0.64494,
-"return_fire": 0.228825,
-"teamwork": 0.856487
+"burn": 0.213169,
+"caution": 0.686594,
+"disengage": 0.1,
+"engage": 1.10879,
+"haul": 0.157674,
+"mercy": 0.470518,
+"prospect": 0.0,
+"pursuit": 3.0,
+"quiet": 0.343512,
+"range": 0.863914,
+"retreat_hull": 0.101282,
+"return_fire": 0.676385,
+"teamwork": 1.62133,
+"trade": 0.0
 }
 role = "scavenger"
 family = "scavenger"
 weight_class = "light"
 archetype = "scavenger light"
-temperament = "cautious"
-traits = [ "picks its fights", "stubborn", "skittish", "lets runners go" ]
-lives = 13
-fitness = 1.57817
-origin = "scavenger_light_15723 (era 51)"
+temperament = "measured"
+traits = [ "stubborn", "relentless", "team player" ]
+lives = 20
+fitness = 0.0611932
+origin = "scavenger_light_20603i1 (era 65)"
 genome = {
 "behavior": {
-"burn": 0.246604,
-"caution": 0.298234,
-"disengage": 0.15785,
-"engage": 2.86499,
-"haul": 0.165785,
-"mercy": 0.487901,
-"prospect": 0.17309,
-"pursuit": 0.186212,
-"quiet": 0.289838,
-"range": 1.14484,
-"retreat_hull": 0.64494,
-"return_fire": 0.228825,
-"teamwork": 0.856487
+"burn": 0.213169,
+"caution": 0.686594,
+"disengage": 0.1,
+"engage": 1.10879,
+"haul": 0.157674,
+"mercy": 0.470518,
+"prospect": 0.0,
+"pursuit": 3.0,
+"quiet": 0.343512,
+"range": 0.863914,
+"retreat_hull": 0.101282,
+"return_fire": 0.676385,
+"teamwork": 1.62133,
+"trade": 0.0
 },
 "modules": [ {
+"genes": {
+"mass": 120.0
+},
+"kind": "sensor",
+"type": 1
 } ],
 "ship": {
 "shares": {
-"capacitor": 0.0649828,
-"engine": 0.340182,
-"hold": 0.160614,
-"reactor": 0.0789356,
-"structure": 0.355286
+"capacitor": 0.0461808,
+"engine": 0.165622,
+"hold": 0.0504963,
+"reactor": 0.0976441,
+"structure": 0.640057
 },
-"size": 0.726689,
-"tool_share": 0.803284,
+"size": 0.418526,
+"tool_share": 0.169877,
 "type": 1
 },
 "tools": [ {
@@ -68,7 +75,5 @@ genome = {
 },
 "kind": "harpoon",
 "type": 0
-}, {
-}, {
 } ]
 }

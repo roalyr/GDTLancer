@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=1]
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=2]
+
+[resource]
+script = ExtResource( 2 )
+template_id = "preset_ship_trader_heavy_21325i2"
+ship_model_name = "Trader Heavy 21325 I 2 Mk I"
+base_value = 3114
+ship_scene = ExtResource( 1 )
+hull_integrity = 208
+cargo_capacity = 247
+interaction_radius = 21.9051
+apparent_radius = 17.5241
+signature = 2190.51
+sensor_strength = 1.0
+tool_slots_small = 0
+tool_slots_medium = 0
+tool_slots_large = 7
+module_slots = 1
+module_slot_size = "large"
+equipped_tools = [ "preset_missile_light", "preset_laser_heavy", "preset_missile_light", "preset_laser_medium" ]
+equipped_modules = [  ]
+salvage_yield = {
+"commodity_scrap": 62,
+"commodity_tech": 16
+}
+power_capacity = 489.782
+power_regen = 10.5665
+mass = 18685.8
+linear_thrust = 906969.0
+angular_thrust = 1.47018e+06
+alignment_threshold_angle_deg = 45.0
+model_scale = 1.46034
+variant_type = 4
+law_genes = {
+"shares": {
+"capacitor": 0.0786342,
+"engine": 0.139916,
+"hold": 0.39598,
+"reactor": 0.0341373,
+"structure": 0.351332
+},
+"size": 3.11431,
+"tool_share": 1.0,
+"type": 4
+}

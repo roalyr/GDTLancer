@@ -7,42 +7,42 @@
 script = ExtResource( 1 )
 template_id = "preset_ship_archetype_raider_medium"
 ship_model_name = "Raider Mk I-medium"
-base_value = 2357
+base_value = 1578
 ship_scene = ExtResource( 2 )
-hull_integrity = 228
-cargo_capacity = 50
-interaction_radius = 19.9612
-apparent_radius = 15.969
-signature = 1996.12
+hull_integrity = 193
+cargo_capacity = 17
+interaction_radius = 17.4639
+apparent_radius = 13.9711
+signature = 1746.39
 sensor_strength = 1.0
 tool_slots_small = 0
-tool_slots_medium = 0
-tool_slots_large = 6
-module_slots = 1
-module_slot_size = "large"
-equipped_tools = [ "preset_cannon_heavy", "preset_laser_heavy", "preset_harpoon", "preset_missile_heavy", "preset_laser_light", "preset_cannon_light" ]
-equipped_modules = [ "preset_decoy_medium" ]
+tool_slots_medium = 4
+tool_slots_large = 0
+module_slots = 2
+module_slot_size = "medium"
+equipped_tools = [ "preset_missile_medium", "preset_cannon_light", "preset_harpoon" ]
+equipped_modules = [ "preset_sensor_light" ]
 salvage_yield = {
-"commodity_scrap": 47,
-"commodity_tech": 22
+"commodity_scrap": 32,
+"commodity_tech": 14
 }
-power_capacity = 283.884
-power_regen = 28.6843
-mass = 14139.7
-linear_thrust = 875394.0
-angular_thrust = 1.29307e+06
+power_capacity = 81.0572
+power_regen = 13.2764
+mass = 9468.91
+linear_thrust = 688196.0
+angular_thrust = 889374.0
 alignment_threshold_angle_deg = 45.0
-model_scale = 1.33075
+model_scale = 1.16426
 variant_type = 3
 law_genes = {
 "shares": {
-"capacitor": 0.0602315,
-"engine": 0.177764,
-"hold": 0.105346,
-"reactor": 0.136838,
-"structure": 0.519821
+"capacitor": 0.0256811,
+"engine": 0.20318,
+"hold": 0.0524744,
+"reactor": 0.0868174,
+"structure": 0.631847
 },
-"size": 2.35661,
-"tool_share": 0.809802,
+"size": 1.57815,
+"tool_share": 0.610791,
 "type": 3
 }

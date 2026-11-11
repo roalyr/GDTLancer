@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=1]
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=2]
+
+[resource]
+script = ExtResource( 2 )
+template_id = "preset_ship_raider_superheavy_21522i1"
+ship_model_name = "Raider Superheavy 21522 I 1 Mk I"
+base_value = 8977
+ship_scene = ExtResource( 1 )
+hull_integrity = 709
+cargo_capacity = 59
+interaction_radius = 31.1749
+apparent_radius = 24.94
+signature = 3117.49
+sensor_strength = 1.0
+tool_slots_small = 0
+tool_slots_medium = 0
+tool_slots_large = 7
+module_slots = 8
+module_slot_size = "large"
+equipped_tools = [ "preset_cannon_light", "preset_cannon_medium", "preset_cannon_medium", "preset_missile_heavy", "preset_harpoon", "preset_laser_heavy" ]
+equipped_modules = [ "preset_power_cell_medium", "preset_sensor_heavy", "preset_afterburner_medium", "preset_thruster_light", "preset_decoy_heavy" ]
+salvage_yield = {
+"commodity_scrap": 180,
+"commodity_tech": 104
+}
+power_capacity = 265.151
+power_regen = 38.9798
+mass = 53863.5
+linear_thrust = 5.19253e+06
+angular_thrust = 1.19789e+07
+alignment_threshold_angle_deg = 45.0
+model_scale = 2.07833
+variant_type = 3
+law_genes = {
+"shares": {
+"capacitor": 0.014768,
+"engine": 0.337343,
+"hold": 0.0328703,
+"reactor": 0.0505063,
+"structure": 0.564512
+},
+"size": 8.97725,
+"tool_share": 0.45157,
+"type": 3
+}

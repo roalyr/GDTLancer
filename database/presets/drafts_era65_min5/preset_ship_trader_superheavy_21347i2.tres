@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_trader_superheavy_21347i2"
+ship_model_name = "Trader Superheavy 21347 I 2 Mk I"
+base_value = 6317
+ship_scene = ExtResource( 2 )
+hull_integrity = 233
+cargo_capacity = 614
+interaction_radius = 27.7279
+apparent_radius = 22.1823
+signature = 2772.79
+sensor_strength = 1.0
+tool_slots_small = 0
+tool_slots_medium = 0
+tool_slots_large = 4
+module_slots = 8
+module_slot_size = "large"
+equipped_tools = [ "preset_laser_medium", "preset_laser_medium", "preset_cannon_light" ]
+equipped_modules = [ "preset_power_cell_heavy", "preset_afterburner_medium" ]
+salvage_yield = {
+"commodity_scrap": 126,
+"commodity_tech": 49
+}
+power_capacity = 674.948
+power_regen = 28.2998
+mass = 37899.1
+linear_thrust = 2.47279e+06
+angular_thrust = 5.07383e+06
+alignment_threshold_angle_deg = 45.0
+model_scale = 1.84853
+variant_type = 4
+law_genes = {
+"shares": {
+"capacitor": 0.053497,
+"engine": 0.21053,
+"hold": 0.486921,
+"reactor": 0.0503582,
+"structure": 0.198694
+},
+"size": 6.31651,
+"tool_share": 0.313565,
+"type": 4
+}

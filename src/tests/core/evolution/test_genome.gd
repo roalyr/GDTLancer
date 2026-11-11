@@ -103,16 +103,16 @@ func test_build_registers_ship_and_parts_and_prices_them():
 	assert_false(TemplateDatabase.assets_ships.has(built.ship_template_id), "Evolved ships are not sold at stations")
 
 
-func test_lances_are_lawful_parts_with_their_own_niche():
+func test_lances_are_lawful_parts_and_no_role_of_their_own():
 	var part: Dictionary = Genome.random_part("lance")
 	assert_true(part.genes.has("nail_mass") and part.genes.has("count"))
 	var genome: Dictionary = Genome.random_genome()
 	for i in range(genome.tools.size()):
 		genome.tools[i] = {}
 	genome.modules[0] = part
-	assert_eq(Genome.niche(genome).split("|")[1], "lance", "A lancer's family (niches are families since era 54)")
+	assert_eq(Genome.niche(genome).split("|")[1], "drifter", "A lance alone makes no fighter (no lance family since era 67)")
 	genome.tools[0] = Genome.random_part("laser")
-	assert_eq(Genome.niche(genome).split("|")[1], "lance", "An armed lance ship is still the lance family")
+	assert_eq(Genome.niche(genome).split("|")[1], "fighter", "A lance ship with a gun: a fighter like any other")
 	var template = TemplateDatabase.get_template(Genome.ensure_part_template(part))
 	assert_true(template is ModuleTemplate and not template.lance.empty())
 	assert_eq(template.lance.count, int(round(part.genes.count)))

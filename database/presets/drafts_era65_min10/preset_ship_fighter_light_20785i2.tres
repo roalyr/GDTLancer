@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_fighter_light_20785i2"
+ship_model_name = "Fighter Light 20785 I 2 Mk I"
+base_value = 656
+ship_scene = ExtResource( 2 )
+hull_integrity = 78
+cargo_capacity = 14
+interaction_radius = 13.0349
+apparent_radius = 10.4279
+signature = 1303.49
+sensor_strength = 1.0
+tool_slots_small = 2
+tool_slots_medium = 0
+tool_slots_large = 0
+module_slots = 2
+module_slot_size = "small"
+equipped_tools = [ "preset_missile_light", "preset_missile_light" ]
+equipped_modules = [ "preset_sensor_light", "preset_afterburner_light" ]
+salvage_yield = {
+"commodity_scrap": 13,
+"commodity_tech": 6
+}
+power_capacity = 118.239
+power_regen = 4.65974
+mass = 3937.3
+linear_thrust = 379048.0
+angular_thrust = 365623.0
+alignment_threshold_angle_deg = 45.0
+model_scale = 0.868992
+variant_type = 2
+law_genes = {
+"shares": {
+"capacitor": 0.0900913,
+"engine": 0.251875,
+"hold": 0.106209,
+"reactor": 0.0652328,
+"structure": 0.486591
+},
+"size": 0.656216,
+"tool_share": 0.470474,
+"type": 2
+}

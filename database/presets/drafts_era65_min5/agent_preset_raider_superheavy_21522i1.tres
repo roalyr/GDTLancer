@@ -1,0 +1,145 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_raider_superheavy_21522i1"
+agent_type = "npc"
+ship_template_id = "preset_ship_raider_superheavy_21522i1"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.248577,
+"caution": 0.398453,
+"disengage": 1.53545,
+"engage": 2.26265,
+"haul": 0.858413,
+"mercy": 0.05757,
+"prospect": 0.111978,
+"pursuit": 2.15336,
+"quiet": 0.0,
+"range": 0.829156,
+"retreat_hull": 0.299155,
+"return_fire": 0.121543,
+"teamwork": 2.0,
+"trade": 0.0
+}
+role = "raider"
+family = "raider"
+weight_class = "superheavy"
+archetype = "raider superheavy"
+temperament = "measured"
+traits = [ "ruthless", "runs silent", "team player", "hoards", "loud" ]
+lives = 5
+fitness = 0.736238
+origin = ""
+genome = {
+"behavior": {
+"burn": 0.248577,
+"caution": 0.398453,
+"disengage": 1.53545,
+"engage": 2.26265,
+"haul": 0.858413,
+"mercy": 0.05757,
+"prospect": 0.111978,
+"pursuit": 2.15336,
+"quiet": 0.0,
+"range": 0.829156,
+"retreat_hull": 0.299155,
+"return_fire": 0.121543,
+"teamwork": 2.0,
+"trade": 0.0
+},
+"modules": [ {
+"genes": {
+"mass": 300.0
+},
+"kind": "power_cell",
+"type": 2
+}, {
+"genes": {
+"mass": 500.0
+},
+"kind": "sensor",
+"type": 3
+}, {
+"genes": {
+"mass": 345.283
+},
+"kind": "afterburner",
+"type": 2
+}, {
+}, {
+"genes": {
+"mass": 200.0
+},
+"kind": "thruster",
+"type": 1
+}, {
+"genes": {
+"mass": 400.0
+},
+"kind": "decoy",
+"type": 3
+}, {
+}, {
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.014768,
+"engine": 0.337343,
+"hold": 0.0328703,
+"reactor": 0.0505063,
+"structure": 0.564512
+},
+"size": 8.97725,
+"tool_share": 0.45157,
+"type": 3
+},
+"tools": [ {
+"genes": {
+"count": 80.0,
+"mass": 150.0,
+"round_mass": 2.0
+},
+"kind": "cannon",
+"type": 1
+}, {
+"genes": {
+"count": 60.0,
+"mass": 310.645,
+"round_mass": 5.172
+},
+"kind": "cannon",
+"type": 2
+}, {
+"genes": {
+"count": 60.0,
+"mass": 310.645,
+"round_mass": 5.172
+},
+"kind": "cannon",
+"type": 2
+}, {
+"genes": {
+"count": 3.0,
+"round_mass": 260.0
+},
+"kind": "missile",
+"type": 3
+}, {
+"genes": {
+},
+"kind": "harpoon",
+"type": 0
+}, {
+"genes": {
+"energy": 16.0,
+"mass": 1100.0
+},
+"kind": "laser",
+"type": 3
+}, {
+} ]
+}

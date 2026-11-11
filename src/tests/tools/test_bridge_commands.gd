@@ -318,14 +318,10 @@ func test_the_archetypes_view_has_every_design_with_its_numbers():
 		if design.name == "fighter_light":
 			light = design
 	assert_has(light.flown_by, "verdant", "Verdant's roster has it")
-	assert_almost_eq(light.length, 0.83931 * Constants.SHIP_MODEL_LENGTH, 0.001)
-	assert_eq(light.parts[0].name, "Cannon Mk I-light")
+	assert_almost_eq(light.length, 0.868992 * Constants.SHIP_MODEL_LENGTH, 0.001)
+	assert_eq(light.parts[0].name, "Missile Rack Mk I-light")
 	assert_gt(light.gun_dps, 0.0)
-	var lance_light: Dictionary = {}
-	for design in view.archetypes:
-		if design.name == "lance_light":
-			lance_light = design
-	assert_gt(lance_light.burst_speed, lance_light.top_speed, "Its afterburner")
+	assert_gt(light.burst_speed, light.top_speed, "Its afterburner")
 
 
 func test_the_factions_view_has_wars_both_ways_and_havens():
@@ -353,7 +349,7 @@ func test_the_parts_view_has_every_part_and_who_uses_it():
 			by_id[item.id] = item
 	assert_gt(by_id.preset_laser_medium.dps, 0.0)
 	assert_has(by_id.preset_laser_medium.used_by, "start start_default")
-	assert_has(by_id.preset_cannon_light.used_by, "fighter_light", "Fitted to an archetype")
+	assert_has(by_id.preset_cannon_light.used_by, "raider_medium", "Fitted to an archetype")
 	assert_eq(by_id.preset_cannon_medium.origin, "catalogue")
 	assert_eq(view.weapons.size() + view.modules.size(), BridgeCommands.PartCatalog.ids().size(), "The catalogue, nothing else")
 	assert_eq(view.starts[0].id, "start_default")

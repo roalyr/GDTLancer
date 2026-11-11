@@ -7,42 +7,42 @@
 script = ExtResource( 1 )
 template_id = "preset_ship_archetype_raider_light"
 ship_model_name = "Raider Mk I-light"
-base_value = 818
+base_value = 819
 ship_scene = ExtResource( 2 )
-hull_integrity = 76
-cargo_capacity = 22
-interaction_radius = 14.0281
-apparent_radius = 11.2225
-signature = 1402.81
+hull_integrity = 101
+cargo_capacity = 13
+interaction_radius = 14.0354
+apparent_radius = 11.2283
+signature = 1403.54
 sensor_strength = 1.0
 tool_slots_small = 3
 tool_slots_medium = 0
 tool_slots_large = 0
 module_slots = 1
 module_slot_size = "small"
-equipped_tools = [ "preset_harpoon", "preset_laser_light" ]
+equipped_tools = [ "preset_laser_light", "preset_harpoon", "preset_laser_light" ]
 equipped_modules = [  ]
 salvage_yield = {
 "commodity_scrap": 16,
-"commodity_tech": 11
+"commodity_tech": 8
 }
-power_capacity = 76.7354
-power_regen = 8.07546
-mass = 4907.7
-linear_thrust = 611629.0
-angular_thrust = 634922.0
+power_capacity = 71.405
+power_regen = 7.17142
+mass = 4915.28
+linear_thrust = 468059.0
+angular_thrust = 486134.0
 alignment_threshold_angle_deg = 45.0
-model_scale = 0.93521
+model_scale = 0.935691
 variant_type = 1
 law_genes = {
 "shares": {
-"capacitor": 0.0469072,
-"engine": 0.343865,
-"hold": 0.131629,
-"reactor": 0.0964109,
-"structure": 0.381189
+"capacitor": 0.0435814,
+"engine": 0.255046,
+"hold": 0.0784869,
+"reactor": 0.0843653,
+"structure": 0.53852
 },
-"size": 0.81795,
-"tool_share": 0.86297,
+"size": 0.819214,
+"tool_share": 0.838603,
 "type": 1
 }

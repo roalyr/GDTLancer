@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=1]
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=2]
+
+[resource]
+script = ExtResource( 2 )
+template_id = "preset_ship_fighter_superheavy_20675i1"
+ship_model_name = "Fighter Superheavy 20675 I 1 Mk I"
+base_value = 4802
+ship_scene = ExtResource( 1 )
+hull_integrity = 308
+cargo_capacity = 94
+interaction_radius = 25.3065
+apparent_radius = 20.2452
+signature = 2530.65
+sensor_strength = 1.0
+tool_slots_small = 0
+tool_slots_medium = 0
+tool_slots_large = 9
+module_slots = 1
+module_slot_size = "large"
+equipped_tools = [ "preset_missile_heavy", "preset_missile_light", "preset_cannon_heavy", "preset_laser_heavy", "preset_laser_heavy", "preset_missile_light" ]
+equipped_modules = [ "preset_decoy_heavy" ]
+salvage_yield = {
+"commodity_scrap": 96,
+"commodity_tech": 68
+}
+power_capacity = 573.318
+power_regen = 44.871
+mass = 28812.0
+linear_thrust = 3.12873e+06
+angular_thrust = 5.8591e+06
+alignment_threshold_angle_deg = 45.0
+model_scale = 1.6871
+variant_type = 4
+law_genes = {
+"shares": {
+"capacitor": 0.0596958,
+"engine": 0.3592,
+"hold": 0.0983688,
+"reactor": 0.110404,
+"structure": 0.372331
+},
+"size": 4.80199,
+"tool_share": 0.885312,
+"type": 4
+}

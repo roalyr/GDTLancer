@@ -7,42 +7,42 @@
 script = ExtResource( 1 )
 template_id = "preset_ship_archetype_fighter_medium"
 ship_model_name = "Fighter Mk I-medium"
-base_value = 865
+base_value = 999
 ship_scene = ExtResource( 2 )
-hull_integrity = 86
-cargo_capacity = 16
-interaction_radius = 14.2915
-apparent_radius = 11.4332
-signature = 1429.15
+hull_integrity = 66
+cargo_capacity = 37
+interaction_radius = 14.9938
+apparent_radius = 11.995
+signature = 1499.38
 sensor_strength = 1.0
 tool_slots_small = 0
 tool_slots_medium = 3
 tool_slots_large = 0
 module_slots = 1
 module_slot_size = "medium"
-equipped_tools = [ "preset_missile_medium", "preset_laser_light" ]
+equipped_tools = [ "preset_laser_medium", "preset_missile_medium" ]
 equipped_modules = [  ]
 salvage_yield = {
-"commodity_scrap": 17,
-"commodity_tech": 11
+"commodity_scrap": 20,
+"commodity_tech": 15
 }
-power_capacity = 80.1199
-power_regen = 8.78726
-mass = 5189.32
-linear_thrust = 633493.0
-angular_thrust = 669964.0
+power_capacity = 88.5137
+power_regen = 6.27709
+mass = 5992.55
+linear_thrust = 938751.0
+angular_thrust = 1.04158e+06
 alignment_threshold_angle_deg = 45.0
-model_scale = 0.952766
+model_scale = 0.999586
 variant_type = 1
 law_genes = {
 "shares": {
-"capacitor": 0.0463181,
-"engine": 0.338145,
-"hold": 0.0947861,
-"reactor": 0.100151,
-"structure": 0.420599
+"capacitor": 0.0443118,
+"engine": 0.453304,
+"hold": 0.183185,
+"reactor": 0.0596797,
+"structure": 0.25952
 },
-"size": 0.864887,
-"tool_share": 0.760016,
+"size": 0.998759,
+"tool_share": 1.0,
 "type": 1
 }

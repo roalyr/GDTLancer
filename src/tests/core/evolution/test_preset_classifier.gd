@@ -23,10 +23,10 @@ func test_a_pilot_that_starts_keeps_up_and_chases_fights_is_aggressive():
 func test_a_preset_is_classified_by_its_fit_and_hull():
 	var ship = ShipTemplate.new()
 	ship.law_genes = {"size": 3.0}
-	var result: Dictionary = PresetClassifier.classify(ship, {}, "lance-raider")
-	assert_eq(result.role, "lance-raider")
-	assert_eq(result.family, "lance")
+	var result: Dictionary = PresetClassifier.classify(ship, {}, "cannon-raider")
+	assert_eq(result.role, "cannon-raider")
+	assert_eq(result.family, "raider")
 	assert_eq(result.weight_class, "heavy")
-	assert_eq(result.archetype, "lance-raider heavy")
+	assert_eq(result.archetype, "cannon-raider heavy")
 	ship.law_genes = {"size": 8.0}
-	assert_eq(PresetClassifier.classify(ship, {}, "lance-raider").weight_class, "superheavy")
+	assert_eq(PresetClassifier.classify(ship, {}, "cannon-raider").weight_class, "superheavy")

@@ -10,73 +10,85 @@ ship_template_id = "preset_ship_archetype_fighter_light"
 faction = ""
 skill = 0.5
 behavior = {
-"burn": 0.349153,
-"caution": 0.342074,
-"disengage": 1.07722,
-"engage": 2.60604,
-"haul": 0.246,
-"mercy": 0.723985,
-"prospect": 0.0907599,
-"pursuit": 1.35649,
-"quiet": 0.273286,
-"range": 0.864134,
-"retreat_hull": 0.709746,
-"return_fire": 0.560175,
-"teamwork": 1.15317
+"burn": 0.0,
+"caution": 0.576482,
+"disengage": 1.34314,
+"engage": 1.65595,
+"haul": 0.696153,
+"mercy": 0.621594,
+"prospect": 0.986909,
+"pursuit": 0.796029,
+"quiet": 0.417621,
+"range": 1.06967,
+"retreat_hull": 0.286677,
+"return_fire": 0.290173,
+"teamwork": 1.20814,
+"trade": 0.0240031
 }
-role = "cannon-fighter"
+role = "fighter"
 family = "fighter"
 weight_class = "light"
-archetype = "cannon-fighter light"
+archetype = "fighter light"
 temperament = "cautious"
-traits = [ "skittish" ]
-lives = 10
-fitness = 1.24364
-origin = "cannon_fighter_light_15958 (era 51)"
+traits = [  ]
+lives = 16
+fitness = 0.12453
+origin = "fighter_light_20785i2 (era 65)"
 genome = {
 "behavior": {
-"burn": 0.349153,
-"caution": 0.342074,
-"disengage": 1.07722,
-"engage": 2.60604,
-"haul": 0.246,
-"mercy": 0.723985,
-"prospect": 0.0907599,
-"pursuit": 1.35649,
-"quiet": 0.273286,
-"range": 0.864134,
-"retreat_hull": 0.709746,
-"return_fire": 0.560175,
-"teamwork": 1.15317
+"burn": 0.0,
+"caution": 0.576482,
+"disengage": 1.34314,
+"engage": 1.65595,
+"haul": 0.696153,
+"mercy": 0.621594,
+"prospect": 0.986909,
+"pursuit": 0.796029,
+"quiet": 0.417621,
+"range": 1.06967,
+"retreat_hull": 0.286677,
+"return_fire": 0.290173,
+"teamwork": 1.20814,
+"trade": 0.0240031
 },
 "modules": [ {
-} ],
-"ship": {
-"shares": {
-"capacitor": 0.0476154,
-"engine": 0.285649,
-"hold": 0.0954282,
-"reactor": 0.0922441,
-"structure": 0.479063
-},
-"size": 0.591245,
-"tool_share": 0.500011,
-"type": 1
-},
-"tools": [ {
 "genes": {
-"count": 80.0,
-"mass": 150.0,
-"round_mass": 2.0
+"mass": 120.0
 },
-"kind": "cannon",
+"kind": "sensor",
 "type": 1
 }, {
 "genes": {
-"energy": 2.511,
-"mass": 150.0
+"mass": 167.938
 },
-"kind": "laser",
+"kind": "afterburner",
+"type": 1
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.0900913,
+"engine": 0.251875,
+"hold": 0.106209,
+"reactor": 0.0652328,
+"structure": 0.486591
+},
+"size": 0.656216,
+"tool_share": 0.470474,
+"type": 2
+},
+"tools": [ {
+"genes": {
+"count": 3.5,
+"round_mass": 39.03
+},
+"kind": "missile",
+"type": 1
+}, {
+"genes": {
+"count": 3.5,
+"round_mass": 39.03
+},
+"kind": "missile",
 "type": 1
 } ]
 }

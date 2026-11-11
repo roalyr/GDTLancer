@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_prospector_light_21230i1"
+ship_model_name = "Prospector Light 21230 I 1 Mk I"
+base_value = 706
+ship_scene = ExtResource( 2 )
+hull_integrity = 57
+cargo_capacity = 31
+interaction_radius = 13.3554
+apparent_radius = 10.6843
+signature = 1335.54
+sensor_strength = 1.0
+tool_slots_small = 3
+tool_slots_medium = 0
+tool_slots_large = 0
+module_slots = 1
+module_slot_size = "small"
+equipped_tools = [ "preset_laser_light", "preset_harpoon" ]
+equipped_modules = [ "preset_lance_light" ]
+salvage_yield = {
+"commodity_scrap": 14,
+"commodity_tech": 8
+}
+power_capacity = 117.142
+power_regen = 6.12231
+mass = 4234.93
+linear_thrust = 480955.0
+angular_thrust = 475327.0
+alignment_threshold_angle_deg = 45.0
+model_scale = 0.890358
+variant_type = 1
+law_genes = {
+"shares": {
+"capacitor": 0.0829826,
+"engine": 0.305097,
+"hold": 0.220706,
+"reactor": 0.0821381,
+"structure": 0.309076
+},
+"size": 0.705821,
+"tool_share": 0.89195,
+"type": 1
+}

@@ -7,42 +7,42 @@
 script = ExtResource( 1 )
 template_id = "preset_ship_archetype_fighter_light"
 ship_model_name = "Fighter Mk I-light"
-base_value = 591
+base_value = 656
 ship_scene = ExtResource( 2 )
-hull_integrity = 71
-cargo_capacity = 11
-interaction_radius = 12.5897
-apparent_radius = 10.0717
-signature = 1258.97
+hull_integrity = 78
+cargo_capacity = 14
+interaction_radius = 13.0349
+apparent_radius = 10.4279
+signature = 1303.49
 sensor_strength = 1.0
 tool_slots_small = 2
 tool_slots_medium = 0
 tool_slots_large = 0
-module_slots = 1
+module_slots = 2
 module_slot_size = "small"
-equipped_tools = [ "preset_cannon_light", "preset_laser_light" ]
-equipped_modules = [  ]
+equipped_tools = [ "preset_missile_light", "preset_missile_light" ]
+equipped_modules = [ "preset_sensor_light", "preset_afterburner_light" ]
 salvage_yield = {
-"commodity_scrap": 12,
-"commodity_tech": 7
+"commodity_scrap": 13,
+"commodity_tech": 6
 }
-power_capacity = 56.3048
-power_regen = 5.79476
-mass = 3547.47
-linear_thrust = 386479.0
-angular_thrust = 360057.0
+power_capacity = 118.239
+power_regen = 4.65974
+mass = 3937.3
+linear_thrust = 379048.0
+angular_thrust = 365623.0
 alignment_threshold_angle_deg = 45.0
-model_scale = 0.83931
-variant_type = 1
+model_scale = 0.868992
+variant_type = 2
 law_genes = {
 "shares": {
-"capacitor": 0.0476154,
-"engine": 0.285649,
-"hold": 0.0954282,
-"reactor": 0.0922441,
-"structure": 0.479063
+"capacitor": 0.0900913,
+"engine": 0.251875,
+"hold": 0.106209,
+"reactor": 0.0652328,
+"structure": 0.486591
 },
-"size": 0.591245,
-"tool_share": 0.500011,
-"type": 1
+"size": 0.656216,
+"tool_share": 0.470474,
+"type": 2
 }

@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_fighter_medium_21180i1"
+ship_model_name = "Fighter Medium 21180 I 1 Mk I"
+base_value = 999
+ship_scene = ExtResource( 2 )
+hull_integrity = 66
+cargo_capacity = 37
+interaction_radius = 14.9938
+apparent_radius = 11.995
+signature = 1499.38
+sensor_strength = 1.0
+tool_slots_small = 0
+tool_slots_medium = 3
+tool_slots_large = 0
+module_slots = 1
+module_slot_size = "medium"
+equipped_tools = [ "preset_laser_medium", "preset_missile_medium" ]
+equipped_modules = [  ]
+salvage_yield = {
+"commodity_scrap": 20,
+"commodity_tech": 15
+}
+power_capacity = 88.5137
+power_regen = 6.27709
+mass = 5992.55
+linear_thrust = 938751.0
+angular_thrust = 1.04158e+06
+alignment_threshold_angle_deg = 45.0
+model_scale = 0.999586
+variant_type = 1
+law_genes = {
+"shares": {
+"capacitor": 0.0443118,
+"engine": 0.453304,
+"hold": 0.183185,
+"reactor": 0.0596797,
+"structure": 0.25952
+},
+"size": 0.998759,
+"tool_share": 1.0,
+"type": 1
+}

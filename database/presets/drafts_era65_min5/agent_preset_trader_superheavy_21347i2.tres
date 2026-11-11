@@ -1,0 +1,114 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_trader_superheavy_21347i2"
+agent_type = "npc"
+ship_template_id = "preset_ship_trader_superheavy_21347i2"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.314734,
+"caution": 0.571973,
+"disengage": 0.653361,
+"engage": 3.39607,
+"haul": 0.208208,
+"mercy": 0.416313,
+"prospect": 0.0334204,
+"pursuit": 0.470659,
+"quiet": 0.508597,
+"range": 0.947797,
+"retreat_hull": 0.2385,
+"return_fire": 0.67195,
+"teamwork": 1.03548,
+"trade": 0.867808
+}
+role = "trader"
+family = "trader"
+weight_class = "superheavy"
+archetype = "trader superheavy"
+temperament = "cautious"
+traits = [ "picks its fights" ]
+lives = 11
+fitness = -0.0299278
+origin = ""
+genome = {
+"behavior": {
+"burn": 0.314734,
+"caution": 0.571973,
+"disengage": 0.653361,
+"engage": 3.39607,
+"haul": 0.208208,
+"mercy": 0.416313,
+"prospect": 0.0334204,
+"pursuit": 0.470659,
+"quiet": 0.508597,
+"range": 0.947797,
+"retreat_hull": 0.2385,
+"return_fire": 0.67195,
+"teamwork": 1.03548,
+"trade": 0.867808
+},
+"modules": [ {
+"genes": {
+"mass": 600.0
+},
+"kind": "rack",
+"type": 3
+}, {
+}, {
+}, {
+"genes": {
+"mass": 600.0
+},
+"kind": "power_cell",
+"type": 3
+}, {
+"genes": {
+"mass": 345.283
+},
+"kind": "afterburner",
+"type": 2
+}, {
+}, {
+}, {
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.053497,
+"engine": 0.21053,
+"hold": 0.486921,
+"reactor": 0.0503582,
+"structure": 0.198694
+},
+"size": 6.31651,
+"tool_share": 0.313565,
+"type": 4
+},
+"tools": [ {
+"genes": {
+"energy": 6.5,
+"mass": 450.0
+},
+"kind": "laser",
+"type": 2
+}, {
+"genes": {
+"energy": 6.5,
+"mass": 450.0
+},
+"kind": "laser",
+"type": 2
+}, {
+"genes": {
+"count": 80.0,
+"mass": 150.0,
+"round_mass": 2.0
+},
+"kind": "cannon",
+"type": 1
+}, {
+} ]
+}

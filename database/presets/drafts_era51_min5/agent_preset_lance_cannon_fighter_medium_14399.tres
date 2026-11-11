@@ -25,7 +25,7 @@ behavior = {
 "teamwork": 1.06276
 }
 role = "lance-cannon-fighter"
-family = "lance"
+family = "fighter"
 weight_class = "medium"
 archetype = "lance-cannon-fighter medium"
 temperament = "measured"

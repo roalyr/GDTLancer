@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_prospector_heavy_20750i2"
+ship_model_name = "Prospector Heavy 20750 I 2 Mk I"
+base_value = 2868
+ship_scene = ExtResource( 2 )
+hull_integrity = 289
+cargo_capacity = 42
+interaction_radius = 21.3118
+apparent_radius = 17.0495
+signature = 2131.19
+sensor_strength = 1.0
+tool_slots_small = 0
+tool_slots_medium = 0
+tool_slots_large = 3
+module_slots = 4
+module_slot_size = "large"
+equipped_tools = [ "preset_laser_light", "preset_harpoon", "preset_missile_heavy" ]
+equipped_modules = [ "preset_lance_heavy", "preset_afterburner_medium", "preset_decoy_medium" ]
+salvage_yield = {
+"commodity_scrap": 57,
+"commodity_tech": 26
+}
+power_capacity = 294.548
+power_regen = 28.4565
+mass = 17208.4
+linear_thrust = 1.0985e+06
+angular_thrust = 1.73243e+06
+alignment_threshold_angle_deg = 45.0
+model_scale = 1.42079
+variant_type = 4
+law_genes = {
+"shares": {
+"capacitor": 0.0513496,
+"engine": 0.187973,
+"hold": 0.0733582,
+"reactor": 0.111444,
+"structure": 0.575875
+},
+"size": 2.86807,
+"tool_share": 0.448727,
+"type": 4
+}

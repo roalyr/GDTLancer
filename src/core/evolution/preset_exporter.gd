@@ -1,6 +1,6 @@
 # PresetExporter: writes a saved evolution's best genomes as template files (tools/export_presets.gd).
 # Presets are what the evolution is for, whatever the faction: the factions' pools are ranked as one.
-# Each archetype (a niche's role: "lance-missile-raider", "scavenger", ...) in each weight class
+# Each archetype (a niche's role: "missile-raider", "scavenger", ...) in each weight class
 # (light, medium, heavy, superheavy: PRESET_WEIGHT_CLASSES) gives its fittest genome (ranked: the
 # cautious estimate) with at least `min_lives` lives, fittest first, `top` of them. Each becomes a
 # ShipTemplate (its default fit the genome's parts, one harpoon at most), the part templates it names,
@@ -65,16 +65,17 @@ static func export_all(evolution: Dictionary, top: int, min_lives: int, folder: 
 	var best: Dictionary = {}  # Archetype -> its fittest pick
 	for faction in evolution.get("pools", {}):
 		var cells: Dictionary = evolution.pools[faction].cells
-		for niche in cells:
-			var entry = genomes.get(cells[niche])
+		for cell in cells:
+			var entry = genomes.get(cells[cell])
 			if not (entry is Dictionary and int(entry.lives) >= min_lives):
 				continue
+			var niche: String = Genome.niche(entry.genome)  # As niches are named now (a save from before a renaming)
 			if niche.find("|drifter|") >= 0:
 				continue  # Unarmed and without a harpoon: no use as a preset
 			# Against its own faction's family: a design is not better for flying where its faction does well
 			# (era 53-57: xenohive and raider genomes won archetypes on their faction's luck)
 			var own: float = float(baseline.get("%s|%s" % [faction, Genome.family(niche)], 0.0))
-			var pick := {"fitness": ranked(entry) - own, "raw": ranked(entry), "niche": niche, "id": cells[niche], "entry": entry}
+			var pick := {"fitness": ranked(entry) - own, "raw": ranked(entry), "niche": niche, "id": cells[cell], "entry": entry}
 			var kind: String = archetype(niche)
 			if not best.has(kind) or pick.fitness > best[kind].fitness:
 				best[kind] = pick
@@ -148,6 +149,7 @@ static func write_preset(genome: Dictionary, genome_id: String, dir_path: String
 	agent.ship_template_id = ship_id
 	agent.faction = ""  # Archetypes belong to no faction; the spawner gives one
 	agent.behavior = genome.get("behavior", {}).duplicate()
+	agent.genome = genome.duplicate(true)  # What the game flies once picked as an archetype (tools/pick_archetypes.gd)
 	apply_classification(agent, PresetClassifier.classify(ship, agent.behavior, niche.split("|")[1] if niche.count("|") >= 2 else ""))
 	agent.lives = int(record.get("lives", 0))
 	agent.fitness = float(record.get("fitness", 0.0))

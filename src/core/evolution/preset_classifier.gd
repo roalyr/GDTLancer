@@ -1,6 +1,6 @@
 # PresetClassifier: names what a preset is, for picking archetypes when building factions. A preset
 # stays whole (hull, fit and behaviour genes evolved together); this only labels it:
-# - role ("lance-raider", "prospector": Genome.niche's names, read off the ship's fit), family
+# - role ("cannon-raider", "prospector": Genome.niche's names, read off the ship's fit), family
 #   (Genome.family) and weight class (light / medium / heavy: Constants PRESET_WEIGHT_CLASSES);
 # - temperament: "aggressive", "measured" or "cautious", from how readily the genes start, keep up
 #   and chase fights against how soon they run, next to the default genes (PRESET_TEMPERAMENT_GENES);
@@ -66,10 +66,8 @@ static func ship_role(ship, behavior: Dictionary = {}) -> String:
 	for kind in ["cannon", "missile"]:
 		if kinds.has(kind):
 			role = kind + "-" + role
-	if lance:
-		role = "lancer" if not armed else "lance-" + role
-		if kinds.has("laser") and kinds.has("harpoon") and float(behavior.get("prospect", 0.0)) >= 0.5:
-			role = "prospector"
+	if lance and kinds.has("laser") and kinds.has("harpoon") and float(behavior.get("prospect", 0.0)) >= 0.5:
+		role = "prospector"  # A lance is a part, not a role (Genome.niche), but with these it mines
 	return role
 
 

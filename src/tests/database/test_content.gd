@@ -25,14 +25,14 @@ func test_sector_layouts_and_havens_are_complete():
 
 
 func test_archetypes_are_complete():
-	assert_eq(Validator.archetype_names().size(), 15, "Fifteen archetypes")
+	assert_eq(Validator.archetype_names().size(), 12, "Twelve archetypes: fighter, prospector, raider, scavenger by weight (no lance family since era 67)")
 	assert_eq(_texts(Validator.archetypes()), [])
 
 
 # Every ship and station model the game flies or places keeps the model rules (ModelCheck).
 func test_every_model_in_use_keeps_the_rules():
 	var used: Dictionary = Validator.models_in_use()
-	assert_gt(used.ships.size(), 15, "Archetypes' hulls and the xenohive's")
+	assert_gt(used.ships.size(), 12, "Archetypes' hulls and the xenohive's")
 	assert_true(used.stations.has(Constants.STATION_DEFAULT_MODEL))
 	assert_eq(_texts(Validator.models()), [])
 

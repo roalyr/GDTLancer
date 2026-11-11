@@ -10,61 +10,71 @@ ship_template_id = "preset_ship_archetype_prospector_medium"
 faction = ""
 skill = 0.5
 behavior = {
-"burn": 0.0644289,
-"caution": 0.714102,
-"disengage": 0.751272,
-"engage": 1.81644,
-"haul": 0.543165,
-"mercy": 0.469665,
-"prospect": 0.82111,
-"pursuit": 1.04666,
-"range": 0.896798,
-"retreat_hull": 0.352187,
-"return_fire": 0.21924,
-"teamwork": 1.29047
+"burn": 0.254929,
+"caution": 0.978813,
+"disengage": 0.750861,
+"engage": 1.85494,
+"haul": 0.217062,
+"mercy": 0.267234,
+"prospect": 0.542304,
+"pursuit": 1.20332,
+"quiet": 0.371276,
+"range": 0.851833,
+"retreat_hull": 0.310312,
+"return_fire": 0.3693,
+"teamwork": 1.06704,
+"trade": 0.24111
 }
 role = "prospector"
 family = "prospector"
 weight_class = "medium"
 archetype = "prospector medium"
 temperament = "cautious"
-traits = [  ]
-lives = 11
-fitness = 0.305259
-origin = "prospector_medium_14901 (era 51)"
+traits = [ "wary" ]
+lives = 15
+fitness = 0.189948
+origin = "prospector_medium_21091i1 (era 65)"
 genome = {
 "behavior": {
-"burn": 0.0644289,
-"caution": 0.714102,
-"disengage": 0.751272,
-"engage": 1.81644,
-"haul": 0.543165,
-"mercy": 0.469665,
-"prospect": 0.82111,
-"pursuit": 1.04666,
-"range": 0.896798,
-"retreat_hull": 0.352187,
-"return_fire": 0.21924,
-"teamwork": 1.29047
+"burn": 0.254929,
+"caution": 0.978813,
+"disengage": 0.750861,
+"engage": 1.85494,
+"haul": 0.217062,
+"mercy": 0.267234,
+"prospect": 0.542304,
+"pursuit": 1.20332,
+"quiet": 0.371276,
+"range": 0.851833,
+"retreat_hull": 0.310312,
+"return_fire": 0.3693,
+"teamwork": 1.06704,
+"trade": 0.24111
 },
 "modules": [ {
 "genes": {
-"count": 3.092,
-"nail_mass": 109.356
+"count": 2.781,
+"nail_mass": 300.238
 },
 "kind": "lance",
-"type": 1
+"type": 2
+}, {
+"genes": {
+"mass": 200.0
+},
+"kind": "decoy",
+"type": 2
 } ],
 "ship": {
 "shares": {
-"capacitor": 0.069485,
-"engine": 0.284373,
-"hold": 0.092663,
-"reactor": 0.0672567,
-"structure": 0.486222
+"capacitor": 0.0721175,
+"engine": 0.421627,
+"hold": 0.075179,
+"reactor": 0.0639789,
+"structure": 0.367097
 },
-"size": 0.989953,
-"tool_share": 0.724,
+"size": 1.18344,
+"tool_share": 0.575467,
 "type": 2
 },
 "tools": [ {
@@ -79,12 +89,5 @@ genome = {
 },
 "kind": "harpoon",
 "type": 0
-}, {
-"genes": {
-"energy": 6.5,
-"mass": 450.0
-},
-"kind": "laser",
-"type": 2
 } ]
 }

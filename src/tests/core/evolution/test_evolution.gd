@@ -117,7 +117,6 @@ func test_each_family_gets_its_share_of_lives_whatever_its_fitness():
 		families[Genome.family(Genome.niche(source.genome))] += 1
 	var share: float = float(families.prospector) / 400.0
 	assert_almost_eq(share, 1.0 / families.size(), 0.08, "Prospectors fly their family's share though far less fit")
-	assert_eq(Genome.family("s+0.0|lance-cannon-raider|-"), "lance")
 	assert_eq(Genome.family("s+0.0|missile-cannon-raider|-"), "raider")
 	assert_eq(Genome.family("s+0.0|cannon-fighter|mid"), "fighter")
 	assert_eq(Genome.family("s+0.0|scavenger|-"), "scavenger")
@@ -135,8 +134,6 @@ func test_fitness_is_return_on_cost_less_a_lost_ship():
 	record.combat = true
 	assert_almost_eq(Evolution.fitness_of(record, true, 0.0), -0.5 + 1.5 * Constants.EVO_COMBAT_EXCHANGE_WEIGHT, 0.0001, "A fighter that took 1.5 ships' worth for its own: ahead")
 	assert_true(Genome.is_combat_role("s+0.0|missile-raider|-"))
-	assert_true(Genome.is_combat_role("s+0.0|lancer|-"))
-	assert_true(Genome.is_combat_role("s+0.0|lance-cannon-fighter|mid"))
 	assert_false(Genome.is_combat_role("s+0.0|scavenger|-"))
 	assert_false(Genome.is_combat_role("s+0.0|prospector|mid"))
 

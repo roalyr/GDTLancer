@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=1]
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=2]
+
+[resource]
+script = ExtResource( 2 )
+template_id = "preset_ship_raider_medium_20809i2"
+ship_model_name = "Raider Medium 20809 I 2 Mk I"
+base_value = 1578
+ship_scene = ExtResource( 1 )
+hull_integrity = 193
+cargo_capacity = 17
+interaction_radius = 17.4639
+apparent_radius = 13.9711
+signature = 1746.39
+sensor_strength = 1.0
+tool_slots_small = 0
+tool_slots_medium = 4
+tool_slots_large = 0
+module_slots = 2
+module_slot_size = "medium"
+equipped_tools = [ "preset_missile_medium", "preset_cannon_light", "preset_harpoon" ]
+equipped_modules = [ "preset_sensor_light" ]
+salvage_yield = {
+"commodity_scrap": 32,
+"commodity_tech": 14
+}
+power_capacity = 81.0572
+power_regen = 13.2764
+mass = 9468.91
+linear_thrust = 688196.0
+angular_thrust = 889374.0
+alignment_threshold_angle_deg = 45.0
+model_scale = 1.16426
+variant_type = 3
+law_genes = {
+"shares": {
+"capacitor": 0.0256811,
+"engine": 0.20318,
+"hold": 0.0524744,
+"reactor": 0.0868174,
+"structure": 0.631847
+},
+"size": 1.57815,
+"tool_share": 0.610791,
+"type": 3
+}

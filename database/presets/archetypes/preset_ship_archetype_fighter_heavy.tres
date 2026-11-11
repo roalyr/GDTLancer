@@ -7,42 +7,42 @@
 script = ExtResource( 1 )
 template_id = "preset_ship_archetype_fighter_heavy"
 ship_model_name = "Fighter Mk I-heavy"
-base_value = 7272
+base_value = 3292
 ship_scene = ExtResource( 2 )
-hull_integrity = 612
-cargo_capacity = 17
-interaction_radius = 29.0606
-apparent_radius = 23.2485
-signature = 2906.06
+hull_integrity = 357
+cargo_capacity = 41
+interaction_radius = 22.3137
+apparent_radius = 17.8509
+signature = 2231.37
 sensor_strength = 1.0
 tool_slots_small = 0
 tool_slots_medium = 0
-tool_slots_large = 12
-module_slots = 1
+tool_slots_large = 6
+module_slots = 2
 module_slot_size = "large"
-equipped_tools = [ "preset_laser_light", "preset_laser_light", "preset_cannon_medium", "preset_cannon_heavy", "preset_laser_heavy", "preset_laser_heavy", "preset_laser_medium", "preset_missile_medium", "preset_missile_heavy", "preset_laser_heavy" ]
-equipped_modules = [ "preset_plating_light" ]
+equipped_tools = [ "preset_cannon_heavy", "preset_laser_light", "preset_laser_light", "preset_missile_heavy", "preset_missile_heavy", "preset_laser_medium" ]
+equipped_modules = [ "preset_thruster_heavy" ]
 salvage_yield = {
-"commodity_scrap": 145,
-"commodity_tech": 77
+"commodity_scrap": 66,
+"commodity_tech": 24
 }
-power_capacity = 836.77
-power_regen = 88.0511
-mass = 43630.6
-linear_thrust = 2.64833e+06
-angular_thrust = 5.69519e+06
+power_capacity = 271.132
+power_regen = 30.6659
+mass = 19751.0
+linear_thrust = 933957.0
+angular_thrust = 1.54216e+06
 alignment_threshold_angle_deg = 45.0
-model_scale = 1.93737
+model_scale = 1.48758
 variant_type = 3
 law_genes = {
 "shares": {
-"capacitor": 0.0575355,
-"engine": 0.197096,
-"hold": 0.0114298,
-"reactor": 0.154193,
-"structure": 0.579745
+"capacitor": 0.0411824,
+"engine": 0.136754,
+"hold": 0.0629344,
+"reactor": 0.105509,
+"structure": 0.65362
 },
-"size": 7.27177,
-"tool_share": 1.0,
+"size": 3.29184,
+"tool_share": 0.787618,
 "type": 3
 }

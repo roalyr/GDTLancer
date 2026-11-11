@@ -332,19 +332,21 @@ static func hull_value(genome: Dictionary) -> float:
 # --- Niches and descriptions ---
 
 # The niche a genome belongs to: size class (half-octaves of size), role, laser range class. The role
-# is fighter / raider (with a harpoon) / scavenger / drifter, after its weapons; missiles, cannons
-# and a lance each prefix it ("missile-fighter", "lance-cannon-raider"), so a new archetype grows on
-# its own branch instead of competing head-on with lasers. A lance with no other weapon: "lancer".
-# A niche whose job is fighting: fighters, raiders and lancers (not scavengers, prospectors or
-# drifters), judged on the exchange (Evolution.fitness_of).
+# is fighter / raider (with a harpoon) / scavenger / drifter, after its weapons; missiles and cannons
+# each prefix it ("missile-fighter", "cannon-raider"), so a new archetype grows on its own branch
+# instead of competing head-on with lasers. A lance is a part, not a role (since era 67: lance ships
+# did worst of all in eras 63-66 whatever their tactics): any ship may carry one, as a prospecting
+# tool or a close-in weapon, and its role is that of its other parts.
+# A niche whose job is fighting: fighters and raiders (not scavengers, prospectors or drifters),
+# judged on the exchange (Evolution.fitness_of).
 static func is_combat_role(niche_name: String) -> bool:
 	var role: String = niche_name.split("|")[1] if niche_name.count("|") >= 2 else niche_name
-	return role.ends_with("fighter") or role.ends_with("raider") or role == "lancer"
+	return role.ends_with("fighter") or role.ends_with("raider")
 
 
 # A niche's family, what a spawn picks first (Evolution._pick_genome, so each gets its share of lives
-# whatever its fitness): "lance" (lancer, lance-*), "raider", "fighter" (guns, with or without a
-# harpoon), or the role itself (prospector, scavenger, drifter, and any role a new rule adds).
+# whatever its fitness): "raider", "fighter" (guns, with or without a harpoon), or the role itself
+# (prospector, scavenger, drifter, and any role a new rule adds).
 # An archetype's preset (database/presets/archetypes/preset_ship_archetype_<model>.tres) as the game
 # flies it: that ship template, its stats, model and fit as the file has them (a hand-made model
 # replaces the placeholder there). A faction with a hull of its own (its ship_scene: the xenohive)
@@ -387,8 +389,6 @@ const WEIGHT_SIZE_CLASS = {"light": -1.0, "medium": 0.0, "heavy": 1.0, "superhea
 
 static func family(niche_name: String) -> String:
 	var role: String = niche_name.split("|")[1] if niche_name.count("|") >= 2 else niche_name
-	if role == "lancer" or role.begins_with("lance-"):
-		return "lance"
 	for kind in ["raider", "fighter"]:
 		if role.ends_with(kind):
 			return kind
@@ -426,10 +426,7 @@ static func niche(genome: Dictionary) -> String:
 			role = "trader"  # Buys and sells between stations (ShipControllerAI is_trader); armed or not
 	var lance := false
 	for part in genome.modules:
-		if not part.empty() and part.kind == "lance":
-			role = "lancer" if not armed else "lance-" + role
-			lance = true
-			break
+		lance = lance or (not part.empty() and part.kind == "lance")
 	if lance and lasers > 0 and harpoons > 0 and float(genome.get("behavior", {}).get("prospect", 0.0)) >= 0.5:
 		role = "prospector"  # Mines (ShipControllerAI): laser, lance and harpoon, and the will to
 	var range_class: String = "-"
