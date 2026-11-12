@@ -19,4 +19,4 @@ patrol_wages = true
 hull_material = "res://assets/art/materials_generic/mat_hull_faction_verdant.tres"
 station_material = "res://assets/art/materials_generic/mat_hull_faction_verdant.tres"
 ship_scene = ""
-roster = [ "fighter_light", "fighter_medium", "fighter_heavy", "prospector_light", "prospector_medium", "prospector_heavy", "scavenger_light", "scavenger_medium", "scavenger_heavy" ]
+roster = [ "fighter_light", "fighter_medium", "fighter_heavy", "prospector_light", "prospector_medium", "prospector_heavy", "scavenger_light", "scavenger_medium", "scavenger_heavy", "trader_medium", "trader_superheavy", "fighter_superheavy" ]

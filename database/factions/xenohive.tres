@@ -19,4 +19,4 @@ patrol_wages = false
 hull_material = "res://assets/art/materials_generic/mat_hull_faction_xenohive.tres"
 station_material = "res://assets/art/materials_generic/mat_hull_faction_xenohive.tres"
 ship_scene = "res://scenes/prefabs/ships/xenohive_vessel.tscn"
-roster = [ "fighter_light", "fighter_medium", "fighter_heavy", "scavenger_light" ]
+roster = [ "fighter_light", "fighter_medium", "fighter_heavy", "scavenger_light", "fighter_superheavy" ]

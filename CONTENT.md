@@ -72,7 +72,7 @@ There is one ship design per family and weight class:
 - families: fighter, prospector, raider, scavenger, trader (a lance is a part any ship may fit, not a family);
 - weight classes: light, medium, heavy, superheavy.
 
-Twenty in all. A design flies only once a faction's `roster` names it: traders and superheavies are not in any roster yet.
+Twenty in all. A design flies only once a faction's `roster` names it: each entry of a roster is as likely as the others. Verdant and Violet fly a medium and a superheavy trader and a superheavy fighter beside their fighters, prospectors and scavengers; the raiders a superheavy raider, the xenohive a superheavy fighter.
 
 `tools/pick_archetypes.gd --from=<drafts folder> --era=<n>` replaces each archetype with that folder's design of the same family and weight class (`--add`: makes the ones missing too).
 
