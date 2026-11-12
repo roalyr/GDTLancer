@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_trader_heavy_22438i2"
+ship_model_name = "Trader Heavy 22438 I 2 Mk I"
+base_value = 3233
+ship_scene = ExtResource( 2 )
+hull_integrity = 186
+cargo_capacity = 260
+interaction_radius = 22.1793
+apparent_radius = 17.7434
+signature = 2217.93
+sensor_strength = 1.0
+tool_slots_small = 0
+tool_slots_medium = 0
+tool_slots_large = 3
+module_slots = 5
+module_slot_size = "large"
+equipped_tools = [ "preset_cannon_medium" ]
+equipped_modules = [ "preset_magazine_heavy", "preset_damper_light", "preset_damper_medium" ]
+salvage_yield = {
+"commodity_scrap": 65,
+"commodity_tech": 24
+}
+power_capacity = 349.77
+power_regen = 16.4082
+mass = 19396.4
+linear_thrust = 1.27054e+06
+angular_thrust = 2.08529e+06
+alignment_threshold_angle_deg = 45.0
+model_scale = 1.47862
+variant_type = 3
+law_genes = {
+"shares": {
+"capacitor": 0.0540981,
+"engine": 0.196029,
+"hold": 0.402714,
+"reactor": 0.0536274,
+"structure": 0.293532
+},
+"size": 3.23274,
+"tool_share": 0.364567,
+"type": 3
+}

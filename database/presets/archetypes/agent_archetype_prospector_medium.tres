@@ -10,20 +10,20 @@ ship_template_id = "preset_ship_archetype_prospector_medium"
 faction = ""
 skill = 0.5
 behavior = {
-"burn": 0.254929,
+"burn": 0.128203,
 "caution": 0.978813,
-"disengage": 0.750861,
-"engage": 1.85494,
-"haul": 0.217062,
-"mercy": 0.267234,
-"prospect": 0.542304,
-"pursuit": 1.20332,
-"quiet": 0.371276,
-"range": 0.851833,
-"retreat_hull": 0.310312,
-"return_fire": 0.3693,
-"teamwork": 1.06704,
-"trade": 0.24111
+"disengage": 0.497988,
+"engage": 2.03403,
+"haul": 0.236056,
+"mercy": 0.440993,
+"prospect": 0.68404,
+"pursuit": 1.54999,
+"quiet": 0.464031,
+"range": 1.05294,
+"retreat_hull": 0.205994,
+"return_fire": 0.261066,
+"teamwork": 0.905764,
+"trade": 0.224763
 }
 role = "prospector"
 family = "prospector"
@@ -31,25 +31,25 @@ weight_class = "medium"
 archetype = "prospector medium"
 temperament = "cautious"
 traits = [ "wary" ]
-lives = 15
-fitness = 0.189948
-origin = "prospector_medium_21091i1 (era 65)"
+lives = 16
+fitness = 0.25729
+origin = "prospector_medium_22001i1 (era 67)"
 genome = {
 "behavior": {
-"burn": 0.254929,
+"burn": 0.128203,
 "caution": 0.978813,
-"disengage": 0.750861,
-"engage": 1.85494,
-"haul": 0.217062,
-"mercy": 0.267234,
-"prospect": 0.542304,
-"pursuit": 1.20332,
-"quiet": 0.371276,
-"range": 0.851833,
-"retreat_hull": 0.310312,
-"return_fire": 0.3693,
-"teamwork": 1.06704,
-"trade": 0.24111
+"disengage": 0.497988,
+"engage": 2.03403,
+"haul": 0.236056,
+"mercy": 0.440993,
+"prospect": 0.68404,
+"pursuit": 1.54999,
+"quiet": 0.464031,
+"range": 1.05294,
+"retreat_hull": 0.205994,
+"return_fire": 0.261066,
+"teamwork": 0.905764,
+"trade": 0.224763
 },
 "modules": [ {
 "genes": {
@@ -60,21 +60,21 @@ genome = {
 "type": 2
 }, {
 "genes": {
-"mass": 200.0
+"mass": 345.283
 },
-"kind": "decoy",
+"kind": "afterburner",
 "type": 2
 } ],
 "ship": {
 "shares": {
-"capacitor": 0.0721175,
-"engine": 0.421627,
-"hold": 0.075179,
-"reactor": 0.0639789,
-"structure": 0.367097
+"capacitor": 0.0601846,
+"engine": 0.439273,
+"hold": 0.0602166,
+"reactor": 0.054248,
+"structure": 0.386078
 },
-"size": 1.18344,
-"tool_share": 0.575467,
+"size": 1.275,
+"tool_share": 0.520502,
 "type": 2
 },
 "tools": [ {

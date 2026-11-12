@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=1]
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=2]
+
+[resource]
+script = ExtResource( 2 )
+template_id = "preset_ship_raider_superheavy_22118i3"
+ship_model_name = "Raider Superheavy 22118 I 3 Mk I"
+base_value = 3912
+ship_scene = ExtResource( 1 )
+hull_integrity = 258
+cargo_capacity = 116
+interaction_radius = 23.6353
+apparent_radius = 18.9083
+signature = 2363.53
+sensor_strength = 1.0
+tool_slots_small = 0
+tool_slots_medium = 0
+tool_slots_large = 4
+module_slots = 5
+module_slot_size = "large"
+equipped_tools = [ "preset_laser_heavy", "preset_harpoon" ]
+equipped_modules = [ "preset_damper_medium", "preset_thruster_heavy", "preset_damper_medium", "preset_sensor_heavy" ]
+salvage_yield = {
+"commodity_scrap": 78,
+"commodity_tech": 51
+}
+power_capacity = 396.63
+power_regen = 40.283
+mass = 23472.6
+linear_thrust = 2.31657e+06
+angular_thrust = 4.05171e+06
+alignment_threshold_angle_deg = 45.0
+model_scale = 1.57569
+variant_type = 4
+law_genes = {
+"shares": {
+"capacitor": 0.0506926,
+"engine": 0.315735,
+"hold": 0.14799,
+"reactor": 0.120212,
+"structure": 0.365371
+},
+"size": 3.91211,
+"tool_share": 0.435031,
+"type": 4
+}

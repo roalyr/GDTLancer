@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=1]
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=2]
+
+[resource]
+script = ExtResource( 2 )
+template_id = "preset_ship_fighter_heavy_22297i4"
+ship_model_name = "Fighter Heavy 22297 I 4 Mk I"
+base_value = 2105
+ship_scene = ExtResource( 1 )
+hull_integrity = 157
+cargo_capacity = 98
+interaction_radius = 19.2242
+apparent_radius = 15.3794
+signature = 1922.42
+sensor_strength = 1.0
+tool_slots_small = 0
+tool_slots_medium = 0
+tool_slots_large = 4
+module_slots = 2
+module_slot_size = "large"
+equipped_tools = [ "preset_missile_heavy", "preset_laser_medium", "preset_laser_heavy", "preset_laser_light" ]
+equipped_modules = [ "preset_damper_heavy" ]
+salvage_yield = {
+"commodity_scrap": 42,
+"commodity_tech": 18
+}
+power_capacity = 467.984
+power_regen = 20.2713
+mass = 12630.6
+linear_thrust = 828234.0
+angular_thrust = 1.17824e+06
+alignment_threshold_angle_deg = 45.0
+model_scale = 1.28161
+variant_type = 2
+law_genes = {
+"shares": {
+"capacitor": 0.111155,
+"engine": 0.187127,
+"hold": 0.231896,
+"reactor": 0.104162,
+"structure": 0.36566
+},
+"size": 2.10509,
+"tool_share": 0.660302,
+"type": 2
+}

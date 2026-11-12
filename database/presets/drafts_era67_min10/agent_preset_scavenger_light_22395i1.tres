@@ -1,0 +1,79 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_scavenger_light_22395i1"
+agent_type = "npc"
+ship_template_id = "preset_ship_scavenger_light_22395i1"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.619948,
+"caution": 0.881453,
+"disengage": 2.37914,
+"engage": 3.53516,
+"haul": 0.05,
+"mercy": 0.0718245,
+"prospect": 0.0,
+"pursuit": 1.76621,
+"quiet": 0.26153,
+"range": 1.26475,
+"retreat_hull": 0.485799,
+"return_fire": 0.359517,
+"teamwork": 1.46928,
+"trade": 1.0
+}
+role = "scavenger"
+family = "scavenger"
+weight_class = "light"
+archetype = "scavenger light"
+temperament = "cautious"
+traits = [ "picks its fights", "quick to break off", "skittish", "ruthless", "wary", "sells often" ]
+lives = 23
+fitness = 0.511382
+origin = ""
+genome = {
+"behavior": {
+"burn": 0.619948,
+"caution": 0.881453,
+"disengage": 2.37914,
+"engage": 3.53516,
+"haul": 0.05,
+"mercy": 0.0718245,
+"prospect": 0.0,
+"pursuit": 1.76621,
+"quiet": 0.26153,
+"range": 1.26475,
+"retreat_hull": 0.485799,
+"return_fire": 0.359517,
+"teamwork": 1.46928,
+"trade": 1.0
+},
+"modules": [ {
+"genes": {
+"mass": 200.0
+},
+"kind": "thruster",
+"type": 1
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.0589363,
+"engine": 0.121501,
+"hold": 0.479283,
+"reactor": 0.0245336,
+"structure": 0.315746
+},
+"size": 0.377824,
+"tool_share": 0.49108,
+"type": 1
+},
+"tools": [ {
+"genes": {
+},
+"kind": "harpoon",
+"type": 0
+} ]
+}

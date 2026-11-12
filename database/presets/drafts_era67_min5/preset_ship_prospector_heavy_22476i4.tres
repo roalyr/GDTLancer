@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_prospector_heavy_22476i4"
+ship_model_name = "Prospector Heavy 22476 I 4 Mk I"
+base_value = 2843
+ship_scene = ExtResource( 2 )
+hull_integrity = 217
+cargo_capacity = 92
+interaction_radius = 21.2487
+apparent_radius = 16.9989
+signature = 2124.87
+sensor_strength = 1.0
+tool_slots_small = 0
+tool_slots_medium = 0
+tool_slots_large = 5
+module_slots = 2
+module_slot_size = "large"
+equipped_tools = [ "preset_laser_light", "preset_harpoon", "preset_laser_heavy" ]
+equipped_modules = [ "preset_lance_medium", "preset_thruster_medium" ]
+salvage_yield = {
+"commodity_scrap": 57,
+"commodity_tech": 32
+}
+power_capacity = 327.767
+power_regen = 30.7476
+mass = 17055.8
+linear_thrust = 1.42619e+06
+angular_thrust = 2.24254e+06
+alignment_threshold_angle_deg = 45.0
+model_scale = 1.41658
+variant_type = 4
+law_genes = {
+"shares": {
+"capacitor": 0.057652,
+"engine": 0.253476,
+"hold": 0.16136,
+"reactor": 0.122544,
+"structure": 0.404968
+},
+"size": 2.84263,
+"tool_share": 0.750762,
+"type": 4
+}

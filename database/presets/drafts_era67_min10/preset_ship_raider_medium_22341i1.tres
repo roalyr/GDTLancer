@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_raider_medium_22341i1"
+ship_model_name = "Raider Medium 22341 I 1 Mk I"
+base_value = 982
+ship_scene = ExtResource( 2 )
+hull_integrity = 71
+cargo_capacity = 42
+interaction_radius = 14.9088
+apparent_radius = 11.9271
+signature = 1490.88
+sensor_strength = 1.0
+tool_slots_small = 0
+tool_slots_medium = 3
+tool_slots_large = 0
+module_slots = 1
+module_slot_size = "medium"
+equipped_tools = [ "preset_harpoon", "preset_cannon_medium", "preset_cannon_medium" ]
+equipped_modules = [ "preset_power_cell_light" ]
+salvage_yield = {
+"commodity_scrap": 20,
+"commodity_tech": 13
+}
+power_capacity = 112.372
+power_regen = 8.56984
+mass = 5891.26
+linear_thrust = 740755.0
+angular_thrust = 817240.0
+alignment_threshold_angle_deg = 45.0
+model_scale = 0.993922
+variant_type = 1
+law_genes = {
+"shares": {
+"capacitor": 0.057223,
+"engine": 0.354394,
+"hold": 0.211584,
+"reactor": 0.0857962,
+"structure": 0.291003
+},
+"size": 0.981877,
+"tool_share": 1.0,
+"type": 1
+}

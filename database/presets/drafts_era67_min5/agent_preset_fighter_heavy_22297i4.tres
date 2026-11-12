@@ -1,0 +1,103 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_fighter_heavy_22297i4"
+agent_type = "npc"
+ship_template_id = "preset_ship_fighter_heavy_22297i4"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.398279,
+"caution": 0.96322,
+"disengage": 0.203463,
+"engage": 0.739079,
+"haul": 0.104631,
+"mercy": 0.637704,
+"prospect": 0.542615,
+"pursuit": 0.89856,
+"quiet": 0.0978929,
+"range": 0.694955,
+"retreat_hull": 0.196036,
+"return_fire": 0.139951,
+"teamwork": 1.07046,
+"trade": 0.0
+}
+role = "fighter"
+family = "fighter"
+weight_class = "heavy"
+archetype = "fighter heavy"
+temperament = "cautious"
+traits = [ "stubborn", "runs silent", "wary", "sells often", "loud" ]
+lives = 14
+fitness = 0.326222
+origin = ""
+genome = {
+"behavior": {
+"burn": 0.398279,
+"caution": 0.96322,
+"disengage": 0.203463,
+"engage": 0.739079,
+"haul": 0.104631,
+"mercy": 0.637704,
+"prospect": 0.542615,
+"pursuit": 0.89856,
+"quiet": 0.0978929,
+"range": 0.694955,
+"retreat_hull": 0.196036,
+"return_fire": 0.139951,
+"teamwork": 1.07046,
+"trade": 0.0
+},
+"modules": [ {
+}, {
+"genes": {
+"mass": 600.0
+},
+"kind": "damper",
+"type": 3
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.111155,
+"engine": 0.187127,
+"hold": 0.231896,
+"reactor": 0.104162,
+"structure": 0.36566
+},
+"size": 2.10509,
+"tool_share": 0.660302,
+"type": 2
+},
+"tools": [ {
+"genes": {
+"count": 3.0,
+"round_mass": 260.0
+},
+"kind": "missile",
+"type": 3
+}, {
+"genes": {
+"energy": 6.5,
+"mass": 450.0
+},
+"kind": "laser",
+"type": 2
+}, {
+"genes": {
+"energy": 16.0,
+"mass": 1100.0
+},
+"kind": "laser",
+"type": 3
+}, {
+"genes": {
+"energy": 2.511,
+"mass": 150.0
+},
+"kind": "laser",
+"type": 1
+} ]
+}

@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_raider_heavy_22390i1"
+ship_model_name = "Raider Heavy 22390 I 1 Mk I"
+base_value = 1757
+ship_scene = ExtResource( 2 )
+hull_integrity = 137
+cargo_capacity = 76
+interaction_radius = 18.0991
+apparent_radius = 14.4792
+signature = 1809.91
+sensor_strength = 1.0
+tool_slots_small = 0
+tool_slots_medium = 0
+tool_slots_large = 5
+module_slots = 1
+module_slot_size = "large"
+equipped_tools = [ "preset_missile_heavy", "preset_laser_medium", "preset_missile_light", "preset_harpoon" ]
+equipped_modules = [ "preset_sensor_light" ]
+salvage_yield = {
+"commodity_scrap": 35,
+"commodity_tech": 17
+}
+power_capacity = 355.496
+power_regen = 19.0614
+mass = 10540.1
+linear_thrust = 735919.0
+angular_thrust = 985638.0
+alignment_threshold_angle_deg = 45.0
+model_scale = 1.2066
+variant_type = 2
+law_genes = {
+"shares": {
+"capacitor": 0.101184,
+"engine": 0.196648,
+"hold": 0.216422,
+"reactor": 0.116571,
+"structure": 0.369176
+},
+"size": 1.75668,
+"tool_share": 0.846981,
+"type": 2
+}

@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_fighter_light_22434i4"
+ship_model_name = "Fighter Light 22434 I 4 Mk I"
+base_value = 440
+ship_scene = ExtResource( 2 )
+hull_integrity = 74
+cargo_capacity = 3
+interaction_radius = 11.4066
+apparent_radius = 9.12528
+signature = 1140.66
+sensor_strength = 1.0
+tool_slots_small = 1
+tool_slots_medium = 0
+tool_slots_large = 0
+module_slots = 1
+module_slot_size = "small"
+equipped_tools = [ "preset_cannon_light" ]
+equipped_modules = [  ]
+salvage_yield = {
+"commodity_scrap": 9,
+"commodity_tech": 3
+}
+power_capacity = 18.1357
+power_regen = 4.72784
+mass = 2638.43
+linear_thrust = 171650.0
+angular_thrust = 144887.0
+alignment_threshold_angle_deg = 45.0
+model_scale = 0.76044
+variant_type = 1
+law_genes = {
+"shares": {
+"capacitor": 0.020621,
+"engine": 0.155868,
+"hold": 0.0382639,
+"reactor": 0.0989281,
+"structure": 0.686319
+},
+"size": 0.439739,
+"tool_share": 0.122097,
+"type": 1
+}

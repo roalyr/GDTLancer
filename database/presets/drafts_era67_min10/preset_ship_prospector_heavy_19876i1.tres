@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_prospector_heavy_19876i1"
+ship_model_name = "Prospector Heavy 19876 I 1 Mk I"
+base_value = 3327
+ship_scene = ExtResource( 2 )
+hull_integrity = 317
+cargo_capacity = 50
+interaction_radius = 22.3919
+apparent_radius = 17.9135
+signature = 2239.19
+sensor_strength = 1.0
+tool_slots_small = 0
+tool_slots_medium = 0
+tool_slots_large = 4
+module_slots = 4
+module_slot_size = "large"
+equipped_tools = [ "preset_laser_light", "preset_harpoon", "preset_laser_heavy", "preset_cannon_heavy" ]
+equipped_modules = [ "preset_lance_heavy", "preset_afterburner_heavy", "preset_decoy_light" ]
+salvage_yield = {
+"commodity_scrap": 67,
+"commodity_tech": 31
+}
+power_capacity = 354.704
+power_regen = 35.8756
+mass = 19959.5
+linear_thrust = 1.26531e+06
+angular_thrust = 2.09661e+06
+alignment_threshold_angle_deg = 45.0
+model_scale = 1.49279
+variant_type = 4
+law_genes = {
+"shares": {
+"capacitor": 0.0533135,
+"engine": 0.189628,
+"hold": 0.0750286,
+"reactor": 0.124292,
+"structure": 0.557738
+},
+"size": 3.32659,
+"tool_share": 0.546444,
+"type": 4
+}

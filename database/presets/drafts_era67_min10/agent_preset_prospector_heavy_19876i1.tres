@@ -1,0 +1,115 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_prospector_heavy_19876i1"
+agent_type = "npc"
+ship_template_id = "preset_ship_prospector_heavy_19876i1"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.258584,
+"caution": 0.552661,
+"disengage": 1.58588,
+"engage": 1.77453,
+"haul": 0.320466,
+"mercy": 0.369782,
+"prospect": 0.96244,
+"pursuit": 0.957889,
+"quiet": 0.353909,
+"range": 1.29182,
+"retreat_hull": 0.577752,
+"return_fire": 0.640636,
+"teamwork": 1.44401,
+"trade": 0.0
+}
+role = "prospector"
+family = "prospector"
+weight_class = "heavy"
+archetype = "prospector heavy"
+temperament = "cautious"
+traits = [ "skittish" ]
+lives = 16
+fitness = 0.0316005
+origin = ""
+genome = {
+"behavior": {
+"burn": 0.258584,
+"caution": 0.552661,
+"disengage": 1.58588,
+"engage": 1.77453,
+"haul": 0.320466,
+"mercy": 0.369782,
+"prospect": 0.96244,
+"pursuit": 0.957889,
+"quiet": 0.353909,
+"range": 1.29182,
+"retreat_hull": 0.577752,
+"return_fire": 0.640636,
+"teamwork": 1.44401,
+"trade": 0.0
+},
+"modules": [ {
+"genes": {
+"count": 4.0,
+"nail_mass": 350.0
+},
+"kind": "lance",
+"type": 3
+}, {
+"genes": {
+"mass": 800.0
+},
+"kind": "afterburner",
+"type": 3
+}, {
+}, {
+"genes": {
+"mass": 100.0
+},
+"kind": "decoy",
+"type": 1
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.0533135,
+"engine": 0.189628,
+"hold": 0.0750286,
+"reactor": 0.124292,
+"structure": 0.557738
+},
+"size": 3.32659,
+"tool_share": 0.546444,
+"type": 4
+},
+"tools": [ {
+"genes": {
+"energy": 2.511,
+"mass": 150.0
+},
+"kind": "laser",
+"type": 1
+}, {
+"genes": {
+},
+"kind": "harpoon",
+"type": 0
+}, {
+"genes": {
+"energy": 16.0,
+"mass": 1100.0
+},
+"kind": "laser",
+"type": 3
+}, {
+"genes": {
+"count": 38.5,
+"mass": 701.101,
+"round_mass": 16.606
+},
+"kind": "cannon",
+"type": 3
+} ]
+}

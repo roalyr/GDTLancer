@@ -1,0 +1,77 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_fighter_light_22434i4"
+agent_type = "npc"
+ship_template_id = "preset_ship_fighter_light_22434i4"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.272568,
+"caution": 0.912905,
+"disengage": 0.480726,
+"engage": 1.42686,
+"haul": 0.05,
+"mercy": 0.58328,
+"prospect": 0.105879,
+"pursuit": 2.96848,
+"quiet": 0.232887,
+"range": 0.774769,
+"retreat_hull": 0.156139,
+"return_fire": 0.720129,
+"teamwork": 1.16955,
+"trade": 0.0
+}
+role = "fighter"
+family = "fighter"
+weight_class = "light"
+archetype = "fighter light"
+temperament = "measured"
+traits = [ "relentless", "wary", "sells often" ]
+lives = 14
+fitness = -0.105646
+origin = ""
+genome = {
+"behavior": {
+"burn": 0.272568,
+"caution": 0.912905,
+"disengage": 0.480726,
+"engage": 1.42686,
+"haul": 0.05,
+"mercy": 0.58328,
+"prospect": 0.105879,
+"pursuit": 2.96848,
+"quiet": 0.232887,
+"range": 0.774769,
+"retreat_hull": 0.156139,
+"return_fire": 0.720129,
+"teamwork": 1.16955,
+"trade": 0.0
+},
+"modules": [ {
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.020621,
+"engine": 0.155868,
+"hold": 0.0382639,
+"reactor": 0.0989281,
+"structure": 0.686319
+},
+"size": 0.439739,
+"tool_share": 0.122097,
+"type": 1
+},
+"tools": [ {
+"genes": {
+"count": 80.0,
+"mass": 150.0,
+"round_mass": 2.0
+},
+"kind": "cannon",
+"type": 1
+} ]
+}

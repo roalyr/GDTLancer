@@ -1,0 +1,93 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_raider_light_21081i1"
+agent_type = "npc"
+ship_template_id = "preset_ship_raider_light_21081i1"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.284978,
+"caution": 0.803194,
+"disengage": 0.570082,
+"engage": 0.714424,
+"haul": 0.641717,
+"mercy": 0.619043,
+"prospect": 0.89268,
+"pursuit": 0.565869,
+"quiet": 0.586929,
+"range": 1.37144,
+"retreat_hull": 0.246334,
+"return_fire": 0.403199,
+"teamwork": 1.34894,
+"trade": 0.169077
+}
+role = "raider"
+family = "raider"
+weight_class = "light"
+archetype = "raider light"
+temperament = "cautious"
+traits = [ "standoff", "wary" ]
+lives = 18
+fitness = 0.000484712
+origin = ""
+genome = {
+"behavior": {
+"burn": 0.284978,
+"caution": 0.803194,
+"disengage": 0.570082,
+"engage": 0.714424,
+"haul": 0.641717,
+"mercy": 0.619043,
+"prospect": 0.89268,
+"pursuit": 0.565869,
+"quiet": 0.586929,
+"range": 1.37144,
+"retreat_hull": 0.246334,
+"return_fire": 0.403199,
+"teamwork": 1.34894,
+"trade": 0.169077
+},
+"modules": [ {
+"genes": {
+"mass": 120.0
+},
+"kind": "sensor",
+"type": 1
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.0822548,
+"engine": 0.28731,
+"hold": 0.119947,
+"reactor": 0.0501636,
+"structure": 0.460326
+},
+"size": 0.839533,
+"tool_share": 0.736296,
+"type": 2
+},
+"tools": [ {
+"genes": {
+"count": 3.5,
+"round_mass": 39.03
+},
+"kind": "missile",
+"type": 1
+}, {
+"genes": {
+},
+"kind": "harpoon",
+"type": 0
+}, {
+"genes": {
+"energy": 2.511,
+"mass": 150.0
+},
+"kind": "laser",
+"type": 1
+} ]
+}

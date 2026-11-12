@@ -1,0 +1,90 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_scavenger_medium_19839i1"
+agent_type = "npc"
+ship_template_id = "preset_ship_scavenger_medium_19839i1"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.302337,
+"caution": 0.492513,
+"disengage": 0.654272,
+"engage": 1.19111,
+"haul": 0.309084,
+"mercy": 0.689986,
+"prospect": 0.0463492,
+"pursuit": 0.0475077,
+"quiet": 0.305368,
+"range": 1.13742,
+"retreat_hull": 0.244892,
+"return_fire": 0.712441,
+"teamwork": 1.26862,
+"trade": 0.0
+}
+role = "scavenger"
+family = "scavenger"
+weight_class = "medium"
+archetype = "scavenger medium"
+temperament = "cautious"
+traits = [ "lets runners go" ]
+lives = 21
+fitness = -0.0797492
+origin = ""
+genome = {
+"behavior": {
+"burn": 0.302337,
+"caution": 0.492513,
+"disengage": 0.654272,
+"engage": 1.19111,
+"haul": 0.309084,
+"mercy": 0.689986,
+"prospect": 0.0463492,
+"pursuit": 0.0475077,
+"quiet": 0.305368,
+"range": 1.13742,
+"retreat_hull": 0.244892,
+"return_fire": 0.712441,
+"teamwork": 1.26862,
+"trade": 0.0
+},
+"modules": [ {
+"genes": {
+"mass": 124.313
+},
+"kind": "power_cell",
+"type": 1
+}, {
+"genes": {
+"mass": 400.0
+},
+"kind": "thruster",
+"type": 2
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.0347771,
+"engine": 0.082639,
+"hold": 0.0649403,
+"reactor": 0.0311211,
+"structure": 0.786523
+},
+"size": 1.23836,
+"tool_share": 0.539887,
+"type": 2
+},
+"tools": [ {
+"genes": {
+},
+"kind": "harpoon",
+"type": 0
+}, {
+"genes": {
+},
+"kind": "harpoon",
+"type": 0
+} ]
+}

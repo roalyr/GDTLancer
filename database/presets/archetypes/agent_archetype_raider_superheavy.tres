@@ -10,114 +10,98 @@ ship_template_id = "preset_ship_archetype_raider_superheavy"
 faction = ""
 skill = 0.5
 behavior = {
-"burn": 0.307072,
-"caution": 0.969726,
-"disengage": 0.759157,
-"engage": 1.01782,
-"haul": 0.525729,
-"mercy": 0.381619,
-"pursuit": 0.315863,
-"quiet": 0.372808,
-"range": 1.5,
-"retreat_hull": 0.45984,
-"return_fire": 0.602936,
-"teamwork": 1.60106,
-"trade": 0.0
+"burn": 0.0,
+"caution": 1.0,
+"disengage": 0.1,
+"engage": 0.536517,
+"haul": 0.545397,
+"mercy": 0.556213,
+"prospect": 1.0,
+"pursuit": 1.66383,
+"quiet": 0.0938706,
+"range": 1.38678,
+"retreat_hull": 0.730926,
+"return_fire": 0.697519,
+"teamwork": 0.985679,
+"trade": 0.664387
 }
 role = "raider"
 family = "raider"
 weight_class = "superheavy"
 archetype = "raider superheavy"
 temperament = "cautious"
-traits = [ "standoff", "lets runners go", "team player", "wary" ]
-lives = 14
-fitness = 0.141361
-origin = "raider_superheavy_20700i1 (era 65)"
+traits = [ "quick to fight", "stubborn", "standoff", "skittish", "wary", "loud" ]
+lives = 20
+fitness = 0.274432
+origin = "raider_superheavy_22118i3 (era 67)"
 genome = {
 "behavior": {
-"burn": 0.307072,
-"caution": 0.969726,
-"disengage": 0.759157,
-"engage": 1.01782,
-"haul": 0.525729,
-"mercy": 0.381619,
-"pursuit": 0.315863,
-"quiet": 0.372808,
-"range": 1.5,
-"retreat_hull": 0.45984,
-"return_fire": 0.602936,
-"teamwork": 1.60106,
-"trade": 0.0
+"burn": 0.0,
+"caution": 1.0,
+"disengage": 0.1,
+"engage": 0.536517,
+"haul": 0.545397,
+"mercy": 0.556213,
+"prospect": 1.0,
+"pursuit": 1.66383,
+"quiet": 0.0938706,
+"range": 1.38678,
+"retreat_hull": 0.730926,
+"return_fire": 0.697519,
+"teamwork": 0.985679,
+"trade": 0.664387
 },
 "modules": [ {
 "genes": {
-"mass": 600.0
+"mass": 300.0
 },
-"kind": "power_cell",
-"type": 3
-}, {
+"kind": "damper",
+"type": 2
 }, {
 "genes": {
 "mass": 800.0
 },
-"kind": "afterburner",
-"type": 3
-}, {
-}, {
-"genes": {
-"mass": 200.0
-},
 "kind": "thruster",
-"type": 1
-}, {
-"genes": {
-"mass": 400.0
-},
-"kind": "decoy",
 "type": 3
 }, {
+"genes": {
+"mass": 300.0
+},
+"kind": "damper",
+"type": 2
+}, {
+"genes": {
+"mass": 500.0
+},
+"kind": "sensor",
+"type": 3
 }, {
 } ],
 "ship": {
 "shares": {
-"capacitor": 0.0123189,
-"engine": 0.30021,
-"hold": 0.0206521,
-"reactor": 0.0553237,
-"structure": 0.611495
+"capacitor": 0.0506926,
+"engine": 0.315735,
+"hold": 0.14799,
+"reactor": 0.120212,
+"structure": 0.365371
 },
-"size": 7.37266,
-"tool_share": 0.364438,
-"type": 3
+"size": 3.91211,
+"tool_share": 0.435031,
+"type": 4
 },
 "tools": [ {
 "genes": {
-"count": 80.0,
-"mass": 150.0,
-"round_mass": 2.0
+"energy": 16.0,
+"mass": 1100.0
 },
-"kind": "cannon",
-"type": 1
-}, {
-"genes": {
-"count": 4.0,
-"round_mass": 100.034
-},
-"kind": "missile",
-"type": 2
-}, {
-"genes": {
-"count": 38.5,
-"mass": 701.101,
-"round_mass": 16.606
-},
-"kind": "cannon",
+"kind": "laser",
 "type": 3
-}, {
 }, {
 "genes": {
 },
 "kind": "harpoon",
 "type": 0
+}, {
+}, {
 } ]
 }

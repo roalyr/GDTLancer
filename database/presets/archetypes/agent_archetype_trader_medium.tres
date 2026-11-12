@@ -10,46 +10,46 @@ ship_template_id = "preset_ship_archetype_trader_medium"
 faction = ""
 skill = 0.5
 behavior = {
-"burn": 0.24916,
-"caution": 0.892738,
-"disengage": 0.679949,
-"engage": 2.97068,
-"haul": 0.485665,
+"burn": 0.133857,
+"caution": 0.744636,
+"disengage": 0.904444,
+"engage": 2.81328,
+"haul": 0.489172,
 "mercy": 0.833268,
-"prospect": 0.0848619,
-"pursuit": 1.27892,
-"quiet": 0.129891,
-"range": 0.97862,
-"retreat_hull": 0.745607,
-"return_fire": 0.675112,
-"teamwork": 1.20261,
-"trade": 0.910066
+"prospect": 0.138185,
+"pursuit": 1.33236,
+"quiet": 0.0811499,
+"range": 0.934558,
+"retreat_hull": 0.8,
+"return_fire": 0.665591,
+"teamwork": 1.18738,
+"trade": 0.964912
 }
 role = "trader"
 family = "trader"
 weight_class = "medium"
 archetype = "trader medium"
 temperament = "cautious"
-traits = [ "picks its fights", "skittish", "merciful", "wary" ]
-lives = 12
-fitness = 0.0518358
-origin = "trader_medium_21018i1 (era 65)"
+traits = [ "picks its fights", "skittish", "merciful", "loud" ]
+lives = 21
+fitness = 0.150645
+origin = "trader_medium_21949i2 (era 67)"
 genome = {
 "behavior": {
-"burn": 0.24916,
-"caution": 0.892738,
-"disengage": 0.679949,
-"engage": 2.97068,
-"haul": 0.485665,
+"burn": 0.133857,
+"caution": 0.744636,
+"disengage": 0.904444,
+"engage": 2.81328,
+"haul": 0.489172,
 "mercy": 0.833268,
-"prospect": 0.0848619,
-"pursuit": 1.27892,
-"quiet": 0.129891,
-"range": 0.97862,
-"retreat_hull": 0.745607,
-"return_fire": 0.675112,
-"teamwork": 1.20261,
-"trade": 0.910066
+"prospect": 0.138185,
+"pursuit": 1.33236,
+"quiet": 0.0811499,
+"range": 0.934558,
+"retreat_hull": 0.8,
+"return_fire": 0.665591,
+"teamwork": 1.18738,
+"trade": 0.964912
 },
 "modules": [ {
 "genes": {
@@ -57,26 +57,21 @@ genome = {
 },
 "kind": "damper",
 "type": 2
-}, {
-"genes": {
-"mass": 200.0
-},
-"kind": "decoy",
-"type": 2
 } ],
 "ship": {
 "shares": {
-"capacitor": 0.0538841,
-"engine": 0.190251,
-"hold": 0.446857,
-"reactor": 0.0534001,
-"structure": 0.255608
+"capacitor": 0.0527761,
+"engine": 0.166261,
+"hold": 0.492569,
+"reactor": 0.0500992,
+"structure": 0.238295
 },
-"size": 0.873198,
-"tool_share": 0.544739,
+"size": 0.978983,
+"tool_share": 0.633734,
 "type": 2
 },
 "tools": [ {
+}, {
 }, {
 } ]
 }
