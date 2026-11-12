@@ -68,6 +68,10 @@ var current_sector_id: String = ""
 ## Location ID the player is docked at, or empty string if in space.
 var player_docked_at: String = ""
 
+## The weapons safety (the HUD's SAFETY button): while on, the player's tools and lance charges
+## refuse ships that are not hostile (allied and neutral ones). On in a new game.
+var weapons_safe: bool = true
+
 ## Player spatial position in the active zone.
 var player_position: Vector3 = Vector3.ZERO
 
@@ -107,6 +111,7 @@ func reset_state() -> void:
 	current_zone_instance = null
 	current_sector_id = ""
 	player_docked_at = ""
+	weapons_safe = true
 	player_position = Vector3.ZERO
 	player_rotation = Vector3.ZERO
 	player_arrived_from_sector = ""

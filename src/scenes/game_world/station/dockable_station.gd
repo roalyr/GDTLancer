@@ -56,3 +56,13 @@ func get_signature() -> float:
 
 func get_undock_position() -> Vector3:
 	return global_transform.xform(undock_offset)
+
+
+# Where a ship leaving the station appears: a random point on a ring round its perimeter, in its
+# own level plane (STATION_UNDOCK_CLEARANCE past the far corner of its model, up or down by up to
+# STATION_UNDOCK_RING_HEIGHT of that), so ships leaving together do not stack on one spot.
+func get_undock_slot() -> Vector3:
+	var radius: float = obstacle_radius + Constants.STATION_UNDOCK_CLEARANCE
+	var angle: float = randf() * TAU
+	var height: float = rand_range(-1.0, 1.0) * radius * Constants.STATION_UNDOCK_RING_HEIGHT
+	return global_transform.xform(Vector3(cos(angle) * radius, height, sin(angle) * radius))

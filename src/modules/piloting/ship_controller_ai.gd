@@ -872,9 +872,8 @@ func _process_patrol() -> void:
 			_orbiting_ward = true
 			agent_script.command_orbit(_ward, Constants.ESCORT_RADIUS)
 		return
-	var current_pos = agent_script.global_transform.origin
 	var arrival: float = Constants.ROUTE_WAYPOINT_REACHED if not _route.empty() else Constants.AI_PATROL_ARRIVAL_DISTANCE
-	if not _has_patrol_destination or current_pos.distance_to(_patrol_destination) <= arrival:
+	if not _has_patrol_destination or _reached(_patrol_destination, arrival):
 		_patrol_destination = _pick_patrol_destination()
 		_has_patrol_destination = true
 		agent_script.command_move_to(_patrol_destination)
@@ -1509,7 +1508,7 @@ func _dock(station: Spatial, service: bool) -> void:
 	_caravan_noted = false
 	agent_script.dock_at(station)
 	_change_state(AIState.DOCKED)
-	_dock_timer = Constants.HAVEN_DOCK_TIME
+	_dock_timer = Constants.HAVEN_DOCK_TIME + (0.0 if service else randf() * Constants.HAVEN_SPAWN_UNDOCK_SPREAD)  # Spawned docked: they leave one by one
 	if service and Evolution.on_docked(agent_script, str(station.get("location_id"))):
 		agent_script.despawn()  # Retired: its record is in the log
 	elif is_trader() and (service or agent_script.get_cargo_value() <= 0.0):
@@ -1842,6 +1841,21 @@ func _pick_patrol_destination() -> Vector3:
 		if not inside:
 			return point
 	return point
+
+
+# Within `arrival` m of `point`, or, when `point` lies inside an obstacle's keep-out (a beacon at a
+# station: the avoidance never lets it closer), at that keep-out's edge: a waypoint there counts as
+# reached, or the ship would circle the station for ever.
+func _reached(point: Vector3, arrival: float) -> bool:
+	var position: Vector3 = agent_script.global_transform.origin
+	if position.distance_to(point) <= arrival:
+		return true
+	var own_radius: float = agent_script.get_apparent_radius() if agent_script.has_method("get_apparent_radius") else 10.0
+	for obstacle in NavigationSystem.get_obstacles(get_tree()):
+		var keep_out: float = (obstacle[1] + own_radius) * Constants.NAV_AVOID_CLEARANCE
+		if point.distance_to(obstacle[0]) < keep_out and position.distance_to(obstacle[0]) <= keep_out + arrival:
+			return true
+	return false
 
 
 # Goes about the sector by its beacons: a haven NPC in a sector with a network, but not a hive's

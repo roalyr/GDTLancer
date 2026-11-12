@@ -602,12 +602,39 @@ func test_waits_docked_while_an_enemy_watches_its_station():
 	assert_eq(ai.get_state(), AIScript.AIState.DOCKED)
 	ai._process_docked(Constants.HAVEN_DOCK_TIME + 1.0)
 	assert_eq(ai.get_state(), AIScript.AIState.DOCKED, "An enemy outside: stays in")
-	ai._process_docked(Constants.HAVEN_DOCK_MAX_WAIT)
+	ai._process_docked(Constants.HAVEN_DOCK_MAX_WAIT + Constants.HAVEN_SPAWN_UNDOCK_SPREAD)  # Spawned docked: up to the spread longer
 	assert_eq(ai.get_state(), AIScript.AIState.PATROL, "but not for ever")
 	ai._dock(station, false)
 	camper.global_transform.origin = Vector3(0, 0, 3000 + Constants.HAVEN_UNDOCK_CLEAR_RADIUS + 200.0)
-	ai._process_docked(Constants.HAVEN_DOCK_TIME + 1.0)
+	ai._process_docked(Constants.HAVEN_DOCK_TIME + Constants.HAVEN_SPAWN_UNDOCK_SPREAD + 1.0)  # Docked as if spawned: up to the spread longer
 	assert_eq(ai.get_state(), AIScript.AIState.PATROL, "Clear outside: undocks on time")
+
+
+func test_ships_come_out_round_the_station_not_on_one_spot():
+	var station = _haven_station(Vector3(0, 0, 3000))
+	var ring: float = station.obstacle_radius + Constants.STATION_UNDOCK_CLEARANCE
+	var points: Array = []
+	for _i in range(6):
+		var point: Vector3 = station.get_undock_slot()
+		var flat := Vector3(point.x, 0, point.z - 3000)
+		assert_almost_eq(flat.length(), ring, 0.01, "On the ring past its far corner")
+		assert_true(abs(point.y) <= ring * Constants.STATION_UNDOCK_RING_HEIGHT + 0.01, "near its level")
+		points.append(point)
+	assert_true(points[0].distance_to(points[1]) > 1.0 or points[0].distance_to(points[2]) > 1.0, "Each at its own place")
+	ai.initialize({"patrol_center": Vector3.ZERO, "docked_at": station, "havens": {"zone_id": "t", "centre": Vector3.ZERO, "radius": 60000.0, "stations": [station]}})
+	assert_almost_eq(hostile.global_transform.origin.distance_to(Vector3(0, 0, 3000)), ring, ring * Constants.STATION_UNDOCK_RING_HEIGHT * 1.1 + 0.01, "A ship spawned docked waits on the ring")
+	assert_true(ai._dock_timer >= Constants.HAVEN_DOCK_TIME and ai._dock_timer <= Constants.HAVEN_DOCK_TIME + Constants.HAVEN_SPAWN_UNDOCK_SPREAD, "and leaves within the spread")
+
+
+func test_a_patrol_point_inside_a_stations_keep_out_counts_as_reached_at_its_edge():
+	var station = _haven_station(Vector3(0, 0, 3000))
+	var keep_out: float = (station.obstacle_radius + hostile.get_apparent_radius()) * Constants.NAV_AVOID_CLEARANCE
+	ai.initialize({"patrol_center": Vector3.ZERO})
+	hostile.global_transform.origin = Vector3(0, 0, 3000 - keep_out - 10.0)
+	assert_true(ai._reached(Vector3(0, 0, 3000), Constants.AI_PATROL_ARRIVAL_DISTANCE), "Its middle (a beacon there): reached at the keep-out, where the avoidance holds it")
+	assert_false(ai._reached(Vector3(0, 0, 3000 - keep_out - 500.0), Constants.AI_PATROL_ARRIVAL_DISTANCE), "A point in the open: only within the arrival distance")
+	hostile.global_transform.origin = Vector3(0, 0, 0)
+	assert_false(ai._reached(Vector3(0, 0, 3000), Constants.AI_PATROL_ARRIVAL_DISTANCE), "Far off: not yet")
 
 
 # --- Desperation ---

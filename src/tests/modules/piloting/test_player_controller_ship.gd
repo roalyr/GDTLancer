@@ -61,6 +61,7 @@ func test_dock_without_target_or_sector_reports_failure():
 
 
 func test_each_tool_button_toggles_only_its_own_tool_on_a_valid_target():
+	GameState.weapons_safe = false  # A factionless target counts as neutral (see the safety test)
 	var Agent = load("res://src/core/agents/agent.gd")
 	var Tools = load("res://src/core/agents/components/tool_controller.gd")
 	var ship = Agent.new()
@@ -154,6 +155,7 @@ class NavStub:
 
 
 func test_approach_rams_while_the_lance_is_armed():
+	GameState.weapons_safe = false  # A factionless target counts as neutral (see the safety test)
 	var Agent = load("res://src/core/agents/agent.gd")
 	var ShipLaws = load("res://src/core/systems/ship_laws.gd")
 	var Nav = load("res://src/core/agents/components/navigation_system.gd")
@@ -204,6 +206,72 @@ func test_approach_rams_while_the_lance_is_armed():
 	assert_eq(recorder.last, "idle", "The last lance thrown: the charge is over, it flies on")
 	controller.free()
 	recorder.free()
+
+
+func test_the_safety_keeps_weapons_and_charges_off_ships_that_are_not_hostile():
+	var Agent = load("res://src/core/agents/agent.gd")
+	var ShipLaws = load("res://src/core/systems/ship_laws.gd")
+	var Tools = load("res://src/core/agents/components/tool_controller.gd")
+	var Nav = load("res://src/core/agents/components/navigation_system.gd")
+	var ship = Agent.new()
+	add_child_autofree(ship)
+	ship.power = 100.0
+	var tools = Tools.new()
+	ship.add_child(tools)
+	var laser = UtilityToolTemplate.new()
+	laser.tool_type = "laser"
+	var harpoon = UtilityToolTemplate.new()
+	harpoon.tool_type = "harpoon"
+	tools.set_tools([laser, harpoon])
+	var lance = load("res://src/core/agents/components/lance_controller.gd").new()
+	ship.add_child(lance)
+	lance.setup(ship, "lance", ShipLaws.lance_stats({"nail_mass": 200.0, "count": 3.0}))
+	lance.armed = true
+	var nav = NavStub.new()
+	nav.name = "NavigationSystem"
+	ship.add_child(nav)
+	var ward = Agent.new()  # A ship the player escorts: not hostile
+	add_child_autofree(ward)
+	ward.global_transform.origin = Vector3(0, 0, -300)
+	var controller = PlayerControllerScript.new()
+	var recorder = autofree(CommandRecorder.new())
+	controller.agent_body = ship
+	controller.agent_script = recorder
+	controller._tool_controller = tools
+	controller._selected_target = ward
+	assert_true(GameState.weapons_safe, "On in a new game")
+
+	controller._on_tool_button_pressed(0)
+	assert_false(tools.is_active(0), "The laser refuses a ship that is not hostile")
+	controller.toggle_tool_for_selected()
+	assert_false(tools.is_active(0), "Space too")
+	assert_false(controller.is_charge_ready(ward), "No charge at it")
+	nav._current_command = {"target_node": ward}
+	nav.type = Nav.CommandType.APPROACH
+	recorder.last = "approach"
+	controller._sync_charge_command()
+	assert_eq(recorder.last, "approach", "Arming the lance while closing on an escorted ship does not turn it into a charge")
+	ward.is_wreck = true
+	assert_true(controller.is_charge_ready(ward), "A wreck is fair game")
+	ward.is_wreck = false
+
+	var enemy = Agent.new()
+	add_child_autofree(enemy)
+	enemy.global_transform.origin = Vector3(0, 0, -300)
+	enemy._grudges[ship.get_instance_id()] = true  # It shot the player: hostile
+	controller._selected_target = enemy
+	assert_true(controller.is_charge_ready(enemy), "A hostile ship is charged")
+	controller._on_tool_button_pressed(0)
+	assert_true(tools.is_active(0), "and fired on")
+	tools.deactivate(0)
+
+	controller._on_safety_button_pressed()
+	assert_false(GameState.weapons_safe, "SAFETY off")
+	controller._selected_target = ward
+	assert_true(controller.is_charge_ready(ward), "Off: any ship")
+	controller._on_tool_button_pressed(0)
+	assert_true(tools.is_active(0))
+	controller.free()
 
 
 func test_a_lost_target_stops_the_commands_on_it():

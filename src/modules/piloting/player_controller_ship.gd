@@ -75,6 +75,7 @@ func _ready():
 	EventBus.connect("player_interaction_ended", self, "_on_interaction_ended")
 	EventBus.connect("player_tool_pressed", self, "_on_tool_button_pressed")
 	EventBus.connect("player_lance_pressed", self, "_on_lance_button_pressed")
+	EventBus.connect("player_safety_pressed", self, "_on_safety_button_pressed")
 	EventBus.connect("player_afterburner_pressed", self, "_on_afterburner_button_pressed")
 
 	call_deferred("_deferred_ready_setup")
@@ -218,6 +219,9 @@ func toggle_tool_for_selected() -> void:
 	if _tool_controller.is_active(index) and _tool_controller.get_target(index) == target:
 		_tool_controller.deactivate(index)
 		return
+	if is_safe_from(target, _tool_controller.get_tool(index)):
+		EventBus.emit_signal("attack_action_feedback", false, SAFETY_MESSAGE)
+		return
 	var result: Dictionary = _tool_controller.activate(index, target)
 	if not result.get("success", false):
 		EventBus.emit_signal("attack_action_feedback", false, _describe_tool_failure(result.get("reason", "")))
@@ -287,6 +291,30 @@ func _on_lance_button_pressed() -> void:
 	agent_body.set_lances_armed(not lance.armed)  # All launchers together
 
 
+# The SAFETY button: the weapons safety on or off (GameState.weapons_safe).
+func _on_safety_button_pressed() -> void:
+	GameState.weapons_safe = not GameState.weapons_safe
+	EventBus.emit_signal("attack_action_feedback", true, "Safety on: allied and neutral ships are safe from your weapons" if GameState.weapons_safe else "Safety off: your weapons fire on any ship")
+
+
+const SAFETY_MESSAGE = "Safety on: not hostile (SAFETY to fire)"
+
+
+# Whether the weapons safety keeps `target` from the player's weapons (tool_template: a tool's;
+# null: the lance): the safety on, and a live ship that is not hostile to the player (allied or
+# neutral). A harpoon is not a weapon; wrecks, rocks and loose lances are fair game.
+func is_safe_from(target, tool_template = null) -> bool:
+	if not GameState.weapons_safe or not (is_instance_valid(target) and target is Node):
+		return false
+	if tool_template != null and tool_template.get("tool_type") == "harpoon":
+		return false
+	if target.get("is_wreck") or not target.has_method("is_enemy_of") or not target.has_method("apply_damage"):
+		return false
+	if is_instance_valid(agent_body) and target == agent_body:
+		return false
+	return not target.is_enemy_of(agent_body)
+
+
 # The AFTERBURN button: lights the afterburner or puts it out.
 func _on_afterburner_button_pressed() -> void:
 	if not is_instance_valid(agent_body) or not agent_body.has_method("has_afterburner") or not agent_body.has_afterburner():
@@ -311,6 +339,9 @@ func _on_tool_button_pressed(index: int) -> void:
 		_tool_controller.deactivate(index)
 		return
 	var target = _get_current_target()
+	if is_safe_from(target, tool_template):
+		EventBus.emit_signal("attack_action_feedback", false, SAFETY_MESSAGE)
+		return
 	if not _tool_controller.can_target(tool_template, target):
 		EventBus.emit_signal("attack_action_feedback", false, _cannot_target_message(tool_template, target))
 		return
@@ -804,7 +835,7 @@ func is_charge_ready(target = null) -> bool:
 	var lance = agent_body.get_lance() if is_instance_valid(agent_body) and agent_body.has_method("get_lance") else null
 	if lance == null or not lance.armed or agent_body.get_lance_nails() <= 0:
 		return false
-	return target == null or is_chargeable(target)
+	return target == null or (is_chargeable(target) and not is_safe_from(target))
 
 
 static func is_chargeable(target) -> bool:

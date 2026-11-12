@@ -33,6 +33,7 @@ signal player_interactions_changed  # The ships the player is in an interaction 
 signal player_interaction_ended(ship, kind)  # An NPC let go of one by itself (gone too far, docked, killed): "hire", "wing", "caravan"
 signal player_tool_pressed(tool_index)  # A tool button: switch that fitted tool on the selected target, or off
 signal player_lance_pressed  # The LANCE button: arm the kinetic lance, or make it safe
+signal player_safety_pressed  # The SAFETY button: the weapons safety on or off (GameState.weapons_safe)
 signal player_afterburner_pressed  # The AFTERBURN button: light the afterburner, or put it out
 signal player_camera_zoom_changed(value)
 signal player_ship_speed_changed(value)

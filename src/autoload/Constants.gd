@@ -1125,7 +1125,9 @@ const PLATFORM_RESPAWN_DELAY = 600.0  # s of game time before a lost platform is
 const HAVEN_DOCK_TIME = 10.0  # s an NPC stays docked (selling, repairs) before undocking
 const HAVEN_UNDOCK_CLEAR_RADIUS = 3500.0  # m: with an enemy this near its undock point (past a heavy laser's reach), a docked NPC waits
 const HAVEN_DOCK_MAX_WAIT = 90.0  # s, at most, past its dock time (upkeep runs on meanwhile)
-const STATION_UNDOCK_CLEARANCE = 40.0  # m over a placeholder haven's top where ships undock
+const STATION_UNDOCK_CLEARANCE = 40.0  # m over a placeholder haven's top (its dock point), and past its far corner where ships come out (DockableStation.get_undock_slot)
+const STATION_UNDOCK_RING_HEIGHT = 0.25  # The undock ring's points lie up to this share of its radius above or below the station's level
+const HAVEN_SPAWN_UNDOCK_SPREAD = 30.0  # s: an NPC spawned docked stays HAVEN_DOCK_TIME plus up to this, so a haven's ships leave one by one
 const HAVEN_DOCK_DISTANCE = 250.0  # m from a station's undock point at which an NPC docks
 const HAVEN_BEACON_RADIUS = 3000.0  # m: a haven's beacon
 # Rock fields (SectorLayout), the same on every load: rocks of FIELD_ROCK_SCALE m, some big

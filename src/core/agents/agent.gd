@@ -537,7 +537,10 @@ func dock_at(station: Spatial) -> void:
 	collision_mask = 0
 	linear_velocity = Vector3.ZERO
 	angular_velocity = Vector3.ZERO
-	if is_instance_valid(station) and station.has_method("get_undock_position"):
+	if is_instance_valid(station) and station.has_method("get_undock_slot"):
+		global_transform.origin = station.get_undock_slot()  # Where it comes out: round the station
+		Interp.placed(self)
+	elif is_instance_valid(station) and station.has_method("get_undock_position"):
 		global_transform.origin = station.get_undock_position()
 		Interp.placed(self)
 	mode = MODE_STATIC  # Out of the physics while docked: no integration, no _integrate_forces

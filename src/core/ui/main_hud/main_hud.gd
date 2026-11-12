@@ -68,6 +68,7 @@ onready var label_hud_look: Label = $ScreenControls/CenterRightZone/ButtonHudLoo
 onready var tool_buttons: Array = _tool_button_nodes()
 onready var button_lance: TextureButton = $ScreenControls/TemporaryToolZone/ButtonLance
 onready var button_afterburner: TextureButton = $ScreenControls/TemporaryToolZone/ButtonAfterburner
+onready var button_safety: TextureButton = $ScreenControls/TemporaryToolZone/ButtonSafety
 var fitting_window: Control = null
 var interaction_window: Control = null  # INTERACT: what the selected ship may be asked (InteractionWindow)
 var debug_map: Control = null
@@ -232,6 +233,7 @@ func _ready():
 		tool_buttons[index].connect("pressed", self, "_on_tool_button_pressed", [index])
 	button_lance.connect("pressed", self, "_on_lance_button_pressed")
 	button_afterburner.connect("pressed", self, "_on_afterburner_button_pressed")
+	button_safety.connect("pressed", self, "_on_safety_button_pressed")
 	button_hud_look.connect("pressed", self, "_on_ButtonHudLook_pressed")
 	Settings.connect("changed", self, "_on_settings_changed")
 	apply_hud_preset()
@@ -297,6 +299,7 @@ func _update_hud() -> void:
 		_update_tool_buttons()
 		_update_lance_button()
 		_update_afterburner_button()
+		_update_safety_button()
 		_layout_tool_rows()
 		_update_dock_button_label()
 		_partners_left -= Constants.HUD_CONTROLS_INTERVAL
@@ -688,7 +691,7 @@ func _tool_bar(button: Control) -> Control:
 # Spreads the shown buttons over rows of at most TOOL_ROW_MAX, the first ones highest; only when
 # what is shown changes.
 func _layout_tool_rows() -> void:
-	var items: Array = tool_buttons + [button_lance, button_afterburner]
+	var items: Array = tool_buttons + [button_lance, button_afterburner, button_safety]
 	var shown: Array = []
 	for item in items:
 		if item.visible:
@@ -797,6 +800,33 @@ func _update_afterburner_button() -> void:
 
 func _on_afterburner_button_pressed() -> void:
 	EventBus.emit_signal("player_afterburner_pressed")
+
+
+# The SAFETY button, last in the tool rows (only with a weapon or a lance fitted): ON (highlighted)
+# while allied and neutral ships are safe from the player's weapons and lance charges
+# (GameState.weapons_safe, PlayerController.is_safe_from); OFF, they fire on any ship.
+const SAFETY_WEAPONS = ["laser", "missile", "cannon"]
+
+
+func _update_safety_button() -> void:
+	var player = GlobalRefs.player_agent_body
+	var armed: bool = is_instance_valid(player) and player.has_method("get_lance") and player.get_lance() != null
+	var tools = player.get_node_or_null("ToolController") if is_instance_valid(player) else null
+	if is_instance_valid(tools):
+		for index in range(tools.get_tool_count()):
+			armed = armed or tools.get_tool(index).tool_type in SAFETY_WEAPONS
+	button_safety.visible = armed
+	if not armed:
+		return
+	var text: String = "SAFETY\n%s" % ("ON" if GameState.weapons_safe else "OFF")
+	var label: Label = button_safety.get_node("Label")
+	if label.text != text:
+		label.text = text
+	_apply_button_toggle_state(button_safety, GameState.weapons_safe)
+
+
+func _on_safety_button_pressed() -> void:
+	EventBus.emit_signal("player_safety_pressed")
 
 
 func _on_SliderControlLeft_value_changed(value):
