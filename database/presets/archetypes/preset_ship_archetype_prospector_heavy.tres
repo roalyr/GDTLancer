@@ -11,7 +11,7 @@ base_value = 2868
 ship_scene = ExtResource( 2 )
 hull_integrity = 289
 cargo_capacity = 42
-interaction_radius = 21.3118
+interaction_radius = 21.3119
 apparent_radius = 17.0495
 signature = 2131.19
 sensor_strength = 1.0
@@ -26,10 +26,10 @@ salvage_yield = {
 "commodity_scrap": 57,
 "commodity_tech": 26
 }
-power_capacity = 294.548
+power_capacity = 294.549
 power_regen = 28.4565
 mass = 17208.4
-linear_thrust = 1.0985e+06
+linear_thrust = 1.09851e+06
 angular_thrust = 1.73243e+06
 alignment_threshold_angle_deg = 45.0
 model_scale = 1.42079

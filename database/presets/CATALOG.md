@@ -33,7 +33,7 @@ The picked designs, one per family and weight class (`archetypes/`: ship `preset
 | trader_light | trader | cautious | Laser Mk I-light | Plating Mk I-light | 22 | +0.22 | 200 | trader_light_21716i3 (era 67) |
 | trader_medium | trader | cautious |  | Damper Mk I-medium | 21 | +0.15 | 979 | trader_medium_21949i2 (era 67) |
 | trader_heavy | trader | cautious | Laser Mk I-medium, Cannon Mk I-heavy | Plating Mk I-heavy, Damper Mk I-medium x2 | 14 | +0.36 | 3358 | trader_heavy_20721i2 (era 65) |
-| trader_superheavy | trader | cautious | Laser Mk I-medium, Missile Rack Mk I-light, Laser Mk I-light, Laser Mk I-heavy |  | 15 | +0.05 | 3582 | trader_superheavy_22162i2 (era 67) |
+| trader_superheavy | trader | cautious | Laser Mk I-medium, Missile Rack Mk I-light, Laser Mk I-light, Laser Mk I-heavy | Shell Bay Mk I-medium | 15 | +0.05 | 3582 | trader_superheavy_22162i2 (era 67) |
 
 ## Fighter
 

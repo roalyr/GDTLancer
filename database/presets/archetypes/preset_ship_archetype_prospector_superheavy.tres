@@ -26,7 +26,7 @@ salvage_yield = {
 "commodity_scrap": 81,
 "commodity_tech": 33
 }
-power_capacity = 378.547
+power_capacity = 378.548
 power_regen = 34.9092
 mass = 24382.3
 linear_thrust = 1.37613e+06

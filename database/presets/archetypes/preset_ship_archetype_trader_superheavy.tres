@@ -21,12 +21,12 @@ tool_slots_large = 8
 module_slots = 1
 module_slot_size = "large"
 equipped_tools = [ "preset_laser_medium", "preset_missile_light", "preset_laser_light", "preset_laser_heavy" ]
-equipped_modules = [  ]
+equipped_modules = [ "preset_magazine_medium" ]
 salvage_yield = {
 "commodity_scrap": 72,
 "commodity_tech": 18
 }
-power_capacity = 560.519
+power_capacity = 560.518
 power_regen = 10.712
 mass = 21494.3
 linear_thrust = 1.02405e+06

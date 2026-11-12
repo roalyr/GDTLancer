@@ -28,11 +28,11 @@ salvage_yield = {
 }
 power_capacity = 44.5351
 power_regen = 1.17583
-mass = 2266.95
+mass = 2266.94
 linear_thrust = 119665.0
-angular_thrust = 96025.8
+angular_thrust = 96025.7
 alignment_threshold_angle_deg = 45.0
-model_scale = 0.722931
+model_scale = 0.72293
 variant_type = 1
 law_genes = {
 "shares": {

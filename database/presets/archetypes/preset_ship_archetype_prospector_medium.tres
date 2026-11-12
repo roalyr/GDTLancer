@@ -23,7 +23,7 @@ module_slot_size = "medium"
 equipped_tools = [ "preset_laser_medium", "preset_harpoon" ]
 equipped_modules = [ "preset_lance_medium", "preset_afterburner_medium" ]
 salvage_yield = {
-"commodity_scrap": 25,
+"commodity_scrap": 26,
 "commodity_tech": 19
 }
 power_capacity = 153.471

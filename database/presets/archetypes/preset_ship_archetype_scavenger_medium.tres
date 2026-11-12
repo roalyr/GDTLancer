@@ -28,8 +28,8 @@ salvage_yield = {
 }
 power_capacity = 141.772
 power_regen = 4.90758
-mass = 5114.52
-linear_thrust = 509295.0
+mass = 5114.51
+linear_thrust = 509296.0
 angular_thrust = 536015.0
 alignment_threshold_angle_deg = 45.0
 model_scale = 0.948166

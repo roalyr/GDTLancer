@@ -27,10 +27,10 @@ salvage_yield = {
 "commodity_tech": 30
 }
 power_capacity = 230.344
-power_regen = 31.5179
+power_regen = 31.518
 mass = 20261.5
 linear_thrust = 1.27026e+06
-angular_thrust = 2.11539e+06
+angular_thrust = 2.11538e+06
 alignment_threshold_angle_deg = 45.0
 model_scale = 1.50028
 variant_type = 4
