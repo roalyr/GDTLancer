@@ -6,9 +6,13 @@
 # bigger and brighter; one that has not detected the player is dimmed as its bracket is (Constants
 # UI_UNAWARE_*). Shown only; it takes no input. The list is refreshed every
 # THREAT_REFRESH_INTERVAL s, the arrows every frame.
+# Ships in an interaction with the player (Interactions: MainHUD.get_partners) off the screen get a
+# smaller, dimmer arrow in their side's colour (PARTNER_ARROW_*), so the player keeps track of its
+# escorts, wing and caravan without the ring filling up.
 
 extends Control
 const Interp = preload("res://src/core/utils/interp.gd")
+const TargetKinds = preload("res://src/core/ui/main_hud/target_kinds.gd")
 
 var _threats: Array = []  # Hostile ships in range (weak refs)
 var _refresh_left: float = 0.0
@@ -71,30 +75,47 @@ static func screen_direction(camera_transform: Transform, point: Vector3) -> Vec
 func _draw() -> void:
 	var camera = GlobalRefs.main_camera
 	var player = GlobalRefs.player_agent_body
-	if not (is_instance_valid(camera) and is_instance_valid(player)) or _threats.empty():
+	if not (is_instance_valid(camera) and is_instance_valid(player)):
+		return
+	var partners: Array = GlobalRefs.main_hud.get_partners() if is_instance_valid(GlobalRefs.main_hud) and GlobalRefs.main_hud.has_method("get_partners") else []
+	if _threats.empty() and partners.empty():
 		return
 	var view_size: Vector2 = camera.get_viewport().size
 	var centre: Vector2 = rect_size * 0.5
 	var radius: float = min(rect_size.x, rect_size.y) * Constants.THREAT_RING_RADIUS_SHARE
 	var from: Vector3 = Interp.origin(player)
+	for ship in partners:
+		if not _off_screen(camera, view_size, ship):
+			continue
+		var colour: Color = TargetKinds.side_color(TargetKinds.side_of(ship, player))
+		colour.a *= Constants.PARTNER_ARROW_ALPHA
+		_arrow(centre, radius, screen_direction(camera.global_transform, Interp.origin(ship)), Constants.PARTNER_ARROW_SIZE, colour)
 	for ref in _threats:
 		var ship = ref.get_ref()
-		if not is_instance_valid(ship) or ship.get("is_wreck") or ship.get("is_docked"):
+		if not _off_screen(camera, view_size, ship):
 			continue
 		var point: Vector3 = Interp.origin(ship)
-		if not camera.is_position_behind(point):
-			var on_screen: Vector2 = camera.unproject_position(point)
-			if Rect2(Vector2.ZERO, view_size).grow(-view_size.y * 0.05).has_point(on_screen):
-				continue  # In sight: its bracket shows it
 		var nearness: float = 1.0 - clamp(from.distance_to(point) / Constants.THREAT_RANGE, 0.0, 1.0)
 		var size: float = lerp(Constants.THREAT_ARROW_SIZE[0], Constants.THREAT_ARROW_SIZE[1], nearness)
-		var colour: Color = arrow_colour(ship, player, nearness)
-		var direction: Vector2 = screen_direction(camera.global_transform, point)
-		var base: Vector2 = centre + direction * radius
-		var tip: Vector2 = base + direction * size
-		var notch: Vector2 = base + direction * size * 0.35  # A notched head reads as pointing outward
-		var side: Vector2 = direction.tangent() * size * 0.4
-		var head := PoolVector2Array([tip, base + side, notch, base - side])
-		draw_colored_polygon(head, colour)
-		head.append(tip)
-		draw_polyline(head, Color(0, 0, 0, colour.a * 0.7), 2.0, true)  # Outlined: seen on a bright star too
+		_arrow(centre, radius, screen_direction(camera.global_transform, point), size, arrow_colour(ship, player, nearness))
+
+
+# Whether `ship` is out in space but out of sight (behind the camera or off the screen).
+static func _off_screen(camera, view_size: Vector2, ship) -> bool:
+	if not is_instance_valid(ship) or ship.get("is_wreck") or ship.get("is_docked") or not ship.is_inside_tree():
+		return false
+	var point: Vector3 = Interp.origin(ship)
+	if camera.is_position_behind(point):
+		return true
+	return not Rect2(Vector2.ZERO, view_size).grow(-view_size.y * 0.05).has_point(camera.unproject_position(point))  # In sight: its bracket shows it
+
+
+func _arrow(centre: Vector2, radius: float, direction: Vector2, size: float, colour: Color) -> void:
+	var base: Vector2 = centre + direction * radius
+	var tip: Vector2 = base + direction * size
+	var notch: Vector2 = base + direction * size * 0.35  # A notched head reads as pointing outward
+	var side: Vector2 = direction.tangent() * size * 0.4
+	var head := PoolVector2Array([tip, base + side, notch, base - side])
+	draw_colored_polygon(head, colour)
+	head.append(tip)
+	draw_polyline(head, Color(0, 0, 0, colour.a * 0.7), 2.0, true)  # Outlined: seen on a bright star too

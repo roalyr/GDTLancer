@@ -73,10 +73,13 @@ static func faction_of(location_id: String) -> String:
 	return str(spec(location_id).get("faction", ""))
 
 
-# Whether an NPC of `faction` docks there: its own faction's haven, or a neutral one unless it is a
-# raider or the xenohive (outlaws and aliens have only their own).
+# Whether an NPC of `faction` docks there: its own faction's haven, or a neutral one (or an open
+# faction's: FactionTemplate.open_havens, the free port) unless it is a raider or the xenohive
+# (outlaws and aliens have only their own).
 static func welcome(faction: String, location_id: String) -> bool:
 	var owner: String = faction_of(location_id)
-	if owner != "":
-		return owner == faction
+	if owner == faction and owner != "":
+		return true
+	if owner != "" and not TemplateDatabase.factions.get(owner, {}).get("open_havens", false):
+		return false
 	return not faction in ["raiders", "xenohive"]

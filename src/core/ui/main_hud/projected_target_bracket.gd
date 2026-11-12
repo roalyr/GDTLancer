@@ -2,6 +2,8 @@
 # Visual only: it never takes the mouse. PointerRouter hit-tests brackets and emits "pressed".
 # Distance: the selected target's, in the large font (font_large.tres); a live hostile ship shows
 # its own while unselected too, beside its mark. Distances are never dimmed for awareness.
+# A ship in an interaction with the player (Interactions: escorting, escorted, in its wing or
+# caravan) has its diamond filled in its side's colour, as a hostile that has seen the player does.
 
 extends Button
 
@@ -157,7 +159,8 @@ func _apply_bracket_style() -> void:
 				_normal_bracket.modulate.a *= Constants.UI_CELESTIAL_ALPHA
 		var hostile: bool = kind in ["ship", "station"] and TargetKinds.side_of(target_ref, GlobalRefs.player_agent_body) == "hostile"
 		if is_instance_valid(_marker):
-			_marker.set_mark(kind, hostile, kind == "ship" and hostile and _is_live_ship() and _sees_player())
+			var partner: bool = kind == "ship" and _is_partner()  # In an interaction with the player: filled in its side's colour
+			_marker.set_mark(kind, hostile, kind == "ship" and (partner or hostile and _is_live_ship() and _sees_player()))
 			var player = GlobalRefs.player_agent_body
 			var near: bool = not (target_ref is Spatial and is_instance_valid(player) and player.is_inside_tree() and target_ref.is_inside_tree())
 			_marker.modulate.a = 1.0 if near else mark_fade(player.global_transform.origin.distance_to(target_ref.global_transform.origin))
@@ -206,6 +209,12 @@ func _awareness_shade(color: Color) -> Color:
 	if _sees_player():
 		return color
 	return Color(color.r * Constants.UI_UNAWARE_DIM, color.g * Constants.UI_UNAWARE_DIM, color.b * Constants.UI_UNAWARE_DIM, color.a * Constants.UI_UNAWARE_ALPHA)
+
+
+# Whether the player is in an interaction with the target (Interactions; MainHUD keeps the list).
+func _is_partner() -> bool:
+	var hud = GlobalRefs.main_hud
+	return is_instance_valid(hud) and hud.has_method("is_partner") and hud.is_partner(target_ref)
 
 
 func _is_live_ship() -> bool:

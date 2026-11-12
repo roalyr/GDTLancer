@@ -1668,7 +1668,7 @@ class DevApp(App):
         table = self.query_one("#factions", DataTable)
         table.clear()
         for faction in factions:
-            flags = "".join(letter for letter, key in (("D", "distress"), ("E", "escorts"), ("W", "patrol_wages"), ("N", "no_standing"), ("S", "silent"))
+            flags = "".join(letter for letter, key in (("D", "distress"), ("E", "escorts"), ("W", "patrol_wages"), ("N", "no_standing"), ("S", "silent"), ("O", "open_havens"))
                             if faction.get(key))
             ships = sum(sum(int(n) for n in haven["ships"].values()) for haven in faction["havens"] if isinstance(haven["ships"], dict))
             table.add_row(swatch(faction.get("color")), faction["id"], faction.get("display_name", ""), swatch(faction.get("paint")),

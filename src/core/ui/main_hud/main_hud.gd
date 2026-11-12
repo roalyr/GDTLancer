@@ -25,6 +25,8 @@ const OVERLAY_KIND_STELLAR = "stellar"
 const OVERLAY_KIND_JUMP = "jump"
 const PointerRouterClass = preload("res://src/core/ui/pointer_router.gd")
 const FittingWindowScene = preload("res://scenes/ui/menus/fitting_window.tscn")
+const InteractionWindowScene = preload("res://scenes/ui/menus/interaction_window.tscn")
+const Interactions = preload("res://src/core/systems/interactions.gd")
 const FittingWindowScript = preload("res://src/core/ui/fitting_window/fitting_window.gd")
 const DebugMapScene = preload("res://scenes/ui/menus/debug_map.tscn")
 const DebugTools = preload("res://src/core/ui/debug_tools/debug_tools.gd")
@@ -67,6 +69,7 @@ onready var tool_buttons: Array = _tool_button_nodes()
 onready var button_lance: TextureButton = $ScreenControls/TemporaryToolZone/ButtonLance
 onready var button_afterburner: TextureButton = $ScreenControls/TemporaryToolZone/ButtonAfterburner
 var fitting_window: Control = null
+var interaction_window: Control = null  # INTERACT: what the selected ship may be asked (InteractionWindow)
 var debug_map: Control = null
 var debug_tools: Control = null
 var radio_lines: Array = []  # The radio lines heard last (Radio), oldest first, with their time: the debug overlay's (the top strip keeps its own, fading)
@@ -81,6 +84,9 @@ var _world_rebuild_queued: bool = false  # A bracket rebuild is due at the end o
 # --- State ---
 var _current_target = null
 var _escort_ward = null  # The worker the player escorts (player_escort_changed)
+var _partners: Array = []  # Ships in an interaction with the player (Interactions.partners), refreshed on change and on the controls cadence
+var _partner_ids: Dictionary = {}  # Their instance ids, for the brackets
+var _partners_left: float = 0.0
 var _main_camera: Camera = null
 var _player_uid: int = -1
 var _announcements: Control = null  # Fading feedback labels (Announcements)
@@ -148,6 +154,7 @@ func _ready():
 		EventBus.connect("dock_unavailable", self, "_on_dock_unavailable")
 		EventBus.connect("player_docked", self, "_on_player_docked")
 		EventBus.connect("player_escort_changed", self, "_on_player_escort_changed")
+		EventBus.connect("player_interactions_changed", self, "refresh_partners")
 		EventBus.connect("player_undocked", self, "_on_player_undocked")
 		EventBus.connect("jump_available", self, "_on_jump_available")
 		EventBus.connect("jump_unavailable", self, "_on_jump_unavailable")
@@ -230,6 +237,8 @@ func _ready():
 	apply_hud_preset()
 	fitting_window = FittingWindowScene.instance()
 	add_child(fitting_window)
+	interaction_window = InteractionWindowScene.instance()
+	add_child(interaction_window)
 	debug_map = DebugMapScene.instance()
 	add_child(debug_map)
 	$ScreenControls/DebugOverlay/RightColumn/ButtonDebugMap.connect("pressed", debug_map, "open")
@@ -290,6 +299,9 @@ func _update_hud() -> void:
 		_update_afterburner_button()
 		_layout_tool_rows()
 		_update_dock_button_label()
+		_partners_left -= Constants.HUD_CONTROLS_INTERVAL
+		if _partners_left <= 0.0:
+			refresh_partners()
 		_update_interact_button_label()
 		_update_approach_button_label()
 	_debug_left -= dt
@@ -362,18 +374,48 @@ static func _short_distance(metres: float) -> String:
 	return "%.1fk" % (metres / 1000.0) if metres >= 1000.0 else "%d" % int(round(metres))
 
 
-# INTERACT reads what it would do: ESCORT a friendly worker selected (Wages), STOP ESCORT on the one
-# escorted.
+# INTERACT opens the interaction window on the selected ship (Interactions); it reads INTERACTING
+# while that ship is in an interaction with the player.
 func _update_interact_button_label() -> void:
 	if not is_instance_valid(label_button_interact):
 		return
-	var text := "INTERACT"
-	if is_instance_valid(_escort_ward) and _current_target == _escort_ward:
-		text = "STOP ESCORT"
-	elif _current_target != null and Wages.can_escort(GlobalRefs.player_agent_body, _current_target):
-		text = "ESCORT"
+	var text := "INTERACTING" if _current_target != null and is_partner(_current_target) else "INTERACT"
 	if label_button_interact.text != text:
 		label_button_interact.text = text
+
+
+func open_interactions(ship) -> void:
+	if is_instance_valid(interaction_window):
+		interaction_window.open(ship)
+
+
+# The ships in an interaction with the player now (Interactions.partners), their brackets restyled
+# when the list changes (filled marks).
+func refresh_partners() -> void:
+	_partners_left = Constants.HUD_PARTNERS_INTERVAL
+	var found: Array = Interactions.partners(GlobalRefs.player_agent_body)
+	var ids := {}
+	for ship in found:
+		ids[ship.get_instance_id()] = true
+	if ids.hash() == _partner_ids.hash():
+		return
+	var changed: Dictionary = _partner_ids.duplicate()
+	for id in ids:
+		changed[id] = true
+	_partners = found
+	_partner_ids = ids
+	for button in get_tree().get_nodes_in_group("projected_target_bracket"):
+		var ref = button.get("target_ref")
+		if is_instance_valid(ref) and ref is Object and changed.has(ref.get_instance_id()):
+			button.refresh_style()
+
+
+func is_partner(ship) -> bool:
+	return is_instance_valid(ship) and ship is Object and _partner_ids.has(ship.get_instance_id())
+
+
+func get_partners() -> Array:
+	return _partners
 
 
 func _on_player_escort_changed(ward) -> void:

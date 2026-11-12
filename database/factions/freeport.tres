@@ -1,0 +1,23 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/faction_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "freeport"
+display_name = "Free Port"
+color = Color( 0.45, 0.75, 1.0, 1.0 )
+enemies = [ "raiders" ]
+starting_standing = 0.7
+no_standing = false
+distress = true
+silent = false
+territory = 0.0
+salvage_as = ""
+escorts = true
+patrol_wages = true
+open_havens = true
+hull_material = "res://assets/art/materials_generic/mat_hull_faction_freeport.tres"
+station_material = "res://assets/art/materials_generic/mat_hull_faction_freeport.tres"
+ship_scene = ""
+roster = [ "trader_light", "trader_medium", "prospector_light", "prospector_medium", "fighter_light", "fighter_medium" ]

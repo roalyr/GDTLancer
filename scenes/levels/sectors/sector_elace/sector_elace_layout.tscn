@@ -31,11 +31,12 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 30000, 0, 5000 )
 script = ExtResource( 1 )
 haven_id = "station_elace_home"
 display_name = "Elace Free Port"
-faction = ""
+faction = "freeport"
 model = ExtResource( 6 )
 seen_anywhere = true
 platforms = 3
 ships = {
+"freeport": 5
 }
 prefer_role = ""
 prefer_share = 0.0

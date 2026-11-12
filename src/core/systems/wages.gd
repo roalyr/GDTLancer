@@ -2,8 +2,9 @@
 # PATROL_WAGE_*).
 # - Escorts: an armed ship keeping by a worker (a prospector or scavenger: is_worker) of a faction
 #   that hires escorts is its escort (ShipControllerAI ward; the player's: PlayerControllerShip,
-#   the INTERACT button). When the worker sells its hold, ESCORT_SHARE of the sale goes to its escorts
-#   within ESCORT_PAY_RANGE, split between them.
+#   the INTERACT window: Interactions). When the worker sells its hold, ESCORT_SHARE of the sale goes
+#   to its escorts within ESCORT_PAY_RANGE, split between them. The player may hire NPC escorts too
+#   (Interactions "hire"): they take the same share of its cargo sales (pay_player_escorts).
 # - Patrols: a faction that pays patrol wages pays an armed ship that docks at one of its havens for
 #   the time it spent at its pickets since it last docked (BeaconNetwork counts it: on_patrol; up
 #   to PATROL_WAGE_MAX_TIME), PATROL_WAGE_SHARE_PER_HOUR of its value an hour: its own ships, and
@@ -57,6 +58,29 @@ static func pay_escorts(ward, value: int) -> int:
 	var each: int = int(round(value * Constants.ESCORT_SHARE / near.size()))
 	for escort in near:
 		_pay(escort, each, "Escort pay from %s: %d WP" % [_name(ward), each])
+	return each * near.size()
+
+
+# The player sold cargo for `value` (Fitting): the NPCs it hired as escorts (Interactions "hire"),
+# within ESCORT_PAY_RANGE, take ESCORT_SHARE of it from its bank, as a worker's escorts do. Returns
+# what they took.
+static func pay_player_escorts(player, value: int) -> int:
+	if not is_instance_valid(player) or value <= 0 or not player.is_inside_tree():
+		return 0
+	var near: Array = []
+	for ship in player.get_tree().get_nodes_in_group("agent_body"):
+		var ai = ship.get_node_or_null(Constants.AI_CONTROLLER_NODE_NAME) if ship != player else null
+		if ai == null or not ai.has_method("player_role") or ai.player_role() != "hire" or ship.get("is_wreck"):
+			continue
+		if ship.global_transform.origin.distance_to(player.global_transform.origin) <= Constants.ESCORT_PAY_RANGE:
+			near.append(ship)
+	if near.empty():
+		return 0
+	var each: int = int(round(value * Constants.ESCORT_SHARE / near.size()))
+	for escort in near:
+		GameState.player_bank -= each
+		_pay(escort, each, "")
+	EventBus.emit_signal("announcement", "Your escorts' share: %d WP" % (each * near.size()), "info")
 	return each * near.size()
 
 

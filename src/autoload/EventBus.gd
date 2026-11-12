@@ -27,8 +27,10 @@ signal player_orbit_pressed
 signal player_approach_pressed
 signal player_flee_pressed
 signal player_dock_pressed  # Explicit dock button
-signal player_interact_pressed  # Interact button: general interaction with the selected target (escorting a worker: Wages)
+signal player_interact_pressed  # Interact button: opens the interaction window on the selected ship (Interactions)
 signal player_escort_changed(ward)  # The worker the player now escorts (null: none)
+signal player_interactions_changed  # The ships the player is in an interaction with changed (Interactions.partners)
+signal player_interaction_ended(ship, kind)  # An NPC let go of one by itself (gone too far, docked, killed): "hire", "wing", "caravan"
 signal player_tool_pressed(tool_index)  # A tool button: switch that fitted tool on the selected target, or off
 signal player_lance_pressed  # The LANCE button: arm the kinetic lance, or make it safe
 signal player_afterburner_pressed  # The AFTERBURN button: light the afterburner, or put it out

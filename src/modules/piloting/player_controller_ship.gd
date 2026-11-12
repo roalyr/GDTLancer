@@ -33,6 +33,7 @@ var escort_ward = null  # The worker it escorts (INTERACT on one: Wages), if any
 const HomePort = preload("res://src/core/systems/home_port.gd")
 const Standing = preload("res://src/core/systems/standing.gd")
 const Wages = preload("res://src/core/systems/wages.gd")
+const Interactions = preload("res://src/core/systems/interactions.gd")
 
 # --- Preload States ---
 const StateBase = preload("res://src/modules/piloting/player_input_states/state_base.gd")
@@ -71,6 +72,7 @@ func _ready():
 	EventBus.connect("player_undocked", self, "_on_player_undocked")
 	EventBus.connect("player_dock_pressed", self, "_on_dock_button_pressed")
 	EventBus.connect("player_interact_pressed", self, "_on_interact_button_pressed")
+	EventBus.connect("player_interaction_ended", self, "_on_interaction_ended")
 	EventBus.connect("player_tool_pressed", self, "_on_tool_button_pressed")
 	EventBus.connect("player_lance_pressed", self, "_on_lance_button_pressed")
 	EventBus.connect("player_afterburner_pressed", self, "_on_afterburner_button_pressed")
@@ -221,19 +223,37 @@ func toggle_tool_for_selected() -> void:
 		EventBus.emit_signal("attack_action_feedback", false, _describe_tool_failure(result.get("reason", "")))
 
 
-# HUD interact button: general interaction with the selected target. Tools have their own buttons.
-# INTERACT: on a worker it may escort (Wages.can_escort), escorts it or stops; otherwise nothing yet.
+# HUD interact button: the interaction window on the selected ship (Interactions, InteractionWindow:
+# what it may be asked, each a toggle). Tools have their own buttons.
 func _on_interact_button_pressed() -> void:
 	var target = _selected_target
-	if is_instance_valid(escort_ward) and target == escort_ward:
-		set_escort_ward(null)
-		EventBus.emit_signal("attack_action_feedback", true, "No longer escorting")
+	if not Interactions.is_npc_ship(target):
+		EventBus.emit_signal("attack_action_feedback", false, "Select a ship to interact with")
 		return
-	if Wages.can_escort(agent_body, target):
-		set_escort_ward(target)
-		EventBus.emit_signal("attack_action_feedback", true, "Escorting: %d%% of its sales while within %.0f km of it" % [int(Constants.ESCORT_SHARE * 100), Constants.ESCORT_PAY_RANGE / 1000.0])
+	if is_instance_valid(GlobalRefs.main_hud) and GlobalRefs.main_hud.has_method("open_interactions"):
+		GlobalRefs.main_hud.open_interactions(target)
+
+
+# An NPC let go of an interaction by itself: the player hears why.
+func _on_interaction_ended(ship, kind: String) -> void:
+	if not is_instance_valid(ship):
 		return
-	EventBus.emit_signal("attack_action_feedback", false, "Nothing to interact with here: select a friendly worker to escort it")
+	var lines := {"hire": "no longer escorts you", "wing": "has left your wing", "caravan": "caravan is over"}
+	EventBus.emit_signal("announcement", "%s %s" % [Interactions.name_of(ship), lines.get(kind, "has let go")], "info")
+	EventBus.emit_signal("player_interactions_changed")
+
+
+# The ship the player is shooting at (a weapon on it), if any: its wing joins that fight.
+func get_focus():
+	if not is_instance_valid(_tool_controller):
+		return null
+	for index in range(_tool_controller.get_tool_count()):
+		var tool_template = _tool_controller.get_tool(index)
+		if tool_template != null and tool_template.tool_type in _tool_controller.WEAPON_TYPES and _tool_controller.is_active(index):
+			var target = _tool_controller.get_target(index)
+			if is_instance_valid(target) and target.has_method("apply_damage") and not target.get("is_wreck"):
+				return target
+	return null
 
 
 func set_escort_ward(ward) -> void:
@@ -245,6 +265,7 @@ func set_escort_ward(ward) -> void:
 	if escort_ward != null:
 		escort_ward.get_node(Constants.AI_CONTROLLER_NODE_NAME).add_escort(agent_body)
 	EventBus.emit_signal("player_escort_changed", escort_ward)
+	EventBus.emit_signal("player_interactions_changed")
 
 
 # The ward it escorts while it is still a worker out in space; let go otherwise.

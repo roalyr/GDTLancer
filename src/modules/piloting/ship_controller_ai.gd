@@ -74,7 +74,9 @@ var _threat = null  # The latest scan's enemy too strong for it that has not see
 var _avoided = null  # The one it last kept clear of
 var _havens: Dictionary = {}  # Haven NPCs: {"zone_id" (its haven), "stations" (where it is welcome), "refuges" (faction -> those), "centre", "radius" (the play area), "territorial"}
 var _beacon: Node = null  # The beacon it is going to or staying at (BeaconNetwork)
-var _ward: Node = null  # The worker it escorts (Wages), if any
+var _ward: Node = null  # The worker it escorts (Wages), if any; or the player, who hired it or leads it (Interactions)
+var _wing: bool = false  # Its ward is the player leading it: it also joins the player's fights (Interactions)
+var _player_mate: Node = null  # The player, travelling in its caravan at its asking (a trader: Interactions)
 var _charge_log: Dictionary = {}  # The charge under way, for Evolution.log_charge (_begin_charge_log)
 var _last_outlook: Dictionary = {}  # charge_outlook as charge_worth last weighed it
 var _orbiting_ward: bool = false
@@ -191,7 +193,7 @@ func get_activity_label() -> String:
 	if _covering != null and _current_state == AIState.COMBAT:
 		return "COVERING"
 	if _current_state == AIState.PATROL and get_ward() != null:
-		return "ESCORTING"
+		return "IN WING" if _wing else "ESCORTING"
 	if _current_state == AIState.DEPART and is_trader() and not get_caravan().empty():
 		return "IN CARAVAN"
 	if mustering_at() != null:
@@ -209,6 +211,12 @@ func get_ward() -> Node:
 		_note("lost_ward")  # Killed, or gone
 		_drop_ward()
 		return null
+	if _ward_is_player():  # Hired or leading: stays by it while it docks, until it lets go or goes too far
+		if _ward.global_transform.origin.distance_to(agent_script.global_transform.origin) > Constants.ESCORT_PICK_RANGE * 2.0:
+			_note("left_ward")
+			_drop_ward()
+			return null
+		return _ward
 	if _ward.get("is_docked"):
 		_note("ward_docked")
 		_drop_ward()
@@ -280,6 +288,74 @@ func _take_ward() -> bool:
 	return true
 
 
+# --- The player's requests (Interactions): it says yes to whatever applies, for now ---
+
+func _ward_is_player() -> bool:
+	return is_instance_valid(_ward) and _ward.has_method("is_player") and _ward.is_player()
+
+
+# Takes the player for its ward: hired (`wing` false: guards it, paid ESCORT_SHARE of its sales) or
+# as its leader (`wing`: also joins the fights the player starts). Lets go of any ward it had.
+func follow_player(player: Node, wing: bool) -> void:
+	if _ward != player:
+		_drop_ward()
+	_ward = player
+	_wing = wing
+	_orbiting_ward = false
+	_has_patrol_destination = false
+	_note("hired" if not wing else "joined_wing")
+	if _current_state in [AIState.PATROL, AIState.DEPART, AIState.SALVAGE, AIState.MINE]:
+		_change_state(AIState.PATROL)
+
+
+func release_player() -> void:
+	if _ward_is_player():
+		_drop_ward()
+
+
+# Whether it keeps by the player now: "hire", "wing", or "" if neither.
+func player_role() -> String:
+	if not _ward_is_player():
+		return ""
+	return "wing" if _wing else "hire"
+
+
+# The player travels in its caravan (a trader on its way or mustering): it paces the player as a
+# mate, and a muster is gathered at once.
+func admit_player(player: Node) -> void:
+	_player_mate = player
+	_caravan_timer = 0.0
+	if mustering_at() != null:
+		end_muster()
+		_note("mustered")
+
+
+func dismiss_player() -> void:
+	if _player_mate != null:
+		_player_mate = null
+		_caravan_timer = 0.0
+		EventBus.emit_signal("player_interaction_ended", agent_script, "caravan")
+
+
+func has_player_mate() -> bool:
+	if _player_mate != null and not (is_instance_valid(_player_mate) and _player_mate.is_inside_tree()):
+		_player_mate = null
+	return _player_mate != null
+
+
+# A leader's fight: the ship the player is shooting at, if it is no friend of its own; the wing takes
+# it on as an escort guards its ward.
+func _join_player_fight() -> bool:
+	if not (_wing and _ward_is_player()):
+		return false
+	var controller = _ward.get_node_or_null("PlayerInputHandler")
+	var target = controller.get_focus() if controller != null and controller.has_method("get_focus") else null
+	if not _is_live_target(target) or target == agent_script or str(target.get("faction")) == str(agent_script.faction):
+		return false
+	_guard(target)
+	return not _pending.empty() and _pending.target == target
+
+
 # Lives at an outpost: a haven that favours prospectors (its prefer_role).
 func is_outpost_guard() -> bool:
 	return not _havens.empty() and str(Havens.spec(str(_havens.get("zone_id", ""))).get("prefer_role", "")) == "prospector"
@@ -290,7 +366,10 @@ func _drop_ward() -> void:
 		var ai = _ward.get_node_or_null(Constants.AI_CONTROLLER_NODE_NAME)
 		if ai != null and ai.has_method("remove_escort"):
 			ai.remove_escort(agent_script)
+		if _ward_is_player():
+			EventBus.emit_signal("player_interaction_ended", agent_script, "wing" if _wing else "hire")
 	_ward = null
+	_wing = false
 	_orbiting_ward = false
 	_has_patrol_destination = false
 
@@ -350,6 +429,8 @@ func get_caravan() -> Array:
 	if _current_state != AIState.DEPART or not is_instance_valid(_station) or not is_trader():
 		return _caravan
 	var here: Vector3 = agent_script.global_transform.origin
+	if has_player_mate() and not _player_mate.get("is_docked") and _player_mate.global_transform.origin.distance_to(here) <= Constants.CARAVAN_RANGE:
+		_caravan.append(_player_mate)  # The player at its asking (Interactions): paced as a mate
 	for ship in get_tree().get_nodes_in_group("agent_body"):
 		if ship == agent_script or ship.get("is_wreck") or ship.get("is_docked") or str(ship.get("faction")) != str(agent_script.faction):
 			continue
@@ -691,6 +772,7 @@ func _change_state(new_state: int) -> void:
 			_provoked = false
 			_target_agent = null
 			agent_script.command_stop()
+			dismiss_player()  # Arrived: the caravan is over
 		AIState.HESITATE:
 			if not keeps_fighting:
 				agent_script.command_watch(_target_agent)
@@ -757,13 +839,13 @@ func _process_patrol() -> void:
 		if is_instance_valid(target):
 			_consider("engage", target, desire_against(target), _engage_level())
 			return
-		elif _join_leader():
+		elif _join_player_fight() or _join_leader():
 			return
 		elif is_instance_valid(_threat) and _pending.empty():
 			_keep_clear(_threat)
 			return
 		elif _pending.empty() and (get_ward() != null or _take_ward()):
-			if _due_home():
+			if _due_home() and not _ward_is_player():
 				_drop_ward()
 				_change_state(AIState.DEPART)
 				return
@@ -1859,6 +1941,9 @@ func _on_agent_damaged(agent_body, _amount, source) -> void:
 # included, wants that fight; the sturdier of the two wants it more and covers the friend (cover_factor). The attacker becomes its enemy too.
 func _assist(friend, source) -> void:
 	if not _is_live_target(source) or source == agent_script or not _is_live_target(friend):
+		return
+	if friend == _ward and _ward_is_player() and str(source.get("faction")) != str(agent_script.faction):
+		_guard(source)  # The player it was hired by or follows
 		return
 	if friend.get("faction") != agent_script.faction or agent_script.faction == "" or source.get("faction") == agent_script.faction:
 		return

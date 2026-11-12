@@ -42,13 +42,15 @@ func test_ore_sells_best_at_the_refinery_and_not_everywhere():
 func test_who_is_welcome():
 	assert_true(Havens.welcome("verdant", "verdant_haven"))
 	assert_false(Havens.welcome("violet", "verdant_haven"))
-	assert_true(Havens.welcome("violet", "station_elace_home"), "Neutral ports take the factions")
+	assert_true(Havens.welcome("violet", "station_elace_home"), "The free port takes the factions (open_havens)")
 	assert_false(Havens.welcome("raiders", "station_elace_home"), "but not raiders")
 	assert_true(Havens.welcome("raiders", "raider_den"))
+	assert_true(Havens.welcome("freeport", "station_elace_home"), "and its own")
+	assert_true(Havens.welcome("verdant", "elace_refinery"), "A neutral station takes them too")
 
 
 func test_populated_havens_are_those_with_ships():
 	var ids: Array = []
 	for haven in Havens.populated("sector_elace"):
 		ids.append(haven.id)
-	assert_eq(ids, ["verdant_haven", "verdant_post", "violet_haven", "violet_post", "raider_den", "xenohive"])
+	assert_eq(ids, ["station_elace_home", "verdant_haven", "verdant_post", "violet_haven", "violet_post", "raider_den", "xenohive"])

@@ -15,6 +15,7 @@ const ShipFit = preload("res://src/core/systems/ship_fit.gd")
 const HomePort = preload("res://src/core/systems/home_port.gd")
 const Market = preload("res://src/core/systems/market.gd")
 const PartCatalog = preload("res://src/core/systems/part_catalog.gd")
+const Wages = preload("res://src/core/systems/wages.gd")
 
 
 static func is_available() -> bool:
@@ -172,6 +173,7 @@ static func sell_cargo(ship_body: Node, commodity_id: String, units: int = 1) ->
 	if taken <= 0:
 		return "None in the hold"
 	GameState.player_bank += taken * price
+	Wages.pay_player_escorts(ship_body, taken * price)
 	return ""
 
 
@@ -179,7 +181,9 @@ static func sell_cargo(ship_body: Node, commodity_id: String, units: int = 1) ->
 static func sell_hold(ship_body: Node) -> Dictionary:
 	if not can_sell_cargo():
 		return {"banked": 0, "units": 0}
-	return Market.sell_hold(ship_body, GameState.player_docked_at, docked_faction())
+	var sold: Dictionary = Market.sell_hold(ship_body, GameState.player_docked_at, docked_faction())
+	Wages.pay_player_escorts(ship_body, int(sold.get("banked", 0)))
+	return sold
 
 
 static func sell(part_id: String) -> String:
