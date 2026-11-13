@@ -505,6 +505,19 @@ class AppTest(unittest.IsolatedAsyncioTestCase):
             app.action_toggle_field_rock()
             self.assertEqual(len(saved), 1, "The last rock in the fields stays")
 
+    async def test_a_placeholder_opens_its_shape_in_constants(self):
+        app = devapp.DevApp(bridge_factory=lambda: FakeBridge())
+        async with app.run_test(size=(200, 60)) as pilot:
+            await self._started(pilot, app)
+            table = app.query_one("#models", DataTable)
+            table.move_cursor(row=[row.name for row in app.model_rows].index("fighter_light"))
+            app.action_model("form")
+            await pilot.pause()
+            self.assertEqual(app.query_one("TabbedContent").active, "constants")
+            self.assertEqual(app.constant_picked, "HULL_FORMS")
+            text = app.query_one("#const-text", devapp.TextArea)
+            self.assertIn('"fighter":', text.document.get_line(text.cursor_location[0]))
+
     async def test_archetypes_are_listed_in_family_and_weight_order(self):
         app = devapp.DevApp(bridge_factory=lambda: FakeBridge())
         async with app.run_test(size=(200, 60)) as pilot:

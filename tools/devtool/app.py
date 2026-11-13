@@ -902,7 +902,7 @@ class ModelsPane(Vertical):
     BINDINGS = [
         Binding("i", "app.model('import')", "Import"), Binding("o", "app.model('open')", "Open in Blender"),
         Binding("s", "app.model('sheet')", "Review sheet"), Binding("ctrl+n", "app.new_model", "New model"),
-        Binding("f", "app.toggle_field_rock", "Rock in fields"),
+        Binding("f", "app.toggle_field_rock", "Rock in fields"), Binding("c", "app.model('form')", "Placeholder shape"),
         Binding("ctrl+r", "app.refresh_models", "Refresh"),
     ]
 
@@ -1486,6 +1486,29 @@ class DevApp(App):
             lines.append("[red]- %s[/red]" % problem)
         self.query_one("#model-detail", Static).update("\n".join(lines))
 
+    def open_placeholder_form(self, row):
+        """The Constants tab at a placeholder's shape: its family's entry in HULL_FORMS (a weapon
+        platform: PLATFORM_FORM) or its form's in STATION_FORMS, the cursor on it."""
+        if not row.placeholder:
+            self.notify("%s is a model, not a placeholder: open it in Blender (o)" % row.name, severity="warning")
+            return
+        if row.kind == "station":
+            name, key = "STATION_FORMS", row.name
+        elif row.name.startswith("platform"):
+            name, key = "PLATFORM_FORM", None
+        else:
+            name, key = "HULL_FORMS", row.name.rsplit("_", 1)[0]
+        self.query_one(TabbedContent).active = "constants"
+        self._show_constant(name, "[dim]%s's shape: change it, ctrl+s, then s on the Models tab shows it.[/dim]" % row.name)
+        entry = self._entry(name)
+        if entry is not None and entry.multiline() and key:
+            lines = entry.value.split("\n")
+            at = next((index for index, line in enumerate(lines) if line.lstrip().startswith('"%s":' % key)), 0)
+            text_area = self.query_one("#const-text", TextArea)
+            text_area.cursor_location = (at, 0)
+            text_area.scroll_cursor_visible(center=True)
+            text_area.focus()
+
     def action_toggle_field_rock(self):
         """Puts the picked rock in the asteroid fields (Constants.FIELD_ROCK_MODELS) or takes it out."""
         row = self._current_model()
@@ -1506,6 +1529,9 @@ class DevApp(App):
     def action_model(self, what):
         row = self._current_model()
         if row is None:
+            return
+        if what == "form":
+            self.open_placeholder_form(row)
             return
         if row.kind == "rock" and what != "open":
             self.notify("A rock is a .glb: f puts it in the asteroid fields or takes it out", severity="warning")
