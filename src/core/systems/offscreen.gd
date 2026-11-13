@@ -7,6 +7,9 @@
 # frozen. Docked ships are out of the physics anyway (Agent.dock_at) and keep their AI, so they undock
 # on time, and are abstracted again once out.
 # Every OFFSCREEN_TICK s each abstracted ship does one of, by the AI's own judgement where it has one:
+#   trade  - a trader (ShipControllerAI.is_trader) with a trade to make and no reason to run: to the
+#            station its AI would fly to (_pick_market: where its hold sells best, or where it buys
+#            when empty) and docks there (sells, buys its next cargo);
 #   home   - its hold full, its time up (Evolution) or its hull below its retreat level (genes):
 #            to its station and docks there (sells, repairs, retires: as when flown), or a
 #            traveller leaving the sector flies out to its jump point and goes;
@@ -140,7 +143,11 @@ func resolve(dt: float) -> void:
 
 func _resolve_ship(body: RigidBody, ai: Node, entry: Dictionary, dt: float) -> void:
 	var enemy = _nearest_enemy(body)
-	var going_home: bool = ai.is_leaving() or body.get_free_cargo() <= 0 or ai.hold_worth_hauling() or ai._due_home() or (enemy != null and ai._should_retreat())
+	var running: bool = enemy != null and ai._should_retreat()
+	if not running and not ai.is_leaving() and not ai._due_home() and ai.has_method("is_trader") and ai.is_trader() and ai.has_trade_to_make():
+		_dock_at(body, ai, entry, dt, ai._pick_market())
+		return
+	var going_home: bool = ai.is_leaving() or body.get_free_cargo() <= 0 or ai.hold_worth_hauling() or ai._due_home() or running
 	if going_home:
 		_go_home(body, ai, entry, dt, enemy)
 		return
@@ -185,23 +192,28 @@ func _resolve_ship(body: RigidBody, ai: Node, entry: Dictionary, dt: float) -> v
 # To its station and docked there (a haven NPC), or out through its jump point (a traveller).
 func _go_home(body: RigidBody, ai: Node, entry: Dictionary, dt: float, threat) -> void:
 	if not ai._havens.empty():
-		var station = ai._pick_refuge(threat)
-		if not is_instance_valid(station):
-			_move(body, entry, ai._home_position, dt, 0.0)
-			return
-		var dock_point: Vector3 = station.get_undock_position()
-		if body.global_transform.origin.distance_to(dock_point) <= Constants.HAVEN_DOCK_DISTANCE:
-			ai._dock(station, true)  # Sells, repairs or retires, as when flown
-			if is_instance_valid(body) and body.is_inside_tree() and body.get("is_docked"):
-				restore(body)  # Docked ships keep their AI (it undocks them)
-			return
-		_move(body, entry, dock_point, dt, 0.0)
+		_dock_at(body, ai, entry, dt, ai._pick_refuge(threat))
 		return
 	if body.global_transform.origin.distance_to(ai._home_point) <= Constants.AI_DEPART_ARRIVAL_DISTANCE:
 		_entries.erase(body.get_instance_id())
 		body.despawn()  # Out of the sector (Traffic takes it from here)
 		return
 	_move(body, entry, ai._home_point, dt, 0.0)
+
+
+# To `station` and docked there (sells, repairs or retires, as when flown); none: back toward the
+# middle of its patrol.
+func _dock_at(body: RigidBody, ai: Node, entry: Dictionary, dt: float, station) -> void:
+	if not is_instance_valid(station):
+		_move(body, entry, ai._home_position, dt, 0.0)
+		return
+	var dock_point: Vector3 = station.get_undock_position()
+	if body.global_transform.origin.distance_to(dock_point) <= Constants.HAVEN_DOCK_DISTANCE:
+		ai._dock(station, true)
+		if is_instance_valid(body) and body.is_inside_tree() and body.get("is_docked"):
+			restore(body)  # Docked ships keep their AI (it undocks them)
+		return
+	_move(body, entry, dock_point, dt, 0.0)
 
 
 # Toward `point` at OFFSCREEN_SPEED_SHARE of top speed (at most its cruise when cruising), stopping `short` m from it; faces its way.

@@ -47,6 +47,10 @@ func test_who_is_welcome():
 	assert_true(Havens.welcome("raiders", "raider_den"))
 	assert_true(Havens.welcome("freeport", "station_elace_home"), "and its own")
 	assert_true(Havens.welcome("verdant", "elace_refinery"), "A neutral station takes them too")
+	assert_true(Havens.welcome("freeport", "verdant_haven"), "The free port's ships dock at the factions' havens (it trades with everyone)")
+	assert_true(Havens.welcome("freeport", "violet_haven"))
+	assert_false(Havens.welcome("freeport", "raider_den"), "not the raiders' (at war)")
+	assert_false(Havens.welcome("freeport", "xenohive"), "nor the hive")
 
 
 func test_populated_havens_are_those_with_ships():

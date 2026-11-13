@@ -31,6 +31,16 @@ class StubAI extends Node:
 		return false
 
 
+class TraderAI extends StubAI:
+	var market = null
+	func is_trader() -> bool:
+		return true
+	func has_trade_to_make() -> bool:
+		return true
+	func _pick_market():
+		return market
+
+
 var offscreen: Node = null
 
 
@@ -169,3 +179,25 @@ func test_an_off_screen_ship_reaches_a_dock_point_inside_its_stations_radius():
 	for _step in range(40):
 		offscreen._move(ship, entry, dock, 1.0, 0.0)
 	assert_lt(ship.global_transform.origin.distance_to(dock), 10.0, "The station round its own dock point is let be")
+
+
+func test_an_off_screen_trader_flies_its_trade_not_its_patrol_nor_its_nearest_haven():
+	var player = _ship("player", Vector3.ZERO, "player")
+	GlobalRefs.player_agent_body = player
+	var ship = _ship("verdant", Vector3(50000, 0, 0))
+	ship.cargo_capacity = 0  # A full hold: by the home rule it would make for the nearest refuge
+	var stub = ship.get_node(Constants.AI_CONTROLLER_NODE_NAME)
+	ship.remove_child(stub)
+	stub.free()
+	var ai := TraderAI.new()
+	ai.name = Constants.AI_CONTROLLER_NODE_NAME
+	ai._havens = {"stations": []}
+	ship.add_child(ai)
+	var market = load("res://src/scenes/game_world/station/dockable_station.gd").new()
+	add_child_autofree(market)
+	market.global_transform.origin = Vector3(60000, 0, 0)
+	market.undock_offset = Vector3.ZERO
+	ai.market = market
+	offscreen.check()
+	offscreen.resolve(1.0)
+	assert_almost_eq(ship.global_transform.origin.x, 50000.0 + 100.0 * Constants.OFFSCREEN_SPEED_SHARE, 0.01, "Toward the station its AI would sell at (_pick_market)")
