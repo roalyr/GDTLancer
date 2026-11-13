@@ -574,6 +574,7 @@ func test_strain_grows_with_stretch():
 # --- Cable shape (TetherRope) ---
 
 func test_rope_pulls_straight_when_taut_and_bunches_when_slack():
+	seed(1)  # The slack rope's nudges are random; without a seed the bow depends on the tests run before
 	var Rope = load("res://src/core/agents/components/tether_rope.gd")
 	var rope = Rope.new()
 	var a := Vector3.ZERO

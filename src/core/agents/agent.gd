@@ -802,10 +802,6 @@ func get_smoulder_count() -> int:
 	return count
 
 
-func get_hull_scar_count() -> int:
-	return _hull_scars.get_scar_count() if is_instance_valid(_hull_scars) else 0
-
-
 func _clear_smoulders() -> void:
 	for spot in _smoulders:
 		if is_instance_valid(spot):

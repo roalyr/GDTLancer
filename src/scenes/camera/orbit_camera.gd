@@ -325,13 +325,6 @@ func set_camera_mode(mode: int):
 		_look_at_target = null
 
 
-func toggle_camera_mode():
-	if _camera_mode == CameraMode.ORBIT:
-		set_camera_mode(CameraMode.TARGET_TRACKING)
-	else:
-		set_camera_mode(CameraMode.ORBIT)
-
-
 func set_look_at_target(target: Spatial):
 	_look_at_target = target
 	if is_instance_valid(_position_controller):

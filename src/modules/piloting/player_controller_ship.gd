@@ -19,7 +19,6 @@ var current_thrust_throttle: float = 1.0
 # --- State ---
 var _current_input_state: InputState = null
 var _states = {}
-var _target_under_cursor: Spatial = null
 var _selected_target = null setget _set_selected_target
 var _can_dock_at: String = ""
 var _pending_jump_target: String = ""
@@ -271,13 +270,6 @@ func set_escort_ward(ward) -> void:
 		escort_ward.get_node(Constants.AI_CONTROLLER_NODE_NAME).add_escort(agent_body)
 	EventBus.emit_signal("player_escort_changed", escort_ward)
 	EventBus.emit_signal("player_interactions_changed")
-
-
-# The ward it escorts while it is still a worker out in space; let go otherwise.
-func get_escort_ward():
-	if escort_ward != null and not Wages.is_worker(escort_ward):
-		set_escort_ward(null)
-	return escort_ward
 
 
 # A HUD tool button: that tool off if it is on, otherwise on against the selected target.
@@ -652,18 +644,6 @@ func _update_throttle_and_slider_visuals():
 		var slider_val = 100.0 - (current_thrust_throttle * 100.0)
 		if not is_equal_approx(_speed_slider.value, slider_val):
 			_speed_slider.value = slider_val
-
-
-func _raycast_for_target(screen_pos: Vector2) -> Spatial:
-	if not is_instance_valid(agent_body) or not is_instance_valid(_main_camera):
-		return null
-	var ray_origin = ScreenSpace.ray_origin(_main_camera, screen_pos)
-	var ray_normal = ScreenSpace.ray_normal(_main_camera, screen_pos)
-	var ray_end = ray_origin + ray_normal * Constants.TARGETING_RAY_LENGTH
-	# --- FIX: Call get_world() from the agent_body node ---
-	var space_state = agent_body.get_world().direct_space_state
-	var result = space_state.intersect_ray(ray_origin, ray_end, [agent_body], 1)
-	return result.collider if result else null
 
 
 func _attempt_selected_jump() -> void:

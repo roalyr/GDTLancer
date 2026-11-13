@@ -106,11 +106,6 @@ func set_particles_enabled(enabled: bool) -> void:
 		stack.append_array(node.get_children())
 
 
-func toggle_particles() -> bool:
-	set_particles_enabled(not particles_enabled)
-	return particles_enabled
-
-
 # False while particles are switched off: code that shows particles itself checks this first.
 static func particles_allowed(tree: SceneTree) -> bool:
 	return not tree.has_meta(PARTICLES_OFF_META)

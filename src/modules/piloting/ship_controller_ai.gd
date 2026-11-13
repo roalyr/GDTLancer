@@ -528,10 +528,6 @@ func docked_at() -> Spatial:
 	return _station if _current_state == AIState.DOCKED else null
 
 
-func dock_time_left() -> float:
-	return _dock_timer
-
-
 func is_cruising() -> bool:
 	if _current_state == AIState.PATROL:
 		return get_ward() == null
@@ -634,12 +630,6 @@ func _base_engagement_range() -> float:
 		best = min(best, tool_template.optimal_range)
 		lock = min(lock, _tool_controller.reach_on(index, _target_agent))
 	return min(best * _range_factor, lock) if best < INF else 0.0
-
-
-func _get_attack_tool_index() -> int:
-	if not is_instance_valid(_tool_controller) or not is_instance_valid(_target_agent):
-		return -1
-	return _tool_controller.find_tool_for(_target_agent)
 
 
 # Thinks every Constants.AI_THINK_INTERVAL (ships staggered), on the time gone since: the commands

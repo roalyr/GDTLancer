@@ -161,10 +161,6 @@ static func get_next_paid_out(current: float, cable_length: float, distance: flo
 	return min(next, cable_length)
 
 
-func get_rope_points() -> Array:
-	return _rope.points
-
-
 func _step_rope(delta: float) -> void:
 	var from: Vector3 = _anchor_point(holder, towed.global_transform.origin)
 	var to: Vector3 = _anchor_point(towed, holder.global_transform.origin)

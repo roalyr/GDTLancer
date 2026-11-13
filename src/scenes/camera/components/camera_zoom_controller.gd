@@ -100,13 +100,6 @@ func get_target_radius() -> float:
 	return _target_radius
 
 
-# How far into the telephoto range the zoom is: 0 outside it, 1 at the narrowest FoV.
-func get_telephoto_amount() -> float:
-	if _telephoto_fraction <= 0.0:
-		return 0.0
-	return clamp(1.0 - _zoom_level / _telephoto_fraction, 0.0, 1.0)
-
-
 # Distance for target tracking. In the telephoto range the camera backs off as the FoV narrows
 # (a dolly zoom), so the ship keeps its on-screen size while the far target is magnified.
 func get_tracking_distance() -> float:

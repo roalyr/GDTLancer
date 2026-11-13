@@ -89,7 +89,6 @@ var _partners: Array = []  # Ships in an interaction with the player (Interactio
 var _partner_ids: Dictionary = {}  # Their instance ids, for the brackets
 var _partners_left: float = 0.0
 var _main_camera: Camera = null
-var _player_uid: int = -1
 var _announcements: Control = null  # Fading feedback labels (Announcements)
 var _hud_alpha = 1.0
 var _dock_location_id: String = ""  # Currently available dock location
@@ -500,7 +499,6 @@ func _on_new_game_requested() -> void:
 func _on_game_state_loaded() -> void:
 	# After load, clear stale targeting UI.
 	_on_Player_Target_Deselected()
-
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -1228,11 +1226,6 @@ func apply_hud_preset() -> void:
 			button.refresh_style()
 
 
-func _get_world_rendering() -> Node:
-	var scene = get_tree().current_scene if is_inside_tree() else null
-	return scene.get_node_or_null("WorldRendering") if is_instance_valid(scene) else null
-
-
 func _on_ButtonUIOpacity_pressed() -> void:
 	"""Handle main HUD transparency (cycle)."""
 	_hud_alpha -= 0.25
@@ -1413,14 +1406,8 @@ func find_target_bracket_at(pointer_position: Vector2) -> Control:
 
 
 # Projected target projector forwards:
-func _get_projected_target_distance_fade_alpha(screen_pos: Vector2, viewport_rect: Rect2) -> float:
-	return _target_projector.get_projected_target_distance_fade_alpha(screen_pos, viewport_rect)
-
 func _compute_projected_target_distance_fade_alpha(normalized_distance: float) -> float:
 	return _target_projector.compute_projected_target_distance_fade_alpha(normalized_distance)
-
-func _apply_projected_target_distance_fade(button: Control, fade_alpha: float) -> void:
-	_target_projector.apply_projected_target_distance_fade(button, fade_alpha)
 
 func _get_projected_target_overlay_kind(target_ref) -> String:
 	return _target_projector.get_projected_target_overlay_kind(target_ref)
@@ -1428,20 +1415,11 @@ func _get_projected_target_overlay_kind(target_ref) -> String:
 func _is_projected_target_overlay_enabled(overlay_kind: String) -> bool:
 	return _target_projector.is_projected_target_overlay_enabled(overlay_kind)
 
-func _is_stellar_target(target_node: Node) -> bool:
-	return _target_projector.is_stellar_target(target_node)
-
 func _is_route_target(target_ref) -> bool:
 	return _target_projector.is_route_target(target_ref)
 
 func _is_target_valid(target_ref) -> bool:
 	return _target_projector.is_target_valid(target_ref)
-
-func _get_projection_origin() -> Vector3:
-	return _target_projector.get_projection_origin()
-
-func _get_target_world_position(target_ref) -> Vector3:
-	return _target_projector.get_target_world_position(target_ref)
 
 func _clear_route_target_overlay() -> void:
 	_target_projector.clear_route_target_overlay()
@@ -1451,15 +1429,6 @@ func _clear_world_target_overlay() -> void:
 
 func _rebuild_projected_target_overlays() -> void:
 	_target_projector.rebuild_projected_target_overlays()
-
-func _rebuild_route_target_overlay() -> void:
-	_target_projector.rebuild_route_target_overlay()
-
-func _sync_route_target_overlay_with_topology() -> void:
-	_target_projector.sync_route_target_overlay_with_topology()
-
-func _get_route_target_overlay_signature(sector_id: String) -> String:
-	return _target_projector.get_route_target_overlay_signature(sector_id)
 
 func _rebuild_world_target_overlay() -> void:
 	_world_rebuild_queued = false
@@ -1471,29 +1440,14 @@ func _update_route_target_overlay() -> void:
 func _collect_world_projected_targets() -> Array:
 	return _target_projector.collect_world_projected_targets()
 
-func _append_world_projected_targets(node: Node, targets: Array) -> void:
-	_target_projector.append_world_projected_targets(node, targets)
-
-func _is_world_projectable_target(node: Node) -> bool:
-	return _target_projector.is_world_projectable_target(node)
-
 # `full`: also re-check which brackets show and their cues (else only on the projector's interval).
 func _update_world_target_overlay(full: bool = true) -> void:
 	FrameProfiler.begin(get_tree(), "brackets")
 	_target_projector.update_world_target_overlay(full)
 	FrameProfiler.end(get_tree(), "brackets")
 
-func _get_route_target_selection_key() -> String:
-	return _target_projector.get_route_target_selection_key()
-
 func _update_route_target_selection_state() -> void:
 	_target_projector.update_route_target_selection_state()
-
-func _get_world_target_instance_id() -> int:
-	return _target_projector.get_world_target_instance_id()
-
-func _get_projected_target_context_hint(target_ref) -> String:
-	return _target_projector.get_projected_target_context_hint(target_ref)
 
 func _update_world_target_selection_state() -> void:
 	_target_projector.update_world_target_selection_state()
