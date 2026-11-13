@@ -128,6 +128,20 @@ def _save_report(v):
     return godot_script("tools/save_report.gd", *([] if v["save"] == "newest" else ["save=user://" + v["save"]]))
 
 
+def next_version():
+    """The last release's version (git tags v<version>) with its last number one higher; 0.1.0 at first."""
+    try:
+        tags = subprocess.run(["git", "tag", "--list", "v*", "--sort=-v:refname"], cwd=ROOT, stdout=subprocess.PIPE,
+                              stderr=subprocess.DEVNULL, text=True).stdout.split()
+    except OSError:
+        tags = []
+    numbers = next((tag[1:].split(".") for tag in tags if all(part.isdigit() for part in tag[1:].split("."))), None)
+    if not numbers:
+        return "0.1.0"
+    numbers[-1] = str(int(numbers[-1]) + 1)
+    return ".".join(numbers)
+
+
 def draft_folders():
     return sorted(os.path.basename(path) for path in glob.glob(os.path.join(ROOT, "database/presets/drafts_era*")))
 
@@ -349,6 +363,12 @@ TASKS = [
     Task("save_report", "Game", "Save report", "What a save holds, in words: ship, fit, hold, bank, storage, standings, travellers.",
          _save_report, [Ask("save", "Save", "choice", "newest", saves)]),
     Task("editor", "Game", "Open the Godot editor", "", lambda v: godot("-e")),
+    Task("release", "Game", "Release a version", "Tests, versions the Android build, exports GDTLancer-<version>.apk, commits and tags"
+         " (nothing is pushed). Needs a clean working tree.",
+         lambda v: ["python3", "tools/devtool/release.py", "version=" + v["version"], "tests=" + v["tests"], "tag=" + v["tag"],
+                    "out=" + os.path.dirname(APK)],
+         [Ask("version", "Version", default=next_version, fresh=True), Ask("tests", "Run the tests first", "flag", "yes"),
+          Ask("tag", "Tag it v<version>", "flag", "yes")]),
     Task("apk", "Game", "Export the debug APK", "Android debug build to $GDTLANCER_APK (" + APK + ").",
          lambda v: godot("--no-window", "--export-debug", "Android", APK)),
 ]

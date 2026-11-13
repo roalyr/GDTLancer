@@ -172,3 +172,7 @@ The rules live in one place, `src/core/validation/content_validator.gd`, and two
 They load every faction, sector layout, haven, game start and archetype, every ship and station model in use, the material library and the sound bank. Broken references, a missing roster genome, a broken haven, a buy list or kit naming something that does not exist, and models off the rules all fail. `tools/dev.py validate` lists every problem from a terminal; `tools/dev.py check_model scene=<path>` checks one model.
 
 To add a rule, add it to the validator. The tool and the tests both pick it up.
+
+## Releasing
+
+`tools/dev.py release` (Tools, Game) makes a version: with everything committed, it runs the tests, sets the Android build's version (`export_presets.cfg`: version name, and the version code one up), exports `GDTLancer-<version>.apk` beside the usual APK, then commits that and tags it `v<version>`. It pushes nothing: push the commit and the tag once the build plays well.
