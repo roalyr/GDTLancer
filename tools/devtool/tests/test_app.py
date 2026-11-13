@@ -2,6 +2,7 @@
 
 import os
 import shutil
+import tempfile
 import unittest
 
 from devtool.tests.test_worldmap import plain as worldmap_plain
@@ -138,6 +139,23 @@ class FakeBridge:
 
     def close(self):
         pass
+
+
+class FakeGit:
+    def __init__(self):
+        self.committed = []
+
+    def status(self):
+        return [("changed", "database/factions/verdant.tres"), ("new", "database/registry/game_starts/start_test.tres")]
+
+    def diff(self, path):
+        return ["@@ -1 +1 @@", "-roster = [ ]", "+roster = [ \"fighter_light\" ]"] if path.endswith("verdant.tres") else ["(a new file)", "+[gd_resource]"]
+
+    def commit(self, message):
+        if not message:
+            return False, "A commit needs a message"
+        self.committed.append(message)
+        return True, "abc123 " + message
 
 
 class AppTest(unittest.IsolatedAsyncioTestCase):
@@ -517,6 +535,47 @@ class AppTest(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(app.constant_picked, "HULL_FORMS")
             text = app.query_one("#const-text", devapp.TextArea)
             self.assertIn('"fighter":', text.document.get_line(text.cursor_location[0]))
+
+    async def test_changes_are_reviewed_and_committed(self):
+        app = devapp.DevApp(bridge_factory=lambda: FakeBridge())
+        git = FakeGit()
+        app.changes_source = git
+        async with app.run_test(size=(180, 50)) as pilot:
+            await self._started(pilot, app)
+            await pilot.press("0")
+            await pilot.pause()
+            await pilot.press("g")
+            await pilot.pause()
+            screen = app.screen
+            self.assertIsInstance(screen, devapp.ChangesScreen)
+            self.assertEqual(screen.query_one("#change-list", DataTable).row_count, 2)
+            self.assertIn("fighter_light", str(screen.query_one("#change-text").content))
+            screen.query_one("#change-commit").press()
+            await pilot.pause()
+            self.assertEqual(git.committed, [], "No message, no commit")
+            screen.query_one("#change-message", Input).value = "Roster: fighters"
+            screen.query_one("#change-commit").press()
+            await pilot.pause()
+            self.assertEqual(git.committed, ["Roster: fighters"])
+            self.assertNotIsInstance(app.screen, devapp.ChangesScreen)
+
+    async def test_undo_steps_back_save_by_save(self):
+        app = devapp.DevApp(bridge_factory=lambda: FakeBridge())
+        async with app.run_test(size=(180, 50)) as pilot:
+            await self._started(pilot, app)
+            reloads = []
+            with tempfile.TemporaryDirectory() as folder:
+                path = os.path.join(folder, "x.txt")
+                for text in ("one", "two"):
+                    app._undo_point([(path, text)], lambda: reloads.append(1))
+                app.action_undo_save()
+                with open(path) as handle:
+                    self.assertEqual(handle.read(), "two")
+                app.action_undo_save()
+                with open(path) as handle:
+                    self.assertEqual(handle.read(), "one", "The save before")
+                self.assertIsNone(app.saved_text)
+                self.assertEqual(len(reloads), 2)
 
     async def test_archetypes_are_listed_in_family_and_weight_order(self):
         app = devapp.DevApp(bridge_factory=lambda: FakeBridge())

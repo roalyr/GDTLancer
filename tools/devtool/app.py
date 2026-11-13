@@ -37,7 +37,9 @@ from textual.message import Message
 from textual.widgets import (Button, DataTable, Footer, Header, Input, Label, Select, SelectionList, Static, Switch,
                              TabbedContent, TabPane, TextArea, Tree)
 
-from . import constants, data, evolution, models, tasks, worldmap
+from rich.markup import escape
+
+from . import changes, constants, data, evolution, models, tasks, worldmap
 from .bridge import Bridge, BridgeError, file_path
 
 RESOURCE_FILES = {  # Resource type -> the files a field of it can point at
@@ -832,27 +834,109 @@ class ConfirmScreen(ModalScreen):
         self.dismiss(False)
 
 
+class ChangesScreen(ModalScreen):
+    """Every change since the last commit (changes.py): a file's diff below the list, and a
+    message line that commits them all (nothing is pushed). Dismisses with the commit's line, or None."""
+
+    DEFAULT_CSS = """
+    ChangesScreen { align: center middle; }
+    ChangesScreen > Vertical { width: 95%; height: 95%; border: thick $accent; background: $surface; padding: 0 1; }
+    ChangesScreen #change-list { height: 12; }
+    ChangesScreen #change-diff { height: 1fr; border: round $panel; }
+    ChangesScreen #change-buttons { height: auto; }
+    ChangesScreen #change-buttons Button { margin-right: 1; }
+    """
+    BINDINGS = [Binding("escape", "cancel", "Close")]
+
+    def __init__(self, git=changes):
+        super().__init__()
+        self.git, self.files = git, []
+
+    def compose(self) -> ComposeResult:
+        with Vertical():
+            yield Label("[b]Changes since the last commit[/b] (everything is committed together; nothing is pushed)", id="change-title")
+            table = DataTable(id="change-list", cursor_type="row", zebra_stripes=True)
+            table.add_columns("", "File")
+            yield table
+            with VerticalScroll(id="change-diff"):
+                yield Static("", id="change-text")
+            yield Input(placeholder="What changed, for the commit message", id="change-message")
+            with Horizontal(id="change-buttons"):
+                yield Button("Commit all", id="change-commit", variant="primary")
+                yield Button("Close", id="change-close")
+
+    def on_mount(self):
+        try:
+            self.files = self.git.status()
+        except RuntimeError as error:
+            self.query_one("#change-text", Static).update("[red]%s[/red]" % escape(str(error)))
+            return
+        table = self.query_one("#change-list", DataTable)
+        for index, (word, path) in enumerate(self.files):
+            table.add_row(word, path, key=str(index))
+        if not self.files:
+            self.query_one("#change-text", Static).update("Nothing changed since the last commit.")
+        else:
+            self._show(0)
+
+    @on(DataTable.RowHighlighted, "#change-list")
+    def _picked(self, event):
+        self._show(int(event.row_key.value))
+
+    def _show(self, index):
+        lines = []
+        for line in self.git.diff(self.files[index][1]):
+            text = escape(line)
+            if line.startswith("+") and not line.startswith("+++"):
+                text = "[green]%s[/green]" % text
+            elif line.startswith("-") and not line.startswith("---"):
+                text = "[red]%s[/red]" % text
+            elif line.startswith("@@"):
+                text = "[cyan]%s[/cyan]" % text
+            lines.append(text)
+        self.query_one("#change-text", Static).update("\n".join(lines))
+
+    @on(Input.Submitted, "#change-message")
+    @on(Button.Pressed, "#change-commit")
+    def _commit(self, _event=None):
+        if not self.files:
+            self.app.notify("Nothing to commit", severity="warning")
+            return
+        ok, words = self.git.commit(self.query_one("#change-message", Input).value)
+        if not ok:
+            self.app.notify(words, severity="error")
+            return
+        self.dismiss(words)
+
+    @on(Button.Pressed, "#change-close")
+    def action_cancel(self):
+        self.dismiss(None)
+
+
 HELP = """\
 [b]Keys, the same on every tab[/b]
   1-9, 0      switch tabs                    ?          this help
   tab         next box in a tab              shift+tab  the box before
   enter       open or run what is picked     q          quit (not while typing)
-  ctrl+s      save                           ctrl+u     undo the last save (every file it wrote)
+  ctrl+s      save                           ctrl+u     undo the last save (again: the one before)
   ctrl+r      refresh: read the files again  ctrl+n     new (file, marker, model)
   Plain letters are a tab's own actions (only on tabs where nothing is typed); the footer lists them.
 
 [b]Tabs[/b]
   1 Overview    every content rule, checked; enter opens a problem's file
-  2 Models      every ship and station model: import (i), open in Blender (o), review sheet (s)
-  3 Archetypes  the fifteen designs as the game flies them; pilot genes against evolution's ranges
-  4 Factions    wars (pick a cell, w), rosters (space ticks, ctrl+s), havens (enter: World)
+  2 Models      every ship, station and rock model: import (i), open in Blender (o), review sheet (s),
+                a placeholder's shape (c), a rock in the asteroid fields or out (f)
+  3 Archetypes  the twenty designs as the game flies them; pilot genes against evolution's ranges;
+                d on one, then d on another: they duel
+  4 Factions    wars (pick a cell, w), rosters (space ticks, ctrl+s), traffic, havens (enter: World)
   5 World       a sector: its scene's bodies and belts, its layout's markers, on a map (top or side, filters);
                 new and copied sectors and bodies are named by the rules; ctrl+n on a sector with no layout makes one
-  6 Parts       weapons (w), modules (m), commodities (c), starting kit (k); a hides archetype parts
+  6 Parts       weapons (w), modules (m), commodities (c), starting kits (k; p plays one), trade routes (t)
   7 Look        shaders, faction paints, paint patterns, music; y syncs shader blocks
   8 Data        every data file in a form made from its script; delete removes one nothing names
   9 Constants   Constants.gd by section (or by kind, ctrl+g); ctrl+f finds
-  0 Tools       evolution, APK and outputs; every other tool (enter asks its questions and runs it)
+  0 Tools       evolution, APK and outputs; every other tool (enter asks its questions and runs it);
+                g reviews the changes since the last commit and commits them
 
 [b]Saving[/b]
   Godot writes every file and checks the content rules on each save: green means every rule holds,
@@ -1167,6 +1251,7 @@ class ConstantsPane(Horizontal):
 
 class TasksPane(Vertical):
     BINDINGS = [Binding("x", "app.stop_evolution", "Stop evolution"), Binding("n", "app.new_era", "New era"),
+                Binding("g", "app.review_changes", "Review and commit"),
                 Binding("o", "app.open_output", "Open newest output"),
                 Binding("ctrl+r", "app.refresh_status", "Refresh")]
     DEFAULT_CSS = """
@@ -1183,6 +1268,7 @@ class TasksPane(Vertical):
 
 # --- The app --------------------------------------------------------------------------------------
 
+UNDO_DEPTH = 50  # Saves ctrl+u can step back through in one session
 TABS = ["overview", "models-tab", "archetypes-tab", "factions-tab", "world", "parts-tab", "look-tab", "data", "constants", "tasks-tab"]
 TAB_KEYS = "1234567890"
 TAB_FOCUS = {"overview": "#problems", "models-tab": "#models", "archetypes-tab": "#archetypes", "factions-tab": "#factions",
@@ -1207,7 +1293,8 @@ class DevApp(App):
         self.model_rows = []
         self.problems = []
         self.open_file = None
-        self.saved_text = None  # ([(path, its text before the last save)], what to reload after an undo)
+        self.changes_source = changes  # Git, for the review screen (tests give a stand-in)
+        self.undo_stack = []  # Saves, newest last: ([(path, its text before that save)], what to reload after its undo)
         self.archetype_view = {"ranges": {}, "archetypes": []}
         self.duel_first = None  # The archetype d picked first (Archetypes tab)
         self.faction_view = {"factions": [], "archetypes": []}
@@ -1323,15 +1410,22 @@ class DevApp(App):
         if self.bridge is not None:
             self.bridge.close()
 
+    @property
+    def saved_text(self):
+        """The newest save ctrl+u would undo, or None."""
+        return self.undo_stack[-1] if self.undo_stack else None
+
     def _undo_point(self, files, reload):
-        """`files`: [(path, its text before the save, None: it was not there)], put back by ctrl+u."""
-        self.saved_text = (files, reload)
+        """`files`: [(path, its text before the save, None: it was not there)], put back by ctrl+u;
+        each ctrl+u goes one save further back (UNDO_DEPTH)."""
+        self.undo_stack.append((files, reload))
+        del self.undo_stack[:-UNDO_DEPTH]
 
     def action_undo_save(self):
-        if self.saved_text is None:
+        if not self.undo_stack:
             self.notify("No save to undo")
             return
-        files, reload = self.saved_text
+        files, reload = self.undo_stack.pop()
         for path, text in files:
             if text is None:  # It did not exist before the save
                 if os.path.exists(file_path(path)):
@@ -1343,8 +1437,9 @@ class DevApp(App):
             else:
                 os.makedirs(os.path.dirname(file_path(path)), exist_ok=True)  # A deleted body's folder
                 write_text(path, text)
-        self.saved_text = None
-        self.notify("Put back %s as %s" % (", ".join(os.path.basename(path) for path, _ in files), "it was" if len(files) == 1 else "they were"))
+        left = len(self.undo_stack)
+        self.notify("Put back %s as %s%s" % (", ".join(os.path.basename(path) for path, _ in files), "it was" if len(files) == 1 else "they were",
+                                            "; ctrl+u again undoes the save before (%d more)" % left if left else ""))
         reload()
 
     # --- Overview ---
@@ -2818,6 +2913,13 @@ class DevApp(App):
             tasks.save_last(last)
             self.run_task(task, answers)
         self.push_screen(AskScreen(task, values), answered)
+
+    def action_review_changes(self):
+        def done(line):
+            if line:
+                self.notify("Committed: " + line)
+                self._show_status()
+        self.push_screen(ChangesScreen(self.changes_source), done)
 
     def run_task(self, task, values, wait=True):
         """Runs `task` in the terminal (the menu steps aside), then comes back and refreshes."""
