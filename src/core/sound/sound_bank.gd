@@ -3,9 +3,11 @@
 # is silent, so slots can be filled one at a time.
 # Slot kinds (SLOTS):
 #   "world": heard where it happens, fading with distance from the player's ship;
-#   "loop":  a looping sound carried by every ship (or missile) while it flies; its stream must be
-#            imported with looping on (Godot's Import dock: "Loop");
-#   "ui":    heard as it is, wherever the player is (buttons, notices, docking).
+#   "loop":  a looping sound carried by a ship (or missile) while it applies; its stream must be
+#            imported with looping on (Godot's Import dock: "Loop"). Only the nearest
+#            SOUND_LOOP_CARRIERS ships and missiles play theirs;
+#   "ui":    heard as it is, wherever the player is (buttons, notices, docking, the player's alarms).
+# Every slot plays on the "Effects" bus (AudioBuses).
 
 extends Resource
 
@@ -23,6 +25,13 @@ const SLOTS = {
 	"lance_launch": "world",  # A massive mechanical throw
 	"lance_strike": "world",  # A dull thud, at the target
 	"lance_glance": "world",  # Too slow or at an angle: at the target
+	"rock_break": "world",  # A lance breaks chunks off a rock: grinding stone, at the chunks
+	"tool_on": "world",  # A ship switches a tool on (a relay clack)
+	"tool_off": "world",  # ... and off again (not when it only changes target)
+	"out_of_ammo": "world",  # A gun or rack goes off for want of rounds: a dry click
+	"cable_retracted": "world",  # A harpoon cable is wound all the way home: a latch
+	"decoy_launch": "world",  # A decoy flare thrown at a missile: a pop and hiss
+	"afterburner_ignite": "world",  # The afterburner lights: a roar on top of the engine's pitch
 	# Ships
 	"hull_hit": "world",  # Damage no weapon's own hit sound covers (radiation, a collision), at the ship
 	"ship_wrecked": "world",  # Hull at zero: the ship blows up
@@ -30,6 +39,7 @@ const SLOTS = {
 	"laser_hum": "loop",  # A ship with a laser on: the low hum of high-current circuits, quiet
 	"harpoon_reel": "loop",  # A ship's harpoon winch turning: reeling in, or pulling a loose cable back
 	"missile_engine": "loop",  # A missile's thruster
+	"fuel_leak": "loop",  # A ship venting fuel from its leaks: a hiss
 	# The player's screen
 	"ui_press": "ui",  # Any button
 	"notice_info": "ui",  # HUD announcements, by level
@@ -41,6 +51,13 @@ const SLOTS = {
 	"dock_ready": "ui",  # In docking range
 	"docked": "ui",
 	"undocked": "ui",
+	"lance_warning": "ui",  # A lance is charging the player's ship (agent_charged)
+	"hull_critical": "ui",  # The player's hull falls to SOUND_HULL_CRITICAL_SHARE
+	"power_empty": "ui",  # The player's power runs out
+	"hold_full": "ui",  # The player's harpoon has a wreck in but the hold has no room
+	"target_selected": "ui",  # The player picks a target
+	"trade": "ui",  # The player buys or sells (parts, ships, cargo)
+	"interaction": "ui",  # The player's interactions (hire, wing, caravan) start or end
 }
 
 export(AudioStream) var laser_hit
@@ -71,6 +88,21 @@ export(AudioStream) var hostile_aware
 export(AudioStream) var dock_ready
 export(AudioStream) var docked
 export(AudioStream) var undocked
+export(AudioStream) var rock_break
+export(AudioStream) var tool_on
+export(AudioStream) var tool_off
+export(AudioStream) var out_of_ammo
+export(AudioStream) var cable_retracted
+export(AudioStream) var decoy_launch
+export(AudioStream) var afterburner_ignite
+export(AudioStream) var fuel_leak
+export(AudioStream) var lance_warning
+export(AudioStream) var hull_critical
+export(AudioStream) var power_empty
+export(AudioStream) var hold_full
+export(AudioStream) var target_selected
+export(AudioStream) var trade
+export(AudioStream) var interaction
 
 
 # The stream in `slot`, or null when it is empty. An unknown slot is an error.

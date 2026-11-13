@@ -1,9 +1,13 @@
 # SoundEffects: plays the game's sound effects from a SoundBank (`bank`; the main scene gives it
 # database/sounds/sound_bank.tres). It sits in the world's viewport and listens to what the game
-# already signals: EventBus (damage, wrecks, notices, radio, threats, docking), each ship's ToolController and
-# LanceController and every button, picked up as they enter the tree. An empty slot costs nothing.
+# already signals: EventBus (damage, wrecks, notices, radio, threats, docking, trading, targets),
+# each ship (decoys), its ToolController, LanceController and harpoon cables, and every button,
+# picked up as they enter the tree; the player's hull and power it watches itself. An empty slot
+# costs nothing. Everything plays on the "Effects" bus (AudioBuses, set from the options here).
 # World sounds are heard from the player's ship (the camera's position when there is none), turned
-# the camera's way; Constants "SOUND" sets distances, the voice cap and the engine loop's range.
+# the camera's way; Constants "SOUND" sets distances, the voice cap and the loops' budget: only the
+# nearest SOUND_LOOP_CARRIERS ships and missiles play their loops (engine, hum, winch, leak,
+# thruster), and a silent loop is stopped, not played.
 # To add an event: a slot in SoundBank.SLOTS (and its export there), then a play() where it happens.
 
 extends Spatial
@@ -13,19 +17,29 @@ const AgentScript = preload("res://src/core/agents/agent.gd")
 const ToolControllerScript = preload("res://src/core/agents/components/tool_controller.gd")
 const LanceScript = preload("res://src/core/agents/components/lance_controller.gd")
 const MissileScript = preload("res://src/core/agents/components/missile.gd")
+const TetherScript = preload("res://src/core/agents/components/tether.gd")
+const AudioBuses = preload("res://src/core/sound/audio_buses.gd")
 const LOOP_NAME = "EngineSound"
 const LASER_HUM_NAME = "LaserHum"
 const REEL_NAME = "HarpoonReel"
+const LEAK_NAME = "FuelLeakHiss"
 const WEAPON_HIT_WINDOW = 150  # ms: damage this soon after a weapon's own hit sound plays no hull_hit
 const ONE_SHOT_FALLBACK = 10.0  # s a one-shot of unknown length is kept before it is freed
+const PRUNE_EVERY = 1000  # ms between sweeps of the bookkeeping below
+const PRUNE_AGE = 5000  # ms: a slot's last play older than this is forgotten (longer than any repeat gap)
+const POWER_EMPTY_SHARE = 0.01  # The player's power at or below this share of full: run out
 
 export(Resource) var bank = null
 
 var _listener: Listener = null
 var _voices: Array = []  # [player, free at (ms)]
 var _last_played: Dictionary = {}  # "slot:source id" -> ms
-var _ships: Array = []  # [agent body, engine loop or null]
+var _ships: Array = []  # [agent body, engine loop or null, afterburner lit when last heard]
+var _missiles: Array = []  # [missile, its thruster loop]
 var _weapon_hits: Dictionary = {}  # body instance id -> ms its last weapon hit sound played
+var _next_prune: int = 0  # ms
+var _hull_low: bool = false  # The player's hull at SOUND_HULL_CRITICAL_SHARE or below, last seen
+var _power_out: bool = false  # The player's power run out, last seen
 
 
 func _ready() -> void:
@@ -44,7 +58,13 @@ func _ready() -> void:
 	_connect(EventBus, "dock_available", "_on_dock_available")
 	_connect(EventBus, "player_docked", "_on_player_docked")
 	_connect(EventBus, "player_undocked", "_on_player_undocked")
+	_connect(EventBus, "agent_charged", "_on_agent_charged")
+	_connect(EventBus, "player_target_selected", "_on_player_target_selected")
+	_connect(EventBus, "player_traded", "_on_player_traded")
+	_connect(EventBus, "player_interactions_changed", "_on_player_interactions_changed")
+	_connect(Settings, "changed", "_on_settings_changed")
 	_connect(get_tree(), "node_added", "_on_node_added")
+	AudioBuses.apply()
 
 
 func _exit_tree() -> void:
@@ -53,19 +73,21 @@ func _exit_tree() -> void:
 
 
 # Plays `slot` once: a "world" slot at `at` (a Spatial or a Vector3), a "ui" slot as it is. `source`
-# (a node) keeps one source from repeating a slot faster than SOUND_REPEAT_GAP. Returns the player,
-# or null when nothing plays (an empty slot, too far, too soon, too many voices).
-func play(slot: String, at = null, source: Object = null) -> Node:
+# (a node) keeps one source from repeating a slot faster than `gap` s (SOUND_REPEAT_GAP; a notice
+# with no source passes a longer one). Returns the player, or null when nothing plays (an empty
+# slot, too far, too soon, too many voices).
+func play(slot: String, at = null, source: Object = null, gap: float = Constants.SOUND_REPEAT_GAP) -> Node:
 	var stream: AudioStream = bank.stream(slot)
 	if stream == null:
 		return null
 	var now: int = OS.get_ticks_msec()
 	var key: String = "%s:%d" % [slot, source.get_instance_id() if source != null else 0]
-	if now - int(_last_played.get(key, -100000)) < int(Constants.SOUND_REPEAT_GAP * 1000.0):
+	if now - int(_last_played.get(key, -100000)) < int(gap * 1000.0):
 		return null
 	var player: Node
 	if SoundBank.SLOTS[slot] == "ui":
 		player = AudioStreamPlayer.new()
+		player.bus = AudioBuses.EFFECTS
 	else:
 		var position: Vector3 = at.global_transform.origin if at is Spatial else (at if at is Vector3 else hearing_point())
 		if position.distance_to(hearing_point()) > Constants.SOUND_MAX_DISTANCE or _voices.size() >= Constants.SOUND_MAX_VOICES:
@@ -103,25 +125,101 @@ func _process(delta: float) -> void:
 			if is_instance_valid(voice[0]):
 				voice[0].queue_free()
 			_voices.erase(voice)
+	if now >= _next_prune:
+		prune(now)
+	var heard: Dictionary = loop_carriers()
 	for ship in _ships.duplicate():
 		if not is_instance_valid(ship[0]):
 			_ships.erase(ship)
 			continue
 		var body: Spatial = ship[0]
+		var on_air: bool = heard.has(body.get_instance_id())
 		if ship[1] != null and is_instance_valid(ship[1]):
-			_drive_engine(ship[1], body, delta)
-		var live: bool = not body.get("is_wreck")
+			_drive_engine(ship[1], body, delta, on_air)
+		var live: bool = on_air and not body.get("is_wreck")
+		var lit: bool = live and bool(body.get("afterburner_lit"))
+		if lit and not ship[2]:
+			play("afterburner_ignite", body, body)
+		ship[2] = lit
 		_drive_loop(body, "laser_hum", LASER_HUM_NAME, live and laser_on(body), Constants.SOUND_LASER_HUM_GAIN, delta)
 		_drive_loop(body, "harpoon_reel", REEL_NAME, live and winching(body), Constants.SOUND_REEL_GAIN, delta)
+		_drive_loop(body, "fuel_leak", LEAK_NAME, live and leaking(body), Constants.SOUND_LEAK_GAIN, delta)
+	for missile in _missiles.duplicate():
+		if not is_instance_valid(missile[0]) or not is_instance_valid(missile[1]):
+			_missiles.erase(missile)
+		elif heard.has(missile[0].get_instance_id()) != missile[1].playing:
+			if missile[1].playing:
+				missile[1].stop()
+			else:
+				missile[1].play()
+	_watch_player()
+
+
+# The ships and missiles whose loops play: {instance id: true} for the nearest
+# SOUND_LOOP_CARRIERS within SOUND_MAX_DISTANCE of the hearing point (the player's own first).
+func loop_carriers() -> Dictionary:
+	var here: Vector3 = hearing_point()
+	var near: Array = []
+	for entry in _ships + _missiles:
+		var body = entry[0]
+		if not is_instance_valid(body) or not body.is_inside_tree():
+			continue
+		var distance: float = body.global_transform.origin.distance_to(here)
+		if distance <= Constants.SOUND_MAX_DISTANCE:
+			near.append([distance, body.get_instance_id()])
+	near.sort_custom(self, "_nearer")
+	var out: Dictionary = {}
+	for index in range(min(near.size(), Constants.SOUND_LOOP_CARRIERS)):
+		out[near[index][1]] = true
+	return out
+
+
+func _nearer(a: Array, b: Array) -> bool:
+	return a[0] < b[0]
+
+
+# Forgets plays older than any repeat gap and weapon hits older than WEAPON_HIT_WINDOW, so neither
+# table grows with every ship that ever made a sound.
+func prune(now: int) -> void:
+	_next_prune = now + PRUNE_EVERY
+	for key in _last_played.keys():
+		if now - int(_last_played[key]) > PRUNE_AGE:
+			_last_played.erase(key)
+	for id in _weapon_hits.keys():
+		if now - int(_weapon_hits[id]) > WEAPON_HIT_WINDOW:
+			_weapon_hits.erase(id)
+
+
+# The player's alarms: hull_critical as the hull falls to SOUND_HULL_CRITICAL_SHARE, power_empty as
+# the power runs out; each again only after it has recovered.
+func _watch_player() -> void:
+	var body = GlobalRefs.player_agent_body
+	if not is_instance_valid(body) or not body.is_inside_tree() or body.get("is_wreck") != false:
+		return
+	var hull_max = body.get("hull_max")
+	var power_max = body.get("power_max")
+	if hull_max == null or power_max == null:
+		return
+	var low: bool = float(hull_max) > 0.0 and float(body.hull) <= float(hull_max) * Constants.SOUND_HULL_CRITICAL_SHARE
+	if low and not _hull_low:
+		play("hull_critical")
+	_hull_low = low
+	var out: bool = float(power_max) > 0.0 and float(body.power) <= float(power_max) * POWER_EMPTY_SHARE
+	if out and not _power_out:
+		play("power_empty")
+	_power_out = out
 
 
 # --- Hooking onto what enters the tree ---
 
 func _on_node_added(node: Node) -> void:
 	if node is AgentScript:
-		if bank.stream("engine") != null or bank.stream("laser_hum") != null or bank.stream("harpoon_reel") != null:
-			call_deferred("_track_ship", node)
+		_connect(node, "decoy_launched", "_on_decoy_launched", [node])
+		call_deferred("_track_ship", node)
 	elif node is ToolControllerScript:
+		_connect(node, "tool_activated", "_on_tool_activated", [node])
+		_connect(node, "tool_deactivated", "_on_tool_deactivated", [node])
+		_connect(node, "hold_full", "_on_hold_full", [node])
 		_connect(node, "tool_cycled", "_on_tool_cycled", [node])
 		_connect(node, "tool_blocked", "_on_tool_blocked", [node])
 		_connect(node, "projectile_fired", "_on_projectile_fired", [node])
@@ -133,6 +231,8 @@ func _on_node_added(node: Node) -> void:
 		_connect(node, "launched", "_on_lance_launched", [node])
 		_connect(node, "struck", "_on_lance_struck")
 		_connect(node, "glanced", "_on_lance_glanced")
+	elif node is TetherScript:
+		_connect(node, "retracted", "_on_cable_retracted", [node])
 	elif node is BaseButton and bank.stream("ui_press") != null:
 		_connect(node, "pressed", "_on_button_pressed")
 
@@ -140,10 +240,13 @@ func _on_node_added(node: Node) -> void:
 func _track_ship(body: Spatial) -> void:
 	if not is_instance_valid(body) or not body.is_inside_tree():
 		return
+	for ship in _ships:
+		if ship[0] == body:
+			return
 	var loop: AudioStreamPlayer3D = null
 	if bank.stream("engine") != null and not body.has_node(LOOP_NAME):
 		loop = _attach_loop("engine", body)
-	_ships.append([body, loop])
+	_ships.append([body, loop, false])
 
 
 # A looping `slot` carried by `body` (freed with it), or null when the slot is empty.
@@ -161,19 +264,26 @@ func _attach_loop(slot: String, body: Spatial, node_name: String = LOOP_NAME) ->
 	return loop
 
 
-func _drive_engine(loop: AudioStreamPlayer3D, body: Spatial, delta: float = 0.0) -> void:
-	if body.get("is_wreck"):
+# `heard`: among the loop carriers (loop_carriers); not, or a wreck, or too quiet to hear, it stops.
+func _drive_engine(loop: AudioStreamPlayer3D, body: Spatial, delta: float = 0.0, heard: bool = true) -> void:
+	if body.get("is_wreck") or not heard:
 		if loop.playing:
 			loop.stop()
 		return
-	set_volume_3d(loop, Constants.SOUND_EFFECTS_VOLUME_DB + linear2db(max(engine_gain(body), 0.0001)))
+	var gain: float = engine_gain(body)
+	set_volume_3d(loop, Constants.SOUND_EFFECTS_VOLUME_DB + linear2db(max(gain, 0.0001)))
+	if gain < Constants.SOUND_LOOP_SILENT:
+		if loop.playing:
+			loop.stop()
+	elif not loop.playing:
+		loop.play()
 	# The afterburner pitches the engine up (over SOUND_AFTERBURNER_PITCH_TIME s, and back down).
 	var pitch: float = Constants.SOUND_AFTERBURNER_PITCH if body.get("afterburner_lit") else 1.0
 	var step: float = delta / Constants.SOUND_AFTERBURNER_PITCH_TIME if delta > 0.0 else 1.0
 	loop.pitch_scale = move_toward(loop.pitch_scale, pitch, (Constants.SOUND_AFTERBURNER_PITCH - 1.0) * step)
 
 
-# A loop the ship carries while `on` (a laser's hum, the harpoon winch): the `slot` loop, made the
+# A loop the ship carries while `on` (a laser's hum, the harpoon winch, a leak): the `slot` loop, made the
 # first time as the child `node_name`, fades in over SOUND_LOOP_FADE s to `level` (linear, of the
 # file's own) and out again; silent, it stops.
 func _drive_loop(body: Spatial, slot: String, node_name: String, on: bool, level: float, delta: float) -> void:
@@ -206,6 +316,11 @@ static func winching(body: Node) -> bool:
 		if tether != null and tether.is_valid() and tether.length > tether.min_length + 0.01:
 			return true
 	return false
+
+
+# Whether the ship is venting fuel from a leak.
+static func leaking(body: Node) -> bool:
+	return body.has_method("get_leak_count") and body.get_leak_count() > 0
 
 
 # Whether any of the ship's lasers is on.
@@ -243,6 +358,7 @@ func _shape_3d(player: AudioStreamPlayer3D) -> void:
 	player.unit_size = Constants.SOUND_UNIT_SIZE
 	player.max_distance = Constants.SOUND_MAX_DISTANCE
 	player.attenuation_filter_cutoff_hz = 20500.0  # No muffling with distance: there is no air
+	player.bus = AudioBuses.EFFECTS
 
 
 func _connect(emitter: Object, signal_name: String, method: String, binds: Array = []) -> void:
@@ -255,6 +371,38 @@ static func _owner_of(component: Node) -> Node:
 
 
 # --- Events ---
+
+func _on_settings_changed(key, _value) -> void:
+	if AudioBuses.OPTIONS.values().has(key):
+		AudioBuses.apply()
+
+
+func _on_tool_activated(_index: int, _target, tools: Node) -> void:
+	play("tool_on", _owner_of(tools), tools)
+
+
+# Changing target is no switch; running out of rounds is a dry click instead.
+func _on_tool_deactivated(_index: int, reason: String, tools: Node) -> void:
+	if reason == "retarget":
+		return
+	play("out_of_ammo" if reason == "empty" else "tool_off", _owner_of(tools), tools)
+
+
+func _on_hold_full(_index: int, tools: Node) -> void:
+	if _owner_of(tools) == GlobalRefs.player_agent_body:
+		play("hold_full")
+
+
+func _on_cable_retracted(tether: Node) -> void:
+	var holder = tether.get("holder")
+	if is_instance_valid(holder) and holder.is_inside_tree():
+		play("cable_retracted", holder, holder)
+
+
+func _on_decoy_launched(_decoy, body: Node) -> void:
+	if is_instance_valid(body) and body.is_inside_tree():
+		play("decoy_launch", body, body)
+
 
 func _on_tool_cycled(index: int, target, _quality, damage, tools: Node) -> void:
 	var tool_template = tools.get_tool(index)
@@ -289,7 +437,9 @@ func _on_projectile_fired(_index: int, projectile: Node, tools: Node) -> void:
 
 func _attach_missile_loop(missile: Spatial) -> void:
 	if is_instance_valid(missile) and missile.is_inside_tree():
-		_attach_loop("missile_engine", missile)
+		var loop: AudioStreamPlayer3D = _attach_loop("missile_engine", missile)
+		if loop != null:
+			_missiles.append([missile, loop])
 
 
 func _on_projectile_hit(projectile: Node, body, _damage) -> void:
@@ -339,9 +489,12 @@ func _on_lance_launched(_target, lance: Node) -> void:
 	play("lance_launch", _owner_of(lance), lance)
 
 
+# A ship, or the biggest chunk broken off a rock.
 func _on_lance_struck(target, _damage) -> void:
 	if is_instance_valid(target):
 		_weapon_hit("lance_strike", target)
+		if not target is AgentScript:
+			play("rock_break", target, target)
 
 
 func _on_lance_glanced(target, _reason) -> void:
@@ -377,12 +530,30 @@ func _on_radio_message(_speaker, _text) -> void:
 	play("radio")
 
 
+# A pack seen at once is one notice, not one per ship.
 func _on_hostile_detected(_ship) -> void:
-	play("hostile_detected")
+	play("hostile_detected", null, null, Constants.SOUND_ALERT_GAP)
 
 
 func _on_hostile_aware(_ship) -> void:
-	play("hostile_aware")
+	play("hostile_aware", null, null, Constants.SOUND_ALERT_GAP)
+
+
+func _on_agent_charged(body, _charger) -> void:
+	if body == GlobalRefs.player_agent_body:
+		play("lance_warning", null, null, Constants.SOUND_ALERT_GAP)
+
+
+func _on_player_target_selected(_target) -> void:
+	play("target_selected")
+
+
+func _on_player_traded(_what) -> void:
+	play("trade")
+
+
+func _on_player_interactions_changed() -> void:
+	play("interaction")
 
 
 func _on_dock_available(_location_id) -> void:

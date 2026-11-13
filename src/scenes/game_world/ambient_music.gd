@@ -3,10 +3,12 @@
 # seen the player) and `combat_stream` (one has, or the player is under fire). Set in the main
 # scene. Each loops; the one for the level fades in over MUSIC_CROSSFADE s as the others fade out,
 # all at MUSIC_AMBIENT_VOLUME_DB. An empty track stays with the one playing. The music starts
-# (fading in) when the first sector loads and plays on across jumps. With the "music" option off
-# (Settings) nothing plays.
+# (fading in) when the first sector loads and plays on across jumps. It plays on the "Music" bus,
+# whose loudness is the "music" option (Settings, AudioBuses); at 0 every track fades out and none plays.
 
 extends AudioStreamPlayer
+
+const AudioBuses = preload("res://src/core/sound/audio_buses.gd")
 
 export(AudioStream) var danger_stream = null  # Hostiles seen, none has seen you (an .ogg or .mp3 that loops; empty: the calm one plays on)
 export(AudioStream) var combat_stream = null  # A hostile sees you, or you are under fire (empty: the danger one)
@@ -19,6 +21,7 @@ var _fade_time: float = 0.0  # s a fade takes: MUSIC_AMBIENT_FADE_IN at the star
 
 
 func _ready() -> void:
+	bus = AudioBuses.MUSIC
 	_players["calm"] = self
 	for pair in [["danger", danger_stream], ["combat", combat_stream]]:
 		if pair[1] == null:
@@ -59,7 +62,7 @@ func track_for(wanted: String) -> String:
 func _process(delta: float) -> void:
 	if not _started:
 		return
-	var current: String = track_for(level) if Settings.get_option("music") else ""  # Off: all fade out
+	var current: String = track_for(level) if float(Settings.get_option("music")) > 0.0 else ""  # Off: all fade out
 	var step: float = delta / max(_fade_time, 0.01)
 	for key in _players:
 		var player: AudioStreamPlayer = _players[key]

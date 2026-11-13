@@ -108,6 +108,7 @@ static func buy(part_id: String) -> String:
 		return "Not enough banked WP (%d needed)" % cost
 	GameState.player_bank -= cost
 	_add_to_storage(part_id, 1)
+	EventBus.emit_signal("player_traded", "part")
 	return ""
 
 
@@ -143,6 +144,7 @@ static func buy_ship(ship_id: String) -> String:
 	GameState.player_hull = -1.0  # Full
 	GameState.player_hull_scars = []  # A new hull is unmarked
 	spawner.replace_player()
+	EventBus.emit_signal("player_traded", "ship")
 	return ""
 
 
@@ -158,6 +160,7 @@ static func buy_cargo(ship_body: Node, commodity_id: String) -> String:
 	if ship_body.add_cargo(commodity_id, 1) <= 0:
 		return "Hold full"
 	GameState.player_bank -= cost
+	EventBus.emit_signal("player_traded", "cargo")
 	return ""
 
 
@@ -174,6 +177,7 @@ static func sell_cargo(ship_body: Node, commodity_id: String, units: int = 1) ->
 		return "None in the hold"
 	GameState.player_bank += taken * price
 	Wages.pay_player_escorts(ship_body, taken * price)
+	EventBus.emit_signal("player_traded", "cargo")
 	return ""
 
 
@@ -183,6 +187,8 @@ static func sell_hold(ship_body: Node) -> Dictionary:
 		return {"banked": 0, "units": 0}
 	var sold: Dictionary = Market.sell_hold(ship_body, GameState.player_docked_at, docked_faction())
 	Wages.pay_player_escorts(ship_body, int(sold.get("banked", 0)))
+	if int(sold.get("units", 0)) > 0:
+		EventBus.emit_signal("player_traded", "cargo")
 	return sold
 
 
@@ -193,6 +199,7 @@ static func sell(part_id: String) -> String:
 		return "Not in storage"
 	_add_to_storage(part_id, -1)
 	GameState.player_bank += sale_price(part_id)
+	EventBus.emit_signal("player_traded", "part")
 	return ""
 
 

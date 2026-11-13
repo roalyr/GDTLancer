@@ -1,4 +1,4 @@
-# Tests for AmbientMusic: the "music" option (on by default) silences every track when off.
+# Tests for AmbientMusic: the "music" volume (full by default) silences every track at 0; it plays on the Music bus.
 
 extends GutTest
 
@@ -23,8 +23,8 @@ func _music() -> AudioStreamPlayer:
 
 
 func test_switched_off_nothing_plays():
-	assert_true(Settings.get_option("music"), "On by default")
-	Settings._values["music"] = false
+	assert_eq(Settings.get_option("music"), 1.0, "Full by default")
+	Settings._values["music"] = 0.0
 	var music = _music()
 	music._process(2.0)
 	assert_false(music.playing)
@@ -32,11 +32,13 @@ func test_switched_off_nothing_plays():
 
 
 func test_on_it_plays_and_off_again_it_fades_out():
-	Settings._values["music"] = true
+	Settings._values["music"] = 1.0
 	var music = _music()
+	assert_eq(music.bus, "Music")
+	assert_eq(music.get_node("DangerMusic").bus, "Music", "Every track on the Music bus")
 	music._process(2.0)
 	assert_eq(music._gain["calm"], 1.0, "On: the calm track")
-	Settings._values["music"] = false
+	Settings._values["music"] = 0.0
 	music._process(2.0)
 	assert_eq(music._gain["calm"], 0.0, "Off: faded out")
 	assert_false(music.playing)

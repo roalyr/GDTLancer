@@ -6,7 +6,9 @@
 #   "hit_effects"  (bool)  Agent: hull scars and slag, and the hit surface shots land on (off: the
 #                          convex hull, cheaper); ships made after a change take it in full
 #   "hud_preset"   (String) MainHUD.apply_hud_preset (Constants.HUD_PRESETS)
-#   "music"        (bool)  AmbientMusic: off, every track fades out and none plays
+#   "music"        (float) AudioBuses: the Music bus's loudness, one of Constants.VOLUME_STEPS
+#                          (0: off, AmbientMusic fades every track out and none plays)
+#   "effects"      (float) AudioBuses: the Effects bus's loudness (0: no sound effects)
 #   "slow_down_on_lag" (bool) FrameGovernor: the game slows down rather than its frame rate falling
 #   "show_fps"     (bool)  MainHUD: frames a second in the top left corner
 #   "camera_dynamic" (bool) OrbitCamera: eases after the ship (elastic); off, fixed to the ship.
@@ -25,7 +27,8 @@ const DEFAULTS = {
 	"render_scale": 1.0,
 	"hit_effects": true,
 	"hud_preset": "standard",
-	"music": true,
+	"music": 1.0,  # Was on/off: a saved bool is not kept
+	"effects": 1.0,
 	"slow_down_on_lag": false,
 	"show_fps": false,
 	"camera_dynamic": false,  # Unfinished: jitters with 30 Hz physics (a new key: a saved "on" is not kept)

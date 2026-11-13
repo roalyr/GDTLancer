@@ -1357,12 +1357,18 @@ const SOUND_MAX_DISTANCE = 3000.0  # m beyond which a world sound is not played 
 const SOUND_MAX_VOICES = 24  # World sounds at once; more are dropped
 const SOUND_REPEAT_GAP = 0.06  # s: the same slot from the same source plays at most this often
 const SOUND_ENGINE_MAX_GAIN = 0.85  # The engine loop's loudness at top speed (linear, of the file's own); in proportion to speed, silent standing still
-const SOUND_ENGINE_OTHERS_SHARE = 0.5
+const SOUND_ENGINE_OTHERS_SHARE = 0.5  # Other ships' engines play at this share of the player's loudness
 const SOUND_AFTERBURNER_PITCH = 1.35  # The engine's pitch while the afterburner burns
 const SOUND_AFTERBURNER_PITCH_TIME = 0.4  # s to pitch up (and back down)
 const SOUND_LASER_HUM_GAIN = 0.3  # A laser's hum while on (linear, of the file's own): low
 const SOUND_REEL_GAIN = 0.6  # The harpoon winch while it turns
-const SOUND_LOOP_FADE = 0.3  # s for a carried loop (laser hum, winch) to come up or die away  # Other ships' engines play at this share of the player's loudness
+const SOUND_LOOP_FADE = 0.3  # s for a carried loop (laser hum, winch, leak) to come up or die away
+const SOUND_LEAK_GAIN = 0.5  # A ship's fuel leaks hissing (linear, of the file's own)
+const SOUND_LOOP_CARRIERS = 8  # Ships and missiles whose loops play at once, the nearest (within SOUND_MAX_DISTANCE); the rest are stopped
+const SOUND_LOOP_SILENT = 0.002  # A loop quieter than this (linear) is stopped rather than played unheard
+const SOUND_ALERT_GAP = 1.0  # s: a notice with no source (hostile detected, hostile aware) plays at most this often
+const SOUND_HULL_CRITICAL_SHARE = 0.25  # The player's hull at or below this share of full: the hull_critical alarm, once each time it drops there
+const VOLUME_STEPS = [1.0, 0.75, 0.5, 0.25, 0.0]  # The music and effects volume buttons (Options) cycle through these (0: off)
 
 
 # ==================================================================================================

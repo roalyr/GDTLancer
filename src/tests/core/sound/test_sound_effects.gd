@@ -282,3 +282,147 @@ func test_the_winch_turns_while_a_harpoon_reels_in_or_pulls_its_cable_back():
 	tools.tether = null
 	tools.retracting = true
 	assert_true(fx.winching(ship), "Pulling a loose cable back")
+
+
+class FakePlayerShip:
+	extends Spatial
+	var is_wreck := false
+	var hull := 100.0
+	var hull_max := 100.0
+	var power := 50.0
+	var power_max := 50.0
+
+
+func _ui_plays(fx: Node, slot: String) -> int:
+	var count := 0
+	for child in fx.get_children():
+		if child is AudioStreamPlayer and child.stream == fx.bank.stream(slot):
+			count += 1
+	return count
+
+
+func test_only_the_nearest_ships_play_their_loops():
+	var fx = _effects(["engine"])
+	var saved_player = GlobalRefs.player_agent_body
+	GlobalRefs.player_agent_body = null
+	var ships: Array = []
+	for index in range(Constants.SOUND_LOOP_CARRIERS + 2):
+		var ship := FakeShip.new()
+		add_child_autofree(ship)
+		ship.translation = Vector3(100.0 * (index + 1), 0, 0)
+		fx._track_ship(ship)
+		ships.append(ship)
+	var far := FakeShip.new()
+	add_child_autofree(far)
+	far.translation = Vector3(Constants.SOUND_MAX_DISTANCE + 100.0, 0, 0)
+	fx._track_ship(far)
+	var heard: Dictionary = fx.loop_carriers()
+	assert_eq(heard.size(), Constants.SOUND_LOOP_CARRIERS, "A budget of loops")
+	assert_true(heard.has(ships[0].get_instance_id()), "The nearest")
+	assert_false(heard.has(ships[ships.size() - 1].get_instance_id()), "Past the budget: none")
+	assert_false(heard.has(far.get_instance_id()), "Out of hearing: none")
+	var loop = ships[ships.size() - 1].get_node(fx.LOOP_NAME)
+	ships[ships.size() - 1].linear_velocity = Vector3(0, 0, -100)
+	fx._drive_engine(loop, ships[ships.size() - 1], 0.1, false)
+	assert_false(loop.playing, "Not among them: stopped, whatever its speed")
+	fx._drive_engine(loop, ships[ships.size() - 1], 0.1, true)
+	assert_true(loop.playing, "Among them again: plays")
+	ships[ships.size() - 1].linear_velocity = Vector3.ZERO
+	fx._drive_engine(loop, ships[ships.size() - 1], 0.1, true)
+	assert_false(loop.playing, "Standing still: silent, so stopped")
+	assert_eq(loop.bus, "Effects")
+	GlobalRefs.player_agent_body = saved_player
+
+
+func test_old_bookkeeping_is_forgotten():
+	var fx = _effects(["hull_hit"])
+	var source := Node.new()
+	autofree(source)
+	fx.play("hull_hit", Vector3.ZERO, source)
+	fx._weapon_hits[12345] = OS.get_ticks_msec()
+	assert_eq(fx._last_played.size(), 1)
+	fx.prune(OS.get_ticks_msec() + fx.PRUNE_AGE + 1)
+	assert_eq(fx._last_played.size(), 0, "Played long ago: forgotten")
+	assert_eq(fx._weapon_hits.size(), 0, "Hit long ago: forgotten")
+
+
+func test_a_pack_of_hostiles_is_one_notice():
+	var fx = _effects(["hostile_detected"])
+	for i in range(5):
+		EventBus.emit_signal("hostile_detected", null)
+	assert_eq(_ui_plays(fx, "hostile_detected"), 1, "Within SOUND_ALERT_GAP: once")
+
+
+func test_tools_click_on_and_off_and_run_dry():
+	var fx = _effects(["tool_on", "tool_off", "out_of_ammo"])
+	var ship := RigidBody.new()
+	var tools = ToolControllerScript.new()
+	tools.name = "ToolController"
+	ship.add_child(tools)
+	add_child_autofree(ship)
+	var before: int = fx.get_child_count()
+	tools.emit_signal("tool_activated", 0, null)
+	assert_eq(fx.get_child_count(), before + 1, "On")
+	tools.emit_signal("tool_deactivated", 0, "retarget")
+	assert_eq(fx.get_child_count(), before + 1, "A new target is no switch")
+	tools.emit_signal("tool_deactivated", 0, "empty")
+	var last = fx.get_child(fx.get_child_count() - 1)
+	assert_eq(last.stream, fx.bank.out_of_ammo, "Out of rounds: the dry click")
+
+
+func test_the_players_alarms_sound_once_each_time():
+	var fx = _effects(["hull_critical", "power_empty", "lance_warning"])
+	var ship := FakePlayerShip.new()
+	add_child_autofree(ship)
+	var saved_player = GlobalRefs.player_agent_body
+	GlobalRefs.player_agent_body = ship
+	fx._watch_player()
+	assert_eq(_ui_plays(fx, "hull_critical") + _ui_plays(fx, "power_empty"), 0, "All well: quiet")
+	ship.hull = 20.0
+	ship.power = 0.0
+	fx._watch_player()
+	fx._watch_player()
+	assert_eq(_ui_plays(fx, "hull_critical"), 1, "Hull critical, once")
+	assert_eq(_ui_plays(fx, "power_empty"), 1, "Power out, once")
+	EventBus.emit_signal("agent_charged", Spatial.new(), null)
+	assert_eq(_ui_plays(fx, "lance_warning"), 0, "Another ship charged: not the player's warning")
+	EventBus.emit_signal("agent_charged", ship, null)
+	assert_eq(_ui_plays(fx, "lance_warning"), 1, "A lance charging the player")
+	GlobalRefs.player_agent_body = saved_player
+
+
+func test_the_afterburner_lighting_roars_once():
+	var fx = _effects(["afterburner_ignite"])
+	var ship := FakeShip.new()
+	add_child_autofree(ship)
+	var saved_player = GlobalRefs.player_agent_body
+	GlobalRefs.player_agent_body = null
+	fx._track_ship(ship)
+	ship.afterburner_lit = true
+	fx._process(0.1)
+	fx._process(0.1)
+	var roars := 0
+	for child in fx.get_children():
+		if child is AudioStreamPlayer3D and child.stream == fx.bank.afterburner_ignite:
+			roars += 1
+	assert_eq(roars, 1, "Lit: one roar, not one a frame")
+	GlobalRefs.player_agent_body = saved_player
+
+
+func test_trading_and_targeting_are_heard():
+	var fx = _effects(["trade", "target_selected"])
+	EventBus.emit_signal("player_traded", "cargo")
+	EventBus.emit_signal("player_target_selected", null)
+	assert_eq(_ui_plays(fx, "trade"), 1)
+	assert_eq(_ui_plays(fx, "target_selected"), 1)
+	assert_eq(fx.get_child(fx.get_child_count() - 1).bus, "Effects", "On the Effects bus")
+
+
+func test_effects_pause_with_the_game():
+	var fx = _effects(["ui_press"])
+	var player = fx.play("ui_press")
+	get_tree().paused = true
+	var paused: bool = player.stream_paused
+	get_tree().paused = false
+	assert_true(paused, "The pause menu holds the sounds")
+	assert_false(player.stream_paused, "And lets them go")

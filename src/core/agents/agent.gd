@@ -4,6 +4,8 @@ extends RigidBody
 const Interp = preload("res://src/core/utils/interp.gd")
 const StepCache = preload("res://src/core/utils/step_cache.gd")
 
+signal decoy_launched(decoy)  # A decoy flare thrown at an incoming missile (SoundEffects)
+
 # --- Core State & Identity ---
 var agent_type: String = ""
 var template_id: String = ""
@@ -956,6 +958,7 @@ func _launch_decoys() -> void:
 		side = (side.normalized() if side.length_squared() > 0.01 else Vector3.RIGHT) * (1.0 if randf() < 0.5 else -1.0)
 		var decoy = DecoyScript.new()
 		decoy.launch(get_parent(), global_transform.origin + side * get_apparent_radius(), linear_velocity + side * Constants.DECOY_EJECT_SPEED)
+		emit_signal("decoy_launched", decoy)
 		var taken: bool = randf() < Constants.DECOY_SEDUCE_CHANCE
 		if taken:
 			missile.target = decoy

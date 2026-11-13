@@ -7,12 +7,15 @@
 extends Control
 
 # Button node -> [option key, values stepped through (null: on/off), label]
+# Volumes (PERCENT) read as a percentage, 0 as OFF.
+const PERCENT = ["music", "effects"]
 const OPTIONS = {
 	"ButtonParticles": ["particles", null, "PARTICLES"],
 	"ButtonRenderScale": ["render_scale", "RENDER_SCALE_STEPS", "RENDER SCALE"],
 	"ButtonHitEffects": ["hit_effects", null, "HIT EFFECTS"],
 	"ButtonHudLook": ["hud_preset", "HUD_PRESET_ORDER", "HUD LOOK"],
-	"ButtonMusic": ["music", null, "MUSIC"],
+	"ButtonMusic": ["music", "VOLUME_STEPS", "MUSIC"],
+	"ButtonEffects": ["effects", "VOLUME_STEPS", "SOUND EFFECTS"],
 	"ButtonSlowDown": ["slow_down_on_lag", null, "SLOW DOWN ON LAG"],
 	"ButtonShowFps": ["show_fps", null, "SHOW FPS"],
 	"ButtonDynamicCamera": ["camera_dynamic", null, "DYNAMIC CAMERA (UNFINISHED, JITTERS)"],
@@ -67,7 +70,12 @@ func _refresh() -> void:
 	for name in OPTIONS:
 		var button: Button = get_node_or_null("Panel/Layout/" + name)
 		if button != null:
-			button.text = "%s: %s" % [OPTIONS[name][2], value_text(Settings.get_option(OPTIONS[name][0]))]
+			var key: String = OPTIONS[name][0]
+			button.text = "%s: %s" % [OPTIONS[name][2], percent_text(Settings.get_option(key)) if key in PERCENT else value_text(Settings.get_option(key))]
+
+
+static func percent_text(value) -> String:
+	return "%d%%" % int(round(float(value) * 100.0)) if float(value) > 0.0 else "OFF"
 
 
 static func value_text(value) -> String:

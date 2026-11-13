@@ -63,3 +63,25 @@ func test_hit_effects_off_hides_scars_and_makes_none():
 func test_settings_never_touch_the_file_in_tests():
 	Settings.set_option("particles", false)
 	assert_false(Settings._persist, "Tests run on the defaults and write nothing")
+
+
+func test_volumes_step_down_to_off_and_set_their_buses():
+	var AudioBuses = load("res://src/core/sound/audio_buses.gd")
+	var window = OptionsScene.instance()
+	add_child_autofree(window)
+	assert_eq(window.get_node("Panel/Layout/ButtonEffects").text, "SOUND EFFECTS: 100%")
+	window.step("effects")
+	assert_eq(Settings.get_option("effects"), Constants.VOLUME_STEPS[1])
+	assert_eq(window.get_node("Panel/Layout/ButtonEffects").text, "SOUND EFFECTS: 75%")
+	Settings.set_option("music", 0.0)
+	assert_eq(window.get_node("Panel/Layout/ButtonMusic").text, "MUSIC: OFF")
+	AudioBuses.apply()
+	var music: int = AudioServer.get_bus_index("Music")
+	var effects: int = AudioServer.get_bus_index("Effects")
+	assert_true(music > 0 and effects > 0, "The game's buses (default_bus_layout.tres)")
+	assert_true(AudioServer.is_bus_mute(music), "Music at 0: muted")
+	assert_false(AudioServer.is_bus_mute(effects))
+	assert_almost_eq(AudioServer.get_bus_volume_db(effects), linear2db(0.75), 0.01)
+	Settings.reset_to_defaults()
+	AudioBuses.apply()
+	assert_false(AudioServer.is_bus_mute(music), "Back to full")
