@@ -157,7 +157,7 @@ To tune a part, edit its `law_genes`, then run `tools/dev.py apply_laws` to rebu
 ## Commodities, stock hulls, starting kit — `database/registry/`
 
 - `assets/ships`: stock hulls.
-- `assets/commodities`: commodities.
+- `assets/commodities`: commodities. What each haven sells and buys is set on its marker (World: `sells`, `buys`); the Parts tab's **trade routes** (`t`) list every route that makes, priced as the game prices it, with its margin, how far it runs and which factions may fly it.
 - `game_starts`: the player's start: its ship, the haven it starts docked at (also its home port), its bank, and the kit waiting in home storage (`starting_storage`). The tool lists the kit as rows of part and count, with its worth and mass; ship and haven are picked from lists.
 - `locations`: the sector graph. Jumps between sectors are off for 0.x (`Constants.jumps_enabled`): the game is Elace only until the other sectors are laid out.
 

@@ -26,6 +26,11 @@ def read_location(sector):
     return devapp.read_text("res://database/registry/locations/%s.tres" % sector) if os.path.exists(path) else None
 
 
+TRADE_ROUTE = {"commodity": "commodity_ore", "name": "Ore", "mass": 50.0, "sector": "sector_elace", "from": "port", "from_name": "Port",
+               "to": "mill", "to_name": "Mill", "layout": "res://l.tscn", "node": "Havens/Port", "buy": 40, "sale": 55, "worst": 35,
+               "best": 75, "km": 12.5, "factions": ["blue"]}
+
+
 class FakeBridge:
     def __init__(self, user_dir=""):
         self.user_dir = user_dir
@@ -114,7 +119,8 @@ class FakeBridge:
                     "modules": [{"id": "module_ab", "path": FILE, "name": "Afterburner", "origin": "stock", "value": 100, "used_by": [],
                                  "kind": "afterburner", "mass": 400.0, "effects": {"afterburner_thrust": 5e5}, "lance": False}],
                     "commodities": [{"id": "commodity_ore", "path": FILE, "name": "Ore", "origin": "stock", "value": 20, "used_by": [], "mass": 50.0}],
-                    "starts": [{"path": FILE, "id": "start_default", "ship": "s", "location": "home", "bank": 3000, "storage": {"tool_laser": 1}}]}
+                    "starts": [{"path": FILE, "id": "start_default", "ship": "s", "location": "home", "bank": 3000, "storage": {"tool_laser": 1}}],
+                    "trade": [dict(TRADE_ROUTE), dict(TRADE_ROUTE, to="den", to_name="Den", sale=30, worst=-20, best=-5, factions=[])]}
         if command == "look":
             music_field = {"name": "stream", "type": "Object", "hint_name": "resource", "hint_string": "AudioStream", "comment": ""}
             return {"shaders": [{"path": "res://assets/art/shaders/solid.gdshader", "materials": ["res://m.tres"], "scenes": []}],
@@ -564,6 +570,37 @@ class AppTest(unittest.IsolatedAsyncioTestCase):
             await pilot.press("enter")
             await self._started(pilot, app)
             self.assertEqual(app.query_one("TabbedContent").active, "data")
+
+    async def test_trade_routes_rank_by_margin_and_open_the_seller(self):
+        app = devapp.DevApp(bridge_factory=lambda: FakeBridge())
+        async with app.run_test(size=(200, 50)) as pilot:
+            await self._started(pilot, app)
+            await pilot.press("6")
+            await pilot.pause()
+            await pilot.press("t")
+            await pilot.pause()
+            table = app.query_one("#parts", DataTable)
+            self.assertEqual(table.row_count, 2)
+            self.assertEqual(app.parts_rows[0]["to"], "mill", "A route NPCs fly, best margin first")
+            self.assertIn("+15", str(table.get_row_at(0)[6]))
+            self.assertIn("300", str(table.get_row_at(0)[9]), "15 WP a 50 kg unit: 300 WP a tonne")
+            self.assertIn("sold at Port and bought at Den, Mill", str(app.query_one("#part-detail").content))
+            loaded = []
+            app.load_sector = lambda *args: loaded.append(args)
+            await pilot.press("enter")
+            await pilot.pause()
+            self.assertEqual(loaded[0], ("sector_elace", "res://l.tscn", "Havens/Port"))
+            self.assertEqual(app.query_one("TabbedContent").active, "world")
+
+    async def test_a_sell_list_shows_what_it_charges(self):
+        app = devapp.DevApp(bridge_factory=lambda: FakeBridge())
+        async with app.run_test(size=(180, 50)) as pilot:
+            await self._started(pilot, app)
+            fields = [{"name": "sells", "type": "Dictionary", "hint_name": "", "hint_string": "", "comment": ""}]
+            form = await self._form_with(pilot, app, fields, {"sells": {"commodity_ore": 0.5}}, MARKER)
+            sells = form.fields[0].editor
+            self.assertIsInstance(sells, devapp.PairsEditor)
+            self.assertIn("charges 10 WP a unit", str(sells.rows()[0].query_one(".pair-about").content))
 
     async def test_look_shows_shaders_paints_and_saves_music(self):
         fake = FakeBridge()

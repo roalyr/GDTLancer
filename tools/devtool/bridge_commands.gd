@@ -18,6 +18,7 @@ const TscnText = preload("res://tools/devtool/tscn_text.gd")
 const PartCatalog = preload("res://src/core/systems/part_catalog.gd")
 const SectorMaker = preload("res://tools/devtool/sector_maker.gd")
 const ShipFit = preload("res://src/core/systems/ship_fit.gd")
+const Havens = preload("res://src/core/systems/havens.gd")
 const EDITABLE = PROPERTY_USAGE_SCRIPT_VARIABLE | PROPERTY_USAGE_EDITOR
 const SHADER_PARAM = "shader_param/"
 const TRANSLATION = "translation"
@@ -536,8 +537,10 @@ func cmd_parts(_args: Dictionary):
 			if node.get_script() != null and node.get_script().resource_path.ends_with("haven_marker.gd"):
 				for commodity_id in node.buys:
 					_note_use(used, commodity_id, "bought at " + node.haven_id)
+				for commodity_id in node.sells:
+					_note_use(used, commodity_id, "sold at " + node.haven_id)
 		root.free()
-	var out := {"weapons": [], "modules": [], "commodities": [], "starts": starts}
+	var out := {"weapons": [], "modules": [], "commodities": [], "starts": starts, "trade": _trade_routes()}
 	var paths: Array = []
 	for kind in PART_DIRS:
 		for path in Validator._files_in(PART_DIRS[kind], ".tres"):
@@ -623,6 +626,68 @@ func cmd_look(_args: Dictionary):
 # Where Godot keeps user:// on this machine (evolution's save and logs are there).
 func cmd_user_dir(_args: Dictionary):
 	return {"path": OS.get_user_data_dir()}
+
+
+# Every trade a haven offers: one row per commodity a haven sells and another haven of its sector
+# buys, as the game prices them (Market) for a stranger (standing 0): {commodity, name, mass (kg a
+# unit), sector, from, from_name, to, to_name, layout, node (the seller's marker), buy, sale (WP a
+# unit with both markups at 0), worst, best (the margin with the markups against it and for it,
+# Constants.PRICE_MARKUP_MAX), km (between the havens), factions (NPC factions welcome at both
+# ends, Havens.welcome)}.
+func _trade_routes() -> Array:
+	var factions := {}
+	var faction_paths: Dictionary = Validator.faction_files()
+	for id in faction_paths:
+		var faction = _fresh(faction_paths[id])
+		if faction != null:
+			factions[id] = faction.to_spec()
+	var faction_ids: Array = factions.keys()
+	faction_ids.sort()
+	var commodities := {}
+	for path in Validator._files_in("res://database/registry/assets/commodities/", ".tres"):
+		var item = _fresh(path)
+		if item is CommodityTemplate:
+			commodities[item.template_id] = item
+	var top: float = 1.0 + Constants.PRICE_MARKUP_MAX
+	var routes: Array = []
+	var layouts: Dictionary = Validator.layout_files()
+	for sector in layouts:
+		var places := {}
+		for thing in cmd_sector_map({"sector": sector}):
+			places[thing.node] = Vector3(thing.x, thing.y, thing.z)
+		var root: Node = _edit_instance(layouts[sector])
+		if root == null:
+			continue
+		var havens: Array = []
+		for node in _own_nodes(root):
+			if node.get_script() != null and node.get_script().resource_path.ends_with("haven_marker.gd"):
+				var at: String = str(root.get_path_to(node))
+				havens.append({"id": node.haven_id, "name": node.display_name, "faction": node.faction, "buys": node.buys.duplicate(),
+					"sells": node.sells.duplicate(), "node": at, "at": places.get(at, _origin(node))})
+		root.free()
+		for seller in havens:
+			for commodity_id in seller.sells:
+				var item = commodities.get(commodity_id)
+				var sell_factor: float = float(seller.sells[commodity_id])
+				if item == null or sell_factor <= 0.0:
+					continue
+				var value: float = float(item.base_value)
+				for buyer in havens:
+					var buy_factor: float = float(buyer.buys.get(commodity_id, buyer.buys.get("*", 0.0)))
+					if buyer == seller or buy_factor <= 0.0:
+						continue
+					var cost: float = value * sell_factor
+					var sale: float = value * buy_factor * Constants.PRICE_CARGO_SELL_SHARE
+					var welcome: Array = []
+					for faction in faction_ids:
+						if Havens.welcome_at(faction, seller.faction, factions) and Havens.welcome_at(faction, buyer.faction, factions):
+							welcome.append(faction)
+					routes.append({"commodity": commodity_id, "name": item.commodity_name, "mass": item.unit_mass, "sector": sector,
+						"from": seller.id, "from_name": seller.name, "to": buyer.id, "to_name": buyer.name, "layout": layouts[sector],
+						"node": seller.node, "buy": int(round(cost)), "sale": int(round(sale)),
+						"worst": int(round(sale - cost * top)), "best": int(round(sale * top - cost)),
+						"km": seller.at.distance_to(buyer.at) / 1000.0, "factions": welcome})
+	return routes
 
 
 static func _note_use(table: Dictionary, id: String, user: String) -> void:

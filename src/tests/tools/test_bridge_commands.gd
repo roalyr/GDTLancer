@@ -355,6 +355,37 @@ func test_the_parts_view_has_every_part_and_who_uses_it():
 	assert_eq(view.starts[0].id, "start_default")
 
 
+func test_trade_routes_are_priced_as_the_market_prices_them():
+	var view: Dictionary = _ok(commands.handle("parts", {}))
+	var route := {}
+	for row in view.trade:
+		if row.from == "verdant_haven" and row.to == "violet_haven":
+			route = row
+	assert_false(route.empty(), "Verdant sells biotech that Violet buys")
+	assert_eq(route.commodity, "commodity_biotech")
+	assert_gt(route.sale - route.buy, route.worst, "Markups against it make it worse")
+	assert_gt(route.best, route.sale - route.buy, "and for it better")
+	var Market = load("res://src/core/systems/market.gd")
+	for id in ["verdant_haven", "violet_haven"]:
+		GameState.station_markups[id] = 0.0
+		GameState.station_markup_until[id] = INF
+	var saved: Dictionary = TemplateDatabase.assets_commodities
+	TemplateDatabase.assets_commodities = {"commodity_biotech": load("res://database/registry/assets/commodities/commodity_biotech.tres")}
+	var buy: int = Market.commodity_buy_price("commodity_biotech", "verdant_haven")
+	var sale: int = Market.commodity_sale_price("commodity_biotech", "violet_haven")
+	TemplateDatabase.assets_commodities = saved
+	GameState.reset_state()
+	assert_eq([route.buy, route.sale], [buy, sale], "The game's prices at markup 0, as a stranger")
+	assert_eq(route.factions, ["freeport"], "Only the free port's ships dock at both rivals' havens")
+	assert_gt(route.km, 1.0)
+	var den_routes: int = 0
+	for row in view.trade:
+		if row.to == "raider_den":
+			den_routes += 1
+			assert_eq(row.factions, [], "Outlaws let nobody in")
+	assert_gt(den_routes, 0, "The den buys anything (*)")
+
+
 func test_the_look_view_and_the_music_stream():
 	var view: Dictionary = _ok(commands.handle("look", {}))
 	var by_path := {}

@@ -968,14 +968,43 @@ PART_COLUMNS = {
     "modules": ("Module", "Kind", "Mass kg", "Effects", "WP", "Origin", "Used by"),
     "commodities": ("Commodity", "WP", "kg/unit", "WP/t", "Used by"),
     "starts": ("Game start", "Ship", "Docked at", "Bank WP", "Storage"),
+    "trade": ("Commodity", "Sector", "Bought at", "WP", "Sold at", "WP", "Margin", "Markups", "km", "WP/t", "Flown by"),
 }
-PART_TITLES = {"weapons": "Weapons and tools", "modules": "Modules", "commodities": "Commodities", "starts": "Starting kit"}
+PART_TITLES = {"weapons": "Weapons and tools", "modules": "Modules", "commodities": "Commodities", "starts": "Starting kit",
+               "trade": "Trade routes"}
+
+
+def trade_cells(row):
+    """A trade route's cells (bridge _trade_routes): a margin per unit at even markups, its range
+    with the markups against and for it, and per tonne carried."""
+    margin = row["sale"] - row["buy"]
+    colour = "green" if margin > 0 else "red"
+    per_tonne = margin / row["mass"] * 1000.0 if row["mass"] else 0.0
+    flown = ", ".join(row["factions"]) if row["factions"] else "[dim]no NPC[/dim]"
+    return (row["name"], row["sector"].replace("sector_", ""), row["from_name"] or row["from"], str(row["buy"]), row["to_name"] or row["to"],
+            str(row["sale"]), "[%s]%+d[/%s]" % (colour, margin, colour), "%+d..%+d" % (row["worst"], row["best"]), "%.1f" % row["km"],
+            "%+.0f" % per_tonne, flown)
+
+
+def trade_detail(row, routes):
+    """What the picked route means, and what else its commodity's market looks like in its sector."""
+    same = [r for r in routes if r["commodity"] == row["commodity"] and r["sector"] == row["sector"]]
+    sellers = sorted({r["from_name"] or r["from"] for r in same})
+    buyers = sorted({r["to_name"] or r["to"] for r in same})
+    margin = row["sale"] - row["buy"]
+    lines = ["[b]%s[/b]: bought at %s for %d WP a unit, sold at %s for %d (%+d; %+d to %+d as the stations' markups roll), %.1f km apart." % (
+                 row["name"], row["from_name"] or row["from"], row["buy"], row["to_name"] or row["to"], row["sale"], margin, row["worst"], row["best"], row["km"]),
+             "Flown by: %s." % (", ".join(row["factions"]) if row["factions"] else "no NPC faction is welcome at both ends"),
+             "In %s it is sold at %s and bought at %s." % (row["sector"], ", ".join(sellers), ", ".join(buyers)),
+             "[dim]Prices as a stranger pays them (standing 0); standing moves both by up to a tenth. Change them in each haven's sells and buys (World).[/dim]"]
+    return "\n".join(lines)
 
 
 class PartsPane(Vertical):
     BINDINGS = [
         Binding("w", "app.parts('weapons')", "Weapons"), Binding("m", "app.parts('modules')", "Modules"),
         Binding("c", "app.parts('commodities')", "Commodities"), Binding("k", "app.parts('starts')", "Starting kit"),
+        Binding("t", "app.parts('trade')", "Trade routes"),
         Binding("ctrl+r", "app.refresh_parts", "Refresh"),
     ]
     DEFAULT_CSS = """
@@ -1830,6 +1859,13 @@ class DevApp(App):
                 row = commodities.get(key)
                 return "pays %d WP a unit (%d x %g), before standing" % (round(row["value"] * factor), row["value"], factor) if row else ""
 
+            def charge(key, factor):
+                row = commodities.get(key)
+                return "charges %d WP a unit (%d x %g), before markup and standing" % (round(row["value"] * factor), row["value"], factor) if row else ""
+
+            def made(pairs):
+                return "Sells %d: the trade routes (Parts, t) show where they fetch more." % len(pairs) if pairs else "Sells nothing."
+
             def summary(pairs):
                 if not pairs:
                     return "[yellow]Buys nothing: ships cannot sell their cargo here.[/yellow]"
@@ -1839,6 +1875,8 @@ class DevApp(App):
             return {
                 "buys": Special(pairs=[(key, "%s (%d WP)" % (row["name"], row["value"])) for key, row in sorted(commodities.items())],
                                 default=1.0, about=sale, total=summary, any_key=("*", "* anything else")),
+                "sells": Special(pairs=[(key, "%s (%d WP)" % (row["name"], row["value"])) for key, row in sorted(commodities.items())],
+                                 default=1.0, about=charge, total=made),
                 "faction": Special(choices=[("", "(none: neutral)")] + factions),
                 "model": Special(choices=[(row.scene, "%s  %s" % (os.path.basename(row.scene)[:-5], row.scene.replace("res://", "")))
                                           for row in getattr(self, "model_rows", []) if row.kind == "station"]),
@@ -1892,15 +1930,19 @@ class DevApp(App):
             self.parts_view = view
         kind = self.parts_kind
         rows = self.parts_view.get(kind, [])
-        rows = sorted(rows, key=lambda row: (row.get("type", row.get("kind", "")), row.get("value") or 0))
+        if kind == "trade":
+            rows = sorted(rows, key=lambda row: (not row["factions"], -(row["sale"] - row["buy"]), row["km"]))
+        else:
+            rows = sorted(rows, key=lambda row: (row.get("type", row.get("kind", "")), row.get("value") or 0))
         self.parts_rows = rows
         table = self.query_one("#parts", DataTable)
         table.clear(columns=True)
         table.add_columns(*PART_COLUMNS[kind])
         for index, row in enumerate(rows):
             table.add_row(*self._part_cells(kind, row), key=str(index))
-        shown = "" if kind in ("starts", "commodities") else "  ·  the catalogue: three of each kind, light, medium, heavy"
-        self.query_one("#parts-title", Static).update("[b]%s[/b] (%d)%s  ·  enter opens one in Data" % (PART_TITLES[kind], len(rows), shown))
+        shown = "" if kind in ("starts", "commodities", "trade") else "  ·  the catalogue: three of each kind, light, medium, heavy"
+        opens = "enter opens the seller in World" if kind == "trade" else "enter opens one in Data"
+        self.query_one("#parts-title", Static).update("[b]%s[/b] (%d)%s  ·  %s" % (PART_TITLES[kind], len(rows), shown, opens))
         self._show_part_detail()
 
     @staticmethod
@@ -1917,6 +1959,8 @@ class DevApp(App):
         if kind == "commodities":
             per_tonne = row["value"] / row["mass"] * 1000.0 if row["mass"] else 0.0
             return (row["name"], str(row["value"]), "%g" % row["mass"], "%.0f" % per_tonne, used)
+        if kind == "trade":
+            return trade_cells(row)
         storage = ", ".join("%s x%d" % (key, value) for key, value in row["storage"].items()) if isinstance(row["storage"], dict) else ""
         return (row["id"], row["ship"], row["location"], str(row["bank"]), storage)
 
@@ -1927,6 +1971,9 @@ class DevApp(App):
             self.query_one("#part-detail", Static).update("")
             return
         row = self.parts_rows[table.cursor_row]
+        if self.parts_kind == "trade":
+            self.query_one("#part-detail", Static).update(trade_detail(row, self.parts_view.get("trade", [])))
+            return
         lines = ["[b]%s[/b]  %s" % (row.get("name", row["id"]), row["path"])]
         if row.get("used_by"):
             lines.append("Used by: " + ", ".join(row["used_by"]))
@@ -1934,7 +1981,12 @@ class DevApp(App):
 
     @on(DataTable.RowSelected, "#parts")
     def _part_picked(self, event):
-        self.open_in_data(self.parts_rows[int(event.row_key.value)]["path"])
+        row = self.parts_rows[int(event.row_key.value)]
+        if self.parts_kind == "trade":
+            self.query_one(TabbedContent).active = "world"
+            self.load_sector(row["sector"], row["layout"], row["node"])
+            return
+        self.open_in_data(row["path"])
 
     def action_parts(self, kind):
         self.parts_kind = kind

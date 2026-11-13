@@ -75,8 +75,9 @@ static func faction_of(location_id: String) -> String:
 
 # Outlaws (FactionTemplate.outlaw) and aliens (no_standing) dock only at their own havens and let no
 # other faction dock at theirs.
-static func keeps_to_itself(faction: String) -> bool:
-	var faction_spec: Dictionary = TemplateDatabase.factions.get(faction, {})
+# `factions`: faction id -> FactionTemplate.to_spec() (TemplateDatabase.factions in play).
+static func keeps_to_itself(faction: String, factions = null) -> bool:
+	var faction_spec: Dictionary = (TemplateDatabase.factions if factions == null else factions).get(faction, {})
 	return faction_spec.get("outlaw", false) or faction_spec.get("no_standing", false)
 
 
@@ -85,13 +86,18 @@ static func keeps_to_itself(faction: String) -> bool:
 # (keeps_to_itself). An open faction's own ships (the free port's: it trades with everyone) dock at
 # any other faction's haven too, but the outlaws', the aliens' and those at war with it.
 static func welcome(faction: String, location_id: String) -> bool:
-	var owner: String = faction_of(location_id)
+	return welcome_at(faction, faction_of(location_id), TemplateDatabase.factions)
+
+
+# The same rule for a haven owned by `owner` ("" neutral), with the factions given (the dev tool
+# passes the faction files as they are on disk).
+static func welcome_at(faction: String, owner: String, factions: Dictionary) -> bool:
 	if owner == faction and owner != "":
 		return true
-	if keeps_to_itself(faction):
+	if keeps_to_itself(faction, factions):
 		return false
-	if owner == "" or TemplateDatabase.factions.get(owner, {}).get("open_havens", false):
+	if owner == "" or factions.get(owner, {}).get("open_havens", false):
 		return true
-	if not TemplateDatabase.factions.get(faction, {}).get("open_havens", false) or keeps_to_itself(owner):
+	if not factions.get(faction, {}).get("open_havens", false) or keeps_to_itself(owner, factions):
 		return false
-	return not (owner in TemplateDatabase.factions.get(faction, {}).get("enemies", []) or faction in TemplateDatabase.factions.get(owner, {}).get("enemies", []))
+	return not (owner in factions.get(faction, {}).get("enemies", []) or faction in factions.get(owner, {}).get("enemies", []))
