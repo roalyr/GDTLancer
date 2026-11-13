@@ -73,19 +73,25 @@ static func faction_of(location_id: String) -> String:
 	return str(spec(location_id).get("faction", ""))
 
 
+# Outlaws (FactionTemplate.outlaw) and aliens (no_standing) dock only at their own havens and let no
+# other faction dock at theirs.
+static func keeps_to_itself(faction: String) -> bool:
+	var faction_spec: Dictionary = TemplateDatabase.factions.get(faction, {})
+	return faction_spec.get("outlaw", false) or faction_spec.get("no_standing", false)
+
+
 # Whether an NPC of `faction` docks there: its own faction's haven, or a neutral one (or an open
-# faction's: FactionTemplate.open_havens, the free port) unless it is a raider or the xenohive
-# (outlaws and aliens have only their own). An open faction's own ships (the free port's: it trades
-# with everyone) dock at any other faction's haven too, but the outlaws', the aliens' and those at
-# war with it.
+# faction's: FactionTemplate.open_havens, the free port) unless it is an outlaw or an alien
+# (keeps_to_itself). An open faction's own ships (the free port's: it trades with everyone) dock at
+# any other faction's haven too, but the outlaws', the aliens' and those at war with it.
 static func welcome(faction: String, location_id: String) -> bool:
 	var owner: String = faction_of(location_id)
 	if owner == faction and owner != "":
 		return true
-	if faction in ["raiders", "xenohive"]:
+	if keeps_to_itself(faction):
 		return false
 	if owner == "" or TemplateDatabase.factions.get(owner, {}).get("open_havens", false):
 		return true
-	if not TemplateDatabase.factions.get(faction, {}).get("open_havens", false) or owner in ["raiders", "xenohive"]:
+	if not TemplateDatabase.factions.get(faction, {}).get("open_havens", false) or keeps_to_itself(owner):
 		return false
 	return not (owner in TemplateDatabase.factions.get(faction, {}).get("enemies", []) or faction in TemplateDatabase.factions.get(owner, {}).get("enemies", []))

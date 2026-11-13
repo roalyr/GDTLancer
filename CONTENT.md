@@ -27,7 +27,7 @@ Each file is a `FactionTemplate` that sets:
 - its paints (`hull_material`, `station_material`);
 - its **roster**: the archetypes its havens fly.
 
-Aliens set `no_standing`, `territory` and `salvage_as`, and may fly a hull of their own (`ship_scene`) instead of their archetypes' hulls. To add a faction, add a file (Data, Factions, `ctrl+n`), then give it havens (World). Wars and rosters are quickest on the Factions tab; making peace there takes the other side out of both lists.
+Pirates set `outlaw`: they dock only at their own havens, no other faction docks at theirs, and their armed ships hunt instead of patrolling. Aliens set `no_standing` (they keep to themselves the same way), `territory` and `salvage_as`, and may fly a hull of their own (`ship_scene`) instead of their archetypes' hulls. To add a faction, add a file (Data, Factions, `ctrl+n`), then give it havens (World). Wars and rosters are quickest on the Factions tab; making peace there takes the other side out of both lists.
 
 ## Sectors — `scenes/levels/sectors/<sector>/`
 

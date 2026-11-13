@@ -16,6 +16,7 @@ export var color: Color = Color(1, 1, 1, 1)  # Its brackets and names on the HUD
 export var enemies: Array = []  # Faction ids it is at war with (both ways: either side's list counts)
 export var starting_standing: float = 0.0  # The player's standing with it in a new game, -1 to 1
 export var no_standing: bool = false  # Aliens: no standing or bounties; they react on the spot
+export var outlaw: bool = false  # Pirates: dock only at their own havens, turned away from every other, and their armed ships hunt
 export var distress: bool = false  # Its ships call maydays its patrols answer (BeaconNetwork)
 export var silent: bool = false  # Sends no radio (Radio)
 export var territory: float = 0.0  # m round its haven where any ship is its enemy (0: none; Agent.is_enemy_of)
@@ -34,7 +35,7 @@ export var roster: Array = []  # What its havens fly in a frozen world: archetyp
 func to_spec() -> Dictionary:
 	var spec := {
 		"name": display_name, "color": color, "enemies": enemies.duplicate(), "standing": starting_standing,
-		"no_standing": no_standing, "distress": distress, "silent": silent, "escorts": escorts,
+		"no_standing": no_standing, "outlaw": outlaw, "distress": distress, "silent": silent, "escorts": escorts,
 		"patrol_wages": patrol_wages, "open_havens": open_havens, "hull_material": hull_material,
 		"station_material": station_material, "ship_scene": ship_scene, "roster": roster.duplicate(),
 	}

@@ -53,6 +53,20 @@ func test_who_is_welcome():
 	assert_false(Havens.welcome("freeport", "xenohive"), "nor the hive")
 
 
+func test_outlaws_come_from_the_faction_flag_not_its_name():
+	var factions: Dictionary = TemplateDatabase.factions  # Read-only from outside: flipped in place, then back
+	factions["raiders"]["outlaw"] = false
+	factions["verdant"]["outlaw"] = true
+	var raiders_at_port: bool = Havens.welcome("raiders", "station_elace_home")
+	var verdant_at_refinery: bool = Havens.welcome("verdant", "elace_refinery")
+	var freeport_at_verdant: bool = Havens.welcome("freeport", "verdant_haven")
+	factions["raiders"]["outlaw"] = true
+	factions["verdant"]["outlaw"] = false
+	assert_true(raiders_at_port, "Raiders no longer outlaws: the free port takes them")
+	assert_false(verdant_at_refinery, "An outlaw faction docks only at its own")
+	assert_false(freeport_at_verdant, "and nobody docks at an outlaw's haven")
+
+
 func test_populated_havens_are_those_with_ships():
 	var ids: Array = []
 	for haven in Havens.populated("sector_elace"):

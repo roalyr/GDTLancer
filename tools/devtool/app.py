@@ -1668,7 +1668,7 @@ class DevApp(App):
         table = self.query_one("#factions", DataTable)
         table.clear()
         for faction in factions:
-            flags = "".join(letter for letter, key in (("D", "distress"), ("E", "escorts"), ("W", "patrol_wages"), ("N", "no_standing"), ("S", "silent"), ("O", "open_havens"))
+            flags = "".join(letter for letter, key in (("D", "distress"), ("E", "escorts"), ("W", "patrol_wages"), ("N", "no_standing"), ("S", "silent"), ("O", "open_havens"), ("L", "outlaw"))
                             if faction.get(key))
             ships = sum(sum(int(n) for n in haven["ships"].values()) for haven in faction["havens"] if isinstance(haven["ships"], dict))
             table.add_row(swatch(faction.get("color")), faction["id"], faction.get("display_name", ""), swatch(faction.get("paint")),
@@ -1725,7 +1725,7 @@ class DevApp(App):
             notes.append("Territory %d m round its havens" % faction["territory"])
         if faction.get("salvage_as"):
             notes.append("Wrecks hold %s" % faction["salvage_as"])
-        notes.append("[dim]Flags: D distress, E escorts, W patrol wages, N no standing, S silent[/dim]")
+        notes.append("[dim]Flags: D distress, E escorts, W patrol wages, N no standing (aliens), S silent, O open havens, L outlaw[/dim]")
         self.query_one("#faction-detail", Static).update("\n".join(notes))
 
     @on(DataTable.RowSelected, "#havens")

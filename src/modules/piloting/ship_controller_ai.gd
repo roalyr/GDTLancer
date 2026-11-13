@@ -1854,14 +1854,14 @@ func roams() -> bool:
 	return not _havens.empty() and not _havens.get("territorial", false) and BeaconNetwork.of(agent_script) != null
 
 
-# What it is out for (BeaconNetwork.choose): mining, if it can; hunting, a raider; scavenging, unarmed;
+# What it is out for (BeaconNetwork.choose): mining, if it can; hunting, an outlaw (FactionTemplate.outlaw); scavenging, unarmed;
 # patrolling otherwise.
 func get_job() -> String:
 	if can_mine():
 		return "mine"
 	if agent_script.get_damage_per_second() <= 0.0 and not can_charge():
 		return "scavenge"
-	if agent_script.faction == "raiders":
+	if TemplateDatabase.factions.get(agent_script.faction, {}).get("outlaw", false):
 		return "hunt"
 	return "patrol"
 
