@@ -101,6 +101,10 @@ def factions():
     return sorted(stem(path) for path in glob.glob(os.path.join(ROOT, "database/factions/*.tres")))
 
 
+def draft_folders():
+    return sorted(os.path.basename(path) for path in glob.glob(os.path.join(ROOT, "database/presets/drafts_era*")))
+
+
 PERF_MODES = ["base", "base_full", "no_3d", "no_hud", "no_lights", "no_particles", "no_rocks",
               "no_ships_3d", "lod_low", "physics_30", "no_ai"]
 MODEL_SOURCES = ["assets/models/ships/*/*.blend", "assets/models/ships/*/*.glb",
@@ -177,6 +181,27 @@ def _export_presets(v):
     return command + (["--clean"] if yes(v["clean"]) else [])
 
 
+def _pick_archetypes(v):
+    folder = v["folder"]
+    era = folder[len("drafts_era"):].split("_")[0]
+    command = godot_script("tools/pick_archetypes.gd", "--", "--from=res://database/presets/%s/" % folder, "--era=" + era)
+    return command + (["--add"] if yes(v["add"]) else [])
+
+
+def _flight_shots(v):
+    command = godot("res://tools/flight_shots.tscn", "out=" + out_file("flight"), "wait=" + v["wait"])
+    if v["near"] != "none":
+        command.append("near=" + v["near"])
+    return command + (["nebula=1"] if yes(v["nebula"]) else [])
+
+
+def _harpoon_probe(v):
+    command = godot("res://tools/harpoon_probe.tscn", "seconds=" + v["seconds"], "dist=" + v["dist"])
+    if v["target"] == "chunk":
+        command.append("target=chunk")
+    return command + [flag for flag in ("approach", "full") if yes(v[flag])]
+
+
 def _render_preview(v):
     return godot("-s", "tools/render_preview.gd", "scene=" + res(v["scene"])[:-len(".tscn")],
                  "out=" + out_file(stem(v["scene"]) + "_preview.png"), "radius=" + v["radius"], "distances=" + v["distances"])
@@ -231,6 +256,11 @@ TASKS = [
                            Ask("clean", "Remove the old presets first", "flag", "no")]),
     Task("apply_laws", "Content", "Apply the ship laws", "Rewrites hand-made ships and parts from their law genes (after changing a law).",
          lambda v: godot_script("tools/apply_laws.gd")),
+    Task("pick_archetypes", "Content", "Pick archetypes from drafts", "Each archetype the drafts folder has a design for is replaced by it; then classify_presets.",
+         _pick_archetypes, [Ask("folder", "Drafts folder", "choice", lambda: max(draft_folders(), key=lambda name: (int(name.split("_")[1][len("era"):]), name.endswith("min10")), default=""), draft_folders),
+                            Ask("add", "Also make archetypes there are none of yet", "flag", "no")]),
+    Task("refit_archetypes", "Content", "Refit the archetypes", "The archetypes take the part catalogue and the laws as they are now (after changing either).",
+         lambda v: godot_script("tools/refit_archetypes.gd")),
     # Evolution
     Task("evolution", "Evolution", "Run evolution (headless)", "Goes on with the saved evolution. A new era: new_era.",
          _evolution, [Ask("hours", "Simulated hours (0: until stopped)", default="1"), Ask("speed", "Speed", default="6")]),
@@ -261,6 +291,17 @@ TASKS = [
     # Look
     Task("ui_shots", "Look", "UI screenshots", "Every store tab and prompt, with control dumps, to .dev/out/ui/.",
          lambda v: godot("res://tools/ui_shots.tscn", "out=" + out_file("ui"))),
+    Task("flight_shots", "Look", "Flight screenshots", "The HUD in flight, plain and with the nearest ship selected, to .dev/out/flight/.",
+         _flight_shots, [Ask("wait", "Seconds of flight first", default="12"),
+                         Ask("near", "Start near a ship of this faction", "choice", "none", lambda: ["none"] + factions()),
+                         Ask("nebula", "A nebula ahead", "flag", "no")]),
+    Task("sound_probe", "Look", "Sound probe", "Undocks and prints every playing sound each second.",
+         lambda v: godot("res://tools/sound_probe.tscn", "seconds=" + v["seconds"], "plan=" + v["plan"]),
+         [Ask("seconds", "Seconds", default="20"), Ask("plan", "What the ship does", "choice", "line", ["line", "approach", "docked"])]),
+    Task("harpoon_probe", "Look", "Harpoon probe", "Fires the player's harpoon at a nearby target and prints the tether each second.",
+         _harpoon_probe, [Ask("seconds", "Seconds", default="30"), Ask("dist", "Start distance (m)", default="150"),
+                          Ask("target", "Target", "choice", "wreck", ["wreck", "chunk"]),
+                          Ask("approach", "Approach first", "flag", "no"), Ask("full", "Cargo hold full", "flag", "no")]),
     Task("render_preview", "Look", "Render preview", "A scene from a few distances, side by side, to .dev/out/.",
          _render_preview, [Ask("scene", "Scene", "file", globs=["scenes/**/*.tscn"]), Ask("radius", "Object size (m)", default="100"),
                            Ask("distances", "Distances (in sizes)", default="3,10,40")]),
