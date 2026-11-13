@@ -9,3 +9,4 @@ export var starting_bank: int = 0  # WP banked at the start of the run (start_de
 # Spare parts in the home storage at the start ({part id: count}), to refit from: the starter pack.
 # Only at a new run: a lost ship comes back with its standard fit, never a new pack.
 export var starting_storage: Dictionary = {}
+export var starting_standing: Dictionary = {}  # Faction id -> the player's standing at the start (-1..1), instead of the faction's own starting_standing

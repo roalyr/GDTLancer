@@ -231,6 +231,22 @@ func test_the_modes_keep_their_data_in_their_own_folders():
 	_as_mode(GameStateManager.MODE_PLAY)
 
 
+func test_a_test_start_plays_its_start_and_saves_apart():
+	var saved_mode: String = GameStateManager.mode
+	GameStateManager.test_start_id = "start_custom"
+	GameStateManager.mode = GameStateManager.MODE_PLAY
+	var start: String = GameStateManager.game_start_id()
+	var dir: String = GameStateManager.save_dir
+	GameStateManager.mode = GameStateManager.MODE_EVOLUTION
+	var evolution_start: String = GameStateManager.game_start_id()
+	GameStateManager.test_start_id = ""
+	GameStateManager.mode = saved_mode
+	GameStateManager.save_dir = TEST_SAVE_DIR
+	assert_eq(start, "start_custom")
+	assert_eq(dir, GameStateManager.TEST_SAVE_DIR, "Never the real saves")
+	assert_eq(evolution_start, Constants.EVO_GAME_START_ID, "Evolution keeps its own")
+
+
 func test_evolution_runs_in_its_own_sector_and_an_old_save_moves_there():
 	var saved_mode: String = GameStateManager.mode
 	assert_eq([GameStateManager.game_start_id(), GameStateManager.home_sector_id()], [Constants.DEFAULT_GAME_START_ID, Constants.INITIAL_SECTOR_ID], "The game: its home")

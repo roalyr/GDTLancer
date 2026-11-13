@@ -678,6 +678,26 @@ class AppTest(unittest.IsolatedAsyncioTestCase):
             await pilot.pause()
             self.assertEqual(form.changes(), {"starting_storage": {"tool_laser": {"$": "int", "v": 2}, "module_ab": {"$": "int", "v": 1}}})
 
+    async def test_a_start_plays_from_the_parts_tab_and_sets_standings(self):
+        app = devapp.DevApp(bridge_factory=lambda: FakeBridge())
+        async with app.run_test(size=(180, 50)) as pilot:
+            await self._started(pilot, app)
+            ran = []
+            app.run_task = lambda task, values, wait=True: ran.append((task.key, values["start"]))
+            await pilot.press("6")
+            await pilot.pause()
+            await pilot.press("p")
+            self.assertEqual(ran, [], "Only on a game start")
+            await pilot.press("k")
+            await pilot.press("p")
+            self.assertEqual(ran, [("test_start", "start_default")])
+            fields = [{"name": "starting_standing", "type": "Dictionary", "hint_name": "", "hint_string": "", "comment": ""}]
+            form = await self._form_with(pilot, app, fields, {"starting_standing": {"blue": -0.7}},
+                                         devapp.data.DEFINITIONS + "game_start_template.gd")
+            standing = form.fields[0].editor
+            self.assertIsInstance(standing, devapp.PairsEditor)
+            self.assertIn("hostile", str(standing.rows()[0].query_one(".pair-about").content))
+
     async def test_a_buy_list_shows_prices_and_a_bad_row_is_not_saved(self):
         app = devapp.DevApp(bridge_factory=lambda: FakeBridge())
         async with app.run_test(size=(180, 50)) as pilot:

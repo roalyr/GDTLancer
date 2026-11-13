@@ -106,6 +106,28 @@ def archetypes():
     return sorted(stem(path)[len(prefix):] for path in glob.glob(os.path.join(ROOT, "database/presets/archetypes", prefix + "*.tres")))
 
 
+def game_starts():
+    return sorted(stem(path) for path in glob.glob(os.path.join(ROOT, "database/registry/game_starts/*.tres")) if stem(path) != "start_evolution")
+
+
+def saves():
+    """The saves of the game and of test starts, newest first, as paths under Godot's user://."""
+    from . import evolution
+    found = []
+    for folder in ("savegames", "test_start_saves"):
+        found += glob.glob(os.path.join(evolution.user_dir(), folder, "*.sav"))
+    found.sort(key=os.path.getmtime, reverse=True)
+    return ["newest"] + [os.path.relpath(path, evolution.user_dir()) for path in found]
+
+
+def _test_start(v):
+    return godot("test_start=" + v["start"], *(["test_fresh"] if yes(v["fresh"]) else []))
+
+
+def _save_report(v):
+    return godot_script("tools/save_report.gd", *([] if v["save"] == "newest" else ["save=user://" + v["save"]]))
+
+
 def draft_folders():
     return sorted(os.path.basename(path) for path in glob.glob(os.path.join(ROOT, "database/presets/drafts_era*")))
 
@@ -320,6 +342,12 @@ TASKS = [
                            Ask("distances", "Distances (in sizes)", default="3,10,40")]),
     # Game
     Task("play", "Game", "Play", "Runs the game in a window.", lambda v: godot()),
+    Task("test_start", "Game", "Play a test start", "The game from a game start of your choice (Data, Game starts: ship, haven, bank, kit,"
+         " standings), saved apart from the real saves.",
+         _test_start, [Ask("start", "Game start", "choice", "start_default", game_starts),
+                       Ask("fresh", "Delete the test saves first (a new game)", "flag", "yes")]),
+    Task("save_report", "Game", "Save report", "What a save holds, in words: ship, fit, hold, bank, storage, standings, travellers.",
+         _save_report, [Ask("save", "Save", "choice", "newest", saves)]),
     Task("editor", "Game", "Open the Godot editor", "", lambda v: godot("-e")),
     Task("apk", "Game", "Export the debug APK", "Android debug build to $GDTLANCER_APK (" + APK + ").",
          lambda v: godot("--no-window", "--export-debug", "Android", APK)),

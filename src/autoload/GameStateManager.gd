@@ -7,15 +7,22 @@
 # Every save is stamped with its mode, and a mode loads only its own (a save from before the stamp
 # counts as evolution's: they all carried the evolution). Saves carry SAVE_FORMAT_VERSION too;
 # older ones are deleted at start. get_save_summary: what the load button says about a save.
+# A test start (the dev tool's test_start task: `test_start=<game start id>` on the command line)
+# plays that game start instead of the default, and saves to TEST_SAVE_DIR, apart from the real saves
+# (TEST_FRESH_ARG as well: those saves are deleted first).
 
 extends Node
 
 const MODE_PLAY = "play"
 const MODE_EVOLUTION = "evolution"
 const PLAY_SAVE_DIR = "user://savegames/"
+const TEST_SAVE_DIR = "user://test_start_saves/"
+const TEST_START_ARG = "test_start="
+const TEST_FRESH_ARG = "test_fresh"
 
 var mode: String = MODE_PLAY setget set_mode
 var save_dir: String = PLAY_SAVE_DIR  # Set by the mode; tests point this at their own folder so real saves are never touched
+var test_start_id: String = ""  # A test start's game start (TEST_START_ARG), "" in a normal run
 const SAVE_FILE_PREFIX = "save_"
 const SAVE_FILE_EXT = ".sav"
 const SAVE_TMP_EXT = ".tmp"  # Being written (save_game)
@@ -25,12 +32,21 @@ const SAVE_FORMAT_VERSION = 2  # 2: evolution, play time and a summary
 
 
 func _ready() -> void:
+	for arg in OS.get_cmdline_args():
+		if arg.begins_with(TEST_START_ARG):
+			test_start_id = arg.trim_prefix(TEST_START_ARG)
+			save_dir = TEST_SAVE_DIR
+	if test_start_id != "" and TEST_FRESH_ARG in OS.get_cmdline_args():
+		delete_all_saves()
 	delete_outdated_saves()
 
 
-# The game start of this mode: the game's, or evolution's (Constants EVO_GAME_START_ID).
+# The game start of this mode: the game's (a test start's, if one runs), or evolution's (Constants
+# EVO_GAME_START_ID).
 func game_start_id() -> String:
-	return Constants.EVO_GAME_START_ID if mode == MODE_EVOLUTION else Constants.DEFAULT_GAME_START_ID
+	if mode == MODE_EVOLUTION:
+		return Constants.EVO_GAME_START_ID
+	return test_start_id if test_start_id != "" else Constants.DEFAULT_GAME_START_ID
 
 
 # The game start `id`, from TemplateDatabase or, before it is indexed, from its file; null if none.
@@ -50,7 +66,7 @@ func home_sector_id() -> String:
 # Play or evolution: where saves go, which ones load, and whether the world evolves.
 func set_mode(value: String) -> void:
 	mode = value
-	save_dir = PLAY_SAVE_DIR if mode == MODE_PLAY else Constants.EVOLUTION_DIR
+	save_dir = (TEST_SAVE_DIR if test_start_id != "" else PLAY_SAVE_DIR) if mode == MODE_PLAY else Constants.EVOLUTION_DIR
 	Evolution.frozen = mode == MODE_PLAY
 
 

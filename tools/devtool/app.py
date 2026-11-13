@@ -227,6 +227,23 @@ def tools_status(evolution_dir):
     return "\n".join(lines)
 
 
+def constant_number(name, fallback):
+    """A number constant's value from Constants.gd, or `fallback`."""
+    try:
+        with open(os.path.join(tasks.ROOT, constants.PATH)) as handle:
+            entry = next((e for e in constants.parse(handle.read()) if e.name == name), None)
+        return float(entry.value) if entry else fallback
+    except (OSError, ValueError):
+        return fallback
+
+
+def standing_words(value):
+    """What a standing means in play (Standing: at Constants STANDING_HOSTILE or below, hostile)."""
+    if value <= constant_number("STANDING_HOSTILE", -0.6):
+        return "hostile: its ships attack, its stations refuse docking"
+    return "trusted" if value >= 0.5 else ("liked" if value > 0.1 else ("disliked" if value < -0.1 else "neutral"))
+
+
 def traffic_count(faction):
     """How many of a faction's ships travel (FactionTemplate.traffic)."""
     traffic = faction.get("traffic") or {}
@@ -1005,7 +1022,7 @@ class PartsPane(Vertical):
     BINDINGS = [
         Binding("w", "app.parts('weapons')", "Weapons"), Binding("m", "app.parts('modules')", "Modules"),
         Binding("c", "app.parts('commodities')", "Commodities"), Binding("k", "app.parts('starts')", "Starting kit"),
-        Binding("t", "app.parts('trade')", "Trade routes"),
+        Binding("t", "app.parts('trade')", "Trade routes"), Binding("p", "app.play_start", "Play this start"),
         Binding("ctrl+r", "app.refresh_parts", "Refresh"),
     ]
     DEFAULT_CSS = """
@@ -1912,6 +1929,11 @@ class DevApp(App):
                                                    for key, row in sorted(stock.items())], integer=True, default=1, about=part, total=kit),
                 "player_ship_template": Special(choices=ships),
                 "player_starting_location": Special(choices=havens),
+                "starting_standing": Special(pairs=[(f["id"], f.get("display_name") or f["id"]) for f in self.faction_view.get("factions", [])
+                                                    if not f.get("no_standing")],
+                                             default=0.0, about=lambda key, value: standing_words(value),
+                                             total=lambda pairs: "The others start at their faction's own standing." if pairs else
+                                             "Every faction at its own starting standing."),
             }
         if name == "faction_template.gd":
             families = sorted({archetype.rsplit("_", 1)[0] for archetype in self.faction_view.get("archetypes", [])})
@@ -2001,6 +2023,14 @@ class DevApp(App):
             self.load_sector(row["sector"], row["layout"], row["node"])
             return
         self.open_in_data(row["path"])
+
+    def action_play_start(self):
+        table = self.query_one("#parts", DataTable)
+        if self.parts_kind != "starts" or not self.parts_rows or table.cursor_row is None:
+            self.notify("Pick a game start first (k)", severity="warning")
+            return
+        task = tasks.TASKS_BY_KEY["test_start"]
+        self.run_task(task, dict(task.defaults(tasks.load_last()), start=self.parts_rows[table.cursor_row]["id"]), wait=False)
 
     def action_parts(self, kind):
         self.parts_kind = kind

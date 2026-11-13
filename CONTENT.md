@@ -158,7 +158,7 @@ To tune a part, edit its `law_genes`, then run `tools/dev.py apply_laws` to rebu
 
 - `assets/ships`: stock hulls.
 - `assets/commodities`: commodities. What each haven sells and buys is set on its marker (World: `sells`, `buys`); the Parts tab's **trade routes** (`t`) list every route that makes, priced as the game prices it, with its margin, how far it runs and which factions may fly it.
-- `game_starts`: the player's start: its ship, the haven it starts docked at (also its home port), its bank, and the kit waiting in home storage (`starting_storage`). The tool lists the kit as rows of part and count, with its worth and mass; ship and haven are picked from lists.
+- `game_starts`: the player's start: its ship, the haven it starts docked at (also its home port), its bank, and the kit waiting in home storage (`starting_storage`). The tool lists the kit as rows of part and count, with its worth and mass; ship and haven are picked from lists. `starting_standing` sets the player's standing with chosen factions (the rest start at their own). Add more starts to test with (Data, `ctrl+n`): `p` on one in the Parts tab's starting kits (or `tools/dev.py test_start`) plays it, saving apart from the real saves; `tools/dev.py save_report` tells what a save holds.
 - `locations`: the sector graph. Jumps between sectors are off for 0.x (`Constants.jumps_enabled`): the game is Elace only until the other sectors are laid out.
 
 These are indexed by `template_id`. A field the script does not declare is reported on load.

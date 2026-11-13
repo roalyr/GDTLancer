@@ -541,7 +541,8 @@ static func stations_placed_in(scene_text: String) -> Array:
 
 # --- Game starts ---
 
-# Each start: its ship is a ship template, it starts docked at a haven, its kit holds parts.
+# Each start: its ship is a ship template, it starts docked at a haven, its kit holds parts, its
+# standings name factions that have standing, from -1 to 1.
 static func starts(dir_path: String = STARTS_DIR) -> Array:
 	var out: Array = []
 	var havens := {}  # Haven id -> its sector
@@ -573,6 +574,15 @@ static func starts(dir_path: String = STARTS_DIR) -> Array:
 			var count = start.starting_storage[part]
 			if typeof(count) != TYPE_INT or count < 1:
 				out.append(_problem(path, "Its kit's count of '%s' should be a whole number from 1" % part))
+		var factions: Dictionary = faction_files()
+		for faction in start.starting_standing:
+			if not factions.has(faction):
+				out.append(_problem(path, "Its standing with '%s', which is not a faction" % faction))
+			elif _fresh(factions[faction]).no_standing:
+				out.append(_problem(path, "Its standing with '%s', which has none (no_standing)" % faction))
+			var standing = start.starting_standing[faction]
+			if not typeof(standing) in [TYPE_INT, TYPE_REAL] or abs(float(standing)) > 1.0:
+				out.append(_problem(path, "Its standing with '%s' should be a number from -1 to 1" % faction))
 	return out
 
 

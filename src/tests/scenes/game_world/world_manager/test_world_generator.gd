@@ -3,6 +3,7 @@
 extends GutTest
 
 const WorldGenerator = preload("res://src/scenes/game_world/world_manager/world_generator.gd")
+const Standing = preload("res://src/core/systems/standing.gd")
 
 const TEST_START_ID = "start_test_world_generator"
 
@@ -46,6 +47,17 @@ func test_the_default_start_comes_with_a_starter_pack_of_real_parts():
 	generator_instance.generate_new_world(TEST_START_ID)
 	assert_eq(GameState.player_storage["preset_cannon_medium"], 1, "Each run gets its own copy")
 	assert_eq(game_start.starting_storage["preset_cannon_medium"], 1)
+
+
+func test_a_start_sets_its_standings_and_leaves_the_rest_to_the_factions():
+	var game_start = GameStartTemplate.new()
+	game_start.template_id = TEST_START_ID
+	game_start.starting_standing = {"verdant": -0.8}
+	TemplateDatabase.game_starts[TEST_START_ID] = game_start
+	generator_instance.generate_new_world(TEST_START_ID)
+	game_start.starting_standing["verdant"] = 0.0
+	assert_eq(Standing.of("verdant"), -0.8, "Its own copy")
+	assert_eq(Standing.of("violet"), float(TemplateDatabase.factions.violet.standing), "the faction's own")
 
 
 func test_missing_game_start_falls_back_to_default_ship():
