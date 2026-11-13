@@ -7,7 +7,7 @@ script = ExtResource( 1 )
 template_id = "preset_damper_medium"
 module_name = "Damper Mk I-medium"
 description = "300 kg."
-base_value = 75
+base_value = 600
 mass = 300.0
 stat_modifiers = {
 "damper_mass": 300.0

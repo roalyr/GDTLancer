@@ -7,7 +7,7 @@
 script = ExtResource( 1 )
 template_id = "preset_ship_archetype_raider_medium"
 ship_model_name = "Raider Mk I-medium"
-base_value = 982
+base_value = 7855
 ship_scene = ExtResource( 2 )
 hull_integrity = 71
 cargo_capacity = 42

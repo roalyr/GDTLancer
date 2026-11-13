@@ -7,7 +7,7 @@ script = ExtResource( 1 )
 template_id = "preset_plating_heavy"
 module_name = "Plating Mk I-heavy"
 description = "2000 kg."
-base_value = 500
+base_value = 4000
 mass = 2000.0
 stat_modifiers = {
 "hull": 80

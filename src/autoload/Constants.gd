@@ -690,7 +690,10 @@ const LAW_MODULE_SLOTS = 2.0  # Module bays at s = 1, times s^(1/2) (rounded)
 # or heavy (PartCatalog; a tool's mount size follows its mass, LAW_MOUNT_*_MASS, and the catalogue's
 # masses are set so the two agree: test_part_catalog).
 const LAW_SLOT_SIZES = {"light": "small", "medium": "medium", "heavy": "large", "superheavy": "large"}
-const LAW_SHIP_VALUE_PER_KG = 1.0 / 6.0  # WP
+# Values: hulls and parts are priced (LAW_*_VALUE*) so that trading in Elace earns about a hull's
+# value an hour, as patrol wages do (PATROL_WAGE_SHARE_PER_HOUR); commodities keep their own values.
+# 8x the first laws' (2026-11-13: a hull paid for itself in minutes of trading).
+const LAW_SHIP_VALUE_PER_KG = 8.0 / 6.0  # WP
 const LAW_SCRAP_PER_KG = 1.0 / 300.0  # Salvage units of scrap in a wreck, per kg of ship
 const LAW_TECH_PER_KG = 1.0 / 200.0  # and of tech, per kg of engines and reactor
 
@@ -707,8 +710,8 @@ const LAW_LASER_CYCLE = [1.0, 0.5]  # [s at m0 and E0, exponent k of m the cooli
 const LAW_LASER_CYCLE_RANGE = [0.25, 8.0]  # s
 const LAW_MOUNT_MEDIUM_MASS = 400.0  # kg from which a tool (a laser; a cannon with its magazine, a rack with its rounds) needs a medium hardpoint
 const LAW_MOUNT_LARGE_MASS = 1000.0  # and a large one
-const LAW_LASER_VALUE = [0.2, 8.0]  # WP per kg, per unit of shot energy
-const LAW_PART_VALUE_PER_KG = 0.25  # WP for modules
+const LAW_LASER_VALUE = [1.6, 64.0]  # WP per kg, per unit of shot energy
+const LAW_PART_VALUE_PER_KG = 2.0  # WP for modules
 
 # Gene bounds (the laws hold anywhere; these keep the search in sensible ranges).
 const LAW_LASER_MASS_RANGE = [50.0, 4000.0]
@@ -734,7 +737,7 @@ const EWAR_SIGHT_PER_METRE = 80.0
 # off after the flare, which drifts off at DECOY_EJECT_SPEED and burns DECOY_LIFETIME s. Refilled at a
 # base for LAW_DECOY_VALUE WP each.
 const LAW_DECOY_CHARGE_MASS = 50.0
-const LAW_DECOY_VALUE = 15
+const LAW_DECOY_VALUE = 120
 const DECOY_TRIGGER_TIME = 2.5
 const DECOY_SEDUCE_CHANCE = 0.85  # 0.7 lagged (-0.39 fitness over era 45, against dominant missiles)
 const DECOY_EJECT_SPEED = 80.0
@@ -794,7 +797,7 @@ const LAW_MISSILE_RANGE_SHARE = 0.5  # Launch range: this share of top speed tim
 const LAW_MISSILE_HP = [100.0, 18.0, 0.8]  # -> laser damage that shoots it down (three reference laser shots square-on)
 const LAW_MISSILE_RACK_ROUNDS = 1.0
 const LAW_MISSILE_POWER = 2.0  # Per launch
-const LAW_MISSILE_VALUE_PER_KG = 0.25  # WP per kg of missile (restock and salvage): as any part
+const LAW_MISSILE_VALUE_PER_KG = 2.0  # WP per kg of missile (restock and salvage): as any part
 const LAW_MISSILE_MASS_RANGE = [10.0, 1000.0]
 const LAW_MISSILE_COUNT_RANGE = [1.0, 16.0]
 # Cannons (genes: mass kg of the gun, round_mass kg, count rounds). Muzzle speed grows with the gun
@@ -808,7 +811,7 @@ const LAW_CANNON_CYCLE = [5.0, 1.2, 0.5]  # Round mass -> s between shots
 const LAW_CANNON_POWER = [5.0, 1.0, 1.0]  # Round mass -> power per shot: a fifth of a laser's
 const LAW_CANNON_FLIGHT = 4.0  # s a round flies
 const LAW_CANNON_AIM_TIME = 2.0  # Optimal range: this many seconds of round flight (outside a reference laser's reach)
-const LAW_CANNON_VALUE = [0.2, 0.2]  # WP per kg of gun, per kg of rounds
+const LAW_CANNON_VALUE = [1.6, 1.6]  # WP per kg of gun, per kg of rounds
 const LAW_CANNON_MASS_RANGE = [50.0, 4000.0]
 const LAW_CANNON_ROUND_RANGE = [0.5, 100.0]
 const LAW_CANNON_COUNT_RANGE = [5.0, 300.0]

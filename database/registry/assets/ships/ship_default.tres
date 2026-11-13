@@ -7,7 +7,7 @@
 script = ExtResource( 1 )
 template_id = "ship_default"
 ship_model_name = "Stock Hull"
-base_value = 1000
+base_value = 8000
 ship_scene = ExtResource( 2 )
 hull_integrity = 120
 cargo_capacity = 20

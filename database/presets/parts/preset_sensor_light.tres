@@ -7,7 +7,7 @@ script = ExtResource( 1 )
 template_id = "preset_sensor_light"
 module_name = "Sensor Mk I-light"
 description = "120 kg."
-base_value = 30
+base_value = 240
 mass = 120.0
 stat_modifiers = {
 "sensor_strength": 0.34641

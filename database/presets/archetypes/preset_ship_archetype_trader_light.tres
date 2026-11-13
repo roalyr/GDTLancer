@@ -7,7 +7,7 @@
 script = ExtResource( 1 )
 template_id = "preset_ship_archetype_trader_light"
 ship_model_name = "Trader Mk I-light"
-base_value = 200
+base_value = 1600
 ship_scene = ExtResource( 2 )
 hull_integrity = 40
 cargo_capacity = 3

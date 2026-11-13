@@ -22,7 +22,7 @@ func test_reference_genes_give_the_reference_ship():
 	assert_eq(stats.tool_slots_medium, 2, "The reference ship is a medium hull: medium hardpoints")
 	assert_eq(stats.module_slots, 2)
 	assert_eq(stats.module_slot_size, "medium", "and medium bays")
-	assert_eq(stats.base_value, 1000)
+	assert_eq(stats.base_value, 8000)
 
 
 func test_reference_laser_is_the_ablative_laser():
@@ -34,7 +34,7 @@ func test_reference_laser_is_the_ablative_laser():
 	assert_almost_eq(stats.cycle_time, 1.0, 0.0001)
 	assert_eq(stats.power_per_cycle, 5.0 * Constants.LAW_LASER_POWER_PER_ENERGY)
 	assert_eq(stats.mount_size, "small")
-	assert_eq(stats.base_value, 100)
+	assert_eq(stats.base_value, 800)
 
 
 func test_bigger_ships_are_longer_tougher_and_turn_slower():

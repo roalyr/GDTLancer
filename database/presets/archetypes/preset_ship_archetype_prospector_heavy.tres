@@ -7,7 +7,7 @@
 script = ExtResource( 1 )
 template_id = "preset_ship_archetype_prospector_heavy"
 ship_model_name = "Prospector Mk I-heavy"
-base_value = 2868
+base_value = 22945
 ship_scene = ExtResource( 2 )
 hull_integrity = 289
 cargo_capacity = 42

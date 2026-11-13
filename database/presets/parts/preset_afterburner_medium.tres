@@ -7,7 +7,7 @@ script = ExtResource( 1 )
 template_id = "preset_afterburner_medium"
 module_name = "Afterburner Mk I-medium"
 description = "345 kg."
-base_value = 86
+base_value = 691
 mass = 345.283
 stat_modifiers = {
 "afterburner_thrust": 439975.0

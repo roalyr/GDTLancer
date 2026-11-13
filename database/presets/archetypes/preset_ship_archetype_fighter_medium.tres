@@ -7,7 +7,7 @@
 script = ExtResource( 1 )
 template_id = "preset_ship_archetype_fighter_medium"
 ship_model_name = "Fighter Mk I-medium"
-base_value = 999
+base_value = 7990
 ship_scene = ExtResource( 2 )
 hull_integrity = 66
 cargo_capacity = 37

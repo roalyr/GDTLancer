@@ -7,7 +7,7 @@ script = ExtResource( 1 )
 template_id = "preset_power_cell_light"
 module_name = "Power Cell Mk I-light"
 description = "124 kg."
-base_value = 31
+base_value = 249
 mass = 124.313
 stat_modifiers = {
 "power_regen": 2.4251

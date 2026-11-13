@@ -7,7 +7,7 @@ script = ExtResource( 1 )
 template_id = "preset_decoy_heavy"
 module_name = "Decoy Launcher Mk I-heavy"
 description = "400 kg."
-base_value = 100
+base_value = 800
 mass = 400.0
 stat_modifiers = {
 "decoy_charges": 8

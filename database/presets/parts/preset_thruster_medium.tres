@@ -7,7 +7,7 @@ script = ExtResource( 1 )
 template_id = "preset_thruster_medium"
 module_name = "Thruster Mk I-medium"
 description = "400 kg."
-base_value = 100
+base_value = 800
 mass = 400.0
 stat_modifiers = {
 "linear_thrust": 167418.0

@@ -7,7 +7,7 @@ script = ExtResource( 1 )
 template_id = "preset_rack_heavy"
 module_name = "Missile Bay Mk I-heavy"
 description = "600 kg."
-base_value = 150
+base_value = 1200
 mass = 600.0
 stat_modifiers = {
 "missile_load": 510.0

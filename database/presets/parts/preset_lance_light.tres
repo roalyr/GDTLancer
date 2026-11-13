@@ -7,7 +7,7 @@ script = ExtResource( 1 )
 template_id = "preset_lance_light"
 module_name = "Lance Mk I-light"
 description = "547 kg: 3 lances of 109 kg, 56 damage at 300 m/s (none under 60 m/s); an armoured prow, +28 hull."
-base_value = 137
+base_value = 1094
 mass = 546.78
 stat_modifiers = {
 "hull": 28
@@ -18,7 +18,7 @@ lance = {
 "length": 9.81263,
 "mass": 546.78,
 "nail_mass": 109.356,
-"nail_value": 27,
+"nail_value": 219,
 "reload": 2.95778
 }
 module_kind = "lance"
