@@ -4,7 +4,7 @@
 # family's placeholder hull (Genome.placeholder_model), named "<Family> Mk I-<weight>", its origin the
 # design it came from. Archetypes the folder has nothing for stay; no new ones are made (--add makes
 # them too: a superheavy, a trader). Then run tools/classify_presets.gd for the catalog.
-#     godot --no-window -s tools/pick_archetypes.gd -- --from=res://database/presets/drafts_era65_min10/ --era=65
+#     godot --no-window -s tools/pick_archetypes.gd -- --from=res://database/presets/drafts_era67_min10/ --era=67
 extends SceneTree
 
 var from_dir := ""
