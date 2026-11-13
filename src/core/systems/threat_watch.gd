@@ -16,7 +16,7 @@ const ThreatRing = preload("res://src/core/ui/main_hud/threat_ring.gd")
 var level: String = "calm"
 var _seen: Dictionary = {}  # Ship instance id -> true while on the sensors
 var _aware: Dictionary = {}  # Ship instance id -> true while it sees the player
-var _noticed: Dictionary = {}  # "seen:id" / "aware:id" -> OS ticks (ms) it was last announced
+var _noticed: Dictionary = {}  # "seen:id" / "aware:id" -> OS ticks (s) it was last announced; older than the cooldown are dropped
 var _left: float = 0.0
 var _combat_until: float = -INF  # OS ticks (s)
 
@@ -51,10 +51,19 @@ func check(player, bodies: Array) -> void:
 					EventBus.emit_signal("hostile_aware", ship)
 	_seen = seen
 	_aware = aware
+	forget_old(now)
 	var next: String = "combat" if now < _combat_until else ("danger" if not seen.empty() else "calm")
 	if next != level:
 		level = next
 		EventBus.emit_signal("threat_level_changed", level)
+
+
+# Drops the notices past their cooldown (they would not hold an announcement back), so ships that
+# came and went over a long game leave nothing behind.
+func forget_old(now: float) -> void:
+	for key in _noticed.keys():
+		if now - float(_noticed[key]) >= Constants.THREAT_NOTICE_COOLDOWN:
+			_noticed.erase(key)
 
 
 func _notice(key: String, now: float) -> bool:

@@ -20,8 +20,8 @@ version/name="1.0"
 
 
 class Commands:
-    def __init__(self, dirty="", tags="", failing=0, export=True):
-        self.dirty, self.tags, self.failing, self.export = dirty, tags, failing, export
+    def __init__(self, dirty="", tags="", failing=0, export=True, soak="SOAK done\n"):
+        self.dirty, self.tags, self.failing, self.export, self.soak = dirty, tags, failing, export, soak
         self.commands = []
 
     def output(self, command):
@@ -32,6 +32,8 @@ class Commands:
             return 0, self.tags
         if "addons/gut/gut_cmdln.gd" in command:
             return 0, "Passing tests     9\nFailing tests     %d\n" % self.failing
+        if "tools/soak.gd" in command:
+            return 0, self.soak
         if "--export-debug" in command and self.export:
             open(command[-1], "w").close()
         return 0, ""
@@ -83,3 +85,23 @@ class ReleaseTest(unittest.TestCase):
         text, code = release.bump(PRESETS, "1.2.3")
         self.assertEqual(code, 5)
         self.assertEqual(text.count("version/"), 2)
+
+    def test_a_soak_runs_before_the_export_and_stops_it_on_a_problem(self):
+        good = "".join('SOAK {"t": %d, "game": %d, "fps": 40, "nodes": 1, "orphans": 0, "objects": 1, "resources": 1, '
+                       '"mem": 90.0, "bodies": 1, "wrecks": 0, "lances": 0, "over": [], "tables": {}}\n' % (t, t * 60) for t in range(4))
+        commands = Commands(soak=good + "SOAK done\n")
+        self.assertEqual(self.release(commands, soak=3).go(), 0)
+        ran = [i for i, c in enumerate(commands.commands) if "tools/soak.gd" in c or "--export-debug" in c]
+        self.assertEqual(len(ran), 2)
+        self.assertIn("tools/soak.gd", commands.commands[ran[0]], "The soak comes first")
+        self.scratch.cleanup()
+        self.setUp()
+        commands = Commands(soak=good + "SCRIPT ERROR: boom\nSOAK done\n")
+        self.assertEqual(self.release(commands, soak=3).go(), 1)
+        self.assertEqual(self.presets(), PRESETS, "Nothing changed")
+        self.assertFalse(any("--export-debug" in c for c in commands.commands))
+        self.scratch.cleanup()
+        self.setUp()
+        commands = Commands()
+        self.assertEqual(self.release(commands).go(), 0)
+        self.assertFalse(any("tools/soak.gd" in c for c in commands.commands), "soak=0 (the default): none")

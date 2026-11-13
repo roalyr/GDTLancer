@@ -51,3 +51,11 @@ func test_seen_then_aware_then_calm_again():
 	watch._combat_until = -INF
 	watch.check(player, [])
 	assert_eq(watch.level, "calm")
+
+
+func test_old_notices_are_forgotten():
+	watch._noticed = {"seen:1": 100.0, "aware:1": 100.0, "seen:2": 100.0 + Constants.THREAT_NOTICE_COOLDOWN - 1.0}
+	watch.forget_old(100.0 + Constants.THREAT_NOTICE_COOLDOWN)
+	assert_eq(watch._noticed.keys(), ["seen:2"], "Past the cooldown: dropped; within it: kept (it still holds a notice back)")
+	assert_false(watch._notice("seen:2", 100.0 + Constants.THREAT_NOTICE_COOLDOWN), "Still held back")
+	assert_true(watch._notice("seen:1", 100.0 + Constants.THREAT_NOTICE_COOLDOWN), "Forgotten: announced again")

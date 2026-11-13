@@ -186,4 +186,6 @@ To add a rule, add it to the validator. The tool and the tests both pick it up.
 
 ## Releasing
 
-`tools/dev.py release` (Tools, Game) makes a version: with everything committed, it runs the tests, sets the Android build's version (`export_presets.cfg`: version name, and the version code one up), exports `GDTLancer-<version>.apk` beside the usual APK, then commits that and tags it `v<version>`. It pushes nothing: push the commit and the tag once the build plays well.
+`tools/dev.py soak` (Tools, Checks) leaves the real game running for a few minutes (a new game in Elace, docked at home, at normal speed) and fails if it shows script errors, orphaned nodes or memory still growing after the first two minutes, wrecks or loose lances past their caps, or bookkeeping (sound, threat notices, travellers, markups) that keeps growing. It prints the frame rates and the deaths too, but does not judge them. It needs a display; it sets `DISPLAY=:0` itself and turns vsync off, since a hidden window's vsync would hold the game to one frame a second.
+
+`tools/dev.py release` (Tools, Game) makes a version: with everything committed, it runs the tests and a 3-minute soak (`soak=0` skips it), sets the Android build's version (`export_presets.cfg`: version name, and the version code one up), exports `GDTLancer-<version>.apk` beside the usual APK, then commits that and tags it `v<version>`. It pushes nothing: push the commit and the tag once the build plays well.

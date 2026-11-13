@@ -1,10 +1,11 @@
 """
 A release: a versioned build of the game, committed and tagged.
 
-    python3 tools/devtool/release.py version=0.1.0 [tests=yes] [out=<folder>] [tag=yes]
+    python3 tools/devtool/release.py version=0.1.0 [tests=yes] [soak=3] [out=<folder>] [tag=yes]
 
 1. stops unless the working tree is clean and the version is new (no tag v<version> yet);
-2. runs every GUT test (tests=yes) and stops on a failure;
+2. runs every GUT test (tests=yes) and stops on a failure; then the soak check (soak.py: the real
+   game left running `soak` minutes; 0 skips it) and stops on any problem it finds;
 3. sets the Android preset's version/name to the version and counts version/code up by one
    (export_presets.cfg: only those two lines change, never its name or export path);
 4. exports the debug APK (the release export has no keystore) to <out>/GDTLancer-<version>.apk;
@@ -20,8 +21,10 @@ import sys
 if __package__ in (None, ""):
     sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     from devtool.tasks import APK, ROOT, godot, godot_script  # noqa: E402
+    from devtool import soak as soak_check  # noqa: E402
 else:
     from .tasks import APK, ROOT, godot, godot_script
+    from . import soak as soak_check
 
 PRESETS = "export_presets.cfg"
 VERSION = re.compile(r"^\d+(\.\d+){1,3}$")
@@ -40,13 +43,14 @@ def bump(text, version):
 
 
 def _output(command):
-    done = subprocess.run(command, cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+    done = subprocess.run(command, cwd=ROOT, env=soak_check.environment(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                          text=True, errors="replace")
     return done.returncode, done.stdout
 
 
 class Release:
-    def __init__(self, version, root=ROOT, tests=True, out=None, tag=True, output=_output, say=print):
-        self.version, self.root, self.tests, self.tag = version, root, tests, tag
+    def __init__(self, version, root=ROOT, tests=True, out=None, tag=True, output=_output, say=print, soak=0):
+        self.version, self.root, self.tests, self.tag, self.soak = version, root, tests, tag, float(soak or 0)
         self.out = out or os.path.dirname(APK)
         self.output, self.say = output, say
 
@@ -69,6 +73,14 @@ class Release:
             failing = re.search(r"Failing tests\s+(\d+)", text)
             if failing is None or int(failing.group(1)) > 0:
                 return self._stop("The tests did not pass:\n" + "\n".join(line for line in text.splitlines() if "Failed" in line or "Failing" in line))
+        if self.soak > 0:
+            self.say("Running the game for %g minutes (soak)..." % self.soak)
+            code, text = self.output(soak_check.command(self.soak))
+            problems = soak_check.judge(text)
+            if problems:
+                return self._stop("The soak found problems:\n" + "\n".join("  - " + problem for problem in problems))
+            for line in soak_check.summary(text):
+                self.say("  " + line)
         path = os.path.join(self.root, PRESETS)
         with open(path) as handle:
             before = handle.read()
@@ -102,7 +114,8 @@ class Release:
 def main(argv):
     values = dict(arg.split("=", 1) for arg in argv if "=" in arg)
     yes = lambda key: str(values.get(key, "yes")).lower() in ("yes", "y", "true", "1")
-    return Release(values.get("version", ""), tests=yes("tests"), out=values.get("out") or None, tag=yes("tag")).go()
+    return Release(values.get("version", ""), tests=yes("tests"), out=values.get("out") or None, tag=yes("tag"),
+                   soak=values.get("soak", "0")).go()
 
 
 if __name__ == "__main__":

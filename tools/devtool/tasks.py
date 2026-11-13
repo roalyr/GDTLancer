@@ -263,6 +263,10 @@ TASKS = [
     Task("tests", "Checks", "Run the tests", "Every GUT test (content rules and models included).",
          lambda v: godot_script("addons/gut/gut_cmdln.gd", "-gexit", *(["-gdir=" + res(v["dir"])] if v["dir"] else [])),
          [Ask("dir", "Only this test folder (empty: all)", default="", optional=True)]),
+    Task("soak", "Checks", "Soak the game", "The real game left running (a new game in Elace, docked at home, 1x): fails on errors,"
+         " orphaned nodes or memory growing, wrecks over their caps, bookkeeping growing. Frame rates printed. Needs a display.",
+         lambda v: ["python3", "tools/devtool/soak.py", "minutes=" + v["minutes"]],
+         [Ask("minutes", "Minutes (real time)", default="5")]),
     Task("check_model", "Checks", "Check a model scene", "A ship or station scene against the model rules (CONTENT.md, Models).",
          _check_model, [Ask("scene", "Scene", "file", globs=MODEL_SCENES)]),
     Task("validate", "Checks", "Check the content rules", "Every content rule (ContentValidator) at once, problems listed.",
@@ -372,11 +376,12 @@ TASKS = [
     Task("save_report", "Game", "Save report", "What a save holds, in words: ship, fit, hold, bank, storage, standings, travellers.",
          _save_report, [Ask("save", "Save", "choice", "newest", saves)]),
     Task("editor", "Game", "Open the Godot editor", "", lambda v: godot("-e")),
-    Task("release", "Game", "Release a version", "Tests, versions the Android build, exports GDTLancer-<version>.apk, commits and tags"
+    Task("release", "Game", "Release a version", "Tests, a soak, versions the Android build, exports GDTLancer-<version>.apk, commits and tags"
          " (nothing is pushed). Needs a clean working tree.",
-         lambda v: ["python3", "tools/devtool/release.py", "version=" + v["version"], "tests=" + v["tests"], "tag=" + v["tag"],
-                    "out=" + os.path.dirname(APK)],
+         lambda v: ["python3", "tools/devtool/release.py", "version=" + v["version"], "tests=" + v["tests"], "soak=" + v["soak"],
+                    "tag=" + v["tag"], "out=" + os.path.dirname(APK)],
          [Ask("version", "Version", default=next_version, fresh=True), Ask("tests", "Run the tests first", "flag", "yes"),
+          Ask("soak", "Soak minutes first (the game left running; 0: none)", default="3"),
           Ask("tag", "Tag it v<version>", "flag", "yes")]),
     Task("apk", "Game", "Export the debug APK", "Android debug build to $GDTLANCER_APK (" + APK + ").",
          lambda v: godot("--no-window", "--export-debug", "Android", APK)),
