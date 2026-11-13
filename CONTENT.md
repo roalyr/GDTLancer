@@ -26,6 +26,7 @@ Each file is a `FactionTemplate` that sets:
 - whether it calls for help (`distress`), hires escorts (`escorts`) and pays patrol wages (`patrol_wages`), and whether its havens welcome other factions as a neutral one does (`open_havens`: the Free Port's, the player's allies); an open faction's own ships may also dock at any haven not at war with it, so the free port's traders buy at both sides' havens;
 - its paints (`hull_material`, `station_material`);
 - its **roster**: the archetypes its havens fly.
+- its **traffic**: how many of its ships of each family (`""`: any) travel the sectors and work Elace's hotspot apart from its havens' ships. A family it has no archetype of flies any of its roster.
 
 Pirates set `outlaw`: they dock only at their own havens, no other faction docks at theirs, and their armed ships hunt instead of patrolling. Aliens set `no_standing` (they keep to themselves the same way), `territory` and `salvage_as`, and may fly a hull of their own (`ship_scene`) instead of their archetypes' hulls. To add a faction, add a file (Data, Factions, `ctrl+n`), then give it havens (World). Wars and rosters are quickest on the Factions tab; making peace there takes the other side out of both lists.
 

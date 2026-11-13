@@ -638,6 +638,21 @@ class AppTest(unittest.IsolatedAsyncioTestCase):
             with self.assertRaises(ValueError):
                 form.changes()
 
+    async def test_traffic_is_edited_by_family(self):
+        app = devapp.DevApp(bridge_factory=lambda: FakeBridge())
+        async with app.run_test(size=(180, 50)) as pilot:
+            await self._started(pilot, app)
+            fields = [{"name": "traffic", "type": "Dictionary", "hint_name": "", "hint_string": "", "comment": ""}]
+            form = await self._form_with(pilot, app, fields, {"traffic": {"": 4}}, devapp.data.DEFINITIONS + "faction_template.gd")
+            traffic = form.fields[0].editor
+            self.assertIsInstance(traffic, devapp.PairsEditor)
+            self.assertIn("4 travellers", str(traffic.query_one(".pairs-total").content))
+            traffic.add_row()
+            await pilot.pause()
+            self.assertEqual(form.changes(), {"traffic": {"": {"$": "int", "v": 4}, "fighter": {"$": "int", "v": 1}}},
+                             "Families from the archetypes; \"\" is any")
+            self.assertEqual(devapp.traffic_count({"traffic": {"": 4, "fighter": 1}}), 5)
+
     async def test_a_field_the_game_does_not_read_says_so(self):
         app = devapp.DevApp(bridge_factory=lambda: FakeBridge())
         async with app.run_test(size=(180, 50)) as pilot:

@@ -20,4 +20,7 @@ patrol_wages = false
 hull_material = "res://assets/art/materials_generic/mat_hull_faction_raiders.tres"
 station_material = "res://assets/art/materials_generic/mat_hull_faction_raiders.tres"
 ship_scene = ""
+traffic = {
+"": 4
+}
 roster = [ "raider_light", "raider_medium", "raider_heavy", "fighter_light", "raider_superheavy" ]

@@ -123,7 +123,19 @@ static func factions(dir_path: String = Constants.FACTIONS_DIR) -> Array:
 		for name in faction.roster:
 			if not _exists(_archetype_agent_path(name)):
 				out.append(_problem(path, "Roster archetype '%s' does not exist" % name))
+		for family in faction.traffic:
+			if int(faction.traffic[family]) < 0:
+				out.append(_problem(path, "Traffic '%s': a count below 0" % family))
+			elif family != "" and not _roster_has_family(faction.roster, str(family)):
+				out.append(_problem(path, "Traffic family '%s' is not in its roster (its travellers would fly any)" % family))
 	return out
+
+
+static func _roster_has_family(roster: Array, family: String) -> bool:
+	for name in roster:
+		if str(name).begins_with(family + "_"):
+			return true
+	return false
 
 
 # --- Locations: the sector graph ---

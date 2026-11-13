@@ -27,6 +27,7 @@ export var open_havens: bool = false  # Its havens welcome every faction but out
 export(String, FILE, "*.tres") var hull_material: String = ""  # Paint on its ships' painted surfaces (ModelLooks)
 export(String, FILE, "*.tres") var station_material: String = ""  # Paint on its stations' painted surfaces
 export(String, FILE, "*.tscn") var ship_scene: String = ""  # A hull of its own its ships fly instead of their archetype's (aliens); "" none
+export var traffic: Dictionary = {}  # Family ("" any) -> how many of its ships travel the sectors and work Elace's hotspot (Traffic)
 export var roster: Array = []  # What its havens fly in a frozen world: archetype names (database/presets/archetypes/agent_archetype_<name>.tres)
 
 
@@ -37,7 +38,7 @@ func to_spec() -> Dictionary:
 		"name": display_name, "color": color, "enemies": enemies.duplicate(), "standing": starting_standing,
 		"no_standing": no_standing, "outlaw": outlaw, "distress": distress, "silent": silent, "escorts": escorts,
 		"patrol_wages": patrol_wages, "open_havens": open_havens, "hull_material": hull_material,
-		"station_material": station_material, "ship_scene": ship_scene, "roster": roster.duplicate(),
+		"station_material": station_material, "ship_scene": ship_scene, "roster": roster.duplicate(), "traffic": traffic.duplicate(),
 	}
 	if territory > 0.0:
 		spec["territory"] = territory

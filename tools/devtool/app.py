@@ -227,6 +227,12 @@ def tools_status(evolution_dir):
     return "\n".join(lines)
 
 
+def traffic_count(faction):
+    """How many of a faction's ships travel (FactionTemplate.traffic)."""
+    traffic = faction.get("traffic") or {}
+    return sum(int(n) for n in traffic.values()) if isinstance(traffic, dict) else 0
+
+
 # --- Form fields ----------------------------------------------------------------------------------
 
 class Special:
@@ -942,7 +948,7 @@ class FactionsPane(Horizontal):
     def compose(self) -> ComposeResult:
         with Vertical(id="faction-left"):
             table = DataTable(id="factions", cursor_type="row", zebra_stripes=True, cursor_foreground_priority="renderable")
-            table.add_columns("", "Faction", "Name", "Paint", "Standing", "Flags", "Roster", "Havens", "Ships")
+            table.add_columns("", "Faction", "Name", "Paint", "Standing", "Flags", "Roster", "Havens", "Ships", "Traffic")
             yield table
             yield Static("Wars (row against column). Either side's list makes a war; \"(theirs)\": only the column's list has it."
                          " Pick a cell, w makes war or peace.", classes="caption")
@@ -1673,7 +1679,7 @@ class DevApp(App):
             ships = sum(sum(int(n) for n in haven["ships"].values()) for haven in faction["havens"] if isinstance(haven["ships"], dict))
             table.add_row(swatch(faction.get("color")), faction["id"], faction.get("display_name", ""), swatch(faction.get("paint")),
                           "%+.2f" % faction.get("starting_standing", 0.0), flags or "-", str(len(faction.get("roster", []))),
-                          str(len(faction["havens"])), str(ships), key=faction["id"])
+                          str(len(faction["havens"])), str(ships), str(traffic_count(faction)), key=faction["id"])
         wars = self.query_one("#wars", DataTable)
         wars.clear(columns=True)
         wars.add_column("", key="row")
@@ -1719,6 +1725,9 @@ class DevApp(App):
             ships = ", ".join("%s %s" % (n, kind) for kind, n in haven["ships"].items()) if isinstance(haven["ships"], dict) else ""
             havens.add_row(haven["sector"], haven["id"], haven["name"], ships, key=str(index))
         notes = []
+        traffic = faction.get("traffic") or {}
+        notes.append("Traffic: %s" % (", ".join("%d %s" % (n, kind or "any family") for kind, n in sorted(traffic.items()) if n)
+                                      or "none") + " [dim](ships that travel and work the hotspot apart from the havens'; e: change it in Data)[/dim]")
         if faction.get("ship_scene"):
             notes.append("Flies its own hull: %s" % faction["ship_scene"].replace("res://", ""))
         if faction.get("territory"):
@@ -1852,6 +1861,11 @@ class DevApp(App):
                 "player_ship_template": Special(choices=ships),
                 "player_starting_location": Special(choices=havens),
             }
+        if name == "faction_template.gd":
+            families = sorted({archetype.rsplit("_", 1)[0] for archetype in self.faction_view.get("archetypes", [])})
+            return {"traffic": Special(pairs=[(family, family) for family in families], integer=True, default=1,
+                                       any_key=("", "any family"),
+                                       total=lambda pairs: "%d travellers; a family missing from its roster flies any." % sum(pairs.values()))}
         if name == "beacon_marker.gd":
             return {"owner_faction": Special(choices=[("", "(none)")] + factions)}
         return {}

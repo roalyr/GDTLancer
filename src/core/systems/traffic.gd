@@ -1,5 +1,5 @@
-# Traffic: persistent NPCs that travel the sector graph (Constants TRAFFIC_*), the population of the
-# world besides the evolving NPCs. Each traveller is a record in GameState.travelers:
+# Traffic: persistent NPCs that travel the sector graph (Constants TRAFFIC_*; who: each faction's
+# FactionTemplate.traffic), the population of the world besides the evolving NPCs. Each traveller is a record in GameState.travelers:
 #   {"id", "faction", "role", "genome", "sector", "status" ("dwell" or "transit"), "until" (world
 #    time), "from" (the sector it came from), "next" (the one it leaves for), "fuel" (units), "bank"
 #    (WP), "cargo" {commodity: units}, "hull" (share, 1 = whole)}
@@ -33,7 +33,7 @@ func _ready() -> void:
 
 # --- Roster ---
 
-# Fills the roster (Constants TRAFFIC_ROSTER) with new travellers in Elace: on a new game, and as
+# Fills the roster (roster()) with new travellers in Elace: on a new game, and as
 # replacements fall due (a lost traveller's place stays empty until then).
 func fill_roster() -> void:
 	var pending: Array = []
@@ -42,7 +42,7 @@ func fill_roster() -> void:
 			pending.append(at)
 	GameState.traffic_replacements = pending
 	var room: int = _roster_size() - GameState.travelers.size() - pending.size()
-	for entry in Constants.TRAFFIC_ROSTER:
+	for entry in roster():
 		var have := 0
 		for record in GameState.travelers:
 			if record.faction == entry.faction and record.role == entry.role:
@@ -53,9 +53,25 @@ func fill_roster() -> void:
 			room -= 1
 
 
+# Who travels: {faction, role (a family, "" any), count} from each faction's `traffic`, by faction
+# and family.
+static func roster() -> Array:
+	var out: Array = []
+	var factions: Array = TemplateDatabase.factions.keys()
+	factions.sort()
+	for faction in factions:
+		var traffic: Dictionary = TemplateDatabase.factions[faction].get("traffic", {})
+		var roles: Array = traffic.keys()
+		roles.sort()
+		for role in roles:
+			if int(traffic[role]) > 0:
+				out.append({"faction": faction, "role": str(role), "count": int(traffic[role])})
+	return out
+
+
 static func _roster_size() -> int:
 	var total := 0
-	for entry in Constants.TRAFFIC_ROSTER:
+	for entry in roster():
 		total += int(entry.count)
 	return total
 

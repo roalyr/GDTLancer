@@ -633,13 +633,7 @@ const THREAT_NOTICE_COOLDOWN = 30.0  # s before the same ship is announced again
 const THREAT_COMBAT_HOLD = 12.0  # s the "combat" level (and its music) lasts after the last hostile that saw the player, or the last hit
 
 # Traffic (Traffic): persistent NPCs travelling the sector graph, the population besides the evolving NPCs.
-const TRAFFIC_ROSTER = [  # Kind (faction, niche role; "" any) and how many
-	{"faction": "verdant", "role": "prospector", "count": 3},  # The rush: prospectors, the raiders after them, fighters guarding
-	{"faction": "violet", "role": "prospector", "count": 3},
-	{"faction": "verdant", "role": "fighter", "count": 2},
-	{"faction": "violet", "role": "fighter", "count": 2},
-	{"faction": "raiders", "role": "", "count": 4},
-]
+# Who travels: each faction's `traffic` (database/factions/).
 const TRAFFIC_DWELL_TIME = [240.0, 720.0]  # s of world time a traveller stays in a sector
 const TRAFFIC_TRANSIT_TIME = 60.0  # s between leaving a sector and arriving in the next
 const TRAFFIC_REPLACE_TIME = 600.0  # s before a lost traveller's place is filled again

@@ -156,3 +156,13 @@ func test_travellers_come_in_one_at_a_time_and_apart():
 	var a: Vector3 = counting._jump_shell_point(Vector3.ZERO, "sector_cob") + counting._scatter(Constants.TRAFFIC_ARRIVAL_SCATTER)
 	var b: Vector3 = counting._jump_shell_point(Vector3.ZERO, "sector_cob") + counting._scatter(Constants.TRAFFIC_ARRIVAL_SCATTER)
 	assert_ne(a, b, "Two from the same sector come in apart")
+
+
+func test_who_travels_comes_from_the_factions():
+	var by_kind := {}
+	for entry in Traffic.roster():
+		by_kind["%s %s" % [entry.faction, entry.role]] = entry.count
+	var expected := {"raiders ": 4, "verdant fighter": 2, "verdant prospector": 3, "violet fighter": 2, "violet prospector": 3}
+	assert_eq(by_kind.size(), expected.size(), "FactionTemplate.traffic: the rush's prospectors, the fighters guarding them, the raiders after them")
+	for kind in expected:
+		assert_eq(by_kind.get(kind), expected[kind], kind)
