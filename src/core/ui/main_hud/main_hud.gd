@@ -742,7 +742,8 @@ func _tool_button_nodes() -> Array:
 	return buttons
 
 
-# The LANCE button, after the tools (only with a lance fitted): lances left and ARM while safe;
+# The LANCE button, after the tools (only with a lance fitted): lances left and ARM while safe (SAFE
+# while the safety keeps it from arming at the selection: only an asteroid or a hostile);
 # ARMED (highlighted) and the speed a throw would strike the selected target at against the speed a
 # strike needs, or TOO SLOW (it runs faster than the ship can gain on it); LOADING while the next
 # lance slides in. Armed, APPROACH flies the charge at a ship or a rock, pass after pass; outside a
@@ -767,6 +768,8 @@ func _update_lance_button() -> void:
 		state = "EMPTY"
 	elif seated == null:
 		state = "LOADING"
+	elif not lance.armed and is_instance_valid(controller) and controller.has_method("lance_block_reason") and controller.lance_block_reason(selected) != "":
+		state = "SAFE"  # The safety keeps it from arming at the selection (only at an asteroid or a hostile)
 	elif lance.armed:
 		state = "ARMED"
 		var target = _current_target

@@ -141,6 +141,7 @@ func _physics_process(delta: float):
 		_set_selected_target(null)
 	_poll_docking_proximity()
 	_process_queued_jump()
+	_guard_lance()
 	_sync_charge_command()
 
 
@@ -288,7 +289,48 @@ func _on_lance_button_pressed() -> void:
 	if GameState.player_docked_at != "":
 		EventBus.emit_signal("attack_action_feedback", false, "Undock first")
 		return
+	if not lance.armed:
+		var why: String = lance_block_reason(_selected_target)
+		if why != "":
+			EventBus.emit_signal("attack_action_feedback", false, why)
+			return
 	agent_body.set_lances_armed(not lance.armed)  # All launchers together
+
+
+# Why the safety keeps the lance from being armed at `target` (the selected one), "" if it may be:
+# with the safety on, only at a rock or a hostile ship, never with an allied or neutral ship, a
+# station, a wreck or nothing selected (the lance strikes hard whatever its charge meets).
+func lance_block_reason(target) -> String:
+	if not GameState.weapons_safe:
+		return ""
+	if not (is_instance_valid(target) and target is Spatial):
+		return "Safety on: select an asteroid or a hostile to arm the lance"
+	if target.is_in_group("mineable"):
+		return ""
+	if target is RigidBody and target.has_method("is_enemy_of") and target.get("is_wreck") == false and is_instance_valid(agent_body) and target.is_enemy_of(agent_body):
+		return ""
+	return "Safety on: the lance arms only at an asteroid or a hostile (SAFETY to arm)"
+
+
+# Whether the player's armed lance may be thrown at `target` now (LanceController asks before each
+# throw): not while the safety keeps it from it.
+func lance_may_strike(target) -> bool:
+	return lance_block_reason(target) == ""
+
+
+# The safety on and the selected target (or the charge's) one the lance may not be armed at: made
+# safe at once, before a throw (a target switched to an ally or a neutral, a standing change).
+func _guard_lance() -> void:
+	var lance = agent_body.get_lance() if is_instance_valid(agent_body) and agent_body.has_method("get_lance") else null
+	if lance == null or not lance.armed:
+		return
+	var nav = agent_body.get_node_or_null("NavigationSystem")
+	var charged = nav._current_command.get("target_node", null) if is_instance_valid(nav) else null
+	for target in [_selected_target, charged]:
+		if is_instance_valid(target) and lance_block_reason(target) != "":
+			agent_body.set_lances_armed(false)
+			EventBus.emit_signal("attack_action_feedback", false, "Lance made safe: %s" % lance_block_reason(target).trim_prefix("Safety on: ").replace(" (SAFETY to arm)", ""))
+			return
 
 
 # The SAFETY button: the weapons safety on or off (GameState.weapons_safe).
@@ -501,6 +543,7 @@ func _set_selected_target(new_target):
 	_clear_queued_jump()
 	var previous = _selected_target
 	_selected_target = new_target
+	_guard_lance()  # Switched to a ship the safety keeps from the lance: disarmed before it can throw
 	if _is_selected_target_valid():
 		EventBus.emit_signal("player_target_selected", _selected_target)
 	else:
@@ -835,7 +878,7 @@ func is_charge_ready(target = null) -> bool:
 	var lance = agent_body.get_lance() if is_instance_valid(agent_body) and agent_body.has_method("get_lance") else null
 	if lance == null or not lance.armed or agent_body.get_lance_nails() <= 0:
 		return false
-	return target == null or (is_chargeable(target) and not is_safe_from(target))
+	return target == null or (is_chargeable(target) and lance_may_strike(target))
 
 
 static func is_chargeable(target) -> bool:

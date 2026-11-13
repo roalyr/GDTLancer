@@ -195,12 +195,22 @@ func _physics_process(delta: float) -> void:
 		var target = get_aim_target()
 		if target != null:
 			var solution: Dictionary = firing_solution(target)
-			if not solution.empty():
+			if not solution.empty() and _may_strike(target):
 				fire(target, solution)
 		_watch_left -= delta
 		if _watch_left <= 0.0:
 			_watch_left = Constants.CHARGE_WATCH_INTERVAL
 			_announce_charges()
+
+
+# The player's safety (PlayerControllerShip.lance_may_strike): a target it keeps from the lance makes
+# the lance safe instead of taking the throw. NPCs choose their targets themselves.
+func _may_strike(target) -> bool:
+	var controller = _agent.get_node_or_null(Constants.PLAYER_INPUT_HANDLER_NAME) if _agent.has_method("is_player") and _agent.is_player() else null
+	if controller == null or not controller.has_method("lance_may_strike") or controller.lance_may_strike(target):
+		return true
+	armed = false
+	return false
 
 
 # What it fires at: the target of the ship's charge (NavigationSystem CHARGE), or null.

@@ -148,6 +148,7 @@ class CommandRecorder:
 
 class NavStub:
 	extends Node
+	const CommandType = preload("res://src/core/agents/components/navigation_system.gd").CommandType
 	var type := 0
 	var _current_command := {}
 	func get_current_command_type() -> int:
@@ -252,7 +253,7 @@ func test_the_safety_keeps_weapons_and_charges_off_ships_that_are_not_hostile():
 	controller._sync_charge_command()
 	assert_eq(recorder.last, "approach", "Arming the lance while closing on an escorted ship does not turn it into a charge")
 	ward.is_wreck = true
-	assert_true(controller.is_charge_ready(ward), "A wreck is fair game")
+	assert_false(controller.is_charge_ready(ward), "Safety on, the lance is for asteroids and hostiles only: not a wreck either")
 	ward.is_wreck = false
 
 	var enemy = Agent.new()
@@ -260,6 +261,7 @@ func test_the_safety_keeps_weapons_and_charges_off_ships_that_are_not_hostile():
 	enemy.global_transform.origin = Vector3(0, 0, -300)
 	enemy._grudges[ship.get_instance_id()] = true  # It shot the player: hostile
 	controller._selected_target = enemy
+	lance.armed = true  # Selecting the ward made it safe (the safety)
 	assert_true(controller.is_charge_ready(enemy), "A hostile ship is charged")
 	controller._on_tool_button_pressed(0)
 	assert_true(tools.is_active(0), "and fired on")
@@ -271,6 +273,69 @@ func test_the_safety_keeps_weapons_and_charges_off_ships_that_are_not_hostile():
 	assert_true(controller.is_charge_ready(ward), "Off: any ship")
 	controller._on_tool_button_pressed(0)
 	assert_true(tools.is_active(0))
+	controller.free()
+
+
+func test_the_safety_keeps_the_lance_from_arming_at_anything_but_an_asteroid_or_a_hostile():
+	var Agent = load("res://src/core/agents/agent.gd")
+	var ShipLaws = load("res://src/core/systems/ship_laws.gd")
+	var Nav = load("res://src/core/agents/components/navigation_system.gd")
+	var ship = Agent.new()
+	ship.agent_type = "player"
+	add_child_autofree(ship)
+	var lance = load("res://src/core/agents/components/lance_controller.gd").new()
+	ship.add_child(lance)
+	lance.setup(ship, "lance", ShipLaws.lance_stats({"nail_mass": 200.0, "count": 3.0}))
+	var nav = NavStub.new()
+	nav.name = "NavigationSystem"
+	ship.add_child(nav)
+	var neutral = Agent.new()
+	add_child_autofree(neutral)
+	neutral.global_transform.origin = Vector3(0, 0, -60)
+	var enemy = Agent.new()
+	add_child_autofree(enemy)
+	enemy.global_transform.origin = Vector3(0, 0, -300)
+	enemy._grudges[ship.get_instance_id()] = true
+	var rock = Spatial.new()
+	rock.add_to_group("mineable")
+	add_child_autofree(rock)
+	var controller = PlayerControllerScript.new()
+	controller.name = Constants.PLAYER_INPUT_HANDLER_NAME
+	controller.agent_body = ship
+	controller.agent_script = autofree(CommandRecorder.new())
+	ship.add_child(controller)
+	assert_true(GameState.weapons_safe)
+
+	controller._selected_target = neutral
+	controller._on_lance_button_pressed()
+	assert_false(lance.armed, "A neutral selected: the lance will not arm")
+	controller._selected_target = null
+	controller._on_lance_button_pressed()
+	assert_false(lance.armed, "Nothing selected: nor then")
+	controller._selected_target = rock
+	controller._on_lance_button_pressed()
+	assert_true(lance.armed, "An asteroid: armed")
+	controller._set_selected_target(enemy)
+	assert_true(lance.armed, "A hostile: stays armed")
+	controller._set_selected_target(neutral)
+	assert_false(lance.armed, "Switched to a neutral: made safe at once")
+
+	lance.armed = true  # Armed anyway (a standing change mid-charge): the seat will not throw
+	nav._current_command = {"target_node": neutral}
+	nav.type = Nav.CommandType.CHARGE
+	ship.navigation_system = nav
+	ship.linear_velocity = Vector3(0, 0, -200)
+	assert_false(lance.firing_solution(neutral).empty(), "In range and aimed")
+	lance._physics_process(0.01)
+	assert_false(lance.armed, "Made safe instead of throwing")
+	assert_eq(lance.nails, 3, "Nothing thrown")
+
+	controller._on_safety_button_pressed()
+	controller._selected_target = neutral
+	controller._on_lance_button_pressed()
+	assert_true(lance.armed, "SAFETY off: arms at any ship")
+	GameState.weapons_safe = true
+	ship.remove_child(controller)
 	controller.free()
 
 
