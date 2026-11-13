@@ -147,8 +147,7 @@ func _solid(at: Vector3, radius: float) -> Spatial:
 	solid.translation = at
 	solid.add_to_group("obstacle")
 	add_child_autofree(solid)
-	if get_tree().has_meta(NavigationSystem.OBSTACLES_META):
-		get_tree().remove_meta(NavigationSystem.OBSTACLES_META)  # Gathered once a step: not this one's yet
+	NavigationSystem.forget_obstacles(get_tree())  # Gathered once a step: not this one's yet
 	return solid
 
 

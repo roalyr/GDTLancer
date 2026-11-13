@@ -225,6 +225,13 @@ func _compute_obstacle_push(target_node) -> Vector3:
 
 # Every obstacle as [centre, radius, node], gathered once per physics step and shared by every
 # ship that steers that step.
+# Drops the step's gathered obstacles: one added or moved this step counts at once (the tests, which
+# make stations faster than steps go by).
+static func forget_obstacles(tree: SceneTree) -> void:
+	if tree.has_meta(OBSTACLES_META):
+		tree.remove_meta(OBSTACLES_META)
+
+
 static func get_obstacles(tree: SceneTree) -> Array:
 	var step: int = Engine.get_physics_frames()
 	if tree.has_meta(OBSTACLES_META):

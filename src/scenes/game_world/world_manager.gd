@@ -152,6 +152,7 @@ func _emit_loaded_dock_signal() -> void:
 	while retries < 30 and (not is_instance_valid(GlobalRefs.current_zone) or not is_instance_valid(GlobalRefs.player_agent_body)):
 		yield(get_tree().create_timer(0.1), "timeout")
 		retries += 1
+	_announce_save_repairs()
 
 	if GameState.player_docked_at == "":
 		return
@@ -162,6 +163,13 @@ func _emit_loaded_dock_signal() -> void:
 	GameState.player_docked_at = ""  # Docked at a station that is not in this sector: undocked
 	
 	
+# What SaveRepair changed in the save just loaded (content gone since it was saved), once.
+func _announce_save_repairs() -> void:
+	for note in GameStateManager.repair_notes:
+		EventBus.emit_signal("announcement", "Save updated: %s" % note, "warning")
+	GameStateManager.repair_notes = []
+
+
 func _show_boot_main_menu() -> void:
 	# Pause the game at boot so nothing runs until New Game.
 	get_tree().paused = true

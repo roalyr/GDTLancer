@@ -7,11 +7,15 @@
 # Every save is stamped with its mode, and a mode loads only its own (a save from before the stamp
 # counts as evolution's: they all carried the evolution). Saves carry SAVE_FORMAT_VERSION too;
 # older ones are deleted at start. get_save_summary: what the load button says about a save.
+# A play save naming content that is gone since (a hull, part, haven, commodity, faction) is put
+# right as it loads (SaveRepair); what changed waits in `repair_notes` for WorldManager to announce.
 # A test start (the dev tool's test_start task: `test_start=<game start id>` on the command line)
 # plays that game start instead of the default, and saves to TEST_SAVE_DIR, apart from the real saves
 # (TEST_FRESH_ARG as well: those saves are deleted first).
 
 extends Node
+
+const SaveRepair = preload("res://src/core/systems/save_repair.gd")
 
 const MODE_PLAY = "play"
 const MODE_EVOLUTION = "evolution"
@@ -23,6 +27,7 @@ const TEST_FRESH_ARG = "test_fresh"
 var mode: String = MODE_PLAY setget set_mode
 var save_dir: String = PLAY_SAVE_DIR  # Set by the mode; tests point this at their own folder so real saves are never touched
 var test_start_id: String = ""  # A test start's game start (TEST_START_ARG), "" in a normal run
+var repair_notes: Array = []  # What SaveRepair changed in the last save loaded (taken by WorldManager)
 const SAVE_FILE_PREFIX = "save_"
 const SAVE_FILE_EXT = ".sav"
 const SAVE_TMP_EXT = ".tmp"  # Being written (save_game)
@@ -359,6 +364,7 @@ func _deserialize_and_apply_game_state(save_data: Dictionary) -> void:
 	var evolution = save_data.get("evolution", {})
 	if evolution is Dictionary:
 		Evolution.deserialize(evolution)
+	repair_notes = SaveRepair.repair(game_start(game_start_id())) if mode == MODE_PLAY else []
 
 
 # Evolution moved to its own sector (EVO_SECTOR_ID): the run's player is docked at its start's haven

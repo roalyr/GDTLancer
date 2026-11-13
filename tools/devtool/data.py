@@ -6,6 +6,7 @@ so a field added to a template script shows up without a change here. A new kind
 
 import glob
 import os
+import struct
 
 from .tasks import ROOT
 
@@ -107,6 +108,45 @@ def template_id_of(res):
     except OSError:
         pass
     return ""
+
+
+SAVE_DIRS = ("savegames", "test_start_saves")  # The game's play saves under its user folder (GameStateManager)
+
+
+def user_dir():
+    """The game's user:// folder (Godot's app_userdata/<config/name>; GODOT_USER_DIR overrides it)."""
+    if os.environ.get("GODOT_USER_DIR"):
+        return os.environ["GODOT_USER_DIR"]
+    name = "GDTLancer"
+    try:
+        with open(os.path.join(ROOT, "project.godot")) as handle:
+            for line in handle:
+                if line.startswith("config/name="):
+                    name = line.split("=", 1)[1].strip().strip('"')
+    except OSError:
+        pass
+    return os.path.join(os.path.expanduser("~/.local/share/godot/app_userdata"), name)
+
+
+def saves_naming(res):
+    """The local play saves (paths under the user folder) that name `res`'s template_id. A save is
+    Godot's store_var: each string is its byte length (4 bytes, little-endian) and its UTF-8, so the
+    id is matched whole. Such a save still loads once the file is gone (SaveRepair drops or swaps it)."""
+    template_id = template_id_of(res)
+    if not template_id:
+        return []
+    encoded = template_id.encode("utf-8")
+    needle = struct.pack("<I", len(encoded)) + encoded
+    out = []
+    for folder in SAVE_DIRS:
+        for path in sorted(glob.glob(os.path.join(user_dir(), folder, "save_*.sav"))):
+            try:
+                with open(path, "rb") as handle:
+                    if needle in handle.read():
+                        out.append(os.path.join(folder, os.path.basename(path)))
+            except OSError:
+                continue
+    return out
 
 
 def references(res, by_name=False):

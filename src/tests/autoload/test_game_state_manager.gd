@@ -2,6 +2,8 @@
 
 extends GutTest
 
+const Fitting = preload("res://src/core/systems/fitting.gd")
+const TemplateIndexer = preload("res://src/scenes/game_world/world_manager/template_indexer.gd")
 const TEST_SLOT = 999
 const TEST_SAVE_DIR = "user://test_savegames/"  # The pre-run hook's: the real folders are never written
 
@@ -11,7 +13,23 @@ func before_each():
 	GameStateManager.save_dir = TEST_SAVE_DIR  # Never the player's real saves
 
 
+const DATABASE_KEYS = ["agents", "assets_ships", "assets_modules", "assets_commodities", "locations", "utility_tools", "game_starts", "presets", "preset_agents", "proven_presets"]
+var _saved_database: Dictionary = {}
+
+
+# The game's content in TemplateDatabase (to check a save against), put back as it was after the test.
+func _index_content() -> void:
+	for key in DATABASE_KEYS:
+		_saved_database[key] = TemplateDatabase.get(key).duplicate()
+	var indexer = TemplateIndexer.new()
+	indexer.index_all_templates()
+	indexer.free()
+
+
 func after_each():
+	for key in _saved_database:
+		TemplateDatabase.set(key, _saved_database[key])
+	_saved_database = {}
 	GameState.reset_state()
 	GameStateManager.mode = GameStateManager.MODE_PLAY
 	GameStateManager.save_dir = TEST_SAVE_DIR  # Set by the mode to the real folder: back to the test one first
@@ -262,3 +280,40 @@ func test_evolution_runs_in_its_own_sector_and_an_old_save_moves_there():
 		GameStateManager.game_start(Constants.EVO_GAME_START_ID).player_starting_location])
 	GameStateManager.mode = saved_mode
 	GameStateManager.save_dir = TEST_SAVE_DIR
+
+
+# A save from an older build names content that is gone since: it loads into a game that plays.
+func test_a_save_naming_content_gone_since_is_put_right():
+	_index_content()
+	var start = GameStateManager.game_start(GameStateManager.game_start_id())
+	_populate_game_state()
+	GameState.player_ship_template_id = "ship_gone_since"
+	GameState.home_location_id = "station_gone_since"
+	GameState.player_storage = {"tool_gone_since": 2, Fitting.catalog()[0]: 1}
+	GameState.player_cargo = {"commodity_gone_since": 3, "commodity_scrap": 2}
+	GameState.player_standing = {"faction_gone_since": 0.5}
+	GameState.station_markups = {"station_gone_since": 0.2}
+	GameStateManager.save_game(TEST_SLOT)
+	GameState.reset_state()
+	assert_true(GameStateManager.load_game(TEST_SLOT), "It still loads")
+	assert_eq(GameState.player_ship_template_id, start.player_ship_template, "The start's ship")
+	assert_eq(GameState.home_location_id, start.player_starting_location, "The start's home")
+	assert_eq_deep(GameState.player_storage, {Fitting.catalog()[0]: 1})
+	assert_eq_deep(GameState.player_cargo, {"commodity_scrap": 2})
+	assert_true(GameState.player_standing.empty() and GameState.station_markups.empty(), "Stale keys dropped")
+	assert_eq(GameStateManager.repair_notes.size(), 4, "Ship, home, a part, cargo: each told: %s" % [GameStateManager.repair_notes])
+
+
+func test_a_save_of_the_current_content_needs_no_repair():
+	_index_content()
+	var start = GameStateManager.game_start(GameStateManager.game_start_id())
+	_populate_game_state()
+	GameState.player_ship_template_id = start.player_ship_template
+	GameState.home_location_id = start.player_starting_location
+	GameState.player_cargo = {Constants.FUEL_COMMODITY: 2}
+	GameState.player_fit = {"tools": [Fitting.catalog()[0]], "modules": []}
+	GameStateManager.save_game(TEST_SLOT)
+	GameState.reset_state()
+	GameStateManager.load_game(TEST_SLOT)
+	assert_eq(GameStateManager.repair_notes, [], "Nothing to put right")
+	assert_eq(GameState.player_fit.tools, [Fitting.catalog()[0]], "The fit as saved")

@@ -13,6 +13,7 @@ const OreChunkScript = preload("res://src/scenes/game_world/celestial/ore_chunk.
 const AIScript = preload("res://src/modules/piloting/ship_controller_ai.gd")
 const ToolControllerScript = preload("res://src/core/agents/components/tool_controller.gd")
 const LanceScript = preload("res://src/core/agents/components/lance_controller.gd")
+const NavigationSystem = preload("res://src/core/agents/components/navigation_system.gd")
 const ShipLaws = preload("res://src/core/systems/ship_laws.gd")
 const Radio = preload("res://src/core/systems/radio.gd")
 
@@ -471,6 +472,7 @@ func _haven_station(position: Vector3) -> Spatial:
 	add_child_autofree(station)
 	station.global_transform.origin = position
 	station.undock_offset = Vector3.ZERO
+	NavigationSystem.forget_obstacles(get_tree())  # Obstacles are gathered once a physics step: an earlier test's list may still stand
 	return station
 
 

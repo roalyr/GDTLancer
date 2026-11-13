@@ -1914,6 +1914,14 @@ class DevApp(App):
                                                                     " and %d more" % (len(users) - 4) if len(users) > 4 else ""), severity="error")
             return
 
+        saves = data.saves_naming(path)
+        question = "Delete %s? Nothing names it." % path.replace("res://", "")
+        if saves:
+            question = ("Delete %s? Nothing in the project names it, but the local save%s %s do%s: %s load%s with it put right "
+                        "(SaveRepair: a hull becomes the start's, parts and cargo are dropped, a home moves to the start's)." % (
+                            path.replace("res://", ""), "s" if len(saves) > 1 else "", ", ".join(saves), "" if len(saves) > 1 else "es",
+                            "they" if len(saves) > 1 else "it", "" if len(saves) > 1 else "s"))
+
         def answered(yes):
             if not yes:
                 return
@@ -1923,7 +1931,7 @@ class DevApp(App):
             self._fill_data_tree()
             self.query_one("#data-form", Form).clear("[b]Deleted[/b]  %s\n[dim]ctrl+u puts it back.[/dim]" % path)
             self.notify("Deleted %s; ctrl+u puts it back" % path)
-        self.push_screen(ConfirmScreen("Delete %s? Nothing names it." % path.replace("res://", "")), answered)
+        self.push_screen(ConfirmScreen(question), answered)
 
     @work(thread=True, group="form")
     def create_worker(self, kind, name, copy_from=None):
