@@ -83,7 +83,7 @@ Each design is a pair of files:
 - **`preset_ship_archetype_<name>.tres`**: the hull and its fit;
 - **`agent_archetype_<name>.tres`**: the pilot. It holds the behaviour and the exact `genome` the game flies.
 
-`CATALOG.md` beside them describes every design; the Archetypes tab compares them. Factions pick from these through their roster. The home station's store sells all twenty hulls, with the part catalogue (`database/presets/parts/`); the drafts folders are not sold.
+`CATALOG.md` beside them describes every design; the Archetypes tab compares them, and `d` on one, then `d` on another, makes them duel as the game flies them (`tools/dev.py duel`: wins, time, hull left, rounds). Factions pick from these through their roster. The home station's store sells all twenty hulls, with the part catalogue (`database/presets/parts/`); the drafts folders are not sold.
 
 The game flies these files as they are: an archetype's ship file sets its stats, its fit and its model. To give one a hand-made model, point its `ship_scene` at the new scene (see **Models**).
 

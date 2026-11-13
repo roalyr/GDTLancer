@@ -101,6 +101,11 @@ def factions():
     return sorted(stem(path) for path in glob.glob(os.path.join(ROOT, "database/factions/*.tres")))
 
 
+def archetypes():
+    prefix = "agent_archetype_"
+    return sorted(stem(path)[len(prefix):] for path in glob.glob(os.path.join(ROOT, "database/presets/archetypes", prefix + "*.tres")))
+
+
 def draft_folders():
     return sorted(os.path.basename(path) for path in glob.glob(os.path.join(ROOT, "database/presets/drafts_era*")))
 
@@ -174,6 +179,11 @@ def _lance_duel(v):
     if yes(v["weapons"]):
         command.append("--weapons")
     return command
+
+
+def _duel(v):
+    return godot_script("tools/lance_duel.gd", "--", "--duels=" + v["duels"], "--speed=" + v["speed"],
+                        "--archetypes=%s,%s" % (v["a"], v["b"]))
 
 
 def _export_presets(v):
@@ -281,6 +291,9 @@ TASKS = [
     # Balance and performance
     Task("balance_sim", "Balance", "Battle balance sim", "A headless faction battle by the home station: kills, fight times, damage.",
          lambda v: godot_script("tools/balance_sim.gd")),
+    Task("duel", "Balance", "Duel two archetypes", "Two archetypes as the game flies them, one on one: wins, time, hull left, rounds.",
+         _duel, [Ask("a", "First (Verdant)", "choice", "fighter_light", archetypes), Ask("b", "Second (Violet)", "choice", "raider_light", archetypes),
+                 Ask("duels", "Duels", default="6"), Ask("speed", "Speed", default="6")]),
     Task("lance_duel", "Balance", "Lance duels", "Designs fight one on one; what the lance did.",
          _lance_duel, [Ask("duels", "Duels per match", default="8"), Ask("speed", "Speed", default="6"),
                        Ask("match", "Only this match (e.g. lancer,laser; empty: all)", default="", optional=True),

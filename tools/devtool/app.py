@@ -910,7 +910,8 @@ class DataPane(Horizontal):
 class ArchetypesPane(Vertical):
     BINDINGS = [
         Binding("s", "app.archetype('sheet')", "Review sheet"), Binding("p", "app.archetype('pilot')", "Pilot in Data"),
-        Binding("h", "app.archetype('ship')", "Ship in Data"), Binding("ctrl+r", "app.refresh_views", "Refresh"),
+        Binding("h", "app.archetype('ship')", "Ship in Data"), Binding("d", "app.archetype('duel')", "Duel"),
+        Binding("ctrl+r", "app.refresh_views", "Refresh"),
     ]
     DEFAULT_CSS = """
     ArchetypesPane #archetypes { height: auto; max-height: 60%; }
@@ -1184,6 +1185,7 @@ class DevApp(App):
         self.open_file = None
         self.saved_text = None  # ([(path, its text before the last save)], what to reload after an undo)
         self.archetype_view = {"ranges": {}, "archetypes": []}
+        self.duel_first = None  # The archetype d picked first (Archetypes tab)
         self.faction_view = {"factions": [], "archetypes": []}
         self.faction_picked = None
         self.parts_view = {"weapons": [], "modules": [], "commodities": [], "starts": []}
@@ -1688,6 +1690,18 @@ class DevApp(App):
             return
         if what == "sheet":
             self.run_task(tasks.TASKS_BY_KEY["model_sheet"], {"scene": design["scene"].replace("res://", "")})
+        elif what == "duel":
+            if self.duel_first is None:
+                self.duel_first = design["name"]
+                self.notify("%s picked: d on its opponent starts the duel (d on it again cancels)" % design["name"])
+            elif self.duel_first == design["name"]:
+                self.duel_first = None
+                self.notify("Duel cancelled")
+            else:
+                first, self.duel_first = self.duel_first, None
+                task = tasks.TASKS_BY_KEY["duel"]
+                values = dict(task.defaults(tasks.load_last()), a=first, b=design["name"])
+                self.run_task(task, values)
         else:
             self.open_in_data(design["pilot" if what == "pilot" else "ship"])
 

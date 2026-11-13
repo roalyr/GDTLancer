@@ -495,6 +495,24 @@ class AppTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(devapp.gene_bar(1.0, 0.0, 1.0, 0.5).count("="), devapp.GENE_BAR - 1)
         self.assertEqual(devapp.gene_bar(0.0, 0.0, 1.0, 0.5)[0], "=")
 
+    async def test_two_archetypes_are_picked_for_a_duel(self):
+        app = devapp.DevApp(bridge_factory=lambda: FakeBridge())
+        async with app.run_test(size=(200, 60)) as pilot:
+            await self._started(pilot, app)
+            ran = []
+            app.run_task = lambda task, values, wait=True: ran.append((task.key, values["a"], values["b"]))
+            table = app.query_one("#archetypes", DataTable)
+            app.action_archetype("duel")
+            self.assertEqual(app.duel_first, "fighter_light")
+            table.move_cursor(row=2)
+            app.action_archetype("duel")
+            self.assertEqual(ran, [("duel", "fighter_light", "raider_light")])
+            self.assertIsNone(app.duel_first)
+            app.action_archetype("duel")
+            app.action_archetype("duel")
+            self.assertIsNone(app.duel_first, "d twice on one cancels")
+            self.assertEqual(len(ran), 1)
+
     async def test_war_and_peace_and_rosters(self):
         fake = FakeBridge()
         app = devapp.DevApp(bridge_factory=lambda: fake)

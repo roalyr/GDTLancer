@@ -4,11 +4,14 @@
 # ship's state every second (distance, speed, activity, lance, run-up).
 #     godot --no-window -s tools/lance_duel.gd -- --duels=8 --speed=6 [--weapons: missile and cannon designs]
 #         [--match=lancer,laser: that one match only]
+#         [--archetypes=fighter_light,raider_light: two archetypes as the game flies them]
 # Designs (Genome genomes, see DESIGNS): "lancer" (small and fast: lance and harpoon), "lance_laser"
 # (reference ship sized, engine-heavy: lance and a laser), "laser" (the reference ship, two lasers),
 # "laser_heavy" (a big slow three-laser ship), "hauler" (an unarmed reference ship), "lancer_fast"
 # (engine-heavy, a 200 kg lance and a light laser), "lance_twin" (lance_laser with a second launcher
 # beside the first). See MATCHES.
+# Archetypes (database/presets/archetypes/) fly their preset ship and fit with their pilot's skill and
+# behaviour genes, as their havens fly them; the first for Verdant, the second for Violet.
 extends SceneTree
 
 const DESIGNS = {
@@ -40,6 +43,7 @@ const ARENA_OFFSET = Vector3(0, 15000, 0)  # From the home station : well above 
 var duels := 6
 var matches: Array = MATCHES
 var speed := 6.0
+var archetypes := false  # --archetypes=: the match is two archetypes, not DESIGNS
 var rate := 0  # --rate=: physics steps per game second (0: the project's, Interp.physics_rate())
 var _shown: Dictionary = {}
 
@@ -52,6 +56,9 @@ func _initialize():
 			matches = MATCHES_WEAPONS
 		elif arg.begins_with("--match="):
 			matches = [arg.split("=")[1].split(",")]
+		elif arg.begins_with("--archetypes="):
+			matches = [arg.split("=")[1].split(",")]
+			archetypes = true
 		elif arg.begins_with("--rate="):
 			rate = int(arg.split("=")[1])
 		elif arg.begins_with("--speed="):
@@ -81,12 +88,26 @@ func _run():
 	Engine.time_scale = speed
 	var genome_script = load("res://src/core/evolution/genome.gd")
 	var built := {}
-	for design in DESIGNS:
-		built[design] = genome_script.build(_fitted(genome_script, DESIGNS[design]), "duel_" + design, "verdant")
+	if archetypes:
+		for index in range(2):
+			var name: String = matches[0][index]
+			var faction: String = ["verdant", "violet"][index]
+			var pilot = load(Constants_path("ARCHETYPES_DIR").plus_file("agent_archetype_%s.tres" % name))
+			var preset: Dictionary = genome_script.preset_build(name, faction)
+			if pilot == null or preset.empty():
+				print("DUEL no archetype ", name)
+				quit(1)
+				return
+			built[name] = preset.duplicate()
+			built[name]["skill"] = pilot.skill
+			built[name]["behavior"] = pilot.behavior.duplicate()
+	else:
+		for design in DESIGNS:
+			built[design] = genome_script.build(_fitted(genome_script, DESIGNS[design]), "duel_" + design, "verdant")
 	var centre: Vector3 = refs.player_agent_body.global_transform.origin + ARENA_OFFSET
 	for pairing in matches:
 		print("DESIGNS %s vs %s" % [pairing[0], pairing[1]])
-		var tally := {"wins": {}, "draws": 0, "times": [], "strikes": 0, "glances": 0, "damage": 0.0, "speeds": [], "rounds": {}}
+		var tally := {"wins": {}, "draws": 0, "times": [], "strikes": 0, "glances": 0, "damage": 0.0, "speeds": [], "rounds": {}, "hull_left": [[], []]}
 		for i in range(duels):
 			var result = yield(_duel(built[pairing[0]], built[pairing[1]], centre), "completed")
 			if result.winner == "":
@@ -95,14 +116,16 @@ func _run():
 				var side: String = pairing[0] if result.winner == "a" else pairing[1]
 				tally.wins[side + (" (a)" if result.winner == "a" else " (b)")] = int(tally.wins.get(side + (" (a)" if result.winner == "a" else " (b)"), 0)) + 1
 				tally.times.append(result.time)
+			tally.hull_left[0].append(result.hull_left[0])
+			tally.hull_left[1].append(result.hull_left[1])
 			tally.strikes += result.strikes
 			tally.glances += result.glances
 			tally.damage += result.damage
 			tally.speeds += result.speeds
 			for key in result.rounds:
 				tally.rounds[key] = int(tally.rounds.get(key, 0)) + int(result.rounds[key])
-		print("DUEL %s vs %s: wins %s, draws %d, mean time %.0fs, lance strikes %d (%.0f damage), glances %d, closing speeds at contact %s, rounds %s" % [
-			pairing[0], pairing[1], tally.wins, tally.draws, _mean(tally.times), tally.strikes, tally.damage, tally.glances, _summary(tally.speeds), tally.rounds])
+		print("DUEL %s vs %s: wins %s, draws %d, mean time %.0fs, hull left %.0f%% vs %.0f%%, lance strikes %d (%.0f damage), glances %d, closing speeds at contact %s, rounds %s" % [
+			pairing[0], pairing[1], tally.wins, tally.draws, _mean(tally.times), 100.0 * _mean(tally.hull_left[0]), 100.0 * _mean(tally.hull_left[1]), tally.strikes, tally.damage, tally.glances, _summary(tally.speeds), tally.rounds])
 	quit()
 
 
@@ -122,15 +145,13 @@ func _fitted(genome_script, design: Dictionary) -> Dictionary:
 # "time", "strikes", "glances", "damage", "speeds"}.
 func _duel(a_build: Dictionary, b_build: Dictionary, centre: Vector3):
 	var spawner = _find_agent_system()
-	var a = spawner.spawn_npc_from_template(Constants_path("NPC_BASE_TEMPLATE_PATH"), centre + Vector3(-1500, 0, 0), {
-		"faction": "verdant", "ship_template_id": a_build.ship_template_id, "fit": a_build.fit, "wallet": 1e6, "skill": 0.8})
-	var b = spawner.spawn_npc_from_template(Constants_path("NPC_BASE_TEMPLATE_PATH"), centre + Vector3(1500, 0, 0), {
-		"faction": "violet", "ship_template_id": b_build.ship_template_id, "fit": b_build.fit, "wallet": 1e6, "skill": 0.8})
+	var a = spawner.spawn_npc_from_template(Constants_path("NPC_BASE_TEMPLATE_PATH"), centre + Vector3(-1500, 0, 0), _overrides(a_build, "verdant"))
+	var b = spawner.spawn_npc_from_template(Constants_path("NPC_BASE_TEMPLATE_PATH"), centre + Vector3(1500, 0, 0), _overrides(b_build, "violet"))
 	if not _shown.has(a_build.ship_template_id + b_build.ship_template_id):
 		_shown[a_build.ship_template_id + b_build.ship_template_id] = true
 		for body in [a, b]:
 			print("  %s: top speed %.0f m/s, hull %.0f, %.0f kg" % [body.ship_template.template_id, body.get_top_speed(), body.hull_max, body.mass])
-	var result := {"winner": "", "time": 0.0, "strikes": 0, "glances": 0, "damage": 0.0, "speeds": [], "rounds": {}}
+	var result := {"winner": "", "time": 0.0, "strikes": 0, "glances": 0, "damage": 0.0, "speeds": [], "rounds": {}, "hull_left": [0.0, 0.0]}
 	for pair in [[a, b], [b, a]]:
 		var lance = pair[0].get_lance()
 		if lance != null:
@@ -164,11 +185,23 @@ func _duel(a_build: Dictionary, b_build: Dictionary, centre: Vector3):
 			var ai = pair[0].get_node_or_null("AIController")
 			if ai != null and ai.get_state() in [1, 3]:  # PATROL, FLEE
 				ai._start_combat(pair[1], true)
+	for index in range(2):
+		var body = [a, b][index]
+		if is_instance_valid(body) and not body.is_wreck:
+			result.hull_left[index] = float(body.hull) / max(float(body.hull_max), 1.0)
 	for body in [a, b]:
 		if is_instance_valid(body):
 			body.despawn()
 	yield(_wait(1.0), "completed")
 	return result
+
+
+# How a built design spawns: an archetype brings its pilot's skill and behaviour genes.
+static func _overrides(build: Dictionary, faction: String) -> Dictionary:
+	var out := {"faction": faction, "ship_template_id": build.ship_template_id, "fit": build.fit, "wallet": 1e6, "skill": build.get("skill", 0.8)}
+	if build.has("behavior"):
+		out["behavior"] = build.behavior
+	return out
 
 
 # Rounds fired and hits, by kind ("missile", "shell"), and missiles shot down.
