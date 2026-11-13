@@ -7,7 +7,7 @@
 # ShaderMaterial's shader and shader parameters). Scenes: scene_nodes, scene_write, scene_add,
 # scene_remove (nodes and their fields, translation included), world_scene, scene_instance,
 # sector_map; sectors and bodies as files: layout_new, sector_new, sector_clone, body_new, body_remove. Views: archetypes,
-# factions, parts, look. Checks: validate, models, sound_slots, check_script. user_dir.
+# factions, parts, economy, look. Checks: validate, models, sound_slots, check_script. user_dir.
 
 extends Reference
 
@@ -19,6 +19,7 @@ const PartCatalog = preload("res://src/core/systems/part_catalog.gd")
 const SectorMaker = preload("res://tools/devtool/sector_maker.gd")
 const ShipFit = preload("res://src/core/systems/ship_fit.gd")
 const Havens = preload("res://src/core/systems/havens.gd")
+const SectorEconomy = preload("res://src/core/validation/sector_economy.gd")
 const EDITABLE = PROPERTY_USAGE_SCRIPT_VARIABLE | PROPERTY_USAGE_EDITOR
 const SHADER_PARAM = "shader_param/"
 const TRANSLATION = "translation"
@@ -629,65 +630,139 @@ func cmd_user_dir(_args: Dictionary):
 
 
 # Every trade a haven offers: one row per commodity a haven sells and another haven of its sector
-# buys, as the game prices them (Market) for a stranger (standing 0): {commodity, name, mass (kg a
-# unit), sector, from, from_name, to, to_name, layout, node (the seller's marker), buy, sale (WP a
-# unit with both markups at 0), worst, best (the margin with the markups against it and for it,
-# Constants.PRICE_MARKUP_MAX), km (between the havens), factions (NPC factions welcome at both
-# ends, Havens.welcome)}.
+# buys, as the game prices them (Market, SectorEconomy) for a stranger (standing 0): {commodity,
+# name, mass (kg a unit), sector, from, from_name, to, to_name, layout, node (the seller's marker),
+# buy, sale (WP a unit with both markups at 0), worst, best (the margin with the markups against it
+# and for it, Constants.PRICE_MARKUP_MAX), km (between the havens), factions (NPC factions welcome
+# at both ends, Havens.welcome)}.
 func _trade_routes() -> Array:
+	var routes: Array = []
+	var layouts: Dictionary = Validator.layout_files()
+	for sector in layouts:
+		routes += _sector_routes(sector, layouts[sector], _sector_havens(sector, layouts[sector]))
+	return routes
+
+
+func _sector_routes(sector: String, layout: String, havens: Array) -> Array:
+	var factions := _faction_specs()
+	var faction_ids: Array = factions.keys()
+	faction_ids.sort()
+	var goods: Dictionary = Validator.commodities()
+	var out: Array = []
+	for route in SectorEconomy.routes(havens, goods):
+		var seller: Dictionary = havens[route.from]
+		var buyer: Dictionary = havens[route.to]
+		var welcome: Array = []
+		for faction in faction_ids:
+			if Havens.welcome_at(faction, seller.faction, factions) and Havens.welcome_at(faction, buyer.faction, factions):
+				welcome.append(faction)
+		var item: Dictionary = goods[route.commodity]
+		route.merge({"name": item.name, "mass": item.mass, "sector": sector, "from": seller.id, "from_name": seller.name,
+			"to": buyer.id, "to_name": buyer.name, "layout": layout, "node": seller.node, "km": seller.at.distance_to(buyer.at) / 1000.0,
+			"factions": welcome}, true)
+		out.append(route)
+	return out
+
+
+func _faction_specs() -> Dictionary:
 	var factions := {}
 	var faction_paths: Dictionary = Validator.faction_files()
 	for id in faction_paths:
 		var faction = _fresh(faction_paths[id])
 		if faction != null:
 			factions[id] = faction.to_spec()
-	var faction_ids: Array = factions.keys()
-	faction_ids.sort()
-	var commodities := {}
-	for path in Validator._files_in("res://database/registry/assets/commodities/", ".tres"):
-		var item = _fresh(path)
-		if item is CommodityTemplate:
-			commodities[item.template_id] = item
-	var top: float = 1.0 + Constants.PRICE_MARKUP_MAX
-	var routes: Array = []
+	return factions
+
+
+# A sector's havens as specs (HavenMarker.to_spec) with "node" (the marker's path) and "at" (where it
+# is in the sector, bodies placed: sector_map).
+func _sector_havens(sector: String, layout: String) -> Array:
+	var places := {}
+	for thing in cmd_sector_map({"sector": sector}):
+		places[thing.node] = Vector3(thing.x, thing.y, thing.z)
+	var root: Node = _edit_instance(layout)
+	if root == null:
+		return []
+	var havens: Array = []
+	for node in _own_nodes(root):
+		if node.get_script() != null and node.get_script().resource_path.ends_with("haven_marker.gd"):
+			var at: String = str(root.get_path_to(node))
+			var spec: Dictionary = node.to_spec(places.get(at, _origin(node)))
+			spec["node"] = at
+			spec["at"] = places.get(at, _origin(node))
+			havens.append(spec)
+	root.free()
+	return havens
+
+
+# One sector's market (SectorEconomy; the dev tool's economy view, tools/devtool/economy.py): {sector,
+# layout, havens: [{id, name, faction, node, at ([x, y, z] m), sells: {commodity: WP}, buys: {commodity:
+# WP}}], commodities: [{id, name, value, mass, sold_at, bought_at}], routes (_trade_routes' rows),
+# problems (SectorEconomy.problems: kind, haven, commodity, hard, text), ships (every archetype as the
+# game flies it: {id, name, mass (kg, fitted, empty), thrust (N), hold (units), value (WP)}), and the
+# rules the view prices with: drag, dock_time, markup_max, standing_share, sell_share, min_margin}.
+func cmd_economy(args: Dictionary):
 	var layouts: Dictionary = Validator.layout_files()
-	for sector in layouts:
-		var places := {}
-		for thing in cmd_sector_map({"sector": sector}):
-			places[thing.node] = Vector3(thing.x, thing.y, thing.z)
-		var root: Node = _edit_instance(layouts[sector])
-		if root == null:
+	var sector: String = str(args.get("sector", ""))
+	if not layouts.has(sector):
+		return {"error": "No sector %s (sectors: %s)" % [sector, PoolStringArray(layouts.keys()).join(", ")]}
+	var havens: Array = _sector_havens(sector, layouts[sector])
+	var goods: Dictionary = Validator.commodities()
+	var ids: Array = goods.keys()
+	ids.sort()
+	var rows: Array = []
+	for haven in havens:
+		var sells := {}
+		var buys := {}
+		for id in ids:
+			var value: float = float(goods[id].value)
+			if SectorEconomy.charge(haven, id, value) > 0.0:
+				sells[id] = int(round(SectorEconomy.charge(haven, id, value)))
+			if SectorEconomy.pays(haven, id, value) > 0.0:
+				buys[id] = int(round(SectorEconomy.pays(haven, id, value)))
+		rows.append({"id": haven.id, "name": haven.name, "faction": haven.faction, "node": haven.node,
+			"at": [haven.at.x, haven.at.y, haven.at.z], "sells": sells, "buys": buys})
+	var commodities: Array = []
+	for id in ids:
+		var sold_at: Array = []
+		var bought_at: Array = []
+		for row in rows:
+			if row.sells.has(id):
+				sold_at.append(row.id)
+			if row.buys.has(id):
+				bought_at.append(row.id)
+		commodities.append({"id": id, "name": goods[id].name, "value": goods[id].value, "mass": goods[id].mass,
+			"sold_at": sold_at, "bought_at": bought_at})
+	return {"sector": sector, "layout": layouts[sector], "havens": rows, "commodities": commodities,
+		"routes": _sector_routes(sector, layouts[sector], havens),
+		"problems": SectorEconomy.problems(havens, goods, sector == Constants.EVO_SECTOR_ID),
+		"practice": sector == Constants.EVO_SECTOR_ID, "ships": _economy_ships(),
+		"drag": Constants.LINEAR_DRAG, "dock_time": Constants.HAVEN_DOCK_TIME, "markup_max": Constants.PRICE_MARKUP_MAX,
+		"standing_share": Constants.PRICE_STANDING_SHARE, "sell_share": Constants.PRICE_CARGO_SELL_SHARE,
+		"min_margin": SectorEconomy.MIN_MARGIN_SHARE, "must_pay_in_sector": SectorEconomy.STOCK_MUST_PAY_IN_SECTOR}
+
+
+# Every archetype as the game flies it (its preset's fit, ShipFit): {id (the archetype, e.g.
+# trader_medium), mass (kg fitted, hold empty), thrust (N), hold (units), value (WP: hull and parts, as
+# Agent values a ship)}.
+func _economy_ships() -> Array:
+	var out: Array = []
+	for path in Validator._files_in(Constants.ARCHETYPES_DIR, ".tres"):
+		var ship = _fresh(path)
+		if not ship is ShipTemplate:
 			continue
-		var havens: Array = []
-		for node in _own_nodes(root):
-			if node.get_script() != null and node.get_script().resource_path.ends_with("haven_marker.gd"):
-				var at: String = str(root.get_path_to(node))
-				havens.append({"id": node.haven_id, "name": node.display_name, "faction": node.faction, "buys": node.buys.duplicate(),
-					"sells": node.sells.duplicate(), "node": at, "at": places.get(at, _origin(node))})
-		root.free()
-		for seller in havens:
-			for commodity_id in seller.sells:
-				var item = commodities.get(commodity_id)
-				var sell_factor: float = float(seller.sells[commodity_id])
-				if item == null or sell_factor <= 0.0:
-					continue
-				var value: float = float(item.base_value)
-				for buyer in havens:
-					var buy_factor: float = float(buyer.buys.get(commodity_id, buyer.buys.get("*", 0.0)))
-					if buyer == seller or buy_factor <= 0.0:
-						continue
-					var cost: float = value * sell_factor
-					var sale: float = value * buy_factor * Constants.PRICE_CARGO_SELL_SHARE
-					var welcome: Array = []
-					for faction in faction_ids:
-						if Havens.welcome_at(faction, seller.faction, factions) and Havens.welcome_at(faction, buyer.faction, factions):
-							welcome.append(faction)
-					routes.append({"commodity": commodity_id, "name": item.commodity_name, "mass": item.unit_mass, "sector": sector,
-						"from": seller.id, "from_name": seller.name, "to": buyer.id, "to_name": buyer.name, "layout": layouts[sector],
-						"node": seller.node, "buy": int(round(cost)), "sale": int(round(sale)),
-						"worst": int(round(sale - cost * top)), "best": int(round(sale * top - cost)),
-						"km": seller.at.distance_to(buyer.at) / 1000.0, "factions": welcome})
-	return routes
+		var value: float = float(ship.base_value)
+		for part_id in Array(ship.equipped_tools) + Array(ship.equipped_modules):
+			var known = TemplateDatabase.get_template(part_id)
+			var part = _part(part_id)
+			if part != null and (known == null or known.resource_path == part.resource_path):
+				TemplateDatabase.register_evolved(part)  # As the game finds them (cmd_archetypes); its stats count it
+			if part != null and part.get("base_value") != null:
+				value += float(part.base_value)
+		var stats: Dictionary = ShipFit.compute_stats(ship, {"tools": ship.equipped_tools, "modules": ship.equipped_modules})
+		out.append({"id": ship.template_id.trim_prefix("preset_ship_archetype_"), "mass": stats.mass, "thrust": stats.linear_thrust,
+			"hold": int(stats.cargo_capacity), "value": int(round(value))})
+	return out
 
 
 static func _note_use(table: Dictionary, id: String, user: String) -> void:

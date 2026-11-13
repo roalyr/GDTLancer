@@ -389,6 +389,36 @@ func test_trade_routes_are_priced_as_the_market_prices_them():
 	assert_gt(den_routes, 0, "The den buys anything (*)")
 
 
+func test_a_sector_economy_lists_its_market_routes_ships_and_problems():
+	var view: Dictionary = _ok(commands.handle("economy", {"sector": "sector_elace"}))
+	var havens := {}
+	for haven in view.havens:
+		havens[haven.id] = haven
+	assert_eq(havens.verdant_haven.sells.keys(), ["commodity_biotech"])
+	assert_eq(havens.verdant_haven.sells.commodity_biotech, 42, "Biotech at 0.7 of its 60 WP")
+	assert_eq(havens.violet_haven.buys.commodity_biotech, int(round(60 * 1.4 * Constants.PRICE_CARGO_SELL_SHARE)))
+	assert_eq(view.problems, [], "Elace's market passes its rules")
+	assert_false(view.practice)
+	assert_gt(view.routes.size(), 0)
+	for route in view.routes:
+		assert_eq(route.sector, "sector_elace", "Its own routes only")
+	var ships := {}
+	for ship in view.ships:
+		ships[ship.id] = ship
+	assert_true(ships.has("trader_medium"), "Every archetype")
+	assert_gt(ships.trader_medium.hold, 0)
+	assert_gt(ships.trader_medium.thrust, 0.0)
+	assert_gt(ships.trader_medium.value, load("res://database/presets/archetypes/preset_ship_archetype_trader_medium.tres").base_value, "Hull and parts")
+	assert_eq(view.drag, Constants.LINEAR_DRAG)
+	var arena: Dictionary = _ok(commands.handle("economy", {"sector": Constants.EVO_SECTOR_ID}))
+	assert_true(arena.practice)
+	for problem in arena.problems:
+		assert_false(problem.hard, "The arena keeps its frozen rules: warnings")
+	var unknown: Dictionary = commands.handle("economy", {"sector": "sector_nowhere"})
+	assert_false(unknown.ok)
+	assert_string_contains(unknown.error, "sector_nowhere")
+
+
 func test_the_look_view_and_the_music_stream():
 	var view: Dictionary = _ok(commands.handle("look", {}))
 	var by_path := {}

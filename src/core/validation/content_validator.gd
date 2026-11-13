@@ -2,7 +2,7 @@
 # {"file": res:// path, "problem": text}. One set of rules for both checkers: the content tests
 # (src/tests/database/test_content.gd) want every list empty, and the development tool
 # (tools/dev.py) checks each file it saves and shows the lists. A new rule goes here, nowhere else.
-# Sections: factions, locations (the sector graph), sectors (layouts, havens, beacons), archetypes, models (every ship and station
+# Sections: factions, locations (the sector graph), sectors (layouts, havens and their market (SectorEconomy), beacons), archetypes, models (every ship and station
 # model in use, ModelCheck: the slow one), sounds (the sound bank). all() runs them all.
 # Files are read afresh (not from TemplateDatabase's caches), so a just-saved edit counts.
 
@@ -12,6 +12,7 @@ const PartCatalog = preload("res://src/core/systems/part_catalog.gd")
 const ModelCheck = preload("res://src/scenes/game_world/models/model_check.gd")
 const SectorNames = preload("res://src/core/validation/sector_names.gd")
 const SoundBank = preload("res://src/core/sound/sound_bank.gd")
+const SectorEconomy = preload("res://src/core/validation/sector_economy.gd")
 const SOUND_BANK_PATH = "res://database/sounds/sound_bank.tres"
 const SECTIONS = ["factions", "locations", "sectors", "parts", "archetypes", "starts", "models", "materials", "sounds"]
 const STARTS_DIR = "res://database/registry/game_starts/"
@@ -212,6 +213,7 @@ static func sectors() -> Array:
 		out.append(_problem(Constants.SECTORS_SCENES_DIR, "No sector layouts"))
 	out += sector_folders()
 	var seen := {}
+	var goods: Dictionary = commodities()
 	for sector_id in layouts:
 		var path: String = layouts[sector_id]
 		var spec: Dictionary = _spec_of(path)
@@ -265,6 +267,9 @@ static func sectors() -> Array:
 				out.append(_problem(path, "Haven '%s': no station (model): a haven and its station are one" % haven.id))
 			elif not _exists(haven.model):
 				out.append(_problem(path, "Haven '%s': model '%s' does not exist" % [haven.id, haven.model]))
+		for problem in SectorEconomy.problems(spec.havens, goods, sector_id == Constants.EVO_SECTOR_ID):
+			if problem.hard:
+				out.append(_problem(path, problem.text))
 		for beacon in spec.beacons:
 			if not beacon.kind in BEACON_KINDS:
 				out.append(_problem(path, "Beacon '%s': kind '%s' is not one of %s" % [beacon.name, beacon.kind, BEACON_KINDS]))
@@ -583,6 +588,16 @@ static func starts(dir_path: String = STARTS_DIR) -> Array:
 			var standing = start.starting_standing[faction]
 			if not typeof(standing) in [TYPE_INT, TYPE_REAL] or abs(float(standing)) > 1.0:
 				out.append(_problem(path, "Its standing with '%s' should be a number from -1 to 1" % faction))
+	return out
+
+
+# Every commodity as SectorEconomy takes them: {id: {"name", "value", "mass"}}.
+static func commodities() -> Dictionary:
+	var out := {}
+	for path in _files_in(COMMODITIES_DIR, ".tres"):
+		var item = _fresh(path)
+		if item is CommodityTemplate:
+			out[item.template_id] = {"name": item.commodity_name, "value": float(item.base_value), "mass": float(item.unit_mass)}
 	return out
 
 

@@ -106,6 +106,11 @@ def archetypes():
     return sorted(stem(path)[len(prefix):] for path in glob.glob(os.path.join(ROOT, "database/presets/archetypes", prefix + "*.tres")))
 
 
+def sectors():
+    """Sector ids that have a layout (scenes/levels/sectors/<id>/<id>_layout.tscn)."""
+    return sorted(os.path.basename(os.path.dirname(path)) for path in glob.glob(os.path.join(ROOT, "scenes/levels/sectors/*/*_layout.tscn")))
+
+
 def game_starts():
     return sorted(stem(path) for path in glob.glob(os.path.join(ROOT, "database/registry/game_starts/*.tres")) if stem(path) != "start_evolution")
 
@@ -360,6 +365,10 @@ TASKS = [
          " standings), saved apart from the real saves.",
          _test_start, [Ask("start", "Game start", "choice", "start_default", game_starts),
                        Ask("fresh", "Delete the test saves first (a new game)", "flag", "yes")]),
+    Task("economy", "Balance", "Sector economy", "A sector's market, trade routes timed for a ship (WP an hour), every hull's trading,"
+         " problems (stock that pays nowhere, buy-and-sell-back loops) and what 0.x has yet to estimate. Also World: Economy.",
+         lambda v: ["python3", "tools/devtool/economy.py", "sector=" + v["sector"], "ship=" + v["ship"]],
+         [Ask("sector", "Sector", "choice", "sector_elace", sectors), Ask("ship", "Ship to time routes for", "choice", "trader_medium", archetypes)]),
     Task("save_report", "Game", "Save report", "What a save holds, in words: ship, fit, hold, bank, storage, standings, travellers.",
          _save_report, [Ask("save", "Save", "choice", "newest", saves)]),
     Task("editor", "Game", "Open the Godot editor", "", lambda v: godot("-e")),

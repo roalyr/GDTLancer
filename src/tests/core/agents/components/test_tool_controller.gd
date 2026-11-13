@@ -467,6 +467,7 @@ func test_leaks_push_back_against_their_jet_and_weaken_with_pressure():
 	assert_eq(target.get_leak_count(), 1)
 	var leak = target._leaks[0]
 	leak._age = 0.0  # It ages in the frames before this, more of them under load
+	recorder.calls.clear()  # and those frames may have pushed already
 	target._physics_process(0.016)
 	var force: Vector3 = recorder.calls[0][0]
 	assert_almost_eq(force.length(), Constants.FUEL_LEAK_THRUST, Constants.FUEL_LEAK_THRUST * 0.01, "Full thrust while fresh.")

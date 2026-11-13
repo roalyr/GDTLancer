@@ -39,7 +39,7 @@ from textual.widgets import (Button, DataTable, Footer, Header, Input, Label, Se
 
 from rich.markup import escape
 
-from . import changes, constants, data, evolution, models, tasks, worldmap
+from . import changes, constants, data, economy, evolution, models, tasks, worldmap
 from .bridge import Bridge, BridgeError, file_path
 
 RESOURCE_FILES = {  # Resource type -> the files a field of it can point at
@@ -913,6 +913,164 @@ class ChangesScreen(ModalScreen):
         self.dismiss(None)
 
 
+ECONOMY_VIEWS = [("market", "Market", "m"), ("routes", "Routes", "r"), ("ships", "Hulls", "h"), ("problems", "Problems", "p"),
+                 ("scope", "Scope", "o")]
+
+
+class EconomyScreen(ModalScreen):
+    """One sector's economy (economy.py, the bridge's economy command): its market, trade routes
+    timed for a ship, every hull's trading, its problems, and the 0.x scope. Dismisses with
+    {"ship": the ship picked, "node": the haven to open in World (enter on a haven, route or problem) or None}."""
+
+    DEFAULT_CSS = """
+    EconomyScreen { align: center middle; }
+    EconomyScreen > Vertical { width: 95%; height: 95%; border: thick $accent; background: $surface; padding: 0 1; }
+    EconomyScreen #economy-buttons { height: auto; }
+    EconomyScreen #economy-buttons Button { min-width: 10; margin-right: 1; }
+    EconomyScreen #economy-table { height: 1fr; }
+    EconomyScreen #economy-detail { height: auto; max-height: 8; }
+    """
+    BINDINGS = [Binding("escape", "cancel", "Close")] + [Binding(key, "view('%s')" % view, title) for view, title, key in ECONOMY_VIEWS] + [
+        Binding("left_square_bracket", "ship(-1)", "Ship before"), Binding("right_square_bracket", "ship(1)", "Next ship")]
+
+    def __init__(self, view, ship_id=""):
+        super().__init__()
+        self.economy, self.kind, self.rows = view, "problems" if any(p["hard"] for p in view.get("problems", [])) else "routes", []
+        self.ship = economy.ship(view, ship_id)
+
+    def compose(self) -> ComposeResult:
+        with Vertical():
+            yield Label("", id="economy-title")
+            with Horizontal(id="economy-buttons"):
+                for view, title, key in ECONOMY_VIEWS:
+                    yield Button("%s (%s)" % (title, key), id="economy-" + view)
+                yield Button("< Ship", id="economy-ship-before", tooltip="The ship routes are timed for ([)")
+                yield Button("Ship >", id="economy-ship-next", tooltip="The ship routes are timed for (])")
+                yield Button("Close", id="economy-close")
+            yield DataTable(id="economy-table", cursor_type="row", zebra_stripes=True)
+            yield Static("", id="economy-detail")
+
+    def on_mount(self):
+        self.action_view(self.kind)
+
+    def action_view(self, kind):
+        self.kind = kind
+        self._show()
+
+    def action_ship(self, step):
+        ships = self.economy.get("ships", [])
+        if ships and self.ship is not None:
+            index = next((i for i, entry in enumerate(ships) if entry["id"] == self.ship["id"]), 0)
+            self.ship = ships[(index + step) % len(ships)]
+            self._show()
+
+    @on(Button.Pressed, "#economy-buttons Button")
+    def _button(self, event):
+        name = event.button.id.replace("economy-", "")
+        if name == "close":
+            self.action_cancel()
+        elif name.startswith("ship-"):
+            self.action_ship(1 if name == "ship-next" else -1)
+        else:
+            self.action_view(name)
+
+    def _show(self):
+        view, label = self.economy, economy.names(self.economy)
+        problems = view.get("problems", [])
+        hard = sum(1 for problem in problems if problem["hard"])
+        flags = "[red]%d problem(s)[/red]" % hard if hard else "[green]no problems[/green]" if not problems else "[yellow]%d warning(s)[/yellow]" % len(problems)
+        ship_text = "%s (hold %d, %.0f m/s)" % (self.ship["id"], self.ship["hold"], economy.top_speed(self.ship, view["drag"])) if self.ship else "no ships"
+        self.query_one("#economy-title", Label).update(
+            "[b]Economy of %s[/b]%s  ·  %s  ·  routes timed for %s  ·  [dim]a stranger's prices (standing 0) at even markups[/dim]" % (
+                view["sector"], " (the evolution arena: its problems are warnings)" if view.get("practice") else "", flags, ship_text))
+        table = self.query_one("#economy-table", DataTable)
+        table.clear(columns=True)
+        self.rows = []
+        if self.kind == "market":
+            goods, grid = economy.market_grid(view)
+            table.add_columns("Haven", "Owner", *[label.get(good, good) for good in goods])
+            for haven, cells in grid:
+                table.add_row(haven["name"], haven["faction"] or "-", *[
+                    ("%s / %s" % ("[b]%d[/b]" % sold if sold is not None else "-", paid if paid is not None else "-")) if sold is not None or paid is not None else ""
+                    for sold, paid in cells])
+                self.rows.append(haven)
+        elif self.kind == "routes":
+            table.add_columns("Commodity", "From", "WP", "To", "WP", "Margin", "Markups", "km", "Trip", "Load WP", "WP/h", "Flown by")
+            for route, done in economy.ranked_routes(view, self.ship) if self.ship else []:
+                margin = route["sale"] - route["buy"]
+                colour = "green" if margin > 0 else "red"
+                table.add_row(route["name"], route["from_name"], str(route["buy"]), route["to_name"], str(route["sale"]),
+                              "[%s]%+d[/%s]" % (colour, margin, colour), "%+d..%+d" % (route["worst"], route["best"]), "%.1f" % route["km"],
+                              economy.duration(done["total"]), str(done["load"]), "[%s]%+.0f[/%s]" % (colour, done["wp_hour"], colour),
+                              ", ".join(route["factions"]) or "[dim]no NPC[/dim]")
+                self.rows.append((route, done))
+        elif self.kind == "ships":
+            table.add_columns("Hull", "m/s", "Loaded m/s", "Hold", "Value WP", "Best route", "WP/h", "Earns its value in")
+            for row in economy.ship_rows(view):
+                route = row["route"]
+                table.add_row(row["ship"]["id"], "%.0f" % row["speed"], "%.0f" % row["loaded_speed"], str(row["ship"]["hold"]),
+                              str(row["ship"]["value"]), "%s, %s > %s" % (route["name"], route["from_name"], route["to_name"]) if route else "[dim]none pays[/dim]",
+                              "%+.0f" % row["trip"]["wp_hour"] if row["trip"] else "-", economy.duration(row["hours"] * 3600.0))
+                self.rows.append(row)
+        elif self.kind == "problems":
+            table.add_columns("", "Haven", "Commodity", "What")
+            for problem in problems:
+                table.add_row("[red]problem[/red]" if problem["hard"] else "[yellow]warning[/yellow]", label.get(problem["haven"], problem["haven"]),
+                              label.get(problem["commodity"], problem["commodity"]), problem["kind"].replace("_", " "))
+                self.rows.append(problem)
+        else:
+            table.add_columns("What", "Status", "How")
+            for what, about, status in economy.scope_lines(view):
+                colour = economy.STATUS_COLOURS.get(status, "white")
+                table.add_row(what, "[%s]%s[/%s]" % (colour, status, colour), about)
+                self.rows.append((what, about, status))
+        table.focus()
+        self._detail()
+
+    @on(DataTable.RowHighlighted, "#economy-table")
+    def _detail(self, _event=None):
+        table = self.query_one("#economy-table", DataTable)
+        row = self.rows[table.cursor_row] if self.rows and table.cursor_row is not None and table.cursor_row < len(self.rows) else None
+        view, text = self.economy, ""
+        if row is None:
+            text = "Nothing here." if self.kind != "problems" else "[green]No problems: every haven's stock pays somewhere here, and none pays to buy and sell back.[/green]"
+        elif self.kind == "market":
+            text = "[b]%s[/b]: cells are what it charges / what it pays, WP a unit (bold: it sells it). Markups add 0..%d%% to both; standing moves them %d%%. Enter opens it in World." % (
+                row["name"], 100 * view["markup_max"], 100 * view["standing_share"])
+        elif self.kind == "routes":
+            route, done = row
+            text = ("[b]%s[/b], %s to %s, %.1f km: a full hold is %d units (%.0f kg), costs %d WP and makes %+d.\n"
+                    "Out loaded %s, back empty %s, stops %s (docking %ds and about %ds lining up, each): %s a trip, %+.0f WP an hour. Enter opens the seller in World.") % (
+                route["name"], route["from_name"], route["to_name"], route["km"], done["units"], done["cargo_kg"], done["load"], done["profit"],
+                economy.duration(done["loaded"]), economy.duration(done["empty"]), economy.duration(done["stops"]), view["dock_time"], economy.APPROACH_TIME,
+                economy.duration(done["total"]), done["wp_hour"])
+        elif self.kind == "ships":
+            text = "[b]%s[/b]: %.0f kg fitted, %.0f kN, hold %d units; worth %d WP with its fit. Times are estimates from its numbers, not flown." % (
+                row["ship"]["id"], row["ship"]["mass"], row["ship"]["thrust"] / 1000.0, row["ship"]["hold"], row["ship"]["value"])
+        elif self.kind == "problems":
+            rule = "a content problem (the Overview lists it)" if row["hard"] else "a warning: the evolution arena keeps its own rules" if view.get("practice") else "a warning"
+            text = "%s\n[dim]%s. Fix it in the haven's buys and sells (World; enter opens it).[/dim]" % (row["text"], rule)
+        else:
+            text = "[b]%s[/b] (%s): %s" % row
+        self.query_one("#economy-detail", Static).update(text)
+
+    @on(DataTable.RowSelected, "#economy-table")
+    def _open(self, event):
+        row = self.rows[event.cursor_row] if event.cursor_row < len(self.rows) else None
+        node = None
+        if self.kind == "market":
+            node = row["node"]
+        elif self.kind == "routes":
+            node = row[0]["node"]
+        elif self.kind == "problems":
+            node = next((haven["node"] for haven in self.economy["havens"] if haven["id"] == row["haven"]), None)
+        if node:
+            self.dismiss({"ship": self.ship["id"] if self.ship else "", "node": node})
+
+    def action_cancel(self):
+        self.dismiss({"ship": self.ship["id"] if self.ship else "", "node": None})
+
+
 HELP = """\
 [b]Keys, the same on every tab[/b]
   1-9, 0      switch tabs                    ?          this help
@@ -930,8 +1088,10 @@ HELP = """\
                 d on one, then d on another: they duel
   4 Factions    wars (pick a cell, w), rosters (space ticks, ctrl+s), traffic, havens (enter: World)
   5 World       a sector: its scene's bodies and belts, its layout's markers, on a map (top or side, filters);
-                new and copied sectors and bodies are named by the rules; ctrl+n on a sector with no layout makes one
-  6 Parts       weapons (w), modules (m), commodities (c), starting kits (k; p plays one), trade routes (t)
+                new and copied sectors and bodies are named by the rules; ctrl+n on a sector with no layout makes one;
+                Economy: the open sector's market, routes timed for a ship, hulls' WP an hour, problems
+  6 Parts       weapons (w), modules (m), commodities (c), starting kits (k; p plays one), trade routes (t;
+                e: the highlighted route's sector's economy)
   7 Look        shaders, faction paints, paint patterns, music; y syncs shader blocks
   8 Data        every data file in a form made from its script; delete removes one nothing names
   9 Constants   Constants.gd by section (or by kind, ctrl+g); ctrl+f finds
@@ -1113,7 +1273,8 @@ class PartsPane(Vertical):
     BINDINGS = [
         Binding("w", "app.parts('weapons')", "Weapons"), Binding("m", "app.parts('modules')", "Modules"),
         Binding("c", "app.parts('commodities')", "Commodities"), Binding("k", "app.parts('starts')", "Starting kit"),
-        Binding("t", "app.parts('trade')", "Trade routes"), Binding("p", "app.play_start", "Play this start"),
+        Binding("t", "app.parts('trade')", "Trade routes"), Binding("e", "app.parts_economy", "Economy"),
+        Binding("p", "app.play_start", "Play this start"),
         Binding("ctrl+r", "app.refresh_parts", "Refresh"),
     ]
     DEFAULT_CSS = """
@@ -1203,6 +1364,7 @@ class WorldPane(Horizontal):
             with Horizontal(id="sector-buttons"):
                 yield Button("New sector", id="sector-new", tooltip="A new sector: its folder, scene, layout and location, named by the rules")
                 yield Button("Copy sector", id="sector-clone", tooltip="The open sector copied apart (no connections), its bodies and havens renamed")
+                yield Button("Economy", id="sector-economy", tooltip="The open sector's market, trade routes timed for a ship, hulls' WP an hour, problems")
             tree = Tree("Sectors", id="world-tree")
             tree.show_root = False
             yield tree
@@ -1305,6 +1467,7 @@ class DevApp(App):
         self.look_view = {}
         self.user_dir = None
         self.world = {}  # The open sector: sector, path, nodes, map, picked
+        self.economy_ship = ""  # The ship the economy screen times routes for (economy.DEFAULT_SHIP at first)
         self.constants_path = "res://" + constants_path
         self.constant_entries = []
         self.constant_picked = None
@@ -2913,6 +3076,39 @@ class DevApp(App):
             tasks.save_last(last)
             self.run_task(task, answers)
         self.push_screen(AskScreen(task, values), answered)
+
+    @on(Button.Pressed, "#sector-economy")
+    def _sector_economy(self):
+        self.show_economy(self.world.get("sector"))
+
+    def action_parts_economy(self):
+        """The economy of the highlighted trade route's sector (else the open one, else Elace)."""
+        table = self.query_one("#parts", DataTable)
+        sector = self.world.get("sector") or economy.DEFAULT_SECTOR
+        if self.parts_kind == "trade" and self.parts_rows and table.cursor_row is not None and table.cursor_row < len(self.parts_rows):
+            sector = self.parts_rows[table.cursor_row]["sector"]
+        self.show_economy(sector)
+
+    def show_economy(self, sector):
+        if not sector:
+            self.notify("Open a sector first", severity="warning")
+            return
+        self.economy_worker(sector)
+
+    @work(thread=True, exclusive=True, group="economy")
+    def economy_worker(self, sector):
+        try:
+            view = self.ask("economy", sector=sector)
+        except BridgeError as error:
+            self.call_from_thread(self.notify, "Economy: %s" % error, severity="error")
+            return
+        self.call_from_thread(self.push_screen, EconomyScreen(view, self.economy_ship), lambda picked: self._economy_done(view, picked))
+
+    def _economy_done(self, view, picked):
+        self.economy_ship = picked["ship"] or self.economy_ship
+        if picked["node"]:
+            self.query_one(TabbedContent).active = "world"
+            self.load_sector(view["sector"], view["layout"], picked["node"])
 
     def action_review_changes(self):
         def done(line):

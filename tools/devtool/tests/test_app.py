@@ -11,6 +11,7 @@ from textual.widgets import DataTable, Input, Label, TextArea
 
 from devtool import app as devapp
 from devtool import constants, tasks
+from devtool.tests.test_economy import ECONOMY
 
 FILE = "res://database/factions/verdant.tres"
 LAYOUT = "res://scenes/levels/sectors/sector_elace/sector_elace_layout.tscn"
@@ -124,6 +125,9 @@ class FakeBridge:
                     "commodities": [{"id": "commodity_ore", "path": FILE, "name": "Ore", "origin": "stock", "value": 20, "used_by": [], "mass": 50.0}],
                     "starts": [{"path": FILE, "id": "start_default", "ship": "s", "location": "home", "bank": 3000, "storage": {"tool_laser": 1}}],
                     "trade": [dict(TRADE_ROUTE), dict(TRADE_ROUTE, to="den", to_name="Den", sale=30, worst=-20, best=-5, factions=[])]}
+        if command == "economy":
+            self.log.append(("economy", args["sector"]))
+            return ECONOMY
         if command == "look":
             music_field = {"name": "stream", "type": "Object", "hint_name": "resource", "hint_string": "AudioStream", "comment": ""}
             return {"shaders": [{"path": "res://assets/art/shaders/solid.gdshader", "materials": ["res://m.tres"], "scenes": []}],
@@ -702,6 +706,73 @@ class AppTest(unittest.IsolatedAsyncioTestCase):
             await pilot.pause()
             self.assertEqual(loaded[0], ("sector_elace", "res://l.tscn", "Havens/Port"))
             self.assertEqual(app.query_one("TabbedContent").active, "world")
+
+    async def test_a_sector_s_economy_opens_from_a_route_and_opens_a_haven(self):
+        fake = FakeBridge()
+        app = devapp.DevApp(bridge_factory=lambda: fake)
+        async with app.run_test(size=(200, 50)) as pilot:
+            await self._started(pilot, app)
+            await pilot.press("6")
+            await pilot.pause()
+            await pilot.press("t")
+            await pilot.pause()
+            await pilot.press("e")
+            await self._started(pilot, app)
+            screen = app.screen
+            self.assertIsInstance(screen, devapp.EconomyScreen)
+            self.assertIn(("economy", "sector_elace"), fake.log, "The highlighted route's sector")
+            self.assertEqual(screen.kind, "routes", "No problems: the routes first")
+            self.assertEqual(screen.ship["id"], "trader_medium")
+            table = screen.query_one("#economy-table", DataTable)
+            self.assertEqual(table.row_count, 2)
+            self.assertIn("Mill", str(table.get_row_at(0)[3]), "Most WP an hour first")
+            await pilot.press("right_square_bracket")
+            await pilot.pause()
+            self.assertEqual(screen.ship["id"], "shuttle", "The next ship")
+            self.assertIn("+0[", str(screen.query_one("#economy-table", DataTable).get_row_at(0)[10]), "No hold: no WP an hour")
+            await pilot.click("#economy-ships")
+            await pilot.pause()
+            self.assertEqual(screen.kind, "ships")
+            self.assertEqual(str(screen.query_one("#economy-table", DataTable).get_row_at(0)[0]), "hauler")
+            await pilot.press("o")
+            await pilot.pause()
+            self.assertIn("after 0.x", " ".join(str(cell) for row in range(screen.query_one("#economy-table", DataTable).row_count)
+                                               for cell in screen.query_one("#economy-table", DataTable).get_row_at(row)))
+            await pilot.press("m")
+            await pilot.pause()
+            self.assertIn("[b]40[/b] / -", str(screen.query_one("#economy-table", DataTable).get_row_at(0)[2]), "It sells ore for 40")
+            loaded = []
+            app.load_sector = lambda *args: loaded.append(args)
+            await pilot.press("down", "enter")
+            await pilot.pause()
+            self.assertNotIsInstance(app.screen, devapp.EconomyScreen)
+            self.assertIn(("sector_x", "res://l.tscn", "Havens/Mill"), loaded, "The haven picked, in its sector")
+            self.assertEqual(app.query_one("TabbedContent").active, "world")
+            self.assertEqual(app.economy_ship, "shuttle", "The ship picked is kept for next time")
+
+    async def test_problems_come_first_and_the_world_tab_opens_its_sector_s_economy(self):
+        fake = FakeBridge()
+        app = devapp.DevApp(bridge_factory=lambda: fake)
+        problem = {"kind": "loop", "haven": "port", "commodity": "commodity_ore", "hard": True, "text": "Port sells Ore and buys it back"}
+        ECONOMY["problems"].append(problem)
+        try:
+            async with app.run_test(size=(200, 50)) as pilot:
+                await self._started(pilot, app)
+                await pilot.press("5")
+                await self._started(pilot, app)
+                sector = app.world["sector"]
+                await pilot.click("#sector-economy")
+                await self._started(pilot, app)
+                screen = app.screen
+                self.assertIn(("economy", sector), fake.log, "The open sector")
+                self.assertEqual(screen.kind, "problems")
+                self.assertIn("1 problem", str(screen.query_one("#economy-title", Label).content))
+                self.assertIn("buys it back", str(screen.query_one("#economy-detail").content))
+                await pilot.press("escape")
+                await pilot.pause()
+                self.assertNotIsInstance(app.screen, devapp.EconomyScreen)
+        finally:
+            ECONOMY["problems"].remove(problem)
 
     async def test_a_sell_list_shows_what_it_charges(self):
         app = devapp.DevApp(bridge_factory=lambda: FakeBridge())
