@@ -237,6 +237,12 @@ def constant_number(name, fallback):
         return fallback
 
 
+def rock_list_text(paths):
+    """FIELD_ROCK_MODELS's value as GDScript: two paths a line."""
+    lines = ["\t" + ", ".join('"%s"' % path for path in paths[i:i + 2]) + "," for i in range(0, len(paths), 2)]
+    return "[\n" + "\n".join(lines) + "\n]"
+
+
 def standing_words(value):
     """What a standing means in play (Standing: at Constants STANDING_HOSTILE or below, hostile)."""
     if value <= constant_number("STANDING_HOSTILE", -0.6):
@@ -896,6 +902,7 @@ class ModelsPane(Vertical):
     BINDINGS = [
         Binding("i", "app.model('import')", "Import"), Binding("o", "app.model('open')", "Open in Blender"),
         Binding("s", "app.model('sheet')", "Review sheet"), Binding("ctrl+n", "app.new_model", "New model"),
+        Binding("f", "app.toggle_field_rock", "Rock in fields"),
         Binding("ctrl+r", "app.refresh_models", "Refresh"),
     ]
 
@@ -1479,9 +1486,29 @@ class DevApp(App):
             lines.append("[red]- %s[/red]" % problem)
         self.query_one("#model-detail", Static).update("\n".join(lines))
 
+    def action_toggle_field_rock(self):
+        """Puts the picked rock in the asteroid fields (Constants.FIELD_ROCK_MODELS) or takes it out."""
+        row = self._current_model()
+        if row is None or row.kind != "rock":
+            self.notify("Pick a rock (kind rock) first", severity="warning")
+            return
+        listed = [r.scene for r in self.model_rows if r.kind == "rock" and r.users]
+        if row.scene in listed:
+            if len(listed) == 1:
+                self.notify("The fields need one rock at least", severity="error")
+                return
+            listed.remove(row.scene)
+        else:
+            listed.append(row.scene)
+        self.constant_worker("FIELD_ROCK_MODELS", rock_list_text(sorted(listed)))
+        self.refresh_models_worker()
+
     def action_model(self, what):
         row = self._current_model()
         if row is None:
+            return
+        if row.kind == "rock" and what != "open":
+            self.notify("A rock is a .glb: f puts it in the asteroid fields or takes it out", severity="warning")
             return
         if what == "sheet":
             self.run_task(tasks.TASKS_BY_KEY["model_sheet"], {"scene": row.scene.replace("res://", "")})

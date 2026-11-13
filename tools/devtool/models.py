@@ -1,5 +1,5 @@
 """
-The model inventory: every ship and station model scene with its files on disk (source .blend or
+The model inventory: every ship and station model scene, and every rock model, with its files on disk (source .blend or
 .glb, levels of detail, hit surface) and, from the bridge, who uses it and its model check. The
 Models tab shows these rows.
 """
@@ -19,7 +19,7 @@ class ModelRow:
         self.scene, self.kind, self.users, self.problems = scene, kind, users, problems
         self.name = os.path.splitext(os.path.basename(scene))[0]
         self.placeholder = "/placeholders/" in scene
-        self.glb = _glb_of(scene)
+        self.glb = scene if scene.endswith(".glb") else _glb_of(scene)  # A rock is its .glb
         base = os.path.splitext(file_path(self.glb))[0] if self.glb else None
         self.blend = base + ".blend" if base and os.path.exists(base + ".blend") else None
         folder = os.path.dirname(file_path(self.glb)) if self.glb else None
@@ -63,7 +63,7 @@ def _glb_of(scene):
 def rows(report):
     """ModelRows from the bridge's `models` report, ships first, each kind by name."""
     out = []
-    for kind, key in (("ship", "ships"), ("station", "stations")):
+    for kind, key in (("ship", "ships"), ("station", "stations"), ("rock", "rocks")):
         for scene in sorted(report.get(key, {}), key=lambda path: os.path.basename(path)):
             entry = report[key][scene]
             out.append(ModelRow(scene, kind, entry.get("users", []), entry.get("problems", [])))

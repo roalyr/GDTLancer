@@ -764,6 +764,12 @@ func cmd_models(_args: Dictionary):
 		for path in scenes:
 			var problems: Array = ModelCheck.ship_problems(path) if kind == "ships" else ModelCheck.station_problems(path)
 			out[kind][path] = {"users": used[kind].get(path, []), "problems": problems}
+	out["rocks"] = {}  # Every rock model, and which the asteroid fields use (Constants.FIELD_ROCK_MODELS)
+	for path in Validator._files_in("res://assets/models/rocks/", ".glb"):
+		out.rocks[path] = {"users": ["asteroid fields"] if path in Constants.FIELD_ROCK_MODELS else [], "problems": []}
+	for path in Constants.FIELD_ROCK_MODELS:
+		if not out.rocks.has(path):
+			out.rocks[path] = {"users": ["asteroid fields"], "problems": ["Listed in FIELD_ROCK_MODELS, but there is no such file"]}
 	return out
 
 

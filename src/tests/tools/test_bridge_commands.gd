@@ -116,6 +116,9 @@ func test_validate_and_models():
 	assert_gt(models.ships[Constants.SHIP_DEFAULT_SCENE].users.size(), 0, "Who flies it")
 	assert_eq(models.ships[Constants.SHIP_DEFAULT_SCENE].problems, [])
 	assert_true(models.stations.has(Constants.STATION_DEFAULT_MODEL))
+	for path in Constants.FIELD_ROCK_MODELS:
+		assert_eq(models.rocks[path].users, ["asteroid fields"], path)
+		assert_eq(models.rocks[path].problems, [])
 
 
 # Reading any data file and writing its values back changes nothing in it (against Godot's own save

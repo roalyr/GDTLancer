@@ -134,7 +134,7 @@ It makes the levels of detail (`lod/`) and the hit surface (`hit/`) beside the m
 
 **Placeholders:** until real models land, ships and stations are built from primitives (`Constants.gd`: `HULL_FORMS`, `STATION_FORMS`; the part fields are described in `src/scenes/game_world/models/primitive_form.gd`). Hulls are `scenes/prefabs/ships/placeholders/<family>_<weight>.tscn`, stations `scenes/prefabs/station/placeholders/<form>.tscn`. Parts marked `"look": "paint"` take the faction's paint. To replace a placeholder, point its archetype or haven at a real model's scene.
 
-**Rocks:** asteroid fields use the low-poly rocks in `Constants.FIELD_ROCK_MODELS`. The dense rocks are placed by hand in the sector scenes.
+**Rocks:** asteroid fields use the low-poly rocks in `Constants.FIELD_ROCK_MODELS`. The Models tab lists every rock in `assets/models/rocks/` with its levels of detail; `f` on one puts it in the fields or takes it out. The dense rocks are placed by hand in the sector scenes.
 
 ## Sounds — `database/sounds/sound_bank.tres`
 

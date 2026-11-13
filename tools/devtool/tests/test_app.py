@@ -47,7 +47,9 @@ class FakeBridge:
             return [{"file": "res://x.tres", "problem": "Broken"}] if args.get("section") == "factions" else []
         if command == "models":
             return {"ships": {"res://scenes/prefabs/ships/placeholders/fighter_light.tscn": {"users": ["a"], "problems": []}},
-                    "stations": {"res://scenes/prefabs/station/placeholders/haven.tscn": {"users": [], "problems": ["Too big"]}}}
+                    "stations": {"res://scenes/prefabs/station/placeholders/haven.tscn": {"users": [], "problems": ["Too big"]}},
+                    "rocks": {"res://assets/models/rocks/rock_01_6k.glb": {"users": ["asteroid fields"], "problems": []},
+                              "res://assets/models/rocks/rock_02_3k.glb": {"users": [], "problems": []}}}
         if command == "schema":
             fields = [("name", "String", ""), ("count", "int", ""), ("share", "float", ""), ("on", "bool", ""),
                       ("color", "Color", ""), ("list", "Array", ""), ("paint", "String", "file")]
@@ -155,7 +157,7 @@ class AppTest(unittest.IsolatedAsyncioTestCase):
         async with app.run_test(size=(160, 50)) as pilot:
             await self._started(pilot, app)
             self.assertEqual(app.query_one("#problems", DataTable).row_count, 1, "One problem")
-            self.assertEqual(app.query_one("#models", DataTable).row_count, 2)
+            self.assertEqual(app.query_one("#models", DataTable).row_count, 4, "Ships, stations and rocks")
             self.assertEqual(app.model_rows[1].status, "1 problem")
             self.assertEqual(app.query_one("#tasks", DataTable).row_count, len(tasks.TASKS))
 
@@ -483,6 +485,25 @@ class AppTest(unittest.IsolatedAsyncioTestCase):
             app.action_group_constants()
             groups = [str(group.label).split(" (")[0] for group in tree.root.children]
             self.assertEqual(groups, ["float"])
+
+    async def test_a_rock_goes_into_the_fields_and_out(self):
+        app = devapp.DevApp(bridge_factory=lambda: FakeBridge())
+        async with app.run_test(size=(200, 60)) as pilot:
+            await self._started(pilot, app)
+            saved = []
+            app.constant_worker = lambda name, value: saved.append((name, value))
+            rocks = [row for row in app.model_rows if row.kind == "rock"]
+            self.assertEqual(len(rocks), 2)
+            self.assertGreater(rocks[0].lods, 0, "Its levels of detail from assets/models/rocks/lod/")
+            table = app.query_one("#models", DataTable)
+            table.move_cursor(row=app.model_rows.index(rocks[1]))
+            app.action_toggle_field_rock()
+            self.assertEqual(saved[-1][0], "FIELD_ROCK_MODELS")
+            self.assertIn("rock_01_6k.glb", saved[-1][1])
+            self.assertIn("rock_02_3k.glb", saved[-1][1])
+            table.move_cursor(row=app.model_rows.index(rocks[0]))
+            app.action_toggle_field_rock()
+            self.assertEqual(len(saved), 1, "The last rock in the fields stays")
 
     async def test_archetypes_are_listed_in_family_and_weight_order(self):
         app = devapp.DevApp(bridge_factory=lambda: FakeBridge())
