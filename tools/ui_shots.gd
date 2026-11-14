@@ -1,7 +1,7 @@
 # UI shots: starts a new game (docked at home: the fitting window), screenshots each store tab and
 # a prompt, for before/after checks of UI changes. Runs the project's autoloads, so as a scene:
 #     godot res://tools/ui_shots.tscn out=/abs/dir
-# Writes fitting_<tab>.png, fitting_ships_preview.png, announcement.png, prompt.png and notice.png there, and beside each a .txt of every control shown
+# Writes fitting_<tab>.png, fitting_ships_preview.png, announcement.png, prompt.png, notice.png, then undocked ship_window.png and pilot_window.png there, and beside each a .txt of every control shown
 # (type, rect, colours, styles; no text: prices vary), then quits. Nothing is saved.
 extends Node
 
@@ -59,6 +59,17 @@ func _ready() -> void:
 	PromptDialog.tell(fitting.get_parent(), "Saved", "THE GAME IS SAVED.")
 	yield(_wait(0.5), "completed")
 	_shot("notice")
+	for child in fitting.get_parent().get_children():
+		if child.get_script() == PromptDialog:
+			child.queue_free()
+	EventBus.emit_signal("player_undocked")
+	yield(_wait(1.0), "completed")
+	var hud: Node = fitting.get_parent()
+	for window in [hud.ship_window, hud.pilot_window]:
+		window.open()
+		yield(_wait(0.5), "completed")
+		_shot(window.filename.get_file().get_basename())
+		window.close()
 	get_tree().quit()
 
 

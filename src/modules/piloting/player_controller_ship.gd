@@ -516,6 +516,14 @@ func request_dock(station: Spatial) -> void:
 		EventBus.emit_signal("dock_action_feedback", false, "%s refuses docking: hostile standing" % TemplateDatabase.factions[station.faction].get("name", station.faction))
 		return
 	EventBus.emit_signal("player_docked", station.location_id)
+	call_deferred("_autosave_on_dock")
+
+
+# Settings "autosave_on_dock": the game saves once docking has settled (wages paid, home's service
+# done), in play only (evolution keeps its own saves).
+func _autosave_on_dock() -> void:
+	if Settings.get_option("autosave_on_dock") and GameStateManager.mode == GameStateManager.MODE_PLAY and GameState.player_docked_at != "":
+		GameStateManager.save_game(0)
 
 
 # Distance from this ship to the station's hull (its centre minus its obstacle radius).

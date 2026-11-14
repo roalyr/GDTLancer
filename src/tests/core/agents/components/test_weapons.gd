@@ -121,6 +121,24 @@ func test_a_cannon_fires_only_when_the_nose_leads_the_target():
 	assert_almost_eq(target.hull, 300.0 - Constants.LAW_CANNON_DAMAGE[1], 0.5, "and the round meets it")
 
 
+# The HUD's cannon button says why an active cannon is not firing, by the rule it fires by.
+func test_the_cannon_button_says_why_it_holds():
+	var MainHUD = load("res://src/core/ui/main_hud/main_hud.gd")
+	controller = _arm(shooter, "cannon", PartCatalog.genes("cannon", 2))
+	controller.activate(0, target)
+	target.global_transform.origin = Vector3(0, 0, -(controller.reach_on(0, target) + 500.0))
+	assert_eq(controller.cannon_aim(0, target), "far")
+	assert_eq(MainHUD.cannon_word(shooter, controller, 0), "FAR", "Beyond reach, the range not shrinking")
+	shooter.linear_velocity = Vector3(0, 0, -50)
+	assert_eq(MainHUD.cannon_word(shooter, controller, 0), "CLOSING", "Beyond reach, coming in")
+	shooter.linear_velocity = Vector3.ZERO
+	target.global_transform.origin = Vector3(500, 0, -500)
+	assert_eq(MainHUD.cannon_word(shooter, controller, 0), "TURNING", "In reach, the nose off its lead")
+	var aim: Vector3 = controller.cannon_aim_direction(0, target)
+	shooter.global_transform = Transform(Transform().looking_at(aim, Vector3.UP).basis, Vector3.ZERO)
+	assert_eq(MainHUD.cannon_word(shooter, controller, 0), "", "On its lead: nothing to say, it fires")
+
+
 func test_magazines_lighten_the_ship_refill_and_salvage():
 	controller = _arm(shooter, "cannon", PartCatalog.genes("cannon", 2))
 	controller._set_ammo(0, 50)

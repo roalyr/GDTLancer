@@ -22,9 +22,9 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 margin_left = -360.0
-margin_top = -460.0
+margin_top = -500.0
 margin_right = 360.0
-margin_bottom = 460.0
+margin_bottom = 500.0
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -118,6 +118,11 @@ margin_bottom = 624.0
 rect_min_size = Vector2( 0, 64 )
 focus_mode = 0
 text = "SHOW FPS: OFF"
+
+[node name="ButtonAutosave" type="Button" parent="Panel/Layout"]
+rect_min_size = Vector2( 0, 64 )
+focus_mode = 0
+text = "SAVE ON DOCKING: ON"
 
 [node name="ButtonDynamicCamera" type="Button" parent="Panel/Layout"]
 margin_top = 560.0

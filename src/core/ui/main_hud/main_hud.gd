@@ -26,6 +26,8 @@ const OVERLAY_KIND_JUMP = "jump"
 const PointerRouterClass = preload("res://src/core/ui/pointer_router.gd")
 const FittingWindowScene = preload("res://scenes/ui/menus/fitting_window.tscn")
 const InteractionWindowScene = preload("res://scenes/ui/menus/interaction_window.tscn")
+const ShipWindowScene = preload("res://scenes/ui/menus/ship_window.tscn")
+const PilotWindowScene = preload("res://scenes/ui/menus/pilot_window.tscn")
 const Interactions = preload("res://src/core/systems/interactions.gd")
 const FittingWindowScript = preload("res://src/core/ui/fitting_window/fitting_window.gd")
 const DebugMapScene = preload("res://scenes/ui/menus/debug_map.tscn")
@@ -71,6 +73,8 @@ onready var button_afterburner: TextureButton = $ScreenControls/TemporaryToolZon
 onready var button_safety: TextureButton = $ScreenControls/TemporaryToolZone/ButtonSafety
 var fitting_window: Control = null
 var interaction_window: Control = null  # INTERACT: what the selected ship may be asked (InteractionWindow)
+var ship_window: Control = null  # SHIP: the ship flown, its fit and stats (ShipWindow)
+var pilot_window: Control = null  # PILOT: bank, standing, bounties, work (PilotWindow)
 var debug_map: Control = null
 var debug_tools: Control = null
 var radio_lines: Array = []  # The radio lines heard last (Radio), oldest first, with their time: the debug overlay's (the top strip keeps its own, fading)
@@ -240,6 +244,12 @@ func _ready():
 	add_child(fitting_window)
 	interaction_window = InteractionWindowScene.instance()
 	add_child(interaction_window)
+	ship_window = ShipWindowScene.instance()
+	add_child(ship_window)
+	$ScreenControls/CenterRightZone/ButtonShip.connect("pressed", ship_window, "toggle")
+	pilot_window = PilotWindowScene.instance()
+	add_child(pilot_window)
+	$ScreenControls/CenterRightZone/ButtonCharacter.connect("pressed", pilot_window, "toggle")
 	debug_map = DebugMapScene.instance()
 	add_child(debug_map)
 	$ScreenControls/DebugOverlay/RightColumn/ButtonDebugMap.connect("pressed", debug_map, "open")
@@ -659,12 +669,33 @@ func _update_tool_buttons() -> void:
 			fill = float(tools.get_ammo(index)) / max(1.0, float(tools.get_capacity(index)))
 			if tools.get_ammo(index) <= 0:
 				action = "EMPTY"
+		if action == "" and active and tool_template.tool_type == "cannon":
+			action = cannon_word(player, tools, index)
 		var text: String = name if action == "" else "%s\n%s" % [name, action]
 		var label: Label = button.get_node("Label")
 		if label.text != text:
 			label.text = text
 		_tool_bar(button).set_value(fill)
 		_apply_button_toggle_state(button, active)
+
+
+# An active cannon's word when it would not fire now (ToolController.cannon_aim, the rule it fires
+# by): FAR beyond its reach with the range opening, CLOSING beyond it with the range shrinking (the
+# drift towards or away), TURNING while the nose comes onto the lead, BLOCKED while a rock or a friend
+# is in the line; nothing when it fires.
+static func cannon_word(player, tools, index: int) -> String:
+	var target = tools.get_target(index)
+	if not is_instance_valid(target):
+		return ""
+	match tools.cannon_aim(index, target):
+		"far":
+			var to_target: Vector3 = target.global_transform.origin - player.global_transform.origin
+			var target_velocity = target.get("linear_velocity")
+			var relative: Vector3 = (target_velocity if target_velocity is Vector3 else Vector3.ZERO) - player.linear_velocity
+			return "CLOSING" if relative.dot(to_target) < 0.0 else "FAR"
+		"turning":
+			return "TURNING"
+	return "BLOCKED" if tools.is_holding(index) else ""
 
 
 # The bar along a tool button's foot (HudBar), made the first time.

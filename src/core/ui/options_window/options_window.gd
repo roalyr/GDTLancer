@@ -18,6 +18,7 @@ const OPTIONS = {
 	"ButtonEffects": ["effects", "VOLUME_STEPS", "SOUND EFFECTS"],
 	"ButtonSlowDown": ["slow_down_on_lag", null, "SLOW DOWN ON LAG"],
 	"ButtonShowFps": ["show_fps", null, "SHOW FPS"],
+	"ButtonAutosave": ["autosave_on_dock", null, "SAVE ON DOCKING"],
 	"ButtonDynamicCamera": ["camera_dynamic", null, "DYNAMIC CAMERA (UNFINISHED, JITTERS)"],
 }
 

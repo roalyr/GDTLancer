@@ -441,7 +441,7 @@ TASKS = [
     Task("perf", "Maintainer", "Performance ablation", "Frame times with one system switched off.",
          lambda v: godot_script("tools/perf_ablation.gd", "mode=" + v["mode"]),
          [Ask("mode", "Mode", "choice", "base", PERF_MODES)]),
-    Task("ui_shots", "Maintainer", "UI screenshots", "Every store tab and prompt, with control dumps, to .dev/out/ui/.",
+    Task("ui_shots", "Maintainer", "UI screenshots", "Every store tab and prompt, the SHIP and PILOT windows, with control dumps, to .dev/out/ui/.",
          lambda v: godot("res://tools/ui_shots.tscn", "out=" + out_file("ui"))),
     Task("flight_shots", "Maintainer", "Flight screenshots", "The HUD in flight, plain and with the nearest ship selected, to .dev/out/flight/.",
          _flight_shots, [Ask("wait", "Seconds of flight first", default="12"),

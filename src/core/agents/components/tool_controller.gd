@@ -565,6 +565,26 @@ func inbound_damage(target) -> float:
 	return total
 
 
+# Why the cannon at `index` would not fire at `target` now, aim and reach only: "far" (beyond its
+# reach), "turning" (the nose not where a round would meet it), or "" (it would). The HUD's cannon
+# button reads it too (MainHUD.cannon_word), so the player sees the rule the cannon fires by.
+func cannon_aim(index: int, target: Node) -> String:
+	var distance: float = _agent_body.global_transform.origin.distance_to(target.global_transform.origin)
+	if distance > reach_on(index, target):
+		return "far"
+	var nose: Vector3 = -_agent_body.global_transform.basis.z.normalized()
+	var aim: Vector3 = cannon_aim_direction(index, target)
+	var miss: float = distance * sin(min(nose.angle_to(aim), PI * 0.5))
+	if nose.dot(aim) <= 0.0 or miss > _apparent_radius(target) * Constants.CANNON_AIM_SHARE:
+		return "turning"
+	return ""
+
+
+# Whether the tool at `index` holds its fire for a rock or a friend in the line (rechecked shortly).
+func is_holding(index: int) -> bool:
+	return _held.has(index)
+
+
 func _process_cannon(index: int, target: Node) -> void:
 	if _cycle_timers.get(index, 0.0) > 0.0 or _held.has(index):
 		return
@@ -572,15 +592,8 @@ func _process_cannon(index: int, target: Node) -> void:
 		deactivate(index, "empty")
 		return
 	var tool_template = _tools[index]
-	var from_pos: Vector3 = _agent_body.global_transform.origin
-	var distance: float = from_pos.distance_to(target.global_transform.origin)
-	if distance > reach_on(index, target):
-		return
-	var nose: Vector3 = -_agent_body.global_transform.basis.z.normalized()
-	var aim: Vector3 = cannon_aim_direction(index, target)
-	var miss: float = distance * sin(min(nose.angle_to(aim), PI * 0.5))
-	if nose.dot(aim) <= 0.0 or miss > _apparent_radius(target) * Constants.CANNON_AIM_SHARE:
-		return  # Not pointing where it will be
+	if cannon_aim(index, target) != "":
+		return  # Out of reach, or not pointing where it will be
 	if rock_in_the_way(target):
 		_hold(index)  # The round would only hit the rock
 		return
@@ -589,6 +602,8 @@ func _process_cannon(index: int, target: Node) -> void:
 		return
 	if not _agent_body.try_spend_power(tool_template.power_per_cycle):
 		return  # Waits for power
+	var from_pos: Vector3 = _agent_body.global_transform.origin
+	var nose: Vector3 = -_agent_body.global_transform.basis.z.normalized()
 	var shell = ShellScript.new()
 	shell.size = pow(float(tool_template.round_mass) / Constants.LAW_CANNON_REF_ROUND, 1.0 / 3.0)
 	shell.launch(_agent_body, target, from_pos + nose * (_apparent_radius(_agent_body) + 1.0), _agent_body.linear_velocity + nose * tool_template.projectile_speed, tool_template.damage, tool_template.flight_time)

@@ -1,0 +1,61 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://assets/themes/main_theme.tres" type="Theme" id=1]
+[ext_resource path="res://src/core/ui/info_window/ship_window.gd" type="Script" id=2]
+
+[node name="ShipWindow" type="Control"]
+pause_mode = 2
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 1 )
+script = ExtResource( 2 )
+
+[node name="Shade" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 0, 0, 0, 0.6 )
+
+[node name="Panel" type="PanelContainer" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -600.0
+margin_top = -480.0
+margin_right = 600.0
+margin_bottom = 480.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Layout" type="VBoxContainer" parent="Panel"]
+custom_constants/separation = 16
+
+[node name="Header" type="HBoxContainer" parent="Panel/Layout"]
+custom_constants/separation = 16
+
+[node name="Title" type="Label" parent="Panel/Layout/Header"]
+size_flags_horizontal = 3
+size_flags_vertical = 4
+text = "SHIP"
+autowrap = true
+
+[node name="ButtonClose" type="Button" parent="Panel/Layout/Header"]
+rect_min_size = Vector2( 160, 64 )
+focus_mode = 0
+text = "CLOSE"
+
+[node name="Summary" type="Label" parent="Panel/Layout"]
+autowrap = true
+
+[node name="Scroll" type="ScrollContainer" parent="Panel/Layout"]
+size_flags_vertical = 3
+scroll_horizontal_enabled = false
+
+[node name="List" type="VBoxContainer" parent="Panel/Layout/Scroll"]
+size_flags_horizontal = 3
+
+[node name="Note" type="Label" parent="Panel/Layout"]
+modulate = Color( 1, 1, 1, 0.6 )
+autowrap = true
+text = "THE GAME IS PAUSED WHILE THIS IS OPEN."
