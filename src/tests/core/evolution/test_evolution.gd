@@ -329,6 +329,28 @@ func test_a_frozen_world_flies_its_factions_archetypes_on_their_hulls():
 	assert_eq(to_json(Evolution.pools.verdant.cells), cells_before, "Nothing archived")
 
 
+func test_a_free_port_ships_life_ends_on_record_though_evolution_has_no_pool_for_it():
+	Evolution.new_run()
+	Evolution.frozen = true
+	var record: Dictionary = Evolution.begin_life("freeport", "station_elace_home")
+	Evolution.frozen = false
+	assert_false(Evolution.pools.has("freeport"), "Not an evolved faction")
+	var saved: Array = [Evolution.log_lives, Evolution.log_dir]
+	Evolution.log_lives = true
+	Evolution.log_dir = "user://test_evolution_logs/"
+	var path: String = Evolution.log_dir + "run_%s.jsonl" % Evolution.run_id
+	Directory.new().remove(path)
+	Evolution._end_life(record.uid, true, "")
+	Evolution.log_lives = saved[0]
+	Evolution.log_dir = saved[1]
+	var file := File.new()
+	assert_eq(file.open(path, File.READ), OK, "Its life written to the log (the end of _end_life)")
+	var text: String = file.get_as_text() if file.is_open() else ""
+	file.close()
+	Directory.new().remove(path)
+	assert_string_contains(text, record.uid)
+
+
 func test_every_roster_archetype_has_its_genome():
 	for faction in TemplateDatabase.factions:
 		for name in TemplateDatabase.factions[faction].roster:

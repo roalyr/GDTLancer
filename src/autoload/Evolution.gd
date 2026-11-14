@@ -626,8 +626,8 @@ func _end_life(uid: String, died: bool, killer: String) -> void:
 		entry.deaths = int(entry.deaths) + (1 if died else 0)
 		entry.earned = int(entry.earned) + int(record.earned)
 		verdict = "archetype: not archived" if entry.get("archetype", false) else _place_in_archive(record.genome_id)
-	var pool: Dictionary = pools[record.faction]
-	pool.lives = int(pool.lives) + 1
+	if pools.has(record.faction):  # Not the factions evolution leaves out (EVO_FACTIONS: the free port)
+		pools[record.faction].lives = int(pools[record.faction].lives) + 1
 	_log(1, "EVO %s %s %s zone=%s age=%.0fs kills=%d earned=%d bounty=%.0f spent=%.0f dealt=%.0f taken=%.0f docks=%d %s renown=%.0f cost=%.0f fitness=%+.2f genome_mean=%+.2f (n=%d) %s%s" % [
 		"DEATH" if died else "RETIRE", uid, record.genome_id, record.zone, age, record.kills, record.earned, record.bounty,
 		record.get("spent", 0.0), record.damage_dealt, record.damage_taken, record.docks, to_json(record.get("events", {})), renown_of(record), record.cost, fitness, shrunk_fitness(record.genome_id),
