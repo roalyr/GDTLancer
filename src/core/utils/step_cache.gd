@@ -15,6 +15,14 @@ const _STATE := {"on": false}
 static func set_active(on: bool) -> void:
 	_STATE.on = on
 	_CACHE.clear()
+	var tree = Engine.get_main_loop()
+	if tree is SceneTree and tree.has_meta("nav_obstacles"):
+		tree.remove_meta("nav_obstacles")  # NavigationSystem's obstacles, kept longer in the world
+
+
+# In the game world (per-step or longer caching may apply), whether in a physics step or not.
+static func in_world() -> bool:
+	return _STATE.on
 
 
 # Within a physics step of the game world: per-step caching applies.

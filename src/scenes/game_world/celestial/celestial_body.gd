@@ -6,12 +6,24 @@
 
 extends StaticBody
 
+const NavigationSystem = preload("res://src/core/agents/components/navigation_system.gd")
+
 export var is_star: bool = false  # Detected anywhere: its own light gives it away
 
 
 func _ready() -> void:
 	add_to_group("celestial")
 	add_to_group("obstacle")
+	NavigationSystem.forget_obstacles(get_tree())  # Now that it is one
+
+
+# The autopilot's obstacle list (NavigationSystem.get_obstacle_index) is kept while none comes or goes.
+func _enter_tree() -> void:
+	NavigationSystem.forget_obstacles(get_tree())
+
+
+func _exit_tree() -> void:
+	NavigationSystem.forget_obstacles(get_tree())
 
 
 func get_obstacle_radius() -> float:

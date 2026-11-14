@@ -3,6 +3,7 @@
 extends Node
 
 const FrameProfiler = preload("res://src/core/utils/frame_profiler.gd")
+const StepCache = preload("res://src/core/utils/step_cache.gd")
 const OBSTACLES_META = "nav_obstacles"
 
 # --- Enums and Constants ---
@@ -20,6 +21,9 @@ var _avoid_contacts: Array = []  # Directions to the planets it is up against (c
 
 # --- Child Components ---
 var _command_handlers = {}
+var _tools: Node = null  # The ship's ToolController, looked up once (it may come after this)
+
+const TARGET_COMMANDS = {CommandType.APPROACH: true, CommandType.ORBIT: true, CommandType.FLEE: true, CommandType.WATCH: true, CommandType.CHARGE: true}
 
 
 # --- Initialization ---
@@ -172,25 +176,23 @@ func _update_navigation(delta: float):
 	var cmd_type = _current_command.get("type", CommandType.IDLE)
 	var target_node = _current_command.get("target_node", null)
 
-	var is_target_cmd = cmd_type in [CommandType.APPROACH, CommandType.ORBIT, CommandType.FLEE, CommandType.WATCH, CommandType.CHARGE]
-	if is_target_cmd and not is_instance_valid(target_node):
+	if TARGET_COMMANDS.has(cmd_type) and not is_instance_valid(target_node):
 		set_command_stopping()
 		cmd_type = CommandType.STOPPING
 
 	# An active cannon holds the nose on its lead; the course below steers a heading of its own. Not
 	# while charging: a lance is thrown along the nose (LanceController), so the charge keeps it.
-	var tools = agent_body.get_node_or_null("ToolController")
-	var cannon_ok: bool = cmd_type != CommandType.CHARGE and tools != null and tools.has_method("cannon_facing")
-	movement_system.facing = tools.cannon_facing() if cannon_ok else Vector3.ZERO
+	if not is_instance_valid(_tools):
+		_tools = agent_body.get_node_or_null("ToolController")
+	var cannon_ok: bool = cmd_type != CommandType.CHARGE and _tools != null and _tools.has_method("cannon_facing")
+	movement_system.facing = _tools.cannon_facing() if cannon_ok else Vector3.ZERO
 
-	if _command_handlers.has(cmd_type):
-		var handler = _command_handlers[cmd_type]
-		if handler.has_method("execute"):
-			handler.execute(delta)
-	else:
-		_command_handlers[CommandType.IDLE].execute(delta)
+	var handler = _command_handlers.get(cmd_type)
+	if handler == null:
+		handler = _command_handlers[CommandType.IDLE]
+	handler.execute(delta)
 
-	if not cmd_type in [CommandType.IDLE, CommandType.MOVE_DIRECTION]:
+	if cmd_type != CommandType.IDLE and cmd_type != CommandType.MOVE_DIRECTION:
 		_apply_obstacle_avoidance(target_node, delta)
 	movement_system.apply_facing(delta)
 
@@ -203,47 +205,95 @@ func _apply_obstacle_avoidance(target_node, delta: float) -> void:
 	_avoid_timer -= delta
 	if _avoid_timer <= 0.0:
 		_avoid_timer += Constants.NAV_AVOID_INTERVAL
-		_avoid_push = _compute_obstacle_push(target_node)
-		_avoid_contacts = contacts(agent_body.global_transform.origin, agent_body.get_apparent_radius() if agent_body.has_method("get_apparent_radius") else 10.0, get_obstacles(get_tree()))
-	if movement_system.has_method("cancel_thrust_toward"):
+		var index: Dictionary = get_obstacle_index(get_tree())
+		var own_radius: float = agent_body.get_apparent_radius() if agent_body.has_method("get_apparent_radius") else 10.0
+		var requested = movement_system.get_requested_force() if movement_system.has_method("get_requested_force") else null
+		var intent: Vector3 = requested if requested is Vector3 else Vector3.ZERO
+		var position: Vector3 = agent_body.global_transform.origin
+		_avoid_push = _avoidance(position, agent_body.linear_velocity, own_radius, index.tree, intent, target_node)
+		_avoid_contacts = contacts(position, own_radius, index.celestials)
+	if not _avoid_contacts.empty() and movement_system.has_method("cancel_thrust_toward"):
 		for inward in _avoid_contacts:
 			movement_system.cancel_thrust_toward(inward)  # Against a planet: no pressing on into it
 	if _avoid_push != Vector3.ZERO:
 		movement_system.request_thrust_direction(_avoid_push, min(1.0, _avoid_push.length()) * Constants.NAV_AVOID_THRUST)
 
 
-func _compute_obstacle_push(target_node) -> Vector3:
-	var obstacles: Array = []
-	for obstacle in get_obstacles(get_tree()):
-		if obstacle[2] != target_node:
-			obstacles.append(obstacle)
-	var own_radius: float = agent_body.get_apparent_radius() if agent_body.has_method("get_apparent_radius") else 10.0
-	var requested = movement_system.get_requested_force() if movement_system.has_method("get_requested_force") else null
-	var intent: Vector3 = requested if requested is Vector3 else Vector3.ZERO
-	return compute_avoidance(agent_body.global_transform.origin, agent_body.linear_velocity, own_radius, obstacles, intent)
+# Every obstacle as [centre, radius, node]. Obstacles never move (rocks, stations, planets and moons
+# are static bodies), so in the game world the list stands until one enters or leaves (each calls
+# forget_obstacles); elsewhere (unit tests, which place and move them between steps) it is gathered
+# once per physics step. Shared by every ship that steers.
+static func get_obstacles(tree: SceneTree) -> Array:
+	return get_obstacle_index(tree).obstacles
 
 
-# Every obstacle as [centre, radius, node], gathered once per physics step and shared by every
-# ship that steers that step.
-# Drops the step's gathered obstacles: one added or moved this step counts at once (the tests, which
-# make stations faster than steps go by).
+# Drops the gathered obstacles: an obstacle entering or leaving the tree calls it, and tests that
+# make or move one faster than steps go by.
 static func forget_obstacles(tree: SceneTree) -> void:
-	if tree.has_meta(OBSTACLES_META):
+	if tree != null and tree.has_meta(OBSTACLES_META):
 		tree.remove_meta(OBSTACLES_META)
 
 
-static func get_obstacles(tree: SceneTree) -> Array:
-	var step: int = Engine.get_physics_frames()
+# The obstacles three ways: "obstacles" (every one, [centre, radius, node]), "celestials" (the
+# planets and moons among them, for contacts()) and "tree", the same obstacles binned
+# NAV_OBSTACLE_LEVELS times (cubes of NAV_OBSTACLE_CELL, then each level's bins in cubes
+# NAV_OBSTACLE_REGION times as big) into nested clusters (cluster()): a path that passes a
+# cluster's sphere by more than its clearance passes all within, so most are never looked at.
+static func get_obstacle_index(tree: SceneTree) -> Dictionary:
+	var step: int = -1 if StepCache.in_world() else Engine.get_physics_frames()
 	if tree.has_meta(OBSTACLES_META):
 		var cached: Array = tree.get_meta(OBSTACLES_META)
 		if cached[0] == step:
 			return cached[1]
 	var obstacles: Array = []
+	var celestials: Array = []
 	for obstacle in tree.get_nodes_in_group("obstacle"):
 		if obstacle is Spatial and obstacle.has_method("get_obstacle_radius"):
-			obstacles.append([obstacle.global_transform.origin, obstacle.get_obstacle_radius(), obstacle])
-	tree.set_meta(OBSTACLES_META, [step, obstacles])
-	return obstacles
+			var entry: Array = [obstacle.global_transform.origin, obstacle.get_obstacle_radius(), obstacle]
+			obstacles.append(entry)
+			if obstacle.is_in_group("celestial"):
+				celestials.append(entry)
+	var index := {"obstacles": obstacles, "celestials": celestials, "tree": nest(obstacles, Constants.NAV_OBSTACLE_CELL, Constants.NAV_OBSTACLE_REGION, Constants.NAV_OBSTACLE_LEVELS)}
+	tree.set_meta(OBSTACLES_META, [step, index])
+	return index
+
+
+# `obstacles` clustered `levels` times, in cubes of `cell` m growing `growth` times a level.
+static func nest(obstacles: Array, cell: float, growth: float, levels: int) -> Array:
+	var items: Array = obstacles
+	for _level in range(levels):
+		items = cluster(items, cell)
+		cell *= growth
+	return items
+
+
+# `items` (obstacles [centre, radius, node] and clusters) binned in cubes of `cell` m. A bin of
+# several becomes a cluster [centre, reach (from its centre to the furthest centre of an obstacle
+# within), largest obstacle radius within, members]; a bin of one stays as it is.
+static func cluster(items: Array, cell: float) -> Array:
+	var bins := {}
+	for item in items:
+		var key: Vector3 = (item[0] / cell).floor()
+		if not bins.has(key):
+			bins[key] = []
+		bins[key].append(item)
+	var clusters: Array = []
+	for members in bins.values():
+		if members.size() == 1:
+			clusters.append(members[0])
+			continue
+		var centre := Vector3.ZERO
+		for member in members:
+			centre += member[0]
+		centre /= members.size()
+		var reach := 0.0
+		var largest := 0.0
+		for member in members:
+			var nested: bool = member.size() > 3
+			reach = max(reach, centre.distance_to(member[0]) + (member[1] if nested else 0.0))
+			largest = max(largest, member[2] if nested else member[1])
+		clusters.append([centre, reach, largest, members])
+	return clusters
 
 
 # Sideways push away from every obstacle ([centre, radius]) whose clearance sphere the straight
@@ -252,23 +302,43 @@ static func get_obstacles(tree: SceneTree) -> Array:
 # asked for), that way too: the stronger push wins, so a ship sliding slowly along a planet it is
 # thrusting into turns off it rather than pressing on. Slower than NAV_AVOID_MIN_SPEED, only `intent`.
 static func compute_avoidance(position: Vector3, velocity: Vector3, own_radius: float, obstacles: Array, intent: Vector3 = Vector3.ZERO) -> Vector3:
+	return _avoidance(position, velocity, own_radius, obstacles, intent, null)
+
+
+# compute_avoidance over obstacles and clusters of them (get_obstacle_index's "tree"), leaving out
+# the obstacle `exclude` (the command's own target, e.g. the station being approached).
+static func _avoidance(position: Vector3, velocity: Vector3, own_radius: float, items: Array, intent: Vector3, exclude) -> Vector3:
 	var push := Vector3.ZERO
 	var speed: float = velocity.length()
 	if speed >= Constants.NAV_AVOID_MIN_SPEED:
-		push = _push_along(position, velocity / speed, speed, own_radius, obstacles)
+		push = _push_along(position, velocity / speed, speed * Constants.NAV_AVOID_LOOKAHEAD_TIME, own_radius, items, exclude)
 	if intent.length_squared() > 0.001 and (speed < Constants.NAV_AVOID_MIN_SPEED or intent.normalized().dot(velocity / speed) < Constants.NAV_AVOID_INTENT_DOT):
-		var pushing: Vector3 = _push_along(position, intent.normalized(), max(speed, Constants.NAV_AVOID_MIN_SPEED), own_radius, obstacles)
+		var pushing: Vector3 = _push_along(position, intent.normalized(), max(speed, Constants.NAV_AVOID_MIN_SPEED) * Constants.NAV_AVOID_LOOKAHEAD_TIME, own_radius, items, exclude)
 		if pushing.length_squared() > push.length_squared():
 			push = pushing
 	return push
 
 
-static func _push_along(position: Vector3, heading: Vector3, speed: float, own_radius: float, obstacles: Array) -> Vector3:
-	var reach: float = speed * Constants.NAV_AVOID_LOOKAHEAD_TIME
+# The push off `items` (obstacles and clusters) of a path from `position` along `heading`, `reach` m
+# ahead (the look-ahead at its speed).
+static func _push_along(position: Vector3, heading: Vector3, reach: float, own_radius: float, items: Array, exclude) -> Vector3:
 	var push := Vector3.ZERO
-	for obstacle in obstacles:
-		var to_centre: Vector3 = obstacle[0] - position
-		var clearance: float = (obstacle[1] + own_radius) * Constants.NAV_AVOID_CLEARANCE
+	for item in items:
+		if item.size() > 3:  # A cluster
+			# An obstacle counts only within its clearance of the path's first reach + clearance
+			# metres, and every one within is within the cluster's reach of its centre: a centre
+			# further than both from that stretch rules them all out.
+			var widest: float = (item[2] + own_radius) * Constants.NAV_AVOID_CLEARANCE
+			var to_cluster: Vector3 = item[0] - position
+			var nearest: float = clamp(to_cluster.dot(heading), 0.0, reach + widest)
+			var keep: float = item[1] + widest
+			if (to_cluster - heading * nearest).length_squared() < keep * keep:
+				push += _push_along(position, heading, reach, own_radius, item[3], exclude)
+			continue
+		if exclude != null and item[2] == exclude:
+			continue
+		var to_centre: Vector3 = item[0] - position
+		var clearance: float = (item[1] + own_radius) * Constants.NAV_AVOID_CLEARANCE
 		var along: float = to_centre.dot(heading)
 		if along < 0.0 or along > reach + clearance:
 			continue

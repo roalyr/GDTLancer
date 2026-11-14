@@ -14,6 +14,7 @@ const RockDustScene = preload("res://scenes/prefabs/effects/rock_dust.tscn")
 const RockDustEffect = preload("res://src/core/agents/effects/rock_dust_effect.gd")
 const RockMaterial = preload("res://assets/art/materials_generic/mat_asteroid_rock.tres")
 const OreChunk = preload("res://src/scenes/game_world/celestial/ore_chunk.gd")
+const NavigationSystem = preload("res://src/core/agents/components/navigation_system.gd")
 
 export var model: PackedScene = null  # Rock mesh scene; the prefab's default is used if unset
 export var stretch: Vector3 = Vector3.ONE  # Per-axis model stretch, for a non-spherical rock
@@ -55,10 +56,20 @@ func _ready() -> void:
 		var collision_radius: float = min(hull_bounds.size.x, min(hull_bounds.size.y, hull_bounds.size.z)) * 0.45
 		_collision.transform = Transform(Basis().scaled(Vector3.ONE * collision_radius), hull_bounds.position + hull_bounds.size * 0.5)
 	MeshLod.attach(_model, ViewDetail.attach(self, get_apparent_radius()), Constants.LOD_LEVEL_BY_BAND_DENSE)
+	NavigationSystem.forget_obstacles(get_tree())  # An obstacle now, sized
 	if mineable:
 		add_to_group("mineable")
 	else:
 		deposit = 0
+
+
+# The autopilot's obstacle list (NavigationSystem.get_obstacle_index) is kept while none comes or goes.
+func _enter_tree() -> void:
+	NavigationSystem.forget_obstacles(get_tree())
+
+
+func _exit_tree() -> void:
+	NavigationSystem.forget_obstacles(get_tree())
 
 
 func get_display_name() -> String:

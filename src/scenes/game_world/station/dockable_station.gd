@@ -7,6 +7,7 @@ extends StaticBody
 
 const CollisionHull = preload("res://src/core/agents/components/collision_hull.gd")
 const ModelLooks = preload("res://src/scenes/game_world/models/model_looks.gd")
+const NavigationSystem = preload("res://src/core/agents/components/navigation_system.gd")
 
 export var location_id: String = ""  # Its haven's id (SectorLayout sets it, and the name, from the haven marker)
 export var station_name: String = ""
@@ -19,6 +20,16 @@ func _ready():
 	add_to_group("dockable_station")
 	add_to_group("obstacle")
 	fit_to_model()
+	NavigationSystem.forget_obstacles(get_tree())  # An obstacle now, sized
+
+
+# The autopilot's obstacle list (NavigationSystem.get_obstacle_index) is kept while none comes or goes.
+func _enter_tree() -> void:
+	NavigationSystem.forget_obstacles(get_tree())
+
+
+func _exit_tree() -> void:
+	NavigationSystem.forget_obstacles(get_tree())
 
 
 # Sizes the station by its model: it collides by the model's convex hull, the autopilot keeps clear

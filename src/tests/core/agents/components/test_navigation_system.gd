@@ -334,6 +334,76 @@ func test_thrust_off_the_way_it_moves_is_checked_too():
 	assert_gt(Nav.compute_avoidance(Vector3.ZERO, moving, 12.0, [planet], Vector3(0, 0, -1000)).length(), 0.0, "But it thrusts toward the planet: pushed")
 
 
+func test_nested_bins_push_as_every_obstacle_looked_at_does():
+	var Nav = load("res://src/core/agents/components/navigation_system.gd")
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 11
+	var obstacles: Array = []
+	for i in range(120):
+		var at := Vector3(rng.randf_range(-15000, 15000), rng.randf_range(-1500, 1500), rng.randf_range(-15000, 15000))
+		if i % 3 == 0:  # Some clumped, as in a field
+			at = obstacles[i - 1][0] + Vector3(rng.randf_range(-400, 400), rng.randf_range(-400, 400), rng.randf_range(-400, 400)) if i > 0 else at
+		obstacles.append([at, rng.randf_range(20.0, 1200.0) if i % 17 == 0 else rng.randf_range(15.0, 200.0), null])
+	for layout in [[2000.0, 3.0, 3], [500.0, 2.0, 4], [8000.0, 4.0, 1]]:
+		var tree: Array = Nav.nest(obstacles, layout[0], layout[1], layout[2])
+		var pushed := 0
+		for _try in range(300):
+			var position := Vector3(rng.randf_range(-16000, 16000), rng.randf_range(-2000, 2000), rng.randf_range(-16000, 16000))
+			var velocity := Vector3(rng.randf_range(-1, 1), rng.randf_range(-0.3, 0.3), rng.randf_range(-1, 1)).normalized() * rng.randf_range(0.0, 350.0)
+			var intent := Vector3(rng.randf_range(-1, 1), 0.0, rng.randf_range(-1, 1)) if rng.randf() < 0.5 else Vector3.ZERO
+			var own_radius: float = rng.randf_range(5.0, 150.0)
+			var every: Vector3 = Nav.compute_avoidance(position, velocity, own_radius, obstacles, intent)
+			var binned: Vector3 = Nav._avoidance(position, velocity, own_radius, tree, intent, null)
+			assert_almost_eq(binned.distance_to(every), 0.0, 0.0001, "Same push, %s" % str(layout))
+			if every != Vector3.ZERO:
+				pushed += 1
+		assert_gt(pushed, 10, "Some paths do pass obstacles")
+
+
+func test_the_command_target_is_left_out_of_the_look_ahead():
+	var Nav = load("res://src/core/agents/components/navigation_system.gd")
+	var station := Spatial.new()
+	add_child_autofree(station)
+	var obstacles: Array = [[Vector3(0, 0, -300), 100.0, station]]
+	var tree: Array = Nav.nest(obstacles, 2000.0, 3.0, 3)
+	assert_ne(Nav._avoidance(Vector3.ZERO, Vector3(0, 0, -100), 12.0, tree, Vector3.ZERO, null), Vector3.ZERO, "In the way")
+	assert_eq(Nav._avoidance(Vector3.ZERO, Vector3(0, 0, -100), 12.0, tree, Vector3.ZERO, station), Vector3.ZERO, "Flying to it")
+
+
+func _planet(radius: float, at: Vector3) -> StaticBody:
+	var planet = load("res://src/scenes/game_world/celestial/celestial_body.gd").new()
+	var shape = CollisionShape.new()
+	shape.name = "CollisionShape"
+	shape.shape = SphereShape.new()
+	shape.shape.radius = radius
+	planet.add_child(shape)
+	planet.transform.origin = at
+	return planet
+
+
+func test_in_the_game_world_obstacles_are_kept_until_one_comes_or_goes():
+	var Nav = load("res://src/core/agents/components/navigation_system.gd")
+	var StepCache = load("res://src/core/utils/step_cache.gd")
+	StepCache.set_active(true)
+	var index: Dictionary = Nav.get_obstacle_index(get_tree())
+	var before: int = index.obstacles.size()
+	index["marked"] = true
+	yield(get_tree(), "physics_frame")
+	yield(get_tree(), "physics_frame")
+	assert_true(Nav.get_obstacle_index(get_tree()).has("marked"), "Kept from step to step")
+	var planet = _planet(500.0, Vector3(0, 0, -5000))
+	add_child(planet)
+	index = Nav.get_obstacle_index(get_tree())
+	assert_false(index.has("marked"), "One came: gathered again")
+	assert_eq(index.obstacles.size(), before + 1)
+	assert_eq(index.celestials.back()[2], planet, "Among the planets, for contacts")
+	remove_child(planet)
+	planet.free()
+	index = Nav.get_obstacle_index(get_tree())
+	assert_eq(index.obstacles.size(), before, "One went: gathered again")
+	StepCache.set_active(false)
+
+
 func test_a_charge_leads_a_crossing_target_to_where_they_meet():
 	var Charge = load("res://src/core/agents/components/navigation_system/command_charge.gd")
 	var t: float = Charge.intercept_time(Vector3(0, 0, -1000), Vector3(100, 0, 0), 200.0)

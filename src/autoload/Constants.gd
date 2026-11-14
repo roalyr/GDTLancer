@@ -147,6 +147,11 @@ const NAV_AVOID_THRUST = 1.0  # Share of linear thrust used to sidestep at full 
 const NAV_AVOID_INTENT_DOT = 0.9  # Thrust asked for further off the way it moves than this (cosine): checked too
 const NAV_CONTACT_MARGIN = 30.0  # m from touching a planet or moon at which thrust into it is dropped
 const NAV_AVOID_MIN_SPEED = 2.0  # m/s; slower than this, nothing to avoid
+# The look ahead's obstacles are kept in nested bins (NavigationSystem.get_obstacle_index), so a ship
+# skips whole bins its path passes well clear of. Only speed: never what it steers round.
+const NAV_OBSTACLE_CELL = 2000.0  # m: the smallest bins' cube
+const NAV_OBSTACLE_REGION = 3.0  # Each level's bins are cubes this many times the size of the one below
+const NAV_OBSTACLE_LEVELS = 3
 
 
 # ==================================================================================================
