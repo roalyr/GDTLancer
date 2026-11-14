@@ -19,6 +19,8 @@ const OPTIONS = {
 	"ButtonSlowDown": ["slow_down_on_lag", null, "SLOW DOWN ON LAG"],
 	"ButtonShowFps": ["show_fps", null, "SHOW FPS"],
 	"ButtonAutosave": ["autosave_on_dock", null, "SAVE ON DOCKING"],
+	"ButtonExhausts": ["engine_exhausts", null, "ENGINE EXHAUSTS"],
+	"ButtonTetherRope": ["tether_rope", "TETHER_ROPE_STYLES", "TETHER ROPE"],
 	"ButtonDynamicCamera": ["camera_dynamic", null, "DYNAMIC CAMERA (UNFINISHED, JITTERS)"],
 }
 

@@ -1,7 +1,7 @@
 # UI shots: starts a new game (docked at home: the fitting window), screenshots each store tab and
 # a prompt, for before/after checks of UI changes. Runs the project's autoloads, so as a scene:
 #     godot res://tools/ui_shots.tscn out=/abs/dir
-# Writes fitting_<tab>.png, fitting_ships_preview.png, announcement.png, prompt.png, notice.png, then undocked ship_window.png and pilot_window.png there, and beside each a .txt of every control shown
+# Writes fitting_<tab>.png, fitting_ships_preview.png, announcement.png, prompt.png, notice.png, then undocked ship_window.png, pilot_window.png and options_window.png there, and beside each a .txt of every control shown
 # (type, rect, colours, styles; no text: prices vary), then quits. Nothing is saved.
 extends Node
 
@@ -70,6 +70,13 @@ func _ready() -> void:
 		yield(_wait(0.5), "completed")
 		_shot(window.filename.get_file().get_basename())
 		window.close()
+	var options = menu.get("options_window")
+	if options != null:
+		menu._show_menu()  # The options window is the menu's: shown over it, as in play
+		options.open()
+		yield(_wait(0.5), "completed")
+		_shot("options_window")
+		options.close()
 	get_tree().quit()
 
 

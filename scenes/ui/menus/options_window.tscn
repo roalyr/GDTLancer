@@ -22,9 +22,9 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 margin_left = -360.0
-margin_top = -500.0
+margin_top = -480.0
 margin_right = 360.0
-margin_bottom = 500.0
+margin_bottom = 480.0
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -33,7 +33,7 @@ margin_left = 40.0
 margin_top = 32.0
 margin_right = 680.0
 margin_bottom = 888.0
-custom_constants/separation = 16
+custom_constants/separation = 10
 
 [node name="Header" type="HBoxContainer" parent="Panel/Layout"]
 margin_right = 640.0
@@ -59,7 +59,7 @@ text = "CLOSE"
 margin_top = 80.0
 margin_right = 640.0
 margin_bottom = 144.0
-rect_min_size = Vector2( 0, 64 )
+rect_min_size = Vector2( 0, 56 )
 focus_mode = 0
 text = "PARTICLES: ON"
 
@@ -67,7 +67,7 @@ text = "PARTICLES: ON"
 margin_top = 160.0
 margin_right = 640.0
 margin_bottom = 224.0
-rect_min_size = Vector2( 0, 64 )
+rect_min_size = Vector2( 0, 56 )
 focus_mode = 0
 text = "RENDER SCALE: X1.0"
 
@@ -75,7 +75,7 @@ text = "RENDER SCALE: X1.0"
 margin_top = 240.0
 margin_right = 640.0
 margin_bottom = 304.0
-rect_min_size = Vector2( 0, 64 )
+rect_min_size = Vector2( 0, 56 )
 focus_mode = 0
 text = "HIT EFFECTS: ON"
 
@@ -83,7 +83,7 @@ text = "HIT EFFECTS: ON"
 margin_top = 320.0
 margin_right = 640.0
 margin_bottom = 384.0
-rect_min_size = Vector2( 0, 64 )
+rect_min_size = Vector2( 0, 56 )
 focus_mode = 0
 text = "HUD LOOK: STANDARD"
 
@@ -91,7 +91,7 @@ text = "HUD LOOK: STANDARD"
 margin_top = 400.0
 margin_right = 640.0
 margin_bottom = 464.0
-rect_min_size = Vector2( 0, 64 )
+rect_min_size = Vector2( 0, 56 )
 focus_mode = 0
 text = "MUSIC: OFF"
 
@@ -99,7 +99,7 @@ text = "MUSIC: OFF"
 margin_top = 480.0
 margin_right = 640.0
 margin_bottom = 544.0
-rect_min_size = Vector2( 0, 64 )
+rect_min_size = Vector2( 0, 56 )
 focus_mode = 0
 text = "SOUND EFFECTS: OFF"
 
@@ -107,7 +107,7 @@ text = "SOUND EFFECTS: OFF"
 margin_top = 480.0
 margin_right = 640.0
 margin_bottom = 544.0
-rect_min_size = Vector2( 0, 64 )
+rect_min_size = Vector2( 0, 56 )
 focus_mode = 0
 text = "SLOW DOWN ON LAG: OFF"
 
@@ -115,20 +115,30 @@ text = "SLOW DOWN ON LAG: OFF"
 margin_top = 560.0
 margin_right = 640.0
 margin_bottom = 624.0
-rect_min_size = Vector2( 0, 64 )
+rect_min_size = Vector2( 0, 56 )
 focus_mode = 0
 text = "SHOW FPS: OFF"
 
 [node name="ButtonAutosave" type="Button" parent="Panel/Layout"]
-rect_min_size = Vector2( 0, 64 )
+rect_min_size = Vector2( 0, 56 )
 focus_mode = 0
 text = "SAVE ON DOCKING: ON"
+
+[node name="ButtonExhausts" type="Button" parent="Panel/Layout"]
+rect_min_size = Vector2( 0, 56 )
+focus_mode = 0
+text = "ENGINE EXHAUSTS: ON"
+
+[node name="ButtonTetherRope" type="Button" parent="Panel/Layout"]
+rect_min_size = Vector2( 0, 56 )
+focus_mode = 0
+text = "TETHER ROPE: COMPLEX"
 
 [node name="ButtonDynamicCamera" type="Button" parent="Panel/Layout"]
 margin_top = 560.0
 margin_right = 640.0
 margin_bottom = 624.0
-rect_min_size = Vector2( 0, 64 )
+rect_min_size = Vector2( 0, 56 )
 focus_mode = 0
 text = "DYNAMIC CAMERA (UNFINISHED, JITTERS): OFF"
 

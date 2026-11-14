@@ -1253,6 +1253,9 @@ func _physics_process(delta: float) -> void:
 	var thrust: float = float(thrust_used) if thrust_used != null and not is_wreck and not is_docked else 0.0
 	var smoothing: float = 1.0 - exp(-delta / Constants.SIG_ENGINE_SMOOTHING)
 	_engine_activity = lerp(_engine_activity, thrust, smoothing)
+	if not Settings.get_option("engine_exhausts"):
+		_engine_thrust = Vector3.ZERO  # Only the exhausts read it, and they are off
+		return
 	var pushed: Vector3 = Vector3.ZERO
 	if thrust > 0.0:
 		pushed = global_transform.basis.orthonormalized().xform_inv(movement_system.last_thrust_vector)

@@ -431,6 +431,7 @@ const SMOULDER_MAX_BAND = VIEW_FAR  # Smoulder spots emit
 const DAMAGE_TRAIL_MAX_BAND = VIEW_FAR  # Damage trails emit
 const HIT_FX_LIGHT_MAX_BAND = VIEW_FAR  # A hit lights its surroundings (the band of the body hit and of the light's own reach; still capped by HIT_FX_MAX_LIGHTS)
 const TETHER_ROPE_SIM_MAX_BAND = VIEW_FAR  # A cable is simulated (band of the ship holding it); farther, drawn straight
+const TETHER_ROPE_STYLES = ["complex", "simple"]  # The Options button (Settings "tether_rope"): complex simulates near cables (TetherRope); simple draws every cable as a straight line
 const ROCK_DUST_MAX_BAND = VIEW_FAR  # A dust puff shows (its own size, ROCK_DUST_RADIUS)
 const ROCK_DUST_RADIUS = 8.0  # m: a dust puff's rough extent, for its band
 

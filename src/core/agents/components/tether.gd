@@ -12,7 +12,8 @@
 # harpoon cannot fire again until then (ToolController.is_retracting).
 # Looks: a TetherRope drawn as a smooth camera-facing ribbon, brighter and thinner under strain,
 # with the hook (scenes/prefabs/effects/harpoon_hook.tscn) at its end. Far from the camera the
-# rope is not simulated and is drawn straight. Child of the holder's ToolController.
+# rope is not simulated and is drawn straight; with Settings "tether_rope" "simple" no cable is
+# simulated and each is a straight line (two points). Child of the holder's ToolController.
 
 extends Node
 const Interp = preload("res://src/core/utils/interp.gd")
@@ -169,7 +170,7 @@ func _step_rope(delta: float) -> void:
 	_paid_out = get_next_paid_out(_paid_out if _paid_out >= 0.0 else length, length, distance, delta)
 	_rope_length = max(0.0, _paid_out - max(0.0, distance - from.distance_to(to)))
 	if not _is_near_camera():
-		_rope.reset(from, to)
+		_rope.reset(from, to, 2 if is_simple() else -1)
 		return
 	var obstacles: Array = []
 	for body in [holder, towed]:
@@ -203,7 +204,7 @@ func _step_launch(delta: float) -> void:
 	var from: Vector3 = _anchor_point(holder, _hook_pos)
 	_rope_length = from.distance_to(_hook_pos) * 1.03
 	if not _is_near_camera():
-		_rope.reset(from, _hook_pos)
+		_rope.reset(from, _hook_pos, 2 if is_simple() else -1)
 		return
 	var obstacles: Array = []
 	if holder.has_method("get_hull_core_box"):
@@ -224,7 +225,7 @@ func _step_retract(delta: float) -> void:
 	var tip: Vector3 = _rope.points[_rope.points.size() - 1]
 	var from: Vector3 = _anchor_point(holder, tip)
 	if not _is_near_camera():
-		_rope.reset(from, from + (tip - from).normalized() * min(from.distance_to(tip), _rope_length))
+		_rope.reset(from, from + (tip - from).normalized() * min(from.distance_to(tip), _rope_length), 2 if is_simple() else -1)
 		return
 	var obstacles: Array = []
 	if holder.has_method("get_hull_core_box"):
@@ -233,10 +234,17 @@ func _step_retract(delta: float) -> void:
 
 
 func _is_near_camera() -> bool:
+	if is_simple():
+		return false
 	var camera = get_viewport().get_camera() if is_inside_tree() else null
 	if camera == null or not is_instance_valid(holder):
 		return true  # Nothing to judge by (tests): simulate
 	return ViewDetail.band_of_host(holder) <= Constants.TETHER_ROPE_SIM_MAX_BAND  # The holding ship's band
+
+
+# Settings "tether_rope" "simple": a straight line, never simulated.
+static func is_simple() -> bool:
+	return Settings.get_option("tether_rope") == "simple"
 
 
 # Through a ship's MovementSystem; a body with none (an ore chunk, a loose lance) is pushed directly.

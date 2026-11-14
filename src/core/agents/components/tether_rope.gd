@@ -19,8 +19,10 @@ static func point_count_for(rope_length: float) -> int:
 	return int(clamp(count, Constants.TETHER_ROPE_MIN_POINTS, Constants.TETHER_ROPE_POINTS))
 
 
-func reset(from: Vector3, to: Vector3) -> void:
-	var count: int = point_count_for(from.distance_to(to))
+# A straight cable from `from` to `to`, of `count` points (default: as many as its length takes).
+func reset(from: Vector3, to: Vector3, count: int = -1) -> void:
+	if count < 2:
+		count = point_count_for(from.distance_to(to))
 	points.clear()
 	for i in range(count):
 		points.append(from.linear_interpolate(to, float(i) / float(count - 1)))

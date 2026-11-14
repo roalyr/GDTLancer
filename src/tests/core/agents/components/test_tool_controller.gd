@@ -764,3 +764,21 @@ func test_fighting_range_is_the_range_of_the_weapons_on_the_target():
 	controller._targets[0] = target
 	assert_eq(controller.fighting_range(target), 500.0, "The laser's optimal range")
 	assert_eq(controller.fighting_range(shooter), 0.0, "Only what is on that target")
+
+
+# Settings "tether_rope" "simple": the cable is a straight line of two points, never simulated;
+# back to complex, it is simulated again.
+func test_simple_tether_rope_is_a_straight_line():
+	var tether = _make_tether(400.0)
+	tether._physics_process(0.1)
+	assert_gt(tether._rope.points.size(), 2, "Complex (the default): a chain of points")
+	Settings.set_option("tether_rope", "simple")
+	tether.towed.global_transform.origin = Vector3(0, 0, -300)
+	tether._physics_process(0.1)
+	assert_eq(tether._rope.points.size(), 2, "Simple: two points")
+	assert_almost_eq(tether._rope.points[1].z, tether._anchor_point(tether.towed, Vector3.ZERO).z, 0.001, "end to end")
+	Settings.set_option("tether_rope", "complex")
+	for _i in range(3):
+		tether._physics_process(0.1)
+	assert_gt(tether._rope.points.size(), 2, "Complex again: simulated")
+	Settings.reset_to_defaults()

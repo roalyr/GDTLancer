@@ -14,6 +14,10 @@
 #   "camera_dynamic" (bool) OrbitCamera: eases after the ship (elastic); off, fixed to the ship.
 #                          Unfinished (it jitters): off by default, the Options button says so
 #   "autosave_on_dock" (bool) PlayerControllerShip: the game saves each time the player docks
+#   "engine_exhausts" (bool) EngineExhaustSet: ships' plumes and nozzle glow (off: hidden and not
+#                          worked out, nor the agents' per-nozzle thrust); missiles keep theirs
+#   "tether_rope"  (String) Tether: "complex" simulates near cables, "simple" draws a straight line
+#                          (Constants.TETHER_ROPE_STYLES)
 # The file is read only by load_file() (the main scene's start), and written only after it: tests
 # and tools run on the defaults, whatever the player chose, and never touch the file.
 
@@ -34,6 +38,8 @@ const DEFAULTS = {
 	"show_fps": false,
 	"camera_dynamic": false,  # Unfinished: jitters with 30 Hz physics (a new key: a saved "on" is not kept)
 	"autosave_on_dock": true,
+	"engine_exhausts": true,
+	"tether_rope": "complex",
 }
 
 var _values: Dictionary = DEFAULTS.duplicate()

@@ -102,3 +102,29 @@ func test_parts_past_the_hardpoints_do_not_show():
 	assert_eq(ShipModel.mount_parts(hull, {"tools": tools, "modules": []}), 2, "Two with nowhere to go")
 	assert_eq(ShipModel.mount_parts(hull, {"tools": [], "modules": ["preset_power_cell_light"]}), 0, "Refit: rebuilt")
 	assert_null(hull.get_node_or_null(ShipModel.MOUNTS), "Only internal parts: nothing shows")
+
+
+# Settings "engine_exhausts" off: a ship's exhausts are hidden and not worked out; on, back.
+func test_exhausts_switch_off_and_on():
+	var ship := FakeShip.new()
+	add_child_autofree(ship)
+	var hull: Spatial = load("res://scenes/prefabs/ships/placeholders/fighter_medium.tscn").instance()
+	ship.add_child(hull)
+	var engines: Node = hull.get_node("Engines")
+	assert_true(engines.visible and engines.is_processing(), "On by default")
+	Settings.set_option("engine_exhausts", false)
+	assert_false(engines.visible, "Off: hidden")
+	assert_false(engines.is_processing(), "and not worked out")
+	Settings.set_option("engine_exhausts", true)
+	assert_true(engines.visible and engines.is_processing(), "On again")
+	Settings.reset_to_defaults()
+
+
+func test_agents_skip_the_nozzle_thrust_with_exhausts_off():
+	var agent = load("res://src/core/agents/agent.gd").new()
+	agent._engine_thrust = Vector3.FORWARD
+	Settings.set_option("engine_exhausts", false)
+	add_child_autofree(agent)
+	agent._physics_process(0.016)
+	assert_eq(agent.get_engine_thrust(), Vector3.ZERO, "Not worked out")
+	Settings.reset_to_defaults()

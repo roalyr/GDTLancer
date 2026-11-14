@@ -11,6 +11,8 @@
 # get_engine_thrust (a missile) pushes straight ahead at get_engine_activity().
 # Sits on the ship scene's "Engines" node; exhausts facing the same way share one set of material
 # copies (one per ship and direction), so ships and directions do not change each other's glow.
+# Settings "engine_exhausts" off: a ship's exhausts are hidden and not worked out (a missile's stay:
+# its plume is how an inbound one is seen).
 
 extends Spatial
 
@@ -41,6 +43,23 @@ func _ready() -> void:
 	_agent = _find_agent()
 	for group in _groups:
 		_apply(group, 0.0, 0.0)
+	Settings.connect("changed", self, "_on_settings_changed")
+	_show_setting()
+
+
+func _on_settings_changed(key: String, _value) -> void:
+	if key == "engine_exhausts":
+		_show_setting()
+
+
+# Shown and worked out, or (the option off, on a ship) neither.
+func _show_setting() -> void:
+	var shown: bool = Settings.get_option("engine_exhausts") or not (is_instance_valid(_agent) and _agent.has_method("get_engine_thrust"))
+	visible = shown
+	set_process(shown)
+	if shown:
+		for group in _groups:
+			group.thrust = -2.0  # Redrawn at the next frame, whatever changed while hidden
 
 
 func _process(_delta: float) -> void:
