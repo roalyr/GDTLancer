@@ -221,6 +221,49 @@ func recover_lance_into(salvager) -> bool:
 	return LanceController.recover_from(self, salvager)
 
 
+# Room for `wanted` new chunks under ORE_CHUNK_MAX: how many may come (at least 1). With none
+# free, the oldest chunks no ship holds (a laser or harpoon on it) are cleared to make room for one.
+static func make_room(tree: SceneTree, wanted: int) -> int:
+	var chunks: Array = tree.get_nodes_in_group("ore_chunk")
+	var free_slots: int = Constants.ORE_CHUNK_MAX - chunks.size()
+	if free_slots >= 1:
+		return int(min(wanted, free_slots))
+	trim(tree, Constants.ORE_CHUNK_MAX - 1)
+	return 1
+
+
+# Clears the oldest chunks no ship holds until at most `keep` are left (held ones stay, so there
+# may be more).
+static func trim(tree: SceneTree, keep: int) -> void:
+	var chunks: Array = []
+	for chunk in tree.get_nodes_in_group("ore_chunk"):
+		if not chunk.is_queued_for_deletion():
+			chunks.append(chunk)
+	var excess: int = chunks.size() - keep
+	if excess <= 0:
+		return
+	var held := {}
+	for body in tree.get_nodes_in_group("agent_body"):
+		var tools = body.get_node_or_null("ToolController") if not body.get("is_wreck") else null
+		if tools != null:
+			for index in range(tools.get_tool_count()):
+				if is_instance_valid(tools.get_target(index)):
+					held[tools.get_target(index)] = true
+	chunks.sort_custom(OreChunkOrder, "older_first")
+	for chunk in chunks:
+		if excess <= 0:
+			break
+		if not held.has(chunk):
+			chunk.despawn()
+			excess -= 1
+
+
+class OreChunkOrder:
+	static func older_first(a, b) -> bool:
+		return a.wreck_time_ms < b.wreck_time_ms
+
+
 func despawn() -> void:
+	remove_from_group("ore_chunk")  # Gone from the count at once (make_room), not at the frame's end
 	EventBus.emit_signal("agent_despawning", self)
 	queue_free()

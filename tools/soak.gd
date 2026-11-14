@@ -2,7 +2,7 @@
 # at home, saves in user://test_savegames/) runs `minutes` of real time at 1x while the sector lives
 # round it: haven ships, travellers, fights, mining, wrecks. Every `every` s it prints one line
 #   SOAK {json}: t (min), game (s), fps, nodes, orphans, objects, resources, mem (MB), bodies,
-#                wrecks, lances (and their caps), over (caps broken) and tables (bookkeeping sizes)
+#                wrecks, lances, ore chunks (and their caps), over (caps broken) and tables (bookkeeping sizes)
 # then "SOAK done". tools/devtool/soak.py runs it and judges the lines (errors, orphans and memory
 # growing, caps broken, tables growing); `tools/dev.py soak`, and the release before it builds.
 #
@@ -72,6 +72,7 @@ func sample(t: float) -> Dictionary:
 	var bodies = get_nodes_in_group("agent_body")
 	var wrecks := 0
 	var lances := 0
+	var chunks := 0
 	var held := {}
 	for body in bodies:
 		var tools = body.get_node_or_null("ToolController")
@@ -83,6 +84,8 @@ func sample(t: float) -> Dictionary:
 		if body.get("is_wreck") and not held.has(body) and not (body.has_method("is_player") and body.is_player()):
 			if body.is_in_group("loose_lance"):
 				lances += 1
+			elif body.is_in_group("ore_chunk"):
+				chunks += 1
 			else:
 				wrecks += 1
 	var over := []
@@ -91,6 +94,8 @@ func sample(t: float) -> Dictionary:
 		over.append("wrecks %d > %d" % [wrecks, constants.WRECK_MAX])
 	if lances > constants.LANCE_LOOSE_MAX + 1:
 		over.append("loose lances %d > %d" % [lances, constants.LANCE_LOOSE_MAX])
+	if chunks > constants.ORE_CHUNK_MAX:  # Capped as they break off, not on a clear
+		over.append("ore chunks %d > %d" % [chunks, constants.ORE_CHUNK_MAX])
 	return {
 		"t": stepify(t, 0.01), "game": int(root.get_node("GameState").world_time), "fps": Engine.get_frames_per_second(),
 		"nodes": int(Performance.get_monitor(Performance.OBJECT_NODE_COUNT)),
@@ -98,7 +103,7 @@ func sample(t: float) -> Dictionary:
 		"objects": int(Performance.get_monitor(Performance.OBJECT_COUNT)),
 		"resources": int(Performance.get_monitor(Performance.OBJECT_RESOURCE_COUNT)),
 		"mem": stepify(Performance.get_monitor(Performance.MEMORY_STATIC) / 1048576.0, 0.1),
-		"bodies": bodies.size(), "wrecks": wrecks, "lances": lances, "over": over, "tables": tables()}
+		"bodies": bodies.size(), "wrecks": wrecks, "lances": lances, "chunks": chunks, "over": over, "tables": tables()}
 
 
 # The sizes of the bookkeeping that lives as long as the game: none may keep growing.

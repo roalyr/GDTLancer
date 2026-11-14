@@ -7,7 +7,7 @@ tools/soak.gd starts a new game in Elace, the player docked at home, and prints 
 counts every `every` s (real time, 1x). judge() reads the output and lists the problems:
   - a script error, or an engine error (any "SCRIPT ERROR" / "ERROR:" line);
   - no "SOAK done" (it crashed or hung) or too few samples;
-  - wrecks or loose lances over their caps (WRECK_MAX, LANCE_LOOSE_MAX) in any sample;
+  - wrecks, loose lances or ore chunks over their caps (WRECK_MAX, LANCE_LOOSE_MAX, ORE_CHUNK_MAX) in any sample;
   - after the warm-up (WARM_MINUTES; the sector fills up first), nodes left orphaned growing
     by more than ORPHAN_SLACK, memory by more than MEMORY_SLACK (MB or share, the larger), or a
     table of bookkeeping (sound, threat notices, travellers, markups, evolution) more than doubling.

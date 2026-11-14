@@ -6,6 +6,7 @@ const Interp = preload("res://src/core/utils/interp.gd")
 const Traffic = preload("res://src/core/systems/traffic.gd")
 const Offscreen = preload("res://src/core/systems/offscreen.gd")
 const PlatformController = preload("res://src/modules/piloting/platform_controller.gd")
+const OreChunk = preload("res://src/scenes/game_world/celestial/ore_chunk.gd")
 
 var populate_sectors: bool = true  # Tests switch this off to spawn only the player.
 var run_traffic: bool = true  # The evolution sim switches this off: no travellers among the evolving NPCs
@@ -318,7 +319,8 @@ func _find_layout() -> Node:
 
 
 # Past WRECK_LOOTED_CAP wrecks, removes the oldest stripped ones; past WRECK_MAX, the oldest of
-# any; past LANCE_LOOSE_MAX loose lances, the oldest. Ones someone is harpooning, and the player's
+# any; past LANCE_LOOSE_MAX loose lances, the oldest; past ORE_CHUNK_MAX ore chunks, the oldest
+# (OreChunk.trim; they are not counted as wrecks). Ones someone is harpooning, and the player's
 # own wreck, stay.
 func clear_old_wrecks() -> void:
 	var wrecks: Array = []
@@ -328,6 +330,8 @@ func clear_old_wrecks() -> void:
 		if body.get("is_wreck"):
 			if body.is_in_group("loose_lance"):
 				loose.append(body)
+			elif body.is_in_group("ore_chunk"):
+				continue  # Capped apart (ORE_CHUNK_MAX, below)
 			elif not body.is_player():
 				wrecks.append(body)
 			continue
@@ -336,6 +340,7 @@ func clear_old_wrecks() -> void:
 			for index in range(tools.get_tool_count()):
 				if is_instance_valid(tools.get_target(index)):
 					held[tools.get_target(index)] = true
+	OreChunk.trim(get_tree(), Constants.ORE_CHUNK_MAX)
 	loose.sort_custom(self, "_older_wreck_first")
 	var spare: int = loose.size() - Constants.LANCE_LOOSE_MAX
 	for lance in loose:

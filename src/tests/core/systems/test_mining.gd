@@ -137,3 +137,70 @@ func test_a_worked_out_rock_glances_a_lance_off_to_drift():
 	assert_gt(loose[0].linear_velocity.z, 0.0, "Off the face, back the way it came")
 	assert_almost_eq(loose[0].linear_velocity.length(), 200.0 * Constants.LANCE_GLANCE_KEEP, 1.0)
 	loose[0].free()
+
+
+# Chunks are capped (ORE_CHUNK_MAX): a strike past it breaks fewer, bigger pieces, and with no room
+# the oldest chunk no ship holds goes; a held one stays.
+func test_chunks_adrift_are_capped():
+	rock.deposit = 1000
+	var held = null
+	for strike in range(Constants.ORE_CHUNK_MAX * 2):
+		var before: int = rock.get_deposit()
+		var chunks: Array = _strike()[1]
+		var units := 0
+		for chunk in chunks:
+			if not chunk.is_queued_for_deletion():
+				units += chunk.get_salvage_units()
+		assert_true(get_tree().get_nodes_in_group("ore_chunk").size() <= Constants.ORE_CHUNK_MAX, "Never past the cap (strike %d)" % strike)
+		if strike == 0:
+			held = get_tree().get_nodes_in_group("ore_chunk")[0]
+			var tools = ToolControllerScript.new()
+			tools.name = "ToolController"
+			miner.add_child(tools)
+			var laser = UtilityToolTemplate.new()
+			laser.tool_type = "laser"
+			tools.set_tools([laser])
+			tools._targets[0] = held  # A laser on it: held
+		for loose in get_tree().get_nodes_in_group("loose_lance"):
+			loose.free()
+		lance.nails = int(lance.lance.count)
+	assert_true(is_instance_valid(held) and not held.is_queued_for_deletion(), "The held chunk, the oldest, stays")
+	assert_eq(get_tree().get_nodes_in_group("ore_chunk").size(), Constants.ORE_CHUNK_MAX)
+	for chunk in get_tree().get_nodes_in_group("ore_chunk"):
+		chunk.free()
+
+
+func test_a_strike_with_room_for_one_keeps_all_its_ore_in_one_piece():
+	rock.deposit = 1000
+	var OreChunkScript = load("res://src/scenes/game_world/celestial/ore_chunk.gd")
+	var fillers: Array = []
+	for index in range(Constants.ORE_CHUNK_MAX - 1):
+		var filler = OreChunkScript.new()
+		filler.setup({"commodity_ore": 1}, null, 1.0)
+		add_child(filler)
+		fillers.append(filler)
+	var result: Array = _strike()
+	var fresh: Array = []
+	for chunk in result[1]:
+		if not chunk in fillers:
+			fresh.append(chunk)
+	assert_eq(fresh.size(), 1, "One slot left: one piece")
+	assert_eq(fresh[0].get_salvage_units(), int(clamp(round(result[0] / Constants.MINING_DAMAGE_PER_UNIT), 1, Constants.MINING_CHUNK_MAX)), "holding the whole strike's ore")
+	for chunk in get_tree().get_nodes_in_group("ore_chunk"):
+		chunk.free()
+	for loose in get_tree().get_nodes_in_group("loose_lance"):
+		loose.free()
+
+
+func test_chunk_models_are_low_poly():
+	for path in Constants.MINING_CHUNK_MODELS:
+		var model: Node = load(path).instance()
+		var triangles := 0
+		var nodes: Array = [model]
+		while not nodes.empty():
+			var node: Node = nodes.pop_back()
+			nodes += node.get_children()
+			if node is MeshInstance and node.mesh != null:
+				triangles += node.mesh.get_faces().size() / 3
+		model.free()
+		assert_true(triangles > 0 and triangles <= Constants.MINING_CHUNK_TRIANGLES_MAX, "%s: %d triangles" % [path, triangles])

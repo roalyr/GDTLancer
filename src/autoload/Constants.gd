@@ -583,10 +583,11 @@ const MINING_ORE_PER_METRE = 1.0  # A rock's deposit: units per metre of its rad
 const MINING_CHUNK_SPEED = 8.0  # m/s the chunk drifts off the rock's face
 const MINING_CHUNK_BASE_MASS = 100.0  # kg of rock round the deposit in a chunk
 const MINING_CHUNK_RADIUS = 0.75  # m for a one-unit chunk (grows as the cube root of its units)
-const MINING_CHUNK_MODELS = [  # Low-poly rocks (the rock models' last LOD)
-	"res://assets/models/rocks/lod/rock_01_6k_LOD3.glb", "res://assets/models/rocks/lod/rock_03_4k_LOD3.glb",
-	"res://assets/models/rocks/lod/rock_05_4k_LOD3.glb",
+const MINING_CHUNK_MODELS = [  # Low-poly rocks: the lightest rock models' last LOD (about 380 triangles; the content test holds them under MINING_CHUNK_TRIANGLES_MAX)
+	"res://assets/models/rocks/lod/rock_02_3k_LOD3.glb", "res://assets/models/rocks/lod/rock_04_3k_LOD3.glb",
 ]
+const MINING_CHUNK_TRIANGLES_MAX = 400
+const ORE_CHUNK_MAX = 8  # Chunks adrift at once (each a body, a bracket and a draw call). A strike past it breaks fewer, bigger pieces; with none left to give, the oldest chunk no one holds goes (OreChunk.make_room)
 const MINING_SLAG_COLOR = Color(1.0, 0.45, 0.15, 1.0)  # Hot slag's glow, fading as it cools
 const MINING_DEPOSIT = "commodity_ore"  # What rocks hold
 
