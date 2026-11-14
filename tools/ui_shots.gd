@@ -70,6 +70,15 @@ func _ready() -> void:
 		yield(_wait(0.5), "completed")
 		_shot(window.filename.get_file().get_basename())
 		window.close()
+	get_viewport().disable_3d = false  # The HUD's looks are judged over the world
+	for look in Constants.HUD_PRESET_ORDER:
+		Settings.set_option("hud_preset", look)
+		hud.apply_hud_preset()
+		yield(_wait(0.5), "completed")
+		_shot("hud_%s" % look)
+	Settings.set_option("hud_preset", "standard")
+	hud.apply_hud_preset()
+	get_viewport().disable_3d = true
 	var options = menu.get("options_window")
 	if options != null:
 		menu._show_menu()  # The options window is the menu's: shown over it, as in play

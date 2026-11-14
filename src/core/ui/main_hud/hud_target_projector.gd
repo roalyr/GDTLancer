@@ -155,31 +155,73 @@ func get_route_target_overlay_signature(sector_id: String) -> String:
 	normalized_connections.sort()
 	return "%s|%s" % [sector_id, str(normalized_connections)]
 
+# The world's brackets brought in line with the zone (a zone or sector loaded): a bracket for every
+# target that has none, none for targets gone. Brackets that stay keep their state, so none blinks.
+# Ships, chunks and loose lances that come and go later are added and removed one by one (MainHUD:
+# agent_spawned, debris_spawned, agent_despawning), never by a sweep of the whole zone.
 func rebuild_world_target_overlay() -> void:
-	clear_world_target_overlay()
 	if not is_instance_valid(_hud.projected_target_overlay):
+		clear_world_target_overlay()
 		return
-	var world_targets: Array = collect_world_projected_targets()
-	for target_node in world_targets:
+	var keep := {}
+	for target_node in collect_world_projected_targets():
+		keep[target_node.get_instance_id()] = true
 		add_world_target(target_node)
+	for instance_id in _hud._world_target_buttons.keys():
+		if not keep.has(instance_id):
+			_free_world_bracket(instance_id)
 	update_world_target_selection_state()
 	_hud._refresh_process_state()
 
 
-# One bracket for `target_node` (a chunk or a loose lance just come into the world: the rest come in
-# a rebuild), unless it has one.
+# One bracket for `target_node`, unless it has one; whether it shows is worked out at once (it
+# appears after HUD_BRACKET_APPEAR_DELAY, placed), not at the next refresh round.
 func add_world_target(target_node: Node) -> void:
-	if not is_instance_valid(_hud.projected_target_overlay) or _hud._world_target_buttons.has(target_node.get_instance_id()):
+	if not is_instance_valid(_hud.projected_target_overlay):
 		return
+	var instance_id: int = target_node.get_instance_id()
+	var existing = _hud._world_target_buttons.get(instance_id)
+	if is_instance_valid(existing) and existing.target_ref == target_node:
+		return
+	if existing != null:
+		_free_world_bracket(instance_id)  # A freed target's id, reused
 	var button = _hud._instance_projected_target_bracket()
 	if button == null:
 		return
-	button.name = "World_%s" % target_node.get_instance_id()
+	button.name = "World_%s" % instance_id
 	button.configure_target(target_node, _hud._resolve_target_display_name(target_node))
 	button.connect("pressed", _hud, "_on_world_target_button_pressed", [target_node])
 	button.visible = false  # Until placed (update_world_target_overlay, _appears)
 	_hud.projected_target_overlay.add_child(button)
-	_hud._world_target_buttons[target_node.get_instance_id()] = button
+	_hud._world_target_buttons[instance_id] = button
+	if target_node is Spatial and target_node.is_inside_tree():
+		button.world_shown = _refresh_world_bracket(button, target_node)
+
+
+# `target_node` is going (despawned, cleared): its bracket goes with it.
+func remove_world_target(target_node: Node) -> void:
+	if is_instance_valid(target_node):
+		_free_world_bracket(target_node.get_instance_id())
+
+
+# `target_node` changed what it is (a ship became a wreck): its bracket's name, colours and showing.
+func restyle_world_target(target_node: Node) -> void:
+	if not is_instance_valid(target_node):
+		return
+	var button = _hud._world_target_buttons.get(target_node.get_instance_id())
+	if not is_instance_valid(button):
+		add_world_target(target_node)
+		return
+	button.configure_target(target_node, _hud._resolve_target_display_name(target_node))
+	if target_node is Spatial and target_node.is_inside_tree():
+		button.world_shown = _refresh_world_bracket(button, target_node)
+
+
+func _free_world_bracket(instance_id: int) -> void:
+	var button = _hud._world_target_buttons.get(instance_id)
+	_hud._world_target_buttons.erase(instance_id)
+	if is_instance_valid(button):
+		button.queue_free()
 
 func update_route_target_overlay() -> void:
 	if not is_instance_valid(_hud._main_camera):
@@ -259,41 +301,48 @@ func update_world_target_overlay(full: bool = true) -> void:
 		_limit_mark_distances()
 	else:
 		_refresh_bracket_slice(now)
-	var camera_fwd = -_hud._main_camera.global_transform.basis.z.normalized()
+	# Per frame and per bracket, so kept lean: the camera read once; a bracket that does not show
+	# (undetected, its overlay off: the slow re-check's world_shown) costs one test; one behind the
+	# camera is not projected; a hidden one is not faded.
+	var camera: Camera = _hud._main_camera
+	var camera_transform: Transform = camera.global_transform
+	var camera_origin: Vector3 = camera_transform.origin
+	var camera_fwd: Vector3 = -camera_transform.basis.z
 	var viewport_rect = _hud.get_viewport_rect()
-	for instance_id in _hud._world_target_buttons:
-		var button = _hud._world_target_buttons[instance_id]
+	var fade_on: bool = _hud._is_projected_target_center_fade_enabled()
+	for button in _hud._world_target_buttons.values():
 		if not is_instance_valid(button):
 			continue
 		var target_node = button.target_ref
-		if not (is_instance_valid(target_node) and target_node is Spatial):
-			button.visible = false
-			apply_projected_target_distance_fade(button, 1.0)
+		if full and is_instance_valid(target_node) and target_node is Spatial:
+			button.world_shown = _refresh_world_bracket(button, target_node)
+		if not button.world_shown or not is_instance_valid(target_node):
+			_hide_world_bracket(button)
 			continue
-		if full:
-			button.set_meta("shown", _refresh_world_bracket(button, target_node))
-		if not button.get_meta("shown", false):
-			button.visible = false
-			button.set_meta("wanted_since", -1)
-			apply_projected_target_distance_fade(button, 1.0)
+		var target_world_position: Vector3 = Interp.origin(target_node)
+		var wanted: bool = (target_world_position - camera_origin).dot(camera_fwd) >= 0.0
+		var screen_pos := Vector2.ZERO
+		if wanted:
+			screen_pos = ScreenSpace.world_to_screen(camera, target_world_position)
+			wanted = viewport_rect.has_point(screen_pos)
+		if not wanted:
+			_hide_world_bracket(button)
 			continue
-		var target_world_position: Vector3 = get_target_world_position(target_node)
-		var target_dir = (target_world_position - _hud._main_camera.global_transform.origin).normalized()
-		var is_in_front = target_dir.dot(camera_fwd) >= 0
-		var screen_pos = ScreenSpace.world_to_screen(_hud._main_camera, target_world_position)
-		var is_on_screen = viewport_rect.has_point(screen_pos)
-		var wanted: bool = is_in_front and is_on_screen
-		if wanted:  # Placed even while it waits to appear: it shows where it belongs
-			var at: Vector2 = screen_pos - (button.rect_size / 2.0)
-			if button.rect_position.distance_squared_to(at) > 0.04:  # Unmoved (a fifth of a pixel): no relayout
-				button.rect_position = at
-		var shown: bool = _appears(button, wanted, now)
+		var at: Vector2 = screen_pos - (button.rect_size / 2.0)  # Placed even while it waits to appear: it shows where it belongs
+		if button.rect_position.distance_squared_to(at) > 0.04:  # Unmoved (a fifth of a pixel): no relayout
+			button.rect_position = at
+		var shown: bool = _appears(button, true, now)
 		if button.visible != shown:
 			button.visible = shown
 		if shown:
-			apply_projected_target_distance_fade(button, get_projected_target_distance_fade_alpha(screen_pos, viewport_rect))
-		else:
-			apply_projected_target_distance_fade(button, 1.0)
+			button.set_distance_fade_alpha(get_projected_target_distance_fade_alpha(screen_pos, viewport_rect) if fade_on else 1.0)
+
+
+func _hide_world_bracket(button) -> void:
+	button.wanted_since = -1
+	if button.visible:
+		button.visible = false
+		button.set_distance_fade_alpha(1.0)
 
 
 # A bracket about to show (new, just detected, come on screen) waits HUD_BRACKET_APPEAR_DELAY first,
@@ -301,13 +350,12 @@ func update_world_target_overlay(full: bool = true) -> void:
 # runs from when it was first wanted, until it is not.
 func _appears(button, wanted: bool, now: int) -> bool:
 	if not wanted:
-		button.set_meta("wanted_since", -1)
+		button.wanted_since = -1
 		return false
-	var since: int = int(button.get_meta("wanted_since", -1))
-	if since < 0:
-		button.set_meta("wanted_since", now)
+	if button.wanted_since < 0:
+		button.wanted_since = now
 		return false
-	return now - since >= int(Constants.HUD_BRACKET_APPEAR_DELAY * 1000.0)
+	return now - button.wanted_since >= int(Constants.HUD_BRACKET_APPEAR_DELAY * 1000.0)
 
 # The slow re-check of each bracket (shown, cues, colours: _refresh_world_bracket) spread over the
 # frames: a slice each frame, so each comes round every HUD_BRACKET_REFRESH_INTERVAL without all of
@@ -324,10 +372,13 @@ func _refresh_bracket_slice(now: int) -> void:
 		if _slice_cursor >= keys.size():
 			_slice_cursor = 0
 			_limit_mark_distances()
-		var button = _hud._world_target_buttons[keys[_slice_cursor]]
+		var key = keys[_slice_cursor]
+		var button = _hud._world_target_buttons.get(key)
 		_slice_cursor += 1
 		if is_instance_valid(button) and is_instance_valid(button.target_ref) and button.target_ref is Spatial:
-			button.set_meta("shown", _refresh_world_bracket(button, button.target_ref))
+			button.world_shown = _refresh_world_bracket(button, button.target_ref)
+		elif button != null:
+			_free_world_bracket(key)  # Its target went without a word: the bracket goes too
 
 
 # Only the nearest Constants.HUD_MARK_DISTANCES hostiles the player sees show their distance by their
@@ -437,11 +488,18 @@ func get_ship_cues(target_ref, detailed: bool = true) -> Array:
 		cues.append("SEES YOU" if target_ref.detects(player) else "UNAWARE")
 	return cues
 
+# The selected bracket labelled with its cues; the one selected before back to a bare mark. Only
+# brackets whose selection changes are touched (cues are worked out for the selected one alone: the
+# others show none).
 func update_world_target_selection_state() -> void:
 	var selected_instance_id = get_world_target_instance_id()
 	for instance_id in _hud._world_target_buttons:
 		var button = _hud._world_target_buttons[instance_id]
-		if is_instance_valid(button):
-			button.set_selected_state(instance_id == selected_instance_id)
-			if button.has_method("set_context_hint"):
-				button.call("set_context_hint", get_projected_target_context_hint(button.target_ref))
+		if not is_instance_valid(button):
+			continue
+		var selected: bool = instance_id == selected_instance_id
+		if not selected and not button._is_selected:
+			continue
+		button.set_selected_state(selected)
+		if button.has_method("set_context_hint"):
+			button.set_context_hint(get_projected_target_context_hint(button.target_ref) if selected else "")

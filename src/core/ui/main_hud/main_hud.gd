@@ -82,7 +82,6 @@ var threat_ring: Control = null
 var awareness_zone: Control = null  # The top strip (AwarenessZone)
 var _tool_rows: Array = []  # Rows of tool buttons above TemporaryToolZone (_layout_tool_rows)
 var _tool_rows_key: String = ""
-var _world_rebuild_queued: bool = false  # A bracket rebuild is due at the end of the frame
 
 # --- Game Over UI ---
 
@@ -475,30 +474,23 @@ func _on_agent_despawning(agent_body) -> void:
 	# If our selected target is being removed, clear target UI.
 	if is_instance_valid(_current_target) and _current_target is Spatial and agent_body == _current_target:
 		_on_Player_Target_Deselected()
-	_queue_world_target_rebuild()
+	_target_projector.remove_world_target(agent_body)  # Its bracket alone: the rest stay as they are
 
 
 func _on_player_spawned(_player_body) -> void:
 	_refresh_process_state()
 
 
-func _on_agent_spawned(_agent_body, _init_data) -> void:
-	_queue_world_target_rebuild()
+# A ship, chunk or loose lance come into the world gets its own bracket; the others are untouched
+# (a rebuild of them all made every bracket blink and cost a frame spike).
+func _on_agent_spawned(agent_body, _init_data) -> void:
+	if is_instance_valid(agent_body) and _target_projector.is_world_projectable_target(agent_body):
+		_target_projector.add_world_target(agent_body)
 
 
-# Chunks and loose lances come often (every lance throw): each gets its own bracket, not a rebuild.
 func _on_debris_spawned(body) -> void:
 	if is_instance_valid(body) and _target_projector.is_world_projectable_target(body):
 		_target_projector.add_world_target(body)
-		_target_projector.update_world_target_overlay(true)
-
-
-# One rebuild of the brackets however many ships come or go at once (a sector's population spawns
-# together: a rebuild each cost seconds).
-func _queue_world_target_rebuild() -> void:
-	if not _world_rebuild_queued:
-		_world_rebuild_queued = true
-		call_deferred("_rebuild_world_target_overlay")
 
 
 func _on_new_game_requested() -> void:
@@ -1156,7 +1148,7 @@ func describe_world_stats(player) -> String:
 	var brackets_shown := 0
 	for instance_id in _world_target_buttons:
 		var button = _world_target_buttons[instance_id]
-		if is_instance_valid(button) and button.get_meta("shown", false):
+		if is_instance_valid(button) and button.world_shown:
 			brackets_shown += 1
 	lines.append("BRACKETS %d / %d" % [brackets_shown, _world_target_buttons.size()])
 	return PoolStringArray(lines).join("\n")
@@ -1249,7 +1241,7 @@ func _on_settings_changed(key: String, _value) -> void:
 func apply_hud_preset() -> void:
 	var preset: Dictionary = Constants.hud_preset(Settings.get_option("hud_preset"))
 	var tint: Color = preset.tint
-	set_modulate(Color(tint.r, tint.g, tint.b, _hud_alpha))
+	set_modulate(Color(tint.r, tint.g, tint.b, _hud_alpha * float(preset.get("alpha", 1.0))))
 	if is_instance_valid(label_hud_look):
 		label_hud_look.text = "HUD\n%s" % str(Settings.get_option("hud_preset")).to_upper()
 	for button in _world_target_buttons.values():
@@ -1380,7 +1372,7 @@ func _on_agent_damaged(agent_body, damage_amount: float, _source_agent) -> void:
 
 
 func _on_agent_disabled(agent_body) -> void:
-	_queue_world_target_rebuild()  # Relabel the bracket as a wreck.
+	_target_projector.restyle_world_target(agent_body)  # Its bracket relabelled as a wreck
 	if not is_instance_valid(agent_body) or agent_body != GlobalRefs.player_agent_body:
 		return
 	_watch_own_wreck()
@@ -1462,7 +1454,6 @@ func _rebuild_projected_target_overlays() -> void:
 	_target_projector.rebuild_projected_target_overlays()
 
 func _rebuild_world_target_overlay() -> void:
-	_world_rebuild_queued = false
 	_target_projector.rebuild_world_target_overlay()
 
 func _update_route_target_overlay() -> void:

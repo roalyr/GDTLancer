@@ -162,9 +162,9 @@ func test_hostile_starts_patrolling_and_wreck_disables():
 func test_signature_grows_with_engines_firing_and_leaks_and_shrinks_as_a_wreck():
 	var quiet: float = hostile.get_signature()
 	assert_eq(quiet, 1500.0, "At rest: the hull's base.")
-	hostile._engine_activity = 1.0
+	hostile._engine_loudness = 1.0
 	assert_almost_eq(hostile.get_signature(), quiet + Constants.SIG_ENGINE_FULL, 0.01)
-	hostile._engine_activity = 0.0
+	hostile._engine_loudness = 0.0
 	hostile.get_node("ToolController")._last_cycle_ms = OS.get_ticks_msec()
 	assert_almost_eq(hostile.get_signature(), quiet + Constants.SIG_TOOL_FIRING, 50.0, "Just fired.")
 	hostile.get_node("ToolController")._last_cycle_ms = -1000000
@@ -199,10 +199,40 @@ func test_player_reads_difficulty_with_the_same_rule():
 	assert_eq(CombatAssessment.difficulty_label(CombatAssessment.advantage_between(hostile, tough)), "DEADLY")
 
 
+# The engines' share of the signature goes as the exhaust's glow: the thrust, scaled by the speed
+# along it (SIG_ENGINE_STANDSTILL_SHARE at none). Holding still on full thrust is quieter than
+# speeding up on it.
+func test_engine_signature_grows_with_speed_along_the_thrust():
+	var movement = hostile.get_node_or_null("MovementSystem")
+	if movement == null:
+		movement = load("res://src/core/agents/components/movement_system.gd").new()
+		movement.name = "MovementSystem"
+		hostile.add_child(movement)
+		hostile.movement_system = movement
+	movement.linear_thrust = 100000.0
+	movement.last_thrust_fraction = 1.0
+	movement.last_thrust_vector = Vector3.FORWARD
+	hostile.linear_velocity = Vector3.ZERO
+	for _i in range(200):
+		hostile._physics_process(0.05)
+	var still: float = hostile.get_engine_loudness()
+	assert_almost_eq(still, Constants.SIG_ENGINE_STANDSTILL_SHARE, 0.02, "Full thrust, no speed: the standstill share")
+	hostile.linear_velocity = Vector3.FORWARD * hostile.get_top_speed()
+	for _i in range(200):
+		hostile._physics_process(0.05)
+	assert_almost_eq(hostile.get_engine_loudness(), 1.0, 0.02, "At top speed along it: all of it")
+	hostile.linear_velocity = Vector3.BACK * hostile.get_top_speed()
+	for _i in range(200):
+		hostile._physics_process(0.05)
+	assert_almost_eq(hostile.get_engine_loudness(), Constants.SIG_ENGINE_STANDSTILL_SHARE, 0.02, "Braking (moving against it): quiet as standing")
+	movement.last_thrust_fraction = 0.0
+	hostile.linear_velocity = Vector3.ZERO
+
+
 func test_signature_meter_reads_as_a_word():
 	var MainHUD = load("res://src/core/ui/main_hud/main_hud.gd")
 	assert_true(MainHUD.describe_signature(hostile).ends_with("QUIET"), "At rest.")
-	hostile._engine_activity = 1.0
+	hostile._engine_loudness = 1.0
 	hostile.get_node("ToolController")._last_cycle_ms = OS.get_ticks_msec()
 	assert_true(MainHUD.describe_signature(hostile).ends_with("BLAZING"), "Full burn and firing: " + MainHUD.describe_signature(hostile))
 

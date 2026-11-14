@@ -63,7 +63,8 @@ const DamageTrailScene = preload("res://scenes/prefabs/effects/damage_trail.tscn
 const LaserHitEffect = preload("res://src/core/agents/effects/laser_hit_effect.gd")
 const WreckExplosionScene = preload("res://scenes/prefabs/effects/wreck_explosion.tscn")
 var _damage_toward_leak := 0.0
-var _engine_activity := 0.0  # Smoothed engine thrust fraction, 0..1 (signature)
+var _engine_activity := 0.0  # Smoothed engine thrust fraction, 0..1 (a missile's exhaust; the AI's coasting estimate)
+var _engine_loudness := 0.0  # Smoothed engine signature share, 0..1: thrust by speed along it (get_engine_loudness)
 var _engine_thrust := Vector3.ZERO  # Smoothed engine thrust in ship space (nose -Z), length 0..1: which nozzles burn
 const DecoyScript = preload("res://src/core/agents/components/decoy.gd")
 var decoys: int = 0  # Decoy launcher charges left (fit_stats decoy_charges when full)
@@ -888,9 +889,16 @@ func _spawn_explosion() -> void:
 # --- Signature & Detection (one rule for everyone; see Constants SIGNATURE block) ---
 
 # How far away this ship can be detected (m): its hull's base plus engines, firing and leaks.
-# Smoothed engine thrust, 0 idle .. 1 full burn (engine exhaust looks, signature).
+# Smoothed engine thrust, 0 idle .. 1 full burn.
 func get_engine_activity() -> float:
 	return _engine_activity
+
+
+# What the engines add to the signature, 0 .. 1 (of SIG_ENGINE_FULL): the thrust, scaled as the
+# exhaust's glow is by the speed along it (SIG_ENGINE_STANDSTILL_SHARE at none, all at top speed).
+# Holding still after an approach, or braking hard, the engines work but the ship is quieter.
+func get_engine_loudness() -> float:
+	return _engine_loudness
 
 
 # Smoothed engine thrust in ship space (nose -Z, top +Y), length 0 idle .. 1 full burn: the nozzles
@@ -926,7 +934,7 @@ func _compute_signature() -> float:
 	var base: float = float(fit_stats.get("signature", ship_template.signature if is_instance_valid(ship_template) else 1500.0))
 	if is_wreck:
 		return max(Constants.SIG_MIN, base * Constants.SIG_WRECK_FACTOR)
-	var signature: float = base + Constants.SIG_ENGINE_FULL * _engine_activity
+	var signature: float = base + Constants.SIG_ENGINE_FULL * _engine_loudness
 	var tools = get_node_or_null("ToolController")
 	if is_instance_valid(tools) and tools.has_method("get_firing_activity"):
 		signature += Constants.SIG_TOOL_FIRING * tools.get_firing_activity()
@@ -934,7 +942,7 @@ func _compute_signature() -> float:
 		if is_instance_valid(leak):
 			signature += Constants.SIG_PER_LEAK * leak.get_pressure()
 	if afterburner_lit:
-		signature += Constants.SIG_AFTERBURNER * _engine_activity
+		signature += Constants.SIG_AFTERBURNER * _engine_loudness
 	return max(Constants.SIG_MIN, signature)
 
 
@@ -1261,6 +1269,12 @@ func _physics_process(delta: float) -> void:
 	var thrust: float = float(thrust_used) if thrust_used != null and not is_wreck and not is_docked else 0.0
 	var smoothing: float = 1.0 - exp(-delta / Constants.SIG_ENGINE_SMOOTHING)
 	_engine_activity = lerp(_engine_activity, thrust, smoothing)
+	var loud := 0.0
+	if thrust > 0.0:
+		var push: Vector3 = movement_system.last_thrust_vector
+		var along: float = linear_velocity.dot(push.normalized()) / max(get_top_speed(), 1.0) if push.length_squared() > 0.0 else 0.0
+		loud = thrust * lerp(Constants.SIG_ENGINE_STANDSTILL_SHARE, 1.0, clamp(along, 0.0, 1.0))
+	_engine_loudness = lerp(_engine_loudness, loud, smoothing)
 	if not Settings.get_option("engine_exhausts"):
 		_engine_thrust = Vector3.ZERO  # Only the exhausts read it, and they are off
 		return

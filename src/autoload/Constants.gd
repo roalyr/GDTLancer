@@ -253,7 +253,8 @@ const TETHER_SHIVER_FREQUENCY = 40.0  # rad/s
 # the same rule: a star is detected anywhere; planets, moons, asteroids and stations within their
 # radius times SIG_PER_METRE_OF_SIZE (a 1 km planet: 100 km, a 20 m rock: 2 km). A station with a
 # beacon (the home station) is detected anywhere, like a star.
-const SIG_ENGINE_FULL = 2500.0  # m added at full thrust
+const SIG_ENGINE_FULL = 2500.0  # m added at full thrust, at top speed along it (Agent.get_engine_loudness)
+const SIG_ENGINE_STANDSTILL_SHARE = 0.3  # As ENGINE_GLOW_STANDSTILL_SHARE (the exhaust's glow, defined further on). The engines' share at no speed along their push, as the exhaust's glow: a ship holding still or braking is quieter than one speeding up
 const SIG_ENGINE_SMOOTHING = 0.5  # s; engine signature follows thrust this quickly
 const SIG_TOOL_FIRING = 3000.0  # m added right after a tool cycle
 const SIG_TOOL_DECAY = 4.0  # s for the firing signature to fade
@@ -1477,9 +1478,9 @@ const UI_CELESTIAL_ALPHA = 0.45  # Marks on rocks, planets and the like are this
 # The HUD's looks (the HUD LOOK button, Settings "hud_preset"): `tint` multiplies the whole HUD
 # (grey: less contrast against space), `saturation` grades the marks' colours (1 as they are, 0 grey).
 const HUD_PRESETS = {
-	"standard": {"tint": Color(1, 1, 1), "saturation": 1.0},
-	"soft": {"tint": Color(0.82, 0.82, 0.82), "saturation": 0.65},
-	"dim": {"tint": Color(0.62, 0.62, 0.64), "saturation": 0.45},
+	"standard": {"tint": Color(1, 1, 1), "saturation": 1.0, "alpha": 1.0},
+	"soft": {"tint": Color(0.62, 0.62, 0.64), "saturation": 0.45, "alpha": 1.0},
+	"dim": {"tint": Color(0.36, 0.36, 0.38), "saturation": 0.3, "alpha": 0.6},  # Barely there: for watching the scene
 }
 const HUD_PRESET_ORDER = ["standard", "soft", "dim"]
 # Groups a piece of scenery under a sector's AmbientVisuals leaves: what the HUD targets, the

@@ -20,6 +20,8 @@ const DISTANCE_RECT_SELECTED = Rect2(12, -62, 130, 50)  # The distance's box, fr
 const DISTANCE_RECT_MARK = Rect2(10, -38, 90, 30)  # Beside an unselected mark
 
 var target_ref = null
+var world_shown: bool = false  # HUDTargetProjector's slow re-check: shows at all (detected, its overlay on)
+var wanted_since: int = -1  # HUDTargetProjector: ms it has been wanted on screen since (-1 not), for its appear delay
 var _is_selected: bool = false
 var _normal_bracket: TextureRect = null  # Holds the unselected mark (TargetMarker) and tints it
 var _marker: Control = null
@@ -50,7 +52,7 @@ func _ready() -> void:
 	_apply_distance_fade_alpha()
 	_sync_label()
 	_sync_distance_label()
-	set_process(true)
+	_refresh_distance_process_state()
 
 
 func _process(_delta: float) -> void:
@@ -171,6 +173,7 @@ func _apply_bracket_style() -> void:
 	if shows_mark_distance != _shows_mark_distance:
 		_shows_mark_distance = shows_mark_distance
 		_sync_distance_label()
+		_refresh_distance_process_state()
 
 
 # Red while the selected target is a live ship hostile to the player (purple for the xenohive's;
@@ -326,8 +329,10 @@ static func trim_trailing_decimal_zeros(value_text: String) -> String:
 	return trimmed_text
 
 
+# Its per-frame work (the selected colour, a distance label) only while it has some: of a crowd of
+# brackets most are idle marks, and each processing one is a script call a frame.
 func _refresh_distance_process_state() -> void:
-	pass
+	set_process(_is_selected or _shows_mark_distance)
 
 
 func _build_label_text() -> String:

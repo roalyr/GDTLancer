@@ -794,3 +794,51 @@ class FakeHud extends Control:
 		_data = data
 	func _get(property):
 		return _data.get(property)
+
+
+# Ships coming, going and wrecked change only their own brackets: the others stay as they are (a
+# rebuild of them all made every bracket blink), and a zone's sweep keeps the ones still wanted.
+func test_ships_coming_and_going_leave_the_other_brackets_alone():
+	var zone = Spatial.new()
+	add_child_autofree(zone)
+	GlobalRefs.current_zone = zone
+	var player = AgentScript.new()
+	player.agent_type = "player"
+	zone.add_child(player)
+	GlobalRefs.player_agent_body = player
+	var near = AgentScript.new()
+	zone.add_child(near)
+	near.global_transform.origin = Vector3(0, 0, -300)
+	var camera = Camera.new()
+	add_child_autofree(camera)
+	camera.global_transform.origin = Vector3(0, 0, 50)
+	camera.current = true
+	GlobalRefs.main_camera = camera
+	var hud = MainHUDScene.instance()
+	add_child_autofree(hud)
+	yield(get_tree(), "idle_frame")
+	hud._main_camera = camera
+	hud._rebuild_world_target_overlay()
+	hud._update_world_target_overlay()
+	OS.delay_msec(int(Constants.HUD_BRACKET_APPEAR_DELAY * 1000.0) + 50)
+	hud._update_world_target_overlay()
+	var bracket = hud._world_target_buttons[near.get_instance_id()]
+	assert_true(bracket.visible)
+	var other = AgentScript.new()
+	zone.add_child(other)
+	other.global_transform.origin = Vector3(0, 0, -400)
+	EventBus.emit_signal("agent_spawned", other, {})
+	assert_true(hud._world_target_buttons.has(other.get_instance_id()), "A new ship gets its bracket")
+	assert_eq(hud._world_target_buttons[near.get_instance_id()], bracket, "the others are the same brackets")
+	assert_true(bracket.visible, "still shown")
+	EventBus.emit_signal("agent_despawning", other)
+	assert_false(hud._world_target_buttons.has(other.get_instance_id()), "A ship gone takes its bracket")
+	assert_true(bracket.visible, "and leaves the others")
+	near.is_wreck = true
+	EventBus.emit_signal("agent_disabled", near)
+	assert_eq(hud._world_target_buttons[near.get_instance_id()], bracket, "Wrecked: the same bracket, relabelled")
+	assert_string_starts_with(bracket._target_label, "Wreck of")
+	hud._rebuild_world_target_overlay()
+	assert_eq(hud._world_target_buttons[near.get_instance_id()], bracket, "A zone's sweep keeps the brackets still wanted")
+	assert_true(bracket.visible, "shown as they were")
+	other.free()
