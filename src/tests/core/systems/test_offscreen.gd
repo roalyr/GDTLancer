@@ -200,3 +200,28 @@ func test_an_off_screen_trader_flies_its_trade_not_its_patrol_nor_its_nearest_ha
 	offscreen.check()
 	offscreen.resolve(1.0)
 	assert_almost_eq(ship.global_transform.origin.x, 50000.0 + 100.0 * Constants.OFFSCREEN_SPEED_SHARE, 0.01, "Toward the station its AI would sell at (_pick_market)")
+
+
+func test_off_screen_ships_are_worked_out_a_few_a_step_each_once_a_tick():
+	var player = _ship("player", Vector3.ZERO, "player")
+	GlobalRefs.player_agent_body = player
+	var ships: Array = []
+	for i in range(12):
+		ships.append(_ship("verdant", Vector3(50000, 0, i * 3000.0)))
+	offscreen.check()
+	var moved_at: Dictionary = {}  # Ship -> the step it first moved
+	var step: float = 1.0 / 30.0
+	var steps: int = int(round(Constants.OFFSCREEN_TICK / step))
+	for n in range(steps):
+		var before: Array = []
+		for ship in ships:
+			before.append(ship.translation)
+		offscreen._resolve_due(step)
+		for i in range(ships.size()):
+			if ships[i].translation != before[i] and not moved_at.has(i):
+				moved_at[i] = n
+	assert_eq(moved_at.size(), ships.size(), "Every ship within a tick")
+	var steps_used: Dictionary = {}
+	for n in moved_at.values():
+		steps_used[n] = true
+	assert_gt(steps_used.size(), 3, "Spread over the tick, not all in one step")

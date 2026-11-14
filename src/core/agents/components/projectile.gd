@@ -73,12 +73,12 @@ func _first_ship_on(from: Vector3, to: Vector3, delta: float) -> Dictionary:
 	var best: Dictionary = {}
 	var best_t: float = INF
 	var step: float = from.distance_to(to)
-	for body in StepCache.group(get_tree(), "agent_body"):
-		if not is_instance_valid(body) or body == shooter or not body is RigidBody or body.get("is_wreck") != false or body.get("is_docked"):
+	for ship in hittable_ships(get_tree()):
+		var body = ship[0]
+		if body == shooter or from.distance_to(ship[1]) > ship[2] + step + ship[3] * delta + Constants.PROJECTILE_FUSE_MARGIN:
 			continue
-		var radius: float = body.get_apparent_radius() if body.has_method("get_apparent_radius") else 10.0
-		if from.distance_to(body.global_transform.origin) > radius + step + body.linear_velocity.length() * delta + Constants.PROJECTILE_FUSE_MARGIN:
-			continue
+		if not is_instance_valid(body) or body.get("is_wreck") != false:
+			continue  # Wrecked earlier this step
 		var to_local: Transform = body.global_transform.affine_inverse()
 		var shift: Vector3 = body.linear_velocity * delta  # Its own motion this step: the path relative to it
 		var entry: Dictionary = LanceController._segment_into_box(to_local.xform(from), to_local.xform(to - shift), body.hull_bounds.grow(Constants.PROJECTILE_FUSE_MARGIN))
@@ -90,6 +90,29 @@ func _first_ship_on(from: Vector3, to: Vector3, delta: float) -> Dictionary:
 			best_t = t
 			best = {"body": body, "point": point}
 	return best
+
+
+const _SHIPS := {"frame": -1, "list": []}
+
+
+# Every ship a round can meet (live, flown or off-screen, not docked) as [body, centre, apparent
+# radius, speed]: worked out once a physics step in the game world (StepCache) and shared by every
+# round in flight, which each walked every ship's properties every step; fresh anywhere else.
+static func hittable_ships(tree: SceneTree) -> Array:
+	var frame: int = Engine.get_physics_frames()
+	var cached: bool = StepCache.active()
+	if cached and _SHIPS.frame == frame:
+		return _SHIPS.list
+	var ships: Array = []
+	for body in StepCache.group(tree, "agent_body"):
+		if not is_instance_valid(body) or not body is RigidBody or body.get("is_wreck") != false or body.get("is_docked"):
+			continue
+		var radius: float = body.get_apparent_radius() if body.has_method("get_apparent_radius") else 10.0
+		ships.append([body, body.global_transform.origin, radius, body.linear_velocity.length()])
+	if cached:
+		_SHIPS.frame = frame
+		_SHIPS.list = ships
+	return ships
 
 
 func _first_rock_on(from: Vector3, to: Vector3) -> Dictionary:

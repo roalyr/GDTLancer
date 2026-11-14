@@ -30,9 +30,8 @@ const Interp = preload("res://src/core/utils/interp.gd")
 const NavigationSystem = preload("res://src/core/agents/components/navigation_system.gd")
 
 var enabled: bool = true
-var _entries: Dictionary = {}  # Instance id -> {"body": WeakRef, "velocity": Vector3}
+var _entries: Dictionary = {}  # Instance id -> {"body": WeakRef, "velocity": Vector3, "tick_left": s to its next resolution}
 var _check_left: float = 0.0
-var _tick_left: float = 0.0
 
 
 func _ready() -> void:
@@ -46,10 +45,7 @@ func _physics_process(delta: float) -> void:
 	if _check_left <= 0.0:
 		_check_left = Constants.OFFSCREEN_CHECK_INTERVAL
 		check()
-	_tick_left -= delta
-	if _tick_left <= 0.0:
-		_tick_left = Constants.OFFSCREEN_TICK
-		resolve(Constants.OFFSCREEN_TICK)
+	_resolve_due(delta)
 
 
 func is_offscreen(body: Node) -> bool:
@@ -91,7 +87,7 @@ func _can_abstract(body: Node) -> bool:
 
 
 func abstract(body: RigidBody) -> void:
-	_entries[body.get_instance_id()] = {"body": weakref(body), "velocity": body.linear_velocity}
+	_entries[body.get_instance_id()] = {"body": weakref(body), "velocity": body.linear_velocity, "tick_left": randf() * Constants.OFFSCREEN_TICK}
 	body.mode = RigidBody.MODE_STATIC
 	body.visible = false  # Not drawn either: zoomed in on, it would show frozen where it was
 	_set_flown(body, false)
@@ -125,20 +121,41 @@ func _set_flown(body: Node, on: bool) -> void:
 
 # --- Resolution ---
 
+# Every off-screen ship's resolution step of `dt` s, now.
 func resolve(dt: float) -> void:
 	for id in _entries.keys():
-		var entry: Dictionary = _entries[id]
-		var body = entry.body.get_ref()
-		if not is_instance_valid(body) or not body.is_inside_tree():
-			_entries.erase(id)
-			continue
-		if body.get("is_wreck") or body.get("is_docked"):
-			entry.velocity = Vector3.ZERO
-			continue
-		var ai = body.get_node_or_null(Constants.AI_CONTROLLER_NODE_NAME)
-		if ai == null:
-			continue
-		_resolve_ship(body, ai, entry, dt)
+		_resolve_entry(id, dt)
+
+
+# The ships whose OFFSCREEN_TICK is up, each resolved by it: each ship's tick runs from its own
+# random phase (abstract), so the ships are worked out a few a step rather than all in one step a
+# second (with twenty off-screen, that step ran ~27 ms on a desktop: a hitch every second on phones).
+func _resolve_due(delta: float) -> void:
+	for id in _entries.keys():
+		var entry = _entries.get(id)
+		if entry == null:
+			continue  # Gone while another was resolved (docked, destroyed)
+		entry.tick_left -= delta
+		if entry.tick_left <= 0.0:
+			entry.tick_left += Constants.OFFSCREEN_TICK
+			_resolve_entry(id, Constants.OFFSCREEN_TICK)
+
+
+func _resolve_entry(id: int, dt: float) -> void:
+	var entry = _entries.get(id)
+	if entry == null:
+		return
+	var body = entry.body.get_ref()
+	if not is_instance_valid(body) or not body.is_inside_tree():
+		_entries.erase(id)
+		return
+	if body.get("is_wreck") or body.get("is_docked"):
+		entry.velocity = Vector3.ZERO
+		return
+	var ai = body.get_node_or_null(Constants.AI_CONTROLLER_NODE_NAME)
+	if ai == null:
+		return
+	_resolve_ship(body, ai, entry, dt)
 
 
 func _resolve_ship(body: RigidBody, ai: Node, entry: Dictionary, dt: float) -> void:

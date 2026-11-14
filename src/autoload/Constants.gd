@@ -29,7 +29,7 @@ const PLATFORM_SCAN_INTERVAL = 0.5  # A weapon platform's look for a target. Max
 const LANCE_SCOOP_INTERVAL = 0.25  # A loose lance's look for a ship to scoop it. Max ~0.5
 const HAZARD_TICK = 0.5  # Hazard damage steps. Max ~1
 const OFFSCREEN_CHECK_INTERVAL = 0.5  # Who is near and far (OffScreen). Max ~1
-const OFFSCREEN_TICK = 1.0  # An off-screen resolution step
+const OFFSCREEN_TICK = 1.0  # An off-screen ship's resolution step (each ship from its own phase)
 const BEACON_UPDATE_INTERVAL = 2.0  # Beacon traffic and decay steps
 # Looks and HUD only:
 const HUD_CONTROLS_INTERVAL = 0.1  # HUD buttons and labels: tool fill bars, LANCE, AFTERBURN, APPROACH, DOCK, INTERACT. Max ~0.15 (bars step visibly past it)

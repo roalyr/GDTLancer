@@ -1,4 +1,5 @@
-# Performance ablation: a headless battle by the home station (player docked, out of it), measured
+# Performance ablation: the sector's traffic by the home station (player docked; no fight is staged:
+# tools/fight_bench.gd measures fights), measured
 # with one system switched off, to see what each costs. The 3D view renders at quarter scale so the
 # GPU's fill rate is out of the picture (as on phones, where render scale did not change the frame
 # rate); mode=base_full renders at full scale. Prints frame times, the split into physics steps and
