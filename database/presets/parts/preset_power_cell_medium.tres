@@ -9,6 +9,7 @@ module_name = "Power Cell Mk I-medium"
 description = "300 kg."
 base_value = 600
 mass = 300.0
+internal = true
 stat_modifiers = {
 "power_regen": 5.35887
 }

@@ -279,7 +279,7 @@ Times are estimates from the ship's numbers, not flown. Two rules hold for every
 A model is made in Blender and imported with one key (Models, `i`). The game builds the collision hull, the hit surface and the levels of detail itself.
 
 **Start from a starter.** Use Models, `ctrl+n`, or copy `assets/models/starters/ship_starter.blend` (or `station_starter.blend`). A starter holds:
-- a small model that already keeps the rules below, and the engine empties;
+- a small model that already keeps the rules below, with its engine and hardpoint empties;
 - every library material by its game name;
 - a `Guides` collection: the nose arrow and a box of the game's ship length, or a ship for scale beside a station. It is never exported;
 - a README in its Text Editor.
@@ -293,7 +293,16 @@ A model is made in Blender and imported with one key (Models, `i`). The game bui
   - Name it **`paint`** for the surfaces that take the faction's paint.
   - Blender's colours do not reach the game: the library's materials replace them.
   - For a new look, copy a library material (Data, Material library, `ctrl+n`) and change its colours.
-- **Engines:** add an empty named `Engine` at each nozzle, unrotated. Its scale sets the size of the exhaust. A stationary hull (the weapon platform) needs none.
+- **Engines:** ships fly at top speed in any direction, so a ship needs a main nozzle facing each way. Add an empty at each nozzle:
+  - `Engine` at the rear ones; `EngineFront`, `EngineTop`, `EngineBottom`, `EngineLeft`, `EngineRight` at the others (`EngineTop.001` is fine).
+  - The name sets the way the exhaust points; the rotation is ignored. The scale sets the size of the exhaust.
+  - A nozzle burns as the ship pushes away from it: flying sideways lights the side nozzles.
+  - A stationary hull (the weapon platform) needs none.
+- **Hardpoints:** add an empty named `Weapon` where each tool shows and `Module` where each module shows. They fill in the scene's order.
+  - Parts marked `internal` (Parts tab, the Sits column; edit it in Data) sit inside the hull and take no hardpoint: plating, thrusters, power cells, dampers, afterburners, magazines, bays and lances. Weapons, the harpoon, sensors and decoy launchers show outside.
+  - An archetype's fit must have a hardpoint for each part it shows outside; the rules check it.
+  - Hardpoints are fixed and only show the fit: tools still fire from the ship's centre.
+  - Models shows each ship model's nozzles by direction and its hardpoints; the placeholder sheet draws the archetypes' parts at theirs.
 - **What exports is what renders.**
   - Modifiers enabled for renders are applied, in order. Modifiers disabled for renders are dropped.
   - Objects disabled in renders (boolean cutters) and collections excluded from the view layer are left out.
@@ -308,7 +317,7 @@ A model is made in Blender and imported with one key (Models, `i`). The game bui
 **Use it:** point an archetype's `ship_scene` at the ship scene, or a haven's `model` at the station scene.
 **Look at it:** Models, `s` renders it in every faction's paint (across) at each level of detail (down).
 
-**Placeholders.** Until real models land, ships and stations are built from primitives (`Constants.gd`: `HULL_FORMS`, `STATION_FORMS`; the part fields are described in `src/scenes/game_world/models/primitive_form.gd`).
+**Placeholders.** Until real models land, ships and stations are built from primitives (`Constants.gd`: `HULL_FORMS`, `STATION_FORMS`; the part fields are described in `src/scenes/game_world/models/primitive_form.gd`) Each hull form also lists its nozzles by direction and its `weapons` and `modules` hardpoints; the parts shown at hardpoints are `PART_FORMS`.
 - Hulls are `scenes/prefabs/ships/placeholders/<family>_<weight>.tscn`; stations are `scenes/prefabs/station/placeholders/<form>.tscn`.
 - Models, `c` edits a placeholder's shape.
 - To replace a placeholder, point its archetype or haven at a real model's scene.

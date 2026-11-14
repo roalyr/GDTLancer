@@ -9,6 +9,7 @@ module_name = "Shell Bay Mk I-light"
 description = "100 kg."
 base_value = 200
 mass = 100.0
+internal = true
 stat_modifiers = {
 "shell_load": 85.0
 }

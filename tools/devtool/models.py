@@ -14,9 +14,13 @@ from .tasks import ROOT
 GLB_IN_SCENE = re.compile(r'\[ext_resource path="(res://[^"]+\.glb)"')
 
 
+NOZZLE_DIRECTIONS = ("rear", "front", "top", "bottom", "left", "right")  # ShipModel.NOZZLE_DIRECTIONS, in this order
+
+
 class ModelRow:
-    def __init__(self, scene, kind, users, problems):
+    def __init__(self, scene, kind, users, problems, carries=None):
         self.scene, self.kind, self.users, self.problems = scene, kind, users, problems
+        self.carries = carries or {}  # A ship's {"nozzles": {direction: n}, "weapons": n, "modules": n} (ModelCheck.ship_summary)
         self.name = os.path.splitext(os.path.basename(scene))[0]
         self.placeholder = "/placeholders/" in scene
         self.glb = scene if scene.endswith(".glb") else _glb_of(scene)  # A rock is its .glb
@@ -45,6 +49,14 @@ class ModelRow:
             return "%d problem%s" % (len(self.problems), "" if len(self.problems) == 1 else "s")
         return "re-import" if self.stale else "OK"
 
+    def carries_line(self):
+        """A ship's nozzles by direction and its hardpoints, for the detail; "" for others."""
+        if not self.carries:
+            return ""
+        nozzles = self.carries.get("nozzles", {})
+        ways = ", ".join("%s %d" % (way, nozzles[way]) for way in NOZZLE_DIRECTIONS if nozzles.get(way))
+        return "Nozzles: %s  ·  Hardpoints: %d weapon, %d module" % (ways or "none", self.carries.get("weapons", 0), self.carries.get("modules", 0))
+
     def import_target(self):
         """What to give tools/import_model.sh: the .blend if there is one, else the .glb."""
         source = self.blend or (file_path(self.glb) if self.glb else None)
@@ -66,5 +78,5 @@ def rows(report):
     for kind, key in (("ship", "ships"), ("station", "stations"), ("rock", "rocks")):
         for scene in sorted(report.get(key, {}), key=lambda path: os.path.basename(path)):
             entry = report[key][scene]
-            out.append(ModelRow(scene, kind, entry.get("users", []), entry.get("problems", [])))
+            out.append(ModelRow(scene, kind, entry.get("users", []), entry.get("problems", []), entry.get("carries")))
     return out

@@ -46,6 +46,7 @@ const CollisionHull = preload("res://src/core/agents/components/collision_hull.g
 const LanceController = preload("res://src/core/agents/components/lance_controller.gd")
 const MeshLod = preload("res://src/core/agents/components/mesh_lod.gd")
 const ModelLooks = preload("res://src/scenes/game_world/models/model_looks.gd")
+const ShipModel = preload("res://src/scenes/game_world/models/ship_model.gd")
 const ViewDetail = preload("res://src/core/agents/components/view_detail.gd")
 const ShipFit = preload("res://src/core/systems/ship_fit.gd")
 const Standing = preload("res://src/core/systems/standing.gd")
@@ -63,6 +64,7 @@ const LaserHitEffect = preload("res://src/core/agents/effects/laser_hit_effect.g
 const WreckExplosionScene = preload("res://scenes/prefabs/effects/wreck_explosion.tscn")
 var _damage_toward_leak := 0.0
 var _engine_activity := 0.0  # Smoothed engine thrust fraction, 0..1 (signature)
+var _engine_thrust := Vector3.ZERO  # Smoothed engine thrust in ship space (nose -Z), length 0..1: which nozzles burn
 const DecoyScript = preload("res://src/core/agents/components/decoy.gd")
 var decoys: int = 0  # Decoy launcher charges left (fit_stats decoy_charges when full)
 var afterburner_lit: bool = false  # Afterburner on: extra thrust, power drain, a hot plume
@@ -142,6 +144,7 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 				MeshLod.attach(ship_visual, ViewDetail.attach(self, get_apparent_radius()))  # One view band for the model, scars and effects
 				if Settings.get_option("hit_effects"):  # Off (Options): shots land on the convex hull, no scars
 					CollisionHull.add_hit_surface(self, ship_visual)  # Where shots land: the plating, not the hull round it
+				_mount_parts()  # After the collision hull and hit surface: fitted parts are looks, not hull
 				_hull_scars = HullScars.new(interaction_radius / Constants.HULL_SCAR_REFERENCE_RADIUS)
 				_hull_scars.visible = Settings.get_option("hit_effects")
 				ship_visual.add_child(_hull_scars)
@@ -352,6 +355,23 @@ func apply_fit(new_fit: Dictionary) -> void:
 	if is_instance_valid(tools) and tools.has_method("load_tools_from_ship"):
 		tools.load_tools_from_ship()
 	_refresh_lance()
+	_mount_parts()
+
+
+# Shows the fit's parts that are not internal at the model's hardpoints (ShipModel.mount_parts), in
+# the faction's paint. A model that is not a ShipModel shows none.
+func _mount_parts() -> void:
+	var model_node: Node = get_node_or_null("Model")
+	if model_node == null:
+		return
+	var ship_visual: Node = null
+	for child in model_node.get_children():
+		if child is Spatial and child.has_method("paint"):
+			ship_visual = child
+	if ship_visual == null:
+		return
+	var paint_path: String = TemplateDatabase.factions.get(faction, {}).get("hull_material", "")
+	ShipModel.mount_parts(ship_visual, fit, load(paint_path) if paint_path != "" else null)
 
 
 # --- Kinetic lance (LanceController) ---
@@ -865,6 +885,12 @@ func get_engine_activity() -> float:
 	return _engine_activity
 
 
+# Smoothed engine thrust in ship space (nose -Z, top +Y), length 0 idle .. 1 full burn: the nozzles
+# facing away from it burn (EngineExhaustSet).
+func get_engine_thrust() -> Vector3:
+	return _engine_thrust
+
+
 # Speed the engines hold against drag at full thrust (m/s).
 func get_top_speed() -> float:
 	if not is_instance_valid(movement_system):
@@ -1225,7 +1251,12 @@ func _physics_process(delta: float) -> void:
 	_apply_leak_thrust()
 	var thrust_used = movement_system.get("last_thrust_fraction") if is_instance_valid(movement_system) else null
 	var thrust: float = float(thrust_used) if thrust_used != null and not is_wreck and not is_docked else 0.0
-	_engine_activity = lerp(_engine_activity, thrust, 1.0 - exp(-delta / Constants.SIG_ENGINE_SMOOTHING))
+	var smoothing: float = 1.0 - exp(-delta / Constants.SIG_ENGINE_SMOOTHING)
+	_engine_activity = lerp(_engine_activity, thrust, smoothing)
+	var pushed: Vector3 = Vector3.ZERO
+	if thrust > 0.0:
+		pushed = global_transform.basis.orthonormalized().xform_inv(movement_system.last_thrust_vector)
+	_engine_thrust = _engine_thrust.linear_interpolate(pushed, smoothing)
 
 
 # Venting gas pushes back on the hull where it leaks; off-centre leaks turn the ship. Not on wrecks:

@@ -9,6 +9,7 @@ module_name = "Plating Mk I-heavy"
 description = "2000 kg."
 base_value = 4000
 mass = 2000.0
+internal = true
 stat_modifiers = {
 "hull": 80
 }

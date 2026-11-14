@@ -555,11 +555,11 @@ func cmd_parts(_args: Dictionary):
 		var row := {"id": item.template_id, "path": entry[1], "origin": entry[2], "value": item.get("base_value"),
 			"used_by": used.get(item.template_id, [])}
 		if item is UtilityToolTemplate:
-			row.merge({"name": item.tool_name, "type": item.tool_type, "mount": item.mount_size, "mass": item.mass, "damage": item.damage,
+			row.merge({"name": item.tool_name, "type": item.tool_type, "mount": item.mount_size, "internal": item.internal, "mass": item.mass, "damage": item.damage,
 				"cycle": item.cycle_time, "dps": _tool_dps(item), "range": item.optimal_range, "ammo": item.ammo, "power": item.power_per_cycle})
 			out.weapons.append(row)
 		elif item is ModuleTemplate:
-			row.merge({"name": item.module_name, "kind": item.module_kind, "mass": item.mass, "effects": encode(item.stat_modifiers),
+			row.merge({"name": item.module_name, "kind": item.module_kind, "internal": item.internal, "mass": item.mass, "effects": encode(item.stat_modifiers),
 				"lance": not item.lance.empty()})
 			out.modules.append(row)
 		elif item is CommodityTemplate:
@@ -841,6 +841,8 @@ func cmd_models(_args: Dictionary):
 		for path in scenes:
 			var problems: Array = ModelCheck.ship_problems(path) if kind == "ships" else ModelCheck.station_problems(path)
 			out[kind][path] = {"users": used[kind].get(path, []), "problems": problems}
+			if kind == "ships":
+				out[kind][path]["carries"] = ModelCheck.ship_summary(path)  # Nozzles by direction, hardpoints
 	out["rocks"] = {}  # Every rock model: the asteroid fields' (Constants.FIELD_ROCK_MODELS), and the scenes that place it
 	var placed: Dictionary = _rock_scenes()
 	for path in Validator._files_in("res://assets/models/rocks/", ".glb"):

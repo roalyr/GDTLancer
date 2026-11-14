@@ -345,6 +345,9 @@ static func archetypes() -> Array:
 			var ship = _fresh(ship_path)
 			if ship.ship_scene == null:
 				out.append(_problem(ship_path, "No hull scene (ship_scene)"))
+			else:
+				for problem in ModelCheck.hardpoint_problems(ship.ship_scene.resource_path, ship):
+					out.append(_problem(ship_path, problem))
 			for part in ship.equipped_tools + ship.equipped_modules:
 				if not PartCatalog.has(part):
 					out.append(_problem(ship_path, "Part '%s' is not the catalogue's (%s)" % [part, Constants.PARTS_DIR]))

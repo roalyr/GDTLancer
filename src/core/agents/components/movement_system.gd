@@ -19,6 +19,7 @@ var _accumulated_torque := Vector3.ZERO
 var _external_force := Vector3.ZERO  # From tethers, leaks and other bodies; not scaled by throttle
 var _external_torque := Vector3.ZERO  # From forces acting off the centre of mass (leaks)
 var last_thrust_fraction := 0.0  # Engine thrust used in the last physics step, 0..1 (drives signature)
+var last_thrust_vector := Vector3.ZERO  # Its direction too (world space, length last_thrust_fraction): which nozzles burn
 
 # --- Facing (a cannon's aim) ---
 # While `facing` is set (NavigationSystem, from ToolController.cannon_facing), the nose turns to it
@@ -126,6 +127,7 @@ func integrate_forces(state: PhysicsDirectBodyState):
 	state.add_torque(_accumulated_torque + _external_torque)
 	
 	last_thrust_fraction = clamp(_accumulated_force.length() * thrust_throttle / max(linear_thrust, 0.001), 0.0, 1.0)
+	last_thrust_vector = _accumulated_force.normalized() * last_thrust_fraction if last_thrust_fraction > 0.0 else Vector3.ZERO
 
 	# Clear accumulated forces for next frame
 	_accumulated_force = Vector3.ZERO

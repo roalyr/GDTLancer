@@ -9,6 +9,7 @@ module_name = "Damper Mk I-heavy"
 description = "600 kg."
 base_value = 1200
 mass = 600.0
+internal = true
 stat_modifiers = {
 "damper_mass": 600.0
 }

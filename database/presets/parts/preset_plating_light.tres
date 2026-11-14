@@ -9,6 +9,7 @@ module_name = "Plating Mk I-light"
 description = "512 kg."
 base_value = 1024
 mass = 512.044
+internal = true
 stat_modifiers = {
 "hull": 27
 }

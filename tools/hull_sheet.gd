@@ -4,13 +4,14 @@
 # With scene=, one ship model for review instead: every faction's paint across, its levels of
 # detail down (LOD0 on top), its exhausts lit:
 #     godot res://tools/hull_sheet.tscn out=/abs/model.png scene=res://scenes/prefabs/ships/<name>
+# With fits=1, each placeholder carries its archetype's default fit at its hardpoints (ShipModel).
 # (`scene` without .tscn: Godot would run an argument ending in .tscn as the main scene.)
 extends Spatial
 
 const MeshLod = preload("res://src/core/agents/components/mesh_lod.gd")
 const ModelLooks = preload("res://src/scenes/game_world/models/model_looks.gd")
 
-const FAMILIES = ["fighter", "lance", "prospector", "raider", "scavenger", "trader"]
+const FAMILIES = ["fighter", "prospector", "raider", "scavenger", "trader"]
 const WEIGHTS = ["light", "medium", "heavy", "superheavy"]
 const SPACING = 30.0  # m between placeholder hulls; a model sheet spaces by the model's size
 const MODEL_GAP = 1.3  # A model sheet's spacing, times the model's widest span (stations are big)
@@ -18,6 +19,7 @@ const MODEL_GAP = 1.3  # A model sheet's spacing, times the model's widest span 
 var out: String = "user://hull_sheet.png"
 var faction: String = "verdant"
 var scene_path: String = ""
+var fits := false
 var spacing: float = SPACING
 
 
@@ -27,6 +29,8 @@ func _ready() -> void:
 			out = a.trim_prefix("out=")
 		elif a.begins_with("faction="):
 			faction = a.trim_prefix("faction=")
+		elif a == "fits=1":
+			fits = true
 		elif a.begins_with("scene="):
 			scene_path = a.trim_prefix("scene=") + ".tscn"
 	var columns: int = FAMILIES.size()
@@ -42,6 +46,10 @@ func _ready() -> void:
 				var hull: Spatial = load("res://scenes/prefabs/ships/placeholders/%s_%s.tscn" % [FAMILIES[column], WEIGHTS[row]]).instance()
 				_place(hull, column, row, columns, rows)
 				hull.paint(material)
+				var archetype: String = Constants.ARCHETYPES_DIR.plus_file("preset_ship_archetype_%s_%s.tres" % [FAMILIES[column], WEIGHTS[row]])
+				if fits and ResourceLoader.exists(archetype):
+					var ship = load(archetype)
+					hull.mount_parts(hull, {"tools": ship.equipped_tools, "modules": ship.equipped_modules}, material)  # Its default fit, read off the archetype: no template index here
 	var light := DirectionalLight.new()
 	light.rotation_degrees = Vector3(-50, -30, 0)
 	add_child(light)

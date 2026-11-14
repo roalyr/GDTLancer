@@ -9,6 +9,7 @@ module_name = "Thruster Mk I-light"
 description = "200 kg."
 base_value = 400
 mass = 200.0
+internal = true
 stat_modifiers = {
 "linear_thrust": 89717.3
 }

@@ -12,6 +12,7 @@ export var module_name: String = "Unnamed Module"  # Its name in the store (cata
 export var description: String = ""  # A line about it for the store
 export var base_value: int = 10  # WP; buy price at the home station (sells back for half)
 export var mass: float = 0.0  # kg, added to the ship
+export var internal: bool = false  # Inside the hull: takes no module hardpoint and shows nowhere (off: shown at the next free one, ShipModel)
 # Stat -> amount added: hull, power_capacity, power_regen, cargo_capacity, linear_thrust,
 # angular_thrust, signature (m), sensor_strength.
 export var stat_modifiers: Dictionary = {}

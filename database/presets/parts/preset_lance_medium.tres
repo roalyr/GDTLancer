@@ -9,6 +9,7 @@ module_name = "Lance Mk I-medium"
 description = "1501 kg: 3 lances of 300 kg, 125 damage at 300 m/s (none under 60 m/s); an armoured prow, +64 hull."
 base_value = 3002
 mass = 1501.19
+internal = true
 stat_modifiers = {
 "hull": 64
 }

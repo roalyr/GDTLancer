@@ -9,6 +9,7 @@ module_name = "Afterburner Mk I-light"
 description = "168 kg."
 base_value = 336
 mass = 167.938
+internal = true
 stat_modifiers = {
 "afterburner_thrust": 229988.0
 }

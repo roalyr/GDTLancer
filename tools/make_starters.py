@@ -7,7 +7,8 @@ Each holds:
 - a small working model that imports as it is (tools/import_model.sh takes the .blend);
 - every library material (assets/art/materials_generic/mat_*.tres, the faction colours aside), named
   the way the game looks them up and coloured like the game draws them, plus "Paint";
-- for ships, two "Engine" empties at the nozzles;
+- for ships, "Engine" empties at the nozzles, a set facing each way, and "Weapon" and "Module"
+  hardpoint empties;
 - a "Guides" collection the export leaves out: a box of the game's ship length and a nose arrow
   (ships; any length works, the import fits ships to it), a ship-sized box for scale (stations);
 - a "README" text (Blender's Text Editor) with the rules.
@@ -40,7 +41,12 @@ Full rules: CONTENT.md, "Models". In short:
 - Materials are picked by NAME. Use the ones in this file; Blender's colours here only preview the
   game's. "Paint" takes the owner's faction paint. A new look = a new mat_<name>.tres in
   assets/art/materials_generic/, then re-run tools/make_starters.py.
-- Engines: an empty named "Engine" at each nozzle, unrotated; its scale sizes the exhaust.
+- Engines: ships fly at top speed in any direction, so they need a main nozzle facing each way.
+  An empty named "Engine" at each rear nozzle, "EngineFront", "EngineTop", "EngineBottom",
+  "EngineLeft", "EngineRight" at the others (a .001 suffix is fine). The name sets the way the
+  exhaust points, not the rotation; the scale sizes the exhaust.
+- Hardpoints: empties named "Weapon" (tools) and "Module" (modules) where fitted parts show, in
+  the order they fill. Parts marked internal take none. Tools still fire from the ship's centre.
 - The "Guides" collection is never exported.
 
 Save as  assets/models/ships/<name>/<name>.blend  (stations: assets/models/stations/<name>/<name>.blend)
@@ -156,6 +162,13 @@ def ship_starter(materials):
     box("Radiator", (6.0, 2.0, 0.15), (0.0, -3.0, 0.0), materials["Radiator Graphite"])
     for side, x in (("L", -0.7), ("R", 0.7)):
         empty("Engine.%s" % side, (x, -half, 0.0), 0.8)
+        empty("EngineFront.%s" % side, (x * 1.65, 7.0, -0.4), 0.5)
+        empty("Weapon.%s" % side, (x * 2.3, 3.5, -0.5), 1.0)
+    empty("EngineTop", (0.0, -4.5, 1.0), 0.5)
+    empty("EngineBottom", (0.0, -4.5, -1.0), 0.5)
+    empty("EngineLeft", (-1.5, -5.0, 0.0), 0.5)
+    empty("EngineRight", (1.5, -5.0, 0.0), 0.5)
+    empty("Module", (0.0, -1.5, 1.0), 1.0)
     guides = guides_collection()
     guide_box("Game ship length 17 m (any size works)", (6.0, SHIP_LENGTH, 4.0), (0.0, 0.0, 0.0), guides)
     arrow = empty("Nose +Y", (0.0, half, 0.0), 3.0, "SINGLE_ARROW")

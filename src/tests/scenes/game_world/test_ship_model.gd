@@ -1,12 +1,14 @@
 # Tests for the model contract (ShipModel, StationModel, ModelLooks, ModelCheck) on a model made in
 # Blender the way CONTENT.md says (src/tests/fixtures/models/test_hull: nose to +Y in Blender,
-# materials "Paint", "Hull Dark Metal" and "Glow", two empties named Engine).
+# materials "Paint", "Hull Dark Metal" and "Glow", two empties named Engine; the scene adds a nozzle
+# facing each other way and hardpoints as Position3Ds, named as Blender's empties come in).
 
 extends GutTest
 
 const ModelLooks = preload("res://src/scenes/game_world/models/model_looks.gd")
 const ModelCheck = preload("res://src/scenes/game_world/models/model_check.gd")
 const CollisionHull = preload("res://src/core/agents/components/collision_hull.gd")
+const ShipModel = preload("res://src/scenes/game_world/models/ship_model.gd")
 const TEST_HULL_SCENE = "res://src/tests/fixtures/models/test_hull/test_hull.tscn"
 
 
@@ -38,10 +40,45 @@ func test_it_comes_in_nose_forward_at_its_length():
 func test_engine_empties_get_exhausts_aft():
 	var engines: Node = _hull().get_node("Engines")
 	assert_not_null(engines, "Exhausts as it instances")
-	assert_eq(engines.get_child_count(), 2, "One per Engine empty")
+	assert_eq(engines.get_child_count(), 7, "One per Engine marker")
+	var rear := 0
 	for exhaust in engines.get_children():
-		assert_gt(exhaust.transform.origin.z, 7.0, "at the stern")
-		assert_almost_eq(exhaust.transform.basis.get_scale().x, 0.8, 0.01, "sized by the empty's scale")
+		if exhaust.transform.basis.z.normalized().dot(Vector3.BACK) > 0.99:
+			rear += 1
+			assert_gt(exhaust.transform.origin.z, 7.0, "at the stern")
+			assert_almost_eq(exhaust.transform.basis.get_scale().x, 0.8, 0.01, "sized by the empty's scale")
+	assert_eq(rear, 2, "The two unnamed Engine empties face aft")
+
+
+func test_each_nozzle_faces_the_way_its_name_says():
+	var faced := {}
+	for exhaust in _hull().get_node("Engines").get_children():
+		var z: Vector3 = exhaust.transform.basis.z.normalized()
+		for direction in ShipModel.NOZZLE_DIRECTIONS:
+			if z.dot(ShipModel.NOZZLE_DIRECTIONS[direction]) > 0.99:
+				faced[direction] = true
+		assert_almost_eq(exhaust.transform.basis.get_scale().length(), exhaust.transform.basis.get_scale().x * sqrt(3.0), 0.01, "Turned, not stretched")
+	assert_eq(faced.size(), 6, "A nozzle facing each way")
+	assert_eq(ShipModel.nozzle_direction("EngineTop001"), "top", "Blender's EngineTop.001")
+	assert_eq(ShipModel.nozzle_direction("Engine_Left"), "left")
+	assert_eq(ShipModel.nozzle_direction("Engine000"), "rear", "No word: aft")
+	assert_eq(ShipModel.nozzle_direction("EngineL"), "rear", "Only whole direction words count")
+
+
+func test_a_ship_needs_a_nozzle_facing_each_way():
+	var rear_only: Array = [Transform(Basis(), Vector3(0, 0, 8))]
+	var problems: Array = ModelCheck.nozzle_problems(rear_only)
+	assert_eq(problems.size(), 5, "Five ways missing")
+	assert_eq(ModelCheck.nozzle_problems(rear_only, true), [], "A stationary hull needs none of them")
+	var forward: Array = [Transform(Basis(), Vector3(0, 0, -8))]
+	assert_string_contains(str(ModelCheck.nozzle_problems(forward, true)), "sit forward")
+
+
+func test_hardpoints_come_in_scene_order():
+	var points: Dictionary = ShipModel.hardpoints(_hull())
+	assert_eq(points.tools.size(), 2, "Weapon000, Weapon001")
+	assert_almost_eq(points.tools[0].origin.x, 1.2, 0.001, "in their order")
+	assert_eq(points.modules.size(), 1)
 
 
 func test_materials_come_from_the_library_by_name():
@@ -99,3 +136,9 @@ func test_a_station_fits_itself_to_its_model():
 			assert_eq(node.material_override, paint)
 			painted += 1
 	assert_gt(painted, 0, "In its owner's paint")
+
+
+func test_the_dev_tool_summary_counts_nozzles_and_hardpoints():
+	var summary: Dictionary = ModelCheck.ship_summary(TEST_HULL_SCENE)
+	assert_eq_deep(summary.nozzles, {"rear": 2, "front": 1, "top": 1, "bottom": 1, "left": 1, "right": 1})
+	assert_eq([summary.weapons, summary.modules], [2, 1])

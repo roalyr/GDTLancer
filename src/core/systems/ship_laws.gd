@@ -202,6 +202,7 @@ static func build_laser_template(genes: Dictionary, part_type: int, template_id:
 	tool_template.hud_label = PartCatalog.hud_label("laser", part_type)
 	tool_template.description = "%.0f kg, %.1f per shot." % [stats.mass, stats.power_per_cycle]
 	tool_template.variant_type = part_type
+	tool_template.internal = Constants.PART_INTERNAL_KINDS.has(tool_template.tool_type)
 	tool_template.law_genes = clamp_laser_genes(genes)
 	return tool_template
 
@@ -299,6 +300,7 @@ static func build_weapon_template(kind: String, genes: Dictionary, part_type: in
 			stats.mass, stats.ammo, stats.round_mass, stats.damage, stats.projectile_speed]
 		tool_template.law_genes = clamp_cannon_genes(genes)
 	tool_template.variant_type = part_type
+	tool_template.internal = Constants.PART_INTERNAL_KINDS.has(tool_template.tool_type)
 	return tool_template
 
 
@@ -393,6 +395,7 @@ static func build_module_template(kind: String, genes: Dictionary, part_type: in
 		module.description = "%.0f kg: %d lances of %.0f kg, %.0f damage at %.0f m/s (none under %.0f m/s); an armoured prow, +%d hull." % [
 			stats.mass, stats.lance.count, stats.lance.nail_mass, stats.lance.damage, Constants.LAW_LANCE_REF_SPEED, Constants.LAW_LANCE_MIN_SPEED, stats.stat_modifiers.hull]
 	module.module_kind = kind
+	module.internal = Constants.PART_INTERNAL_KINDS.has(kind)
 	module.variant_type = part_type
 	module.law_genes = clamp_module_genes(genes, kind)
 	return module

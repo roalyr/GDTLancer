@@ -83,7 +83,8 @@ static func library_material(tag: String) -> Material:
 	return _LIBRARY[tag]
 
 
-# The bounds of the meshes under `root`, in root space (effects under an "Engines" node left out).
+# The bounds of the meshes under `root`, in root space (effects under an "Engines" node and fitted
+# parts under a "Mounts" node, ShipModel.mount_parts, left out).
 static func bounds(root: Spatial) -> AABB:
 	var box := AABB()
 	var found := false
@@ -91,7 +92,7 @@ static func bounds(root: Spatial) -> AABB:
 	while not stack.empty():
 		var item: Array = stack.pop_back()
 		var node: Node = item[0]
-		if node != root and node.name == "Engines":
+		if node != root and (node.name == "Engines" or node.name == "Mounts"):
 			continue
 		if node is MeshInstance and node.mesh != null:
 			var placed: AABB = item[1].xform(node.get_aabb())

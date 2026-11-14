@@ -896,22 +896,76 @@ const XENO_FORMS = {
 	]},
 }
 const XENO_VESSEL_SEED = 5
+const XENO_VESSEL_NOZZLE_DEPTH = 0.85  # Its nozzles, this share of the way from its middle to each face of its bounds
+const XENO_VESSEL_NOZZLE_SCALE = 0.7  # Sizes its exhausts
 const XENO_HIVE_LENGTH = 240.0  # m
 const XENO_HIVE_SEED = 13
 # Placeholder hulls (PlaceholderHull, PrimitiveForm: the part fields are described there), one
 # silhouette per preset family: fighter a swept dart, prospector a round hull with claws, raider a
 # flat wedge with prongs, scavenger a box frame with a crane, trader a spine of cargo pods behind a
-# cab (more pods by weight). `engines`:
-# exhaust nozzles, shares of the length (one off the centre line gets a twin across).
+# cab (more pods by weight). Positions are shares of the length (nose -Z, top +Y), the girth applied
+# across; one off the centre line gets a twin across (ShipModel has the rules):
+#   engines   the main nozzles, a set facing each way (a ship flies at top speed in any direction):
+#             "rear", "front", "top", "bottom", and "sides" (x > 0: a right nozzle there, a left one
+#             across)
+#   weapons   tool hardpoints, fixed, facing forward
+#   modules   module hardpoints (only parts that are not internal take one)
 # Ship models (ShipModel) are this long nose to tail at model scale 1 (tools/import_model.sh scales a
 # model made at any size to it); a ship's model_scale stretches it.
 const SHIP_MODEL_LENGTH = 17.0  # m
 const SHIP_MODEL_LENGTH_TOLERANCE = 0.2  # The content test lets a model be this share longer or shorter (imported models fit exactly; the squat scavenger placeholder is 0.18 short)
 const PLACEHOLDER_HULLS_DIR = "res://scenes/prefabs/ships/placeholders/"  # <family>_<weight>.tscn
 const HULL_FORM_GIRTH = {"light": 0.85, "medium": 1.0, "heavy": 1.25, "superheavy": 1.5}  # Across, by weight class
-const HULL_FORM_EXHAUST_SCALE = 0.7
+const HULL_FORM_EXHAUST_SCALE = 0.7  # A placeholder's nozzles (every direction), times its girth: sizes the exhausts
+const HULL_FORM_HARDPOINT_SCALE = 1.0  # A placeholder's hardpoint markers, times its girth: sizes the parts shown there
+# Parts at hardpoints (ShipModel.mount_parts): a PrimitiveForm per part kind (a tool's tool_type, a
+# module's module_kind; "default" for any other), facing forward (-Z), centred on the hardpoint, in
+# shares of PART_FORM_LENGTH for the hull's mount size (m, at model scale 1: a ship is 17 m).
+# Internal parts (their `internal`) take no hardpoint and show nowhere.
+const PART_FORM_LENGTH = {"small": 1.6, "medium": 2.2, "large": 3.0}
+const PART_FORMS = {
+	"laser": [
+		{"shape": "box", "size": Vector3(0.35, 0.25, 0.4), "at": Vector3(0, 0, 0.25)},
+		{"shape": "cylinder", "size": Vector3(0.12, 0.12, 0.9), "at": Vector3(0, 0, -0.2)},
+		{"shape": "sphere", "size": Vector3(0.14, 0.14, 0.14), "at": Vector3(0, 0, -0.66), "look": "glow"},
+	],
+	"cannon": [
+		{"shape": "box", "size": Vector3(0.42, 0.3, 0.45), "at": Vector3(0, 0, 0.25)},
+		{"shape": "cylinder", "size": Vector3(0.22, 0.22, 0.85), "at": Vector3(0, 0, -0.25)},
+		{"shape": "cylinder", "size": Vector3(0.28, 0.28, 0.12), "at": Vector3(0, 0, -0.62)},
+	],
+	"missile": [
+		{"shape": "box", "size": Vector3(0.55, 0.36, 0.8), "at": Vector3(0, 0, 0), "look": "paint"},
+		{"shape": "cylinder", "size": Vector3(0.18, 0.18, 0.06), "at": Vector3(0.13, 0.06, -0.41), "mirror": true, "look": "glow"},
+		{"shape": "cylinder", "size": Vector3(0.18, 0.18, 0.06), "at": Vector3(0.13, -0.08, -0.41), "mirror": true},
+	],
+	"harpoon": [
+		{"shape": "cylinder", "size": Vector3(0.2, 0.2, 0.6), "at": Vector3(0, 0, 0.1)},
+		{"shape": "cone", "size": Vector3(0.32, 0.32, 0.35), "at": Vector3(0, 0, -0.38), "look": "paint"},
+	],
+	"sensor": [
+		{"shape": "cylinder", "size": Vector3(0.08, 0.08, 0.4), "at": Vector3(0, 0.2, 0), "turn": Vector3(90, 0, 0)},
+		{"shape": "sphere", "size": Vector3(0.7, 0.14, 0.7), "at": Vector3(0, 0.42, 0), "turn": Vector3(-20, 0, 0), "look": "paint"},
+		{"shape": "sphere", "size": Vector3(0.1, 0.1, 0.1), "at": Vector3(0, 0.5, -0.05), "look": "glow"},
+	],
+	"decoy": [
+		{"shape": "box", "size": Vector3(0.4, 0.25, 0.5), "at": Vector3(0, 0, 0.05)},
+		{"shape": "cylinder", "size": Vector3(0.12, 0.12, 0.25), "at": Vector3(0.1, 0.1, -0.2), "turn": Vector3(-35, 0, 0), "mirror": true, "look": "paint"},
+	],
+	"default": [
+		{"shape": "box", "size": Vector3(0.35, 0.3, 0.4), "at": Vector3(0, 0, 0)},
+	],
+}
+# Part kinds built internal (ShipLaws: the catalogue's templates carry it as `internal`, which the
+# dev tool edits): inside the hull, they take no hardpoint. The lance draws its own seat.
+const PART_INTERNAL_KINDS = ["plating", "thruster", "power_cell", "lance", "damper", "afterburner", "magazine", "rack"]
 const HULL_FORMS = {
-	"fighter": {"engines": [Vector3(0.07, 0, 0.47)], "parts": [
+	"fighter": {"engines": {
+		"rear": [Vector3(0.07, 0, 0.47)], "front": [Vector3(0.08, 0, -0.03)], "top": [Vector3(0, 0.045, 0.1)],
+		"bottom": [Vector3(0, -0.045, 0.1)], "sides": [Vector3(0.34, 0, 0.22)]},
+	"weapons": [Vector3(0.12, -0.015, 0.0), Vector3(0.22, -0.015, 0.06), Vector3(0.06, -0.04, -0.15), Vector3(0.3, 0, 0.12)],
+	"modules": [Vector3(0.05, 0.045, 0.18), Vector3(0.05, -0.045, 0.2)],
+	"parts": [
 		{"shape": "box", "size": Vector3(0.12, 0.08, 0.6), "at": Vector3(0, 0, 0.05), "look": "paint"},
 		{"shape": "cone", "size": Vector3(0.12, 0.08, 0.3), "at": Vector3(0, 0, -0.4), "look": "paint"},
 		{"shape": "sphere", "size": Vector3(0.07, 0.05, 0.16), "at": Vector3(0, 0.05, -0.18), "look": "glow"},
@@ -922,7 +976,12 @@ const HULL_FORMS = {
 		{"shape": "cylinder", "size": Vector3(0.04, 0.04, 0.32), "at": Vector3(0.33, 0, 0.08), "mirror": true, "from": "heavy"},
 		{"shape": "box", "size": Vector3(0.16, 0.06, 0.3), "at": Vector3(0, -0.07, 0.1), "look": "paint", "from": "superheavy"},
 	]},
-	"prospector": {"engines": [Vector3(0, 0, 0.43)], "parts": [
+	"prospector": {"engines": {
+		"rear": [Vector3(0, 0, 0.43)], "front": [Vector3(0.1, -0.06, -0.16)], "top": [Vector3(0, 0.12, 0.12)],
+		"bottom": [Vector3(0, -0.12, 0.05)], "sides": [Vector3(0.16, 0, 0.08)]},
+	"weapons": [Vector3(0.12, 0.06, -0.1), Vector3(0.14, -0.04, -0.06), Vector3(0.06, -0.1, -0.12), Vector3(0.15, 0.02, 0.15)],
+	"modules": [Vector3(0.07, 0.11, 0.12), Vector3(0.08, -0.11, 0.15)],
+	"parts": [
 		{"shape": "sphere", "size": Vector3(0.32, 0.24, 0.5), "at": Vector3(0, 0, 0.05), "look": "paint"},
 		{"shape": "box", "size": Vector3(0.14, 0.1, 0.18), "at": Vector3(0, 0.1, -0.14)},
 		{"shape": "sphere", "size": Vector3(0.1, 0.05, 0.06), "at": Vector3(0, 0.12, -0.23), "look": "glow"},
@@ -932,7 +991,12 @@ const HULL_FORMS = {
 		{"shape": "box", "size": Vector3(0.2, 0.1, 0.3), "at": Vector3(0, -0.14, 0.1), "from": "heavy"},
 		{"shape": "cylinder", "size": Vector3(0.16, 0.16, 0.3), "at": Vector3(0, 0.16, 0.12), "look": "paint", "from": "superheavy"},
 	]},
-	"raider": {"engines": [Vector3(0, 0, 0.46)], "parts": [
+	"raider": {"engines": {
+		"rear": [Vector3(0, 0, 0.46)], "front": [Vector3(0.04, 0, -0.26)], "top": [Vector3(0.06, 0.03, 0.2)],
+		"bottom": [Vector3(0, -0.03, 0.2)], "sides": [Vector3(0.11, 0, 0.0)]},
+	"weapons": [Vector3(0.09, -0.025, -0.5), Vector3(0.11, 0, -0.15), Vector3(0.08, -0.03, 0.0), Vector3(0.28, 0, 0.3)],
+	"modules": [Vector3(0.06, 0.03, -0.05), Vector3(0.06, -0.03, 0.1)],
+	"parts": [
 		{"shape": "box", "size": Vector3(0.22, 0.06, 0.6), "at": Vector3(0, 0, 0.05), "look": "paint"},
 		{"shape": "box", "size": Vector3(0.03, 0.04, 0.4), "at": Vector3(0.09, 0, -0.35), "turn": Vector3(0, -6, 0), "mirror": true},
 		{"shape": "box", "size": Vector3(0.012, 0.14, 0.35), "at": Vector3(0, 0.08, 0.15), "turn": Vector3(-15, 0, 0)},
@@ -943,7 +1007,12 @@ const HULL_FORMS = {
 		{"shape": "box", "size": Vector3(0.08, 0.08, 0.35), "at": Vector3(0.14, -0.02, 0.05), "look": "paint", "mirror": true, "from": "heavy"},
 		{"shape": "box", "size": Vector3(0.3, 0.05, 0.3), "at": Vector3(0, -0.06, 0.12), "look": "paint", "from": "superheavy"},
 	]},
-	"scavenger": {"engines": [Vector3(0.06, 0, 0.43)], "parts": [
+	"scavenger": {"engines": {
+		"rear": [Vector3(0.06, 0, 0.43)], "front": [Vector3(0.06, -0.05, -0.37)], "top": [Vector3(0, 0.07, 0.2)],
+		"bottom": [Vector3(0, -0.07, 0.15)], "sides": [Vector3(0.09, 0, 0.25)]},
+	"weapons": [Vector3(0.1, -0.06, -0.3), Vector3(0.09, 0.05, -0.1), Vector3(0.09, -0.05, 0.05), Vector3(0.05, 0.07, 0.0)],
+	"modules": [Vector3(0.05, 0.07, 0.3), Vector3(0.05, -0.07, 0.3)],
+	"parts": [
 		{"shape": "box", "size": Vector3(0.18, 0.14, 0.55), "at": Vector3(0, 0, 0.08)},
 		{"shape": "box", "size": Vector3(0.2, 0.16, 0.18), "at": Vector3(0, 0.02, -0.28), "look": "paint"},
 		{"shape": "sphere", "size": Vector3(0.14, 0.05, 0.05), "at": Vector3(0, 0.05, -0.37), "look": "glow"},
@@ -954,7 +1023,12 @@ const HULL_FORMS = {
 		{"shape": "box", "size": Vector3(0.12, 0.12, 0.15), "at": Vector3(0.16, 0, 0.2), "look": "paint", "mirror": true, "from": "heavy"},
 		{"shape": "box", "size": Vector3(0.22, 0.1, 0.4), "at": Vector3(0, -0.13, 0.08), "from": "superheavy"},
 	]},
-	"trader": {"engines": [Vector3(0.08, 0, 0.44)], "parts": [
+	"trader": {"engines": {
+		"rear": [Vector3(0.08, 0, 0.44)], "front": [Vector3(0.105, -0.03, -0.235)], "top": [Vector3(0, 0.04, 0.25)],
+		"bottom": [Vector3(0, -0.04, 0.25)], "sides": [Vector3(0.17, 0, -0.14)]},
+	"weapons": [Vector3(0.08, 0.05, -0.38), Vector3(0.17, 0.04, -0.2), Vector3(0.17, -0.04, -0.08), Vector3(0.04, -0.04, 0.3)],
+	"modules": [Vector3(0.04, 0.04, 0.32), Vector3(0.1, 0.065, -0.14)],
+	"parts": [
 		{"shape": "box", "size": Vector3(0.08, 0.08, 0.76), "at": Vector3(0, 0, 0)},
 		{"shape": "box", "size": Vector3(0.16, 0.11, 0.14), "at": Vector3(0, 0.02, -0.38), "look": "paint"},
 		{"shape": "sphere", "size": Vector3(0.12, 0.04, 0.04), "at": Vector3(0, 0.05, -0.45), "look": "glow"},
@@ -973,8 +1047,8 @@ const ARCHETYPES_DIR = "res://database/presets/archetypes/"
 # HavenMarker's `model`), PrimitiveForms like the hulls: a haven a hub in a ring,
 # a post a rock with silos, a refinery a spine of tanks and stacks, a den a spiked rock.
 # A weapon platform's form (PlaceholderHull "platform_heavy"): a squat hub, three barrels forward
-# (laser, missile pod, cannon), radiator fins; no engines.
-const PLATFORM_FORM = {"engines": [], "parts": [
+# (laser, missile pod, cannon), radiator fins, its hardpoints round the front; no engines.
+const PLATFORM_FORM = {"engines": {}, "weapons": [Vector3(0, 0.06, -0.36), Vector3(0.2, 0, -0.32), Vector3(0.2, 0.12, -0.2), Vector3(0.1, -0.12, -0.25)], "modules": [Vector3(0.12, 0.17, 0.1)], "parts": [
 	{"shape": "sphere", "size": Vector3(0.5, 0.36, 0.5), "at": Vector3(0, 0, 0.05), "look": "paint"},
 	{"shape": "cylinder", "size": Vector3(0.62, 0.62, 0.06), "at": Vector3(0, -0.16, 0.05), "turn": Vector3(90, 0, 0)},
 	{"shape": "cylinder", "size": Vector3(0.05, 0.05, 0.5), "at": Vector3(0, 0.06, -0.38)},

@@ -1,51 +1,77 @@
 # EngineExhaustSet: drives a ship's engine exhausts (EngineExhaust children, from
 # scenes/prefabs/effects/engine_exhaust.tscn) from its thrust, as the legacy project did: the
 # plume stretches out behind the nozzle and widens up to a cap as thrust rises, and every
-# exhaust shape brightens with it; an idle engine keeps a faint nozzle glow, a wreck none. Speed
-# scales the plume's length (Constants.ENGINE_PLUME_STANDSTILL_SHARE when still, longer and slimmer
-# at top speed) and brightness (ENGINE_GLOW_STANDSTILL_SHARE): it grows as the ship speeds up, and
-# shrinks and fades as it slows down, even while braking hard.
-# Sits on the ship scene's "Engines" node; the ship's engines share one set of material copies,
-# so ships do not change each other's glow.
+# exhaust shape brightens with it; an idle engine keeps a faint nozzle glow, a wreck none.
+# A ship has a main nozzle facing each way (ShipModel.NOZZLE_DIRECTIONS): each exhaust burns by how
+# much of the thrust pushes away from it (its own +Z is where its exhaust points; the ship's
+# get_engine_thrust(), in ship space), so a ship flying sideways burns its side nozzles. Speed along
+# that push scales the plume's length (Constants.ENGINE_PLUME_STANDSTILL_SHARE when still, longer and
+# slimmer at top speed) and brightness (ENGINE_GLOW_STANDSTILL_SHARE): it grows as the ship speeds
+# up, and shrinks and fades as it slows down, even while braking hard. A host without
+# get_engine_thrust (a missile) pushes straight ahead at get_engine_activity().
+# Sits on the ship scene's "Engines" node; exhausts facing the same way share one set of material
+# copies (one per ship and direction), so ships and directions do not change each other's glow.
 
 extends Spatial
 
-var _materials: Dictionary = {}  # Original exhaust material -> this ship's copy
+var _groups: Array = []  # [{"push": Vector3 (ship space), "exhausts": [Spatial], "materials": [ShaderMaterial], "thrust", "speed"}]
 var _agent: Node = null
-var _thrust := -1.0
-var _speed := -1.0  # Share of top speed the plume is drawn for
 
 
 func _ready() -> void:
+	var by_direction := {}
 	for engine in get_children():
+		if not engine is Spatial:
+			continue
+		var exhaust: Vector3 = (transform.basis * engine.transform.basis).z.normalized()
+		var key: String = "%.2f,%.2f,%.2f" % [exhaust.x, exhaust.y, exhaust.z]
+		if not by_direction.has(key):
+			by_direction[key] = {"push": -exhaust, "exhausts": [], "materials": [], "copies": {}, "thrust": -2.0, "speed": -1.0}
+			_groups.append(by_direction[key])
+		var group: Dictionary = by_direction[key]
+		group.exhausts.append(engine)
 		for node in _all_nodes(engine):
 			if node is MeshInstance and node.material_override is ShaderMaterial:
-				if not _materials.has(node.material_override):
-					_materials[node.material_override] = node.material_override.duplicate()
-				node.material_override = _materials[node.material_override]
+				if not group.copies.has(node.material_override):
+					group.copies[node.material_override] = node.material_override.duplicate()
+					group.materials.append(group.copies[node.material_override])
+				node.material_override = group.copies[node.material_override]
+	for group in _groups:
+		group.erase("copies")
 	_agent = _find_agent()
-	_apply(0.0)
+	for group in _groups:
+		_apply(group, 0.0, 0.0)
 
 
 func _process(_delta: float) -> void:
-	var thrust: float = 0.0
-	var speed: float = 0.0
+	var thrust := Vector3.ZERO  # Ship space, length 0 idle .. 1 full burn
+	var velocity := Vector3.ZERO  # Ship space, shares of top speed
+	var dead := false
 	if is_instance_valid(_agent):
-		thrust = -1.0 if _agent.get("is_wreck") else _agent.get_engine_activity()
-		speed = clamp(_agent.linear_velocity.length() / max(_agent.get_top_speed(), 1.0), 0.0, 1.0)
-	if abs(thrust - _thrust) > 0.005 or abs(speed - _speed) > Constants.ENGINE_PLUME_SPEED_STEP:
-		_apply(thrust, speed)
+		dead = bool(_agent.get("is_wreck"))
+		var basis: Basis = _agent.global_transform.basis.orthonormalized()
+		if _agent.has_method("get_engine_thrust"):
+			thrust = _agent.get_engine_thrust()
+		else:
+			thrust = Vector3.FORWARD * _agent.get_engine_activity()
+		velocity = basis.xform_inv(_agent.linear_velocity) / max(_agent.get_top_speed(), 1.0)
+	for group in _groups:
+		var push: float = -1.0 if dead else max(0.0, thrust.dot(group.push))
+		var speed: float = clamp(velocity.dot(group.push), 0.0, 1.0)
+		if abs(push - group.thrust) > 0.005 or abs(speed - group.speed) > Constants.ENGINE_PLUME_SPEED_STEP:
+			_apply(group, push, speed)
 
 
-# `thrust`: 0 idle .. 1 full burn; below 0 the engines are dead (wreck). `speed`: share of top speed.
-func _apply(thrust: float, speed: float = 0.0) -> void:
-	_thrust = thrust
-	_speed = speed
+# One direction's exhausts at `thrust` (0 idle .. 1 full burn; below 0 the engines are dead, a wreck)
+# and `speed` (share of top speed along their push).
+func _apply(group: Dictionary, thrust: float, speed: float) -> void:
+	group.thrust = thrust
+	group.speed = speed
 	var dead: bool = thrust < 0.0
 	var t: float = clamp(thrust, 0.0, 1.0)
 	var length: float = lerp(Constants.ENGINE_PLUME_IDLE_LENGTH, Constants.ENGINE_PLUME_MAX_LENGTH, t) * lerp(Constants.ENGINE_PLUME_STANDSTILL_SHARE, 1.0 + Constants.ENGINE_PLUME_SPEED_STRETCH, speed)
 	var width: float = lerp(Constants.ENGINE_PLUME_MIN_WIDTH, Constants.ENGINE_PLUME_MAX_WIDTH, t) * (1.0 - Constants.ENGINE_PLUME_SPEED_SLIM * speed)
-	for engine in get_children():
+	for engine in group.exhausts:
 		var plume = engine.get_node_or_null("PlumeShapes")
 		if plume != null:
 			plume.visible = not dead and t > 0.0
@@ -54,8 +80,13 @@ func _apply(thrust: float, speed: float = 0.0) -> void:
 		if nozzle != null:
 			nozzle.visible = not dead
 	var glow: float = 0.0 if dead else lerp(Constants.ENGINE_GLOW_IDLE, 1.0, t * lerp(Constants.ENGINE_GLOW_STANDSTILL_SHARE, 1.0, speed))
-	for material in _materials.values():
+	for material in group.materials:
 		material.set_shader_param("intensity", glow)
+
+
+# The exhausts' groups by direction, for tests: [{"push": Vector3, "thrust": float, ...}].
+func get_groups() -> Array:
+	return _groups
 
 
 func _find_agent() -> Node:

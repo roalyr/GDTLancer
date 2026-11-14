@@ -1251,12 +1251,17 @@ class FactionsPane(Horizontal):
 
 
 PART_COLUMNS = {
-    "weapons": ("Weapon", "Type", "Mount", "Mass kg", "Damage", "Cycle s", "DPS", "Range m", "Ammo", "Power", "WP", "Origin", "Used by"),
-    "modules": ("Module", "Kind", "Mass kg", "Effects", "WP", "Origin", "Used by"),
+    "weapons": ("Weapon", "Type", "Mount", "Sits", "Mass kg", "Damage", "Cycle s", "DPS", "Range m", "Ammo", "Power", "WP", "Origin", "Used by"),
+    "modules": ("Module", "Kind", "Sits", "Mass kg", "Effects", "WP", "Origin", "Used by"),
     "commodities": ("Commodity", "WP", "kg/unit", "WP/t", "Used by"),
     "starts": ("Game start", "Ship", "Docked at", "Bank WP", "Storage"),
     "trade": ("Commodity", "Sector", "Bought at", "WP", "Sold at", "WP", "Margin", "Markups", "km", "WP/t", "Flown by"),
 }
+def _sits(row):
+    """Where a part sits: "inside" (internal: no hardpoint, not drawn) or "outside" (at a hardpoint)."""
+    return "inside" if row.get("internal") else "outside"
+
+
 PART_TITLES = {"weapons": "Weapons and tools", "modules": "Modules", "commodities": "Commodities", "starts": "Starting kit",
                "trade": "Trade routes"}
 
@@ -1786,6 +1791,8 @@ class DevApp(App):
         if row.glb:
             lines.append("Model: %s%s" % (row.glb, ("  (source %s)" % os.path.relpath(row.blend, tasks.ROOT)) if row.blend else ""))
         lines.append("Used by: " + (", ".join(user.replace("res://", "") for user in row.users) if row.users else "nothing"))
+        if row.carries_line():
+            lines.append(row.carries_line())
         for problem in row.problems:
             lines.append("[red]- %s[/red]" % problem)
         self.query_one("#model-detail", Static).update("\n".join(lines))
@@ -2350,12 +2357,12 @@ class DevApp(App):
     def _part_cells(kind, row):
         used = ", ".join(row.get("used_by", [])) or "[yellow]nothing[/yellow]"
         if kind == "weapons":
-            return (row["name"], row["type"], row["mount"], "%.0f" % row["mass"], "%.1f" % row["damage"], "%.2f" % row["cycle"],
+            return (row["name"], row["type"], row["mount"], _sits(row), "%.0f" % row["mass"], "%.1f" % row["damage"], "%.2f" % row["cycle"],
                     "%.1f" % row["dps"], "%.0f" % row["range"], str(row["ammo"]) if row["ammo"] else "-", "%.1f" % row["power"],
                     str(row["value"]), row["origin"], used)
         if kind == "modules":
             effects = ", ".join("%s %+g" % (key, value) for key, value in (row["effects"] or {}).items()) if isinstance(row["effects"], dict) else ""
-            return (row["name"], row["kind"] or "-", "%.0f" % row["mass"], (effects + (" lance" if row["lance"] else "")).strip() or "-",
+            return (row["name"], row["kind"] or "-", _sits(row), "%.0f" % row["mass"], (effects + (" lance" if row["lance"] else "")).strip() or "-",
                     str(row["value"]), row["origin"], used)
         if kind == "commodities":
             per_tonne = row["value"] / row["mass"] * 1000.0 if row["mass"] else 0.0

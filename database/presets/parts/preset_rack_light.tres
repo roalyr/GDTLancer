@@ -9,6 +9,7 @@ module_name = "Missile Bay Mk I-light"
 description = "150 kg."
 base_value = 300
 mass = 150.0
+internal = true
 stat_modifiers = {
 "missile_load": 127.5
 }
