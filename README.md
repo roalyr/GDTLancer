@@ -26,7 +26,7 @@ You fly the ship, not the guns: distance and relative velocity decide a fight, a
 
 0.x: one sector (Elace), playable as a sandbox. Content and balance are still changing.
 
-For developers: `tools/dev.py` is the development tool (content, models, data, checks), and [CONTENT.md](CONTENT.md) says where the content lives.
+For developers (Linux, Godot 3.6): [CONTENT.md](CONTENT.md) gets you set up and through the development tool, `tools/dev.py`; [docs/MAINTAINING.md](docs/MAINTAINING.md) covers evolution and releases.
 
 ## License
 

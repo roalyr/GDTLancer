@@ -17,8 +17,8 @@ const SHOWN_WHEN = {
 	"player_visible": {"kind": ["landmark"]},  # Fields always show; paid pickets do (Wages); the entry is no beacon
 }
 
-export(String, "patrol", "field", "landmark", "entry") var kind: String = "landmark" setget _set_kind
-export var beacon_name: String = ""
+export(String, "patrol", "field", "landmark", "entry") var kind: String = "landmark" setget _set_kind  # What it is: patrol (a faction's round), field (rocks to mine), landmark (a waypoint) or entry (where ships jump in)
+export var beacon_name: String = ""  # Its name on the HUD and in radio talk (empty: the node's name)
 export var owner_faction: String = ""  # A patrol beacon's faction
 export var radius: float = 0.0 setget _set_radius  # m; 0: the traffic radius (Constants BEACON_TRAFFIC_RADIUS)
 export var rocks: int = 0  # A field's rocks

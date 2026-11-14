@@ -1,9 +1,9 @@
 # TemplateIndexer: scans database/registry/ and registers every .tres template into TemplateDatabase;
-# then database/presets/ (evolved designs: tools/export_presets.gd), whose ships and parts go to
-# TemplateDatabase.presets, for the home station's store only; their AgentTemplates (behaviour and
-# classification) to TemplateDatabase.preset_agents by ship, apart from the agents: nothing spawns
-# from presets yet. A preset in several folders is the same design (ids follow the
-# genes): the first is kept.
+# then database/presets/ (the archetypes and the part catalogue; evolution's drafts sit apart, in
+# database/drafts/, and are never read), whose ships and parts go to TemplateDatabase.presets;
+# their AgentTemplates (behaviour and classification) to TemplateDatabase.preset_agents by ship,
+# apart from the agents. A preset in several folders is the same design (ids follow the genes): the
+# first is kept.
 
 extends Node
 

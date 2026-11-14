@@ -181,7 +181,28 @@ class AppTest(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(app.query_one("#problems", DataTable).row_count, 1, "One problem")
             self.assertEqual(app.query_one("#models", DataTable).row_count, 4, "Ships, stations and rocks")
             self.assertEqual(app.model_rows[1].status, "1 problem")
-            self.assertEqual(app.query_one("#tasks", DataTable).row_count, len(tasks.TASKS))
+            shown = [task for task in tasks.TASKS if not task.maintainer]
+            self.assertEqual(app.query_one("#tasks", DataTable).row_count, len(shown), "The maintainer tasks hidden")
+            self.assertFalse(app.check_action("new_era", ()), "Evolution's keys too")
+            app.action_toggle_maintainer()
+            await pilot.pause()
+            self.assertEqual(app.query_one("#tasks", DataTable).row_count, len(tasks.TASKS), "m shows them")
+            self.assertTrue(app.check_action("new_era", ()))
+
+    async def test_the_overview_says_what_is_out_of_date_and_missing(self):
+        app = devapp.DevApp(bridge_factory=lambda: FakeBridge())
+        async with app.run_test(size=(160, 50)) as pilot:
+            await self._started(pilot, app)
+            self.assertFalse(app.outside_checks, "A stand-in bridge runs no programs of its own")
+            app.setup = ["Blender not found (blender). Install Blender 3.6"]
+            app.catalog = ["database/presets/CATALOG.md: its text"]
+            app._show_problems([("parts", "res://database/presets/parts/preset_laser_light.tres",
+                                 "damage not what its law_genes give: change law_genes, not the stats, then run apply_laws (Tools)")], [])
+            summary = str(app.query_one("#summary").content)
+            self.assertIn("a runs apply_laws", summary)
+            self.assertIn("CATALOG.md is out of date", summary)
+            self.assertIn("Blender not found", summary)
+            self.assertNotIn("refit_archetypes", summary)
 
     async def test_a_form_saves_only_what_changed(self):
         fake = FakeBridge()
@@ -396,9 +417,12 @@ class AppTest(unittest.IsolatedAsyncioTestCase):
             app.query_one("TabbedContent").active = "world"
             await self._started(pilot, app)
             tree = app.query_one("#world-tree")
-            sectors = [child.data["sector"] for child in tree.root.children]
+            sectors = [child.data["sector"] for child in tree.root.children if "sector" in child.data]
             self.assertTrue({"sector_cob", "sector_elace", "sector_lywin"} <= set(sectors), sectors)
             self.assertEqual(app.world["sector"], "sector_elace", "A sector with a layout opens first")
+            locations = [child.data["location"] for child in tree.root.children if "location" in child.data]
+            self.assertIn("res://database/registry/locations/sector_vidr.tres", locations, "A Location with no scene is listed too")
+            self.assertNotIn("sector_vidr", sectors)
             cob = "res://scenes/levels/sectors/sector_cob/sector_cob_layout.tscn"
             app.load_sector("sector_cob", cob, ".")
             await self._started(pilot, app)
@@ -811,10 +835,15 @@ class AppTest(unittest.IsolatedAsyncioTestCase):
             app = devapp.DevApp(bridge_factory=lambda: FakeBridge(user_dir))
             async with app.run_test(size=(180, 50)) as pilot:
                 await self._started(pilot, app)
+                self.assertNotIn("running", str(app.query_one("#tools-status").content), "Evolution shows with the maintainer tasks")
+                await pilot.press("0")
+                await pilot.press("x")
+                self.assertFalse(os.path.exists(os.path.join(user_dir, "evolution", "stop")), "x is not there yet")
+                await pilot.press("m")
+                await pilot.pause()
                 status = str(app.query_one("#tools-status").content)
                 self.assertIn("running", status)
                 self.assertIn("era 52", status)
-                await pilot.press("0")
                 await pilot.press("x")
                 self.assertTrue(os.path.exists(os.path.join(user_dir, "evolution", "stop")))
 

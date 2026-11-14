@@ -11,7 +11,7 @@ Exports a model's .blend to the .glb the game imports, beside it under the same 
 The .blend itself is never saved. tools/import_model.sh runs this when it is given a .blend.
 
 Usage:
-    tools/blender -b assets/models/ships/<name>/<name>.blend -P tools/export_blend.py
+    $BLENDER -b assets/models/ships/<name>/<name>.blend -P tools/export_blend.py
 """
 
 import os
@@ -114,7 +114,7 @@ def leftovers():
 def main():
     source = bpy.data.filepath
     if not source:
-        raise SystemExit("Open a .blend: tools/blender -b <model>.blend -P tools/export_blend.py")
+        raise SystemExit("Open a .blend: blender -b <model>.blend -P tools/export_blend.py")
     if bpy.context.object is not None and bpy.context.object.mode != "OBJECT":
         bpy.ops.object.mode_set(mode="OBJECT")
     drop_guides()

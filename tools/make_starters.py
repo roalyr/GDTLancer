@@ -13,7 +13,7 @@ Each holds:
 - a "README" text (Blender's Text Editor) with the rules.
 
 Re-run after adding a library material:
-    tools/blender -b -P tools/make_starters.py
+    $BLENDER -b -P tools/make_starters.py
 """
 
 import math

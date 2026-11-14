@@ -13,8 +13,8 @@ folder are refused.
 Ratio: 0.5 suits dense meshes (rocks); already low-poly hard-surface models (ships) fall apart
 that fast, so use a gentler ratio for them (0.7).
 
-Usage (tools/blender links the project's Blender 3.6):
-    tools/blender -b -P tools/generate_lods.py -- [--levels 3] [--ratio 0.5] model.glb [model2.glb ...]
+Usage ($BLENDER: Blender 3.6, as the dev tool finds it: BLENDER, else tools/blender, else blender):
+    $BLENDER -b -P tools/generate_lods.py -- [--levels 3] [--ratio 0.5] model.glb [model2.glb ...]
 """
 
 import argparse

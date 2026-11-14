@@ -4,6 +4,7 @@ Task with its questions (Ask). Standard library only, so `tools/dev.py <task>` r
 menu's packages. The menu (app.py) shows them on its Tasks tab. To add a tool: a Task in TASKS.
 """
 
+import functools
 import glob
 import json
 import os
@@ -15,8 +16,20 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 DEV_DIR = os.path.join(ROOT, ".dev")
 OUT_DIR = os.path.join(DEV_DIR, "out")
 LAST_FILE = os.path.join(DEV_DIR, "last.json")
+# The programs the tools run (CONTENT.md, Getting started): Linux, Godot 3.6 (the x11 build: the
+# server build crashes on scenes) and, for models, Blender 3.6. Set GODOT and BLENDER to their paths
+# when they are not on PATH; a link tools/blender (not committed) also does for Blender.
 GODOT = os.environ.get("GODOT", "godot")
-BLENDER = os.path.join("tools", "blender")
+GODOT_WANTED = "3.6"  # Godot 4 cannot open this project
+BLENDER_WANTED = "3.6"
+
+
+def _blender_default():
+    local = os.path.join("tools", "blender")
+    return local if os.path.exists(os.path.join(ROOT, local)) else "blender"
+
+
+BLENDER = os.environ.get("BLENDER") or _blender_default()
 APK = os.path.expanduser(os.environ.get("GDTLANCER_APK", "~/Dropbox/Dump/GDTLancer-rev.apk"))
 TYPE_A_PATH = "(type a path)"
 
@@ -46,10 +59,17 @@ class Ask:
         return []
 
 
+MAINTAINER = "Maintainer"  # The group of tasks for whoever runs evolution and releases: the menu hides it until m
+
+
 class Task:
     def __init__(self, key, group, title, about, build, asks=(), before=None):
         self.key, self.group, self.title, self.about = key, group, title, about
         self.build, self.asks, self.before = build, list(asks), before
+
+    @property
+    def maintainer(self):
+        return self.group == MAINTAINER
 
     def defaults(self, last):
         values = {}
@@ -61,6 +81,60 @@ class Task:
 
 def godot(*args):
     return [GODOT] + list(args)
+
+
+def _version(program, prefix=""):
+    """`program --version`'s first line (without `prefix`), or None when it does not run."""
+    path = program if os.path.isabs(program) or os.sep in program else shutil.which(program)
+    if not path:
+        return None
+    try:
+        out = subprocess.run([path, "--version"], cwd=ROOT, capture_output=True, text=True, timeout=60).stdout
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    for line in out.splitlines():
+        line = line.strip()
+        if line.startswith(prefix):
+            return line[len(prefix):].strip()
+    return ""
+
+
+@functools.lru_cache(maxsize=None)
+def godot_problem():
+    """What is wrong with the Godot the tools would run ("" when it is Godot 3.6), saying what to do."""
+    found = _version(GODOT)
+    if found is None:
+        return ("Godot not found (%s). Install Godot %s (the Linux x11 build, from godotengine.org's 3.x downloads) "
+                "and put it on PATH as godot, or set GODOT=/path/to/godot." % (GODOT, GODOT_WANTED))
+    if not found.startswith(GODOT_WANTED):
+        return ("%s is Godot %s; this project needs Godot %s (3.6.2 is the tested one). Set GODOT=/path/to/godot-3.6."
+                % (GODOT, found or "of an unknown version", GODOT_WANTED))
+    return ""
+
+
+@functools.lru_cache(maxsize=None)
+def blender_problem():
+    """The same for Blender (needed for models only)."""
+    found = _version(BLENDER, "Blender")
+    if found is None:
+        return ("Blender not found (%s). Install Blender %s (blender.org's long-term release) and put it on PATH as "
+                "blender, set BLENDER=/path/to/blender, or link it as tools/blender." % (BLENDER, BLENDER_WANTED))
+    if not found.startswith(BLENDER_WANTED):
+        return ("%s is Blender %s; the models need Blender %s (the starters and exporter are made for it). Set BLENDER=/path/to/blender-3.6."
+                % (BLENDER, found or "of an unknown version", BLENDER_WANTED))
+    return ""
+
+
+def setup_problems():
+    """Everything missing to run the tools, each saying what to do."""
+    return [problem for problem in (godot_problem(), blender_problem()) if problem]
+
+
+def environment():
+    """The tools' environment: GODOT and BLENDER as found, for the shell scripts."""
+    env = dict(os.environ)
+    env["GODOT"], env["BLENDER"] = GODOT, BLENDER
+    return env
 
 
 def godot_script(script, *args):
@@ -148,7 +222,8 @@ def next_version():
 
 
 def draft_folders():
-    return sorted(os.path.basename(path) for path in glob.glob(os.path.join(ROOT, "database/presets/drafts_era*")))
+    """Evolution's draft folders (database/drafts/era<N>_min<k>), by era."""
+    return sorted(os.path.basename(path) for path in glob.glob(os.path.join(ROOT, "database/drafts/era*")) if os.path.isdir(path))
 
 
 PERF_MODES = ["base", "base_full", "no_3d", "no_hud", "no_lights", "no_particles", "no_rocks",
@@ -234,8 +309,8 @@ def _export_presets(v):
 
 def _pick_archetypes(v):
     folder = v["folder"]
-    era = folder[len("drafts_era"):].split("_")[0]
-    command = godot_script("tools/pick_archetypes.gd", "--", "--from=res://database/presets/%s/" % folder, "--era=" + era)
+    era = folder[len("era"):].split("_")[0]
+    command = godot_script("tools/pick_archetypes.gd", "--", "--from=res://database/drafts/%s/" % folder, "--era=" + era)
     return command + (["--add"] if yes(v["add"]) else [])
 
 
@@ -263,16 +338,10 @@ TASKS = [
     Task("tests", "Checks", "Run the tests", "Every GUT test (content rules and models included).",
          lambda v: godot_script("addons/gut/gut_cmdln.gd", "-gexit", *(["-gdir=" + res(v["dir"])] if v["dir"] else [])),
          [Ask("dir", "Only this test folder (empty: all)", default="", optional=True)]),
-    Task("soak", "Checks", "Soak the game", "The real game left running (a new game in Elace, docked at home, 1x): fails on errors,"
-         " orphaned nodes or memory growing, wrecks over their caps, bookkeeping growing. Frame rates printed. Needs a display.",
-         lambda v: ["python3", "tools/devtool/soak.py", "minutes=" + v["minutes"]],
-         [Ask("minutes", "Minutes (real time)", default="5")]),
-    Task("check_model", "Checks", "Check a model scene", "A ship or station scene against the model rules (CONTENT.md, Models).",
-         _check_model, [Ask("scene", "Scene", "file", globs=MODEL_SCENES)]),
     Task("validate", "Checks", "Check the content rules", "Every content rule (ContentValidator) at once, problems listed.",
          lambda v: godot_script("tools/devtool/validate.gd")),
-    Task("selftest", "Checks", "Test the development tool", "The tool's own Python tests (its Godot side is in the GUT tests).",
-         lambda v: ["python3", "tools/dev.py", "selftest"]),
+    Task("check_model", "Checks", "Check a model scene", "A ship or station scene against the model rules (CONTENT.md, Models).",
+         _check_model, [Ask("scene", "Scene", "file", globs=MODEL_SCENES)]),
     Task("fix_loops", "Checks", "Fix sound loops", "Sets each sound's import loop setting to what its sound bank slot asks, and imports it again.",
          lambda v: ["python3", "tools/devtool/sounds.py"]),
     Task("shaders_check", "Checks", "Check shader blocks", "Lists shaders whose shared blocks are out of date.",
@@ -287,7 +356,7 @@ TASKS = [
          _import_model, [Ask("model", "Model", "file", globs=MODEL_SOURCES),
                          Ask("kind", "Ship or station", "choice", "auto", ["auto", "ship", "station"]),
                          Ask("ratio", "LOD ratio", default="0.7"), Ask("levels", "LOD levels", default="3")]),
-    Task("open_blender", "Models", "Open a model in Blender", "Blender 3.6 (tools/blender) with the file.",
+    Task("open_blender", "Models", "Open a model in Blender", "Blender 3.6 (BLENDER, else tools/blender, else blender on PATH) with the file.",
          lambda v: blender(v["model"]), [Ask("model", "Model", "file", globs=["assets/models/**/*.blend"])]),
     Task("model_sheet", "Models", "Model review sheet", "One model in every faction's paint (across) at every LOD (down), to .dev/out/.",
          _model_sheet, [Ask("scene", "Scene", "file", globs=MODEL_SCENES)]),
@@ -303,23 +372,53 @@ TASKS = [
          [Ask("model", "Model", "file", globs=["assets/models/**/*.glb"]), Ask("ratio", "Ratio", default="0.5"), Ask("levels", "Levels", default="3")]),
     Task("paint_patterns", "Models", "Paint pattern library", "Regenerates the faction paint patterns and their contact sheet.",
          lambda v: ["python3", "tools/generate_paint_patterns.py", "--library"]),
-    # Content
-    Task("classify_presets", "Content", "Classify presets + CATALOG.md", "Labels every preset and rewrites database/presets/CATALOG.md.",
-         lambda v: godot_script("tools/classify_presets.gd")),
-    Task("export_presets", "Content", "Export presets from evolution", "The fittest designs of evolution's save as preset files.",
-         _export_presets, [Ask("top", "Archetypes", default="60"), Ask("min_lives", "Minimum lives", default="10"),
-                           Ask("clean", "Remove the old presets first", "flag", "no")]),
-    Task("apply_laws", "Content", "Apply the ship laws", "Rewrites hand-made ships and parts from their law genes (after changing a law).",
+    # Content (derived data: put right after a change; the Overview says when)
+    Task("apply_laws", "Content", "Apply the ship laws", "Rewrites the part catalogue and hand-made ships from their law genes (after editing law_genes or a law; the Overview says when).",
          lambda v: godot_script("tools/apply_laws.gd")),
-    Task("pick_archetypes", "Content", "Pick archetypes from drafts", "Each archetype the drafts folder has a design for is replaced by it; then classify_presets.",
-         _pick_archetypes, [Ask("folder", "Drafts folder", "choice", lambda: max(draft_folders(), key=lambda name: (int(name.split("_")[1][len("era"):]), name.endswith("min10")), default=""), draft_folders),
-                            Ask("add", "Also make archetypes there are none of yet", "flag", "no")]),
-    Task("refit_archetypes", "Content", "Refit the archetypes", "The archetypes take the part catalogue and the laws as they are now (after changing either).",
+    Task("refit_archetypes", "Content", "Refit the archetypes", "The archetypes take the part catalogue and the laws as they are now (after changing either; the Overview says when).",
          lambda v: godot_script("tools/refit_archetypes.gd")),
-    # Evolution
-    Task("evolution", "Evolution", "Run evolution (headless)", "Goes on with the saved evolution. A new era: new_era.",
+    Task("classify_presets", "Content", "Classify presets + CATALOG.md", "Labels the archetypes and drafts and rewrites database/presets/CATALOG.md (after a draft export or a classifier change; the Overview says when).",
+         lambda v: godot_script("tools/classify_presets.gd")),
+    # Balance
+    Task("duel", "Balance", "Duel two archetypes", "Two archetypes as the game flies them, one on one: wins, time, hull left, rounds.",
+         _duel, [Ask("a", "First (Verdant)", "choice", "fighter_light", archetypes), Ask("b", "Second (Violet)", "choice", "raider_light", archetypes),
+                 Ask("duels", "Duels", default="6"), Ask("speed", "Speed", default="6")]),
+    Task("economy", "Balance", "Sector economy", "A sector's market, trade routes timed for a ship (WP an hour), every hull's trading,"
+         " problems (stock that pays nowhere, buy-and-sell-back loops) and what 0.x has yet to estimate. Also World: Economy.",
+         lambda v: ["python3", "tools/devtool/economy.py", "sector=" + v["sector"], "ship=" + v["ship"]],
+         [Ask("sector", "Sector", "choice", "sector_elace", sectors), Ask("ship", "Ship to time routes for", "choice", "trader_medium", archetypes)]),
+    # Look
+    Task("render_preview", "Look", "Render preview", "A scene from a few distances, side by side, to .dev/out/.",
+         _render_preview, [Ask("scene", "Scene", "file", globs=["scenes/**/*.tscn"]), Ask("radius", "Object size (m)", default="100"),
+                           Ask("distances", "Distances (in sizes)", default="3,10,40")]),
+    # Game
+    Task("play", "Game", "Play", "Runs the game in a window.", lambda v: godot()),
+    Task("test_start", "Game", "Play a test start", "The game from a game start of your choice (Data, Game starts: ship, haven, bank, kit,"
+         " standings), saved apart from the real saves.",
+         _test_start, [Ask("start", "Game start", "choice", "start_default", game_starts),
+                       Ask("fresh", "Delete the test saves first (a new game)", "flag", "yes")]),
+    Task("save_report", "Game", "Save report", "What a save holds, in words: ship, fit, hold, bank, storage, standings, travellers.",
+         _save_report, [Ask("save", "Save", "choice", "newest", saves)]),
+    Task("editor", "Game", "Open the Godot editor", "Godot 3.6's editor, to compose a scene's look (the tool places, creates and links: World, Data).",
+         lambda v: godot("-e")),
+    Task("apk", "Game", "Export the debug APK", "Android debug build to $GDTLANCER_APK (" + APK + ").",
+         lambda v: godot("--no-window", "--export-debug", "Android", APK)),
+    # Maintainer: evolution, releases, probes (docs/MAINTAINING.md); the menu hides these until m
+    Task("selftest", "Maintainer", "Test the development tool", "The tool's own Python tests (its Godot side is in the GUT tests).",
+         lambda v: ["python3", "tools/dev.py", "selftest"]),
+    Task("soak", "Maintainer", "Soak the game", "The real game left running (a new game in Elace, docked at home, 1x): fails on errors,"
+         " orphaned nodes or memory growing, wrecks over their caps, bookkeeping growing. Frame rates printed. Needs a display.",
+         lambda v: ["python3", "tools/devtool/soak.py", "minutes=" + v["minutes"]],
+         [Ask("minutes", "Minutes (real time)", default="5")]),
+    Task("export_presets", "Maintainer", "Export presets from evolution", "The fittest designs of evolution's save as drafts, in database/drafts/export/ (pick_archetypes takes archetypes from drafts).",
+         _export_presets, [Ask("top", "Archetypes", default="60"), Ask("min_lives", "Minimum lives", default="10"),
+                           Ask("clean", "Empty database/drafts/export/ first", "flag", "no")]),
+    Task("pick_archetypes", "Maintainer", "Pick archetypes from drafts", "Each archetype the drafts folder has a design for is replaced by it; then classify_presets.",
+         _pick_archetypes, [Ask("folder", "Drafts folder", "choice", lambda: max(draft_folders(), key=lambda name: (int(name.split("_")[0][len("era"):]), name.endswith("min10")), default=""), draft_folders),
+                            Ask("add", "Also make archetypes there are none of yet", "flag", "no")]),
+    Task("evolution", "Maintainer", "Run evolution (headless)", "Goes on with the saved evolution. A new era: new_era.",
          _evolution, [Ask("hours", "Simulated hours (0: until stopped)", default="1"), Ask("speed", "Speed", default="6")]),
-    Task("new_era", "Evolution", "New era (backs up first)",
+    Task("new_era", "Maintainer", "New era (backs up first)",
          "Backs up the save, exports its drafts, rewrites the catalog and commits them, then starts the next era.",
          _new_era, [Ask("era", "This era's number", default=_era_default("era"), fresh=True),
                     Ask("label", "This era's name (its backup and drafts)", default=_era_default("label"), fresh=True),
@@ -330,61 +429,38 @@ TASKS = [
                     Ask("redo_drafts", "Export again over this era's drafts if they exist (they may be edited)", "flag", "no", fresh=True),
                     Ask("commit", "Commit the drafts and catalog", "flag", "yes"),
                     Ask("start", "Start the next era now", "flag", "yes")]),
-    Task("evolution_report", "Evolution", "Evolution report", "Summary of the newest evolution life log.",
+    Task("evolution_report", "Maintainer", "Evolution report", "Summary of the newest evolution life log.",
          lambda v: ["python3", "tools/evolution_report.py"] + (["--last-hours", v["hours"]] if v["hours"] else []),
          [Ask("hours", "Only the last hours (empty: all)", default="", optional=True)]),
-    # Balance and performance
-    Task("balance_sim", "Balance", "Battle balance sim", "A headless faction battle by the home station: kills, fight times, damage.",
+    Task("balance_sim", "Maintainer", "Battle balance sim", "A headless faction battle by the home station: kills, fight times, damage.",
          lambda v: godot_script("tools/balance_sim.gd")),
-    Task("duel", "Balance", "Duel two archetypes", "Two archetypes as the game flies them, one on one: wins, time, hull left, rounds.",
-         _duel, [Ask("a", "First (Verdant)", "choice", "fighter_light", archetypes), Ask("b", "Second (Violet)", "choice", "raider_light", archetypes),
-                 Ask("duels", "Duels", default="6"), Ask("speed", "Speed", default="6")]),
-    Task("lance_duel", "Balance", "Lance duels", "Designs fight one on one; what the lance did.",
+    Task("lance_duel", "Maintainer", "Lance duels", "Designs fight one on one; what the lance did.",
          _lance_duel, [Ask("duels", "Duels per match", default="8"), Ask("speed", "Speed", default="6"),
                        Ask("match", "Only this match (e.g. lancer,laser; empty: all)", default="", optional=True),
                        Ask("weapons", "Missile and cannon designs", "flag", "no")]),
-    Task("perf", "Balance", "Performance ablation", "Frame times with one system switched off.",
+    Task("perf", "Maintainer", "Performance ablation", "Frame times with one system switched off.",
          lambda v: godot_script("tools/perf_ablation.gd", "mode=" + v["mode"]),
          [Ask("mode", "Mode", "choice", "base", PERF_MODES)]),
-    # Look
-    Task("ui_shots", "Look", "UI screenshots", "Every store tab and prompt, with control dumps, to .dev/out/ui/.",
+    Task("ui_shots", "Maintainer", "UI screenshots", "Every store tab and prompt, with control dumps, to .dev/out/ui/.",
          lambda v: godot("res://tools/ui_shots.tscn", "out=" + out_file("ui"))),
-    Task("flight_shots", "Look", "Flight screenshots", "The HUD in flight, plain and with the nearest ship selected, to .dev/out/flight/.",
+    Task("flight_shots", "Maintainer", "Flight screenshots", "The HUD in flight, plain and with the nearest ship selected, to .dev/out/flight/.",
          _flight_shots, [Ask("wait", "Seconds of flight first", default="12"),
                          Ask("near", "Start near a ship of this faction", "choice", "none", lambda: ["none"] + factions()),
                          Ask("nebula", "A nebula ahead", "flag", "no")]),
-    Task("sound_probe", "Look", "Sound probe", "Undocks and prints every playing sound each second.",
+    Task("sound_probe", "Maintainer", "Sound probe", "Undocks and prints every playing sound each second.",
          lambda v: godot("res://tools/sound_probe.tscn", "seconds=" + v["seconds"], "plan=" + v["plan"]),
          [Ask("seconds", "Seconds", default="20"), Ask("plan", "What the ship does", "choice", "line", ["line", "approach", "docked"])]),
-    Task("harpoon_probe", "Look", "Harpoon probe", "Fires the player's harpoon at a nearby target and prints the tether each second.",
+    Task("harpoon_probe", "Maintainer", "Harpoon probe", "Fires the player's harpoon at a nearby target and prints the tether each second.",
          _harpoon_probe, [Ask("seconds", "Seconds", default="30"), Ask("dist", "Start distance (m)", default="150"),
                           Ask("target", "Target", "choice", "wreck", ["wreck", "chunk"]),
                           Ask("approach", "Approach first", "flag", "no"), Ask("full", "Cargo hold full", "flag", "no")]),
-    Task("render_preview", "Look", "Render preview", "A scene from a few distances, side by side, to .dev/out/.",
-         _render_preview, [Ask("scene", "Scene", "file", globs=["scenes/**/*.tscn"]), Ask("radius", "Object size (m)", default="100"),
-                           Ask("distances", "Distances (in sizes)", default="3,10,40")]),
-    # Game
-    Task("play", "Game", "Play", "Runs the game in a window.", lambda v: godot()),
-    Task("test_start", "Game", "Play a test start", "The game from a game start of your choice (Data, Game starts: ship, haven, bank, kit,"
-         " standings), saved apart from the real saves.",
-         _test_start, [Ask("start", "Game start", "choice", "start_default", game_starts),
-                       Ask("fresh", "Delete the test saves first (a new game)", "flag", "yes")]),
-    Task("economy", "Balance", "Sector economy", "A sector's market, trade routes timed for a ship (WP an hour), every hull's trading,"
-         " problems (stock that pays nowhere, buy-and-sell-back loops) and what 0.x has yet to estimate. Also World: Economy.",
-         lambda v: ["python3", "tools/devtool/economy.py", "sector=" + v["sector"], "ship=" + v["ship"]],
-         [Ask("sector", "Sector", "choice", "sector_elace", sectors), Ask("ship", "Ship to time routes for", "choice", "trader_medium", archetypes)]),
-    Task("save_report", "Game", "Save report", "What a save holds, in words: ship, fit, hold, bank, storage, standings, travellers.",
-         _save_report, [Ask("save", "Save", "choice", "newest", saves)]),
-    Task("editor", "Game", "Open the Godot editor", "", lambda v: godot("-e")),
-    Task("release", "Game", "Release a version", "Tests, a soak, versions the Android build, exports GDTLancer-<version>.apk, commits and tags"
+    Task("release", "Maintainer", "Release a version", "Tests, a soak, versions the Android build, exports GDTLancer-<version>.apk, commits and tags"
          " (nothing is pushed). Needs a clean working tree.",
          lambda v: ["python3", "tools/devtool/release.py", "version=" + v["version"], "tests=" + v["tests"], "soak=" + v["soak"],
                     "tag=" + v["tag"], "out=" + os.path.dirname(APK)],
          [Ask("version", "Version", default=next_version, fresh=True), Ask("tests", "Run the tests first", "flag", "yes"),
           Ask("soak", "Soak minutes first (the game left running; 0: none)", default="3"),
           Ask("tag", "Tag it v<version>", "flag", "yes")]),
-    Task("apk", "Game", "Export the debug APK", "Android debug build to $GDTLANCER_APK (" + APK + ").",
-         lambda v: godot("--no-window", "--export-debug", "Android", APK)),
 ]
 TASKS_BY_KEY = {task.key: task for task in TASKS}
 
@@ -405,6 +481,20 @@ def save_last(last):
         json.dump(last, handle, indent=1, sort_keys=True)
 
 
+def program_problem(command):
+    """What stops `command` running: its Godot or Blender missing or of the wrong version ("" if none).
+    import_model.sh runs both: Blender for a .blend or a ship (fitting, LODs), Godot for the rest."""
+    parts = [str(part) for part in command]
+    first = parts[0] if parts else ""
+    importing = any(part.endswith("import_model.sh") for part in parts)
+    if (first == GODOT or importing) and godot_problem():
+        return godot_problem()
+    needs_blender = importing and (any(part.endswith(".blend") for part in parts) or "--station" not in parts)
+    if (first == BLENDER or needs_blender) and blender_problem():
+        return blender_problem()
+    return ""
+
+
 def missing(task, values):
     return [ask.label for ask in task.asks if not ask.optional and str(values.get(ask.key, "")).strip() == ""]
 
@@ -421,8 +511,12 @@ def run(task, values, dry=False):
     print("$ " + " ".join(shlex.quote(str(part)) for part in command), flush=True)
     if dry:
         return 0
+    problem = program_problem(command)
+    if problem:
+        print(problem)
+        return 127
     try:
-        return subprocess.call([str(part) for part in command], cwd=ROOT)
+        return subprocess.call([str(part) for part in command], cwd=ROOT, env=environment())
     except FileNotFoundError as error:
         print("Not found: %s" % error.filename)
         return 127

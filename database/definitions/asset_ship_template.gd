@@ -3,12 +3,12 @@
 extends AssetTemplate
 class_name ShipTemplate
 
-export var ship_model_name: String = "Default Ship Model" 
+export var ship_model_name: String = "Default Ship Model"  # Its name in the store and on the HUD
 export var base_value: int = 1000  # WP; buy price at the home station (the hull flown is traded in for half)
-export(PackedScene) var ship_scene: PackedScene
-export var hull_integrity: int = 100
-export var cargo_capacity: int = 100
-export var interaction_radius: float = 15.0
+export(PackedScene) var ship_scene: PackedScene  # Its model: a ship scene (scenes/prefabs/ships/; the Models tab makes them)
+export var hull_integrity: int = 100  # Hull points: the damage it takes before it is wrecked
+export var cargo_capacity: int = 100  # Units of cargo its hold takes
+export var interaction_radius: float = 15.0  # m: its size for approaching it (how close ships come, camera framing, hull scars)
 export var apparent_radius: float = 12.0  # Visual size (m); camera distances and framing scale from it.
 export var signature: float = 1500.0  # m; base detectability of the hull (see Constants SIGNATURE block)
 export var sensor_strength: float = 1.0  # Detects ships within their signature times this
@@ -25,14 +25,14 @@ export var equipped_modules: Array = []  # Default fit: ModuleTemplate ids
 export var salvage_yield: Dictionary = {}  # Commodity id -> units left in this ship's wreck (plus its cargo)
 
 # --- Power ---
-export var power_capacity: float = 100.0
+export var power_capacity: float = 100.0  # Power when full: tools spend it each cycle, power_regen refills it
 export var power_regen: float = 10.0  # Per second
 
 # --- RigidBody Physics (6DOF Flight) ---
-export var mass: float = Constants.DEFAULT_SHIP_MASS
+export var mass: float = Constants.DEFAULT_SHIP_MASS  # kg, the bare hull (parts, rounds and cargo add theirs)
 export var linear_thrust: float = Constants.DEFAULT_LINEAR_THRUST  # Forward/backward/strafe thrust force
 export var angular_thrust: float = Constants.DEFAULT_ANGULAR_THRUST  # Rotational torque
-export var alignment_threshold_angle_deg: float = Constants.DEFAULT_ALIGNMENT_ANGLE_THRESHOLD
+export var alignment_threshold_angle_deg: float = Constants.DEFAULT_ALIGNMENT_ANGLE_THRESHOLD  # Degrees: an autopilot turns to within this of its heading before it thrusts
 
 # --- Laws and lineage (ShipLaws) ---
 export var model_scale: float = 1.0  # The model is drawn this much larger (a ship's length grows with its size)

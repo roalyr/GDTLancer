@@ -1134,7 +1134,7 @@ const EVO_FACTIONS = ["verdant", "violet", "raiders", "xenohive"]  # Each keeps 
 # delivered (all time), up to XENOHIVE_DRONES_MAX extra. A fixed spawner for now; the hive does not grow.
 const XENOHIVE_MASS_PER_DRONE = 5000.0  # kg
 const XENOHIVE_DRONES_MAX = 3
-const PRESETS_DIR = "res://database/presets"  # Exported designs (tools/export_presets.gd): the home station sells them
+const PRESETS_DIR = "res://database/presets"  # The game's designs: the archetypes and the part catalogue (evolution's drafts are in database/drafts/, never read by the game)
 const PRESET_WEIGHT_CLASSES = [["light", -0.5], ["medium", 0.5], ["heavy", 1.5], ["superheavy", INF]]  # Hull weight classes: niche size class (half-octaves of size) up to this; s under 0.84, 1.68, 3.36, then up to LAW_SHIP_SIZE_MAX
 # Wages (Wages): escorts take ESCORT_SHARE of their ward's sales; factions that pay patrol wages pay
 # armed ships PATROL_WAGE_SHARE_PER_HOUR of their value an hour spent at their pickets, up to

@@ -11,7 +11,7 @@ const HavenMarker = preload("res://src/scenes/game_world/sector_layout/markers/h
 const BeaconMarker = preload("res://src/scenes/game_world/sector_layout/markers/beacon_marker.gd")
 const HazardMarker = preload("res://src/scenes/game_world/sector_layout/markers/hazard_marker.gd")
 
-export var sector_id: String = ""
+export var sector_id: String = ""  # The sector this layout is: its Location id (database/registry/locations/<id>.tres)
 export var play_radius: float = 60000.0  # m from the middle: NPCs do not chase, salvage or patrol beyond it
 
 

@@ -30,6 +30,8 @@ const MAIN_SCENE = "res://scenes/levels/game_world/main_game_scene.tscn"
 const MUSIC_NODE = "AmbientMusic"
 const PART_DIRS = {"parts": Constants.PARTS_DIR, "commodities": "res://database/registry/assets/commodities/"}  # The part catalogue (PartCatalog) and the goods
 const SHADERS_DIR = "res://assets/art/shaders/"
+const SOUND_KIND_NOTES = {"world": "Heard where it happens", "loop": "A loop a ship carries while it applies (import it with Loop on)",
+	"ui": "Heard as it is, wherever the player is"}  # SoundBank.SLOTS kinds, before each slot's own note
 const PATTERNS_DIR = "res://assets/art/textures/paint_patterns/"
 const HINT_NAMES = {
 	PROPERTY_HINT_NONE: "", PROPERTY_HINT_RANGE: "range", PROPERTY_HINT_EXP_RANGE: "range", PROPERTY_HINT_ENUM: "enum",
@@ -839,12 +841,42 @@ func cmd_models(_args: Dictionary):
 		for path in scenes:
 			var problems: Array = ModelCheck.ship_problems(path) if kind == "ships" else ModelCheck.station_problems(path)
 			out[kind][path] = {"users": used[kind].get(path, []), "problems": problems}
-	out["rocks"] = {}  # Every rock model, and which the asteroid fields use (Constants.FIELD_ROCK_MODELS)
+	out["rocks"] = {}  # Every rock model: the asteroid fields' (Constants.FIELD_ROCK_MODELS), and the scenes that place it
+	var placed: Dictionary = _rock_scenes()
 	for path in Validator._files_in("res://assets/models/rocks/", ".glb"):
-		out.rocks[path] = {"users": ["asteroid fields"] if path in Constants.FIELD_ROCK_MODELS else [], "problems": []}
+		var users: Array = ["asteroid fields"] if path in Constants.FIELD_ROCK_MODELS else []
+		for scene in placed.get(path, []):
+			users.append(scene.get_file().get_basename())
+		out.rocks[path] = {"users": users, "problems": []}
 	for path in Constants.FIELD_ROCK_MODELS:
 		if not out.rocks.has(path):
 			out.rocks[path] = {"users": ["asteroid fields"], "problems": ["Listed in FIELD_ROCK_MODELS, but there is no such file"]}
+	return out
+
+
+# Rock model path -> the scenes under scenes/ that place it (belts and the like), read as text.
+static func _rock_scenes(dir_path: String = "res://scenes", out: Dictionary = {}) -> Dictionary:
+	var dir := Directory.new()
+	if dir.open(dir_path) != OK:
+		return out
+	dir.list_dir_begin(true, true)
+	var name: String = dir.get_next()
+	while name != "":
+		var path: String = dir_path.plus_file(name)
+		if dir.current_is_dir():
+			_rock_scenes(path, out)
+		elif name.ends_with(".tscn"):
+			var text: String = Validator._text_of(path)
+			var at: int = text.find("res://assets/models/rocks/")
+			while at >= 0:
+				var end: int = text.find("\"", at)
+				var rock: String = text.substr(at, end - at)
+				if not out.has(rock):
+					out[rock] = []
+				if not path in out[rock]:
+					out[rock].append(path)
+				at = text.find("res://assets/models/rocks/", end)
+		name = dir.get_next()
 	return out
 
 
@@ -896,6 +928,10 @@ static func fields_of(target: Object) -> Array:
 		return fields
 	var probe = script.new()  # Its defaults (a node's too: freed below)
 	var comments: Dictionary = _comments(script)
+	if script.resource_path == SoundBank.resource_path:
+		for slot in SoundBank.SLOTS:
+			var kind: String = SoundBank.SLOTS[slot]
+			comments[slot] = SOUND_KIND_NOTES.get(kind, kind) + (": " + comments[slot] if comments.has(slot) else "")
 	var shown_when: Dictionary = _shown_when(script)
 	for property in script.get_script_property_list():
 		if property.usage & EDITABLE != EDITABLE:
@@ -1232,16 +1268,37 @@ static func _is_model_scene(path: String, kind: String) -> bool:
 	return false
 
 
-# Field name -> the comment after it, through the script's base scripts.
+# Field name -> its note, through the script's base scripts: the comment after it on its line, else
+# the comment lines just above it ("#" or "##"; not "# ---" section headers), else the comment on a `"<field>": ...,  # note` line (a table
+# entry named after the field, as SoundBank.SLOTS). A field's own script wins over its base's.
 static func _comments(script: Script) -> Dictionary:
 	var out := {}
-	var regex := RegEx.new()
-	regex.compile("^export[^\\n]*?var\\s+(\\w+)[^#\\n]*#\\s*(.+)$")
+	var field := RegEx.new()
+	field.compile("^export[^\\n]*?var\\s+(\\w+)[^#\\n]*(#\\s*(.+))?$")
+	var entry := RegEx.new()
+	entry.compile("^\\s*\"(\\w+)\":[^#\\n]*#\\s*(.+)$")
 	while script != null:
+		var entries := {}
+		var doc: Array = []  # The comment lines read since the last other line
 		for line in script.source_code.split("\n"):
-			var found: RegExMatch = regex.search(line)
+			var stripped: String = line.strip_edges()
+			if line.begins_with("#") and not stripped.trim_prefix("#").strip_edges().begins_with("---"):
+				doc.append(stripped.lstrip("#").strip_edges())
+				continue
+			var found: RegExMatch = field.search(line)
 			if found != null and not out.has(found.get_string(1)):
-				out[found.get_string(1)] = found.get_string(2).strip_edges()
+				var note: String = found.get_string(3).strip_edges()
+				if note == "" and not doc.empty():
+					note = PoolStringArray(doc).join(" ")
+				if note != "":
+					out[found.get_string(1)] = note
+			var listed: RegExMatch = entry.search(line)
+			if listed != null and not entries.has(listed.get_string(1)):
+				entries[listed.get_string(1)] = listed.get_string(2).strip_edges()
+			doc.clear()
+		for name in entries:
+			if not out.has(name):
+				out[name] = entries[name]
 		script = script.get_base_script()
 	return out
 

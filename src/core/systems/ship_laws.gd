@@ -403,6 +403,14 @@ static func build_module_template(kind: String, genes: Dictionary, part_type: in
 # Sets a registry template's stats from its law_genes (tools/apply_laws.gd); returns what it set.
 # Ships keep their slot sizes' place in the list (all hardpoints of the size the laws give).
 static func reapply(template: Resource) -> Dictionary:
+	var stats: Dictionary = law_stats(template)
+	for field in stats:
+		template.set(field, stats[field])
+	return stats
+
+
+# The stats `template`'s law_genes give ({} where the laws do not cover it), without setting them.
+static func law_stats(template: Resource) -> Dictionary:
 	var stats: Dictionary = {}
 	if template is ShipTemplate:
 		stats = ship_stats(template.law_genes)
@@ -415,6 +423,38 @@ static func reapply(template: Resource) -> Dictionary:
 		stats = missile_stats(template.law_genes)
 	elif template is UtilityToolTemplate and template.tool_type == "cannon":
 		stats = cannon_stats(template.law_genes)
-	for field in stats:
-		template.set(field, stats[field])
 	return stats
+
+
+# The fields of `template` that differ from what its law_genes give: what apply_laws would change
+# (a stat edited by hand, or law_genes edited without apply_laws). [] without law_genes.
+static func stale_fields(template: Resource) -> Array:
+	var out: Array = []
+	if template.get("law_genes") == null or template.law_genes.empty():
+		return out
+	var stats: Dictionary = law_stats(template)
+	for field in stats:
+		if not same_value(template.get(field), stats[field]):
+			out.append(field)
+	return out
+
+
+# Whether two stat values are the same, floats within a ten-thousandth (they round-trip through .tres).
+static func same_value(a, b) -> bool:
+	if (a is float or a is int) and (b is float or b is int):
+		return abs(float(a) - float(b)) <= 0.0001 * max(1.0, abs(float(b)))
+	if a is Array and b is Array:
+		if a.size() != b.size():
+			return false
+		for i in range(a.size()):
+			if not same_value(a[i], b[i]):
+				return false
+		return true
+	if a is Dictionary and b is Dictionary:
+		if a.size() != b.size():
+			return false
+		for key in b:
+			if not a.has(key) or not same_value(a[key], b[key]):
+				return false
+		return true
+	return typeof(a) == typeof(b) and a == b

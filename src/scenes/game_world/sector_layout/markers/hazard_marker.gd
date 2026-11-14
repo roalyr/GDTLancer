@@ -5,7 +5,7 @@
 tool
 extends "res://src/scenes/game_world/sector_layout/markers/layout_marker.gd"
 
-export(String, "radiation") var kind: String = "radiation"
+export(String, "radiation") var kind: String = "radiation"  # What it does to ships in it (radiation is the one kind yet)
 export var core: float = 0.0  # m: the surface
 export var radius: float = 0.0 setget _set_radius  # m: the edge
 

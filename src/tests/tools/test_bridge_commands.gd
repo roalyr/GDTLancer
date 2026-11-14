@@ -117,8 +117,14 @@ func test_validate_and_models():
 	assert_eq(models.ships[Constants.SHIP_DEFAULT_SCENE].problems, [])
 	assert_true(models.stations.has(Constants.STATION_DEFAULT_MODEL))
 	for path in Constants.FIELD_ROCK_MODELS:
-		assert_eq(models.rocks[path].users, ["asteroid fields"], path)
+		assert_eq(models.rocks[path].users[0], "asteroid fields", path)
 		assert_eq(models.rocks[path].problems, [])
+	var placed: Array = []
+	for path in models.rocks:
+		if not path in Constants.FIELD_ROCK_MODELS and not models.rocks[path].users.empty():
+			placed += models.rocks[path].users
+	assert_has(placed, "belt_elace_deep", "A rock a belt scene places is in use there")
+	assert_eq(models.ships[Constants.PLATFORM_HULL_SCENE].problems, [], "The platform never moves: no engines needed")
 
 
 # Reading any data file and writing its values back changes nothing in it (against Godot's own save

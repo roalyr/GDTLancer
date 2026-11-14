@@ -3,16 +3,18 @@
 GDTLancer development tool: the project's content (models, data, sounds) and every tool and check
 in one place. Code is edited elsewhere; everything else goes through here.
 
-    tools/dev.py                      the menu (Overview, Models, Data, Tasks; keys in its footer)
-    tools/dev.py list                 the tasks
+    tools/dev.py                      the menu (tabs 1-9 and 0: Overview ... Tools; keys in its footer, ? for help)
+    tools/dev.py list                 the tasks (the Maintainer group: evolution, releases, probes)
     tools/dev.py <task> [key=value]   one task, no menu (questions not given take their defaults)
     tools/dev.py <task> --dry         only print its command
     tools/dev.py selftest             the tool's own tests
 
 The menu needs Textual (tools/devtool/requirements.txt): on first use it is installed into .dev/venv,
-which only this tool uses. Settings from the environment: GODOT (the Godot 3.6 binary, default
-"godot"), GDTLANCER_APK (where the debug APK goes). Output files go to .dev/out/, which Godot and git
-ignore. Parts: tools/devtool/ (tasks.py, bridge.py and bridge.gd, data.py, models.py, app.py).
+which only this tool uses. Linux only. Settings from the environment: GODOT (the Godot 3.6 binary,
+default "godot"), BLENDER (Blender 3.6, default tools/blender if linked, else "blender"),
+GDTLANCER_APK (where the debug APK goes). CONTENT.md, Getting started, says how to set up. Output
+files go to .dev/out/, which Godot and git ignore. Parts: tools/devtool/ (tasks.py, bridge.py and
+bridge.gd, data.py, models.py, app.py).
 """
 
 import os
@@ -74,7 +76,7 @@ def main(argv):
         for task in tasks.TASKS:
             if task.group != group:
                 group = task.group
-                print("\n" + group)
+                print("\n" + group + ("   (for maintainers: docs/MAINTAINING.md; the menu shows these on m)" if task.maintainer else ""))
             asks = " ".join("%s=%s" % (ask.key, (ask.default() if callable(ask.default) else ask.default) or ("" if ask.optional else "?")) for ask in task.asks)
             print("  %-18s %s%s" % (task.key, task.title, ("   [" + asks + "]") if asks else ""))
         return 0

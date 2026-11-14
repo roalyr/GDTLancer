@@ -8,8 +8,8 @@ class_name ModuleTemplate
 # field -> {other field: [values it applies with]} or {other field: {"not": [values it does not]}}.
 const SHOWN_WHEN = {"lance": {"module_kind": ["lance", ""]}}
 
-export var module_name: String = "Unnamed Module"
-export var description: String = ""
+export var module_name: String = "Unnamed Module"  # Its name in the store (catalogue parts: PartCatalog names them)
+export var description: String = ""  # A line about it for the store
 export var base_value: int = 10  # WP; buy price at the home station (sells back for half)
 export var mass: float = 0.0  # kg, added to the ship
 # Stat -> amount added: hull, power_capacity, power_regen, cargo_capacity, linear_thrust,
@@ -20,5 +20,5 @@ export var lance: Dictionary = {}
 # Built by ShipLaws: the module's law ("plating", "thruster", "power_cell", "capacitor", "lance"), lineage 1-3
 # and genes (empty and 0 for a hand-made one).
 export var module_kind: String = ""
-export var variant_type: int = 0
-export var law_genes: Dictionary = {}
+export var variant_type: int = 0  # Its weight: 1 light, 2 medium, 3 heavy (0: a hand-made one)
+export var law_genes: Dictionary = {}  # The genes its stats come from (ShipLaws): edit these, then apply_laws (Tools)

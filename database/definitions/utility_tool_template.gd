@@ -23,9 +23,9 @@ const SHOWN_WHEN = {
 	"turn_rate": {"tool_type": ["missile"]},
 }
 
-export var tool_name: String = "Unknown Tool"
+export var tool_name: String = "Unknown Tool"  # Its name in the store (catalogue parts: PartCatalog names them)
 export var hud_label: String = ""  # Short name on the tool's HUD button; tool_name if empty
-export var description: String = ""
+export var description: String = ""  # A line about it for the store
 export var tool_type: String = "laser"  # Behaviour: "laser" (damages live ships), "missile" (guided rounds), "cannon" (fixed forward, the ship aims), "harpoon" (tethers wrecks); "drill" is a placeholder.
 export var mount_size: String = "small"  # "small", "medium", "large"; fits slots of its size or larger
 export var base_value: int = 100  # WP; buy price at the home station (sells back for half)
@@ -53,8 +53,8 @@ export var turn_rate: float = 0.0  # rad/s (missiles)
 export var flight_time: float = 0.0  # s a round flies
 
 # Lineage 1-3 and genes of a tool built by ShipLaws (0 and empty for a hand-made one).
-export var variant_type: int = 0
-export var law_genes: Dictionary = {}
+export var variant_type: int = 0  # Its weight: 1 light, 2 medium, 3 heavy (0: a hand-made one, the harpoon)
+export var law_genes: Dictionary = {}  # The genes its stats come from (ShipLaws): edit these, then apply_laws (Tools)
 
 # Beyond this distance the tool stays switched on but does not cycle.
 

@@ -1,16 +1,16 @@
 # Exports a save's best evolved designs as presets (PresetExporter), whatever their faction: the
 # fittest of each archetype (role and weight class: up to three per role) whose genome has flown at least --min-lives lives, its ship, parts
-# and a faction-free AgentTemplate (behaviour genes) as .tres files under database/presets/. The home
-# station's store sells every ship and part there (TemplateIndexer: TemplateDatabase.presets; designs
-# from a *_min10 folder are marked PROVEN); NPCs do not fly them until the files are moved into
-# database/registry/ (parts first: ships name them by id).
+# and a faction-free AgentTemplate (behaviour genes) as .tres files, drafts under database/drafts/
+# (never among the game's presets: the game flies only database/presets/archetypes/, picked from
+# drafts by tools/pick_archetypes.gd).
 #     godot --no-window -s tools/export_presets.gd -- --top=60 --min-lives=10 --clean
 # Options: --save=PATH (default user://evolution/save_0.sav: evolution mode's save), --top=N archetypes, --min-lives=N,
-# --out=PATH (default res://database/presets/), --clean (remove the presets there first).
+# --out=PATH (default res://database/drafts/export/), --clean (remove the drafts there first; never
+# a folder outside database/drafts/).
 extends SceneTree
 
 var save_path := "user://evolution/save_0.sav"
-var out_dir := "res://database/presets/"
+var out_dir := "res://database/drafts/export/"
 var top := 60
 var min_lives := 10
 var clean := false
@@ -45,6 +45,10 @@ func _run():
 		quit(1)
 		return
 	if clean:
+		if not out_dir.begins_with("res://database/drafts/") or out_dir.trim_suffix("/") == "res://database/drafts":
+			print("PRESETS --clean only empties a folder inside res://database/drafts/ (not %s): nothing exported" % out_dir)
+			quit(1)
+			return
 		_remove_presets(out_dir)
 	for line in Exporter.export_all(data.evolution, top, min_lives, out_dir):
 		print("PRESETS ", line)

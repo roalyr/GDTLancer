@@ -11,13 +11,13 @@ extends "res://src/scenes/game_world/sector_layout/markers/layout_marker.gd"
 const SHOWN_WHEN = {"prefer_share": {"prefer_role": {"not": [""]}}}
 
 export var haven_id: String = ""  # Its location id (docking, prices, saves): unique across sectors
-export var display_name: String = ""
+export var display_name: String = ""  # The station's name on the HUD and in the store
 export var faction: String = ""  # Its owner's faction id (database/factions/); "" neutral
 export(PackedScene) var model: PackedScene = null  # Its station: a StationModel scene (scenes/prefabs/station/)
 export var seen_anywhere: bool = false  # It runs a beacon: on every sensor at any range (the home port), not by its size
 export var ships: Dictionary = {}  # Faction id -> ships living from it (each haven's are a group, with ranks and a leader)
 export var prefer_role: String = ""  # A family its ships are more often (Evolution), prefer_share of the time
-export var prefer_share: float = 0.0
+export var prefer_share: float = 0.0  # 0-1: how often its ships are of prefer_role
 export var repair: bool = false  # Services: repairs hulls
 export var rearm: bool = false  # refills lances, rounds and decoys
 export var buys: Dictionary = {}  # Commodity id (or "*" for any) -> price factor on its cargo price; it buys nothing else

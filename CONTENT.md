@@ -1,191 +1,404 @@
 # Content guide
 
-This guide says where the game's content lives and how to change it without touching code.
+This guide is for content authors: the people who make models, sectors, factions, parts, trade and sounds.
+It says how to set up, how to work through the development tool, and where each kind of content lives.
+None of it needs code.
 
-**Work through the development tool:** `tools/dev.py`. It opens a menu (the first run installs its one package into `.dev/`). `?` shows its keys; they mean the same on every tab (`ctrl+s` save, `ctrl+r` refresh, `ctrl+u` undo the last save (again: the one before), `ctrl+n` new, Enter open or run, Tab the next box), and the footer lists each tab's own:
-- **Overview:** every content rule below, checked at once, and what changed since the last commit. Models changed in Blender since their last import are listed too.
-- **Models:** every ship, station and rock model, with its files, levels of detail, hit surface, who uses it and its check. Keys: `i` import, `o` open in Blender, `s` review sheet, `ctrl+n` new model from a starter, `c` a placeholder's shape (in Constants), `f` a rock in the asteroid fields or out.
-- **Archetypes:** the twenty designs side by side as the game flies them: fitted mass, speed (and with the afterburner), acceleration, gun damage per second, slots, price, and which factions fly each. The picked one's pilot genes are drawn against evolution's ranges. `s` review sheet; `p` and `h` open its pilot or ship in Data.
-- **Factions:** every faction with its colour and paint, who is at war with whom (a matrix: pick a cell, `w` makes war or peace), its roster (tick archetypes, `ctrl+s`) and its havens (Enter opens one in World). `e` opens the faction in Data.
-- **Data:** every data file by kind (factions, archetypes, parts, commodities, the game start, locations, agents, the material library, the sound bank), in a form built from its script, with each field's note. `ctrl+s` saves, and the rules are checked at once on every save. `ctrl+u` puts the file back as it was before the last save, `ctrl+n` makes a new file of the kind, and `delete` deletes one, but only if no other file names it (by path or id; the tool says which do). If a local play save names it, the question says which: the save still loads, put right as it loads (see Play saves and changed content). A field the game does not read yet says so in orange ("Not in the game yet"): it is kept and saved, but changing it changes nothing in play.
-- **World:** each sector as two lists in a tree: **Scene** (the stars, planets, moons and asteroid belts its scene places) and its layout (havens, beacons, hazards). **Economy** shows the open sector's market (see Commodities). Pick one to move or turn it in the form (`translation` in m, `rotation_degrees` as in the Godot inspector); `ctrl+n` places a new one (a scene from a list, or a marker), `ctrl+d` copies, `delete` removes. The map is to scale, from above or from the side (heights), on a grid in round km, with owners' colours, the picked one's size or reach as a ring, and buttons to zoom on the picked one, see the whole sector or hide the map. Its legend is also its filter: click a kind to hide or show it. A sector with no layout yet is marked so; `ctrl+n` on it makes one, with its entry beacon, and places it in the sector scene.
-- **Constants:** every value in `src/autoload/Constants.gd`, by section (or by kind of value, `ctrl+g`), with its notes; `ctrl+f` finds one. A value is changed in place, so its comments stay. Godot checks that the script still parses before it is saved.
-- **Parts:** weapons (`w`), modules (`m`), commodities (`c`) and the starting kits (`k`; `p` plays one) side by side, with what uses each, and the trade routes (`t`; `e`: that route's sector's economy). Enter opens one in Data (a route: its seller in World).
-- **Look:** every shader (red when its shared blocks are out of date; `y` syncs them) and what uses it, each faction's paints, the paint patterns (`g` remakes the library, `v` opens its sheet) and the music (pick a track, `ctrl+s`).
-- **Tools:** whether evolution is running and in which era (`x` asks it to stop, `n` starts a new era), its save, backups and logs; the APK; the newest outputs (`o` opens one). Below, every other tool (tests, sheets, presets, evolution, balance, duels, test starts, save reports, releases, the APK): Enter asks its questions, then runs it. `g` reviews everything changed since the last commit, a file at a time, and commits it all with your message (nothing is pushed).
+Running evolution, new eras, soak checks and releases are maintainer work: see [docs/MAINTAINING.md](docs/MAINTAINING.md).
 
-A form shows only the fields that apply: a patrol beacon has an owner, a field its rocks, a laser no magazine. Each script says which in its `SHOWN_WHEN` (a field, and the values of another it applies with), and the game reads no field where its rule says it does not apply.
+**Contents**
+- [Getting started](#getting-started): what to install, the first run
+- [The development tool](#the-development-tool): its tabs and keys
+- [Common tasks](#common-tasks): step by step
+- Reference: [Factions](#factions), [Sectors](#sectors), [Ships: archetypes](#ships-archetypes), [Parts](#parts), [Commodities, stock hulls, game starts](#commodities-stock-hulls-game-starts), [A sector's economy](#a-sectors-economy), [Models](#models), [Sounds](#sounds)
+- [Play saves and changed content](#play-saves-and-changed-content), [Checking your work](#checking-your-work)
+- [Where things live](#where-things-live) and a [glossary](#glossary)
 
-Godot reads and writes every file, so the tool saves exactly what the Godot editor would; in a layout, only the lines of what changed change. From a terminal, `tools/dev.py list` shows the tasks, and `tools/dev.py <task> key=value` runs one.
+## Getting started
 
-## Factions — `database/factions/<id>.tres`
+**You need:**
+- **Linux.** The tools are only made and tested there.
+- **Godot 3.6** (3.6.2 is the tested version), the standard Linux x11 build. Godot 4 cannot open the project, and the server or headless build crashes on its scenes.
+- **Python 3.9 or newer**, with `venv` and `pip` (on Debian and Ubuntu: the `python3-venv` package).
+- **git.**
+- **Blender 3.6 LTS**, only for making models.
 
-Each file is a `FactionTemplate` that sets:
-- its name and colour, and who it is at war with (`enemies`);
-- the player's starting standing with it;
-- whether it calls for help (`distress`), hires escorts (`escorts`) and pays patrol wages (`patrol_wages`), and whether its havens welcome other factions as a neutral one does (`open_havens`: the Free Port's, the player's allies); an open faction's own ships may also dock at any haven not at war with it, so the free port's traders buy at both sides' havens;
+**Tell the tools where the programs are,** if they are not on your PATH as `godot` and `blender`:
+- `GODOT=/path/to/godot`: the Godot 3.6 binary.
+- `BLENDER=/path/to/blender`: Blender 3.6. A link at `tools/blender` also works (git ignores it).
+- `GDTLANCER_APK=/path/to/file.apk`: where the debug APK goes (only if you build for Android).
+
+Set them in your shell profile (for example `export GODOT=~/apps/godot-3.6.2/godot` in `~/.profile`).
+
+**First run:**
+1. Clone the repository.
+2. Open the project once in the Godot editor (`godot -e` in the project folder). This imports the art and models. The tools need that import, and git does not keep it.
+3. Run `tools/dev.py`. The first run installs its one package (Textual) into `.dev/venv`, which only this tool uses.
+4. The **Overview** tab checks everything. If Godot or Blender is missing or is the wrong version, a red **Setup** line says what to do.
+5. Play the game from the Tools tab (`0`, then **Play**), or with `godot` in the project folder.
+
+## The development tool
+
+`tools/dev.py` opens the menu. `?` shows the keys. These keys work the same on every tab:
+- `1` to `9` and `0` switch tabs. Tab and shift+Tab move between boxes.
+- Enter opens or runs what is picked.
+- `ctrl+s` saves and `ctrl+u` undoes the last save (press it again to undo the one before).
+- `ctrl+n` makes something new (a file, a marker, a model). `ctrl+r` reads the files again.
+- `q` quits.
+
+Plain letters are each tab's own actions, and the footer lists them.
+
+**The tabs, in key order:**
+1. **Overview:** every content rule, checked at once, and what changed since the last commit.
+   - Enter opens a problem's file where it is edited.
+   - It also says when something derived from other data is out of date, with a key to fix it:
+     - `a` part stats (apply_laws);
+     - `f` the archetypes (refit_archetypes);
+     - `c` `CATALOG.md` (classify_presets);
+     - `l` sound loops.
+   - It also lists models changed in Blender since their import, and starter `.blend` files that need rebuilding.
+2. **Models:** every ship, station and rock model, with its files, who uses it and its check.
+   - `i` imports, `o` opens it in Blender and `s` makes a review sheet.
+   - `ctrl+n` starts a new model from a starter.
+   - `c` sets a placeholder's shape, and `f` puts a rock in the asteroid fields or takes it out.
+3. **Archetypes:** the twenty ship designs side by side as the game flies them.
+   - `p` and `h` open a design's pilot or ship in Data, and `s` makes a review sheet.
+   - Press `d` on one design, then `d` on another, and they duel.
+4. **Factions:** wars, rosters, traffic and havens.
+   - Pick a cell and press `w` to make war or peace.
+   - Tick archetypes in a roster, then `ctrl+s`.
+   - Enter on a haven opens it in World, and `e` opens the faction in Data.
+5. **World:** each sector's scene (stars, planets, moons, belts) and its layout (havens, beacons, hazards), on a map.
+   - `ctrl+n` places something, `ctrl+d` copies it and `delete` removes it.
+   - The **New sector** and **Copy sector** buttons make sectors.
+   - **Economy** shows the open sector's market.
+6. **Parts:** weapons (`w`), modules (`m`), commodities (`c`) and starting kits (`k`), each with who uses it.
+   - `p` plays a starting kit.
+   - `t` lists the trade routes, and `e` shows the picked route's sector economy.
+7. **Look:** shaders, faction paints, paint patterns and music.
+   - `y` syncs the shaders' shared blocks.
+   - `g` remakes the pattern library and `v` opens its sheet.
+8. **Data:** every data file by kind, in a form built from its script.
+   - Each field shows its note.
+   - `delete` removes a file only if nothing else names it.
+9. **Constants:** every value in `src/autoload/Constants.gd`, with its notes.
+   - `ctrl+g` groups them by kind and `ctrl+f` finds one.
+   - Godot checks that the script still parses before saving.
+0. **Tools:** every other tool. Enter asks its questions, then runs it.
+   - `g` reviews everything changed since the last commit and commits it with your message. Nothing is pushed.
+   - `o` opens the newest output (sheets, screenshots go to `.dev/out/`).
+   - `m` shows the maintainer tasks.
+
+**Saving.** Godot writes every file, so the tool saves exactly what the Godot editor would.
+Each save is checked against the content rules at once:
+- green: every rule holds;
+- red: the problem is listed. The file is still saved; `ctrl+u` puts it back.
+
+**What a form shows.** A form shows only the fields that apply. A patrol beacon has an owner, a field has rocks, a laser has no magazine. Each script lists these rules in its `SHOWN_WHEN`.
+A field marked in orange, "Not in the game yet", is kept and saved, but nothing in play reads it.
+
+**From a terminal:** `tools/dev.py list` shows every task, and `tools/dev.py <task> key=value` runs one without the menu.
+
+## Common tasks
+
+**Tune a weapon or module**
+1. Parts tab (`6`): pick the part and press Enter. It opens in Data.
+2. Edit its `law_genes`, not its stats: the stats are made from the genes. Save.
+3. Overview (`1`): press `a` to rebuild the part's stats from its genes.
+4. If the Overview then says the archetypes are out of date, press `f`. If it says `CATALOG.md` is out of date, press `c`.
+
+**Add a faction**
+1. Data (`8`), Factions, `ctrl+n`. Set its `display_name`, `color` and paints.
+2. Factions tab (`4`): set its wars and tick its roster.
+3. World (`5`): give it havens (see the next task).
+
+**Add a station to a sector**
+1. World (`5`): open the sector, pick its layout and press `ctrl+n`. Choose a haven marker.
+2. Set its `haven_id`, `display_name`, `faction` and `model` (a station scene from the list).
+3. Set who lives there (`ships`), its services, and its trade (`buys`, `sells`).
+4. Check the trade in **Economy**: the Problems view lists stock that sells nowhere and buy-and-sell-back loops.
+
+**Make a new sector**
+1. World (`5`): **New sector**. This makes its folder, scene, layout (with its entry beacon) and Location file.
+2. Pick **Scene** and press `ctrl+n` to add a star, planet, moon or belt. It is a copy of one you pick, named by the rules.
+3. Change each body's looks in the Godot editor. Place havens, beacons and hazards in the layout.
+
+**Make a ship or station model**
+1. Models (`2`): `ctrl+n` copies a starter and opens it in Blender.
+2. Model it (see [Models](#models) for the rules), then save the `.blend`.
+3. Back in Models, pick it and press `i`: this exports, scales, makes the levels of detail, imports and checks it.
+4. Use it: point an archetype's ship `ship_scene` at it (Archetypes, `h`), or a haven's `model`.
+
+**Add or change a sound**
+1. Data (`8`), Sound bank: type or pick a sound file's path in a slot. Each slot's note says when it plays.
+2. If the Overview says a sound loops wrong for its slot, press `l` there.
+
+**Test a game start**
+1. Data (`8`), Game starts, `ctrl+n`: pick a ship, a haven, a bank and a kit.
+2. Parts (`6`), `k`, then `p` on the start plays it. Its saves are kept apart from the real ones.
+
+**Commit your work:** Tools (`0`), `g`.
+
+## Factions
+
+**Where:** `database/factions/<id>.tres`. Each file is a `FactionTemplate`, and it sets:
+- its name and colour, who it is at war with (`enemies`), and the player's starting standing with it;
+- whether it calls for help (`distress`), hires escorts (`escorts`) and pays patrol wages (`patrol_wages`);
+- whether its havens welcome other factions as a neutral one does (`open_havens`, as the Free Port does). An open faction's own ships may also dock at any haven not at war with it;
 - its paints (`hull_material`, `station_material`);
-- its **roster**: the archetypes its havens fly.
-- its **traffic**: how many of its ships of each family (`""`: any) travel the sectors and work Elace's hotspot apart from its havens' ships. A family it has no archetype of flies any of its roster.
+- its **roster**: the archetypes its havens fly. Each entry is as likely as the others;
+- its **traffic**: how many of its ships of each family (`""` means any) travel the sectors apart from its havens' ships. A family it has no archetype of flies any of its roster.
 
-Pirates set `outlaw`: they dock only at their own havens, no other faction docks at theirs, and their armed ships hunt instead of patrolling. Aliens set `no_standing` (they keep to themselves the same way), `territory` and `salvage_as`, and may fly a hull of their own (`ship_scene`) instead of their archetypes' hulls. To add a faction, add a file (Data, Factions, `ctrl+n`), then give it havens (World). Wars and rosters are quickest on the Factions tab; making peace there takes the other side out of both lists.
+**Special factions:**
+- **Pirates** set `outlaw`. They dock only at their own havens, nobody else docks at theirs, and their armed ships hunt instead of patrolling.
+- **Aliens** set `no_standing` (they keep to themselves the same way), `territory` and `salvage_as`. They may fly a hull of their own (`ship_scene`) instead of their archetypes' hulls.
 
-## Sectors — `scenes/levels/sectors/<sector>/`
+Making peace on the Factions tab takes each side out of the other's `enemies`.
 
-**What goes where.** The Godot editor makes things; the tool puts them in the world:
-- **The Godot editor** composes scenes: one star, planet or moon (`<sector>/<body>/<body>.tscn`), one asteroid belt filled with its rocks (`<sector>/belt_<name>/belt_<name>.tscn`), one station or ship model (see **Models**).
-- **The tool (World)** places them: what a sector holds, where, what is linked to what. It creates, moves and deletes the bodies and belts in the sector scene and every marker in its layout, and links markers to bodies. Placing by hand in the Godot editor works too, but the tool is the way.
+## Sectors
+
+**Where:** `scenes/levels/sectors/<sector>/`.
+
+**Who does what:**
+- **The Godot editor** composes scenes: one star, planet or moon, one asteroid belt filled with its rocks, one station or ship model.
+- **The tool (World)** places them. It decides what a sector holds, where, and what is linked to what. It creates, moves and deletes the bodies and belts in the sector scene and every marker in its layout.
 
 **Names and folders are rules** (`src/core/validation/sector_names.gd`, checked with the rest):
 ```
-scenes/levels/sectors/sector_<word>/      the location's id; its location's sector_scene_path points here
+scenes/levels/sectors/sector_<word>/      the Location's id; its sector_scene_path points here
     sector_<word>.tscn                    the sector scene, root "Sector <Word>"
     sector_<word>_layout.tscn             its layout
-    <body>/<body>.tscn                    one folder a body; other files there are its parts: <body>_<part>.tscn
+    <body>/<body>.tscn                    one folder a body; its other parts there: <body>_<part>.tscn
 ```
-A body is `star_<word>` (then `star_<word>_b`, `_c`...), `planet_<word>_<letter>`, `moon_<word>_<planet's letter><n>` (`moon_elace_b1`: Planet B's first), or `belt_<word>_<its own word>`. Everything is lower_snake_case. A body's root, and its node in the sector scene, are its title ("Planet Elace B"). A sector places each of its own bodies once, and the shared prefabs (`scenes/prefabs/celestial/`) as often as it likes; nothing from another sector's folder. The tool names everything it makes by these rules, so what it makes passes them:
-- **New sector** (button): its folder, an empty scene, a layout with its entry, and its location (made, or the one there pointed at it).
-- **Copy sector** (button): the open sector as a new one, apart (no connections), its bodies renamed and its havens' ids made its own.
-- **New body** (`ctrl+n` on Scene): a copy of a body you pick, named by the rules (the next free letter; a moon of the planet you pick; a belt's word), placed in the sector scene; then change its looks in the Godot editor. Or a shared prefab placed as it is.
-- **Copy** (`ctrl+d` on a body) makes a new body like it; **delete** removes a body and its folder. `ctrl+u` takes any of these back.
+- Body names:
+  - `star_<word>` (then `star_<word>_b`, `_c`, and so on);
+  - `planet_<word>_<letter>`;
+  - `moon_<word>_<planet's letter><n>` (`moon_elace_b1` is Planet B's first moon);
+  - `belt_<word>_<its own word>`.
+- Everything is lower_snake_case. A body's root node, and its node in the sector scene, use its title ("Planet Elace B").
+- A sector places each of its own bodies once. It may place the shared prefabs (`scenes/prefabs/celestial/`) as often as it likes, but nothing from another sector's folder.
+- The tool names everything it makes by these rules:
+  - **New sector** makes a folder, an empty scene, a layout with its entry, and its Location.
+  - **Copy sector** makes the open sector again as a new one. The copy has no connections, its bodies are renamed and its havens get ids of their own.
+  - **New body** (`ctrl+n` on Scene) copies a body you pick and names it by the rules (the next free letter, a moon of the planet you pick, a belt's word). Or it places a shared prefab as it is.
+  - **Copy** (`ctrl+d` on a body) and **delete** work on single bodies. `ctrl+u` takes any of these back.
 
-**Elace and the arena.** Elace (`sector_elace`) is the game's home, built round a rush: Planet B's ring (Elace B Belt) is rich and open to all, with each side's outpost at its edge (prospectors and the guards that escort them), the free port as its town (the Free Port faction's: traders, prospectors and their escorts, allied to the player), both sides' pickets on it and on the way to it, and the raider den over the routes between. The refinery pays best for ore, across the star; miners weigh the whole round (there, back, and refilling the hold, `AI_MARKET_FILL_TIME`), so many haul round it by the passes. Trade is the arena's: each side's haven sells its good cheap (Verdant biotech, Violet tech), buys the other's dear and its own back cheap; the free port sells both and buys both at its usual price, so traders run between the havens and the port (the arena's free port still buys both dear: the frozen rules). Travellers come in at the entry and fly to work. The deep belt at the Xenohive is richer per rock, and the hive's. Travelling NPCs work at the richest field clear of a territory (the rush). Evolution runs in **the arena** (`sector_arena`, `Constants.EVO_SECTOR_ID`): Elace as it was, symmetric, so neither side starts ahead; nothing connects to it, so the game never goes there, and evolution's run starts docked there (`start_evolution`). The rules keep it so: only the arena stands apart, and each mode's start docks in its own sector.
+**The sector scene** (`<sector>.tscn`) places its bodies and belts under `SceneAssets`, with its layout.
+- Nothing else goes there: no stations (they come with their haven) and no entry point (that is a beacon).
+- A sector with no layout yet keeps an `EntryPoint` node until it gets one. `ctrl+n` on it in World makes a layout.
+- **Scenery** goes under `AmbientVisuals`: things that are only seen, never solid, never targets (nebulas, glows, dust). `scenes/prefabs/ambient/nebula_cloud.tscn` is a local nebula that fades as the camera nears it.
 
-**The sector scene** (`<sector>.tscn`) places its bodies and belts under `SceneAssets`, with its layout (`SectorLayout`). Nothing else is placed there: no stations (they come with their haven) and no entry point (a beacon). A sector with no layout yet keeps an `EntryPoint` node instead, where ships arrive until it has one.
-
-**Scenery** goes under the sector scene's `AmbientVisuals` node: what is only seen, never solid, never a target, never in the way (nebulas, glows, dust). Whatever sits there is made so as it loads (`src/scenes/game_world/ambient/ambient_visuals.gd`). `scenes/prefabs/ambient/nebula_cloud.tscn` is a local nebula: soft glows in a ball (`radius`, `puffs`, `puff_size`, `tint`, `strength`, `seed_value`), fading out as the camera nears so flying through it never blanks the screen.
-
-**The layout** (`<sector>_layout.tscn`) is a scene of markers among the bodies. Move a marker (`translation`, in m) to move what it stands for. The layout's root sets the play area. A marker can be **attached** to a body (`attached_to`): its translation is then from that body, and it moves with it (the star's radiation, a planet's ring of rocks). In the Godot editor the markers sit under `SceneAssets/SectorLayout/Layout`, each drawing its reach as a ring (an attached one's round its body, where the game puts it).
-- **Havens** (`HavenMarker`): stations NPCs live from. Each sets:
-  - its id, name and owner (`faction`);
-  - its station (`model`: a station model scene, see **Models**, picked from a list in the tool). A haven and its station are one thing: the layout builds the station at the marker, turned as the marker is (`rotation_degrees`), so moving the marker moves the station. Never place a station in a sector scene itself; the rules catch one;
-  - whether it is seen from anywhere (`seen_anywhere`: it runs a beacon, as the home port does), instead of by its size;
-  - how many ships of each faction live there (`ships`), and which kind it favours (`prefer_role`);
-  - its services: repair, rearm, what it buys at what price (`buys`) and what it makes and sells (`sells`). The tool lists both as rows: a commodity (for `buys`, or `*`, anything not listed) and its factor on the commodity's price, with what one unit then fetches or costs. A haven with no `buys` rows buys nothing; one with no `sells` rows sells no cargo, to NPCs or the player.
-- **Beacons** (`BeaconMarker`): patrol points (`owner_faction`), rock fields (`rocks` within `radius`; `ring` round a planet), landmarks routes go through, and the sector's one **entry** (`kind` "entry"): ships jumping in, the player and travelling NPCs alike, arrive `radius` out from it (no radius: the sector's `jump_in_distance`). A new game starts docked at the home port instead. Planets and moons get their landmarks by themselves.
-- **Hazards** (`HazardMarker`): the star's radiation, from `core` out to `radius` (attached to its star).
+**The layout** (`<sector>_layout.tscn`) is a scene of markers among the bodies.
+- Move a marker (`translation`, in m) to move what it stands for. The layout's root sets the play area.
+- A marker can be **attached** to a body (`attached_to`). Its translation is then from that body, and it moves with it (a star's radiation, a planet's ring of rocks).
+- **Havens** (`HavenMarker`) are the stations NPCs live from. Each sets:
+  - its id (`haven_id`), name and owner (`faction`);
+  - its station (`model`, a station scene). The layout builds the station at the marker, turned as the marker is, so a haven and its station are one thing. Never place a station in a sector scene: the rules catch one;
+  - `seen_anywhere`: it runs a beacon and shows on every sensor (as the home port does);
+  - who lives there (`ships`), and which family it favours (`prefer_role`);
+  - its services: `repair`, `rearm`, what it buys (`buys`) and what it makes and sells (`sells`). Each row is a commodity and a factor on its price. In `buys`, `*` means anything not listed. A haven with no `sells` rows sells no cargo, to NPCs or the player.
+- **Beacons** (`BeaconMarker`):
+  - patrol points (`owner_faction`);
+  - rock fields (`rocks` within `radius`; `ring` for a planet's ring);
+  - landmarks that routes go through. Planets and moons get theirs by themselves;
+  - the sector's one **entry**: ships jumping in arrive `radius` out from it.
+- **Hazards** (`HazardMarker`): a star's radiation, from `core` out to `radius`, attached to its star.
 
 Routes go round planets and moons by themselves.
 
-## Ships: archetypes — `database/presets/archetypes/`
+**Elace and the arena.**
+- Elace (`sector_elace`) is the game's home. It is built round a rush on Planet B's rich ring, open to all:
+  - each side has an outpost at the ring's edge;
+  - the free port is the town;
+  - both sides keep pickets on the ring and on the way to it, and a raider den sits over the routes.
+- The refinery pays best for ore, across the star. Each side's haven sells its own good cheap and buys the other side's dear. The free port sells both.
+- Evolution runs in **the arena** (`sector_arena`): Elace as it was, symmetric, so neither side starts ahead. Nothing connects to it, so play never goes there.
 
-There is one ship design per family and weight class:
-- families: fighter, prospector, raider, scavenger, trader (a lance is a part any ship may fit, not a family);
+## Ships: archetypes
+
+**Where:** `database/presets/archetypes/`. There is one ship design per family and weight class:
+- families: fighter, prospector, raider, scavenger, trader. A lance is a part any ship may fit, not a family;
 - weight classes: light, medium, heavy, superheavy.
 
-Twenty in all. A design flies only once a faction's `roster` names it: each entry of a roster is as likely as the others. Verdant and Violet fly a medium and a superheavy trader and a superheavy fighter beside their light to heavy fighters, prospectors and scavengers; the Free Port light and medium traders, prospectors and fighters; the raiders their four raiders and a light fighter; the xenohive four fighters and a light scavenger. The superheavy prospector and scavenger and the heavy trader are flown by no faction: only the store sells them.
+That makes twenty. A design flies only when a faction's `roster` names it. Three are on no roster (the superheavy prospector and scavenger, and the heavy trader); only the store sells them.
 
-`tools/pick_archetypes.gd --from=<drafts folder> --era=<n>` replaces each archetype with that folder's design of the same family and weight class (`--add`: makes the ones missing too).
+**Each design is a pair of files:**
+- `preset_ship_archetype_<name>.tres`: the hull, its stats, its fit and its model (`ship_scene`).
+- `agent_archetype_<name>.tres`: the pilot. It holds the behaviour and the exact `genome` the game flies.
 
-A hull's weight class also sets the size of all its hardpoints and module bays: small on a light hull, medium on a medium one, large on heavy and superheavy hulls. A part fits a slot of its own size or larger.
+**Rules:**
+- A hull's weight class sets the size of all its hardpoints and module bays: small on a light hull, medium on a medium one, large on heavy and superheavy hulls. A part fits a slot of its own size or larger.
+- The hull's stats come from the genome's hull genes. Change the genome, not the stats, and then press `f` on the Overview (refit_archetypes).
+- The home station's store sells all twenty hulls, with the part catalogue.
 
-Each design is a pair of files:
-- **`preset_ship_archetype_<name>.tres`**: the hull and its fit;
-- **`agent_archetype_<name>.tres`**: the pilot. It holds the behaviour and the exact `genome` the game flies.
+`database/presets/CATALOG.md` describes every design: the archetypes first, then every evolved draft they could be replaced by. Archetypes are picked from evolution's drafts (`database/drafts/`): see [docs/MAINTAINING.md](docs/MAINTAINING.md).
 
-`CATALOG.md` beside them describes every design; the Archetypes tab compares them, and `d` on one, then `d` on another, makes them duel as the game flies them (`tools/dev.py duel`: wins, time, hull left, rounds). Factions pick from these through their roster. The home station's store sells all twenty hulls, with the part catalogue (`database/presets/parts/`); the drafts folders are not sold.
+## Parts
 
-The game flies these files as they are: an archetype's ship file sets its stats, its fit and its model. To give one a hand-made model, point its `ship_scene` at the new scene (see **Models**).
+**Where:** `database/presets/parts/`. This is the part catalogue: three of every kind (light, medium, heavy) and one harpoon.
+- A light part is small, a medium part medium and a heavy part large. Heavy parts therefore need heavy or superheavy hulls.
+- These are the only parts. Archetypes, starting kits, the store and evolution all use them, and the rules reject any other.
+- Names are plain and the same for every kind: "Laser Mk I-light", "Plating Mk I-heavy". The mark (`Constants.PART_MARK`) is the generation.
 
-## Play and evolution
+**To tune a part,** edit its `law_genes`, then press `a` on the Overview (apply_laws) to rebuild its stats.
+Every genome uses the catalogue's genes for its parts, so a change here re-balances every ship that carries the part.
 
-The game and the evolution are two separate modes, and neither ever reads the other's data:
+## Commodities, stock hulls, game starts
 
-- **Play** (the game) works with the presets only. Its saves are in `user://savegames/`. **Play saves and changed content:** a save naming a hull, part, haven, commodity or faction that has since been removed or renamed is put right as it loads (`SaveRepair`): the hull becomes the game start's ship, the home the start's haven, unknown parts and cargo are dropped, and the player is told what changed. Only a change of the save format (`SAVE_FORMAT_VERSION`) deletes saves.
-- **Evolution** is a developer's tool for breeding new designs. Every ship in it flies a placeholder hull. Its save, backups, life logs and status are all in `user://evolution/`.
+**Where:** `database/registry/`. The game indexes these by `template_id`, and reports any field the script does not declare.
+- `assets/ships/`: stock hulls, the hand-made ones (`ship_default`).
+- `assets/commodities/`: commodities.
+  - What each haven sells and buys is set on its marker (World: `sells`, `buys`).
+  - The Parts tab's trade routes (`t`) list every route that makes money, priced as the game prices it.
+  - The player trades by the same rules as NPC traders: at any station they buy what it makes and sell what it buys. Their standing with the station's faction makes both prices better.
+- `game_starts/`: the player's start.
+  - Its ship (`player_ship_template`) and its haven (`player_starting_location`, a haven id), which is also its home port.
+  - Its bank, and the kit waiting in home storage (`starting_storage`).
+  - `starting_standing` sets the player's standing with chosen factions.
+  - Add starts to test with: see [Common tasks](#common-tasks).
+- `locations/`: the sector graph, one Location per sector. Jumps between sectors are off for 0.x (`Constants.jumps_enabled`), so the game is Elace only. World lists a Location with no scene yet (such as `sector_vidr`) and opens it in Data.
+- `agents/`: the player's and the NPCs' agent settings.
 
-To run evolution, open the debug overlay and press **EVOLUTION**, then **START EVOLUTION**. The game pauses, and evolution runs in a separate process until you press **STOP EVOLUTION**; it then saves and ends, and the game carries on. This only works when running from the project on a desktop. From a terminal: `godot --no-window -s tools/evolution_sim.gd -- --hours=4`.
+(These folders are under `database/registry/`, not the top-level `assets/` folder, which holds art, models and audio.)
 
-New designs reach the game only when you export them as presets (`tools/export_presets.gd`).
+## A sector's economy
 
-**A new era** (the rules changed, so fitness earned under the old ones no longer counts) always goes through the tool: Tools, `n`, or `tools/dev.py new_era label=<this era> next=<next era>`. With evolution stopped, it:
-1. copies the save to `backups/era<N>_<name>_t<hours>h_<date>.sav` and checks the copy byte for byte (a backup is never overwritten);
-2. exports that copy's drafts to `database/presets/drafts_era<N>_min10/` and `_min5/` (folders already there are left as they are, since drafts get edited after export, unless you ask to export again);
-3. rewrites `database/presets/CATALOG.md`, and commits the drafts and the catalog (nothing else);
-4. records the new era in `user://evolution/era.json`, and starts it in the background, its console going to `era<N+1>_<name>.log`.
+World: **Economy** (or Parts, `e`) shows one sector's market. It is priced by the same rules the content check uses (`src/core/validation/sector_economy.gd`).
+- **Market** (`m`): what every haven charges and pays for every commodity.
+- **Routes** (`r`): every route, timed for a ship (`[` and `]` pick it): a trip time, what a load costs, and WP an hour.
+- **Hulls** (`h`): every archetype's best route here, and how long it takes to earn its own price.
+- **Problems** (`p`): what breaks the two rules below.
+- **Scope** (`o`): what the 0.x economy covers and what it does not estimate yet.
 
-If a step fails, the flow stops there and lists what is already done. The Tools tab's evolution task only goes on with the current era.
+Times are estimates from the ship's numbers, not flown. Two rules hold for every sector the game plays:
+1. A haven's stock must fetch at least 10% more somewhere else in its sector (`SectorEconomy.MIN_MARGIN_SHARE`). Fuel is the exception: it is burnt on jumps, not hauled to sell.
+2. No haven may pay as much for a commodity as it charges for it, even at the best standing. Otherwise buying and selling back there pays without flying. Mind `*`: it covers a haven's own stock too.
 
-## Models — ships and stations
+## Models
 
-A model is made in Blender and imported with one command. The game needs nothing else from it: it builds the collision hull, the hit surface and the levels of detail itself.
+A model is made in Blender and imported with one key (Models, `i`). The game builds the collision hull, the hit surface and the levels of detail itself.
 
-**Start from a starter:** copy `assets/models/starters/ship_starter.blend` (or `station_starter.blend`), or let the menu do it (`tools/dev.py new_model`). It holds a small model that already keeps the rules below, every library material by its game name (coloured roughly as the game draws it), the engine empties, and a `Guides` collection (the nose arrow and a box of the game's ship length for ships, a ship for scale for stations) that is never exported. Its Text Editor has a README. After changing the material library, rebuild the starters (`tools/dev.py starters`); the Overview says when they are out of date.
+**Start from a starter.** Use Models, `ctrl+n`, or copy `assets/models/starters/ship_starter.blend` (or `station_starter.blend`). A starter holds:
+- a small model that already keeps the rules below, and the engine empties;
+- every library material by its game name;
+- a `Guides` collection: the nose arrow and a box of the game's ship length, or a ship for scale beside a station. It is never exported;
+- a README in its Text Editor.
 
-**In Blender**
-- **Ships: any size**, nose toward **+Y**, top toward **+Z**. The import scales every ship model to 17 m nose to tail (`Constants.SHIP_MODEL_LENGTH`), and the game sizes each ship from its preset (`model_scale`: a light fighter is about 14 m, a heavy one 33 m). Only the proportions count; engine empties scale with the rest.
-- **Stations** can be any size. Ships undock above their top.
-- **Materials are picked by name.** Name a material after a file in `assets/art/materials_generic/` (`hull_dark_metal` for `mat_hull_dark_metal.tres`; case and spaces don't matter, so "Hull Dark Metal" works). Short names: `glow`, `metal`, `dark`, `light`. Name it **`paint`** for the surfaces that take the faction's paint. Blender's colours don't reach the game: the library's materials replace them. To add a new look, copy a library material in the tool (Data, Material library, `ctrl+n`) and change its colours; the rules check that it is named `mat_<lower_case>.tres` and uses a model shader.
-- **Engines:** add an empty named `Engine` at each nozzle, unrotated. Its scale sets the size of the exhaust. Exhausts trail aft.
-- **What exports is what renders.** Modifiers enabled for renders are applied, in order, even ones hidden in the viewport; ones disabled for renders are dropped (the import lists them). Shape keys are applied as mixed, collection instances become real objects, curves and text become meshes. Objects disabled in renders (boolean cutters) and collections excluded from the view layer (parts for instancing) are left out. Your `.blend` is never changed.
+**In Blender:**
+- **Ships can be any size.** Point the nose toward **+Y** and the top toward **+Z**. The import scales every ship to 17 m nose to tail (`Constants.SHIP_MODEL_LENGTH`), and the game sizes each ship from its preset (`model_scale`). Only the proportions count.
+- **Stations can be any size.** Ships undock above their top.
+- **Materials are picked by name.**
+  - Name a material after a file in `assets/art/materials_generic/`: `hull_dark_metal` for `mat_hull_dark_metal.tres`. Case and spaces do not matter.
+  - Short names also work: `glow`, `metal`, `dark`, `light`.
+  - Name it **`paint`** for the surfaces that take the faction's paint.
+  - Blender's colours do not reach the game: the library's materials replace them.
+  - For a new look, copy a library material (Data, Material library, `ctrl+n`) and change its colours.
+- **Engines:** add an empty named `Engine` at each nozzle, unrotated. Its scale sets the size of the exhaust. A stationary hull (the weapon platform) needs none.
+- **What exports is what renders.**
+  - Modifiers enabled for renders are applied, in order. Modifiers disabled for renders are dropped.
+  - Objects disabled in renders (boolean cutters) and collections excluded from the view layer are left out.
+  - Your `.blend` is never changed.
 
-**Import:** save the `.blend` as `assets/models/ships/<name>/<name>.blend` (stations: `assets/models/stations/<name>/<name>.blend`), then run:
-
-    tools/import_model.sh assets/models/ships/<name>/<name>.blend
-    tools/import_model.sh --station assets/models/stations/<name>/<name>.blend
-
-It exports the `.glb` beside the `.blend` itself, leaving `Guides` out, and scales a ship's `.glb` to 17 m. A `.glb` exported by hand works too.
-
-It makes the levels of detail (`lod/`) and the hit surface (`hit/`) beside the model, imports them, and writes the scene `scenes/prefabs/ships/<name>.tscn` (or `scenes/prefabs/station/<name>.tscn`). A scene that already exists is kept. Last, it checks the scene against these rules and lists any problems. Run it again after every change.
+**Import.** Save the `.blend` as `assets/models/ships/<name>/<name>.blend` (stations: `assets/models/stations/<name>/<name>.blend`). Then press `i` on it in Models.
+- The import exports the `.glb` beside the `.blend`, scales a ship, and makes the levels of detail (`lod/`) and the hit surface (`hit/`).
+- It writes the scene `scenes/prefabs/ships/<name>.tscn` (or `scenes/prefabs/station/<name>.tscn`). A scene that already exists is kept.
+- Last, it checks the scene against these rules. Import again after every change.
+- From a terminal, `tools/import_model.sh <file>` does the same (add `--station` for a station).
 
 **Use it:** point an archetype's `ship_scene` at the ship scene, or a haven's `model` at the station scene.
+**Look at it:** Models, `s` renders it in every faction's paint (across) at each level of detail (down).
 
-**Look at it:** `godot res://tools/hull_sheet.tscn out=/abs/model.png scene=res://scenes/prefabs/ships/<name>` renders it in every faction's paint (across) at each level of detail (down). Leave `.tscn` off the `scene` path.
+**Placeholders.** Until real models land, ships and stations are built from primitives (`Constants.gd`: `HULL_FORMS`, `STATION_FORMS`; the part fields are described in `src/scenes/game_world/models/primitive_form.gd`).
+- Hulls are `scenes/prefabs/ships/placeholders/<family>_<weight>.tscn`; stations are `scenes/prefabs/station/placeholders/<form>.tscn`.
+- Models, `c` edits a placeholder's shape.
+- To replace a placeholder, point its archetype or haven at a real model's scene.
 
-**Placeholders:** until real models land, ships and stations are built from primitives (`Constants.gd`: `HULL_FORMS`, `STATION_FORMS`; the part fields are described in `src/scenes/game_world/models/primitive_form.gd`). Hulls are `scenes/prefabs/ships/placeholders/<family>_<weight>.tscn`, stations `scenes/prefabs/station/placeholders/<form>.tscn`. Parts marked `"look": "paint"` take the faction's paint. To replace a placeholder, point its archetype or haven at a real model's scene.
+**Rocks.** Asteroid fields use the low-poly rocks in `Constants.FIELD_ROCK_MODELS`; `f` in Models puts a rock in the fields or takes it out. The dense rocks are placed in belt scenes by hand. Models shows which scenes use each rock.
 
-**Rocks:** asteroid fields use the low-poly rocks in `Constants.FIELD_ROCK_MODELS`. The Models tab lists every rock in `assets/models/rocks/` with its levels of detail; `f` on one puts it in the fields or takes it out. The dense rocks are placed by hand in the sector scenes.
+**After changing the material library,** rebuild the starters (Tools, starters). The Overview says when they are out of date.
 
-## Sounds — `database/sounds/sound_bank.tres`
+## Sounds
 
-The sound bank has one slot per game event: guns, missiles, the harpoon and the lance, rocks breaking, tools switching on and off or running dry, decoys, the afterburner, hits and wrecks, engines and fuel leaks, buttons, notices, radio, docking, trading, targeting and the player's alarms (a lance charging, hull critical, power out, hold full) (each slot is described in `src/core/sound/sound_bank.gd`). Each weapon is heard as it is: a laser only where it hits (a welding spark) while its ship hums; a cannon at the shot and the hit; a missile's release click, its thruster and its blast; the lance's heavy throw and dull thud; the harpoon's launch, the hook clamping on and the winch; a wrecked ship blows up. A hit with its own sound plays no `hull_hit`. Open the bank in the tool (Data, Sound bank) and type or pick a sound file's path in a slot. A slot left empty is silent, so they can be filled one at a time.
+**Where:** `database/sounds/sound_bank.tres` (Data, Sound bank). The bank has one slot per game event. Each slot's note in the form says when it plays.
+- A slot left empty is silent, so slots can be filled one at a time.
+- **World** slots are heard where they happen, fading with distance.
+- **Loop** slots (`engine`, `laser_hum`, `harpoon_reel`, `missile_engine`, `fuel_leak`) are carried by the nearest ships and missiles while they apply (`SOUND_LOOP_CARRIERS` of them). Their files must loop, and the other slots' files must not. The Overview says when one is wrong; `l` there sets each file's loop setting and imports it again.
+- **UI** slots are heard as they are, wherever the player is.
 
-- **World** slots are heard where they happen, fading with distance from the player's ship.
-- **Loop** slots (`engine`, `laser_hum`, `harpoon_reel`, `missile_engine`, `fuel_leak`) are carried by the nearest ships and missiles while they fly (`SOUND_LOOP_CARRIERS` of them): the engine gets louder with speed and higher while the afterburner burns; a ship hums while a laser is on, its winch turns while a harpoon reels in, and a leaking ship hisses. Their files must loop, and the other slots' must not. The Overview says when one is wrong; `l` there (or `tools/dev.py fix_loops`) sets each file's import loop setting and imports it again.
-- **UI** slots are heard as they are.
+**Files.** Short `.wav` files suit effects and `.ogg` suits loops. Make the files about equally loud.
+- `Constants.gd` ("SOUND") sets the overall volume, the hearing distance and how many sounds play at once.
+- Effects play on the `Effects` bus and music on the `Music` bus. The player sets each one's volume in Options.
+- A hit with its own sound plays no `hull_hit`.
 
-Short `.wav` files suit effects; `.ogg` suits loops. Make the files about equally loud: `Constants.gd` ("SOUND") sets the overall volume, the hearing distance, how many sounds play at once and how many of the nearest ships and missiles play their loops (`SOUND_LOOP_CARRIERS`). Effects play on the `Effects` bus and music on the `Music` bus (`default_bus_layout.tres`); the player sets each one's volume in Options. The tests check that every filled slot holds a sound and loops as its kind says. Music is separate: the Look tab sets the sector's three tracks (the main scene's `AmbientMusic`): the calm one (`stream`), `danger_stream` (hostiles on the sensors, none has seen you) and `combat_stream` (one has, or you are under fire); the music crossfades between them as the danger changes. The `hostile_detected` and `hostile_aware` slots are the matching notices.
+**Music** is separate. The Look tab sets the sector's three tracks:
+- the calm one (`stream`);
+- `danger_stream`: hostiles are on the sensors, but none has seen you;
+- `combat_stream`: one has seen you, or you are under fire.
 
-**Placeholders:** `tools/make_placeholder_sounds.py` synthesizes the hull hit, every weapon's sounds, the engine loop, the two notices and the danger and combat tracks into `assets/audio/placeholders/` and `assets/audio/music/`. Replace a slot's file to replace it.
+The music crossfades between them as the danger changes.
 
-## Parts — `database/presets/parts/`
+**Placeholders:** `tools/make_placeholder_sounds.py` synthesizes stand-in sounds into `assets/audio/placeholders/` and `assets/audio/music/`. Fill a slot with a real file to replace one.
 
-The part catalogue: three of every kind, light, medium and heavy, and one harpoon. A light part is small, a medium one medium, a heavy one large, so heavy parts need heavy or superheavy hulls. These are the only parts. Archetypes, starting kits, the store and evolution all use them, and the validator rejects any other. Names are plain and the same for every kind: "Laser Mk I-light", "Plating Mk I-heavy"; hulls follow the same pattern ("Lance Mk I-medium"). The mark (`Constants.PART_MARK`) is the generation.
+## Play saves and changed content
 
-To tune a part, edit its `law_genes`, then run `tools/dev.py apply_laws` to rebuild its stats. Evolution picks a kind and a weight only: a genome's part genes are always the catalogue's, so a change here re-balances every ship that carries the part. The Parts tab lists them all with who uses each.
+Play saves are in `user://savegames/`. A save can name a hull, part, haven, commodity or faction that has since been removed or renamed. It still loads, put right as it loads (`SaveRepair`):
+- an unknown hull becomes the game start's ship, and an unknown home becomes the start's haven;
+- unknown parts and cargo are dropped;
+- the player is told what changed.
 
-## Commodities, stock hulls, starting kit — `database/registry/`
-
-- `assets/ships`: stock hulls.
-- `assets/commodities`: commodities. What each haven sells and buys is set on its marker (World: `sells`, `buys`); the Parts tab's **trade routes** (`t`) list every route that makes, priced as the game prices it, with its margin, how far it runs and which factions may fly it. The player trades by the same rules as NPC traders: at any station, they buy what it makes at its price and sell what it buys, their standing with its faction making both better.
-- `game_starts`: the player's start: its ship, the haven it starts docked at (also its home port), its bank, and the kit waiting in home storage (`starting_storage`). The tool lists the kit as rows of part and count, with its worth and mass; ship and haven are picked from lists. `starting_standing` sets the player's standing with chosen factions (the rest start at their own). Add more starts to test with (Data, `ctrl+n`): `p` on one in the Parts tab's starting kits (or `tools/dev.py test_start`) plays it, saving apart from the real saves; `tools/dev.py save_report` tells what a save holds.
-- `locations`: the sector graph. Jumps between sectors are off for 0.x (`Constants.jumps_enabled`): the game is Elace only until the other sectors are laid out.
-
-These are indexed by `template_id`. A field the script does not declare is reported on load.
-
-**A sector's economy** (World: Economy; Parts: `e`; `tools/dev.py economy`) is one sector's market, priced by the same rules the validator uses (`src/core/validation/sector_economy.gd`):
-- **Market** (`m`): what every haven charges and pays for every commodity (a stranger's price at even markups).
-- **Routes** (`r`): every route, timed for a ship (`[` and `]` pick it): a full hold out, back empty, from its top speed with the cargo's mass, plus docking. That gives a trip time, what a load costs, and WP an hour.
-- **Hulls** (`h`): every archetype's best route here, its WP an hour, and how long it takes to earn its own price.
-- **Problems** (`p`): what breaks the rules below.
-- **Scope** (`o`): what the 0.x economy covers and what is still to estimate (mining, salvage, bounties and wages, running costs) or after 0.x (trade between sectors).
-
-Times are estimates from the ship's numbers, not flown. Two rules hold for every sector the game plays (the arena only warns):
-- A haven's stock must fetch at least 10% more somewhere else in its sector (`SectorEconomy.MIN_MARGIN_SHARE`). Once ships carry cargo between sectors this becomes a warning (`STOCK_MUST_PAY_IN_SECTOR`). Fuel is the exception: it is bought to burn on jumps, never hauled to sell, so it needs no buyer and makes no route (the free port stocks it for the player and the travellers).
-- No haven may pay as much for a commodity as it charges for it, even with the best standing. Otherwise buying and selling back there pays without flying. Mind `*`: it covers a haven's own stock too.
+When you delete a file in Data, the question names any local save that still names it. Only a change of the save format (`SAVE_FORMAT_VERSION`) deletes saves.
 
 ## Checking your work
 
-The rules live in one place, `src/core/validation/content_validator.gd`, and two things use them:
+The rules live in one place, `src/core/validation/content_validator.gd`. Two things use them:
 - the development tool, on every save and on its Overview;
-- the tests (`tools/dev.py tests`), which also run everything else.
+- the tests (Tools, tests), which also run everything else.
 
-They load every faction, sector layout, haven, game start and archetype, every ship and station model in use, the material library and the sound bank. Broken references, a missing roster genome, a broken haven, a buy list or kit naming something that does not exist, a market that does not pay or pays too well (see A sector's economy), and models off the rules all fail. `tools/dev.py validate` lists every problem from a terminal; `tools/dev.py check_model scene=<path>` checks one model.
+They check every faction, sector layout, haven, game start, archetype and part, every ship and station model in use, the material library and the sound bank. Examples of what fails:
+- broken references, a missing roster genome, a broken haven;
+- a buy list or kit naming something that does not exist;
+- a market that does not pay, or pays too well;
+- models that break the model rules;
+- stats that are not what their genes give.
 
-To add a rule, add it to the validator. The tool and the tests both pick it up.
+Tools, validate lists every problem from a terminal. Tools, check_model checks one model.
 
-## Releasing
+## Where things live
 
-`tools/dev.py soak` (Tools, Checks) leaves the real game running for a few minutes (a new game in Elace, docked at home, at normal speed) and fails if it shows script errors, orphaned nodes or memory still growing after the first two minutes, wrecks or loose lances past their caps, or bookkeeping (sound, threat notices, travellers, markups) that keeps growing. It prints the frame rates and the deaths too, but does not judge them. It needs a display; it sets `DISPLAY=:0` itself and turns vsync off, since a hidden window's vsync would hold the game to one frame a second.
+| Folder | What is there |
+|---|---|
+| `database/factions/` | factions |
+| `database/presets/archetypes/` | the twenty ship designs the game flies |
+| `database/presets/parts/` | the part catalogue |
+| `database/presets/CATALOG.md` | every design, described (written by classify_presets) |
+| `database/drafts/` | evolution's exported designs, one folder per era. The game never reads them; archetypes are picked from them |
+| `database/registry/` | stock hulls, commodities, game starts, Locations (sectors), agents |
+| `database/sounds/` | the sound bank |
+| `database/definitions/` | the scripts each kind of data file is made from (their notes are the form's field notes) |
+| `scenes/levels/sectors/` | sectors: their scenes, layouts and bodies |
+| `scenes/prefabs/` | ship and station scenes, placeholders, shared celestial bodies, scenery |
+| `assets/` | art (materials, shaders, textures), models (the `.blend` and `.glb` files), audio |
+| `src/` | the game's code; `src/autoload/Constants.gd` holds the tuning values |
+| `tools/` | the development tool (`tools/dev.py`, `tools/devtool/`) and the scripts it runs |
+| `docs/` | maintainer notes ([MAINTAINING.md](docs/MAINTAINING.md)) and Godot 3.6 shader reference pages |
 
-`tools/dev.py release` (Tools, Game) makes a version: with everything committed, it runs the tests and a 3-minute soak (`soak=0` skips it), sets the Android build's version (`export_presets.cfg`: version name, and the version code one up), exports `GDTLancer-<version>.apk` beside the usual APK, then commits that and tags it `v<version>`. It pushes nothing: push the commit and the tag once the build plays well.
+## Glossary
+
+- **Sector:** one place the game plays, such as Elace. It has a scene, a layout and a **Location** file.
+- **Location:** a sector's file in `database/registry/locations/` (its name, scene and connections). It is not a station.
+- **Layout:** a sector's scene of markers: havens, beacons and hazards.
+- **Haven:** a station NPCs live from, set by a `HavenMarker` in a layout. Its `haven_id` is what game starts and saves name. "Station" is the model it is built with.
+- **Home port:** the haven a game start docks at. The player's storage, store and refits are there.
+- **Beacon:** a point on a sector's map: a patrol point, a rock field, a landmark or the entry.
+- **Family / weight class:** what a ship does (fighter, prospector, raider, scavenger, trader) and how big it is (light to superheavy).
+- **Archetype:** one of the twenty ship designs the game flies, one per family and weight class.
+- **Preset:** a design saved as files (ship and pilot). The archetypes and the part catalogue are presets.
+- **Draft:** a design evolution exported, kept in `database/drafts/` to pick archetypes from. It is never flown or sold.
+- **Stock hull:** a hand-made hull in `database/registry/assets/ships/`.
+- **Agent / pilot:** the settings of who flies a ship. An archetype's pilot holds its behaviour genes and **genome**.
+- **Genome:** the genes a design is made from: hull genes, parts and behaviour.
+- **Law genes:** the genes a part's or hull's stats are made from (`ShipLaws`). Edit these, not the stats.
+- **Roster / traffic:** the archetypes a faction's havens fly, and the ships it sends travelling.
+- **WP:** the currency.
+- **Standing:** how a faction regards the player (from -1 to 1). It changes prices and who attacks.
+- **Era:** a stretch of evolution under one set of rules (maintainers: see [docs/MAINTAINING.md](docs/MAINTAINING.md)).

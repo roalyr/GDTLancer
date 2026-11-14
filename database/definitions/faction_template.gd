@@ -11,7 +11,7 @@ class_name FactionTemplate
 # field -> {other field: [values it applies with]} or {other field: {"not": [values it does not]}}.
 const SHOWN_WHEN = {"starting_standing": {"no_standing": [false]}}
 
-export var display_name: String = ""
+export var display_name: String = ""  # Its name as the player reads it (its id is the file name)
 export var color: Color = Color(1, 1, 1, 1)  # Its brackets and names on the HUD
 export var enemies: Array = []  # Faction ids it is at war with (both ways: either side's list counts)
 export var starting_standing: float = 0.0  # The player's standing with it in a new game, -1 to 1

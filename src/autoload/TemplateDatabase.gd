@@ -11,13 +11,13 @@ var locations: Dictionary = {}
 var utility_tools: Dictionary = {}  # Weapons and other utility tools
 var game_starts: Dictionary = {}
 var evolved: Dictionary = {}  # Ships and parts built from genes at runtime (Evolution); not sold at stations
-var presets: Dictionary = {}  # Evolved designs exported to database/presets/ (ships, tools, modules): sold at the home station only
+var presets: Dictionary = {}  # database/presets/: the archetypes' ships and the part catalogue (ships, tools, modules)
 var preset_agents: Dictionary = {}  # Preset ship id -> its AgentTemplate (behaviour, classification); nothing spawns from these yet
 var factions: Dictionary setget _set_factions, _get_factions  # Faction id -> FactionTemplate.to_spec(), from Constants.FACTIONS_DIR (loaded on first use)
 var _factions: Dictionary = {}
 var sector_layouts: Dictionary setget _set_sector_layouts, _get_sector_layouts  # Sector id -> its layout scene's markers (SectorLayoutMarkers.to_spec; loaded on first use)
 var _sector_layouts: Dictionary = {}
-var proven_presets: Dictionary = {}  # Preset ship ids from a *_min10 folder: designs that flew 10 lives or more
+var proven_presets: Dictionary = {}  # Preset ship ids proven in evolution (the archetypes, picked from designs that flew 10 lives or more)
 
 
 func _get_factions() -> Dictionary:

@@ -10,3 +10,6 @@ GDTLancer-legacy
 
 # Developer menu state and outputs (tools/dev.py)
 .dev/
+
+# A local link to Blender 3.6 (optional: BLENDER or blender on PATH also do; CONTENT.md, Getting started)
+tools/blender

@@ -12,7 +12,7 @@ const SHOWN_WHEN = {
 }
 
 # --- Identity & Scene ---
-export var location_name: String = "Unknown Station"
+export var location_name: String = "Unknown Station"  # The sector's name (a Location is a sector; stations are havens in its layout)
 export var jump_in_distance: float = 5000.0  # Jump-in distance (+/- 10%) from the sector's entry for a sector whose entry beacon sets no radius (or that has none).
 export var interaction_radius: float = 100.0  # Dock/interact radius when a scene-level anchor uses this resource directly.
 
@@ -53,4 +53,4 @@ export var mineral_density: float = 0.5
 export var propellant_sources: float = 0.5
 
 # --- Danger ---
-export var danger_level: int = 0
+export var danger_level: int = 0  # How dangerous the sector is

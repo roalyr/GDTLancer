@@ -8,10 +8,10 @@ before the rules change under evolution, in order, each step checked before the 
 2. The save is copied to backups/era<N>_<label>_t<hours>h_<date>.sav and the copy compared byte
    for byte: everything after this works from that copy.
 3. Preset drafts are exported from the copy, one folder per minimum of lives:
-   database/presets/drafts_era<N>_min<k>/. A folder already there is left as it is (drafts get
+   database/drafts/era<N>_min<k>/. A folder already there is left as it is (drafts get
    edited after export), unless redo_drafts=yes.
 4. tools/classify_presets.gd rewrites database/presets/CATALOG.md for them.
-5. The drafts and the catalog are committed (database/presets/ only, nothing else).
+5. The drafts and the catalog are committed (database/drafts/ and CATALOG.md only, nothing else).
 6. era.json records the new era (number, label, when it started, at what simulated time).
 7. Evolution starts the new era (--new-era: genomes stay, their records start over; or --new: from
    scratch), detached, its console going to era<N+1>_<label>.log. The Tools tab shows it running.
@@ -36,7 +36,8 @@ if __package__ in (None, ""):  # Run as a file: tools/devtool/evolution.py
 
 from .tasks import GODOT, ROOT  # noqa: E402
 
-PRESETS_DIR = os.path.join(ROOT, "database", "presets")
+DRAFTS_DIR = os.path.join(ROOT, "database", "drafts")  # era<N>_min<k>/ folders
+CATALOG = "database/presets/CATALOG.md"
 ERA_FILE = "era.json"
 ERA_NAME = re.compile(r"^(?:drafts_)?era(\d+)_")
 MIN_LIVES = (10, 5)
@@ -83,12 +84,12 @@ def status(folder):
     return info
 
 
-def era(folder, presets_dir=PRESETS_DIR):
+def era(folder, drafts_dir=DRAFTS_DIR):
     """(number, label, guessed): era.json's, else the highest era<N> in the backups' and drafts' names."""
     info = read_json(os.path.join(folder, ERA_FILE))
     if isinstance(info, dict) and "era" in info:
         return int(info["era"]), str(info.get("label", "")), False
-    names = [os.path.basename(p) for p in glob.glob(os.path.join(folder, "backups", "*.sav")) + glob.glob(os.path.join(presets_dir, "drafts_*"))]
+    names = [os.path.basename(p) for p in glob.glob(os.path.join(folder, "backups", "*.sav")) + glob.glob(os.path.join(drafts_dir, "era*"))]
     found = [(int(m.group(1)), name) for name in names for m in [ERA_NAME.match(name)] if m]
     if not found:
         return 0, "", True
@@ -135,10 +136,10 @@ class NewEra:
     log)` starts the sim detached and returns its pid (both stand-ins in the tests)."""
 
     def __init__(self, folder, label, next_label, hours="20", speed="8", min_lives=MIN_LIVES, fresh=False,
-                 commit=True, start=True, number=None, redo_drafts=False, run=None, start_process=None, presets_dir=PRESETS_DIR, say=print):
+                 commit=True, start=True, number=None, redo_drafts=False, run=None, start_process=None, drafts_dir=DRAFTS_DIR, say=print):
         self.folder, self.label, self.next_label = folder, label, next_label
         self.hours, self.speed, self.min_lives, self.fresh = str(hours), str(speed), list(min_lives), fresh
-        self.commit, self.start, self.number, self.presets_dir = commit, start, number, presets_dir
+        self.commit, self.start, self.number, self.drafts_dir = commit, start, number, drafts_dir
         self.redo_drafts = redo_drafts
         self.run = run or (lambda command: subprocess.call(command, cwd=ROOT))
         self.start_process = start_process or start_detached
@@ -173,7 +174,7 @@ class NewEra:
         if not os.path.exists(save) or os.path.getsize(save) == 0:
             raise Step("no save at %s" % save)
         self.finish("stopped; the save is %d KB" % (os.path.getsize(save) // 1024))
-        number, _label, guessed = era(self.folder, self.presets_dir)
+        number, _label, guessed = era(self.folder, self.drafts_dir)
         if self.number is not None:
             number = int(self.number)
         if number <= 0:
@@ -193,8 +194,8 @@ class NewEra:
         self.step("3. Export preset drafts from the backup")
         folders = []
         for lives in self.min_lives:
-            out = "res://database/presets/drafts_era%d_min%d/" % (number, lives)
-            if os.path.isdir(os.path.join(self.presets_dir, "drafts_era%d_min%d" % (number, lives))) and not self.redo_drafts:
+            out = "res://database/drafts/era%d_min%d/" % (number, lives)
+            if os.path.isdir(os.path.join(self.drafts_dir, "era%d_min%d" % (number, lives))) and not self.redo_drafts:
                 self.finish("%s is there already (perhaps edited since): left as it is (redo_drafts=yes exports it again)"
                             % out.replace("res://", ""))
                 continue
@@ -202,7 +203,7 @@ class NewEra:
                                          "--out=" + out, "--clean"))
             if code != 0:
                 raise Step("export_presets (min %d lives) ended with %d" % (lives, code))
-            drafts = glob.glob(os.path.join(self.presets_dir, "drafts_era%d_min%d" % (number, lives), "**", "*.tres"), recursive=True)
+            drafts = glob.glob(os.path.join(self.drafts_dir, "era%d_min%d" % (number, lives), "**", "*.tres"), recursive=True)
             if not drafts:
                 raise Step("export_presets (min %d lives) wrote no drafts: no genome has flown that many lives?" % lives)
             folders.append(out.replace("res://", ""))
@@ -215,16 +216,17 @@ class NewEra:
 
         if self.commit:
             self.step("5. Commit the drafts and the catalog")
-            self.run(["git", "add", "--", "database/presets"])
-            if self.run(["git", "diff", "--cached", "--quiet", "--", "database/presets"]) == 0:
-                self.finish("nothing changed in database/presets: no commit")
+            paths = ["database/drafts", CATALOG]
+            self.run(["git", "add", "--"] + paths)
+            if self.run(["git", "diff", "--cached", "--quiet", "--"] + paths) == 0:
+                self.finish("nothing changed in the drafts or the catalog: no commit")
             else:
                 message = "Era %d preset drafts (%s) and catalog" % (number, self.label)
-                if self.run(["git", "commit", "-q", "-m", message, "--", "database/presets"]) != 0:
+                if self.run(["git", "commit", "-q", "-m", message, "--"] + paths) != 0:
                     raise Step("git commit failed")
                 self.finish("committed: " + message)
         else:
-            self.say("\n== 5. (not committing: commit database/presets yourself)")
+            self.say("\n== 5. (not committing: commit database/drafts and %s yourself)" % CATALOG)
 
         self.step("6. Record the new era")
         new_number = number + 1

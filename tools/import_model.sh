@@ -18,7 +18,10 @@
 # (or .glb). Start a model from assets/models/starters/.
 set -e
 cd "$(dirname "$0")/.."
-GODOT="${GODOT:-godot}"
+GODOT="${GODOT:-godot}"  # Godot 3.6 and Blender 3.6 (CONTENT.md, Getting started)
+if [ -z "$BLENDER" ]; then
+	if [ -e tools/blender ]; then BLENDER=tools/blender; else BLENDER=blender; fi
+fi
 STATION=""
 RATIO=0.7  # Hard-surface models fall apart under a steeper ratio
 LEVELS=3
@@ -34,14 +37,14 @@ MODEL="${1#res://}"
 [ -f "$MODEL" ] || { echo "No model file: $MODEL"; exit 1; }
 case "$MODEL" in
 	*.blend)
-		tools/blender -b "$MODEL" -P tools/export_blend.py | grep -E "^EXPORTED" || { echo "Export failed: $MODEL"; exit 1; }
+		"$BLENDER" -b "$MODEL" -P tools/export_blend.py | grep -E "^EXPORTED" || { echo "Export failed: $MODEL"; exit 1; }
 		MODEL="${MODEL%.blend}.glb"
 		;;
 esac
 if [ -z "$STATION" ]; then
 	LENGTH="$(sed -n 's/^const SHIP_MODEL_LENGTH = \([0-9.]*\).*/\1/p' src/autoload/Constants.gd)"
-	tools/blender -b -P tools/fit_length.py -- --length "$LENGTH" "$MODEL" | grep -E "^FIT" || { echo "Fit failed: $MODEL"; exit 1; }
-	tools/blender -b -P tools/generate_lods.py -- --levels "$LEVELS" --ratio "$RATIO" "$MODEL"
+	"$BLENDER" -b -P tools/fit_length.py -- --length "$LENGTH" "$MODEL" | grep -E "^FIT" || { echo "Fit failed: $MODEL"; exit 1; }
+	"$BLENDER" -b -P tools/generate_lods.py -- --levels "$LEVELS" --ratio "$RATIO" "$MODEL"
 fi
 for pass in 1 2; do  # The first pass finds the new files, the second imports them
 	"$GODOT" --no-window --editor --quit >/dev/null 2>&1 || true

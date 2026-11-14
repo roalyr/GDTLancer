@@ -10,6 +10,11 @@ const ShipModel = preload("res://src/scenes/game_world/models/ship_model.gd")
 const FX_MODELS_DIR = "res://assets/models/fx/"
 
 
+# A hull that never moves (the weapon platform's): it needs no engines.
+static func is_stationary(scene_path: String, root: Node) -> bool:
+	return scene_path == Constants.PLATFORM_HULL_SCENE or str(root.get("form")).begins_with("platform")
+
+
 static func ship_problems(scene_path: String) -> Array:
 	var problems: Array = []
 	var root: Spatial = _instance(scene_path, problems)
@@ -25,7 +30,8 @@ static func ship_problems(scene_path: String) -> Array:
 			if exhaust is Spatial:
 				engines.append(exhaust.transform)
 	if engines.empty():
-		problems.append("no engines: put an empty (or Position3D) named Engine at each nozzle")
+		if not is_stationary(scene_path, root):
+			problems.append("no engines: put an empty (or Position3D) named Engine at each nozzle")
 	else:
 		var aft := 0.0
 		for placed in engines:

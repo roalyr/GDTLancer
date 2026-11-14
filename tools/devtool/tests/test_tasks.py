@@ -26,6 +26,39 @@ class TasksTest(unittest.TestCase):
         for task in tasks.TASKS:
             self.assertTrue(task.title and task.group, task.key)
 
+    def test_groups_are_together_and_maintainer_tasks_last(self):
+        groups = [task.group for task in tasks.TASKS]
+        seen = []
+        for group in groups:
+            if not seen or seen[-1] != group:
+                self.assertNotIn(group, seen, "%s's tasks are listed together" % group)
+                seen.append(group)
+        self.assertEqual(seen[-1], tasks.MAINTAINER)
+        for key in ("new_era", "evolution", "release", "export_presets", "pick_archetypes"):
+            self.assertTrue(tasks.TASKS_BY_KEY[key].maintainer, key)
+        for key in ("tests", "validate", "import_model", "apply_laws", "classify_presets", "play", "apk"):
+            self.assertFalse(tasks.TASKS_BY_KEY[key].maintainer, key)
+        self.assertTrue(all(task.about for task in tasks.TASKS), "Every task says what it does")
+
+    def test_programs_missing_or_of_the_wrong_version_are_named_with_what_to_do(self):
+        godot, blender = tasks.GODOT, tasks.BLENDER
+        try:
+            tasks.GODOT = "no-such-godot-here"
+            tasks.godot_problem.cache_clear()
+            problem = tasks.godot_problem()
+            self.assertIn("Godot not found", problem)
+            self.assertIn("GODOT=", problem)
+            self.assertEqual(tasks.program_problem(["no-such-godot-here", "-e"]), problem)
+            self.assertEqual(tasks.program_problem(["python3", "x.py"]), "")
+            tasks.BLENDER = "/bin/echo"  # Runs, but says no Blender version
+            tasks.blender_problem.cache_clear()
+            self.assertIn("of an unknown version; the models need Blender 3.6", tasks.blender_problem())
+            self.assertIn("BLENDER=", tasks.blender_problem())
+        finally:
+            tasks.GODOT, tasks.BLENDER = godot, blender
+            tasks.godot_problem.cache_clear()
+            tasks.blender_problem.cache_clear()
+
     def test_missing_answers_are_named(self):
         task = tasks.TASKS_BY_KEY["check_model"]
         self.assertEqual(tasks.missing(task, {"scene": ""}), ["Scene"])

@@ -6,7 +6,7 @@ its origin: ship models can be made at any size, since the game sizes every ship
 length is left untouched. tools/import_model.sh runs this for ships before making the LODs.
 
 Usage:
-    tools/blender -b -P tools/fit_length.py -- --length 17 model.glb
+    $BLENDER -b -P tools/fit_length.py -- --length 17 model.glb
 """
 
 import argparse

@@ -2,9 +2,10 @@
 The development tool's menu (Textual): the project's content and its checks in one place.
 
     Overview   every content rule (ContentValidator), models to re-import, stale starters, sound
-               loops, data changed in git
+               loops, derived data out of date (part stats, archetypes, CATALOG.md: a, f, c fix
+               them), missing programs (Godot, Blender), data changed in git
     Models     every ship and station model: its files, who uses it, its check; import, open, review
-    Archetypes the fifteen designs side by side as the game flies them (fitted mass, speed, guns),
+    Archetypes the twenty designs side by side as the game flies them (fitted mass, speed, guns),
                their pilots' genes against evolution's ranges, and who flies each
     Factions   who is at war with whom (toggled in a matrix), each faction's roster and havens
     Parts      weapons, modules, commodities and the starting kit side by side, with who uses each
@@ -16,7 +17,8 @@ The development tool's menu (Textual): the project's content and its checks in o
                bodies, all named by the sector rules (SectorNames); each save is checked
     Constants  src/autoload/Constants.gd by section or by kind of value; values changed in place,
                Godot checks the script before it is saved
-    Tools      evolution, the APK and the newest outputs at a glance; every tool (tasks.py) to run
+    Tools      the APK and the newest outputs at a glance; every tool (tasks.py) to run; the
+               Maintainer group (evolution, releases, probes) and evolution's status on m
 
 Godot does the reading, writing and checking (bridge.py), so the files stay as Godot writes them.
 Keys are listed in the footer and on the help screen (?).
@@ -168,6 +170,16 @@ def write_text(path, text):
         handle.write(text)
 
 
+def catalog_stale():
+    """What database/presets/CATALOG.md and the preset labels lack (classify_presets --check; [] when current)."""
+    try:
+        out = subprocess.run(tasks.godot_script("tools/classify_presets.gd", "--", "--check"), cwd=tasks.ROOT,
+                             capture_output=True, text=True, timeout=300).stdout
+    except (OSError, subprocess.TimeoutExpired):
+        return []
+    return [line[len("CLASSIFY stale: "):] for line in out.splitlines() if line.startswith("CLASSIFY stale: ")]
+
+
 def plural(count, word):
     return "%d %s%s" % (count, word, "" if count == 1 else "s")
 
@@ -196,10 +208,12 @@ def age(path):
     return "just now"
 
 
-def tools_status(evolution_dir):
-    """Evolution, the APK and the newest outputs, as markup lines."""
+def tools_status(evolution_dir, maintainer=True):
+    """Evolution (with the maintainer tasks shown), the APK and the newest outputs, as markup lines."""
     lines = []
-    if evolution_dir is None:
+    if not maintainer:
+        lines.append("[dim]m shows the maintainer tasks (evolution, new eras, releases, probes) and evolution's status[/dim]")
+    elif evolution_dir is None:
         lines.append("[b]Evolution[/b]: (waiting for Godot to say where user:// is)")
     else:
         status_file = os.path.join(evolution_dir, "status.json")
@@ -1081,22 +1095,23 @@ HELP = """\
   Plain letters are a tab's own actions (only on tabs where nothing is typed); the footer lists them.
 
 [b]Tabs[/b]
-  1 Overview    every content rule, checked; enter opens a problem's file
+  1 Overview    every content rule, checked; enter opens a problem's file; a, f, c fix derived data
   2 Models      every ship, station and rock model: import (i), open in Blender (o), review sheet (s),
                 a placeholder's shape (c), a rock in the asteroid fields or out (f)
   3 Archetypes  the twenty designs as the game flies them; pilot genes against evolution's ranges;
                 d on one, then d on another: they duel
   4 Factions    wars (pick a cell, w), rosters (space ticks, ctrl+s), traffic, havens (enter: World)
-  5 World       a sector: its scene's bodies and belts, its layout's markers, on a map (top or side, filters);
-                new and copied sectors and bodies are named by the rules; ctrl+n on a sector with no layout makes one;
-                Economy: the open sector's market, routes timed for a ship, hulls' WP an hour, problems
-  6 Parts       weapons (w), modules (m), commodities (c), starting kits (k; p plays one), trade routes (t;
-                e: the highlighted route's sector's economy)
+  5 World       a sector: its scene's bodies and belts, its layout's markers, on a map (top or side,
+                filters); new and copied sectors and bodies are named by the rules; ctrl+n on a
+                sector with no layout makes one; Economy: its market, routes timed for a ship, problems
+  6 Parts       weapons (w), modules (m), commodities (c), starting kits (k; p plays one),
+                trade routes (t; e: the highlighted route's sector's economy)
   7 Look        shaders, faction paints, paint patterns, music; y syncs shader blocks
   8 Data        every data file in a form made from its script; delete removes one nothing names
   9 Constants   Constants.gd by section (or by kind, ctrl+g); ctrl+f finds
-  0 Tools       evolution, APK and outputs; every other tool (enter asks its questions and runs it);
-                g reviews the changes since the last commit and commits them
+  0 Tools       every other tool (enter asks its questions and runs it); the APK and outputs;
+                g reviews the changes since the last commit and commits them; m shows the
+                maintainer tasks and evolution (x stops it, n starts a new era)
 
 [b]Saving[/b]
   Godot writes every file and checks the content rules on each save: green means every rule holds,
@@ -1133,7 +1148,10 @@ class RunTable(DataTable):
 
 class OverviewPane(Vertical):
     BINDINGS = [Binding("ctrl+r", "app.check_all", "Check again"),
-                Binding("l", "app.fix_loops", "Fix sound loops")]
+                Binding("l", "app.fix_loops", "Fix sound loops"),
+                Binding("a", "app.fix('apply_laws')", "Apply laws"),
+                Binding("f", "app.fix('refit_archetypes')", "Refit archetypes"),
+                Binding("c", "app.fix('classify_presets')", "Rewrite catalog")]
 
     def compose(self) -> ComposeResult:
         yield Static("Starting Godot...", id="summary")
@@ -1412,7 +1430,8 @@ class ConstantsPane(Horizontal):
 
 
 class TasksPane(Vertical):
-    BINDINGS = [Binding("x", "app.stop_evolution", "Stop evolution"), Binding("n", "app.new_era", "New era"),
+    BINDINGS = [Binding("m", "app.toggle_maintainer", "Maintainer tasks"),
+                Binding("x", "app.stop_evolution", "Stop evolution"), Binding("n", "app.new_era", "New era"),
                 Binding("g", "app.review_changes", "Review and commit"),
                 Binding("o", "app.open_output", "Open newest output"),
                 Binding("ctrl+r", "app.refresh_status", "Refresh")]
@@ -1449,9 +1468,15 @@ class DevApp(App):
     #problems, #models, #tasks { height: 1fr; }
     """
 
-    def __init__(self, bridge_factory=Bridge, constants_path=constants.PATH):
+    def __init__(self, bridge_factory=Bridge, constants_path=constants.PATH, outside_checks=None):
         super().__init__()
         self.bridge_factory, self.bridge = bridge_factory, None
+        # The checks that run programs of their own (Godot's and Blender's versions, the catalog): with
+        # the real bridge only, unless asked (the tests' stand-in bridges skip them)
+        self.outside_checks = (bridge_factory is Bridge) if outside_checks is None else outside_checks
+        self.setup = []  # What is missing to run the tools (tasks.setup_problems)
+        self.maintainer = False  # The Tools tab shows the Maintainer tasks and evolution (m)
+        self.catalog = None  # What CATALOG.md lacks (catalog_stale); None: not checked yet
         self.model_rows = []
         self.problems = []
         self.open_file = None
@@ -1513,8 +1538,10 @@ class DevApp(App):
         self.query_one(TabbedContent).active = TABS[index]
 
     def check_action(self, action, parameters):
-        """Typing a digit, q or ? into a field types it."""
+        """Typing a digit, q or ? into a field types it. Evolution's keys are there with the maintainer tasks only."""
         if action in ("tab", "quit", "help") and isinstance(self.focused, (Input, TextArea)):
+            return False
+        if action in ("stop_evolution", "new_era") and not self.maintainer:
             return False
         return True
 
@@ -1542,7 +1569,9 @@ class DevApp(App):
             self.bridge = self.bridge_factory()
             version = self.bridge.call("ping")["godot"]
         except (BridgeError, OSError) as error:
-            self.call_from_thread(self._set_summary, "[red]Godot did not start:[/red] %s" % error)
+            problem = tasks.godot_problem()
+            self.call_from_thread(self._set_summary, "[red]Godot did not start.[/red] %s" % escape(problem or str(error))
+                                  + "\n(CONTENT.md, Getting started; then restart the tool)")
             self.call_from_thread(self._godot_status, "Godot did not start")
             return
         self.call_from_thread(self._godot_status, "Godot %s" % version)
@@ -1633,6 +1662,10 @@ class DevApp(App):
                 problems.append((section, "", "Check failed: %s" % error))
         changed = self._git_changes()
         self.call_from_thread(self._show_problems, problems, changed)
+        if self.outside_checks:
+            self.setup = tasks.setup_problems()
+            self.catalog = catalog_stale()
+            self.call_from_thread(self._show_problems, problems, changed)
 
     @staticmethod
     def _git_changes():
@@ -1667,6 +1700,15 @@ class DevApp(App):
             lines.append("[yellow]Sounds that loop wrong for their slot:[/yellow] l sets their import loop setting")
         if self._starters_stale():
             lines.append("[yellow]The material library changed since the starter .blends were built:[/yellow] Tools: starters")
+        if any("run apply_laws" in problem for _, _, problem in problems):
+            lines.append("[yellow]Part stats are not what their law genes give:[/yellow] a runs apply_laws (edit law_genes, not the stats)")
+        if any("refit_archetypes" in problem for _, _, problem in problems):
+            lines.append("[yellow]Archetypes are not what their genomes give:[/yellow] f runs refit_archetypes")
+        if self.catalog:
+            lines.append("[yellow]database/presets/CATALOG.md is out of date[/yellow] (%s): c rewrites it" % escape(
+                ", ".join(self.catalog[:2]) + (" ..." if len(self.catalog) > 2 else "")))
+        for problem in self.setup:
+            lines.append("[red]Setup:[/red] " + escape(problem))
         lines.append("Content changed since the last commit: %s%s" % (plural(len(changed), "file"),
                                                                     (": " + ", ".join(changed[:6]) + (" ..." if len(changed) > 6 else "")) if changed else ""))
         self._set_summary("\n".join(lines))
@@ -1698,6 +1740,10 @@ class DevApp(App):
 
     def action_fix_loops(self):
         self.run_task(tasks.TASKS_BY_KEY["fix_loops"], {})
+
+    def action_fix(self, key):
+        """A task that puts derived data right (apply_laws, refit_archetypes, classify_presets); the check runs again after."""
+        self.run_task(tasks.TASKS_BY_KEY[key], {})
 
     # --- Models ---
 
@@ -2503,25 +2549,35 @@ class DevApp(App):
             path = "res://" + os.path.relpath(scene, tasks.ROOT)[:-len(".tscn")] + "_layout.tscn"
             label = sector if os.path.exists(file_path(path)) else "%s  [dim]no layout[/dim]" % sector
             tree.root.add(label, data={"sector": sector, "path": path, "node": "."}, expand=False, allow_expand=True)
+        scened = {os.path.basename(os.path.dirname(scene)) for scene in sector_scenes()}
+        for location in sorted(glob.glob(os.path.join(tasks.ROOT, "database/registry/locations/*.tres"))):
+            sector = os.path.basename(location)[:-len(".tres")]
+            if sector not in scened:  # A sector in the graph with no scene yet: its Location file only
+                tree.root.add_leaf("%s  [dim]no scene: a Location only (enter: Data)[/dim]" % sector,
+                                   data={"location": "res://" + os.path.relpath(location, tasks.ROOT)})
 
     def _open_first_sector(self):
         tree = self.query_one("#world-tree", Tree)
-        laid_out = [child for child in tree.root.children if os.path.exists(file_path(child.data["path"]))]
+        laid_out = [child for child in tree.root.children if "path" in child.data and os.path.exists(file_path(child.data["path"]))]
         home = [child for child in laid_out if child.data["sector"] == home_sector()]
-        if tree.root.children:
-            info = (home or laid_out or tree.root.children)[0].data  # The game's home, else a sector with a layout
+        scened = [child for child in tree.root.children if "path" in child.data]
+        if scened:
+            info = (home or laid_out or scened)[0].data  # The game's home, else a sector with a layout
             self.load_sector(info["sector"], info["path"], info["node"])
 
     @on(Tree.NodeExpanded, "#world-tree")
     def _world_expanded(self, event):
         info = event.node.data or {}
-        if info and self.world.get("sector") != info["sector"]:
+        if info and "sector" in info and self.world.get("sector") != info["sector"]:
             self.load_sector(info["sector"], info["path"], ".")
 
     @on(Tree.NodeSelected, "#world-tree")
     def _world_picked(self, event):
         info = event.node.data or {}
         if not info:
+            return
+        if "location" in info:
+            self.open_in_data(info["location"])
             return
         if self.world.get("sector") != info["sector"]:
             self.load_sector(info["sector"], info["path"], info["node"])
@@ -2548,7 +2604,7 @@ class DevApp(App):
         self.world = {"sector": sector, "path": path, "nodes": {node["node"]: node for node in nodes}, "map": items, "picked": ".",
                       "scene": self._sector_scene(path), "things": list(things)}
         tree = self.query_one("#world-tree", Tree)
-        sector_node = next((child for child in tree.root.children if child.data["sector"] == sector), None)
+        sector_node = next((child for child in tree.root.children if child.data.get("sector") == sector), None)
         if sector_node is None:  # Made after the tree was filled
             sector_node = tree.root.add(sector, data={"sector": sector, "path": path, "node": "."}, expand=False, allow_expand=True)
         sector_node.remove_children()
@@ -3017,7 +3073,14 @@ class DevApp(App):
         return os.path.join(self.user_dir, "evolution") if self.user_dir else None
 
     def _show_status(self):
-        self.query_one("#tools-status", Static).update(tools_status(self._evolution_dir()))
+        self.query_one("#tools-status", Static).update(tools_status(self._evolution_dir(), self.maintainer))
+
+    def action_toggle_maintainer(self):
+        self.maintainer = not self.maintainer
+        self._fill_tasks()
+        self._show_status()
+        self.refresh_bindings()
+        self.notify("Maintainer tasks shown (docs/MAINTAINING.md)" if self.maintainer else "Maintainer tasks hidden")
 
     def action_refresh_status(self):
         self._show_status()
@@ -3050,8 +3113,10 @@ class DevApp(App):
 
     def _fill_tasks(self):
         table = self.query_one("#tasks", DataTable)
+        table.clear()
         for task in tasks.TASKS:
-            table.add_row(task.group, task.title, task.key, key=task.key)
+            if self.maintainer or not task.maintainer:
+                table.add_row(task.group, task.title, task.key, key=task.key)
 
     @on(DataTable.RowHighlighted, "#tasks")
     def _show_task(self, event):

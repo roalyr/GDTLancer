@@ -9,6 +9,7 @@
 extends Reference
 
 const PartCatalog = preload("res://src/core/systems/part_catalog.gd")
+const ShipLaws = preload("res://src/core/systems/ship_laws.gd")
 const ModelCheck = preload("res://src/scenes/game_world/models/model_check.gd")
 const SectorNames = preload("res://src/core/validation/sector_names.gd")
 const SoundBank = preload("res://src/core/sound/sound_bank.gd")
@@ -24,6 +25,8 @@ const ANY_COMMODITY = "*"
 const MATERIALS_DIR = "res://assets/art/materials_generic/"
 const MATERIAL_SHADERS = ["res://assets/art/shaders/solid.gdshader", "res://assets/art/shaders/glow.gdshader"]
 const BEACON_KINDS = ["patrol", "field", "landmark", "entry"]
+# A part whose stats are not what its law_genes give (ShipLaws.stale_fields).
+const LAWS_STALE = "%s not what its law_genes give: change law_genes, not the stats, then run apply_laws (Tools)"
 
 
 static func all() -> Array:
@@ -315,6 +318,9 @@ static func parts(dir_path: String = Constants.PARTS_DIR) -> Array:
 			out.append(_problem(path, "Its name is '%s', not '%s'" % [name, PartCatalog.name(kind, part_type)]))
 		if kind != "harpoon" and (part.get("law_genes") == null or part.law_genes.empty()):
 			out.append(_problem(path, "No law_genes: the part's genes, which evolution and apply_laws read"))
+		var stale: Array = ShipLaws.stale_fields(part)
+		if not stale.empty():
+			out.append(_problem(path, LAWS_STALE % PoolStringArray(stale).join(", ")))
 	for template_id in expected:
 		out.append(_problem(dir_path.plus_file(template_id + ".tres"), "Missing: every kind comes light, medium and heavy"))
 	if dir_path == Constants.PARTS_DIR:
@@ -342,6 +348,7 @@ static func archetypes() -> Array:
 			for part in ship.equipped_tools + ship.equipped_modules:
 				if not PartCatalog.has(part):
 					out.append(_problem(ship_path, "Part '%s' is not the catalogue's (%s)" % [part, Constants.PARTS_DIR]))
+			out += archetype_stale(ship, agent, ship_path)
 			var words: Array = archetype.split("_")
 			if words.size() == 2 and ship.ship_model_name != PartCatalog.hull_name(words[0], words[1]):
 				out.append(_problem(ship_path, "Its name is '%s', not '%s'" % [ship.ship_model_name, PartCatalog.hull_name(words[0], words[1])]))
@@ -350,10 +357,29 @@ static func archetypes() -> Array:
 				if part.empty() or part.kind == "harpoon":
 					continue
 				if PartCatalog.genes(part.kind, int(part.type)).hash() != part.genes.hash():
-					out.append(_problem(path, "Its genome's %s %s is not the catalogue's (its genes differ)" % [PartCatalog.weight_name(int(part.type)), part.kind]))
+					out.append(_problem(path, "Its genome's %s %s is not the catalogue's (its genes differ): run refit_archetypes (Tools)" % [PartCatalog.weight_name(int(part.type)), part.kind]))
 		if not _exists(Constants.PLACEHOLDER_HULLS_DIR.plus_file(archetype + ".tscn")):
 			out.append(_problem(path, "No placeholder hull %s" % Constants.PLACEHOLDER_HULLS_DIR.plus_file(archetype + ".tscn")))
 	return out
+
+
+# An archetype's ship against its pilot's genome, as refit_archetypes writes it: the hull genes are
+# the genome's and the stats are what they give (ShipLaws.ship_stats).
+static func archetype_stale(ship: Resource, agent: Resource, ship_path: String) -> Array:
+	var genes: Dictionary = agent.genome.get("ship", {})
+	if genes.empty():
+		return []
+	if not ShipLaws.same_value(ship.law_genes, genes):
+		return [_problem(ship_path, "Its law_genes are not its pilot's genome's hull genes: run refit_archetypes (Tools)")]
+	var stale: Array = []
+	var stats: Dictionary = ShipLaws.ship_stats(genes)
+	for field in stats:
+		if not ShipLaws.same_value(ship.get(field), stats[field]):
+			stale.append(field)
+	if stale.empty():
+		return []
+	return [_problem(ship_path, "%s differ%s from what its genome's hull genes give: change the genome, not the stats, then run refit_archetypes (Tools)" % [
+		PoolStringArray(stale).join(", "), "s" if stale.size() == 1 else ""])]
 
 
 # --- Models in use ---

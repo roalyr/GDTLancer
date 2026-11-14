@@ -29,6 +29,26 @@ func test_archetypes_are_complete():
 	assert_eq(_texts(Validator.archetypes()), [])
 
 
+# Stats come from genes (apply_laws, refit_archetypes): a stat edited by hand, or genes edited without
+# the tool that applies them, is caught and the problem names the tool.
+func test_stats_off_their_genes_are_caught():
+	assert_eq(_texts(Validator.parts()), [], "The catalogue follows its laws")
+	var part = load(Constants.PARTS_DIR.plus_file("preset_laser_medium.tres")).duplicate()
+	part.damage += 5.0
+	assert_eq(Validator.ShipLaws.stale_fields(part), ["damage"], "A stat edited by hand")
+	Validator.ShipLaws.reapply(part)
+	assert_eq(Validator.ShipLaws.stale_fields(part), [], "apply_laws puts it back")
+	var agent = load(Validator._archetype_agent_path("fighter_light")).duplicate()
+	var ship = load(Constants.ARCHETYPES_DIR.plus_file(agent.ship_template_id + ".tres")).duplicate()
+	assert_eq(Validator.archetype_stale(ship, agent, "ship"), [], "An archetype follows its genome")
+	ship.hull_integrity += 10.0
+	var problems: Array = Validator.archetype_stale(ship, agent, "ship")
+	assert_eq(problems.size(), 1)
+	assert_string_contains(problems[0].problem, "refit_archetypes")
+	ship.law_genes = {"type": 1, "size": 9.0, "shares": {}}
+	assert_string_contains(Validator.archetype_stale(ship, agent, "ship")[0].problem, "law_genes are not its pilot's genome's")
+
+
 # Every ship and station model the game flies or places keeps the model rules (ModelCheck).
 func test_every_model_in_use_keeps_the_rules():
 	var used: Dictionary = Validator.models_in_use()

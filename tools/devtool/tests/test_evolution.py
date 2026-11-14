@@ -22,7 +22,7 @@ class Runs:
         if self.fail and self.fail in text:
             return 1
         if "export_presets.gd" in text:
-            out = next(arg for arg in command if arg.startswith("--out=")).split("res://database/presets/", 1)[1]
+            out = next(arg for arg in command if arg.startswith("--out=")).split("res://database/drafts/", 1)[1]
             os.makedirs(os.path.join(self.presets_dir, out, "archetypes"), exist_ok=True)
             open(os.path.join(self.presets_dir, out, "archetypes", "preset_x.tres"), "w").close()
         if command[:3] == ["git", "diff", "--cached"]:
@@ -38,9 +38,9 @@ class NewEraTest(unittest.TestCase):
     def setUp(self):
         self.scratch = tempfile.TemporaryDirectory()
         self.folder = os.path.join(self.scratch.name, "evolution")
-        self.presets = os.path.join(self.scratch.name, "presets")
+        self.presets = os.path.join(self.scratch.name, "drafts")  # database/drafts/
         os.makedirs(os.path.join(self.folder, "backups"))
-        os.makedirs(os.path.join(self.presets, "drafts_era50_min10"))
+        os.makedirs(os.path.join(self.presets, "era50_min10"))
         with open(os.path.join(self.folder, "save_0.sav"), "wb") as handle:
             handle.write(b"evolution" * 100)
         open(os.path.join(self.folder, "backups", "era51_freeze_h20_20261104.sav"), "w").close()
@@ -50,7 +50,7 @@ class NewEraTest(unittest.TestCase):
         self.scratch.cleanup()
 
     def flow(self, runs, **options):
-        settings = dict(label="freeze", next_label="fuel", presets_dir=self.presets, run=runs.run, start_process=runs.start, say=lambda text: None)
+        settings = dict(label="freeze", next_label="fuel", drafts_dir=self.presets, run=runs.run, start_process=runs.start, say=lambda text: None)
         settings.update(options)
         return evolution.NewEra(self.folder, **settings)
 
@@ -84,11 +84,11 @@ class NewEraTest(unittest.TestCase):
         exports = [text for text in texts if "export_presets.gd" in text]
         self.assertEqual(len(exports), 2)
         self.assertIn("--save=" + backup, exports[0], "Drafts come from the checked copy, not the live save")
-        self.assertIn("--out=res://database/presets/drafts_era51_min10/", exports[0])
+        self.assertIn("--out=res://database/drafts/era51_min10/", exports[0])
         self.assertIn("--min-lives=5", exports[1])
         self.assertLess(texts.index(exports[1]), [i for i, t in enumerate(texts) if "classify_presets" in t][0])
         commit = next(command for command in runs.commands if command[:2] == ["git", "commit"])
-        self.assertEqual(commit[-2:], ["--", "database/presets"], "Commits only the presets")
+        self.assertEqual(commit[-3:], ["--", "database/drafts", "database/presets/CATALOG.md"], "Commits only the drafts and the catalog")
         self.assertIn("Era 51 preset drafts (freeze)", " ".join(commit))
         era = json.load(open(os.path.join(self.folder, "era.json")))
         self.assertEqual((era["era"], era["label"], era["game_time"]), (52, "fuel", 72000.0))
@@ -121,9 +121,9 @@ class NewEraTest(unittest.TestCase):
         self.assertTrue(any(n.endswith("_2.sav") for n in names))
 
     def test_drafts_already_there_are_left_unless_asked(self):
-        os.makedirs(os.path.join(self.presets, "drafts_era51_min5"))
-        os.makedirs(os.path.join(self.presets, "drafts_era51_min10"))
-        open(os.path.join(self.presets, "drafts_era51_min5", "edited.tres"), "w").close()
+        os.makedirs(os.path.join(self.presets, "era51_min5"))
+        os.makedirs(os.path.join(self.presets, "era51_min10"))
+        open(os.path.join(self.presets, "era51_min5", "edited.tres"), "w").close()
         runs = Runs(self.presets)
         self.assertEqual(self.flow(runs, start=False).go(), 0)
         self.assertFalse(any("export_presets" in " ".join(c) for c in runs.commands), "Both folders exist: no export")

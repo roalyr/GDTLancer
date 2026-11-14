@@ -29,7 +29,7 @@ const PRUNE_EVERY = 1000  # ms between sweeps of the bookkeeping below
 const PRUNE_AGE = 5000  # ms: a slot's last play older than this is forgotten (longer than any repeat gap)
 const POWER_EMPTY_SHARE = 0.01  # The player's power at or below this share of full: run out
 
-export(Resource) var bank = null
+export(Resource) var bank = null  # The sound bank it plays (database/sounds/sound_bank.tres)
 
 var _listener: Listener = null
 var _voices: Array = []  # [player, free at (ms)]
