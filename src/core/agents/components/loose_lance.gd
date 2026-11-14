@@ -3,7 +3,8 @@
 # It passes for a wreck holding just the lance: brackets show it, a harpoon tows it and takes the
 # lance back into a seat it fits (LanceController.recover_from), and salvagers short of lances look
 # for it; a ship with a seat it fits also scoops it up by coming close and slow (Constants
-# LANCE_SCOOP_*: an approach does it). It touches nothing (no collision): it is pulled out of a rock
+# LANCE_SCOOP_*: an approach does it), but not while its lance is armed: a ship throwing at a rock
+# from close by would scoop each lance out of the face and throw it again, on and on. It touches nothing (no collision): it is pulled out of a rock
 # as easily as picked up.
 # Recovered, it is gone; AgentSystem clears the oldest past Constants.LANCE_LOOSE_MAX.
 
@@ -68,6 +69,8 @@ func _physics_process(delta: float) -> void:
 func can_be_scooped_by(ship) -> bool:
 	if ship == self or not (ship is RigidBody) or ship.get("is_wreck") != false or ship.get("is_docked") or not ship.has_method("get_lances"):
 		return false
+	if ship.has_method("are_lances_armed") and ship.are_lances_armed():
+		return false  # Throwing: it takes them up once the lance is safe
 	if ship.global_transform.origin.distance_to(global_transform.origin) > Constants.LANCE_SCOOP_RANGE:
 		return false
 	return (ship.linear_velocity - linear_velocity).length() <= Constants.LANCE_SCOOP_SPEED and recoverable_lances_for(ship) > 0

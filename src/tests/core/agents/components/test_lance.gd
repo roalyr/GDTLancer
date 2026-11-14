@@ -142,6 +142,21 @@ func test_a_loose_lance_is_scooped_up_by_a_ship_close_and_slow():
 	assert_true(get_tree().get_nodes_in_group("loose_lance").empty(), "Gone from space")
 
 
+# A ship throwing (armed) scoops nothing: in a charge at a rock from close by it would take each lance
+# out of the face and throw it again, on and on. Safe, it takes them up.
+func test_an_armed_ship_does_not_scoop_its_lances_back():
+	lance.nails -= 1  # Thrown
+	var loose = lance.drop_lance(thrower.global_transform.origin + Vector3(0, 0, -10.0), Vector3.ZERO)
+	thrower.linear_velocity = Vector3.ZERO
+	thrower.set_lances_armed(true)
+	assert_false(loose.can_be_scooped_by(thrower), "Armed: left where it is")
+	loose._physics_process(Constants.LANCE_SCOOP_INTERVAL)
+	assert_eq(lance.nails, int(lance.lance.count) - 1, "still thrown")
+	thrower.set_lances_armed(false)
+	assert_true(loose.can_be_scooped_by(thrower), "Safe: scooped up")
+	loose.free()
+
+
 func test_the_players_lances_disarm_after_a_throw():
 	thrower.set_lances_armed(true)
 	thrower._on_player_lance_launched(target)

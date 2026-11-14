@@ -782,3 +782,34 @@ func test_simple_tether_rope_is_a_straight_line():
 		tether._physics_process(0.1)
 	assert_gt(tether._rope.points.size(), 2, "Complex again: simulated")
 	Settings.reset_to_defaults()
+
+
+# A tether whose bodies are drawn off their physics places by fixed shifts (as physics
+# interpolation draws them between steps).
+class ShiftedTether:
+	extends "res://src/core/agents/components/tether.gd"
+	var shifts := {}
+
+	func _drawn_shift(body: Spatial, _point: Vector3) -> Vector3:
+		return shifts.get(body, Vector3.ZERO)
+
+
+# The cable is drawn where the bodies are drawn (physics interpolation): its ends carried with each
+# body, the points between by their share along it, so the ship's end does not jitter at each step.
+func test_the_drawn_cable_follows_the_drawn_bodies():
+	var a = RigidBody.new()
+	var b = RigidBody.new()
+	add_child_autofree(a)
+	add_child_autofree(b)
+	b.global_transform.origin = Vector3(0, 0, -100)
+	var tether = ShiftedTether.new()
+	tether.setup(a, b, 100.0, 30.0, 15.0)
+	add_child_autofree(tether)
+	tether.shifts = {a: Vector3(2, 0, 0), b: Vector3(0, 4, 0)}
+	var points: Array = [Vector3.ZERO, Vector3(0, 0, -50), Vector3(0, 0, -100)]
+	var drawn: Array = tether.drawn_points(points)
+	assert_eq(drawn[0], Vector3(2, 0, 0), "The ship's end with the ship")
+	assert_eq(drawn[1], Vector3(1, 2, -50), "the middle half and half")
+	assert_eq(drawn[2], Vector3(0, 4, -100), "the far end with what it tows")
+	tether.launching = true
+	assert_eq(tether.drawn_points(points)[2], Vector3(0, 0, -100), "A flying hook's end moves with nothing")

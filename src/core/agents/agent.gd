@@ -535,6 +535,14 @@ func get_lance_nails() -> int:
 	return total
 
 
+# Whether any of its launchers is armed.
+func are_lances_armed() -> bool:
+	for lance in get_lances():
+		if lance.armed:
+			return true
+	return false
+
+
 # Arms or makes safe all its launchers.
 func set_lances_armed(on: bool) -> void:
 	for lance in get_lances():

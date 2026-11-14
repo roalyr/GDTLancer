@@ -878,7 +878,8 @@ static func is_chargeable(target) -> bool:
 
 
 # Arming the lance turns an approach into a charge; making it safe turns it back. Running out ends the
-# charge: the ship flies on as it goes after its last throw (drag slows it), the pilot's to fly.
+# charge and makes the lance safe: the ship flies on as it goes after its last throw (drag slows it),
+# the pilot's to fly.
 func _sync_charge_command() -> void:
 	var nav = agent_body.get_node_or_null("NavigationSystem") if is_instance_valid(agent_body) else null
 	if not is_instance_valid(nav):
@@ -893,6 +894,8 @@ func _sync_charge_command() -> void:
 		var lance = agent_body.get_lance() if agent_body.has_method("get_lance") else null
 		if lance != null and lance.armed:
 			agent_script.command_idle()  # The last lance thrown: the charge is over, it flies on as it goes
+			if agent_body.get_lance_nails() <= 0:
+				agent_body.set_lances_armed(false)  # Nothing left to throw: safe, so it scoops its lances back up
 		else:
 			agent_script.command_approach(target, true)
 

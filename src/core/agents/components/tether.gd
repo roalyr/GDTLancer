@@ -11,7 +11,8 @@
 # cable in at Constants.TETHER_RETRACT_SPEED; the node frees itself once it is all in, and the
 # harpoon cannot fire again until then (ToolController.is_retracting).
 # Looks: a TetherRope drawn as a smooth camera-facing ribbon, brighter and thinner under strain,
-# with the hook (scenes/prefabs/effects/harpoon_hook.tscn) at its end. Far from the camera the
+# with the hook (scenes/prefabs/effects/harpoon_hook.tscn) at its end, drawn where the bodies are
+# drawn (drawn_points: physics interpolation). Far from the camera the
 # rope is not simulated and is drawn straight; with Settings "tether_rope" "simple" no cable is
 # simulated and each is a straight line (two points). Child of the holder's ToolController.
 
@@ -268,7 +269,7 @@ func _process(delta: float) -> void:
 	if _rope.points.size() < 2 or camera == null or not is_instance_valid(holder) or not (retracting or launching or is_valid()):
 		return
 	var near: bool = _is_near_camera()
-	var points: Array = TetherRope.smooth_points(_rope.points, Constants.TETHER_RENDER_SUBDIVISIONS) if near else _rope.points
+	var points: Array = TetherRope.smooth_points(drawn_points(_rope.points), Constants.TETHER_RENDER_SUBDIVISIONS) if near else drawn_points(_rope.points)
 	var eye: Vector3 = camera.global_transform.origin
 	var half_width: float = Constants.TETHER_CABLE_WIDTH * 0.5 * (1.0 - Constants.TETHER_STRAIN_THINNING * strain)
 	var shiver: float = Constants.TETHER_SHIVER_AMPLITUDE * strain * strain
@@ -288,6 +289,34 @@ func _process(delta: float) -> void:
 		_cable.add_vertex(point + side * half_width)
 	_cable.end()
 	_place_hook(points[last], points[last] - points[max(last - 1, 0)])
+
+
+# The rope's points (worked out in physics steps) where they are drawn this frame: with physics
+# interpolation the bodies are drawn between their last two steps, so the ends are carried with the
+# holder's and the towed body's drawn places (Interp), and the points between by their share along
+# the rope. Without it, the points as they are. A free end (launching, winched in) moves with nothing.
+func drawn_points(points: Array) -> Array:
+	if not Interp.enabled() or points.size() < 2 or not is_instance_valid(holder):
+		return points
+	var from_shift: Vector3 = _drawn_shift(holder, points[0])
+	var to_shift := Vector3.ZERO
+	if not (launching or retracting) and is_instance_valid(towed):
+		to_shift = _drawn_shift(towed, points[points.size() - 1])
+	if from_shift == Vector3.ZERO and to_shift == Vector3.ZERO:
+		return points
+	var out: Array = []
+	var last: int = points.size() - 1
+	for i in range(points.size()):
+		var share: float = float(i) / float(last)
+		out.append(points[i] + from_shift * (1.0 - share) + to_shift * share)
+	return out
+
+
+# How far `point`, fixed to `body`, is drawn from where the physics put it.
+func _drawn_shift(body: Spatial, point: Vector3) -> Vector3:
+	if not body.is_inside_tree():
+		return Vector3.ZERO
+	return Interp.transform(body).xform(body.global_transform.affine_inverse().xform(point)) - point
 
 
 # The hook sits at the cable's end, pointing along it: into the target while attached, outward
