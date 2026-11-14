@@ -410,8 +410,17 @@ func _on_tool_deactivated(index: int, reason: String) -> void:
 		return
 	if reason == "empty":
 		EventBus.emit_signal("attack_action_feedback", false, _empty_message(tool_template))
+	elif tool_template.tool_type == "harpoon" and reason == "stripped":
+		EventBus.emit_signal("attack_action_feedback", true, stripped_message(_tool_controller.get_stripped(index)))
 	elif tool_template.tool_type == "harpoon" and HARPOON_RELEASES.has(reason):
 		EventBus.emit_signal("attack_action_feedback", HARPOON_RELEASES[reason][0], HARPOON_RELEASES[reason][1])
+
+
+# What a harpoon that let go of a stripped wreck or chunk says: what this tow brought into the hold.
+static func stripped_message(units: int) -> String:
+	if units <= 0:
+		return "Harpoon: nothing left to strip, cable released"
+	return "Harpoon: stripped clean, %d unit%s into the hold, cable released" % [units, "" if units == 1 else "s"]
 
 
 func _on_hold_full(_index: int) -> void:

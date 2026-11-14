@@ -60,6 +60,7 @@ var _ammo: Dictionary = {}  # tool_index -> rounds left, for tools with a magazi
 var _capacity: Dictionary = {}  # tool_index -> rounds its magazine holds, bays included
 var _in_flight: Array = []  # Missiles launched and still flying
 var _held: Dictionary = {}  # tool_index -> s before it looks again at a rock or friend that held its fire
+var _stripped: Dictionary = {}  # Harpoon index -> salvage units it has stripped since it was launched
 
 
 func _ready() -> void:
@@ -333,6 +334,11 @@ func activate(index: int, target: Node) -> Dictionary:
 		_cycle_timers[index] = 0.0
 	emit_signal("tool_activated", index, target)
 	return {"success": true}
+
+
+# Salvage units the harpoon at `index` stripped into the hold since it was last launched.
+func get_stripped(index: int) -> int:
+	return int(_stripped.get(index, 0))
 
 
 func deactivate(index: int, reason: String = "manual") -> void:
@@ -748,7 +754,7 @@ func _process_harpoon(index: int, target: Node) -> void:
 	else:
 		var taken: Dictionary = target.take_salvage(1)
 		for commodity_id in taken:
-			_agent_body.add_cargo(commodity_id, taken[commodity_id])
+			_stripped[index] = int(_stripped.get(index, 0)) + _agent_body.add_cargo(commodity_id, taken[commodity_id])
 		if not taken.empty():
 			emit_signal("salvage_stripped", index, taken)
 	if target.get_salvage_units() <= 0 and not (target.has_method("recoverable_lances_for") and target.recoverable_lances_for(_agent_body) > 0) \
@@ -772,6 +778,7 @@ func _launch_harpoon(index: int, target: Node, tool_template) -> void:
 	)
 	add_child(tether)
 	_tethers[index] = tether
+	_stripped[index] = 0
 	_cycle_timers[index] = tool_template.strip_interval
 	emit_signal("tool_cycled", index, target, 1.0, 0.0)
 

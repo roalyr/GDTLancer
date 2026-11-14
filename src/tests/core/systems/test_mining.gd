@@ -204,3 +204,40 @@ func test_chunk_models_are_low_poly():
 				triangles += node.mesh.get_faces().size() / 3
 		model.free()
 		assert_true(triangles > 0 and triangles <= Constants.MINING_CHUNK_TRIANGLES_MAX, "%s: %d triangles" % [path, triangles])
+
+
+# A one-unit chunk: the harpoon strips its unit into the hold and lets go saying so; the bare chunk
+# is gone, so there is nothing left to harpoon again.
+func test_a_one_unit_chunk_is_stripped_whole_and_goes():
+	var OreChunkScript = load("res://src/scenes/game_world/celestial/ore_chunk.gd")
+	var PlayerController = load("res://src/modules/piloting/player_controller_ship.gd")
+	var chunk = OreChunkScript.new()
+	chunk.setup({Constants.MINING_DEPOSIT: 1}, null, 1.0)
+	add_child(chunk)
+	chunk.crust = 0.0
+	chunk.heat = 0.0
+	miner.ship_template = ShipTemplate.new()
+	miner.cargo_capacity = 10
+	var tools = ToolControllerScript.new()
+	tools.name = "ToolController"
+	miner.add_child(tools)
+	var harpoon = UtilityToolTemplate.new()
+	harpoon.tool_type = "harpoon"
+	tools.set_tools([harpoon])
+	tools._targets[0] = chunk
+	tools._stripped[0] = 0
+	var stub := GDScript.new()  # A cable already reeled in
+	stub.source_code = "extends Node\nvar retracting = false\nvar launching = false\nvar snapped = false\nfunc is_reeled_in(): return true\nfunc start_retract(): retracting = true\n"
+	stub.reload()
+	var tether = Node.new()
+	tether.set_script(stub)
+	add_child_autofree(tether)
+	tools._tethers[0] = tether
+	watch_signals(tools)
+	tools._process_harpoon(0, chunk)
+	assert_eq(miner.get_cargo_units(), 1, "The unit is in the hold")
+	assert_signal_emitted_with_parameters(tools, "tool_deactivated", [0, "stripped"])
+	assert_eq(tools.get_stripped(0), 1)
+	assert_string_contains(PlayerController.stripped_message(tools.get_stripped(0)), "1 unit into the hold")
+	yield(get_tree(), "idle_frame")
+	assert_false(is_instance_valid(chunk) and not chunk.is_queued_for_deletion(), "Stripped bare, the chunk is gone")

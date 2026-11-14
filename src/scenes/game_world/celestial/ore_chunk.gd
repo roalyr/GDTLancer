@@ -3,7 +3,7 @@
 # it the same way (it is in the agent_body group with is_wreck set). It comes crusted: laser fire
 # burns the crust off (MINING_CRUST_HP) and bares the ore, a cluster of smooth metal lumps in place
 # of the rock, glowing hot and fading as it cools (MINING_COOL_TIME); cooled, a harpoon tows and
-# strips it. Stripped, it is cleared away like a wreck.
+# strips it. Stripped bare, it is gone (take_salvage).
 
 extends RigidBody
 
@@ -210,6 +210,8 @@ func take_salvage(units: int) -> Dictionary:
 		salvage[commodity_id] = int(salvage[commodity_id]) - amount
 		if salvage[commodity_id] <= 0:
 			salvage.erase(commodity_id)
+	if salvage.empty() and not taken.empty():
+		call_deferred("despawn")  # Stripped: nothing of it is left to see or harpoon again
 	return taken
 
 
@@ -264,6 +266,8 @@ class OreChunkOrder:
 
 
 func despawn() -> void:
+	if is_queued_for_deletion():
+		return
 	remove_from_group("ore_chunk")  # Gone from the count at once (make_room), not at the frame's end
 	EventBus.emit_signal("agent_despawning", self)
 	queue_free()
