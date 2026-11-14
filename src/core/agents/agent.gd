@@ -444,7 +444,7 @@ func _on_player_lance_launched(_target) -> void:
 
 func _on_player_lance_struck(target, damage) -> void:
 	if is_instance_valid(target) and target.is_in_group("ore_chunk"):
-		EventBus.emit_signal("attack_action_feedback", true, "Ore broken off: burn each piece's crust off, let it cool, harpoon it. The lance is in the rock: harpoon it out")
+		EventBus.emit_signal("attack_action_feedback", true, "Ore broken off: burn each piece's crust off, let it cool, harpoon it. The lance is in the rock: make the lance safe and fly by it slowly, or harpoon it out")
 		return
 	EventBus.emit_signal("attack_action_feedback", true, "Lance in: %d damage" % int(damage))
 
