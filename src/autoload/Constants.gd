@@ -899,9 +899,9 @@ const XENO_VESSEL_SEED = 5
 const XENO_HIVE_LENGTH = 240.0  # m
 const XENO_HIVE_SEED = 13
 # Placeholder hulls (PlaceholderHull, PrimitiveForm: the part fields are described there), one
-# silhouette per preset family: fighter a swept dart, lance a spear with coils, prospector a round
-# hull with claws, raider a flat wedge with prongs, scavenger a box frame with a crane, trader a
-# spine of cargo pods behind a cab (more pods by weight). `engines`:
+# silhouette per preset family: fighter a swept dart, prospector a round hull with claws, raider a
+# flat wedge with prongs, scavenger a box frame with a crane, trader a spine of cargo pods behind a
+# cab (more pods by weight). `engines`:
 # exhaust nozzles, shares of the length (one off the centre line gets a twin across).
 # Ship models (ShipModel) are this long nose to tail at model scale 1 (tools/import_model.sh scales a
 # model made at any size to it); a ship's model_scale stretches it.
@@ -921,16 +921,6 @@ const HULL_FORMS = {
 		{"shape": "box", "size": Vector3(0.24, 0.015, 0.14), "at": Vector3(0.14, -0.05, 0.26), "turn": Vector3(0, -30, 10), "mirror": true, "from": "medium"},
 		{"shape": "cylinder", "size": Vector3(0.04, 0.04, 0.32), "at": Vector3(0.33, 0, 0.08), "mirror": true, "from": "heavy"},
 		{"shape": "box", "size": Vector3(0.16, 0.06, 0.3), "at": Vector3(0, -0.07, 0.1), "look": "paint", "from": "superheavy"},
-	]},
-	"lance": {"engines": [Vector3(0.11, 0, 0.44)], "parts": [
-		{"shape": "cylinder", "size": Vector3(0.06, 0.06, 0.8), "at": Vector3(0, 0, -0.05)},
-		{"shape": "cone", "size": Vector3(0.06, 0.06, 0.12), "at": Vector3(0, 0, -0.51), "look": "glow"},
-		{"shape": "box", "size": Vector3(0.16, 0.1, 0.34), "at": Vector3(0, 0, 0.2), "look": "paint"},
-		{"shape": "cylinder", "size": Vector3(0.2, 0.2, 0.03), "at": Vector3(0, 0, -0.12), "look": "paint"},
-		{"shape": "cylinder", "size": Vector3(0.06, 0.06, 0.3), "at": Vector3(0.11, 0, 0.27), "mirror": true},
-		{"shape": "box", "size": Vector3(0.012, 0.1, 0.12), "at": Vector3(0, 0.08, 0.3), "turn": Vector3(-25, 0, 0), "from": "medium"},
-		{"shape": "cylinder", "size": Vector3(0.16, 0.16, 0.03), "at": Vector3(0, 0, -0.24), "look": "paint", "from": "heavy"},
-		{"shape": "box", "size": Vector3(0.08, 0.08, 0.3), "at": Vector3(0.12, 0, 0.1), "look": "paint", "mirror": true, "from": "superheavy"},
 	]},
 	"prospector": {"engines": [Vector3(0, 0, 0.43)], "parts": [
 		{"shape": "sphere", "size": Vector3(0.32, 0.24, 0.5), "at": Vector3(0, 0, 0.05), "look": "paint"},
@@ -1044,7 +1034,7 @@ const SECTORS_SCENES_DIR = "res://scenes/levels/sectors/"
 const SECTOR_LAYOUT_SUFFIX = "_layout.tscn"
 # Radio (Radio): NPCs say what they do and mean to on a common frequency, heard within RADIO_RANGE
 # m of the speaker; one ship speaks at most every RADIO_SPEAKER_COOLDOWN s (a mayday always goes
-# out). Factions with "silent" (FACTIONS) say nothing.
+# out). Silent factions (FactionTemplate.silent) say nothing.
 const RADIO_RANGE = 20000.0  # m
 const RADIO_SPEAKER_COOLDOWN = 15.0  # s
 const RADIO_LOG_LINES = 8  # Lines the debug overlay keeps
@@ -1091,7 +1081,7 @@ const CHOICE_RAID = 0.4  # Enemy patrol beacons, times how keen it is to fight
 const CHOICE_STALE_TIME = 300.0  # s
 const CHOICE_FIELD_VALUE = 100.0  # Units of ore
 const CHOICE_HUNT_FLOOR = 0.2  # Traffic it reckons even a quiet beacon has
-# Distress (BeaconNetwork.call_distress): a ship of a faction with "distress" (FACTIONS) that runs
+# Distress (BeaconNetwork.call_distress): a ship of a faction with "distress" (FactionTemplate.distress) that runs
 # from a fight calls a mayday; a beacon of kind "distress" marks the spot for DISTRESS_TIME s (one
 # within DISTRESS_MERGE m is renewed instead). Its faction's patrols weigh it at CHOICE_DISTRESS, as
 # keen as they are to fight, fading as it ages; patrolling ships choose again when one is called.

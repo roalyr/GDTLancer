@@ -773,7 +773,7 @@ func _change_state(new_state: int) -> void:
 
 
 # Says on the radio what it is doing now (Radio; the player reads what NPCs mean), and a ship of a
-# faction with distress (FACTIONS) running from a fight calls a mayday.
+# faction with distress (FactionTemplate.distress) running from a fight calls a mayday.
 func _announce(state: int) -> void:
 	match state:
 		AIState.COMBAT:

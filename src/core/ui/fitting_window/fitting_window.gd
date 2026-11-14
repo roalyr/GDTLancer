@@ -284,14 +284,14 @@ func _store_parts(groups: Array) -> void:
 			_add_row(_store, i, Fitting.part_name(part_id), part_detail(part_id), [["BUY %d" % cost, GameState.player_bank < cost, "_on_buy", [part_id]]])
 
 
-# The hold, sold here a unit or all at once at this station's price (salvage too); at home, every
-# commodity can be bought as well.
+# The hold, sold here a unit or all at once at this station's price (salvage too), and what the
+# station makes, bought at its price (Fitting.cargo_stock): any station, as NPC traders trade.
 func _store_cargo(ship_body) -> void:
-	var home: bool = Fitting.is_available()
 	_add_heading(_store, "CARGO  hold %d / %d" % [ship_body.get_cargo_units(), ship_body.cargo_capacity])
 	var worth: int = Market.hold_value(ship_body, GameState.player_docked_at).units
 	_add_button(_store, "SELL HOLD", worth <= 0, "_on_sell_hold", [])
-	var ids: Array = Fitting.cargo_catalog() if home else []
+	var stock: Array = Fitting.cargo_stock()
+	var ids: Array = stock.duplicate()
 	for commodity_id in ship_body.cargo:
 		if not commodity_id in ids:
 			ids.append(commodity_id)
@@ -302,8 +302,8 @@ func _store_cargo(ship_body) -> void:
 		var held: int = int(ship_body.cargo.get(commodity_id, 0))
 		var sale: int = Fitting.cargo_sale_price(commodity_id)
 		var buttons: Array = []
-		if home:
-			var cost: int = Fitting.price(commodity_id)
+		if commodity_id in stock:
+			var cost: int = Fitting.cargo_price(commodity_id)
 			buttons.append(["BUY %d" % cost, GameState.player_bank < cost or ship_body.get_free_cargo() <= 0, "_on_buy_cargo", [commodity_id]])
 		if sale <= 0:
 			buttons.append(["NOT BOUGHT", true, "_on_sell_cargo", [commodity_id, 1]])

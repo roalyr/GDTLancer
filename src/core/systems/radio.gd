@@ -1,7 +1,7 @@
 # Radio: NPCs on a common frequency, saying what they do and mean to (Constants RADIO_*). A line
 # goes out as EventBus radio_message; whoever listens keeps the ones said within RADIO_RANGE of it.
 # A ship speaks at most every RADIO_SPEAKER_COOLDOWN s, unless `urgent` (a mayday). Silent factions
-# (FACTIONS "silent": the xenohive) say nothing.
+# (FactionTemplate.silent: the xenohive) say nothing.
 
 extends Reference
 

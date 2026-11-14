@@ -202,7 +202,7 @@ func _with_ships_and_cargo() -> void:
 	TemplateDatabase.assets_commodities = {"c_fuel": fuel}
 
 
-func test_store_sells_every_ship_part_and_commodity():
+func test_store_sells_every_ship_part_and_only_the_cargo_the_station_makes():
 	_with_ships_and_cargo()
 	var drill = _tool("t_drill", "medium", 120, 900.0)
 	drill.tool_type = "drill"
@@ -213,7 +213,7 @@ func test_store_sells_every_ship_part_and_commodity():
 	for part_id in Fitting.catalog():
 		assert_true(PartCatalog.has(part_id), part_id)
 	assert_eq(Fitting.ship_catalog(), ["preset_ship_archetype_fighter_heavy", "preset_ship_archetype_fighter_light"], "the archetypes' hulls, no stock one")
-	assert_eq(Fitting.cargo_catalog(), ["c_fuel"], "and every commodity.")
+	assert_eq(Fitting.cargo_stock(), [], "Cargo only where the station makes it: this one (no haven) makes none.")
 
 
 func test_store_sells_the_archetypes_hulls_not_the_drafts():
@@ -276,23 +276,51 @@ func test_buying_a_ship_trades_the_old_one_in_and_stores_its_fit():
 	GlobalRefs.agent_spawner = saved_spawner
 
 
-func test_cargo_is_bought_into_the_hold_and_sold_back_at_base_value():
+func _biotech() -> void:
+	var biotech = CommodityTemplate.new()
+	biotech.template_id = "commodity_biotech"
+	biotech.base_value = 60
+	TemplateDatabase.assets_commodities["commodity_biotech"] = biotech
+
+
+# Elace's Verdant Haven makes biotech (sells it at 0.7 of its value) and buys it back at 0.5.
+func test_cargo_is_bought_where_it_is_made_as_npc_traders_buy_it():
 	_with_ships_and_cargo()
-	ship.cargo_capacity = 2
+	_biotech()
 	var body = _player_ship()
 	body.cargo_capacity = 2
+	GameState.player_docked_at = "verdant_haven"
+	GameState.station_markups = {"verdant_haven": 0.0}
+	GameState.player_standing = {"verdant": 0.0}
 	GameState.player_bank = 100
-	assert_eq(Fitting.buy_cargo(body, "c_fuel"), "")
-	assert_eq(Fitting.buy_cargo(body, "c_fuel"), "")
-	assert_eq(GameState.player_bank, 50)
-	assert_eq_deep(GameState.player_cargo, {"c_fuel": 2})
-	assert_ne(Fitting.buy_cargo(body, "c_fuel"), "", "Hold full")
-	assert_eq(GameState.player_bank, 50, "costs nothing.")
-	assert_eq(Fitting.sell_cargo(body, "c_fuel"), "")
-	assert_eq(GameState.player_bank, 50 + 20, "Sold at the station's cargo price: PRICE_CARGO_SELL_SHARE of 25")
-	assert_eq_deep(body.cargo, {"c_fuel": 1})
-	body.remove_cargo("c_fuel", 1)
-	assert_ne(Fitting.sell_cargo(body, "c_fuel"), "", "None left to sell.")
+	assert_eq(Fitting.cargo_stock(), ["commodity_biotech"], "What the haven makes")
+	assert_eq(Fitting.cargo_price("commodity_biotech"), 42, "at its price: 0.7 of 60")
+	assert_ne(Fitting.buy_cargo(body, "c_fuel"), "", "Nothing it does not make")
+	assert_eq(Fitting.buy_cargo(body, "commodity_biotech"), "")
+	assert_eq(Fitting.buy_cargo(body, "commodity_biotech"), "")
+	assert_eq(GameState.player_bank, 16)
+	assert_eq_deep(GameState.player_cargo, {"commodity_biotech": 2})
+	assert_ne(Fitting.buy_cargo(body, "commodity_biotech"), "", "Hold full")
+	assert_eq(GameState.player_bank, 16, "costs nothing.")
+	assert_eq(Fitting.sell_cargo(body, "commodity_biotech"), "")
+	assert_eq(GameState.player_bank, 16 + 24, "Sold back at its cargo price: 0.5 of 60, PRICE_CARGO_SELL_SHARE of it")
+	GameState.player_docked_at = "home"
+	assert_ne(Fitting.buy_cargo(body, "commodity_biotech"), "", "A station that makes nothing sells nothing, the home port too")
+	GameState.player_docked_at = ""
+	assert_ne(Fitting.buy_cargo(body, "commodity_biotech"), "", "and nothing is bought in flight.")
+
+
+func test_standing_with_the_home_factions_counts_in_the_store():
+	GameState.home_location_id = "station_elace_home"  # The free port's
+	GameState.player_docked_at = "station_elace_home"
+	GameState.station_markups = {"station_elace_home": 0.0}
+	GameState.player_standing = {"freeport": 0.0}
+	var even: int = Fitting.price("preset_thruster_medium")
+	var even_sale: int = Fitting.sale_price("preset_thruster_medium")
+	assert_eq(even, 150)
+	GameState.player_standing = {"freeport": 1.0}
+	assert_eq(Fitting.price("preset_thruster_medium"), int(round(150 * (1.0 - Constants.PRICE_STANDING_SHARE))), "Trusted: cheaper")
+	assert_true(Fitting.sale_price("preset_thruster_medium") > even_sale, "and sold dearer")
 
 
 func test_station_window_is_shown_while_docked_at_home():
@@ -364,3 +392,16 @@ func test_a_damper_jams_more_for_a_small_hull():
 	assert_lt(ShipFit.damper_share(300.0, 24000.0), ShipFit.damper_share(300.0, 6000.0), "The same damper hides less of a bigger ship")
 	assert_eq(ShipFit.damper_share(5000.0, 6000.0), Constants.LAW_DAMPER_MAX, "and never all of it")
 	assert_eq(ShipFit.damper_share(0.0, 6000.0), 0.0)
+
+
+func test_the_home_port_sells_its_goods_and_fuel_not_ore():
+	_with_ships_and_cargo()
+	for id in ["commodity_biotech", "commodity_tech", "commodity_fuel", "commodity_ore"]:
+		var item = CommodityTemplate.new()
+		item.template_id = id
+		item.base_value = 50
+		TemplateDatabase.assets_commodities[id] = item
+	GameState.home_location_id = "station_elace_home"
+	GameState.player_docked_at = "station_elace_home"
+	assert_eq(Fitting.cargo_stock(), ["commodity_biotech", "commodity_fuel", "commodity_tech"],
+		"Elace's free port: what it makes, and fuel for jumps (as travellers buy it); no ore, which comes from the rocks")

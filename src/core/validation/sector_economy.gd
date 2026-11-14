@@ -4,7 +4,9 @@
 # 0) at even markups (none: each station's markup rolls 0..PRICE_MARKUP_MAX on top of both ends).
 # The content validator (sectors) and the development tool's economy view (tools/devtool/economy.py)
 # use it. Havens are specs (HavenMarker.to_spec: id, name, faction, services.buys / sells);
-# commodities {id: {"name", "value" (WP), "mass" (kg a unit)}}.
+# commodities {id: {"name", "value" (WP), "mass" (kg a unit)}}. Fuel (Constants.FUEL_COMMODITY) is
+# bought to burn on jumps, not to sell on (selling the hold keeps it): it makes no route and needs no
+# outlet, but a haven still may not buy it back for what it charges.
 
 extends Reference
 
@@ -36,7 +38,7 @@ static func routes(havens: Array, commodities: Dictionary) -> Array:
 	var out: Array = []
 	for from in havens.size():
 		for commodity_id in havens[from].get("services", {}).get("sells", {}):
-			if not commodities.has(commodity_id):
+			if not commodities.has(commodity_id) or commodity_id == Constants.FUEL_COMMODITY:
 				continue
 			var value: float = float(commodities[commodity_id].value)
 			var cost: float = charge(havens[from], commodity_id, value)
@@ -76,6 +78,8 @@ static func problems(havens: Array, commodities: Dictionary, practice: bool = fa
 					"text": "%s sells %s for %d WP and buys it back for %d (%d and %d with the best standing): buying and selling it there pays: its buys should pay at most %d for it" % [
 						haven.name, name, round(cost), round(back), round(cost * (1.0 - share)), round(back * (1.0 + share)),
 						floor(cost * (1.0 - share) / (1.0 + share))]})
+			if commodity_id == Constants.FUEL_COMMODITY:
+				continue  # Burnt, not sold on: no outlet needed
 			var best := 0.0
 			var best_at := ""
 			for other in havens:

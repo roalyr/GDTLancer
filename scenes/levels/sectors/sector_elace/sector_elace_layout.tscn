@@ -48,6 +48,7 @@ buys = {
 }
 sells = {
 "commodity_biotech": 1.0,
+"commodity_fuel": 1.0,
 "commodity_tech": 1.0
 }
 
@@ -198,11 +199,11 @@ kind = "patrol"
 beacon_name = "Verdant Picket Belt"
 owner_faction = "verdant"
 
-[node name="VerdantPicketLane" type="Position3D" parent="Beacons"]
+[node name="VerdantPicketLine" type="Position3D" parent="Beacons"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 14000, 0, 16000 )
 script = ExtResource( 3 )
 kind = "patrol"
-beacon_name = "Verdant Picket Lane"
+beacon_name = "Verdant Picket Line"
 owner_faction = "verdant"
 
 [node name="VerdantPicketHome" type="Position3D" parent="Beacons"]
@@ -219,11 +220,11 @@ kind = "patrol"
 beacon_name = "Violet Picket Belt"
 owner_faction = "violet"
 
-[node name="VioletPicketLane" type="Position3D" parent="Beacons"]
+[node name="VioletPicketLine" type="Position3D" parent="Beacons"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 14000, 0, -16000 )
 script = ExtResource( 3 )
 kind = "patrol"
-beacon_name = "Violet Picket Lane"
+beacon_name = "Violet Picket Line"
 owner_faction = "violet"
 
 [node name="VioletPicketRefinery" type="Position3D" parent="Beacons"]

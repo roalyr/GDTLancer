@@ -1,12 +1,13 @@
-# Fitting: the home station's store and refitting. It sells, at the station's prices (Market), the
-# part catalogue (PartCatalog: three of every kind, light, medium, heavy; bought into the home
-# storage, fitted from there, sold back for half), the archetypes' hulls (the current one is traded
-# in for half its price) and every commodity
-# (into the hold, sold back at the station's cargo price). Every refit is applied to the ship at once
-# (stats, mass, tools) and repairs it.
-# Cargo is the one trade at every station (can_sell_cargo): docking never sells the hold, the
-# player does, a unit or all at once, at the station's price for it (Market.commodity_sale_price:
-# what it buys, its markup and the player's standing with its faction), salvage included.
+# Fitting: the home station's store and refitting. It sells, at the station's prices (Market, with
+# the player's standing with its faction), the part catalogue (PartCatalog: three of every kind,
+# light, medium, heavy; bought into the home storage, fitted from there, sold back for half) and the
+# archetypes' hulls (the current one is traded in for half its price). Every refit is applied to the
+# ship at once (stats, mass, tools) and repairs it.
+# Cargo is the one trade at every station, by the rules NPC traders trade by: docking never sells
+# the hold, the player does, a unit or all at once, at the station's price for it
+# (Market.commodity_sale_price: what it buys, its markup and the player's standing with its
+# faction), salvage included; and buys what the station makes (Havens.sells: cargo_stock) at its
+# price for it (Market.commodity_buy_price). A station that makes nothing sells no cargo.
 # Returns "" on success or a message saying why not.
 
 extends Reference
@@ -16,6 +17,7 @@ const HomePort = preload("res://src/core/systems/home_port.gd")
 const Market = preload("res://src/core/systems/market.gd")
 const PartCatalog = preload("res://src/core/systems/part_catalog.gd")
 const Wages = preload("res://src/core/systems/wages.gd")
+const Havens = preload("res://src/core/systems/havens.gd")
 
 
 static func is_available() -> bool:
@@ -58,21 +60,29 @@ static func ship_catalog() -> Array:
 	return ids
 
 
-# Commodities the home station trades: every one.
-static func cargo_catalog() -> Array:
-	var ids: Array = TemplateDatabase.assets_commodities.keys()
+# Commodities the station docked at sells: what it makes (Havens.sells), as NPC traders buy there.
+static func cargo_stock() -> Array:
+	var ids: Array = []
+	for commodity_id in Havens.sells(GameState.player_docked_at):
+		if TemplateDatabase.assets_commodities.has(commodity_id):
+			ids.append(commodity_id)
 	ids.sort()
 	return ids
 
 
-# What the home station charges.
+# What one unit of `commodity_id` costs at the station docked at (0: it does not sell it).
+static func cargo_price(commodity_id: String) -> int:
+	return Market.commodity_buy_price(commodity_id, GameState.player_docked_at, docked_faction())
+
+
+# What the home station charges for a part or a hull (the player's standing with its faction counts).
 static func price(part_id: String) -> int:
-	return Market.price(_value(part_id), GameState.home_location_id)
+	return Market.price(_value(part_id), GameState.home_location_id, Havens.faction_of(GameState.home_location_id))
 
 
 # What it pays for a part or a traded-in hull.
 static func sale_price(part_id: String) -> int:
-	return Market.part_sale_price(_value(part_id), GameState.home_location_id)
+	return Market.part_sale_price(_value(part_id), GameState.home_location_id, Havens.faction_of(GameState.home_location_id))
 
 
 # What the station docked at pays for a unit of cargo (0: it does not buy it).
@@ -150,11 +160,11 @@ static func buy_ship(ship_id: String) -> String:
 
 # One unit of a commodity into the hold, at the station's price.
 static func buy_cargo(ship_body: Node, commodity_id: String) -> String:
-	if not is_available():
-		return "Dock at the home station to trade"
-	var cost: int = price(commodity_id)
-	if cost <= 0 or not commodity_id in cargo_catalog():
-		return "Not for sale"
+	if not can_sell_cargo():
+		return "Dock at a station to trade"
+	var cost: int = cargo_price(commodity_id)
+	if cost <= 0 or not commodity_id in cargo_stock():
+		return "Not sold here"
 	if GameState.player_bank < cost:
 		return "Not enough banked WP (%d needed)" % cost
 	if ship_body.add_cargo(commodity_id, 1) <= 0:

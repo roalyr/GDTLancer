@@ -41,8 +41,12 @@ static func cargo_sale_price(value: float, location_id: String, faction: String 
 	return int(round(value * sell_factor(location_id, faction))) if value > 0.0 else 0
 
 
+# What the station pays for a part or a traded-in hull: PRICE_PART_SELL_SHARE of its price before
+# standing, then standing makes it dearer, as it does cargo (sell_factor).
 static func part_sale_price(value: float, location_id: String, faction: String = "") -> int:
-	return int(Constants.PRICE_PART_SELL_SHARE * price(value, location_id, faction))
+	if value <= 0.0:
+		return 0
+	return int(value * (1.0 + markup(location_id)) * Constants.PRICE_PART_SELL_SHARE * (1.0 + Constants.PRICE_STANDING_SHARE * Standing.of(faction)))
 
 
 # What one unit of `commodity_id` costs at the station (0: it does not sell it): its value times the
@@ -62,7 +66,7 @@ static func best_trade(location_id: String, faction: String) -> Dictionary:
 	var best := {}
 	for commodity_id in Havens.sells(location_id):
 		var cost: int = commodity_buy_price(commodity_id, location_id)
-		if cost <= 0:
+		if cost <= 0 or commodity_id == Constants.FUEL_COMMODITY:  # Fuel is burnt, not traded (SectorEconomy)
 			continue
 		for other in Havens.neighbours(location_id):
 			if not Havens.welcome(faction, other):

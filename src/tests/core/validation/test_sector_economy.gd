@@ -62,3 +62,16 @@ func test_every_played_sector_s_market_passes():
 		if " sells " in problem.problem:
 			market.append(problem.problem)
 	assert_eq(market, [], "Every played sector's stock pays somewhere, and no haven pays to buy back")
+
+
+func test_fuel_is_burnt_not_traded_it_needs_no_outlet_but_no_loop_either():
+	var goods := {Constants.FUEL_COMMODITY: {"name": "Fuel", "value": 25.0, "mass": 10.0}}
+	var port := _haven("port", {"*": 0.9}, {Constants.FUEL_COMMODITY: 1.0})
+	var havens := [port, _haven("other", {"*": 0.9}, {})]
+	assert_eq(SectorEconomy.routes(havens, goods).size(), 0, "No route: nobody hauls fuel to sell it")
+	assert_eq(SectorEconomy.problems(havens, goods).size(), 0, "and no outlet needed")
+	var leaky := _haven("leaky", {"*": 2.0}, {Constants.FUEL_COMMODITY: 1.0})
+	var kinds: Array = []
+	for problem in SectorEconomy.problems([leaky], goods):
+		kinds.append(problem.kind)
+	assert_eq(kinds, ["loop"], "Buying it back for what it costs still pays without flying")

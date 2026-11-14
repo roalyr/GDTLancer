@@ -77,6 +77,14 @@ func test_prices_follow_value_markup_and_standing():
 	Standing.change("verdant", 1.0)
 	assert_eq(Market.price(1000.0, "s", "verdant"), int(round(1200 * (1.0 - Constants.PRICE_STANDING_SHARE))), "Trusted: cheaper")
 	assert_eq(Market.part_sale_price(1000.0, "s"), 600)
+	assert_eq(Market.part_sale_price(1000.0, "s", "verdant"), int(600 * (1.0 + Constants.PRICE_STANDING_SHARE)), "Trusted: pays more for parts too")
+
+
+func test_a_part_never_sells_for_what_it_costs_whatever_the_standing():
+	GameState.station_markups = {"s": 0.3}
+	for value in [-1.0, 0.0, 1.0]:
+		GameState.player_standing["verdant"] = value
+		assert_true(Market.part_sale_price(1000.0, "s", "verdant") < Market.price(1000.0, "s", "verdant"), "Standing %.1f" % value)
 
 
 func test_buying_and_selling_at_one_station_never_pays_whatever_the_standing():
