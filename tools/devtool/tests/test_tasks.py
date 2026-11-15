@@ -3,7 +3,7 @@
 import os
 import unittest
 
-from devtool import data, models, tasks
+from devtool import data, models, tasks, test_run
 
 
 class TasksTest(unittest.TestCase):
@@ -112,6 +112,31 @@ class TasksTest(unittest.TestCase):
         preview = tasks.TASKS_BY_KEY["render_preview"]
         self.assertIn("no such file", tasks.invalid(preview, dict(preview.defaults({}), scene="scenes/none.tscn"))[0])
         self.assertEqual(tasks.invalid(preview, dict(preview.defaults({}), scene="res://scenes/prefabs/celestial/asteroid.tscn")), [])
+
+    def test_the_tools_own_options_reach_their_commands(self):
+        def command(key, **answers):
+            task = tasks.TASKS_BY_KEY[key]
+            values = dict(task.defaults({}), **answers)
+            self.assertEqual(tasks.invalid(task, values), [], key)
+            return task.build(values)
+        self.assertIn("probe=yes", command("evolution", probe="yes"))
+        self.assertIn("--probe", command("evolution", probe="yes", follow="yes"))
+        frozen = command("evolution", frozen="yes", save_dir="user://frozen/", follow="yes")
+        self.assertTrue({"--frozen", "--new", "--save-dir=user://frozen/"} <= set(frozen), "A frozen run is new, in its own folder")
+        evolution_task = tasks.TASKS_BY_KEY["evolution"]
+        self.assertTrue(tasks.invalid(evolution_task, dict(evolution_task.defaults({}), frozen="yes")), "Never the default save")
+        self.assertIn("-gselect=test_lance.gd", test_run.gut_command(file="test_lance.gd"))
+        self.assertIn("file=test_lance.gd", command("tests", file="src/tests/core/agents/components/test_lance.gd"))
+        self.assertEqual(command("validate", section="parts")[-2:], ["--", "parts"])
+        self.assertIn("parts", tasks.validate_sections())
+        self.assertNotIn("--", command("validate"), "All sections")
+        self.assertEqual(command("classify_presets", check="yes")[-1], "--check")
+        self.assertIn("--rate=60", command("lance_duel", rate="60"))
+        self.assertIn("lance=40", command("harpoon_probe", lance="40"))
+        self.assertIn("near=violet", command("sound_probe", near="violet"))
+        self.assertIn("every=10", command("soak", every="10"))
+        self.assertIn("--save=user://x.sav", command("export_presets", save="user://x.sav"))
+        self.assertIn("tile=200", command("render_preview", scene="scenes/prefabs/celestial/asteroid.tscn", tile="200"))
 
     def test_missing_answers_are_named(self):
         task = tasks.TASKS_BY_KEY["check_model"]

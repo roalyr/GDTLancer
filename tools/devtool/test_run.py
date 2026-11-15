@@ -1,7 +1,7 @@
 """
 The GUT tests as the tests task and the release run them:
 
-    python3 tools/devtool/test_run.py [dir=res://src/tests/...]
+    python3 tools/devtool/test_run.py [dir=res://src/tests/...] [file=test_x.gd]
 
 1. Godot compiles every test script under the folder first (one bridge, a few seconds): a script
    that does not parse stops the run with its name. GUT 7.4.3 hangs on such a file instead of
@@ -58,9 +58,10 @@ def unparsable(folder=TESTS, bridge=None, root=ROOT):
     return bad
 
 
-def gut_command(folder=""):
-    """GUT over every test (or `folder`'s), under `timeout` TIMEOUT."""
-    return ["timeout", str(TIMEOUT)] + godot_script("addons/gut/gut_cmdln.gd", "-gexit", *(["-gdir=" + folder] if folder else []))
+def gut_command(folder="", file=""):
+    """GUT over every test (or `folder`'s, or one file's: -gselect), under `timeout` TIMEOUT."""
+    return ["timeout", str(TIMEOUT)] + godot_script("addons/gut/gut_cmdln.gd", "-gexit", *(["-gdir=" + folder] if folder else []),
+                                                     *(["-gselect=" + file] if file else []))
 
 
 def main(argv):
@@ -74,7 +75,7 @@ def main(argv):
         for path in bad:
             print("  " + path)
         return 1
-    code = subprocess.call(gut_command(folder), cwd=ROOT, env=environment())
+    code = subprocess.call(gut_command(folder, values.get("file", "")), cwd=ROOT, env=environment())
     if code == 124:
         print("GUT did not finish in %d s and was stopped." % TIMEOUT)
     return code

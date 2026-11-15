@@ -8,6 +8,7 @@ import functools
 import glob
 import json
 import os
+import re
 import shlex
 import shutil
 import subprocess
@@ -84,9 +85,10 @@ MAINTAINER = "Maintainer"  # The group of tasks for whoever runs evolution and r
 
 
 class Task:
-    def __init__(self, key, group, title, about, build, asks=(), before=None):
+    def __init__(self, key, group, title, about, build, asks=(), before=None, check=None):
+        """`check(values)`: problems with the answers taken together (one answer needing another), [] if none."""
         self.key, self.group, self.title, self.about = key, group, title, about
-        self.build, self.asks, self.before = build, list(asks), before
+        self.build, self.asks, self.before, self.check = build, list(asks), before, check
 
     @property
     def maintainer(self):
@@ -343,12 +345,47 @@ def _model_sheet(v):
                  "scene=" + res(v["scene"])[:-len(".tscn")])
 
 
+EVOLUTION_OPTIONS = ("probe", "frozen", "save_dir", "save_every", "backup_every")  # Passed on to evolution_sim.gd
+
+
+def evolution_sim_args(v):
+    """evolution_sim.gd's options for the evolution task's answers (--frozen starts a new run: --new)."""
+    args = ["--hours=" + v["hours"], "--speed=" + v["speed"]]
+    if yes(v.get("probe", "no")):
+        args.append("--probe")
+    if yes(v.get("frozen", "no")):
+        args += ["--frozen", "--new"]
+    for key in ("save_dir", "save_every", "backup_every"):
+        if str(v.get(key, "")).strip():
+            args.append("--%s=%s" % (key.replace("_", "-"), v[key].strip()))
+    return args
+
+
 def _evolution(v):
     """Goes on with the saved evolution; a new era or a new evolution goes through new_era (backups first).
     Detached (evolution.go_on) unless followed in the terminal, where ctrl+c kills it unsaved."""
     if yes(v["follow"]):
-        return godot_script("tools/evolution_sim.gd", "--", "--hours=" + v["hours"], "--speed=" + v["speed"])
-    return ["python3", "tools/devtool/evolution.py", "go_on", "hours=" + v["hours"], "speed=" + v["speed"]]
+        return godot_script("tools/evolution_sim.gd", "--", *evolution_sim_args(v))
+    return ["python3", "tools/devtool/evolution.py", "go_on"] + ["%s=%s" % (key, v[key]) for key in ("hours", "speed") + EVOLUTION_OPTIONS
+                                                                  if str(v.get(key, "")).strip() not in ("", "no")]
+
+
+def _evolution_check(v):
+    if yes(v.get("frozen", "no")) and not str(v.get("save_dir", "")).strip():
+        return ["A frozen run needs its own save folder (never the game's saves): give Save folder, e.g. user://frozen/"]
+    return []
+
+
+def validate_sections():
+    """ContentValidator.SECTIONS, read from its script."""
+    try:
+        with open(os.path.join(ROOT, "src/core/validation/content_validator.gd")) as handle:
+            for line in handle:
+                if line.startswith("const SECTIONS"):
+                    return re.findall(r'"([a-z_]+)"', line)
+    except OSError:
+        pass
+    return []
 
 
 def _era_default(part):
@@ -370,6 +407,8 @@ def _lance_duel(v):
         command.append("--match=" + v["match"])
     if yes(v["weapons"]):
         command.append("--weapons")
+    if str(v.get("rate", "")).strip():
+        command.append("--rate=" + v["rate"])
     return command
 
 
@@ -380,6 +419,9 @@ def _duel(v):
 
 def _export_presets(v):
     command = godot_script("tools/export_presets.gd", "--", "--top=" + v["top"], "--min-lives=" + v["min_lives"])
+    for key in ("save", "out"):
+        if str(v.get(key, "")).strip():
+            command.append("--%s=%s" % (key, v[key].strip()))
     return command + (["--clean"] if yes(v["clean"]) else [])
 
 
@@ -401,22 +443,28 @@ def _harpoon_probe(v):
     command = godot("res://tools/harpoon_probe.tscn", "seconds=" + v["seconds"], "dist=" + v["dist"])
     if v["target"] == "chunk":
         command.append("target=chunk")
+    if str(v.get("lance", "")).strip():
+        command.append("lance=" + v["lance"])
     return command + [flag for flag in ("approach", "full") if yes(v[flag])]
 
 
 def _render_preview(v):
     return godot("-s", "tools/render_preview.gd", "scene=" + res(v["scene"])[:-len(".tscn")],
-                 "out=" + out_file(stem(v["scene"]) + "_preview.png"), "radius=" + v["radius"], "distances=" + v["distances"])
+                 "out=" + out_file(stem(v["scene"]) + "_preview.png"), "radius=" + v["radius"], "distances=" + v["distances"],
+                 "tile=" + v["tile"], "time=" + v["time"])
 
 
 TASKS = [
     # Checks
     Task("tests", "Checks", "Run the tests", "Every GUT test (content rules and models included). Godot compiles each test"
          " script first and names any that does not parse (GUT would hang on it); about 10 minutes on a laptop.",
-         lambda v: ["python3", "tools/devtool/test_run.py"] + (["dir=" + res(v["dir"])] if v["dir"] else []),
-         [Ask("dir", "Only this test folder (empty: all)", default="", optional=True)]),
+         lambda v: ["python3", "tools/devtool/test_run.py"] + (["dir=" + res(v["dir"])] if v["dir"] else [])
+         + (["file=" + os.path.basename(v["file"])] if v.get("file") else []),
+         [Ask("dir", "Only this test folder (empty: all)", default="", optional=True),
+          Ask("file", "Only this test file (empty: all in the folder)", "file", "", globs=["src/tests/**/test_*.gd"], optional=True, fresh=True)]),
     Task("validate", "Checks", "Check the content rules", "Every content rule (ContentValidator) at once, problems listed.",
-         lambda v: godot_script("tools/devtool/validate.gd")),
+         lambda v: godot_script("tools/devtool/validate.gd", *(["--", v["section"]] if v.get("section", "all") != "all" else [])),
+         [Ask("section", "Sections", "choice", "all", lambda: ["all"] + validate_sections())]),
     Task("check_model", "Checks", "Check a model scene", "A ship or station scene against the model rules (CONTENT.md, Models).",
          _check_model, [Ask("scene", "Scene", "file", globs=MODEL_SCENES)]),
     Task("fix_loops", "Checks", "Fix sound loops", "Sets each sound's import loop setting to what its sound bank slot asks, and imports it again.",
@@ -455,7 +503,8 @@ TASKS = [
     Task("refit_archetypes", "Content", "Refit the archetypes", "The archetypes take the part catalogue and the laws as they are now (after changing either; the Overview says when).",
          lambda v: godot_script("tools/refit_archetypes.gd")),
     Task("classify_presets", "Content", "Classify presets + CATALOG.md", "Labels the archetypes and drafts and rewrites database/presets/CATALOG.md (after a draft export or a classifier change; the Overview says when).",
-         lambda v: godot_script("tools/classify_presets.gd")),
+         lambda v: godot_script("tools/classify_presets.gd", *(["--", "--check"] if yes(v.get("check", "no")) else [])),
+         [Ask("check", "Only say what is out of date (writes nothing)", "flag", "no", fresh=True)]),
     # Balance
     Task("duel", "Balance", "Duel two archetypes", "Two archetypes as the game flies them, one on one: wins, time, hull left, rounds.",
          _duel, [Ask("a", "First (Verdant)", "choice", "fighter_light", archetypes), Ask("b", "Second (Violet)", "choice", "raider_light", archetypes),
@@ -467,7 +516,9 @@ TASKS = [
     # Look
     Task("render_preview", "Look", "Render preview", "A scene from a few distances, side by side, to .dev/out/.",
          _render_preview, [Ask("scene", "Scene", "file", globs=["scenes/**/*.tscn"]), Ask("radius", "Object size (m)", "float", default="100"),
-                           Ask("distances", "Distances (in sizes)", default="3,10,40")]),
+                           Ask("distances", "Distances (in sizes)", default="3,10,40"),
+                           Ask("tile", "Pixels a view", "int", default="400"),
+                           Ask("time", "Seconds before the shot (TIME-driven shaders move)", "float", default="1")]),
     # Game
     Task("play", "Game", "Play", "Runs the game in a window.", lambda v: godot()),
     Task("test_start", "Game", "Play a test start", "The game from a game start of your choice (Data, Game starts: ship, haven, bank, kit,"
@@ -485,18 +536,26 @@ TASKS = [
          lambda v: ["python3", "tools/dev.py", "selftest"]),
     Task("soak", "Maintainer", "Soak the game", "The real game left running (a new game in Elace, docked at home, 1x): fails on errors,"
          " orphaned nodes or memory growing, wrecks over their caps, bookkeeping growing. Frame rates printed. Needs a display.",
-         lambda v: ["python3", "tools/devtool/soak.py", "minutes=" + v["minutes"]],
-         [Ask("minutes", "Minutes (real time)", "float", default="5")]),
+         lambda v: ["python3", "tools/devtool/soak.py", "minutes=" + v["minutes"], "every=" + v["every"]],
+         [Ask("minutes", "Minutes (real time)", "float", default="5"), Ask("every", "Seconds between report lines", "float", default="30")]),
     Task("export_presets", "Maintainer", "Export presets from evolution", "The fittest designs of evolution's save as drafts, in database/drafts/export/ (pick_archetypes takes archetypes from drafts).",
          _export_presets, [Ask("top", "Archetypes", "int", default="60"), Ask("min_lives", "Minimum lives", "int", default="10"),
-                           Ask("clean", "Empty database/drafts/export/ first", "flag", "no")]),
+                           Ask("clean", "Empty database/drafts/export/ first", "flag", "no"),
+                           Ask("save", "From this save (empty: evolution's, user://evolution/save_0.sav)", default="", optional=True, fresh=True),
+                           Ask("out", "To this folder (empty: res://database/drafts/export/)", default="", optional=True, fresh=True)]),
     Task("pick_archetypes", "Maintainer", "Pick archetypes from drafts", "Each archetype the drafts folder has a design for is replaced by it; then classify_presets.",
          _pick_archetypes, [Ask("folder", "Drafts folder", "choice", lambda: max(draft_folders(), key=lambda name: (int(name.split("_")[0][len("era"):]), name.endswith("min10")), default=""), draft_folders),
                             Ask("add", "Also make archetypes there are none of yet", "flag", "no")]),
     Task("evolution", "Maintainer", "Run evolution (headless)", "Goes on with the saved evolution, detached: the menu comes back, the Tools"
          " tab shows it and x stops it (it saves first). A new era: new_era.",
          _evolution, [Ask("hours", "Simulated hours (0: until stopped)", "float", default="1"), Ask("speed", "Speed", "float", default="6"),
-                      Ask("follow", "Run it in this terminal instead (ctrl+c kills it, unsaved time lost)", "flag", "no", fresh=True)]),
+                      Ask("follow", "Run it in this terminal instead (ctrl+c kills it, unsaved time lost)", "flag", "no", fresh=True),
+                      Ask("probe", "List NPCs stuck in one activity (every 10 simulated minutes)", "flag", "no", fresh=True),
+                      Ask("frozen", "Play mode instead: the game's presets, watched headless (a new run; needs a save folder)", "flag", "no", fresh=True),
+                      Ask("save_dir", "Save folder (empty: evolution's; another keeps a run apart)", default="", optional=True, fresh=True),
+                      Ask("save_every", "Simulated minutes between saves (empty: 15)", "float", default="", optional=True),
+                      Ask("backup_every", "Simulated hours between backups (empty: 2)", "float", default="", optional=True)],
+         check=_evolution_check),
     Task("new_era", "Maintainer", "New era (backs up first)",
          "Backs up the save, exports its drafts, rewrites the catalog and commits them, then starts the next era.",
          _new_era, [Ask("era", "This era's number", "int", default=_era_default("era"), fresh=True),
@@ -516,7 +575,8 @@ TASKS = [
     Task("lance_duel", "Maintainer", "Lance duels", "Designs fight one on one; what the lance did.",
          _lance_duel, [Ask("duels", "Duels per match", "int", default="8"), Ask("speed", "Speed", "float", default="6"),
                        Ask("match", "Only this match (e.g. lancer,laser; empty: all)", default="", optional=True),
-                       Ask("weapons", "Missile and cannon designs", "flag", "no")]),
+                       Ask("weapons", "Missile and cannon designs", "flag", "no"),
+                       Ask("rate", "Physics steps a game second (empty: the project's)", "int", default="", optional=True)]),
     Task("perf", "Maintainer", "Performance ablation", "Frame times with one system switched off.",
          lambda v: godot_script("tools/perf_ablation.gd", "mode=" + v["mode"]),
          [Ask("mode", "Mode", "choice", "base", PERF_MODES)]),
@@ -530,11 +590,14 @@ TASKS = [
                          Ask("near", "Start near a ship of this faction", "choice", "none", lambda: ["none"] + factions()),
                          Ask("nebula", "A nebula ahead", "flag", "no")]),
     Task("sound_probe", "Maintainer", "Sound probe", "Undocks and prints every playing sound each second.",
-         lambda v: godot("res://tools/sound_probe.tscn", "seconds=" + v["seconds"], "plan=" + v["plan"]),
-         [Ask("seconds", "Seconds", "float", default="20"), Ask("plan", "What the ship does", "choice", "line", ["line", "approach", "docked"])]),
+         lambda v: godot("res://tools/sound_probe.tscn", "seconds=" + v["seconds"], "plan=" + v["plan"],
+                         *(["near=" + v["near"]] if v.get("near", "none") != "none" else [])),
+         [Ask("seconds", "Seconds", "float", default="20"), Ask("plan", "What the ship does", "choice", "line", ["line", "approach", "docked"]),
+          Ask("near", "Start 2.5 km off the nearest ship of this faction", "choice", "none", lambda: ["none"] + factions())]),
     Task("harpoon_probe", "Maintainer", "Harpoon probe", "Fires the player's harpoon at a nearby target and prints the tether each second.",
          _harpoon_probe, [Ask("seconds", "Seconds", "float", default="30"), Ask("dist", "Start distance (m)", "float", default="150"),
                           Ask("target", "Target", "choice", "wreck", ["wreck", "chunk"]),
+                          Ask("lance", "Lance strike damage: what it breaks off the biggest rock (empty: none)", "float", default="", optional=True),
                           Ask("approach", "Approach first", "flag", "no"), Ask("full", "Cargo hold full", "flag", "no")]),
     Task("release", "Maintainer", "Release a version", "Tests, a soak, versions the Android build, exports GDTLancer-<version>.apk, commits and tags"
          " (nothing is pushed). Needs a clean working tree.",
@@ -583,7 +646,8 @@ def missing(task, values):
 
 def invalid(task, values):
     """What is wrong with the answers given (Ask.problem), one line each."""
-    return [problem for ask in task.asks for problem in [ask.problem(values.get(ask.key, ""))] if problem]
+    wrong = [problem for ask in task.asks for problem in [ask.problem(values.get(ask.key, ""))] if problem]
+    return wrong + (list(task.check(values)) if task.check else [])
 
 
 def run(task, values, dry=False):

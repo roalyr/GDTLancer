@@ -258,16 +258,20 @@ def start_detached(command, log):
     return process.pid
 
 
-def go_on(hours, speed, folder=None, start_process=start_detached, say=print):
-    """Starts the saved evolution again, detached (0), or says why not (1: it runs already)."""
+def go_on(hours, speed, folder=None, start_process=start_detached, say=print, options=None):
+    """Starts the saved evolution again, detached (0), or says why not (1: it runs already).
+    `options`: the evolution task's other answers (tasks.EVOLUTION_OPTIONS); a run with its own
+    save_dir is apart from the saved evolution and may run beside it."""
+    from .tasks import evolution_sim_args
+    options = dict(options or {})
     folder = folder or evolution_dir()
     info = status(folder)
-    if info and info.get("running"):
+    if info and info.get("running") and not options.get("save_dir"):
         say("Evolution is running already (pid %s): the Tools tab's x stops it." % info.get("pid"))
         return 1
     os.makedirs(folder, exist_ok=True)
     log = free_path(os.path.join(folder, "continued_%s.log" % time.strftime("%Y%m%d")))
-    pid = start_process(godot_script("tools/evolution_sim.gd", "--", "--hours=" + str(hours), "--speed=" + str(speed)), log)
+    pid = start_process(godot_script("tools/evolution_sim.gd", "--", *evolution_sim_args(dict(options, hours=str(hours), speed=str(speed)))), log)
     say("Evolution is running, pid %d; its console: %s.\nThe Tools tab shows it; x stops it (it saves first)." % (pid, log))
     return 0
 
@@ -275,7 +279,7 @@ def go_on(hours, speed, folder=None, start_process=start_detached, say=print):
 def main(argv):
     values = dict(arg.split("=", 1) for arg in argv if "=" in arg)
     if argv[:1] == ["go_on"]:
-        return go_on(values.get("hours", "1"), values.get("speed", "6"))
+        return go_on(values.get("hours", "1"), values.get("speed", "6"), options=values)
     yes = lambda key, default: str(values.get(key, default)).lower() in ("yes", "y", "true", "1")
     flow = NewEra(evolution_dir(), values.get("label", ""), values.get("next", ""), values.get("hours", "20"), values.get("speed", "8"),
                   [int(n) for n in values.get("min_lives", "10,5").split(",") if n.strip()], fresh=values.get("kind") == "fresh",

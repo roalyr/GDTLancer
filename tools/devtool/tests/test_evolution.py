@@ -172,6 +172,15 @@ class NewEraTest(unittest.TestCase):
         self.assertEqual(evolution.go_on("2", "8", self.folder, runs.start, said.append), 1)
         self.assertEqual(len(runs.started), 1, "Not a second run")
 
+    def test_a_run_of_its_own_passes_its_options_and_may_run_beside(self):
+        runs = Runs(self.presets)
+        self.status(state="running", pid=os.getpid())
+        options = {"probe": "yes", "save_dir": "user://probe/"}
+        self.assertEqual(evolution.go_on("1", "6", self.folder, runs.start, lambda text: None, options=options), 0)
+        command = runs.started[0][0]
+        self.assertIn("--probe", command)
+        self.assertIn("--save-dir=user://probe/", command)
+
     def test_user_dir_is_godots(self):
         self.assertTrue(evolution.user_dir().endswith(os.path.join("godot", "app_userdata", "GDTLancer-rev")))
 
