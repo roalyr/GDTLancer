@@ -13,3 +13,7 @@ GDTLancer-legacy
 
 # A local link to Blender 3.6 (optional: BLENDER or blender on PATH also do; CONTENT.md, Getting started)
 tools/blender
+
+# Agent playtests (tools/playtest/play.py): log, shots, notes
+.playtest/
+.claude/scheduled_tasks.lock

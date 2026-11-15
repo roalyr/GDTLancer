@@ -50,7 +50,7 @@ from . import evolution  # noqa: E402
 
 CONFIG = os.environ.get("ISLANDS_CONFIG") or os.path.join(DEV_DIR, "islands.json")
 REMOTE = "gdtl-island"  # Folder under the host's home
-RSYNC_EXCLUDES = [".git", ".dev", "GDTLancer-legacy", "__pycache__", "*.apk", "*.idsig", "tools/renders"]
+RSYNC_EXCLUDES = [".git", ".dev", ".playtest", "GDTLancer-legacy", "__pycache__", "*.apk", "*.idsig", "tools/renders"]
 POLL = 20  # s between looks at the islands
 STALE = 600  # s without a status update after which an island counts as lost
 BACKUPS_KEPT = 3
