@@ -192,7 +192,7 @@ func _rebuild_storage(_ship_body) -> void:
 	for i in range(ids.size()):
 		var part_id: String = ids[i]
 		_add_row(_storage, i, "%s  x%d" % [Fitting.part_name(part_id), GameState.player_storage[part_id]], part_detail(part_id),
-			[["FIT", false, "_on_fit", [part_id]], ["SELL %d" % Fitting.sale_price(part_id), false, "_on_sell", [part_id]]])
+			[["FIT", false, "_on_fit", [part_id]], ["SELL %d" % Fitting.sale_price(part_id), false, "_on_sell", [part_id]]], true)
 
 
 func _rebuild_tabs() -> void:
@@ -393,17 +393,27 @@ func _add_note(container: Node, text: String) -> void:
 
 # A row: `title` over `detail` (dimmer, wrapping), and its buttons ([text, disabled, method, binds])
 # beside them. Every other row is shaded, so rows read apart.
-func _add_row(container: Node, index: int, title: String, detail: String, buttons: Array) -> Control:
+# `stacked`: the buttons one over another and a long name wrapped, not cut (the narrow storage
+# column: beside two buttons its names were cut to a dozen letters).
+func _add_row(container: Node, index: int, title: String, detail: String, buttons: Array, stacked: bool = false) -> Control:
 	var panel: PanelContainer = RowScene.instance()
 	if index % 2 != 0:
 		panel.self_modulate = Color(1, 1, 1, 0)  # Unshaded: the panel's own look only, not its contents
 	container.add_child(panel)
-	panel.get_node("Row/Text/Name").text = title.to_upper()
+	var name_label: Label = panel.get_node("Row/Text/Name")
+	name_label.text = title.to_upper()
 	var detail_label: Label = panel.get_node("Row/Text/Detail")
 	detail_label.text = detail
 	detail_label.visible = detail != ""
+	var holder: Node = panel.get_node("Row")
+	if stacked:
+		name_label.clip_text = false
+		name_label.autowrap = true
+		holder = VBoxContainer.new()
+		holder.alignment = BoxContainer.ALIGN_CENTER
+		panel.get_node("Row").add_child(holder)
 	for spec in buttons:
-		_add_button(panel.get_node("Row"), spec[0], spec[1], spec[2], spec[3], RowButtonScene)
+		_add_button(holder, spec[0], spec[1], spec[2], spec[3], RowButtonScene)
 	return panel
 
 
