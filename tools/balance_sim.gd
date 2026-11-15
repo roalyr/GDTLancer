@@ -1,7 +1,7 @@
 # Combat balance sim: a headless faction battle by the home station (the player stays docked, out
 # of it), sped up. Prints kills by ship class with how long each fight took from the first hit, and
 # damage dealt and hit ranges per class. Uses a throwaway save folder, never real saves.
-# Run (monitor asleep or a compositor stalling? add an override.cfg with vsync off):
+# Vsync is off (a sleeping monitor otherwise blocks the swap a second a frame). Run:
 #     godot --no-window -s tools/balance_sim.gd
 extends SceneTree
 
@@ -15,6 +15,7 @@ var dmg_by = {}  # class -> damage dealt
 var ranges = {}  # class -> [hit distances]
 var game_time = 0.0
 func _initialize():
+	OS.vsync_enabled = false
 	call_deferred("_run")
 func _wait(sec):
 	yield(create_timer(sec, true), "timeout")

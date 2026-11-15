@@ -5,7 +5,8 @@
 # `scene`: without .tscn (Godot would run an argument ending in .tscn as the main scene).
 # `radius`: the object's size in m; `distances`: camera distances in radii; `tile`: px per view
 # (default 400); `time`: s to run before capturing (default 1, so TIME-driven shaders move).
-# (Monitor asleep or a compositor stalling? add an override.cfg with vsync off.)
+# Vsync is off: with the monitor asleep the swap would block a second a frame and `time` would
+# take minutes.
 extends SceneTree
 
 var args := {"radius": "10", "distances": "3,10,40", "tile": "400", "time": "1"}
@@ -16,6 +17,7 @@ var waited := 0.0
 
 
 func _init() -> void:
+	OS.vsync_enabled = false
 	for a in OS.get_cmdline_args():
 		if "=" in a:
 			args[a.split("=")[0]] = a.split("=", true, 1)[1]
