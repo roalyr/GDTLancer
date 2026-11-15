@@ -361,6 +361,8 @@ func _point_of(args: Dictionary):
 		for exact in [true, false]:
 			for b in buttons:
 				var t: String = b.text.to_lower()
+				if b.get("world", false) and not want.begins_with("target"):
+					continue  # A bracket only by "target: <name>": "lance" means the LANCE button, not a stuck lance
 				if not b.get("disabled", false) and (t == want if exact else want in t):
 					return Vector2(b.at[0], b.at[1])
 		return {"error": "No enabled button with text '%s'" % args.text}
