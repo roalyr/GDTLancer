@@ -180,6 +180,9 @@ class TasksTest(unittest.TestCase):
         self.assertIn("one of: wreck, chunk", text)
         self.assertIn("[float, default '30'", text)
 
+    def test_elapsed_time_reads_easily(self):
+        self.assertEqual([tasks.elapsed(s) for s in (5, 252, 3900)], ["5 s", "4 min 12 s", "1 h 05 min"])
+
     def test_missing_answers_are_named(self):
         task = tasks.TASKS_BY_KEY["check_model"]
         self.assertEqual(tasks.missing(task, {"scene": ""}), ["Scene"])

@@ -27,6 +27,7 @@ Keys are listed in the footer and on the help screen (?).
 import glob
 import json
 import os
+import time
 import subprocess
 
 from textual import on, work
@@ -3311,9 +3312,10 @@ class DevApp(App):
             self.notify("Missing: " + ", ".join(lacking), severity="error")
             return
         with self.suspend():
+            started = time.time()
             code = tasks.run(task, values)
             if wait:
-                print("\n[%s] exit %d. Enter: back to the menu" % (task.key, code), end="", flush=True)
+                print("\n[%s] exit %d after %s. Enter: back to the menu" % (task.key, code, tasks.elapsed(time.time() - started)), end="", flush=True)
                 try:
                     input()
                 except EOFError:

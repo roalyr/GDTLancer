@@ -22,6 +22,7 @@ import os
 import shutil
 import subprocess
 import sys
+import time
 
 TOOLS = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, TOOLS)
@@ -125,7 +126,11 @@ def main(argv):
         else:
             print("Not key=value: %s" % arg)
             return 2
-    return tasks.run(task, values, dry)
+    started = time.time()
+    code = tasks.run(task, values, dry)
+    if not dry and time.time() - started >= 10:
+        print("[%s] exit %d after %s" % (task.key, code, tasks.elapsed(time.time() - started)))
+    return code
 
 
 if __name__ == "__main__":

@@ -556,13 +556,13 @@ TASKS = [
          lambda v: ["python3", "tools/devtool/import_project.py"]),
     Task("editor", "Game", "Open the Godot editor", "Godot 3.6's editor, to compose a scene's look (the tool places, creates and links: World, Data).",
          lambda v: godot("-e")),
-    Task("apk", "Game", "Export the debug APK", "Android debug build to $GDTLANCER_APK (" + APK + ").",
+    Task("apk", "Game", "Export the debug APK", "Android debug build to $GDTLANCER_APK (" + APK + "). About 25 s.",
          lambda v: godot("--no-window", "--export-debug", "Android", APK)),
     # Maintainer: evolution, releases, probes (docs/MAINTAINING.md); the menu hides these until m
     Task("selftest", "Maintainer", "Test the development tool", "The tool's own Python tests (its Godot side is in the GUT tests).",
          lambda v: ["python3", "tools/dev.py", "selftest"]),
     Task("soak", "Maintainer", "Soak the game", "The real game left running (a new game in Elace, docked at home, 1x): fails on errors,"
-         " orphaned nodes or memory growing, wrecks over their caps, bookkeeping growing. Frame rates printed. Needs a display.",
+         " orphaned nodes or memory growing, wrecks over their caps, bookkeeping growing. Frame rates printed. Needs a display. Takes the minutes asked, plus the game's start.",
          lambda v: ["python3", "tools/devtool/soak.py", "minutes=" + v["minutes"], "every=" + v["every"]],
          [Ask("minutes", "Minutes (real time)", "float", default="5"), Ask("every", "Seconds between report lines", "float", default="30")]),
     Task("export_presets", "Maintainer", "Export presets from evolution", "The fittest designs of evolution's save as drafts, in database/drafts/export/ (pick_archetypes takes archetypes from drafts).",
@@ -601,20 +601,20 @@ TASKS = [
     Task("evolution_report", "Maintainer", "Evolution report", "Summary of the newest evolution life log.",
          lambda v: ["python3", "tools/evolution_report.py"] + (["--last-hours", v["hours"]] if v["hours"] else []),
          [Ask("hours", "Only the last hours (empty: all)", "float", default="", optional=True)]),
-    Task("balance_sim", "Maintainer", "Battle balance sim", "A headless faction battle by the home station: kills, fight times, damage.",
+    Task("balance_sim", "Maintainer", "Battle balance sim", "A headless faction battle by the home station: kills, fight times, damage. About 2 minutes.",
          lambda v: godot_script("tools/balance_sim.gd")),
     Task("lance_duel", "Maintainer", "Lance duels", "Designs fight one on one; what the lance did.",
          _lance_duel, [Ask("duels", "Duels per match", "int", default="8"), Ask("speed", "Speed", "float", default="6"),
                        Ask("match", "Only this match (e.g. lancer,laser; empty: all)", default="", optional=True),
                        Ask("weapons", "Missile and cannon designs", "flag", "no"),
                        Ask("rate", "Physics steps a game second (empty: the project's)", "int", default="", optional=True)]),
-    Task("perf", "Maintainer", "Performance ablation", "Frame times with one system switched off.",
+    Task("perf", "Maintainer", "Performance ablation", "Frame times with one system switched off. About a minute a mode on a laptop.",
          lambda v: godot_script("tools/perf_ablation.gd", "mode=" + v["mode"]),
          [Ask("mode", "Mode", "choice", "base", PERF_MODES)]),
-    Task("fight_bench", "Maintainer", "Fight bench", "Frame times and profiler sections in a staged fight by the home station.",
+    Task("fight_bench", "Maintainer", "Fight bench", "Frame times and profiler sections in a staged fight by the home station. About 50 s with the defaults.",
          lambda v: godot_script("tools/fight_bench.gd", "n=" + v["n"], "secs=" + v["secs"]),
          [Ask("n", "Ships a side", "int", default="8"), Ask("secs", "Seconds measured", "int", default="30")]),
-    Task("ui_shots", "Maintainer", "UI screenshots", "Every store tab and prompt, the SHIP and PILOT windows, with control dumps, to .dev/out/ui/.",
+    Task("ui_shots", "Maintainer", "UI screenshots", "Every store tab and prompt, the SHIP and PILOT windows, with control dumps, to .dev/out/ui/. About 20 s.",
          lambda v: godot("res://tools/ui_shots.tscn", "out=" + out_file("ui"))),
     Task("flight_shots", "Maintainer", "Flight screenshots", "The HUD in flight, plain and with the nearest ship selected, to .dev/out/flight/.",
          _flight_shots, [Ask("wait", "Seconds of flight first", "float", default="12"),
@@ -631,7 +631,7 @@ TASKS = [
                           Ask("lance", "Lance strike damage: what it breaks off the biggest rock (empty: none)", "float", default="", optional=True),
                           Ask("approach", "Approach first", "flag", "no"), Ask("full", "Cargo hold full", "flag", "no")]),
     Task("release", "Maintainer", "Release a version", "Tests, a soak, versions the Android build, exports GDTLancer-<version>.apk, commits and tags"
-         " (nothing is pushed). Needs a clean working tree.",
+         " (nothing is pushed). Needs a clean working tree. The tests take about 10 minutes, then the soak's minutes and the export.",
          lambda v: ["python3", "tools/devtool/release.py", "version=" + v["version"], "tests=" + v["tests"], "soak=" + v["soak"],
                     "tag=" + v["tag"], "out=" + os.path.dirname(APK)],
          [Ask("version", "Version", default=next_version, fresh=True), Ask("tests", "Run the tests first", "flag", "yes"),
@@ -669,6 +669,16 @@ def program_problem(command):
     if (first == BLENDER or needs_blender) and blender_problem():
         return blender_problem()
     return ""
+
+
+def elapsed(seconds):
+    """'42 s', '4 min 12 s', '1 h 05 min': how long a task ran."""
+    seconds = int(round(seconds))
+    if seconds < 60:
+        return "%d s" % seconds
+    if seconds < 3600:
+        return "%d min %02d s" % (seconds // 60, seconds % 60)
+    return "%d h %02d min" % (seconds // 3600, seconds % 3600 // 60)
 
 
 def describe(task):
