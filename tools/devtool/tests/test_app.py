@@ -250,6 +250,25 @@ class AppTest(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(len(fake.writes), 1)
             self.assertEqual(fake.writes[0]["values"], {"count": 5, "color": {"$": "Color", "v": [0.1, 0.2, 0.3, 1.0]}})
 
+    async def test_a_form_says_who_names_its_file(self):
+        app = devapp.DevApp(bridge_factory=lambda: FakeBridge())
+        users = ["res://database/factions/violet.tres"] + ["res://x/start_%d.tres" % n for n in range(8)]
+        with mock.patch.object(devapp.data, "references", lambda path, by_name=False: users if path == FILE else []):
+            async with app.run_test(size=(160, 60)) as pilot:
+                await self._started(pilot, app)
+                app.load_file(FILE)
+                await self._started(pilot, app)
+                await app.workers.wait_for_complete()
+                await pilot.pause()
+                title = str(app.query_one("#data-form .form-title").content)
+                self.assertIn("Named in 9 files: violet.tres, start_0.tres", title)
+                self.assertIn("...", title, "Six spelled out, then the rest")
+                app.load_file("res://database/factions/raiders.tres")
+                await self._started(pilot, app)
+                await app.workers.wait_for_complete()
+                await pilot.pause()
+                self.assertIn("Named in no other file", str(app.query_one("#data-form .form-title").content))
+
     async def test_a_bad_value_is_not_saved(self):
         fake = FakeBridge()
         app = devapp.DevApp(bridge_factory=lambda: fake)

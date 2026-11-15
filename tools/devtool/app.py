@@ -1526,6 +1526,7 @@ class TasksPane(Vertical):
 # --- The app --------------------------------------------------------------------------------------
 
 UNDO_DEPTH = 50  # Saves ctrl+u can step back through in one session
+NAMED_IN_SHOWN = 6  # Files a form's 'Named in' line spells out
 TABS = ["overview", "models-tab", "archetypes-tab", "factions-tab", "world", "parts-tab", "look-tab", "data", "constants", "tasks-tab"]
 TAB_KEYS = "1234567890"
 TAB_FOCUS = {"overview": "#problems", "models-tab": "#models", "archetypes-tab": "#archetypes", "factions-tab": "#factions",
@@ -1991,9 +1992,23 @@ class DevApp(App):
         self.open_file = path
         kind = data.kind_of(path)
         form = self.query_one("#data-form", Form)
-        form.show("[b]%s[/b] · %s  [dim](%s%s)[/dim]" % (os.path.basename(path), path, schema["class"], (", " + kind.title) if kind else ""),
-                  schema["fields"], read["values"], schema.get("script", ""))
+        title = "[b]%s[/b] · %s  [dim](%s%s)[/dim]" % (os.path.basename(path), path, schema["class"], (", " + kind.title) if kind else "")
+        form.show(title, schema["fields"], read["values"], schema.get("script", ""))
         form.result(result)
+        self.named_in_worker(path, title, bool(kind and kind.copies))
+
+    @work(thread=True, exclusive=True, group="named-in")
+    def named_in_worker(self, path, title, by_name=False):
+        """Who names the open file (data.references, ~0.3 s), added to its form's title when found."""
+        users = data.references(path, by_name=by_name)
+        self.call_from_thread(self._show_named_in, path, title, users)
+
+    def _show_named_in(self, path, title, users):
+        if self.open_file != path:
+            return  # Another file was opened meanwhile
+        shown = ", ".join(os.path.basename(user) for user in users[:NAMED_IN_SHOWN]) + (" ..." if len(users) > NAMED_IN_SHOWN else "")
+        self.query_one("#data-form", Form).title(title + ("\n[dim]Named in %s: %s[/dim]" % (plural(len(users), "file"), shown) if users else
+                                                         "\n[dim]Named in no other file.[/dim]"))
 
     def action_save_file(self):
         if self.open_file is None:
