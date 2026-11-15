@@ -276,8 +276,28 @@ def go_on(hours, speed, folder=None, start_process=start_detached, say=print, op
     return 0
 
 
+def islands_detached(action, count="1", folder=None, start_process=start_detached, say=print):
+    """islands.py's long actions (segment, run N) started detached, their output in
+    logs/islands_<date>.log: hours of segments outlive the menu and the terminal; the Tools tab shows
+    them and x (or islands stop) ends the run after the segment that is running."""
+    folder = folder or evolution_dir()
+    info = status(folder)
+    if info and info.get("running"):
+        say("Evolution is running already (pid %s%s): stop it first." % (info.get("pid"), ", islands" if info.get("islands") else ""))
+        return 1
+    os.makedirs(os.path.join(folder, "logs"), exist_ok=True)
+    log = free_path(os.path.join(folder, "logs", "islands_%s.log" % time.strftime("%Y%m%d")))
+    command = ["python3", "tools/devtool/islands.py", action] + ([str(count)] if action == "run" else [])
+    pid = start_process(command, log)
+    say("Islands are running (%s), pid %d; their output: %s.\nThe Tools tab shows them; x (or islands stop) ends the run after this segment."
+        % (" ".join(command[2:]), pid, log))
+    return 0
+
+
 def main(argv):
     values = dict(arg.split("=", 1) for arg in argv if "=" in arg)
+    if argv[:1] == ["islands"]:
+        return islands_detached(values.get("action", "segment"), values.get("segments", "1"))
     if argv[:1] == ["go_on"]:
         return go_on(values.get("hours", "1"), values.get("speed", "6"), options=values)
     yes = lambda key, default: str(values.get(key, default)).lower() in ("yes", "y", "true", "1")

@@ -65,7 +65,7 @@ The era number comes from `era.json`. If that is missing, the flow guesses from 
 
 ## Islands: evolution on several machines
 
-One Godot process runs evolution on one CPU core. `tools/devtool/islands.py` runs several side by side, on this machine and on others over SSH, and merges them after each segment. See [ISLANDS.md](ISLANDS.md).
+One Godot process runs evolution on one CPU core. `tools/devtool/islands.py` runs several side by side, on this machine and on others over SSH, and merges them after each segment. See [ISLANDS.md](ISLANDS.md). From the tool: Tools, `m`, **Evolution islands** (check, push, segment, run, stop); segments and runs start detached, their output in `user://evolution/logs/islands_<date>.log`, and the Tools tab shows which islands a segment waits for and whether a stop was asked.
 
 ## Checks: tests, selftest, soak
 

@@ -1,5 +1,6 @@
 """The menu, driven by Textual's test pilot against a stand-in for Godot (no files are written)."""
 
+import json
 import os
 import shutil
 import tempfile
@@ -160,6 +161,19 @@ class FakeGit:
             return False, "A commit needs a message"
         self.committed.append(message)
         return True, "abc123 " + message
+
+
+class ToolsStatusTest(unittest.TestCase):
+    def test_islands_say_whom_they_wait_for_and_a_stop_asked(self):
+        with tempfile.TemporaryDirectory() as folder:
+            with open(os.path.join(folder, "status.json"), "w") as handle:
+                json.dump({"state": "running", "pid": os.getpid(), "islands": True, "game_time": 7200, "waiting": [2, 4]}, handle)
+            line = devapp.tools_status(folder)
+            self.assertIn("islands running", line)
+            self.assertIn("waiting for islands 2, 4", line)
+            self.assertNotIn("stop asked", line)
+            open(os.path.join(folder, "stop"), "w").close()
+            self.assertIn("stop asked", devapp.tools_status(folder))
 
 
 class AppTest(unittest.IsolatedAsyncioTestCase):

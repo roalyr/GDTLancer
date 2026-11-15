@@ -220,7 +220,13 @@ def tools_status(evolution_dir, maintainer=True):
         info = evolution.status(evolution_dir)
         number, label, guessed = evolution.era(evolution_dir)
         era_text = ("era %d%s%s" % (number, " (%s)" % label if label else "", ", guessed from backup names" if guessed else "")) if number else "era unknown"
-        if info and info["running"]:
+        if info and info["running"] and info.get("islands"):
+            waiting = info.get("waiting")
+            lines.append("[b]Evolution[/b]: [green]islands running[/green] %s, a segment from t=%.1f h%s (updated %s) · x stops the run after it%s"
+                         % (era_text, float(info.get("game_time", 0)) / 3600.0,
+                            ", waiting for island%s %s" % ("s" if len(waiting) > 1 else "", ", ".join(str(k) for k in waiting)) if waiting else "",
+                            age(status_file), " ([yellow]stop asked[/yellow])" if os.path.exists(os.path.join(evolution_dir, "stop")) else ""))
+        elif info and info["running"]:
             lines.append("[b]Evolution[/b]: [green]running[/green] %s, t=%.1f h, %s lives, %s genomes, pace x%.1f (updated %s) · x asks it to stop"
                          % (era_text, float(info.get("game_time", 0)) / 3600.0, info.get("lives", "?"), info.get("genomes", "?"),
                             float(info.get("pace", 0)), age(status_file)))

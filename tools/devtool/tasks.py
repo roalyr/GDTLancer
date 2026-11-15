@@ -370,6 +370,13 @@ def _evolution(v):
                                                                   if str(v.get(key, "")).strip() not in ("", "no")]
 
 
+def _islands(v):
+    """check, push and stop run here; segment and run (hours) start detached (evolution.islands_detached)."""
+    if v["action"] in ("segment", "run"):
+        return ["python3", "tools/devtool/evolution.py", "islands", "action=" + v["action"], "segments=" + v["segments"]]
+    return ["python3", "tools/devtool/islands.py", v["action"]]
+
+
 def _evolution_check(v):
     if yes(v.get("frozen", "no")) and not str(v.get("save_dir", "")).strip():
         return ["A frozen run needs its own save folder (never the game's saves): give Save folder, e.g. user://frozen/"]
@@ -567,6 +574,10 @@ TASKS = [
                     Ask("redo_drafts", "Export again over this era's drafts if they exist (they may be edited)", "flag", "no", fresh=True),
                     Ask("commit", "Commit the drafts and catalog", "flag", "yes"),
                     Ask("start", "Start the next era now", "flag", "yes")]),
+    Task("islands", "Maintainer", "Evolution islands", "Evolution on several processes and machines (docs/ISLANDS.md; .dev/islands.json):"
+         " check the hosts, push the project to them, run segments (detached: the Tools tab shows them) or stop after the segment running.",
+         _islands, [Ask("action", "Action", "choice", "check", ["check", "push", "segment", "run", "stop"]),
+                    Ask("segments", "Segments (run)", "int", default="6")]),
     Task("evolution_report", "Maintainer", "Evolution report", "Summary of the newest evolution life log.",
          lambda v: ["python3", "tools/evolution_report.py"] + (["--last-hours", v["hours"]] if v["hours"] else []),
          [Ask("hours", "Only the last hours (empty: all)", "float", default="", optional=True)]),
