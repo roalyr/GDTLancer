@@ -245,7 +245,7 @@ func cmd_quit(_args: Dictionary):
 # (a menu, a window) is left out ("covered"), and an icon button is named by the labels over it.
 func _collect(root: Node, buttons: Array, texts: Array) -> void:
 	var drawn: Array = []  # [layer, order, control]
-	_gather(root, 0, drawn)
+	_gather(root, 0, drawn, Rect2(-1e6, -1e6, 2e6, 2e6))
 	drawn.sort_custom(self, "_draw_order")
 	var screen := Rect2(Vector2.ZERO, get_viewport().get_visible_rect().size)
 	var labels: Array = []
@@ -261,7 +261,7 @@ func _collect(root: Node, buttons: Array, texts: Array) -> void:
 		if not rect.intersects(screen) or rect.size.x <= 0 or rect.size.y <= 0:
 			continue
 		var centre: Vector2 = rect.get_center()
-		if _covered(drawn, i, centre):
+		if not drawn[i][3].has_point(centre) or _covered(drawn, i, centre):
 			continue
 		if c is BaseButton:
 			var entry := {"id": _seen.size(), "text": _button_text(c, labels), "at": [int(centre.x), int(centre.y)]}
@@ -290,7 +290,9 @@ func _inside_button(node: Node) -> bool:
 	return false
 
 
-func _gather(node: Node, layer: int, drawn: Array) -> void:
+# Every visible control, [layer, order, control, clip]: clip is what scroll containers above it
+# leave in view (a row scrolled out of sight is not on screen).
+func _gather(node: Node, layer: int, drawn: Array, clip: Rect2) -> void:
 	if node is CanvasLayer:
 		if not node.visible:
 			return
@@ -298,9 +300,11 @@ func _gather(node: Node, layer: int, drawn: Array) -> void:
 	if node is CanvasItem and not node.is_visible_in_tree():
 		return
 	if node is Control:
-		drawn.append([layer, drawn.size(), node])
+		drawn.append([layer, drawn.size(), node, clip])
+		if node is ScrollContainer:
+			clip = clip.clip(node.get_global_rect())
 	for child in node.get_children():
-		_gather(child, layer, drawn)
+		_gather(child, layer, drawn, clip)
 
 
 func _draw_order(a: Array, b: Array) -> bool:
