@@ -1,5 +1,5 @@
 # FittingWindow: the home station's store and refitting, mouse-only. Covers the screen for as
-# long as the player is docked (the docked ship is out of the world); UNDOCK leaves. Away from home
+# long as the player is docked (the docked ship is out of the world); UNDOCK leaves; MENU opens the main menu (the HUD's menu button is under it). Away from home
 # it shows the cargo tab only: the hold is sold here, by the player, never on docking (Fitting). Slots (click to unfit), storage (fit or sell) and the store, which
 # sells every ship (the one flown is traded in; preset designs come fitted), part and commodity
 # (bought into the hold, sold back from it). The store shows one tab at a time (STORE_TABS), its
@@ -42,6 +42,7 @@ const SELECTED_SHADE = Color(1, 1, 1, 0.16)  # The previewed ship's row
 
 func _ready() -> void:
 	$Panel/Layout/Header/ButtonUndock.connect("pressed", EventBus, "emit_signal", ["player_undocked"])
+	$Panel/Layout/Header/ButtonMenu.connect("pressed", EventBus, "emit_signal", ["main_menu_requested"])  # The HUD's menu button is under the store
 	EventBus.connect("player_docked", self, "_on_player_docked")
 	EventBus.connect("player_undocked", self, "_on_player_undocked")
 

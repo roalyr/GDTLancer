@@ -31,6 +31,11 @@ custom_constants/separation = 12
 [node name="Header" type="HBoxContainer" parent="Panel/Layout"]
 custom_constants/separation = 8
 
+[node name="ButtonMenu" type="Button" parent="Panel/Layout/Header"]
+rect_min_size = Vector2( 160, 64 )
+focus_mode = 0
+text = "MENU"
+
 [node name="Title" type="Label" parent="Panel/Layout/Header"]
 size_flags_horizontal = 3
 size_flags_vertical = 5

@@ -79,6 +79,49 @@ func test_main_menu_close_hides_and_unpauses_live_session() -> void:
 	assert_false(get_tree().paused, "MainMenu close should unpause gameplay during a live session.")
 
 
+# Before a game there is nothing to save: Save is greyed out and pressing it offers no slots.
+func test_main_menu_save_needs_a_game() -> void:
+	GameState.current_sector_id = ""
+	var main_menu = MainMenuScene.instance()
+	add_child_autofree(main_menu)
+	main_menu._show_menu()
+	var save_button: BaseButton = main_menu.get_node("ScreenControls/MainButtonsHBoxContainer/ButtonSaveGame")
+	assert_true(save_button.disabled, "No game: Save is greyed out")
+	main_menu._on_save_game_pressed()
+	assert_eq(_prompts(main_menu), 0, "and offers no slots")
+	GameState.current_sector_id = "sector_elace"
+	main_menu._show_menu()
+	assert_false(save_button.disabled, "A game running: Save is there")
+
+
+# New during a game asks first (unsaved play is lost); before one it starts at once.
+func test_main_menu_new_asks_during_a_game() -> void:
+	GameState.current_sector_id = "sector_elace"
+	var main_menu = MainMenuScene.instance()
+	add_child_autofree(main_menu)
+	main_menu._show_menu()
+	watch_signals(EventBus)
+	main_menu._on_new_game_pressed()
+	assert_signal_not_emitted(EventBus, "new_game_requested", "During a game: not at once")
+	assert_eq(_prompts(main_menu), 1, "a prompt asks")
+	main_menu._on_new_game_chosen("cancel")
+	assert_signal_not_emitted(EventBus, "new_game_requested", "Cancel keeps the game")
+	main_menu._on_new_game_chosen("new")
+	assert_signal_emitted(EventBus, "new_game_requested", "NEW GAME starts one")
+
+
+func test_main_menu_clock_text() -> void:
+	assert_eq(load("res://src/core/ui/main_menu/main_menu.gd").clock_text({"hour": 7, "minute": 5}), "07:05")
+
+
+func _prompts(menu: Node) -> int:
+	var count: int = 0
+	for child in menu.get_children():
+		if child.get_script() == preload("res://src/core/ui/helpers/prompt_dialog.gd"):
+			count += 1
+	return count
+
+
 func test_main_hud_dock_button_requests_dock_from_player_controller() -> void:
 	var root = Node.new()
 	add_child_autofree(root)

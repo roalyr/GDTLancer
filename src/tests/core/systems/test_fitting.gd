@@ -323,6 +323,16 @@ func test_standing_with_the_home_factions_counts_in_the_store():
 	assert_true(Fitting.sale_price("preset_thruster_medium") > even_sale, "and sold dearer")
 
 
+# The store covers the HUD (its menu button too): its own MENU opens the main menu.
+func test_station_window_menu_button_opens_the_main_menu():
+	GlobalRefs.player_agent_body = _player_ship()
+	var window = load("res://scenes/ui/menus/fitting_window.tscn").instance()
+	add_child_autofree(window)
+	watch_signals(EventBus)
+	window.get_node("Panel/Layout/Header/ButtonMenu").emit_signal("pressed")
+	assert_signal_emitted(EventBus, "main_menu_requested")
+
+
 func test_station_window_is_shown_while_docked_at_home():
 	GlobalRefs.player_agent_body = _player_ship()
 	var window = load("res://scenes/ui/menus/fitting_window.tscn").instance()

@@ -3,6 +3,8 @@
 # closing the window) asks whether to save first; a new game starts a fresh world, its havens flying
 # the presets. Save and load ask for a slot (a list: the player's slots, and for loading the
 # autosave's too); saving over a game asks first. The autosave's slot is never offered for saving.
+# Save needs a game running (before one there is nothing to save), and New during one asks first, as
+# Exit does. The clock in the corner is the device's time, kept current while the menu shows.
 
 extends Control
 
@@ -12,6 +14,7 @@ onready var btn_save_game = $ScreenControls/MainButtonsHBoxContainer/ButtonSaveG
 onready var btn_exit_game = $ScreenControls/MainButtonsHBoxContainer/ButtonExitgame
 onready var btn_close = $ScreenControls/ButtonClose
 onready var btn_settings = $ScreenControls/MainButtonsHBoxContainer/ButtonSettings
+onready var time_label: Label = $ScreenControls/TimeLabel
 var options_window: Control = null
 const OptionsWindowScene = preload("res://scenes/ui/menus/options_window.tscn")
 
@@ -49,6 +52,18 @@ func _ready() -> void:
 	call_deferred("_show_menu")
 
 
+func _process(_delta: float) -> void:
+	if visible and is_instance_valid(time_label):
+		var text: String = clock_text(OS.get_time())
+		if time_label.text != text:
+			time_label.text = text
+
+
+# "HH:MM" of OS.get_time()'s {hour, minute}.
+static func clock_text(time: Dictionary) -> String:
+	return "%02d:%02d" % [int(time.get("hour", 0)), int(time.get("minute", 0))]
+
+
 func _notification(what: int) -> void:
 	if what == MainLoop.NOTIFICATION_WM_QUIT_REQUEST:
 		_request_exit()
@@ -74,7 +89,16 @@ func _on_exit_chosen(choice) -> void:
 
 
 func _on_new_game_pressed() -> void:
-	_start_new_game()
+	if not _has_active_game_session():
+		_start_new_game()
+		return
+	var prompt = PromptDialog.ask(self, "Start a new game?", "UNSAVED PLAY IS LOST.", [["new", "NEW GAME"], ["cancel", "CANCEL"]])
+	prompt.connect("chosen", self, "_on_new_game_chosen")
+
+
+func _on_new_game_chosen(choice) -> void:
+	if choice == "new":
+		_start_new_game()
 
 
 func _start_new_game() -> void:
@@ -112,6 +136,9 @@ func _on_load_slot_chosen(choice) -> void:
 func _on_save_game_pressed() -> void:
 	if not is_instance_valid(GameStateManager):
 		printerr("MainMenu: GameStateManager unavailable.")
+		return
+	if not _has_active_game_session():  # Nothing to save yet (the button is greyed out then)
+		_refresh_close_button_state()
 		return
 	_pick_save_slot(false)
 
@@ -177,10 +204,12 @@ func _update_load_button_state() -> void:
 		btn_load_game.disabled = true
 
 
+# Close and Save need a game running.
 func _refresh_close_button_state() -> void:
-	if not is_instance_valid(btn_close):
-		return
-	btn_close.disabled = not _has_active_game_session()
+	if is_instance_valid(btn_close):
+		btn_close.disabled = not _has_active_game_session()
+	if is_instance_valid(btn_save_game):
+		btn_save_game.disabled = not _has_active_game_session()
 
 
 func _has_active_game_session() -> bool:
