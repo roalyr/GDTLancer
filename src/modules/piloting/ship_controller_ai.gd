@@ -70,6 +70,8 @@ var _resume_state: int = AIState.PATROL  # What it was doing before it started h
 var _resume_target: RigidBody = null  # and on what
 var _think_elapsed: float = 0.0  # s since it last thought
 var _think_due: float = randf() * Constants.AI_THINK_INTERVAL  # First think staggered across ships
+var _thinking := false  # Inside _think: get_engagement_range keeps its answer for the think (_range_memo)
+var _range_memo: Array = []  # [target, covering, range] worked out this think
 var _threat = null  # The latest scan's enemy too strong for it that has not seen it (_keep_clear)
 var _avoided = null  # The one it last kept clear of
 var _havens: Dictionary = {}  # Haven NPCs: {"zone_id" (its haven), "stations" (where it is welcome), "refuges" (faction -> those), "centre", "radius" (the play area), "territorial"}
@@ -576,7 +578,18 @@ func get_focus() -> Node:
 # among the weapons that work on the target (and have rounds left), so all of them reach; times its
 # range gene. Never beyond where its weapons lock through the target's jamming. Covering a friend it
 # presses in (AI_COVER_RANGE_SHARE); otherwise it keeps to its lock window if it has one.
+# Combat and the afterburner both ask in one think, and nothing it reads (weapons, ammo, the
+# target's jamming) changes within a think: worked out once a think (a fresh answer outside one).
 func get_engagement_range() -> float:
+	if _thinking and not _range_memo.empty() and _range_memo[0] == _target_agent and _range_memo[1] == _covering:
+		return _range_memo[2]
+	var engagement: float = _engagement_range()
+	if _thinking:
+		_range_memo = [_target_agent, _covering, engagement]
+	return engagement
+
+
+func _engagement_range() -> float:
 	var engagement: float = _base_engagement_range()
 	if engagement <= 0.0:
 		return engagement
@@ -641,7 +654,10 @@ func _physics_process(delta: float) -> void:
 		return
 	_think_due = Constants.AI_THINK_INTERVAL
 	FrameProfiler.begin(get_tree(), "ai")
+	_thinking = true
+	_range_memo = []
 	_think(_think_elapsed)
+	_thinking = false
 	FrameProfiler.end(get_tree(), "ai")
 	_think_elapsed = 0.0
 

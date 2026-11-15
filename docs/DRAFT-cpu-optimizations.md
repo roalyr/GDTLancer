@@ -94,7 +94,20 @@ The original plan for this item follows.
   a fight (add a `mode=` to fight_bench the same way).
 - Keep the readout in the HUD debug overlay as the existing sections are (`MainHUD._update_debug_overlay`).
 
-### 1. AI scans: side strength recomputed per candidate (biggest script win)
+### 1. AI scans: side strength recomputed per candidate: MEASURED, DROPPED
+
+Tried as a memo for the length of one think (sides and damage per second, cleared on ammo
+recovered, docking and undocking): exact, and no gain. Temporary sub-sections in the bench showed
+`desire_against` at ~0.4 ms a frame with the memo and without; a ship asks it once or twice a think
+(most candidates are filtered out before it), so there was nothing to share. Where the AI's
+~2.4 ms a frame goes, from those sub-sections (they add ~0.5 ms of their own): combat handling 1.3
+to 1.5 (engagement range 0.5, `_fire_at` 0.27, `_should_retreat` 0.23, `can_charge` 0.13,
+`_charge` 0.10), desire 0.4, patrol 0.3, scans 0.1 to 0.3, decisions 0.1. No single cut is large;
+the per-tool walks (`can_target`, `reach_on`, `lock_range_for`) under range, fire and retreat are
+the common part, and a per-think cache of `reach_on` per tool and target would serve all three.
+
+The original note follows.
+
 
 Where: `src/modules/piloting/ship_controller_ai.gd` `scan_for_target()` (1751) →
 `desire_against()` (1779) → `src/core/systems/combat_assessment.gd` `side_of()` (37).
@@ -168,7 +181,12 @@ Verify: the tests that exercise `is_enemy_of` (`test_ship_controller_ai.gd`, `te
 `src/scenes/game_world/station/faction_station.gd` (the place for the `forget` call); the bench's
 `ai` and HUD sections.
 
-### 4. Engagement range computed twice per think
+### 4. Engagement range computed twice per think: DONE
+
+Kept for the think (`_thinking`, `_range_memo`: target and covering as the key; fresh outside a
+think, as tests ask). In a bench run it was asked 4477 times and worked out 3478: about 0.1 ms a
+frame saved of the ~0.5 it costs, under the bench's run-to-run noise but exact.
+
 
 Where: `ship_controller_ai.gd` `get_engagement_range()` (579), called from `_process_combat` (872)
 and again from `_update_afterburner` (687) in the same `_think`. Each call runs
@@ -320,8 +338,10 @@ Likewise `can_sleep = false` on every RigidBody is intentional (wrecks stay live
 ## Suggested order and checkpoints
 
 1. Item 0 (sections, the bench averaging the profiler). Done; baseline recorded under item 0.
-2. Item 1, then 4 (both inside the AI think; one test file). Bench. Commit each. Then 6 and 6b
-   (sound and view: together ~2.9 ms a frame, item 0's surprise).
+2. Item 1 (dropped, measured) and 4 (done). Next 6 and 6b (sound and view: together ~2.9 ms a
+   frame, item 0's surprise), before 2 and 3.
+   The bench varies ±10% run to run (fights diverge): compare sections over three runs, and for
+   small items count calls instead (a temporary counter printed at the end of the bench).
 3. Item 2 (ship snapshot) and the item 10 bits, then 3. Bench. Commit each.
 4. Item 5. Bench with a cannon-heavy fight. Commit.
 5. Items 6, 7, 8, 9 (idle-time scripts). Bench. Commit each.
