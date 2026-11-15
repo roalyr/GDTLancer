@@ -158,6 +158,20 @@ class NewEraTest(unittest.TestCase):
             time.sleep(0.1)
         self.assertIn("EVOSIM running", text)
 
+    def test_going_on_starts_detached_unless_it_runs(self):
+        runs = Runs(self.presets)
+        said = []
+        self.assertEqual(evolution.go_on("2", "8", self.folder, runs.start, said.append), 0)
+        command, log = runs.started[0]
+        self.assertIn("tools/evolution_sim.gd", command)
+        self.assertIn("--hours=2", command)
+        self.assertNotIn("--new", command, "Goes on with the save")
+        self.assertTrue(os.path.basename(log).startswith("continued_") and os.path.dirname(log) == self.folder)
+        self.assertIn("x stops it", said[-1])
+        self.status(state="running", pid=os.getpid())
+        self.assertEqual(evolution.go_on("2", "8", self.folder, runs.start, said.append), 1)
+        self.assertEqual(len(runs.started), 1, "Not a second run")
+
     def test_user_dir_is_godots(self):
         self.assertTrue(evolution.user_dir().endswith(os.path.join("godot", "app_userdata", "GDTLancer-rev")))
 

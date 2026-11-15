@@ -28,7 +28,7 @@ New designs reach the game only by being exported as drafts and picked as archet
 ## Running evolution
 
 - **From the game:** open the debug overlay and press **EVOLUTION**, then **START EVOLUTION**. The game pauses while evolution runs as a separate process, until you press **STOP EVOLUTION**. It then saves and ends, and the game carries on. This works only from the project on a desktop.
-- **From the tool:** Tools, `m`, then **Run evolution (headless)**. It goes on with the current era.
+- **From the tool:** Tools, `m`, then **Run evolution (headless)**. It goes on with the current era, detached: the menu comes back at once, its console goes to `user://evolution/continued_<date>.log`, and `x` stops it. It will not start a second run. Its `follow` option runs it in the terminal instead (`ctrl+c` then kills it, losing what it has not saved).
 - **From a terminal:** `godot --no-window -s tools/evolution_sim.gd -- --hours=4`.
 
 The Tools tab shows whether evolution is running, its era, its save, newest backup and newest life log. `x` asks it to save and stop at its next check. **Evolution report** summarises the newest life log.

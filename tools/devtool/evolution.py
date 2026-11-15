@@ -16,6 +16,15 @@ before the rules change under evolution, in order, each step checked before the 
 7. Evolution starts the new era (--new-era: genomes stay, their records start over; or --new: from
    scratch), detached, its console going to era<N+1>_<label>.log. The Tools tab shows it running.
 
+Going on with the saved evolution (the evolution task, go_on):
+
+    python3 tools/devtool/evolution.py go_on hours=1 speed=6
+
+starts it detached the same way (unless it runs already), its console going to
+continued_<date>.log: the menu comes back at once, the Tools tab shows it and x stops it cleanly
+(the stop file: evolution saves, then quits), where a run in the terminal could only be killed,
+losing what it had not saved.
+
 The era number: era.json's, else the highest era<N> among the backups and drafts (a guess the flow
 asks to confirm). Nothing is ever deleted: a backup name that exists gets a number.
 """
@@ -255,8 +264,24 @@ def start_detached(command, log):
     return process.pid
 
 
+def go_on(hours, speed, folder=None, start_process=start_detached, say=print):
+    """Starts the saved evolution again, detached (0), or says why not (1: it runs already)."""
+    folder = folder or evolution_dir()
+    info = status(folder)
+    if info and info.get("running"):
+        say("Evolution is running already (pid %s): the Tools tab's x stops it." % info.get("pid"))
+        return 1
+    os.makedirs(folder, exist_ok=True)
+    log = free_path(os.path.join(folder, "continued_%s.log" % time.strftime("%Y%m%d")))
+    pid = start_process(godot_script("tools/evolution_sim.gd", "--", "--hours=" + str(hours), "--speed=" + str(speed)), log)
+    say("Evolution is running, pid %d; its console: %s.\nThe Tools tab shows it; x stops it (it saves first)." % (pid, log))
+    return 0
+
+
 def main(argv):
     values = dict(arg.split("=", 1) for arg in argv if "=" in arg)
+    if argv[:1] == ["go_on"]:
+        return go_on(values.get("hours", "1"), values.get("speed", "6"))
     yes = lambda key, default: str(values.get(key, default)).lower() in ("yes", "y", "true", "1")
     flow = NewEra(evolution_dir(), values.get("label", ""), values.get("next", ""), values.get("hours", "20"), values.get("speed", "8"),
                   [int(n) for n in values.get("min_lives", "10,5").split(",") if n.strip()], fresh=values.get("kind") == "fresh",

@@ -287,8 +287,11 @@ def _model_sheet(v):
 
 
 def _evolution(v):
-    """Goes on with the saved evolution; a new era or a new evolution goes through new_era (backups first)."""
-    return godot_script("tools/evolution_sim.gd", "--", "--hours=" + v["hours"], "--speed=" + v["speed"])
+    """Goes on with the saved evolution; a new era or a new evolution goes through new_era (backups first).
+    Detached (evolution.go_on) unless followed in the terminal, where ctrl+c kills it unsaved."""
+    if yes(v["follow"]):
+        return godot_script("tools/evolution_sim.gd", "--", "--hours=" + v["hours"], "--speed=" + v["speed"])
+    return ["python3", "tools/devtool/evolution.py", "go_on", "hours=" + v["hours"], "speed=" + v["speed"]]
 
 
 def _era_default(part):
@@ -433,8 +436,10 @@ TASKS = [
     Task("pick_archetypes", "Maintainer", "Pick archetypes from drafts", "Each archetype the drafts folder has a design for is replaced by it; then classify_presets.",
          _pick_archetypes, [Ask("folder", "Drafts folder", "choice", lambda: max(draft_folders(), key=lambda name: (int(name.split("_")[0][len("era"):]), name.endswith("min10")), default=""), draft_folders),
                             Ask("add", "Also make archetypes there are none of yet", "flag", "no")]),
-    Task("evolution", "Maintainer", "Run evolution (headless)", "Goes on with the saved evolution. A new era: new_era.",
-         _evolution, [Ask("hours", "Simulated hours (0: until stopped)", default="1"), Ask("speed", "Speed", default="6")]),
+    Task("evolution", "Maintainer", "Run evolution (headless)", "Goes on with the saved evolution, detached: the menu comes back, the Tools"
+         " tab shows it and x stops it (it saves first). A new era: new_era.",
+         _evolution, [Ask("hours", "Simulated hours (0: until stopped)", default="1"), Ask("speed", "Speed", default="6"),
+                      Ask("follow", "Run it in this terminal instead (ctrl+c kills it, unsaved time lost)", "flag", "no", fresh=True)]),
     Task("new_era", "Maintainer", "New era (backs up first)",
          "Backs up the save, exports its drafts, rewrites the catalog and commits them, then starts the next era.",
          _new_era, [Ask("era", "This era's number", default=_era_default("era"), fresh=True),
