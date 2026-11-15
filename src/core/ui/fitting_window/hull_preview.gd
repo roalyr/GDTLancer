@@ -1,6 +1,9 @@
 # HullPreview: the store's look at a hull (scenes/ui/menus/fitting/hull_preview.tscn): the ship's
 # model in a little world of its own, framed to fit, turning slowly; drag it (mouse or touch) to
 # turn it by hand. The fitting window shows the ship tapped in the ships tab (show_ship).
+# Its viewport renders only while the preview is visible in the tree: a hidden ViewportContainer
+# stops drawing the texture, not rendering it, and the fitting window stays open (other tabs) the
+# whole time the player is docked.
 
 extends ViewportContainer
 
@@ -18,6 +21,18 @@ var _idle: float = RESUME_AFTER
 
 func _ready() -> void:
 	connect("gui_input", self, "_on_gui_input")
+	_update_rendering()
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_VISIBILITY_CHANGED:
+		_update_rendering()
+
+
+func _update_rendering() -> void:
+	var viewport: Viewport = get_node_or_null("Viewport")
+	if viewport != null:
+		viewport.render_target_update_mode = Viewport.UPDATE_ALWAYS if is_visible_in_tree() else Viewport.UPDATE_DISABLED
 
 
 func show_ship(template_id: String) -> void:

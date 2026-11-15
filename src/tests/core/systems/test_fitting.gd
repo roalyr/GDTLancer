@@ -405,3 +405,21 @@ func test_the_home_port_sells_its_goods_and_fuel_not_ore():
 	GameState.player_docked_at = "station_elace_home"
 	assert_eq(Fitting.cargo_stock(), ["commodity_biotech", "commodity_fuel", "commodity_tech"],
 		"Elace's free port: what it makes, and fuel for jumps (as travellers buy it); no ore, which comes from the rocks")
+
+
+# The hull preview's viewport renders only while it is seen: off on another tab or with the window
+# closed, on in the ships tab.
+func test_the_hull_preview_renders_only_while_seen():
+	var window = load("res://scenes/ui/menus/fitting_window.tscn").instance()
+	add_child_autofree(window)
+	var preview = window.get_node("Panel/Layout/Body/Content/Columns/Store/HullPreview")
+	var viewport: Viewport = preview.get_node("Viewport")
+	assert_false(window.visible)
+	assert_eq(viewport.render_target_update_mode, Viewport.UPDATE_DISABLED, "Window closed: not rendered")
+	window.visible = true
+	preview.visible = false
+	assert_eq(viewport.render_target_update_mode, Viewport.UPDATE_DISABLED, "Another tab: not rendered")
+	preview.visible = true
+	assert_eq(viewport.render_target_update_mode, Viewport.UPDATE_ALWAYS, "Ships tab: rendered")
+	window.visible = false
+	assert_eq(viewport.render_target_update_mode, Viewport.UPDATE_DISABLED, "and not once the window closes.")
