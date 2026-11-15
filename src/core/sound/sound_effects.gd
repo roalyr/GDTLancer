@@ -35,10 +35,12 @@ export(Resource) var bank = null  # The sound bank it plays (database/sounds/sou
 var _listener: Listener = null
 var _voices: Array = []  # [player, free at (ms)]
 var _last_played: Dictionary = {}  # "slot:source id" -> ms
-var _ships: Array = []  # [agent body, engine loop or null, afterburner lit when last heard]
+var _ships: Array = []  # [agent body, engine loop or null, afterburner lit when last heard, {loop node name: its carried loop}]
 var _missiles: Array = []  # [missile, its thruster loop]
 var _weapon_hits: Dictionary = {}  # body instance id -> ms its last weapon hit sound played
 var _next_prune: int = 0  # ms
+var _heard: Dictionary = {}  # loop_carriers(), re-ranked every Constants.SOUND_CARRIER_INTERVAL
+var _next_carriers: int = 0  # ms
 var _hull_low: bool = false  # The player's hull at SOUND_HULL_CRITICAL_SHARE or below, last seen
 var _power_out: bool = false  # The player's power run out, last seen
 
@@ -129,18 +131,25 @@ func _mix(delta: float) -> void:
 	var camera: Camera = get_viewport().get_camera()
 	_listener.global_transform = Transform(camera.global_transform.basis if camera != null else Basis(), hearing_point())
 	var now: int = OS.get_ticks_msec()
-	for voice in _voices.duplicate():
+	for index in range(_voices.size() - 1, -1, -1):
+		var voice: Array = _voices[index]
 		if not is_instance_valid(voice[0]) or now >= voice[1]:
 			if is_instance_valid(voice[0]):
 				voice[0].queue_free()
-			_voices.erase(voice)
+			_voices.remove(index)
 	if now >= _next_prune:
 		prune(now)
-	var heard: Dictionary = loop_carriers()
-	for ship in _ships.duplicate():
+	if now >= _next_carriers:
+		_next_carriers = now + int(Constants.SOUND_CARRIER_INTERVAL * 1000.0)
+		_heard = loop_carriers()
+	var heard: Dictionary = _heard
+	var index := 0
+	while index < _ships.size():
+		var ship: Array = _ships[index]
 		if not is_instance_valid(ship[0]):
-			_ships.erase(ship)
+			_ships.remove(index)
 			continue
+		index += 1
 		var body: Spatial = ship[0]
 		var on_air: bool = heard.has(body.get_instance_id())
 		if ship[1] != null and is_instance_valid(ship[1]):
@@ -150,9 +159,11 @@ func _mix(delta: float) -> void:
 		if lit and not ship[2]:
 			play("afterburner_ignite", body, body)
 		ship[2] = lit
-		_drive_loop(body, "laser_hum", LASER_HUM_NAME, live and laser_on(body), Constants.SOUND_LASER_HUM_GAIN, delta)
-		_drive_loop(body, "harpoon_reel", REEL_NAME, live and winching(body), Constants.SOUND_REEL_GAIN, delta)
-		_drive_loop(body, "fuel_leak", LEAK_NAME, live and leaking(body), Constants.SOUND_LEAK_GAIN, delta)
+		if not live and ship[3].empty():
+			continue  # Off the air and no loop of its own fading: nothing to drive
+		_drive_loop(body, "laser_hum", LASER_HUM_NAME, live and laser_on(body), Constants.SOUND_LASER_HUM_GAIN, delta, ship[3])
+		_drive_loop(body, "harpoon_reel", REEL_NAME, live and winching(body), Constants.SOUND_REEL_GAIN, delta, ship[3])
+		_drive_loop(body, "fuel_leak", LEAK_NAME, live and leaking(body), Constants.SOUND_LEAK_GAIN, delta, ship[3])
 	for missile in _missiles.duplicate():
 		if not is_instance_valid(missile[0]) or not is_instance_valid(missile[1]):
 			_missiles.erase(missile)
@@ -255,7 +266,7 @@ func _track_ship(body: Spatial) -> void:
 	var loop: AudioStreamPlayer3D = null
 	if bank.stream("engine") != null and not body.has_node(LOOP_NAME):
 		loop = _attach_loop("engine", body)
-	_ships.append([body, loop, false])
+	_ships.append([body, loop, false, {}])
 
 
 # A looping `slot` carried by `body` (freed with it), or null when the slot is empty.
@@ -275,7 +286,7 @@ func _attach_loop(slot: String, body: Spatial, node_name: String = LOOP_NAME) ->
 
 # `heard`: among the loop carriers (loop_carriers); not, or a wreck, or too quiet to hear, it stops.
 func _drive_engine(loop: AudioStreamPlayer3D, body: Spatial, delta: float = 0.0, heard: bool = true) -> void:
-	if body.get("is_wreck") or not heard:
+	if not heard or body.get("is_wreck"):
 		if loop.playing:
 			loop.stop()
 		return
@@ -294,16 +305,29 @@ func _drive_engine(loop: AudioStreamPlayer3D, body: Spatial, delta: float = 0.0,
 
 # A loop the ship carries while `on` (a laser's hum, the harpoon winch, a leak): the `slot` loop, made the
 # first time as the child `node_name`, fades in over SOUND_LOOP_FADE s to `level` (linear, of the
-# file's own) and out again; silent, it stops.
-func _drive_loop(body: Spatial, slot: String, node_name: String, on: bool, level: float, delta: float) -> void:
+# file's own) and out again; silent, it stops. `loops`: the ship's own {node name: loop} (the mixer
+# keeps one per ship, so it looks nothing up by name); without it, the loop is found by name. A loop
+# off and silent is left alone (nothing about it would change); one faded out stays in `loops`.
+func _drive_loop(body: Spatial, slot: String, node_name: String, on: bool, level: float, delta: float, loops = null) -> void:
+	var loop = null
+	if loops == null:
+		loop = body.get_node_or_null(node_name)
+	elif loops.has(node_name):
+		loop = loops[node_name]
+		if not is_instance_valid(loop):
+			loops.erase(node_name)
+			loop = null
+	if loop == null and not on:
+		return
 	if bank.stream(slot) == null:
 		return
-	var loop = body.get_node_or_null(node_name)
 	if loop == null:
-		if not on:
-			return
 		loop = _attach_loop(slot, body, node_name)
 		loop.set_meta("gain", 0.0)
+		if loops != null:
+			loops[node_name] = loop
+	if not on and not loop.playing and float(loop.get_meta("gain", 0.0)) <= 0.0:
+		return
 	var gain: float = move_toward(float(loop.get_meta("gain", 0.0)), 1.0 if on else 0.0, delta / Constants.SOUND_LOOP_FADE)
 	loop.set_meta("gain", gain)
 	set_volume_3d(loop, Constants.SOUND_EFFECTS_VOLUME_DB + linear2db(max(gain * level, 0.0001)))

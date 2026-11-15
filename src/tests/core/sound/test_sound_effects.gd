@@ -234,6 +234,45 @@ func test_a_laser_hums_while_on():
 	assert_false(hum.playing, "Off again: dies away")
 
 
+func test_the_mixer_keeps_each_ships_loops_and_leaves_silent_ones_be():
+	var fx = _effects(["laser_hum"])
+	var ship := FakeShip.new()
+	add_child_autofree(ship)
+	var tools := FakeTools.new()
+	tools.name = "ToolController"
+	ship.add_child(tools)
+	var loops := {}
+	fx._drive_loop(ship, "laser_hum", fx.LASER_HUM_NAME, false, Constants.SOUND_LASER_HUM_GAIN, 0.1, loops)
+	assert_true(loops.empty(), "Off and never on: nothing made")
+	fx._drive_loop(ship, "laser_hum", fx.LASER_HUM_NAME, true, Constants.SOUND_LASER_HUM_GAIN, Constants.SOUND_LOOP_FADE, loops)
+	var hum = ship.get_node(fx.LASER_HUM_NAME)
+	assert_eq(loops.get(fx.LASER_HUM_NAME), hum, "Kept in the ship's own record")
+	fx._drive_loop(ship, "laser_hum", fx.LASER_HUM_NAME, false, Constants.SOUND_LASER_HUM_GAIN, Constants.SOUND_LOOP_FADE, loops)
+	assert_false(hum.playing, "Faded out and stopped")
+	hum.unit_db = 3.0
+	fx._drive_loop(ship, "laser_hum", fx.LASER_HUM_NAME, false, Constants.SOUND_LASER_HUM_GAIN, 0.1, loops)
+	assert_eq(hum.unit_db, 3.0, "Off and silent: left alone")
+	hum.free()
+	fx._drive_loop(ship, "laser_hum", fx.LASER_HUM_NAME, true, Constants.SOUND_LASER_HUM_GAIN, 0.1, loops)
+	assert_true(is_instance_valid(loops.get(fx.LASER_HUM_NAME)), "A loop gone is made again")
+
+
+func test_loop_carriers_are_reranked_on_their_interval():
+	var fx = _effects(["engine"])
+	var saved_player = GlobalRefs.player_agent_body
+	GlobalRefs.player_agent_body = null
+	fx._process(0.1)
+	var ship := FakeShip.new()
+	add_child_autofree(ship)
+	fx._track_ship(ship)
+	fx._process(0.1)
+	assert_false(fx._heard.has(ship.get_instance_id()), "Not yet re-ranked")
+	fx._next_carriers = 0
+	fx._process(0.1)
+	assert_true(fx._heard.has(ship.get_instance_id()), "On the next re-rank")
+	GlobalRefs.player_agent_body = saved_player
+
+
 func test_a_weapon_hit_takes_the_place_of_the_hull_hit():
 	var fx = _effects(["laser_hit", "hull_hit"])
 	var ship := FakeShip.new()

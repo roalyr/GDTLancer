@@ -45,6 +45,7 @@ const HUD_DEBUG_INTERVAL = 0.5  # The debug readout's text (its frame figures ar
 const VIEW_CHECK_INTERVAL = 0.29  # View band (detail level) checks per host (and at once when the field of view changes). Max ~0.5
 const SMOULDER_CHECK_INTERVAL = 0.23  # Per smoulder spot: its ship's view band, the shown budget. Max ~0.5
 const HULL_SCAR_REBUILD_INTERVAL = 0.1  # A ship's changed scars and slag are rebuilt at most this often. Max ~0.25
+const SOUND_CARRIER_INTERVAL = 0.23  # Which ships and missiles carry loops (the nearest SOUND_LOOP_CARRIERS) is re-ranked this often; their loops follow every frame. Max ~0.5 (a loop coming in a quarter second late is not heard)
 
 
 # ==================================================================================================

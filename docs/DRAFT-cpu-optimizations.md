@@ -218,6 +218,15 @@ Verify: `test_weapons.gd` and `test_tool_controller.gd` (shell hits on rocks); t
 
 ### 6. Sound: every ship re-ranked and re-polled every frame
 
+DONE: 1.8 to 0.8 ms a frame (three bench runs). The mixer tracks every ship in the sector (58 in
+the bench, traffic included), not only the fight. Sub-sections showed the carried loops at 1.2 ms
+(three `get_node_or_null` by name per ship per frame), engines 0.5, ranking 0.4. Now each ship's
+entry keeps its loop nodes, a ship off the air with none is skipped, a loop off and silent is left
+alone, the wreck check runs only for heard ships, and carriers are re-ranked every
+`SOUND_CARRIER_INTERVAL` (0.23 s). Tests: `test_sound_effects.gd` (two new).
+
+The original note follows.
+
 Where: `src/core/sound/sound_effects.gd` `_process` (119) and `loop_carriers` (160). Per frame:
 three `duplicate()`s of the voice/ship/missile lists; `loop_carriers` measures and sorts every ship
 and missile by distance; then per ship `_drive_engine`, `laser_on` (walks tools), `winching` (walks
