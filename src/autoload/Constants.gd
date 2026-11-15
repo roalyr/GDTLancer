@@ -431,7 +431,7 @@ const VIEW_BAND_SHARES = [0.33, 0.12, 0.04, 0.013]  # Screen share to reach CLOS
 const VIEW_BAND_HYSTERESIS = 0.1  # Share of a threshold to pass beyond before switching back
 # Levels of detail by band (CLOSE, NEAR, MID, FAR, DOT), clamped to the levels a model has.
 const LOD_LEVEL_BY_BAND = [0, 0, 1, 2, 3]  # Low-poly models (ships): keep detail long
-const LOD_LEVEL_BY_BAND_DENSE = [0, 1, 2, 3, 3]  # Dense meshes (rocks, tens of thousands of triangles): drop it early
+const LOD_LEVEL_BY_BAND_DENSE = [0, 1, 2, 3, 4]  # Dense meshes (rocks, tens of thousands of triangles): drop it early; a dot (under ~10 px) takes the LOD4 the dense rocks have (half of LOD3: 2.8k to 4.6k triangles)
 const HULL_SCAR_MAX_BAND = VIEW_FAR  # Scars (1-3 m)
 const HULL_SLAG_MAX_BAND = VIEW_MID  # Slag (under 1 m) goes a band before the scars
 const SMOULDER_MAX_BAND = VIEW_FAR  # Smoulder spots emit

@@ -13,8 +13,12 @@ folder are refused.
 Ratio: 0.5 suits dense meshes (rocks); already low-poly hard-surface models (ships) fall apart
 that fast, so use a gentler ratio for them (0.7).
 
+--start N builds only levels N..--levels, from the existing LOD(N-1) file (the levels before stay
+as they are): e.g. --start 4 --levels 4 --ratio 0.5 adds a LOD4 to a rock (4.6k triangles for a 73k one; at 0.25 and 0.125
+the rocks tore: holes and loose facets that showed even 11 px tall).
+
 Usage ($BLENDER: Blender 3.6, as the dev tool finds it: BLENDER, else tools/blender, else blender):
-    $BLENDER -b -P tools/generate_lods.py -- [--levels 3] [--ratio 0.5] model.glb [model2.glb ...]
+    $BLENDER -b -P tools/generate_lods.py -- [--levels 3] [--ratio 0.5] [--start 1] model.glb [model2.glb ...]
 """
 
 import argparse
@@ -41,6 +45,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Generate decimated LOD .glb files.")
     parser.add_argument("--levels", type=int, default=3)
     parser.add_argument("--ratio", type=float, default=0.5, help="Decimate ratio applied per level")
+    parser.add_argument("--start", type=int, default=1, help="First level to build, from the existing level before it")
     parser.add_argument("models", nargs="+")
     return parser.parse_args(argv)
 
@@ -96,7 +101,7 @@ def delete_loose(obj):
     obj.data.update()
 
 
-def generate(model_path, levels, ratio):
+def generate(model_path, levels, ratio, start=1):
     model_path = os.path.abspath(model_path)
     if "nebulas" in model_path.replace("\\", "/").split("/"):
         print("SKIP (never LOD nebulas): " + model_path)
@@ -105,14 +110,16 @@ def generate(model_path, levels, ratio):
     out_dir = os.path.join(os.path.dirname(model_path), "lod")
     os.makedirs(out_dir, exist_ok=True)
     report = []
-    source = model_path
-    for level in range(1, levels + 1):
+    source = model_path if start <= 1 else os.path.join(out_dir, "%s_LOD%d.glb" % (base, start - 1))
+    if not os.path.exists(source):
+        sys.exit("No %s to build LOD%d from" % (source, start))
+    for level in range(max(start, 1), levels + 1):
         # Each level starts from the previous level's exported file, so every level is built and
         # checked like the first.
         clear_scene()
         bpy.ops.import_scene.gltf(filepath=source)
-        if level == 1:
-            report.append("%s: LOD0 %d tris" % (base, triangle_count()))
+        if level == max(start, 1):
+            report.append("%s: LOD%d %d tris" % (base, level - 1, triangle_count()))
         decimate_all(ratio)
         out_path = os.path.join(out_dir, "%s_LOD%d.glb" % (base, level))
         # Materials go along, so each material slot stays its own surface on every level.
@@ -125,7 +132,7 @@ def generate(model_path, levels, ratio):
 def main():
     args = parse_args()
     for model in args.models:
-        generate(model, args.levels, args.ratio)
+        generate(model, args.levels, args.ratio, args.start)
 
 
 main()
