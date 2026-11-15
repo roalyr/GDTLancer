@@ -1,6 +1,6 @@
 # TargetMarker: the mark of an unselected target on the HUD, drawn as lines at its own size (a
 # texture scaled up went soft): a shape per kind, diamond ship, square station, triangle beacon
-# (dimly filled for a mayday's), ring planet, moon or jump point, dot rock, x wreck, small filled
+# (filled for a mayday's), ring planet, moon or jump point, dot rock, x wreck, small filled
 # diamond for ore chunks and loose lances. A hostile's mark is bigger; a ship's is filled once it
 # has seen the player (`filled`), a station's never is. Drawn white: the bracket's BracketNormal
 # tints it (side, kind), and the bracket fades it with distance.

@@ -52,7 +52,25 @@ func test_marks_fade_with_distance_but_never_out():
 	assert_true(middle < 1.0 and middle > Constants.HUD_MARK_FADE_MIN, "Between: in between")
 
 
-func test_a_maydays_beacon_is_its_own_kind_in_orange():
+# A faction's patrol beacon (a picket) by the player's standing with it, as its ships and stations;
+# a factionless or other beacon stays amber. Same shape: an empty triangle.
+func test_a_patrol_beacon_takes_its_sides_colour():
+	var beacon = StaticBody.new()
+	beacon.set_script(load("res://src/scenes/game_world/sector_layout/beacon.gd"))
+	beacon.kind = "patrol"
+	beacon.faction = "verdant"
+	add_child_autofree(beacon)
+	assert_eq(TargetKinds.kind_of(beacon), "beacon", "A triangle like any beacon")
+	assert_eq(TargetKinds.color_of(beacon, null), TargetKinds.side_color("neutral"), "Neutral standing: white-grey")
+	GameState.player_standing["verdant"] = 1.0
+	assert_eq(TargetKinds.color_of(beacon, null), TargetKinds.side_color("allied"), "Friendly: green")
+	GameState.player_standing["verdant"] = -1.0
+	assert_eq(TargetKinds.color_of(beacon, null), TargetKinds.side_color("hostile"), "Hostile: red")
+	beacon.faction = ""
+	assert_eq(TargetKinds.color_of(beacon, null), Constants.COLOR_UI_BEACON, "No faction: amber")
+
+
+func test_a_maydays_beacon_is_its_own_kind_in_red():
 	var beacon = StaticBody.new()
 	beacon.set_script(load("res://src/scenes/game_world/sector_layout/beacon.gd"))
 	beacon.kind = "distress"

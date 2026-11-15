@@ -1,6 +1,7 @@
 # TargetKinds: what an on-screen target is for the HUD's marks and colours (Constants
-# COLOR_UI_*): a ship or a station by its side to the player (allied, neutral or hostile; not its
-# faction's colour; the xenohive's always its own purple), anything else by its kind. Shared by the
+# COLOR_UI_*): a ship, a station or a faction's patrol beacon by its side to the player (allied,
+# neutral or hostile; not its faction's colour; the xenohive's always its own purple), anything else
+# by its kind (a mayday's beacon red, other beacons amber). Shared by the
 # target brackets and the threat ring.
 
 extends Reference
@@ -78,6 +79,8 @@ static func color_of(target, player) -> Color:
 		"wreck":
 			return graded(Constants.COLOR_UI_WRECK)
 		"beacon":
+			if target.get("kind") == "patrol" and str(target.get("faction")) != "":
+				return side_color(side_of(target, player))  # A faction's picket: green, white-grey or red by standing
 			return graded(Constants.COLOR_UI_BEACON)
 		"distress":
 			return graded(Constants.COLOR_UI_DISTRESS)
