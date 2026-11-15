@@ -4,7 +4,8 @@ A release: a versioned build of the game, committed and tagged.
     python3 tools/devtool/release.py version=0.1.0 [tests=yes] [soak=3] [out=<folder>] [tag=yes]
 
 1. stops unless the working tree is clean and the version is new (no tag v<version> yet);
-2. runs every GUT test (tests=yes) and stops on a failure; then the soak check (soak.py: the real
+2. runs every GUT test (tests=yes; test_run.py: a test script that does not parse stops it by name,
+   and GUT is stopped after test_run.TIMEOUT) and stops on a failure; then the soak check (soak.py: the real
    game left running `soak` minutes; 0 skips it) and stops on any problem it finds;
 3. sets the Android preset's version/name to the version and counts version/code up by one
    (export_presets.cfg: only those two lines change, never its name or export path);
@@ -20,11 +21,13 @@ import sys
 
 if __package__ in (None, ""):
     sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    from devtool.tasks import APK, ROOT, godot, godot_script  # noqa: E402
+    from devtool.tasks import APK, ROOT, godot  # noqa: E402
     from devtool import soak as soak_check  # noqa: E402
+    from devtool import test_run  # noqa: E402
 else:
-    from .tasks import APK, ROOT, godot, godot_script
+    from .tasks import APK, ROOT, godot
     from . import soak as soak_check
+    from . import test_run
 
 PRESETS = "export_presets.cfg"
 VERSION = re.compile(r"^\d+(\.\d+){1,3}$")
@@ -49,10 +52,11 @@ def _output(command):
 
 
 class Release:
-    def __init__(self, version, root=ROOT, tests=True, out=None, tag=True, output=_output, say=print, soak=0):
+    def __init__(self, version, root=ROOT, tests=True, out=None, tag=True, output=_output, say=print, soak=0,
+                 unparsable=test_run.unparsable):
         self.version, self.root, self.tests, self.tag, self.soak = version, root, tests, tag, float(soak or 0)
         self.out = out or os.path.dirname(APK)
-        self.output, self.say = output, say
+        self.output, self.say, self.unparsable = output, say, unparsable
 
     def apk(self):
         return os.path.join(self.out, "GDTLancer-%s.apk" % self.version)
@@ -69,7 +73,12 @@ class Release:
             return self._stop("v%s is tagged already" % self.version)
         if self.tests:
             self.say("Running the tests...")
-            code, text = self.output(godot_script("addons/gut/gut_cmdln.gd", "-gexit"))
+            bad = self.unparsable()
+            if bad:
+                return self._stop("These test scripts do not parse:\n" + "\n".join("  " + path for path in bad))
+            code, text = self.output(test_run.gut_command())
+            if code == 124:
+                return self._stop("The tests did not finish in %d s (GUT stopped)" % test_run.TIMEOUT)
             failing = re.search(r"Failing tests\s+(\d+)", text)
             if failing is None or int(failing.group(1)) > 0:
                 return self._stop("The tests did not pass:\n" + "\n".join(line for line in text.splitlines() if "Failed" in line or "Failing" in line))

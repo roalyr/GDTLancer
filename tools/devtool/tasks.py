@@ -351,8 +351,9 @@ def _render_preview(v):
 
 TASKS = [
     # Checks
-    Task("tests", "Checks", "Run the tests", "Every GUT test (content rules and models included).",
-         lambda v: godot_script("addons/gut/gut_cmdln.gd", "-gexit", *(["-gdir=" + res(v["dir"])] if v["dir"] else [])),
+    Task("tests", "Checks", "Run the tests", "Every GUT test (content rules and models included). Godot compiles each test"
+         " script first and names any that does not parse (GUT would hang on it); about 10 minutes on a laptop.",
+         lambda v: ["python3", "tools/devtool/test_run.py"] + (["dir=" + res(v["dir"])] if v["dir"] else []),
          [Ask("dir", "Only this test folder (empty: all)", default="", optional=True)]),
     Task("validate", "Checks", "Check the content rules", "Every content rule (ContentValidator) at once, problems listed.",
          lambda v: godot_script("tools/devtool/validate.gd")),

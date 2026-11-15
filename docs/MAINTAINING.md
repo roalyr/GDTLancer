@@ -70,7 +70,7 @@ One Godot process runs evolution on one CPU core. `tools/devtool/islands.py` run
 ## Checks: tests, selftest, soak
 
 - **Run the tests** (Tools): every GUT test, the content rules and models included. From a terminal: `godot --no-window -s addons/gut/gut_cmdln.gd -gexit` (`-gselect=<file>` for one test file).
-  - A test file that fails to parse hangs the runner (GUT 7.4.3): check new test files parse first.
+  - A test file that fails to parse hangs the runner (GUT 7.4.3). The task (and the release) compile every test script first (`tools/devtool/test_run.py`) and name any that does not parse, with its line and error, before GUT starts; GUT itself is stopped after 45 minutes. Run GUT by hand only on files that parse.
   - One "Parse Error" in the output is expected: a test feeds a broken script to the script check on purpose.
 - **Test the development tool** (Maintainer): the tool's own Python tests. A "Missing: Scene" line in the output is expected.
 - **Soak the game** (Maintainer) leaves the real game running for a few minutes: a new game in Elace, docked at home, at normal speed. It fails on:

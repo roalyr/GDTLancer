@@ -50,6 +50,7 @@ class ReleaseTest(unittest.TestCase):
         self.scratch.cleanup()
 
     def release(self, commands, version="0.2.0", **options):
+        options.setdefault("unparsable", lambda: [])
         return release.Release(version, root=self.root, out=os.path.join(self.root, "out"), output=commands.output,
                                say=lambda text: None, **options)
 
@@ -76,6 +77,15 @@ class ReleaseTest(unittest.TestCase):
                                   (Commands(failing=2), "0.2.0"), (Commands(), "v0.2")]:
             self.assertEqual(self.release(commands, version).go(), 1)
             self.assertEqual(self.presets(), PRESETS)
+
+    def test_a_test_that_does_not_parse_or_hangs_stops_it(self):
+        commands = Commands()
+        self.assertEqual(self.release(commands, unparsable=lambda: ["res://src/tests/test_x.gd"]).go(), 1)
+        self.assertFalse(any("addons/gut/gut_cmdln.gd" in c for c in commands.commands), "GUT not started on it")
+        hung = Commands()
+        hung.output = lambda command, base=hung.output: (124, "") if "addons/gut/gut_cmdln.gd" in command else base(command)
+        self.assertEqual(self.release(hung).go(), 1)
+        self.assertEqual(self.presets(), PRESETS)
 
     def test_a_failed_export_puts_the_presets_back(self):
         self.assertEqual(self.release(Commands(export=False)).go(), 1)
