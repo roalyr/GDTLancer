@@ -424,9 +424,11 @@ Likewise `can_sleep = false` on every RigidBody is intentional (wrecks stay live
 1. Item 0 (sections, the bench averaging the profiler). Done; baseline recorded under item 0.
 2. Item 1 (dropped, measured) and 4 (done). Next 6 and 6b (sound and view: together ~2.9 ms a
    frame, item 0's surprise), before 2 and 3.
-   Done since: 6, 6b, 8; 9 and 5 measured and left (see each). Left, by measured size: brackets
-   (~1.8 ms, see the end of item 9), AI combat handling (item 1's note: a per-think `reach_on`
-   cache), item 2 (tools 1.3, offscreen 0.7), the rounds' ship grid (item 5's note), 3, 7, 10, 11.
+   Done since: 6, 6b, 8, brackets (part), AI combat (sees once per target), the tool cycle's
+   sees hoist; 9, 2 and 5's grid measured and left (see each). PAUSED 2026-11-15 (fight bench
+   ~23 -> ~18 to 24 ms a frame over the pass). Left when it resumes: off-screen `_nearest_enemy`
+   (item 2's note), the `get_apparent_radius` call in the rounds' ship list (item 5's note),
+   desperation's `get_value` (item 1's note), 3, 7, 10, 11.
    The bench varies ±10% run to run (fights diverge): compare sections over three runs, and for
    small items count calls instead (a temporary counter printed at the end of the bench).
 3. Item 2 (ship snapshot) and the item 10 bits, then 3. Bench. Commit each.
