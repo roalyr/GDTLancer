@@ -201,6 +201,19 @@ Verify: `test_ship_controller_ai.gd`. Small but free.
 
 ### 5. Rounds raycast for rocks every step
 
+MEASURED, NOT WORTH IT as written: split in the bench, the rounds section (~1.15 ms a frame) is
+ships 0.63, the rock raycast 0.12, the rest (steering, moving) ~0.4. A pre-cull would save at most
+0.1 ms and has to prove obstacle radii cover every rock's collider. The cost is `_first_ship_on`:
+every round tests every hittable ship, 58 in the bench (traffic far from the fight included).
+Exact alternative if wanted: in `hittable_ships`, bin each ship per step into the 1 km cells its
+reach sphere (radius + speed x delta + PROJECTILE_FUSE_MARGIN) overlaps; a round looks only in the
+cells its own sphere of `step` round `from` overlaps. A ship passing today's distance test shares a
+cell (the point of its reach sphere nearest `from` is in both boxes), so the hits are the same;
+dedupe ships met in two cells. Expected 0.63 to ~0.2 ms, less the binning (~58 inserts a step).
+
+The original note follows.
+
+
 Where: `src/core/agents/components/projectile.gd` `_first_rock_on` (118): one
 `intersect_ray` per round per step against `SHOT_BLOCK_MASK` (every layer, then filtered to the
 `asteroid` group). Cannon-heavy fights keep tens of rounds in flight at 30 steps/s.
@@ -366,6 +379,9 @@ Likewise `can_sleep = false` on every RigidBody is intentional (wrecks stay live
 1. Item 0 (sections, the bench averaging the profiler). Done; baseline recorded under item 0.
 2. Item 1 (dropped, measured) and 4 (done). Next 6 and 6b (sound and view: together ~2.9 ms a
    frame, item 0's surprise), before 2 and 3.
+   Done since: 6, 6b, 8; 9 and 5 measured and left (see each). Left, by measured size: brackets
+   (~1.8 ms, see the end of item 9), AI combat handling (item 1's note: a per-think `reach_on`
+   cache), item 2 (tools 1.3, offscreen 0.7), the rounds' ship grid (item 5's note), 3, 7, 10, 11.
    The bench varies ±10% run to run (fights diverge): compare sections over three runs, and for
    small items count calls instead (a temporary counter printed at the end of the bench).
 3. Item 2 (ship snapshot) and the item 10 bits, then 3. Bench. Commit each.
