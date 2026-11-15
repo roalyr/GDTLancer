@@ -82,6 +82,10 @@ def main(argv):
             print(__doc__)
             return 0
         with_textual([])
+        if tasks.import_problem() and not tasks.godot_problem():
+            print("First run: the project has not been imported yet.", flush=True)
+            from devtool import import_project
+            import_project.main()
         from devtool.app import main as app_main
         app_main()
         return 0

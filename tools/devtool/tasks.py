@@ -161,9 +161,19 @@ def display_problem(env=None):
             "machine, or set DISPLAY to the display that is running." % display)
 
 
+def import_problem(root=None):
+    """"" once the project has been imported (.import/ holds Godot's converted art); else what to do.
+    git does not keep .import/, so a fresh clone has none and textures and models do not load."""
+    folder = os.path.join(root or ROOT, ".import")
+    if os.path.isdir(folder) and any(name.endswith(".md5") for name in os.listdir(folder)):
+        return ""
+    return ("The project has not been imported yet (no .import/): art and models do not load. Tools, Import the project "
+            "(tools/dev.py import), or open it once in the Godot editor.")
+
+
 def setup_problems():
     """Everything missing to run the tools, each saying what to do."""
-    return [problem for problem in (godot_problem(), display_problem(), blender_problem()) if problem]
+    return [problem for problem in (godot_problem(), display_problem(), import_problem(), blender_problem()) if problem]
 
 
 _godot_user_dir = None  # user:// as Godot itself reported it (the menu's bridge), when known
@@ -540,6 +550,10 @@ TASKS = [
                        Ask("fresh", "Delete the test saves first (a new game)", "flag", "yes")]),
     Task("save_report", "Game", "Save report", "What a save holds, in words: ship, fit, hold, bank, storage, standings, travellers.",
          _save_report, [Ask("save", "Save", "choice", "newest", saves)]),
+    Task("import", "Game", "Import the project", "Godot's import, headless (tools/devtool/import_project.py: a throwaway export,"
+         " since the editor's --quit ends before its scan): converts the art, models and sounds into .import/, which git does not keep."
+         " Needed once after a clone; under a minute.",
+         lambda v: ["python3", "tools/devtool/import_project.py"]),
     Task("editor", "Game", "Open the Godot editor", "Godot 3.6's editor, to compose a scene's look (the tool places, creates and links: World, Data).",
          lambda v: godot("-e")),
     Task("apk", "Game", "Export the debug APK", "Android debug build to $GDTLANCER_APK (" + APK + ").",

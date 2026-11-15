@@ -1,6 +1,7 @@
 """Every task builds a command from its defaults (with a value for each required question)."""
 
 import os
+import tempfile
 import unittest
 
 from devtool import data, models, tasks, test_run
@@ -142,6 +143,32 @@ class TasksTest(unittest.TestCase):
         task = tasks.TASKS_BY_KEY["placeholder_sounds"]
         self.assertEqual(task.build(task.defaults({}))[-1], "import")
         self.assertNotIn("import", task.build(dict(task.defaults({}), **{"import": "no"})))
+
+    def test_a_project_never_imported_is_a_setup_problem(self):
+        with tempfile.TemporaryDirectory() as root:
+            self.assertIn("tools/dev.py import", tasks.import_problem(root), "A fresh clone: no .import/")
+            os.makedirs(os.path.join(root, ".import"))
+            self.assertTrue(tasks.import_problem(root), "An empty one is not an import")
+            open(os.path.join(root, ".import", "rock.glb-0123.md5"), "w").close()
+            self.assertEqual(tasks.import_problem(root), "")
+        self.assertEqual(tasks.TASKS_BY_KEY["import"].build({}), ["python3", "tools/devtool/import_project.py"])
+
+    def test_the_import_exports_a_throwaway_pack_and_checks(self):
+        from devtool import import_project
+        with tempfile.TemporaryDirectory() as root:
+            packs = []
+
+            def fake_godot(command, **_):
+                packs.append(command[-1])
+                os.makedirs(os.path.join(root, ".import"), exist_ok=True)
+                open(os.path.join(root, ".import", "a.png-1.md5"), "w").close()
+                open(command[-1], "w").close()
+                return 0
+            self.assertEqual(import_project.main(root, fake_godot, lambda text: None), 0)
+            self.assertIn("--export-pack", import_project.command("x.pck"))
+            self.assertFalse(os.path.exists(packs[0]), "The pack is thrown away")
+        with tempfile.TemporaryDirectory() as root:
+            self.assertEqual(import_project.main(root, lambda command, **_: 0, lambda text: None), 1, "Nothing imported: it says so")
 
     def test_missing_answers_are_named(self):
         task = tasks.TASKS_BY_KEY["check_model"]
