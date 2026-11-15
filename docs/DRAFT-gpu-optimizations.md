@@ -242,7 +242,17 @@ hit's intensity (a weak hit's 40 m reach is mostly dark anyway: `omni_range` sca
 
 Verify: fight bench with `no_lights` vs base; the `objects` monitor (it counts per-pass objects).
 
-### 3. Exhaust plumes: 18 additive draws per ship that are mostly invisible
+### 3. Exhaust plumes: 18 additive draws per ship that are mostly invisible — MEASURED, DROPPED
+
+Counted in traffic (7 to 10 exhaust sets on screen): 32 to 46 of the ~60 nozzles already had their
+plumes hidden (a nozzle facing away from the thrust gets exactly 0, not a small number), 4 to 8 sat
+below 0.01 (the redraw test's 0.005 step leaves an easing-off plume stuck as a stub), the rest burnt.
+Snapping thrust under 0.01 to none was tried with a test and A/B'd twice against the old code:
+exhaust draws 38 and 54 before, 35 and 55 after, idle the same; the stubs are mostly on ships out of
+view, which frustum culling already skips. Dropped. The exhausts' ~1 ms (A/B) is their ~40 draws and
+~30 material changes (one material copy per ship and direction, by design for per-ship glow); the
+view-band hiding below is a visual change and left for the user.
+
 
 Where: `engine_exhaust.tscn` (5 meshes), `engine_exhaust_set.gd` `_apply`: `plume.visible = not dead
 and t > 0.0`. `_engine_thrust` in `agent.gd` is a `linear_interpolate` toward zero, so `t` is almost
@@ -259,7 +269,12 @@ Materials: each ship duplicates its exhaust materials per direction by design (p
 Verify: `no_exhausts` ablation gives the ceiling; `draws` monitor in a traffic scene (expect ~18 fewer
 per idle ship); screenshots of a ship at idle, cruising and braking.
 
-### 4. `discard` in the solid shader (phone only)
+### 4. `discard` in the solid shader (phone only) — DONE (98d3ef5), phone reading owed
+
+`solid.gdshader` has no fade now; `solid_fading.gdshader` (the old shader exactly) is on the 14
+planets and moons. One source: the solid_* blocks in `shader_common.glsl`. Old and new code render a
+rock, a hull and a panel identically (0 of 230400 pixels differ).
+
 
 Where: `assets/art/shaders/solid.gdshader`, the distance-fade block in `fragment()`:
 `if (fade_range > 0.0 && distance_vert > fade_start) { ... discard; }`. Every ship, rock, station,
@@ -290,7 +305,10 @@ stays; the vertex count drops. Optional (visual change): at VIEW_DOT hide the ro
 Verify: `vertices` monitor in `no_rocks` vs base vs `lod_low`; the rock test
 (`test_mesh_lod.gd`); screenshots of a far field.
 
-### 6. The hidden hull preview renders every frame
+### 6. The hidden hull preview renders every frame — DONE (bf05d72)
+
+Idle 12.35 -> 11.50 ms a frame docked (A/B), draws 146 -> 122.
+
 
 Where: `scenes/ui/menus/fitting/hull_preview.tscn`: a 400×240 viewport, own world, **MSAA 4x**,
 `render_target_update_mode = 3` (always), under the fitting window's ViewportContainer. A hidden
@@ -306,7 +324,11 @@ phones (`msaa = 0` unless `OS.has_feature("pc")`) or leave it: at 400×240 it is
 
 Verify: `objects`/`draws` monitors with the fitting window closed, before and after.
 
-### 7. Primitive meshes made per piece
+### 7. Primitive meshes made per piece — DONE (a5e2d3d)
+
+Shells, missiles and decoys shared too (each made its own mesh and material). Fight bench: surface
+changes per draw 0.79 -> 0.46 to 0.49; frame times inside the fight's variation.
+
 
 Where: `primitive_form.gd` `_mesh()` makes a new CubeMesh/CylinderMesh/SphereMesh for every piece
 of every hull and every fitted part. Same geometry, separate vertex buffers: the `surfaces` monitor
@@ -381,6 +403,10 @@ could skip emitting below VIEW_FAR like the lights do (`should_light` has the te
 - Baking lighting or shadows: nothing casts shadows; the toon light is the look.
 
 ## Suggested order and checkpoints
+
+Status 2026-11-15: 0, 6, 7, 4 done, 3 dropped (see each). Next: item 1 (the starsphere: 7.5 ms of the
+~8 ms full scale adds on this desktop), which needs the user's eye on before/after shots; then 5,
+2 and 11 (questions for the user), 8 to 10.
 
 1. Item 0: ablation lines pasted here (desktop), phone readings with the existing options.
 2. Item 6 (hull preview) and 7 (shared meshes): trivial, same picture. Commit each.
