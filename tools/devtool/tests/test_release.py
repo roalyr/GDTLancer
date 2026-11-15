@@ -91,6 +91,18 @@ class ReleaseTest(unittest.TestCase):
         self.assertEqual(self.release(Commands(export=False)).go(), 1)
         self.assertEqual(self.presets(), PRESETS)
 
+    def test_a_failed_commit_says_what_to_do(self):
+        commands = Commands()
+        commands.output = lambda command, base=commands.output: (1, "a hook said no") if command[:2] == ["git", "commit"] else base(command)
+        said = []
+        flow = release.Release("0.2.0", root=self.root, out=os.path.join(self.root, "out"), output=commands.output, say=said.append,
+                               unparsable=lambda: [])
+        self.assertEqual(flow.go(), 1)
+        text = "\n".join(said)
+        self.assertIn("a hook said no", text)
+        self.assertIn("git checkout -- export_presets.cfg", text)
+        self.assertNotEqual(self.presets(), PRESETS, "The built APK's version stays, for a commit by hand")
+
     def test_bump(self):
         text, code = release.bump(PRESETS, "1.2.3")
         self.assertEqual(code, 5)

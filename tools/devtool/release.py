@@ -107,10 +107,14 @@ class Release:
                 handle.write(before)
             return self._stop("The export made no APK; " + PRESETS + " is put back.\n" + text[-2000:])
         message = "Release %s\n\nAndroid version code %d; debug APK %s." % (self.version, number, os.path.basename(self.apk()))
-        if self.output(["git", "commit", "-q", "-m", message, "--", PRESETS])[0] != 0:
-            return self._stop("The commit failed")
+        code, text = self.output(["git", "commit", "-q", "-m", message, "--", PRESETS])
+        if code != 0:
+            return self._stop("The commit failed (%s). The APK is built (%s) and %s holds its new version, uncommitted: commit it by hand"
+                              " (git commit -m 'Release %s' -- %s), or put it back (git checkout -- %s) and delete the APK."
+                              % (text.strip()[-300:] or "git said nothing", self.apk(), PRESETS, self.version, PRESETS, PRESETS))
         if self.tag and self.output(["git", "tag", "-a", "v" + self.version, "-m", "GDTLancer " + self.version])[0] != 0:
-            return self._stop("The tag failed")
+            return self._stop("The tag failed: the release commit is made; tag it by hand (git tag -a v%s -m 'GDTLancer %s')."
+                              % (self.version, self.version))
         self.say("Released %s: %s%s. Push the commit%s when it is good." % (
             self.version, self.apk(), ", tagged v" + self.version if self.tag else "", " and the tag (git push --follow-tags)" if self.tag else ""))
         return 0
