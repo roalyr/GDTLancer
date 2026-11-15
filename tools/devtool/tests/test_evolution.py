@@ -181,6 +181,20 @@ class NewEraTest(unittest.TestCase):
         self.assertIn("--probe", command)
         self.assertIn("--save-dir=user://probe/", command)
 
+    def test_a_pid_taken_by_another_process_is_not_a_run(self):
+        import time
+        now = time.time()
+        mine = evolution.process_started(os.getpid())
+        self.assertIsNotNone(mine)
+        self.assertLess(abs(mine - now), 3 * 86400, "This process started recently")
+        self.assertTrue(evolution.writer_alive({"pid": os.getpid(), "updated": int(now)}), "It wrote the file")
+        self.assertFalse(evolution.writer_alive({"pid": os.getpid(), "updated": int(mine) - 600}),
+                         "Updated before this process began: a blackout's old run, its pid reused")
+        self.assertTrue(evolution.writer_alive({"pid": os.getpid()}), "No time to compare: the pid alone")
+        self.assertTrue(evolution.writer_alive({"pid": os.getpid(), "updated": 0}, started=lambda pid: None))
+        self.status(state="running", pid=os.getpid(), updated=int(mine) - 600)
+        self.assertFalse(evolution.status(self.folder)["running"])
+
     def test_user_dir_is_godots(self):
         self.assertTrue(evolution.user_dir().endswith(os.path.join("godot", "app_userdata", "GDTLancer-rev")))
 

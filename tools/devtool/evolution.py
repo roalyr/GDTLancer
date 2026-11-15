@@ -78,12 +78,35 @@ def alive(pid):
     return True
 
 
+def process_started(pid, proc="/proc"):
+    """Unix time the process `pid` started (Linux /proc), or None when unknown."""
+    try:
+        with open(os.path.join(proc, str(int(pid)), "stat")) as handle:
+            fields = handle.read().rsplit(")", 1)[1].split()  # The name in brackets may hold spaces
+        with open(os.path.join(proc, "stat")) as handle:
+            boot = next(int(line.split()[1]) for line in handle if line.startswith("btime "))
+        return boot + int(fields[19]) / float(os.sysconf("SC_CLK_TCK"))  # Field 22, starttime, in clock ticks after boot
+    except (OSError, ValueError, TypeError, IndexError, StopIteration):
+        return None
+
+
+def writer_alive(info, started=process_started):
+    """True if status.json's process still lives and is the one that wrote it: after a blackout and a
+    reboot its pid can belong to another process, which started after the file's last update."""
+    if not alive(info.get("pid")):
+        return False
+    begun, updated = started(info.get("pid")), info.get("updated")
+    if begun is None or not isinstance(updated, (int, float)):
+        return True  # Nothing to compare: the pid alone
+    return begun <= updated + 2  # Whole seconds in the file, clock ticks here
+
+
 def status(folder):
-    """status.json of the run, with "running": its state says so and its process still lives."""
+    """status.json of the run, with "running": its state says so and the process that wrote it still lives."""
     info = read_json(os.path.join(folder, "status.json"))
     if not isinstance(info, dict):
         return None
-    info["running"] = info.get("state") == "running" and alive(info.get("pid"))
+    info["running"] = info.get("state") == "running" and writer_alive(info)
     return info
 
 
