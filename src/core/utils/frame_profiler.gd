@@ -39,14 +39,15 @@ func _exit_tree() -> void:
 	get_tree().disconnect("idle_frame", self, "_on_idle_frame")
 
 
-# Marks the start of a named section (pair with end()); a no-op unless a profiler runs.
+# Marks the start of a named section (pair with end()); a no-op unless a profiler runs (or with no
+# tree: a node outside it, as unit tests drive some).
 static func begin(tree: SceneTree, section: String) -> void:
-	if tree.has_meta(META):
+	if tree != null and tree.has_meta(META):
 		tree.get_meta(META)._open[section] = OS.get_ticks_usec()
 
 
 static func end(tree: SceneTree, section: String) -> void:
-	if tree.has_meta(META):
+	if tree != null and tree.has_meta(META):
 		var profiler = tree.get_meta(META)
 		if profiler._open.has(section):
 			profiler._sections[section] = profiler._sections.get(section, 0) + OS.get_ticks_usec() - profiler._open[section]

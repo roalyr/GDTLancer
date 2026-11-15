@@ -28,6 +28,7 @@ extends Node
 const Interp = preload("res://src/core/utils/interp.gd")
 
 const NavigationSystem = preload("res://src/core/agents/components/navigation_system.gd")
+const FrameProfiler = preload("res://src/core/utils/frame_profiler.gd")
 
 var enabled: bool = true
 var _entries: Dictionary = {}  # Instance id -> {"body": WeakRef, "velocity": Vector3, "tick_left": s to its next resolution}
@@ -38,7 +39,15 @@ func _ready() -> void:
 	EventBus.connect("zone_unloading", self, "_on_zone_unloading")
 
 
+# Timed as the profiler's "offscreen" section (FrameProfiler; free when none runs).
 func _physics_process(delta: float) -> void:
+	var tree: SceneTree = get_tree()
+	FrameProfiler.begin(tree, "offscreen")
+	_tick(delta)
+	FrameProfiler.end(tree, "offscreen")
+
+
+func _tick(delta: float) -> void:
 	if not enabled:
 		return
 	_check_left -= delta

@@ -31,6 +31,7 @@ const Tether = preload("res://src/core/agents/components/tether.gd")
 const MissileScript = preload("res://src/core/agents/components/missile.gd")
 const ShellScript = preload("res://src/core/agents/components/shell.gd")
 const StepCache = preload("res://src/core/utils/step_cache.gd")
+const FrameProfiler = preload("res://src/core/utils/frame_profiler.gd")
 const AMMO_TYPES = ["missile", "cannon"]
 const WEAPON_TYPES = ["laser", "missile", "cannon"]
 
@@ -454,7 +455,15 @@ func cannon_aim_direction(index: int, target: Spatial) -> Vector3:
 
 # --- Cycling ---
 
+# Timed as the profiler's "tools" section (FrameProfiler; free when none runs).
 func _physics_process(delta: float) -> void:
+	var tree: SceneTree = get_tree()
+	FrameProfiler.begin(tree, "tools")
+	_cycle(delta)
+	FrameProfiler.end(tree, "tools")
+
+
+func _cycle(delta: float) -> void:
 	for index in _cycle_timers.keys():
 		_cycle_timers[index] = max(0.0, _cycle_timers[index] - delta)
 	for index in _held.keys():

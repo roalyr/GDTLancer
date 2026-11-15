@@ -67,6 +67,7 @@ var _engine_activity := 0.0  # Smoothed engine thrust fraction, 0..1 (a missile'
 var _engine_loudness := 0.0  # Smoothed engine signature share, 0..1: thrust by speed along it (get_engine_loudness)
 var _engine_thrust := Vector3.ZERO  # Smoothed engine thrust in ship space (nose -Z), length 0..1: which nozzles burn
 const DecoyScript = preload("res://src/core/agents/components/decoy.gd")
+const FrameProfiler = preload("res://src/core/utils/frame_profiler.gd")
 var decoys: int = 0  # Decoy launcher charges left (fit_stats decoy_charges when full)
 var afterburner_lit: bool = false  # Afterburner on: extra thrust, power drain, a hot plume
 var _decoy_watch := 0.0  # s to the next look for missiles coming in
@@ -1251,7 +1252,15 @@ func _ready():
 	can_sleep = false  # Always active
 
 
+# Timed as the profiler's "agent" section (FrameProfiler; free when none runs).
 func _physics_process(delta: float) -> void:
+	var tree: SceneTree = get_tree()
+	FrameProfiler.begin(tree, "agent")
+	_step(delta)
+	FrameProfiler.end(tree, "agent")
+
+
+func _step(delta: float) -> void:
 	if not is_wreck and power < power_max:
 		power = min(power_max, power + power_regen * delta)
 	if afterburner_lit:

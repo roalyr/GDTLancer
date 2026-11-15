@@ -10,6 +10,7 @@ const Interp = preload("res://src/core/utils/interp.gd")
 const StepCache = preload("res://src/core/utils/step_cache.gd")
 
 const LanceController = preload("res://src/core/agents/components/lance_controller.gd")
+const FrameProfiler = preload("res://src/core/utils/frame_profiler.gd")
 
 signal hit(projectile, body, damage)  # body: the ship or rock it met
 signal expired(projectile)
@@ -35,7 +36,15 @@ func launch(p_shooter: Spatial, p_target: Spatial, position: Vector3, p_velocity
 	Interp.placed(self)
 
 
+# Timed as the profiler's "rounds" section (FrameProfiler; free when none runs).
 func _physics_process(delta: float) -> void:
+	var tree: SceneTree = get_tree()
+	FrameProfiler.begin(tree, "rounds")
+	_fly(delta)
+	FrameProfiler.end(tree, "rounds")
+
+
+func _fly(delta: float) -> void:
 	if done:
 		return
 	age += delta

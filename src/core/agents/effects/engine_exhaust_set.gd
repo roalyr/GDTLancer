@@ -15,6 +15,7 @@
 # its plume is how an inbound one is seen).
 
 extends Spatial
+const FrameProfiler = preload("res://src/core/utils/frame_profiler.gd")
 
 var _groups: Array = []  # [{"push": Vector3 (ship space), "exhausts": [Spatial], "materials": [ShaderMaterial], "thrust", "speed"}]
 var _agent: Node = null
@@ -62,7 +63,15 @@ func _show_setting() -> void:
 			group.thrust = -2.0  # Redrawn at the next frame, whatever changed while hidden
 
 
+# Timed as the profiler's "exhaust" section (FrameProfiler; free when none runs).
 func _process(_delta: float) -> void:
+	var tree: SceneTree = get_tree()
+	FrameProfiler.begin(tree, "exhaust")
+	_burn(_delta)
+	FrameProfiler.end(tree, "exhaust")
+
+
+func _burn(_delta: float) -> void:
 	var thrust := Vector3.ZERO  # Ship space, length 0 idle .. 1 full burn
 	var velocity := Vector3.ZERO  # Ship space, shares of top speed
 	var dead := false

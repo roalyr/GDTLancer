@@ -1,7 +1,10 @@
 # Fight bench: a new game, then `n` armed archetype ships a side (verdant fighters and raiders vs
 # violet raiders and fighters: lasers, cannons, missiles, lances) staged 2.5 km from the player's
 # home, on screen, and kept fighting. Prints frame times (median, p95, p99, worst), rounds fired and
-# ships left, then the in-game FrameProfiler's report (per frame: physics, idle, steps, sections).
+# ships left, then the in-game FrameProfiler's report averaged over the measured seconds (per frame:
+# physics, idle, steps, sections; idle minus the per-frame sections is roughly rendering, the swap
+# and unmarked scripts). Performance TIME_PROCESS / TIME_PHYSICS_PROCESS are no help here: Godot 3
+# keeps the worst frame of each second in them, not an average.
 # The 3D view renders at quarter scale, as perf_ablation.gd does (which measures traffic: nothing
 # fights there). A throwaway save folder. Needs a display (DISPLAY=:0).
 #     godot --no-window -s tools/fight_bench.gd [n=8] [secs=30]
@@ -13,6 +16,8 @@ var frames := []
 var last := 0
 var rounds_seen := 0
 var ships := []
+var reports := []  # The profiler's report each measured second
+var _order := {}  # Section sums, for sorting
 const SIDE_A = ["fighter_light", "fighter_medium", "fighter_heavy", "raider_light"]
 const SIDE_B = ["raider_light", "raider_medium", "raider_heavy", "fighter_light"]
 
@@ -89,12 +94,17 @@ func _run():
 	yield(_wait(2.0), "completed")
 	_keep_fighting(sides)
 	yield(_wait(5.0), "completed")
+	var hud = null
+	for node in _all(root, []):
+		if node.name == "MainHUD":
+			hud = node
 	connect("idle_frame", self, "_on_frame")
 	var t := 0.0
 	while t < secs:
 		yield(_wait(1.0), "completed")
 		t += 1.0
 		_keep_fighting(sides)
+		reports.append(hud._frame_profiler.report.duplicate(true))
 	disconnect("idle_frame", self, "_on_frame")
 	frames.sort()
 	var count = frames.size()
@@ -103,13 +113,38 @@ func _run():
 		for b in side:
 			if is_instance_valid(b) and not b.is_wreck:
 				alive += 1
-	var hud = null
-	for node in _all(root, []):
-		if node.name == "MainHUD":
-			hud = node
 	print("FIGHT n=%d frames=%d median=%.1fms p95=%.1fms p99=%.1fms max=%.1fms rounds=%d alive=%d" % [n, count, frames[count / 2], frames[int(count * 0.95)], frames[int(count * 0.99)], frames[count - 1], rounds_seen, alive])
-	print("PROFILER ", hud._frame_profiler.report)
+	print(_profiler_line(reports))
 	quit()
+
+
+# The profiler's reports averaged: one line, sections largest first.
+func _profiler_line(list: Array) -> String:
+	var sums := {"frame_ms": 0.0, "physics_ms": 0.0, "idle_ms": 0.0, "steps": 0.0}
+	var sections := {}
+	var count := 0
+	for report in list:
+		if report.empty():
+			continue
+		count += 1
+		for key in sums:
+			sums[key] += report[key]
+		for name in report.sections:
+			sections[name] = sections.get(name, 0.0) + report.sections[name]
+	if count == 0:
+		return "PROFILER (no report)"
+	var names: Array = sections.keys()
+	_order = sections
+	names.sort_custom(self, "_more")
+	var parts := []
+	for name in names:
+		parts.append("%s %.2f" % [name, sections[name] / count])
+	return "PROFILER frame %.1f ms = physics %.1f (%.2f steps) + idle %.1f; sections ms a frame: %s" % [
+		sums.frame_ms / count, sums.physics_ms / count, sums.steps / count, sums.idle_ms / count, PoolStringArray(parts).join(", ")]
+
+
+func _more(a, b) -> bool:
+	return _order.get(a, 0.0) > _order.get(b, 0.0)
 
 
 func _keep_fighting(sides):

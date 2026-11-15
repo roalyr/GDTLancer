@@ -19,6 +19,7 @@ const LanceScript = preload("res://src/core/agents/components/lance_controller.g
 const MissileScript = preload("res://src/core/agents/components/missile.gd")
 const TetherScript = preload("res://src/core/agents/components/tether.gd")
 const AudioBuses = preload("res://src/core/sound/audio_buses.gd")
+const FrameProfiler = preload("res://src/core/utils/frame_profiler.gd")
 const LOOP_NAME = "EngineSound"
 const LASER_HUM_NAME = "LaserHum"
 const REEL_NAME = "HarpoonReel"
@@ -116,7 +117,15 @@ func hearing_point() -> Vector3:
 	return camera.global_transform.origin if camera != null else Vector3.ZERO
 
 
+# Timed as the profiler's "sound" section (FrameProfiler; free when none runs).
 func _process(delta: float) -> void:
+	var tree: SceneTree = get_tree()
+	FrameProfiler.begin(tree, "sound")
+	_mix(delta)
+	FrameProfiler.end(tree, "sound")
+
+
+func _mix(delta: float) -> void:
 	var camera: Camera = get_viewport().get_camera()
 	_listener.global_transform = Transform(camera.global_transform.basis if camera != null else Basis(), hearing_point())
 	var now: int = OS.get_ticks_msec()

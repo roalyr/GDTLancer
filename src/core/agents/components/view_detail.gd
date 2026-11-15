@@ -13,6 +13,7 @@ extends Node
 signal band_changed(band)
 
 const ViewBand = preload("res://src/core/utils/view_band.gd")
+const FrameProfiler = preload("res://src/core/utils/frame_profiler.gd")
 const META = "view_detail"
 
 var radius: float = 10.0  # The host's apparent radius (m), unless the host has get_apparent_radius()
@@ -51,7 +52,15 @@ static func band_of_host(node: Node) -> int:
 	return detail.band if detail != null else Constants.VIEW_CLOSE
 
 
+# Timed as the profiler's "view" section (FrameProfiler; free when none runs).
 func _process(delta: float) -> void:
+	var tree: SceneTree = get_tree()
+	FrameProfiler.begin(tree, "view")
+	_judge(delta)
+	FrameProfiler.end(tree, "view")
+
+
+func _judge(delta: float) -> void:
 	var camera = get_viewport().get_camera()
 	if camera == null or not is_instance_valid(_host):
 		return

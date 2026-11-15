@@ -1213,15 +1213,20 @@ func describe_frame_stats() -> String:
 	var report: Dictionary = _frame_profiler.report if is_instance_valid(_frame_profiler) else {}
 	if report.empty():
 		return "FRAME\nmeasuring"
-	var sections: Array = []
-	for name in ["nav", "ai", "hud", "brackets"]:
-		sections.append("%s %.1f" % [name.to_upper(), report.sections.get(name, 0.0)])
 	return PoolStringArray([
 		"FRAME %.1f ms" % report.frame_ms,
 		"PHYSICS %.1f (%.1f steps)  REST %.1f" % [report.physics_ms, report.steps, report.idle_ms],
-		"of which ms: " + PoolStringArray(sections).join("  "),
+		"in steps, ms: " + _section_list(report, ["ai", "nav", "tools", "offscreen", "rounds", "agent"]),
+		"per frame, ms: " + _section_list(report, ["hud", "brackets", "sound", "exhaust", "view"]),
 		"GAME SPEED X%.2f" % (_frame_governor.speed if is_instance_valid(_frame_governor) else 1.0),
 	]).join("\n")
+
+
+static func _section_list(report: Dictionary, names: Array) -> String:
+	var out: Array = []
+	for name in names:
+		out.append("%s %.1f" % [name.to_upper(), report.sections.get(name, 0.0)])
+	return PoolStringArray(out).join("  ")
 
 
 # The HUD's look (Settings "hud_preset", Constants.HUD_PRESETS): the next preset, kept.

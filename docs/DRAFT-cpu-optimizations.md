@@ -58,7 +58,28 @@ OffScreen ~1.5 average, nav ~1.4, Bullet ~3 per desktop step in this fight.
 
 ## Items, ranked
 
-### 0. Make the unsectioned time visible (do first, half a day)
+### 0. Make the unsectioned time visible: DONE
+
+Sections "tools", "offscreen", "rounds", "agent" (in physics steps) and "sound", "exhaust", "view"
+(per frame) wrap those functions; the HUD readout lists them on two lines; fight_bench averages the
+profiler over the whole measured run (it printed the last second only). Two runs, same machine:
+
+```
+FIGHT n=8 frames=1322 median=25.1ms p95=33.4ms p99=38.5ms max=49.3ms rounds=61 alive=8
+PROFILER frame 23.1 ms = physics 9.0 (0.69 steps) + idle 14.1; sections ms a frame: ai 2.11, hud 1.87, sound 1.76, brackets 1.74, tools 1.21, view 1.11, nav 1.01, rounds 0.88, offscreen 0.59, agent 0.47, exhaust 0.19
+FIGHT n=8 frames=1121 median=28.4ms p95=37.5ms p99=45.2ms max=72.4ms rounds=71 alive=11
+PROFILER frame 27.1 ms = physics 11.8 (0.81 steps) + idle 15.3; sections ms a frame: ai 2.62, hud 2.39, brackets 2.26, sound 1.77, tools 1.63, nav 1.59, rounds 1.19, view 1.12, offscreen 0.81, agent 0.54, exhaust 0.21
+```
+
+Reading (first run): of 9.0 ms physics a frame the sections cover 6.3; the other ~2.7 is Bullet,
+the lance and `_integrate_forces` outside nav. Of 14.1 ms idle, the per-frame sections cover ~4.9
+(brackets are inside hud); ~9 ms is rendering at quarter scale, the swap and unmarked scripts.
+What changes the plan: **sound is 1.8 ms a frame**, as much as the whole HUD, so item 6 moves up
+beside item 1; **view (ViewDetail, every ship every frame) is 1.1 ms** and had no item (see 6b);
+exhaust is cheap (0.2). `Performance.TIME_PROCESS` / `TIME_PHYSICS_PROCESS` were tried and dropped:
+Godot 3 keeps the worst frame of each second in them, not an average.
+
+The original plan for this item follows.
 
 - Add `FrameProfiler` sections round: `ToolController._physics_process` ("tools"),
   `OffScreen._physics_process` ("offscreen"), `Projectile._physics_process` ("rounds"),
@@ -199,6 +220,23 @@ Verify: `test_sound_effects.gd` (it checks bus peaks, keep its expectations; see
 that real audio output is verified by bus peak, not properties). Expected: a per-frame cost that
 grows with ships becomes one that grows with carriers (`SOUND_LOOP_CARRIERS`).
 
+### 6b. ViewDetail: every ship and rock runs `_process` every frame (found by item 0)
+
+Where: `src/core/agents/components/view_detail.gd` `_judge`. Every host (each ship, each of ~65
+rocks) has a ViewDetail node whose `_process` fetches `get_viewport().get_camera()` and compares
+`camera.fov` every frame, to judge its band only every `VIEW_CHECK_INTERVAL` or on a zoom. With
+~90 hosts that is ~1.1 ms a frame of script calls doing almost nothing.
+
+Change, same bands at the same moments: one driver per viewport (a static registry of live
+ViewDetails, or a single node the WorldManager adds) that reads the camera and fov once a frame,
+and only then walks the details whose timer is due, or all of them when the fov changed. Each
+ViewDetail does `set_process(false)` and registers in `attach`, unregisters on `_exit_tree`. Keep
+`update_band(camera)` public (tests call it). Tests also call `detail._process(0.0)` directly
+(`test_view_band.gd`), so keep that entry working for a detail with no driver.
+
+Verify: `test_view_band.gd`, `test_mesh_lod.gd`, `test_hull_scars.gd`; bench "view" section to
+~0.1 ms.
+
 ### 7. Smoulder spots, leaks and trails write particle and shader properties every frame
 
 Where: `hull_smoulder_effect.gd` `_process` (65): per spot per frame sets `_sparks.emitting`,
@@ -281,8 +319,9 @@ Likewise `can_sleep = false` on every RigidBody is intentional (wrecks stay live
 
 ## Suggested order and checkpoints
 
-1. Item 0 (sections and TIME_PROCESS in the bench). Commit. Record the new baseline in this file.
-2. Item 1, then 4 (both inside the AI think; one test file). Bench. Commit each.
+1. Item 0 (sections, the bench averaging the profiler). Done; baseline recorded under item 0.
+2. Item 1, then 4 (both inside the AI think; one test file). Bench. Commit each. Then 6 and 6b
+   (sound and view: together ~2.9 ms a frame, item 0's surprise).
 3. Item 2 (ship snapshot) and the item 10 bits, then 3. Bench. Commit each.
 4. Item 5. Bench with a cannon-heavy fight. Commit.
 5. Items 6, 7, 8, 9 (idle-time scripts). Bench. Commit each.
