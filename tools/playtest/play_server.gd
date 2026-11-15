@@ -249,6 +249,8 @@ func _collect(root: Node, buttons: Array, texts: Array) -> void:
 	drawn.sort_custom(self, "_draw_order")
 	var screen := Rect2(Vector2.ZERO, get_viewport().get_visible_rect().size)
 	var labels: Array = []
+	for k in drawn.size():
+		drawn[k][2].set_meta("_order", k)  # Draw order, for _button_text
 	for d in drawn:
 		var c: Control = d[2]
 		if (c is Label or c is RichTextLabel or c is LineEdit) and c.text.strip_edges() != "" and c.modulate.a > 0.05:
@@ -322,8 +324,9 @@ func _button_text(button: BaseButton, labels: Array) -> String:
 		return button.text.strip_edges().replace("\n", " ")
 	var parts: Array = []
 	var rect: Rect2 = button.get_global_rect()
-	for label in labels:
-		if (button.is_a_parent_of(label) or rect.has_point(label.get_global_rect().get_center())) and not label.text.strip_edges() in parts:
+	for label in labels:  # Its own labels, or ones drawn over it (later): never a covered window's
+		var over: bool = int(label.get_meta("_order", -1)) > int(button.get_meta("_order", -1))
+		if (button.is_a_parent_of(label) or (over and rect.has_point(label.get_global_rect().get_center()))) and not label.text.strip_edges() in parts:
 			parts.append(label.text.strip_edges())
 	if parts.empty() and button.hint_tooltip != "":
 		parts.append("(" + button.hint_tooltip + ")")
