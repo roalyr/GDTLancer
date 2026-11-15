@@ -33,6 +33,11 @@ const SAVE_FILE_EXT = ".sav"
 const SAVE_TMP_EXT = ".tmp"  # Being written (save_game)
 const SAVE_BACKUP_EXT = ".bak"  # The save before the last
 const SAVE_FORMAT_VERSION = 2  # 2: evolution, play time and a summary
+# Slots: the autosave's apart from the player's own, so docking (and a new game, which starts docked)
+# never writes over a game the player saved. Slot 0 is the autosave (docking, a lost ship); slots
+# 1..Constants.SAVE_SLOT_COUNT are the player's, written only when they pick one. Evolution keeps
+# its one save in slot 0 of its own folder.
+const AUTOSAVE_SLOT = 0
 
 
 
@@ -44,6 +49,24 @@ func _ready() -> void:
 	if test_start_id != "" and TEST_FRESH_ARG in OS.get_cmdline_args():
 		delete_all_saves()
 	delete_outdated_saves()
+	if save_dir == PLAY_SAVE_DIR:
+		keep_single_save()
+
+
+# Before the slots, every save (the player's and docking's) went to slot 0, now the autosave's: the
+# game there is copied to slot 1 once, while none of the player's slots holds a game, so the next
+# docking does not write over it.
+func keep_single_save() -> bool:
+	if not has_save_file(AUTOSAVE_SLOT):
+		return false
+	for slot in manual_slots():
+		if has_save_file(slot):
+			return false
+	var dir := Directory.new()
+	if dir.copy(_get_save_path(AUTOSAVE_SLOT), _get_save_path(manual_slots()[0])) != OK:
+		return false
+	print("GameStateManager: the save in slot 0 (now the autosave's) copied to slot 1")
+	return true
 
 
 # The game start of this mode: the game's (a test start's, if one runs), or evolution's (Constants
@@ -105,6 +128,37 @@ func delete_outdated_saves() -> void:
 
 
 # --- Public API ---
+
+# The autosave (docking, a lost ship): its own slot, never one the player saved in.
+func autosave() -> bool:
+	return save_game(AUTOSAVE_SLOT)
+
+
+# The player's own slots, 1..SAVE_SLOT_COUNT.
+func manual_slots() -> Array:
+	return range(1, Constants.SAVE_SLOT_COUNT + 1)
+
+
+# A slot as the save and load pickers show it: "SLOT 2 · ELACE · 15230 WP · 2026-11-15 14:02 · 3 H 05 MIN",
+# "AUTOSAVE · ...", or "SLOT 2: EMPTY".
+func slot_label(slot: int) -> String:
+	var name: String = "AUTOSAVE" if slot == AUTOSAVE_SLOT else "SLOT %d" % slot
+	var summary: Dictionary = get_save_summary(slot)
+	if summary.empty():
+		return "%s: EMPTY" % name
+	var played: int = int(summary.get("play_time", 0.0))
+	var sector: String = str(summary.get("sector", "")).trim_prefix("sector_").replace("_", " ")
+	return "%s · %s · %d WP · %s · %d H %02d MIN" % [name, sector.to_upper(), int(summary.get("bank", 0)), summary.get("saved_at", "?"),
+		played / 3600, played % 3600 / 60]
+
+
+# Whether any slot (the autosave's or the player's) holds a game this mode loads.
+func has_any_save() -> bool:
+	for slot in [AUTOSAVE_SLOT] + manual_slots():
+		if has_save_file(slot):
+			return true
+	return false
+
 
 func delete_save(slot_id: int = 0) -> void:
 	var dir := Directory.new()

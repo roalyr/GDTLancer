@@ -534,7 +534,7 @@ func request_dock(station: Spatial) -> void:
 # done), in play only (evolution keeps its own saves).
 func _autosave_on_dock() -> void:
 	if Settings.get_option("autosave_on_dock") and GameStateManager.mode == GameStateManager.MODE_PLAY and GameState.player_docked_at != "":
-		GameStateManager.save_game(0)
+		GameStateManager.autosave()  # Its own slot: never one the player saved in
 
 
 # Distance from this ship to the station's hull (its centre minus its obstacle radius).

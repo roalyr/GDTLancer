@@ -192,3 +192,22 @@ func _assert_vector3_almost_eq(actual: Vector3, expected: Vector3, tolerance: fl
 	assert_almost_eq(actual.x, expected.x, tolerance, "%s (x component)" % message)
 	assert_almost_eq(actual.y, expected.y, tolerance, "%s (y component)" % message)
 	assert_almost_eq(actual.z, expected.z, tolerance, "%s (z component)" % message)
+
+
+# A load applies the save (GameState reset, current_zone_instance with it) before WorldManager
+# cleans up: the old zone must still go, or each load stacks another sector.
+func test_cleanup_frees_a_zone_the_reset_already_forgot():
+	var scene := Node.new()
+	var holder := Spatial.new()
+	holder.name = Constants.CURRENT_ZONE_CONTAINER_NAME
+	scene.add_child(holder)
+	scene.add_child(world_manager)
+	var old_zone := Spatial.new()
+	holder.add_child(old_zone)
+	GameState.current_zone_instance = null  # What GameState.reset_state() leaves
+	GlobalRefs.current_zone = null
+	world_manager._cleanup_current_zone()
+	assert_eq(holder.get_child_count(), 0, "The forgotten zone is out of the holder")
+	assert_true(old_zone.is_queued_for_deletion(), "and freed")
+	scene.remove_child(world_manager)
+	scene.free()

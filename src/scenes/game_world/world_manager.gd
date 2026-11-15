@@ -141,7 +141,7 @@ func _on_agent_disabled(agent_body) -> void:
 	var dock_state = _emit_loaded_dock_signal()
 	if dock_state is GDScriptFunctionState:
 		yield(dock_state, "completed")
-	GameStateManager.save_game(0)
+	GameStateManager.autosave()  # The autosave's slot: the player's own saves are kept
 	EventBus.emit_signal("announcement", "Back home in a new ship. The bank and storage are kept: %d WP" % GameState.player_bank, "info")
 	_respawning = false
 	_fade_transition_overlay_async(0.0, Constants.RESPAWN_FADE_DURATION)
@@ -198,10 +198,24 @@ func _cleanup_all_agents() -> void:
 
 func _cleanup_current_zone() -> void:
 	"""Clean up the current zone and all its children properly."""
-	if is_instance_valid(GameState.current_zone_instance):
-		EventBus.emit_signal("zone_unloading", GameState.current_zone_instance)
-		GameState.current_zone_instance.queue_free()
-		GameState.current_zone_instance = null
+	# Every zone in the holder, not only GameState's: a load applies the save first (GameState is
+	# reset, current_zone_instance with it) and cleans up after, so the reference alone missed the
+	# old sector and each load stacked another one (its lights and additive shaders on top).
+	var zones: Array = []
+	for zone in [GameState.current_zone_instance, GlobalRefs.current_zone]:
+		if is_instance_valid(zone) and not zone in zones:
+			zones.append(zone)
+	var zone_holder = get_parent().find_node(Constants.CURRENT_ZONE_CONTAINER_NAME, true, false) if get_parent() != null else null
+	if is_instance_valid(zone_holder):
+		for zone in zone_holder.get_children():
+			if not zone in zones:
+				zones.append(zone)
+	for zone in zones:
+		EventBus.emit_signal("zone_unloading", zone)
+		if zone.get_parent() != null:
+			zone.get_parent().remove_child(zone)  # Out of the tree at once: nothing finds it this frame
+		zone.queue_free()
+	GameState.current_zone_instance = null
 	
 	GlobalRefs.player_agent_body = null
 	GlobalRefs.current_zone = null

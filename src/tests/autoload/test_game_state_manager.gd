@@ -98,6 +98,47 @@ func test_save_and_load_keeps_worked_rocks():
 	assert_eq_deep(GameState.rock_deposits, {"sector_elace:Layout/Rock_Field_03": [4, 120.5]})
 
 
+func test_the_autosave_keeps_to_its_own_slot():
+	_populate_game_state()
+	GameStateManager.delete_all_saves()
+	assert_false(GameStateManager.has_any_save())
+	assert_eq(GameStateManager.slot_label(2), "SLOT 2: EMPTY")
+	GameState.player_bank = 1200
+	assert_true(GameStateManager.save_game(2), "The player's slot")
+	GameState.player_bank = 50
+	assert_true(GameStateManager.autosave())
+	assert_true(GameStateManager.has_save_file(GameStateManager.AUTOSAVE_SLOT))
+	assert_false(GameStateManager.AUTOSAVE_SLOT in GameStateManager.manual_slots(), "Never offered for the player's saves")
+	assert_eq(GameStateManager.manual_slots().size(), Constants.SAVE_SLOT_COUNT)
+	assert_true(GameStateManager.load_game(2))
+	assert_eq(GameState.player_bank, 1200, "The autosave left the player's slot alone")
+	assert_string_contains(GameStateManager.slot_label(2), "SLOT 2 · COB · 1200 WP")
+	assert_string_contains(GameStateManager.slot_label(GameStateManager.AUTOSAVE_SLOT), "AUTOSAVE · COB · 50 WP")
+	assert_true(GameStateManager.has_any_save())
+
+
+func test_the_one_save_from_before_the_slots_is_kept_in_slot_1():
+	_populate_game_state()
+	GameStateManager.delete_all_saves()
+	GameState.player_bank = 777
+	GameStateManager.save_game(GameStateManager.AUTOSAVE_SLOT)  # As every save went before the slots
+	assert_true(GameStateManager.keep_single_save())
+	assert_true(GameStateManager.load_game(1))
+	assert_eq(GameState.player_bank, 777, "The old game, in the player's first slot")
+	assert_false(GameStateManager.keep_single_save(), "Once: a slot of the player's holds a game now")
+
+
+func test_a_list_prompt_greys_out_what_cannot_be_picked():
+	var PromptDialog = load("res://src/core/ui/helpers/prompt_dialog.gd")
+	var prompt = PromptDialog.ask_list(self, "Load game", "", [["0", "AUTOSAVE: EMPTY", true], ["1", "SLOT 1 · COB"], ["cancel", "CANCEL"]])
+	var list: Node = prompt.get_node("Center/Frame/Box/List")
+	assert_eq(list.get_child_count(), 2, "The slots one under another")
+	assert_true(list.get_node("Choice_0").disabled, "An empty slot: shown, not pickable")
+	assert_false(list.get_node("Choice_1").disabled)
+	assert_not_null(prompt.get_node("Center/Frame/Box/Choices/Choice_cancel"), "Cancel in the row below")
+	prompt.free()
+
+
 func test_load_emits_game_state_loaded():
 	_populate_game_state()
 	GameStateManager.save_game(TEST_SLOT)

@@ -1,7 +1,8 @@
-# MainMenu: new game, save, load, settings (OptionsWindow) and exit; it asks nothing at start. Load reads the game's own save
+# MainMenu: new game, save, load, settings (OptionsWindow) and exit; it asks nothing at start. Load reads the game's own saves
 # only (GameStateManager mode "play": never evolution's); exiting a game in progress (the button or
 # closing the window) asks whether to save first; a new game starts a fresh world, its havens flying
-# the presets.
+# the presets. Save and load ask for a slot (a list: the player's slots, and for loading the
+# autosave's too); saving over a game asks first. The autosave's slot is never offered for saving.
 
 extends Control
 
@@ -67,10 +68,7 @@ func _request_exit() -> void:
 func _on_exit_chosen(choice) -> void:
 	match choice:
 		"save":
-			if GameStateManager.save_game(0):
-				get_tree().quit()
-			else:
-				_show_save_notification(false)
+			_pick_save_slot(true)  # Quits once saved
 		"exit":
 			get_tree().quit()
 
@@ -92,28 +90,69 @@ func _on_load_game_pressed() -> void:
 		printerr("MainMenu: GameStateManager unavailable.")
 		return
 
-	if GameStateManager.has_method("has_save_file") and GameStateManager.has_save_file():
-		var ok: bool = GameStateManager.load_game(0)
-		if ok:
-			visible = false
-		else:
-			_show_menu()
-	else:
+	if not GameStateManager.has_any_save():
 		_update_load_button_state()
+		return
+	var choices: Array = []
+	for slot in [GameStateManager.AUTOSAVE_SLOT] + GameStateManager.manual_slots():
+		choices.append([str(slot), GameStateManager.slot_label(slot), not GameStateManager.has_save_file(slot)])
+	choices.append(["cancel", "CANCEL"])
+	PromptDialog.ask_list(self, "Load game", "PICK A SAVE. PLAY SINCE THE LAST SAVE IS LOST.", choices).connect("chosen", self, "_on_load_slot_chosen")
+
+
+func _on_load_slot_chosen(choice) -> void:
+	if choice == "cancel":
+		return
+	if GameStateManager.load_game(int(choice)):
+		visible = false
+	else:
+		_show_menu()
 
 
 func _on_save_game_pressed() -> void:
 	if not is_instance_valid(GameStateManager):
 		printerr("MainMenu: GameStateManager unavailable.")
 		return
-	var success: bool = GameStateManager.save_game(0)
+	_pick_save_slot(false)
+
+
+# The player's slots (not the autosave's), to save in; `then_quit`: the exit's SAVE AND EXIT.
+func _pick_save_slot(then_quit: bool) -> void:
+	var choices: Array = []
+	for slot in GameStateManager.manual_slots():
+		choices.append([str(slot), GameStateManager.slot_label(slot)])
+	choices.append(["cancel", "CANCEL"])
+	PromptDialog.ask_list(self, "Save game", "PICK A SLOT. THE AUTOSAVE HAS ITS OWN.", choices).connect("chosen", self, "_on_save_slot_chosen", [then_quit])
+
+
+func _on_save_slot_chosen(choice, then_quit: bool) -> void:
+	if choice == "cancel":
+		return
+	var slot: int = int(choice)
+	if GameStateManager.has_save_file(slot):
+		var prompt = PromptDialog.ask(self, "Save over slot %d?" % slot, GameStateManager.slot_label(slot), [["save", "SAVE OVER IT"], ["cancel", "CANCEL"]])
+		prompt.connect("chosen", self, "_on_overwrite_chosen", [slot, then_quit])
+		return
+	_save_in(slot, then_quit)
+
+
+func _on_overwrite_chosen(choice, slot: int, then_quit: bool) -> void:
+	if choice == "save":
+		_save_in(slot, then_quit)
+
+
+func _save_in(slot: int, then_quit: bool) -> void:
+	var success: bool = GameStateManager.save_game(slot)
 	_update_load_button_state()
-	_show_save_notification(success)
+	if success and then_quit:
+		get_tree().quit()
+		return
+	_show_save_notification(success, slot)
 
 
-func _show_save_notification(success: bool) -> void:
+func _show_save_notification(success: bool, slot: int = -1) -> void:
 	if success:
-		PromptDialog.tell(self, "Saved", "THE GAME IS SAVED.")
+		PromptDialog.tell(self, "Saved", "THE GAME IS SAVED IN SLOT %d." % slot if slot > 0 else "THE GAME IS SAVED.")
 	else:
 		PromptDialog.tell(self, "Save failed", "THE GAME COULD NOT BE SAVED. THE CONSOLE SAYS WHY.")
 
@@ -132,8 +171,8 @@ func _on_close_pressed() -> void:
 func _update_load_button_state() -> void:
 	if not is_instance_valid(btn_load_game):
 		return
-	if is_instance_valid(GameStateManager) and GameStateManager.has_method("has_save_file"):
-		btn_load_game.disabled = not GameStateManager.has_save_file()
+	if is_instance_valid(GameStateManager) and GameStateManager.has_method("has_any_save"):
+		btn_load_game.disabled = not GameStateManager.has_any_save()
 	else:
 		btn_load_game.disabled = true
 
