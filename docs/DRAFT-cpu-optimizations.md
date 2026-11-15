@@ -106,6 +106,19 @@ to 1.5 (engagement range 0.5, `_fire_at` 0.27, `_should_retreat` 0.23, `can_char
 the per-tool walks (`can_target`, `reach_on`, `lock_range_for`) under range, fire and retreat are
 the common part, and a per-think cache of `reach_on` per tool and target would serve all three.
 
+Follow-up, DONE: a per-think memo of `can_target` / `reach_on` was counted first and dropped (13 and
+8 repeated calls a frame, ~0.1 ms). Split by state, a think is combat 1.16 ms a frame, docked 0.2
+to 0.4 (`is_station_watched`, `is_called_out`: small, varies), patrol 0.12, the rest under 0.1;
+combat is engagement range 0.35, retreat 0.18, fire 0.17, desire 0.17. Timed on live ships,
+`can_target` was 14 to 25 us, over half of it `Agent.detects`, asked again for every tool against
+the same target (the target's four weapons each asked whether it sees this ship). ToolController
+now splits it into `sees(target)` and `fits(tool, target)`; the loops over tools ask `sees` once,
+and `_engagement_range` passes its one answer to the cannon search, the base range and its own
+lock. `_should_retreat` works out its level (desperation walks the fit for its value) once, not
+twice. Engagement range ~210 to ~125 us a call, the retreat check ~45 to ~24 us; the bench's ai
+section is too noisy to show it (1.9 to 2.5 ms either way). Left: desperation's `get_value` (a
+template lookup per fitted part, several times a think) could be kept per fit if that ever shows.
+
 The original note follows.
 
 

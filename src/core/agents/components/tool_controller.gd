@@ -249,19 +249,32 @@ func get_tool(index: int) -> Resource:
 
 # First fitted tool that can act on `target`, or -1.
 func find_tool_for(target) -> int:
+	if not sees(target):
+		return -1
 	for index in range(_tools.size()):
-		if can_target(_tools[index], target):
+		if fits(_tools[index], target):
 			return index
 	return -1
 
 
 # Laser: live ships, rocks and crusted ore chunks. Harpoon: wrecks, and ore chunks once bared and cooled.
+# sees() and fits(): a loop over the tools for one target asks sees() once (Agent.detects is the
+# costly part, and the same for every tool), then fits() per tool.
 func can_target(tool_template, target) -> bool:
+	return sees(target) and fits(tool_template, target)
+
+
+# Something its tools could act on (in space, not itself) that the ship's sensors see: tools act
+# only on what they see.
+func sees(target) -> bool:
 	if not (is_instance_valid(target) and target != _agent_body and target is Spatial):
 		return false
+	return not _agent_body.has_method("detects") or _agent_body.detects(target)
+
+
+# Whether the tool works on `target` (one sees() passed).
+func fits(tool_template, target) -> bool:
 	var is_ship: bool = target.has_method("apply_damage")
-	if _agent_body.has_method("detects") and not _agent_body.detects(target):
-		return false  # Tools act only on what the ship's sensors can see
 	match tool_template.tool_type:
 		"laser":
 			return (is_ship and not target.get("is_wreck")) or target.is_in_group("asteroid") or (target.has_method("has_crust") and target.has_crust())
@@ -427,10 +440,14 @@ func fighting_range(target) -> float:
 
 
 # The fitted cannon with rounds left that works on `target`, or -1.
-func find_cannon_for(target) -> int:
+# `seen`: sees(target), when the caller has it already.
+func find_cannon_for(target, seen = null) -> int:
 	for index in range(_tools.size()):
-		if _tools[index].tool_type == "cannon" and get_ammo(index) > 0 and can_target(_tools[index], target):
-			return index
+		if _tools[index].tool_type == "cannon" and get_ammo(index) > 0:
+			if seen == null:
+				seen = sees(target)
+			if seen and fits(_tools[index], target):
+				return index
 	return -1
 
 

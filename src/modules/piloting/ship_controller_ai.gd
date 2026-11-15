@@ -590,12 +590,15 @@ func get_engagement_range() -> float:
 
 
 func _engagement_range() -> float:
-	var engagement: float = _base_engagement_range()
+	if not is_instance_valid(_tool_controller) or not is_instance_valid(_target_agent):
+		return 0.0
+	var seen: bool = _tool_controller.sees(_target_agent)  # Once for all three below
+	var engagement: float = _base_engagement_range(seen)
 	if engagement <= 0.0:
 		return engagement
 	if _covering != null:
 		return engagement * Constants.AI_COVER_RANGE_SHARE
-	var own_lock: float = _own_lock_on(_target_agent)
+	var own_lock: float = _own_lock_on(_target_agent, seen)
 	var floor_range: float = lock_range_of(_target_agent) * Constants.AI_LOCK_WINDOW_MARGIN
 	if floor_range > 0.0 and own_lock * Constants.AI_LOCK_WINDOW_INNER > floor_range:
 		return clamp(engagement, floor_range, own_lock * Constants.AI_LOCK_WINDOW_INNER)
@@ -606,37 +609,44 @@ func _engagement_range() -> float:
 # it has no weapon that works on this ship, or does not see it.
 func lock_range_of(body) -> float:
 	var tools = body.get_node_or_null("ToolController") if is_instance_valid(body) else null
-	if tools == null or not tools.has_method("get_tool_count"):
+	if tools == null or not tools.has_method("get_tool_count") or not tools.sees(agent_script):
 		return 0.0
 	var lock := 0.0
 	for index in range(tools.get_tool_count()):
 		var tool_template = tools.get_tool(index)
-		if tool_template.tool_type != "harpoon" and tools.can_target(tool_template, agent_script):
+		if tool_template.tool_type != "harpoon" and tools.fits(tool_template, agent_script):
 			lock = max(lock, agent_script.lock_range_for(body, tool_template.get_max_range()))
 	return lock
 
 
 # The furthest any of its weapons that work on `target` lock on it.
-func _own_lock_on(target) -> float:
+# `seen`: _tool_controller.sees(target), when the caller has it already.
+func _own_lock_on(target, seen = null) -> float:
 	var lock := 0.0
+	if not (_tool_controller.sees(target) if seen == null else seen):
+		return lock
 	for index in range(_tool_controller.get_tool_count()):
 		var tool_template = _tool_controller.get_tool(index)
-		if tool_template.tool_type != "harpoon" and _tool_controller.can_target(tool_template, target):
+		if tool_template.tool_type != "harpoon" and _tool_controller.fits(tool_template, target):
 			lock = max(lock, _tool_controller.reach_on(index, target))
 	return lock
 
 
-func _base_engagement_range() -> float:
+func _base_engagement_range(seen = null) -> float:
 	if not is_instance_valid(_tool_controller) or not is_instance_valid(_target_agent):
 		return 0.0
-	var cannon: int = _tool_controller.find_cannon_for(_target_agent)
+	if seen == null:
+		seen = _tool_controller.sees(_target_agent)
+	var cannon: int = _tool_controller.find_cannon_for(_target_agent, seen)
 	if cannon >= 0:
 		return min(_tool_controller.get_tool(cannon).optimal_range * _range_factor, _tool_controller.reach_on(cannon, _target_agent))
 	var best: float = INF
 	var lock: float = INF
+	if not seen:
+		return 0.0
 	for index in range(_tool_controller.get_tool_count()):
 		var tool_template = _tool_controller.get_tool(index)
-		if tool_template.tool_type == "harpoon" or not _tool_controller.can_target(tool_template, _target_agent):
+		if tool_template.tool_type == "harpoon" or not _tool_controller.fits(tool_template, _target_agent):
 			continue
 		if _tool_controller.has_magazine(index) and _tool_controller.get_ammo(index) <= 0:
 			continue
@@ -951,10 +961,12 @@ func _stalk(closing: bool) -> void:
 func _fire_at(target) -> void:
 	if not is_instance_valid(_tool_controller):
 		return
+	if not _tool_controller.sees(target):
+		return
 	var distance: float = agent_script.global_transform.origin.distance_to(target.global_transform.origin)
 	for index in range(_tool_controller.get_tool_count()):
 		var tool_template = _tool_controller.get_tool(index)
-		if not _tool_controller.can_target(tool_template, target):
+		if not _tool_controller.fits(tool_template, target):
 			continue
 		var in_reach: bool = distance <= _tool_controller.reach_on(index, target)
 		var enough_power: bool = agent_script.power >= tool_template.power_per_cycle
@@ -1320,8 +1332,9 @@ func _busy_mining_past(enemy) -> bool:
 	if not is_mining_work() or not is_instance_valid(_tool_controller):
 		return false
 	var reach := 0.0
+	var seen: bool = _tool_controller.sees(enemy)
 	for index in range(_tool_controller.get_tool_count()):
-		if _tool_controller.can_target(_tool_controller.get_tool(index), enemy):
+		if seen and _tool_controller.fits(_tool_controller.get_tool(index), enemy):
 			reach = max(reach, _tool_controller.get_tool(index).get_max_range())
 	return agent_script.global_transform.origin.distance_to(enemy.global_transform.origin) > reach
 
@@ -1667,7 +1680,8 @@ func _retreat_level() -> float:
 
 # Hull under its retreat gene: run home whatever the odds.
 func _should_retreat() -> bool:
-	return _retreat_level() > 0.0 and agent_script.get_hull_fraction() < _retreat_level()
+	var level: float = _retreat_level()  # Once: desperation walks the ship's parts for its value
+	return level > 0.0 and agent_script.get_hull_fraction() < level
 
 
 # Counts a run-and-chase event in a haven NPC's life (Evolution.note).
