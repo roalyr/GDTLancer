@@ -63,7 +63,7 @@ func _ready() -> void:
 
 # A hit lights its surroundings only while both the body it is on and the light's own reach show in
 # detail (Constants.HIT_FX_LIGHT_MAX_BAND; the reach keeps hits on far, huge rocks from taking the
-# lights) and few other hits do.
+# lights) and fewer other hits do than the cap (Settings "dynamic_lights": light_caps()[0]).
 func should_light(point: Vector3) -> bool:
 	var camera = get_viewport().get_camera() if is_inside_tree() else null
 	if camera == null or ViewDetail.band_of_host(self) > Constants.HIT_FX_LIGHT_MAX_BAND:
@@ -71,7 +71,7 @@ func should_light(point: Vector3) -> bool:
 	var reach: float = _light.omni_range if _light != null else 0.0
 	if ViewBand.band_of(camera, point, reach) > Constants.HIT_FX_LIGHT_MAX_BAND:
 		return false
-	return get_tree().get_nodes_in_group("hit_fx_light").size() < Constants.HIT_FX_MAX_LIGHTS
+	return get_tree().get_nodes_in_group("hit_fx_light").size() < Settings.light_caps()[0]
 
 
 func _start_vapor() -> void:

@@ -16,6 +16,8 @@
 #   "autosave_on_dock" (bool) PlayerControllerShip: the game saves each time the player docks
 #   "engine_exhausts" (bool) EngineExhaustSet: ships' plumes and nozzle glow (off: hidden and not
 #                          worked out, nor the agents' per-nozzle thrust); missiles keep theirs
+#   "dynamic_lights" (String) LaserHitEffect, WreckExplosionEffect: how many hits and explosions
+#                          light their surroundings at once (Constants.DYNAMIC_LIGHTS_LEVELS, _CAPS)
 #   "tether_rope"  (String) Tether: "complex" simulates near cables, "simple" draws a straight line
 #                          (Constants.TETHER_ROPE_STYLES)
 # The file is read only by load_file() (the main scene's start), and written only after it: tests
@@ -40,7 +42,13 @@ const DEFAULTS = {
 	"autosave_on_dock": true,
 	"engine_exhausts": true,
 	"tether_rope": "complex",
+	"dynamic_lights": "all",
 }
+
+
+# [hits, explosions] that may light their surroundings at once (Settings "dynamic_lights").
+func light_caps() -> Array:
+	return Constants.DYNAMIC_LIGHTS_CAPS.get(get_option("dynamic_lights"), Constants.DYNAMIC_LIGHTS_CAPS.all)
 
 var _values: Dictionary = DEFAULTS.duplicate()
 var _persist: bool = false  # Set by load_file()

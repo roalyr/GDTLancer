@@ -395,6 +395,11 @@ const EXPLOSION_REFERENCE_RADIUS = 12.0  # Apparent radius the explosion scene i
 const EXPLOSION_LIFETIME = 16.0  # s
 const EXPLOSION_FLASH_DURATION = 0.6  # s
 const EXPLOSION_MAX_LIGHTS = 1  # Explosions lighting their surroundings at once (GLES2: every light is another pass per object it touches)
+# Dynamic lights (Settings "dynamic_lights", the Options button): how many hits and explosions may
+# light their surroundings at once, [hits, explosions] by level. "all" is HIT_FX_MAX_LIGHTS and
+# EXPLOSION_MAX_LIGHTS; fewer for slow devices (every light draws each object it touches again).
+const DYNAMIC_LIGHTS_LEVELS = ["all", "few", "off"]
+const DYNAMIC_LIGHTS_CAPS = {"all": [HIT_FX_MAX_LIGHTS, EXPLOSION_MAX_LIGHTS], "few": [3, 1], "off": [0, 0]}
 const EXPLOSION_DRAG = 0.8  # Per second; the cloud centre slows a bit faster than a wreck (LINEAR_DRAG)
 # Cloud puffs (spheres, fx_explosion_cloud.gdshader; colours in explosion_puff_material.tres), sizes
 # for the authored ship radius: a fireball that swells fast, burns out to smoke, then thins away.

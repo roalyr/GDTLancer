@@ -129,6 +129,11 @@ rect_min_size = Vector2( 0, 56 )
 focus_mode = 0
 text = "ENGINE EXHAUSTS: ON"
 
+[node name="ButtonDynamicLights" type="Button" parent="Panel/Layout"]
+rect_min_size = Vector2( 0, 56 )
+focus_mode = 0
+text = "DYNAMIC LIGHTS: ALL"
+
 [node name="ButtonTetherRope" type="Button" parent="Panel/Layout"]
 rect_min_size = Vector2( 0, 56 )
 focus_mode = 0

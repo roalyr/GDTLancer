@@ -37,6 +37,9 @@ func test_buttons_step_their_options():
 	assert_eq(window.get_node("Panel/Layout/ButtonRenderScale").text, "RENDER SCALE: X0.5")
 	window.step("hud_preset")
 	assert_eq(Settings.get_option("hud_preset"), Constants.HUD_PRESET_ORDER[1])
+	window.step("dynamic_lights")
+	assert_eq(Settings.get_option("dynamic_lights"), "few")
+	assert_eq(window.get_node("Panel/Layout/ButtonDynamicLights").text, "DYNAMIC LIGHTS: FEW")
 
 
 func test_hud_look_greys_the_marks():

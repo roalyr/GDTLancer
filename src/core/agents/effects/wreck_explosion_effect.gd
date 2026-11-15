@@ -19,7 +19,7 @@ var _puffs: Array = []  # [puff root, its material, drift direction, size factor
 
 const PuffMaterial = preload("res://assets/art/effects/explosion_puff_material.tres")
 
-onready var _light: OmniLight = $Light  # Freed if Constants.EXPLOSION_MAX_LIGHTS explosions light already
+onready var _light: OmniLight = $Light  # Freed if as many explosions light already as Settings.light_caps()[1] allows
 onready var _flash: MeshInstance = $Flash
 onready var _puff_root: Spatial = $Puffs
 onready var _fragments: CPUParticles = $Fragments
@@ -28,7 +28,7 @@ onready var _fragments: CPUParticles = $Fragments
 func _ready() -> void:
 	var size_scale: float = radius / Constants.EXPLOSION_REFERENCE_RADIUS
 	scale = Vector3.ONE * size_scale
-	if get_tree().get_nodes_in_group("explosion_light").size() < Constants.EXPLOSION_MAX_LIGHTS:
+	if get_tree().get_nodes_in_group("explosion_light").size() < Settings.light_caps()[1]:
 		_light.add_to_group("explosion_light")
 		_light.omni_range *= size_scale
 		_base_energy = _light.light_energy

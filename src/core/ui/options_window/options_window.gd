@@ -20,6 +20,7 @@ const OPTIONS = {
 	"ButtonShowFps": ["show_fps", null, "SHOW FPS"],
 	"ButtonAutosave": ["autosave_on_dock", null, "SAVE ON DOCKING"],
 	"ButtonExhausts": ["engine_exhausts", null, "ENGINE EXHAUSTS"],
+	"ButtonDynamicLights": ["dynamic_lights", "DYNAMIC_LIGHTS_LEVELS", "DYNAMIC LIGHTS"],
 	"ButtonTetherRope": ["tether_rope", "TETHER_ROPE_STYLES", "TETHER ROPE"],
 	"ButtonDynamicCamera": ["camera_dynamic", null, "DYNAMIC CAMERA (UNFINISHED, JITTERS)"],
 }

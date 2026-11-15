@@ -533,6 +533,34 @@ func test_hits_on_far_huge_bodies_do_not_light_up():
 	assert_false(hit.should_light(Vector3(0, 0, -gone * 1.5)), "but not where its light would be too small to see, however big the body.")
 
 
+# Settings "dynamic_lights" caps the hits that light at once: all (today's cap), few, off.
+func test_dynamic_lights_cap_the_hits_that_light():
+	var camera = Camera.new()
+	add_child_autofree(camera)
+	camera.current = true
+	var hit = load("res://scenes/prefabs/effects/laser_hit.tscn").instance()
+	hit.damage = 10.0
+	add_child_autofree(hit)
+	var lit := []
+	for i in range(3):
+		var light = Spatial.new()
+		light.add_to_group("hit_fx_light")
+		add_child_autofree(light)
+		lit.append(light)
+	assert_eq(Settings.light_caps(), [Constants.HIT_FX_MAX_LIGHTS, Constants.EXPLOSION_MAX_LIGHTS], "All by default: as before")
+	assert_true(hit.should_light(Vector3(0, 0, -100)), "All: three hits lit, room for more")
+	Settings.set_option("dynamic_lights", "few")
+	assert_false(hit.should_light(Vector3(0, 0, -100)), "Few: three is the cap")
+	Settings.set_option("dynamic_lights", "off")
+	for light in lit:
+		light.remove_from_group("hit_fx_light")
+	assert_false(hit.should_light(Vector3(0, 0, -100)), "Off: none at all")
+	var explosion = load("res://scenes/prefabs/effects/wreck_explosion.tscn").instance()
+	add_child_autofree(explosion)
+	assert_null(explosion._light, "and no explosion lights either.")
+	Settings.reset_to_defaults()
+
+
 # --- Tether cable ---
 
 func _make_tether(distance: float) -> Node:
