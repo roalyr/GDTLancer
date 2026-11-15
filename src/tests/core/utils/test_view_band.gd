@@ -63,6 +63,28 @@ func test_host_band_updates_on_a_zoom_without_waiting():
 	assert_true(detail.band < Constants.VIEW_DOT, "A field of view change is judged at once.")
 
 
+func test_one_view_detail_runs_them_all_and_the_next_takes_over():
+	_camera(70.0)
+	var hosts: Array = []
+	var details: Array = []
+	for index in range(2):
+		var host = Spatial.new()
+		add_child_autofree(host)
+		host.translation = Vector3(0, 0, -15000)
+		hosts.append(host)
+		details.append(ViewDetail.attach(host, 15.0))
+	var leader = ViewDetail._ALL.leader
+	assert_true(leader in details, "One of them leads")
+	var other = details[1] if leader == details[0] else details[0]
+	assert_false(other.is_processing(), "the other does not run on its own")
+	leader._process(0.0)
+	assert_eq(other.band, Constants.VIEW_DOT, "The leader's pass judged it")
+	leader.get_parent().remove_child(leader)
+	assert_eq(ViewDetail._ALL.leader, other, "The next leads")
+	assert_true(other.is_processing())
+	leader.free()
+
+
 func test_things_on_a_host_find_its_band():
 	var host = Spatial.new()
 	add_child_autofree(host)

@@ -249,6 +249,15 @@ grows with ships becomes one that grows with carriers (`SOUND_LOOP_CARRIERS`).
 
 ### 6b. ViewDetail: every ship and rock runs `_process` every frame (found by item 0)
 
+DONE: 1.1 to 0.35 ms a frame, and the engine's per-node dispatch for ~160 details (ships, rocks)
+is gone too (idle ~1 ms lower). No separate driver node (a deferred one showed up as an orphan in
+GUT): the first ViewDetail in the tree leads and checks them all, the next takes over when it
+leaves. Checks fall due on a shared clock (the frames' deltas summed), so a detail not due costs one
+field read; a field of view change in any viewport makes all due at once. `_timer` stays as a
+setget onto the due time for tests. Test: `test_view_band.gd` (leader hand-over).
+
+The original note follows.
+
 Where: `src/core/agents/components/view_detail.gd` `_judge`. Every host (each ship, each of ~65
 rocks) has a ViewDetail node whose `_process` fetches `get_viewport().get_camera()` and compares
 `camera.fov` every frame, to judge its band only every `VIEW_CHECK_INTERVAL` or on a zoom. With
