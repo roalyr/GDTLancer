@@ -521,6 +521,12 @@ TASKS = [
          lambda v: ["python3", "tools/devtool/economy.py", "sector=" + v["sector"], "ship=" + v["ship"]],
          [Ask("sector", "Sector", "choice", "sector_elace", sectors), Ask("ship", "Ship to time routes for", "choice", "trader_medium", archetypes)]),
     # Look
+    Task("placeholder_sounds", "Look", "Remake placeholder sounds", "Synthesizes the placeholder sounds and music again"
+         " (tools/make_placeholder_sounds.py: same seed, same sounds) over assets/audio/placeholders/ and the placeholder music,"
+         " then imports them. Real sounds replace these files; the review screen (g) puts back any you did not mean to remake."
+         " Needs numpy and oggenc.",
+         lambda v: ["python3", "tools/make_placeholder_sounds.py"] + (["import"] if yes(v["import"]) else []),
+         [Ask("import", "Import them afterwards (the editor's import, headless)", "flag", "yes")]),
     Task("render_preview", "Look", "Render preview", "A scene from a few distances, side by side, to .dev/out/.",
          _render_preview, [Ask("scene", "Scene", "file", globs=["scenes/**/*.tscn"]), Ask("radius", "Object size (m)", "float", default="100"),
                            Ask("distances", "Distances (in sizes)", default="3,10,40"),

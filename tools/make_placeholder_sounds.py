@@ -4,16 +4,22 @@ the calm, danger and combat music, until real ones are made. Writes them under a
 (placeholders/ and music/ambient, music/danger, music/combat); the sound bank and the main scene's AmbientMusic
 point at them. Effects are .wav (they must not loop), loops and music .ogg (oggenc), every loop
 seamless. Run it again to remake them (same seed, same sounds), then import them (open the editor,
-or `godot --no-window -e --quit`).
+or `godot --no-window -e --quit`; the argument `import` does that after writing, with $GODOT).
+The dev tool's Look task "Remake placeholder sounds" runs it. Real sounds replace these files.
 
-    python3 tools/make_placeholder_sounds.py
+    python3 tools/make_placeholder_sounds.py [import]
 """
 
 import os
+import shutil
 import subprocess
+import sys
 import wave
 
-import numpy as np
+try:
+    import numpy as np
+except ImportError:
+    sys.exit("make_placeholder_sounds needs numpy (python3-numpy, or pip install numpy)")
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SFX = os.path.join(ROOT, "assets", "audio", "placeholders")
@@ -58,7 +64,7 @@ def write_wav(path, x):
 def write_ogg(path, x):
     tmp = path[:-4] + ".tmp.wav"
     write_wav(tmp, x)
-    subprocess.check_call(["oggenc", "-Q", "-q", "4", "-o", path, tmp])
+    subprocess.check_call(["oggenc", "-Q", "-q", "4", "-s", "7", "-o", path, tmp])  # A fixed stream serial: the same bytes every run
     os.remove(tmp)
     print(os.path.relpath(path, ROOT))
 
@@ -392,4 +398,12 @@ def main():
 
 
 if __name__ == "__main__":
+    if not shutil.which("oggenc"):
+        sys.exit("make_placeholder_sounds needs oggenc (vorbis-tools) for the loops and music")
     main()
+    if "import" in sys.argv[1:]:
+        print("Importing (godot --no-window --editor --quit)...", flush=True)
+        environment = dict(os.environ)
+        environment.setdefault("DISPLAY", ":0")
+        sys.exit(subprocess.call([os.environ.get("GODOT", "godot"), "--no-window", "--editor", "--quit"], cwd=ROOT, env=environment,
+                                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL))

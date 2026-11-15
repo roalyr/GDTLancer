@@ -138,6 +138,11 @@ class TasksTest(unittest.TestCase):
         self.assertIn("--save=user://x.sav", command("export_presets", save="user://x.sav"))
         self.assertIn("tile=200", command("render_preview", scene="scenes/prefabs/celestial/asteroid.tscn", tile="200"))
 
+    def test_placeholder_sounds_import_unless_asked_not_to(self):
+        task = tasks.TASKS_BY_KEY["placeholder_sounds"]
+        self.assertEqual(task.build(task.defaults({}))[-1], "import")
+        self.assertNotIn("import", task.build(dict(task.defaults({}), **{"import": "no"})))
+
     def test_missing_answers_are_named(self):
         task = tasks.TASKS_BY_KEY["check_model"]
         self.assertEqual(tasks.missing(task, {"scene": ""}), ["Scene"])
