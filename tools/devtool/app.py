@@ -247,7 +247,8 @@ def tools_status(evolution_dir, maintainer=True):
         lines.append("[b]APK[/b]: none at %s (Tools: apk)" % tasks.APK)
     newest = newest_files(tasks.OUT_DIR, 3)
     lines.append("[b]Newest outputs[/b] (.dev/out/, o opens the first): " + (", ".join("%s (%s)" % (os.path.relpath(path, tasks.OUT_DIR), age(path))
-                                                                                    for path in newest) if newest else "none yet"))
+                                                                                    for path in newest) if newest else
+                                                                                    "none yet (review sheets, previews and screenshots made from the menu land here; the probes write under user://)"))
     return "\n".join(lines)
 
 

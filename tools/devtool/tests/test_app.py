@@ -187,6 +187,10 @@ class ToolsStatusTest(unittest.TestCase):
             open(os.path.join(folder, "stop"), "w").close()
             self.assertIn("stop asked", devapp.tools_status(folder))
 
+    def test_no_outputs_yet_says_where_they_come_from(self):
+        with tempfile.TemporaryDirectory() as folder, mock.patch.object(devapp, "newest_files", lambda *args: []):
+            self.assertIn("made from the menu land here", devapp.tools_status(folder))
+
 
 class AppTest(unittest.IsolatedAsyncioTestCase):
     def tearDown(self):
