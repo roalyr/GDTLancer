@@ -1,10 +1,12 @@
 """The menu, driven by Textual's test pilot against a stand-in for Godot (no files are written)."""
 
+import contextlib
 import json
 import os
 import shutil
 import tempfile
 import unittest
+from unittest import mock
 
 from devtool.tests.test_worldmap import plain as worldmap_plain
 
@@ -698,6 +700,24 @@ class AppTest(unittest.IsolatedAsyncioTestCase):
                     self.assertEqual(handle.read(), "one", "The save before")
                 self.assertIsNone(app.saved_text)
                 self.assertEqual(len(reloads), 2)
+
+    async def test_a_save_and_any_task_read_everything_again(self):
+        app = devapp.DevApp(bridge_factory=lambda: FakeBridge())
+        async with app.run_test(size=(180, 50)) as pilot:
+            await self._started(pilot, app)
+            called = []
+            for name in ("check_all_worker", "refresh_models_worker", "refresh_views_worker", "refresh_parts_worker", "_fill_data_tree"):
+                setattr(app, name, lambda name=name: called.append(name))
+            with tempfile.TemporaryDirectory() as folder:
+                app._undo_point([(os.path.join(folder, "x.txt"), "one")], lambda: None)
+            await pilot.pause()
+            self.assertEqual(called, ["check_all_worker"], "A save: the Overview checks again")
+            called.clear()
+            app.suspend = contextlib.nullcontext
+            with mock.patch.object(devapp.tasks, "run", lambda task, values: 0):
+                app.run_task(devapp.tasks.TASKS_BY_KEY["export_presets"], devapp.tasks.TASKS_BY_KEY["export_presets"].defaults({}), wait=False)
+            self.assertEqual(set(called), {"check_all_worker", "refresh_models_worker", "refresh_views_worker", "refresh_parts_worker",
+                                           "_fill_data_tree"}, "A Maintainer task too")
 
     async def test_archetypes_are_listed_in_family_and_weight_order(self):
         app = devapp.DevApp(bridge_factory=lambda: FakeBridge())

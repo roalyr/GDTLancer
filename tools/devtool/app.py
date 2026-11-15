@@ -1699,6 +1699,14 @@ class DevApp(App):
         each ctrl+u goes one save further back (UNDO_DEPTH)."""
         self.undo_stack.append((files, reload))
         del self.undo_stack[:-UNDO_DEPTH]
+        self._recheck()  # Every save: the Overview's problems follow it
+
+    def _recheck(self):
+        """The Overview's full check, from the app's thread or a worker's."""
+        try:
+            self.call_from_thread(self.check_all_worker)
+        except RuntimeError:  # Already on the app's thread
+            self.check_all_worker()
 
     def action_undo_save(self):
         if not self.undo_stack:
@@ -3294,10 +3302,13 @@ class DevApp(App):
                 except EOFError:
                     pass
         self._show_status()
-        if task.group in ("Models", "Content", "Checks"):
-            self._fill_data_tree()
-            self.refresh_models_worker()
-            self.check_all_worker()
+        # Any task may change content (new_era, export_presets, pick_archetypes, release...): the
+        # full check takes under 2 s, so every view is read again after every task.
+        self._fill_data_tree()
+        self.refresh_models_worker()
+        self.refresh_views_worker()
+        self.refresh_parts_worker()
+        self.check_all_worker()
 
 
 def main():
