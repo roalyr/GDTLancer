@@ -1,7 +1,8 @@
 # Fight bench: a new game, then `n` armed archetype ships a side (verdant fighters and raiders vs
 # violet raiders and fighters: lasers, cannons, missiles, lances) staged 2.5 km from the player's
 # home, on screen, and kept fighting. Prints frame times (median, p95, p99, worst), rounds fired and
-# ships left, then the in-game FrameProfiler's report averaged over the measured seconds (per frame:
+# ships left, the engine's render monitors averaged (draws, material/shader/surface changes, vertices,
+# 2D draws), then the in-game FrameProfiler's report averaged over the measured seconds (per frame:
 # physics, idle, steps, sections; idle minus the per-frame sections is roughly rendering, the swap
 # and unmarked scripts). Performance TIME_PROCESS / TIME_PHYSICS_PROCESS are no help here: Godot 3
 # keeps the worst frame of each second in them, not an average.
@@ -18,6 +19,10 @@ var rounds_seen := 0
 var ships := []
 var reports := []  # The profiler's report each measured second
 var _order := {}  # Section sums, for sorting
+var mon := {}  # Render monitors summed over the measured frames
+const MONS = {"draws": Performance.RENDER_DRAW_CALLS_IN_FRAME, "materials": Performance.RENDER_MATERIAL_CHANGES_IN_FRAME,
+	"shaders": Performance.RENDER_SHADER_CHANGES_IN_FRAME, "surfaces": Performance.RENDER_SURFACE_CHANGES_IN_FRAME,
+	"vertices": Performance.RENDER_VERTICES_IN_FRAME, "2d_draws": Performance.RENDER_2D_DRAW_CALLS_IN_FRAME}
 const SIDE_A = ["fighter_light", "fighter_medium", "fighter_heavy", "raider_light"]
 const SIDE_B = ["raider_light", "raider_medium", "raider_heavy", "fighter_light"]
 
@@ -53,6 +58,8 @@ func _on_frame():
 	var now = OS.get_ticks_usec()
 	if last > 0:
 		frames.append((now - last) / 1000.0)
+		for k in MONS:
+			mon[k] = mon.get(k, 0.0) + Performance.get_monitor(MONS[k])
 	last = now
 
 
@@ -114,6 +121,10 @@ func _run():
 			if is_instance_valid(b) and not b.is_wreck:
 				alive += 1
 	print("FIGHT n=%d frames=%d median=%.1fms p95=%.1fms p99=%.1fms max=%.1fms rounds=%d alive=%d" % [n, count, frames[count / 2], frames[int(count * 0.95)], frames[int(count * 0.99)], frames[count - 1], rounds_seen, alive])
+	var line := "RENDER per frame:"
+	for k in MONS:
+		line += " %s=%d" % [k, mon.get(k, 0.0) / max(count, 1)]
+	print(line)
 	print(_profiler_line(reports))
 	quit()
 

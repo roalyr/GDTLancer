@@ -145,7 +145,43 @@ light adds ~10 passes even with no fight (`no_lights`). The phone's trouble is t
 
 ## Items, ranked
 
-### 0. Measure first (half a day)
+### 0. Measure first (half a day) — DONE (desktop), 2026-11-15
+
+`perf_ablation.gd` now turns vsync off and has the modes `no_starsphere`, `sky_color`, `no_exhausts`,
+`no_preview`, `no_star` (any mode with `_full` renders at full scale), and `ab=1`: the mode switches on
+and off every 2 s inside one process and one `AB` line gives each half's median frame and median idle
+part (process + render, physics left out) with the monitors. A series of separate processes was
+useless for times on this laptop: it warms up over the hour and every later run is slower (physics
+6.4 ms a step in the first run, 8 to 9 in the last, with nothing changed), so `base` came out faster
+than modes that only remove work. A/B pairs in one process cancel that. `fight_bench.gd` prints
+the render monitors averaged too (`RENDER` line).
+
+A/B, traffic by the home station, player docked, idle median off -> on (the noise floor, `base_full`
+against itself, is ±0.1 ms):
+
+| mode | scale | idle ms | draws | materials | vertices |
+|---|---|---|---|---|---|
+| no_starsphere | quarter | 12.77 -> 12.19 | 116 -> 103 | 24 -> 19 | 181k -> 73k |
+| no_starsphere | full | **22.61 -> 15.06** | 118 -> 109 | 28 -> 22 | 183k -> 77k |
+| sky_color | full | 22.23 -> 22.00 | | | |
+| no_star | full | 22.90 -> 21.98 | | | 186k -> 184k |
+| no_exhausts | quarter | 14.62 -> 13.57 | 182 -> 139 | 68 -> 32 | |
+| no_preview | quarter | 12.35 -> 11.50 | 146 -> 122 | 28 -> 17 | |
+| no_hud (hidden only) | quarter | 13.67 -> 9.58 | | | 2d_draws 680 -> 26 |
+| no_3d | quarter | 14.40 -> 13.57 | 217 -> 20 | | |
+| no_lights | quarter | 13.87 -> 13.77 | | | |
+| no_rocks | quarter | 13.97 -> 13.84 | 164 -> 152 | | 185k -> 153k |
+| no_particles | quarter | 13.85 -> 13.65 | | | |
+
+Read: at quarter scale all of 3D is ~0.8 ms of idle on this desktop; full scale adds ~8 ms and the
+starsphere is 7.5 of it, so item 1 is the fill cost and nothing else comes close. Exhausts are the
+next 3D item (~1 ms, half the material changes). The HUD hidden saves ~4 ms (its scripts skip while
+hidden, so this is script and 2D together; item 9 and the CPU draft's brackets). Lights, rocks,
+particles, the sky and the star are each 0.1 to 0.9 ms here (no fight: lights matter in item 2's
+fights only). The docked view's draw counts move with the traffic (116 to 219 run to run): compare
+within a pair, not across.
+
+Phone readings with the existing options are still owed (the user's device, `show_fps`).
 
 - Run the ablation modes above, in sequence, and paste the lines into this file.
 - Add modes to `perf_ablation.gd` (and a `mode=` to `fight_bench.gd` the same way) for the items
