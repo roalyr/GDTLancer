@@ -131,11 +131,18 @@ func _ready() -> void:
 		show_band(detail.band)
 
 
+# The frame the shared materials' clocks were last set in: one write a frame does for every ship.
+const _CLOCK_SET := {"scar": -1, "slag": -1}
+
+
 func _process(delta: float) -> void:
 	var now: float = clock()
-	if now <= _hot_until + 0.5:  # A little past cold, so the last frame shows it cold
-		ScarMaterial.set_shader_param("now", now)  # Shared: one value for every ship, so setting it twice is harmless
-	if _slag_count > 0:
+	var frame: int = Engine.get_idle_frames()
+	if now <= _hot_until + 0.5 and _CLOCK_SET.scar != frame:  # A little past cold, so the last frame shows it cold
+		_CLOCK_SET.scar = frame
+		ScarMaterial.set_shader_param("now", now)  # Shared: one value for every ship
+	if _slag_count > 0 and _CLOCK_SET.slag != frame:
+		_CLOCK_SET.slag = frame
 		SlagMaterial.set_shader_param("now", now)  # Slag flares up for as long as it is there
 	_rebuild_timer -= delta
 	if _rebuild_timer <= 0.0 and visible:

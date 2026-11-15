@@ -291,6 +291,9 @@ change" guard), and a look in play (a scarred ship cooling).
 
 ### 8. Hull scars set a shared shader clock once per ship per frame
 
+DONE: one write a frame per material (`_CLOCK_SET`, by idle frame). Too small to see in the bench.
+
+
 Where: `hull_scars.gd` `_process` (134): every scarred ship sets `ScarMaterial` and
 `SlagMaterial` `now` per frame; the materials are shared, so all but the first write are redundant.
 
@@ -298,6 +301,11 @@ Change: a static `_CLOCK_FRAME` guard: write when `Engine.get_frames_drawn()` di
 write. Trivial, zero risk.
 
 ### 9. HUD: unconditional modulate writes per frame
+
+MEASURED, NOT WORTH IT: the hud section minus brackets is 0.1 to 0.2 ms a frame in the bench, and
+these writes live in that; `ThreatRing._draw` already returns at once with nothing to draw. Brackets
+(~1.8 ms) are the HUD's cost; see the last paragraph below.
+
 
 Where: `main_hud.gd` `_refresh_toggle_button_states` (954), per frame by design (a tap answers at
 once): eight `modulate` writes a frame whether or not anything changed, plus
