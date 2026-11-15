@@ -30,6 +30,20 @@ class FakeShip:
 		return top_speed
 
 
+# Stands in for a missile: engines, but no afterburner and no cruise speed.
+class FakeMissile:
+	extends Spatial
+	var thrust := Vector3.ZERO
+	var linear_velocity := Vector3.ZERO
+	var is_wreck := false
+
+	func get_engine_activity() -> float:
+		return thrust.length()
+
+	func get_top_speed() -> float:
+		return 100.0
+
+
 func _hull(form: String) -> Spatial:
 	var hull: Spatial = load("res://scenes/prefabs/ships/placeholders/%s.tscn" % form).instance()
 	autofree(hull)
@@ -104,6 +118,28 @@ func test_a_lit_afterburner_lengthens_the_plume():
 	engines._process(0.0)
 	var lit: float = rear.exhausts[0].get_node("PlumeShapes").scale.z
 	assert_almost_eq(lit / cruising, 1.0 + Constants.ENGINE_PLUME_AFTERBURNER_STRETCH, 0.01, "Lit at the same speed: longer by the stretch")
+
+
+# A missile has no afterburner: its exhausts still burn (bool(null) on it stopped _burn every frame,
+# a script error per missile per frame, and its plume never lit).
+func test_a_missile_without_an_afterburner_still_burns():
+	var missile := FakeMissile.new()
+	add_child_autofree(missile)
+	var hull: Spatial = load("res://scenes/prefabs/ships/placeholders/fighter_medium.tscn").instance()
+	missile.add_child(hull)
+	var engines: Node = hull.get_node("Engines")
+	engines._process(0.0)
+	var idle: Array = []
+	for group in engines.get_groups():
+		idle.append(group.thrust)
+	missile.thrust = Vector3.FORWARD
+	missile.linear_velocity = Vector3.FORWARD * 50.0
+	engines._process(0.0)
+	var burning := false
+	for group in engines.get_groups():
+		if group.push.dot(Vector3.FORWARD) > 0.99:
+			burning = group.thrust > 0.9
+	assert_true(burning, "Its rear exhausts take the thrust")
 
 
 func test_outside_parts_take_hardpoints_and_internal_ones_none():

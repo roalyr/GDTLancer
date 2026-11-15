@@ -87,7 +87,7 @@ func _burn(_delta: float) -> void:
 			thrust = Vector3.FORWARD * _agent.get_engine_activity()
 		var top: float = _agent.get_cruise_top_speed() if _agent.has_method("get_cruise_top_speed") else _agent.get_top_speed()
 		velocity = basis.xform_inv(_agent.linear_velocity) / max(top, 1.0)
-		boost = bool(_agent.get("afterburner_lit"))
+		boost = _agent.get("afterburner_lit") == true  # A missile has none: bool(null) would stop every frame here
 	for group in _groups:
 		var push: float = -1.0 if dead else max(0.0, thrust.dot(group.push))
 		var speed: float = clamp(velocity.dot(group.push), 0.0, 1.0)
