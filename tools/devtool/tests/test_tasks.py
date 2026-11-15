@@ -170,6 +170,16 @@ class TasksTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as root:
             self.assertEqual(import_project.main(root, lambda command, **_: 0, lambda text: None), 1, "Nothing imported: it says so")
 
+    def test_every_task_describes_itself(self):
+        for task in tasks.TASKS:
+            text = tasks.describe(task)
+            self.assertIn(task.title, text)
+            for ask in task.asks:
+                self.assertIn(ask.label, text, task.key)
+        text = tasks.describe(tasks.TASKS_BY_KEY["harpoon_probe"])
+        self.assertIn("one of: wreck, chunk", text)
+        self.assertIn("[float, default '30'", text)
+
     def test_missing_answers_are_named(self):
         task = tasks.TASKS_BY_KEY["check_model"]
         self.assertEqual(tasks.missing(task, {"scene": ""}), ["Scene"])

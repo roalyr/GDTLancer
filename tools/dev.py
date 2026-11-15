@@ -7,6 +7,7 @@ in one place. Code is edited elsewhere; everything else goes through here.
     tools/dev.py list                 the tasks (the Maintainer group: evolution, releases, probes)
     tools/dev.py <task> [key=value]   one task, no menu (questions not given take their defaults)
     tools/dev.py <task> --dry         only print its command
+    tools/dev.py <task> --help        what it does and its questions
     tools/dev.py selftest             the tool's own tests
 
 The menu needs Textual (tools/devtool/requirements.txt): on first use it is installed into .dev/venv,
@@ -107,6 +108,9 @@ def main(argv):
     if task is None:
         print("No task '%s'. tools/dev.py list" % argv[0])
         return 2
+    if any(arg in ("-h", "--help", "help") for arg in argv[1:]):
+        print(tasks.describe(task))
+        return 0
     values = task.defaults(tasks.load_last())
     dry = False
     for arg in argv[1:]:

@@ -671,6 +671,25 @@ def program_problem(command):
     return ""
 
 
+def describe(task):
+    """`tools/dev.py <task> --help`: the task's title, what it does, and each question with its kind,
+    default and choices."""
+    lines = ["%s: %s (%s)" % (task.key, task.title, task.group), task.about]
+    if task.asks:
+        lines.append("Questions (key=value; the default when not given%s):" % ("" if all(a.fresh for a in task.asks) else ", or the last answer"))
+    for ask in task.asks:
+        default = ask.default() if callable(ask.default) else ask.default
+        try:
+            choices = ask.choices() if callable(ask.choices) else ask.choices
+        except Exception:  # A choice list read from files that are not there
+            choices = None
+        extra = "; one of: " + ", ".join(str(c) or "(empty)" for c in choices[:12]) + (" ..." if len(choices) > 12 else "") if choices else ""
+        globs = "; files like " + ", ".join(ask.globs) if ask.globs else ""
+        lines.append("  %-14s %s [%s%s%s]%s%s" % (ask.key, ask.label, ask.kind, ", default " + repr(str(default)) if str(default) != "" else
+                                                 (", optional" if ask.optional else ", needed"), ", asked fresh" if ask.fresh else "", extra, globs))
+    return "\n".join(lines)
+
+
 def missing(task, values):
     return [ask.label for ask in task.asks if not ask.optional and str(values.get(ask.key, "")).strip() == ""]
 
