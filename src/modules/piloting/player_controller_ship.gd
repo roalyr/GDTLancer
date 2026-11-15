@@ -287,6 +287,8 @@ func _on_lance_button_pressed() -> void:
 			EventBus.emit_signal("attack_action_feedback", false, why)
 			return
 	agent_body.set_lances_armed(not lance.armed)  # All launchers together
+	if lance.armed and worked_out(_selected_target):
+		EventBus.emit_signal("attack_action_feedback", false, worked_out_notice(_selected_target))
 
 
 # Why the safety keeps the lance from being armed at `target` (the selected one), "" if it may be:
@@ -865,7 +867,21 @@ func _approach_selected() -> void:
 		if is_charge_ready(_selected_target):
 			agent_script.command_charge(_selected_target)
 		else:
+			if is_charge_ready() and worked_out(_selected_target):  # Armed, but nothing to break off it
+				EventBus.emit_signal("attack_action_feedback", false, worked_out_notice(_selected_target))
 			agent_script.command_approach(_selected_target, true)
+
+
+# A mineable rock with no ore left: the lance has nothing to break off it (it grows back: Asteroid).
+static func worked_out(target) -> bool:
+	return is_instance_valid(target) and target.get("mineable") == true and target.has_method("get_deposit") and target.get_deposit() <= 0
+
+
+# What the player is told when a charge at a worked-out rock turns into an approach.
+static func worked_out_notice(target) -> String:
+	var wait: float = target.ore_back_in() if target.has_method("ore_back_in") else 0.0
+	var when: String = ("%d s" % int(ceil(wait))) if wait < 60.0 else ("%d min" % int(ceil(wait / 60.0)))
+	return "Worked out: ore back in %s; pick another rock" % when
 
 
 # Whether approaching `target` means charging it: the lance armed with lances left, and something it

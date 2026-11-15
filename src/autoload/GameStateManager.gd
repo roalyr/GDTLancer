@@ -285,6 +285,7 @@ func _serialize_game_state() -> Dictionary:
 		"world_time": GameState.world_time,
 		"station_markups": GameState.station_markups.duplicate(),
 		"station_markup_until": GameState.station_markup_until.duplicate(),
+		"rock_deposits": GameState.rock_deposits.duplicate(true),
 		"player_hull_scars": GameState.player_hull_scars.duplicate(true),
 		"current_sector_id": GameState.current_sector_id,
 		"player_docked_at": GameState.player_docked_at,
@@ -344,6 +345,13 @@ func _deserialize_and_apply_game_state(save_data: Dictionary) -> void:
 			for id in saved:
 				values[str(id)] = float(saved[id])
 		GameState.set(key, values)
+	var saved_rocks = save_data.get("rock_deposits", {})
+	GameState.rock_deposits = {}
+	if saved_rocks is Dictionary:
+		for key in saved_rocks:
+			var entry = saved_rocks[key]
+			if entry is Array and entry.size() == 2:
+				GameState.rock_deposits[str(key)] = [int(entry[0]), float(entry[1])]
 	var saved_scars = save_data.get("player_hull_scars", [])
 	GameState.player_hull_scars = saved_scars if saved_scars is Array else []
 	var saved_cargo = save_data.get("player_cargo", {})

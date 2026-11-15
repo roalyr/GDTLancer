@@ -32,6 +32,8 @@ func before_each():
 
 
 func after_each():
+	GameState.rock_deposits = {}
+	GameState.world_time = 0.0
 	for child in get_children():
 		if child.has_method("_update_puffs"):
 			child.free()  # A wreck's explosion goes to its parent, here the test, which outlives the test
@@ -241,3 +243,53 @@ func test_a_one_unit_chunk_is_stripped_whole_and_goes():
 	assert_string_contains(PlayerController.stripped_message(tools.get_stripped(0)), "1 unit into the hold")
 	yield(get_tree(), "idle_frame")
 	assert_false(is_instance_valid(chunk) and not chunk.is_queued_for_deletion(), "Stripped bare, the chunk is gone")
+
+
+func test_a_worked_rock_grows_its_ore_back_and_is_remembered_meanwhile():
+	GameState.world_time = 1000.0
+	assert_eq(rock.get_full_deposit(), 20)
+	var result: Array = _strike()
+	for node in result[1] + get_tree().get_nodes_in_group("loose_lance"):
+		node.free()
+	var left: int = rock.get_deposit()
+	assert_lt(left, 20, "A strike took ore")
+	assert_eq_deep(GameState.rock_deposits.get(rock.deposit_key()), [left, 1000.0])  # Remembered for the save while short
+	GameState.world_time += Constants.MINING_REGROW_TIME * 0.25
+	assert_almost_eq(float(rock.get_deposit()), min(float(left) + 5.0, 20.0), 1.0, "A quarter of the time: a quarter of the full deposit back")
+	assert_almost_eq(rock.regrow_left(), Constants.MINING_REGROW_TIME * (20 - rock.get_deposit()) / 20.0, 1.0)
+	GameState.world_time += Constants.MINING_REGROW_TIME
+	assert_eq(rock.get_deposit(), 20, "Full again, and no more")
+	assert_false(GameState.rock_deposits.has(rock.deposit_key()), "Full: nothing to remember")
+
+
+func test_a_worked_out_rock_says_when_its_ore_is_back():
+	GameState.world_time = 50.0
+	rock.get_deposit()
+	rock.deposit = 0
+	assert_almost_eq(rock.ore_back_in(), Constants.MINING_REGROW_TIME / 20.0, 0.01, "One unit's time")
+	GameState.world_time += Constants.MINING_REGROW_TIME / 20.0
+	assert_eq(rock.get_deposit(), 1, "A unit to strike")
+	assert_eq(rock.ore_back_in(), 0.0)
+
+
+func test_a_rock_built_again_takes_its_remembered_ore():
+	GameState.world_time = 10.0
+	GameState.rock_deposits[rock.deposit_key()] = [3, 10.0]
+	rock.restore_deposit()
+	assert_eq(rock.get_deposit(), 3, "As the save left it")
+	GameState.rock_deposits[rock.deposit_key()] = [99, 10.0]
+	rock.restore_deposit()
+	assert_eq(rock.get_deposit(), 20, "Never more than full")
+
+
+func test_a_worked_out_rock_is_approached_with_a_word_and_its_mark_fades():
+	var Player = load("res://src/modules/piloting/player_controller_ship.gd")
+	var Bracket = load("res://src/core/ui/main_hud/projected_target_bracket.gd")
+	rock.get_deposit()
+	assert_false(Player.worked_out(rock))
+	assert_false(Bracket.is_worked_out(rock))
+	rock.deposit = 0
+	assert_true(Player.worked_out(rock))
+	assert_true(Bracket.is_worked_out(rock))
+	assert_false(Player.is_chargeable(rock), "No charge at it")
+	assert_string_contains(Player.worked_out_notice(rock), "Worked out: ore back in")

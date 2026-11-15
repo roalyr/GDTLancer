@@ -88,6 +88,16 @@ func test_save_and_load_restores_hull_scars():
 		assert_almost_eq(float(restored[i]), scar[i], 0.0001)
 
 
+func test_save_and_load_keeps_worked_rocks():
+	_populate_game_state()
+	GameState.rock_deposits = {"sector_elace:Layout/Rock_Field_03": [4, 120.5]}
+	GameStateManager.save_game(TEST_SLOT)
+	GameState.reset_state()
+	assert_true(GameState.rock_deposits.empty(), "A new game: every rock full")
+	GameStateManager.load_game(TEST_SLOT)
+	assert_eq_deep(GameState.rock_deposits, {"sector_elace:Layout/Rock_Field_03": [4, 120.5]})
+
+
 func test_load_emits_game_state_loaded():
 	_populate_game_state()
 	GameStateManager.save_game(TEST_SLOT)

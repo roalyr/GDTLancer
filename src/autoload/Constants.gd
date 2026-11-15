@@ -593,6 +593,7 @@ const MINING_PIECE_SPREAD = 30.0  # Degrees the pieces fan out off the face
 const MINING_CRUST_HP = 40.0  # Laser damage to burn a piece's crust off
 const MINING_COOL_TIME = 15.0  # s the bared slag glows before a harpoon can take it
 const MINING_ORE_PER_METRE = 1.0  # A rock's deposit: units per metre of its radius
+const MINING_REGROW_TIME = 1800.0  # s of world time in which a worked-out rock grows all its ore back (Asteroid.get_deposit)
 const MINING_CHUNK_SPEED = 8.0  # m/s the chunk drifts off the rock's face
 const MINING_CHUNK_BASE_MASS = 100.0  # kg of rock round the deposit in a chunk
 const MINING_CHUNK_RADIUS = 0.75  # m for a one-unit chunk (grows as the cube root of its units)
@@ -1486,6 +1487,7 @@ const COLOR_UI_WRECK = Color(0.55, 0.55, 0.55, 0.9)  # Grey: wrecks
 const UI_UNAWARE_DIM = 0.55  # A live ship that has not detected the player shows its colour this bright
 const UI_UNAWARE_ALPHA = 0.85  # and this opaque (its mark only: labels stay readable)
 const UI_CELESTIAL_ALPHA = 0.45  # Marks on rocks, planets and the like are this faint
+const UI_WORKED_OUT_ALPHA = 0.35  # A worked-out rock's mark, fainter still (times UI_CELESTIAL_ALPHA): no ore to lance
 # The HUD's looks (the HUD LOOK button, Settings "hud_preset"): `tint` multiplies the whole HUD
 # (grey: less contrast against space), `saturation` grades the marks' colours (1 as they are, 0 grey).
 const HUD_PRESETS = {

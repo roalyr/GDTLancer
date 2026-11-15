@@ -52,6 +52,9 @@ var world_time: float = 0.0
 var station_markups: Dictionary = {}
 var station_markup_until: Dictionary = {}  # Location id -> world time its markup is rolled again
 
+## Rocks worked short of full (Asteroid): "sector:path in the zone" -> [ore left, world time its regrowth counts from].
+var rock_deposits: Dictionary = {}
+
 ## Lances left in the player's lance quiver; negative means full.
 var player_lance_nails: int = -1
 var player_tool_ammo: Array = []  # [[tool id, rounds left] per tool slot] (ToolController)
@@ -107,6 +110,7 @@ func reset_state() -> void:
 	world_time = 0.0
 	station_markups = {}
 	station_markup_until = {}
+	rock_deposits = {}
 	player_hull_scars = []
 	current_zone_instance = null
 	current_sector_id = ""

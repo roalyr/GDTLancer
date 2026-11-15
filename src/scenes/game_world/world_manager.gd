@@ -251,6 +251,7 @@ func load_sector(sector_id: String):
 	GlobalRefs.agent_container = agent_container
 
 	GameState.current_sector_id = resolved_sector_id
+	get_tree().call_group("mineable", "restore_deposit")  # Worked rocks as left (their keys need the zone and sector)
 	StepCache.set_active(true)  # Per-step caches for the game world (not for unit tests)
 	EventBus.emit_signal("zone_loaded", zone_root, resolved_sector_id, agent_container)
 

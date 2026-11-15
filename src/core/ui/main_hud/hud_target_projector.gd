@@ -426,6 +426,8 @@ func _refresh_world_bracket(button, target_node) -> bool:
 		# Cues change as the fight does; only the selected (labelled) bracket shows them.
 		button.set_context_hint(get_projected_target_context_hint(target_node) if button.get("_is_selected") else "")
 		button.refresh_style()  # Colours too: a ship turns hostile, a ship becomes a wreck
+	elif button.has_method("refresh_style") and target_node.get("mineable") == true:
+		button.refresh_style()  # A rock worked out, or its ore grown back: its mark fades or comes back
 	return is_projected_target_overlay_enabled(get_projected_target_overlay_kind(target_node))
 
 func get_route_target_selection_key() -> String:

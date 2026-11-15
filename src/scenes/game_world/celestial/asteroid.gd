@@ -3,6 +3,10 @@
 # since the rock meshes come without one.
 # Mining (Constants MINING): it holds a deposit (`deposit_id`, units by size unless `deposit` is set).
 # A lance thrown into it breaks a few OreChunks off its face (break_chunks); lasers only chip it.
+# A worked rock grows its ore back, all of it in MINING_REGROW_TIME of world time, counted when
+# asked (no per-frame cost); while short of full its ore is in GameState.rock_deposits, so a save
+# keeps it (keyed by sector and the rock's path in the zone: fields are built the same every load;
+# restore_deposit puts it back).
 
 extends StaticBody
 const Interp = preload("res://src/core/utils/interp.gd")
@@ -26,6 +30,8 @@ export var display_name: String = "Asteroid"
 
 
 var hull_bounds: AABB = AABB(Vector3(-0.5, -0.5, -0.5), Vector3.ONE)
+var _full := -1  # The deposit when untouched
+var _worked_at := -1.0  # World time the regrowth below `deposit` counts from; negative: not counted yet
 var _radius := -1.0  # get_apparent_radius() cache, for _radius_basis
 var _radius_basis := Basis()
 
@@ -83,7 +89,70 @@ func _surface() -> Material:
 func get_deposit() -> int:
 	if deposit < 0:
 		deposit = int(round(get_apparent_radius() * Constants.MINING_ORE_PER_METRE))
+	if _full < 0:
+		_full = deposit
+	if mineable and deposit < _full and Constants.MINING_REGROW_TIME > 0.0:
+		var now: float = GameState.world_time
+		if _worked_at < 0.0 or _worked_at > now:  # A clock set back (a load): counted from now
+			_worked_at = now
+		var per_unit: float = Constants.MINING_REGROW_TIME / float(max(_full, 1))
+		var grown: int = int(min(floor((now - _worked_at) / per_unit), _full - deposit))
+		if grown > 0:
+			deposit += grown
+			_worked_at += grown * per_unit  # The part of a unit already grown is kept
+			_remember()
 	return deposit
+
+
+# Seconds of world time until it is full again (0: full).
+func regrow_left() -> float:
+	var left: int = get_full_deposit() - get_deposit()
+	if left <= 0 or Constants.MINING_REGROW_TIME <= 0.0:
+		return 0.0
+	var per_unit: float = Constants.MINING_REGROW_TIME / float(max(_full, 1))
+	return max(0.0, left * per_unit - (GameState.world_time - _worked_at))
+
+
+# Seconds of world time until it has ore to strike again (0: it has some now).
+func ore_back_in() -> float:
+	if get_deposit() > 0:
+		return 0.0
+	var per_unit: float = Constants.MINING_REGROW_TIME / float(max(get_full_deposit(), 1))
+	return max(0.0, per_unit - (GameState.world_time - _worked_at))
+
+
+# The full deposit, as untouched.
+func get_full_deposit() -> int:
+	get_deposit()
+	return _full
+
+
+# This rock's key in GameState.rock_deposits: its sector and its path in the zone.
+func deposit_key() -> String:
+	var zone = GameState.current_zone_instance
+	var path: String = str(zone.get_path_to(self)) if is_instance_valid(zone) and zone.is_a_parent_of(self) else str(get_path())
+	return "%s:%s" % [GameState.current_sector_id, path]
+
+
+# Its ore as worked into GameState (gone once it is full again), for the save.
+func _remember() -> void:
+	if not is_inside_tree():
+		return
+	if deposit >= _full:
+		GameState.rock_deposits.erase(deposit_key())
+	else:
+		GameState.rock_deposits[deposit_key()] = [deposit, _worked_at]
+
+
+# Its ore from GameState, if it was worked (a save loaded, or the zone built again). WorldManager
+# calls it on every mineable rock once the zone and sector are set (the key needs both).
+func restore_deposit() -> void:
+	var saved = GameState.rock_deposits.get(deposit_key())
+	if not (saved is Array and saved.size() == 2):
+		return
+	get_deposit()
+	deposit = int(clamp(int(saved[0]), 0, _full))
+	_worked_at = float(saved[1])
 
 
 # A lance went in at `point`, along `axis`, for `damage`: breaks damage / MINING_DAMAGE_PER_UNIT
@@ -94,7 +163,10 @@ func break_chunks(point: Vector3, axis: Vector3, damage: float) -> Array:
 	if get_deposit() <= 0 or not is_inside_tree():
 		return []
 	var units: int = int(clamp(round(damage / Constants.MINING_DAMAGE_PER_UNIT), 1, min(Constants.MINING_CHUNK_MAX, get_deposit())))
+	if deposit >= _full:
+		_worked_at = GameState.world_time  # Regrowth counts from the first strike
 	deposit -= units
+	_remember()
 	var pieces: int = int(min(1 + randi() % Constants.MINING_PIECES_MAX, units))
 	pieces = int(min(pieces, OreChunk.make_room(get_tree(), pieces)))  # Capped: fewer, bigger pieces (ORE_CHUNK_MAX)
 	var outward: Vector3 = (point - global_transform.origin).normalized()

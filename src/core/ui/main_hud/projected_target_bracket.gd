@@ -159,6 +159,8 @@ func _apply_bracket_style() -> void:
 			_normal_bracket.modulate = _get_ship_color()
 			if kind in ["rock", "body"]:
 				_normal_bracket.modulate.a *= Constants.UI_CELESTIAL_ALPHA
+			if kind == "rock" and is_worked_out(target_ref):
+				_normal_bracket.modulate.a *= Constants.UI_WORKED_OUT_ALPHA
 		var hostile: bool = kind in ["ship", "station"] and TargetKinds.side_of(target_ref, GlobalRefs.player_agent_body) == "hostile"
 		if is_instance_valid(_marker):
 			var partner: bool = kind == "ship" and _is_partner()  # In an interaction with the player: filled in its side's colour
@@ -192,6 +194,11 @@ func _hostile_color() -> Color:
 func _sees_player() -> bool:
 	var player = GlobalRefs.player_agent_body
 	return not target_ref.has_method("detects") or not is_instance_valid(player) or target_ref.detects(player)
+
+
+# A mineable rock with no ore left (Asteroid.get_deposit): its mark is fainter.
+static func is_worked_out(target) -> bool:
+	return is_instance_valid(target) and target.get("mineable") == true and target.has_method("get_deposit") and target.get_deposit() <= 0
 
 
 func refresh_style() -> void:

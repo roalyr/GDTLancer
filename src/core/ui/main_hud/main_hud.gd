@@ -987,6 +987,11 @@ func _is_projected_target_center_fade_enabled() -> bool:
 
 # The debug overlay fills the gaps between the HUD's button rows, one block per category: ship and
 # tools in the left column, target and world in the right, render and frame time along the top.
+# World-time seconds as the HUD says them: "40 S", "3 MIN".
+static func _game_minutes(seconds: float) -> String:
+	return "%d S" % int(ceil(seconds)) if seconds < 60.0 else "%d MIN" % int(ceil(seconds / 60.0))
+
+
 # Only worked out while shown (debug button).
 func _update_debug_overlay() -> void:
 	if not is_instance_valid(debug_overlay) or not debug_overlay.visible:
@@ -1077,7 +1082,10 @@ func describe_target_stats(player) -> String:
 	elif _current_target.get("is_wreck"):
 		lines.append("WRECK  SALVAGE %d" % _current_target.get_salvage_units())
 	elif _current_target.has_method("get_deposit") and _current_target.mineable:  # A rock
-		lines.append("WORKED OUT" if _current_target.get_deposit() <= 0 else "ORE %d: LANCE IT" % _current_target.get_deposit())
+		if _current_target.get_deposit() <= 0:
+			lines.append("WORKED OUT: ORE BACK IN %s" % _game_minutes(_current_target.ore_back_in()))
+		else:
+			lines.append("ORE %d: LANCE IT" % _current_target.get_deposit())
 	elif _current_target.get("hull_max"):
 		lines.append("HULL %d / %d" % [ceil(_current_target.hull), _current_target.hull_max])
 		var cues: Array = _target_projector.get_ship_cues(_current_target)
