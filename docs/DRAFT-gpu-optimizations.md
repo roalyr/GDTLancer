@@ -228,7 +228,11 @@ read to one planar read at this distance).
 Verify: `no_starsphere` ablation gives the ceiling; screenshots before/after from `flight_shots.gd`
 at three headings; the phone's FPS at `render_scale` 1.
 
-### 2. Hit lights in a fight (GLES2 light passes)
+### 2. Hit lights in a fight (GLES2 light passes) — DONE as an option
+
+Options "DYNAMIC LIGHTS": ALL (today's 10 hit lights and 1 explosion light, the default), FEW (3, 1),
+OFF. The same-picture trims below were not done.
+
 
 Where: `laser_hit.tscn` (OmniLight 40 m, `HIT_FX_MAX_LIGHTS = 10`), `wreck_explosion.tscn` (144 m,
 cap 1), `src/core/agents/effects/laser_hit_effect.gd` `should_light`.
@@ -296,7 +300,12 @@ stay synced by `tools/sync_shader_blocks.py`). Alternatively keep one shader and
 Verify: desktop numbers will not move. On the phone: FPS by a rock field at `render_scale` 1 before
 and after; if the user's phone is PowerVR or Mali this can be the largest single win of the pass.
 
-### 5. Rocks: 9k triangles at 10 px
+### 5. Rocks: 9k triangles at 10 px — DONE (4e84140)
+
+The seven dense rocks have a LOD4 at half of LOD3 for the dot band (`generate_lods.py --start`);
+0.25 and 0.125 tore the meshes. Only 10 of Elace's 101 rocks are dense: at most ~36k triangles saved,
+none measurable by the station.
+
 
 Where: `tools/generate_lods.py` (ratio 0.5 a level, three levels), `Constants.LOD_LEVEL_BY_BAND_DENSE
 = [0, 1, 2, 3, 3]`, `mesh_lod.gd`. The farthest level of a 73k rock is 9215 triangles; of a 45k rock
@@ -410,8 +419,9 @@ could skip emitting below VIEW_FAR like the lights do (`should_light` has the te
 
 ## Suggested order and checkpoints
 
-Status 2026-11-15: 0, 6, 7, 4 done, 3 dropped, 1 struck by the user (see each). Next: 5, then 2 and
-11 (questions for the user), 8 to 10.
+Status 2026-11-15: the pass is CLOSED by the user. Done: 0, 2 (as an option), 4, 5, 6, 7; 3 dropped;
+1 struck. Not done: 8, 9, 10, 11, 12 (left as notes; 11's render-scale default and 12 are phone
+experiments if ever wanted). Owed: the phone's FPS with the APK of 2026-11-15 (item 4 especially).
 
 1. Item 0: ablation lines pasted here (desktop), phone readings with the existing options.
 2. Item 6 (hull preview) and 7 (shared meshes): trivial, same picture. Commit each.
