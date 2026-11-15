@@ -4,10 +4,17 @@
 // - Optional triplanar detail (scratches, dirt: detail_texture's green channel lightens or darkens
 //   by detail_paint_strength) and normal map (detail_normal_strength). Each is sampled only while
 //   its strength is not 0, so untextured materials skip the texture reads.
-// - Far away (fade_start .. fade_start * fade_end_mul) it dithers out; farther still, NLP shrinks it.
+// - Farther than NLP's scale_start, NLP shrinks it. No distance fade: nothing drawn with this shader
+//   is ever fade_start (300 km) from the camera, and a `discard` anywhere in a shader turns off early
+//   depth rejection for everything drawn with it on phone (tile) GPUs. Bodies that can be that far
+//   (planets, moons) use solid_fading.gdshader, the same shader with the fade. The fade_* uniforms
+//   stay (unused) so materials can move between the two. Both are built from the solid_* blocks of
+//   shader_common.glsl.
 shader_type spatial;
 render_mode blend_mix, cull_back, depth_draw_opaque;
 
+// @common solid_head
+// The solid shaders' uniforms and varyings (solid.gdshader, solid_fading.gdshader).
 uniform vec4 albedo : hint_color = vec4(0.3, 0.3, 0.3, 1.0);
 uniform vec4 emission : hint_color = vec4(0.0, 0.0, 0.0, 1.0);
 uniform float emission_strength : hint_range(0.0, 500.0, 0.1) = 1.0;
@@ -39,6 +46,7 @@ uniform float dither_strength = 0.9;
 
 varying vec3 uv_triplanar_pos;
 varying vec3 uv_power_normal;
+// @end
 
 // @common dither
 // Bayer dithering and posterization, the look every shader shares. The shader declares
@@ -82,6 +90,7 @@ vec3 dither_posterize3(vec3 value, vec2 fragcoord) {
 }
 // @end
 
+
 // @common nlp
 // Non-linear perspective: from scale_start out to scale_start * scale_end_mul from the camera, a
 // mesh shrinks about its origin to scale_min of its size (scale_power shapes the curve), so huge,
@@ -98,6 +107,7 @@ vec3 nlp_scale(vec3 vertex, mat4 modelview) {
 }
 // @end
 
+// @common solid_body
 vec4 triplanar_texture(sampler2D p_sampler, vec3 p_weights, vec3 p_pos) {
 	vec4 samp = vec4(0.0);
 	samp += texture(p_sampler, p_pos.xy) * p_weights.z;
@@ -116,17 +126,10 @@ void vertex() {
 
 	VERTEX = nlp_scale(VERTEX, MODELVIEW_MATRIX);
 }
+// @end
 
 void fragment() {
-	float distance_vert = length(VERTEX);
-	float fade_range = fade_end_mul * fade_start - fade_start;
-	if (fade_range > 0.0 && distance_vert > fade_start) {
-		float fade_factor = pow(clamp((fade_end_mul * fade_start - distance_vert) / fade_range, 0.0, 1.0), fade_power);
-		if (fade_factor < bayer_at(FRAGCOORD.xy) + 1e-6) {
-			discard;
-		}
-	}
-
+// @common solid_surface
 	vec3 color = albedo.rgb * COLOR.rgb;
 	if (detail_paint_strength != 0.0) {
 		float detail = pow(triplanar_texture(detail_texture, uv_power_normal, uv_triplanar_pos * detail_paint_scale).g, detail_paint_contrast);
@@ -138,8 +141,10 @@ void fragment() {
 		NORMALMAP_DEPTH = detail_normal_strength;
 	}
 	EMISSION = emission.rgb * COLOR.rgb * emission_strength;
+// @end
 }
 
+// @common solid_light
 void light() {
 	// Lambert, dithered and posterized into toon bands; the rim brightens lit edges.
 	float lit = dither_posterize(max(0.0, dot(NORMAL, LIGHT)), FRAGCOORD.xy);
@@ -147,3 +152,4 @@ void light() {
 	float rim = pow(fresnel, rim_exponent) * rim_strength * rim_intensity;
 	DIFFUSE_LIGHT += ALBEDO * (lit + rim * lit) * ATTENUATION * LIGHT_COLOR;
 }
+// @end

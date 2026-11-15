@@ -23,7 +23,7 @@ const PART_DIRS = [Constants.PARTS_DIR]  # The part catalogue (PartCatalog): the
 const SHIPS_DIR = "res://database/registry/assets/ships/"
 const ANY_COMMODITY = "*"
 const MATERIALS_DIR = "res://assets/art/materials_generic/"
-const MATERIAL_SHADERS = ["res://assets/art/shaders/solid.gdshader", "res://assets/art/shaders/glow.gdshader"]
+const MATERIAL_SHADERS = ["res://assets/art/shaders/solid.gdshader", "res://assets/art/shaders/solid_fading.gdshader", "res://assets/art/shaders/glow.gdshader"]
 const BEACON_KINDS = ["patrol", "field", "landmark", "entry"]
 # A part whose stats are not what its law_genes give (ShipLaws.stale_fields).
 const LAWS_STALE = "%s not what its law_genes give: change law_genes, not the stats, then run apply_laws (Tools)"

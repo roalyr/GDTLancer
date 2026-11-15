@@ -81,3 +81,83 @@ float billboard_scale(vec3 vertex, mat4 modelview, mat4 world, mat4 projection) 
 	return world_scale * max(1.0, min_half_size / half_size);
 }
 // @end
+
+// @common solid_head
+// The solid shaders' uniforms and varyings (solid.gdshader, solid_fading.gdshader).
+uniform vec4 albedo : hint_color = vec4(0.3, 0.3, 0.3, 1.0);
+uniform vec4 emission : hint_color = vec4(0.0, 0.0, 0.0, 1.0);
+uniform float emission_strength : hint_range(0.0, 500.0, 0.1) = 1.0;
+
+// Triplanar detail, in the model's own space.
+uniform sampler2D detail_texture : hint_white;  // Green channel: scratches, dirt
+uniform sampler2D normal_texture : hint_normal;
+uniform float detail_paint_scale = 1.0;
+uniform float detail_paint_strength : hint_range(-1.0, 1.0) = 0.0;  // 0: off; < 0 darkens, > 0 lightens
+uniform float detail_paint_contrast : hint_range(0.1, 10.0) = 1.0;
+uniform float detail_normal_scale = 1.0;
+uniform float detail_normal_strength : hint_range(-5.0, 5.0) = 0.0;  // 0: off
+uniform float uv_triplanar_sharpness : hint_range(0.0, 100.0) = 10.0;
+uniform vec3 uv_scale = vec3(1.0);
+uniform vec3 uv_offset = vec3(0.0);
+
+// Rim light (light()).
+uniform float rim_strength = 1.0;
+uniform float rim_exponent = 3.0;
+uniform float rim_intensity = 0.3;
+
+// Distance fade: dithered out between fade_start and fade_start * fade_end_mul.
+uniform float fade_start = 300000.0;
+uniform float fade_end_mul = 5.0;
+uniform float fade_power = 2.0;
+
+uniform float posterization_levels = 6.0;  // Light bands
+uniform float dither_strength = 0.9;
+
+varying vec3 uv_triplanar_pos;
+varying vec3 uv_power_normal;
+// @end
+
+// @common solid_body
+vec4 triplanar_texture(sampler2D p_sampler, vec3 p_weights, vec3 p_pos) {
+	vec4 samp = vec4(0.0);
+	samp += texture(p_sampler, p_pos.xy) * p_weights.z;
+	samp += texture(p_sampler, p_pos.xz) * p_weights.y;
+	samp += texture(p_sampler, p_pos.zy * vec2(-1.0, 1.0)) * p_weights.x;
+	return samp;
+}
+
+void vertex() {
+	// Triplanar mapping in model space, before NLP, so the detail stays put on the surface.
+	TANGENT = normalize(vec3(0.0, 0.0, -1.0) * abs(NORMAL.x) + vec3(1.0, 0.0, 0.0) * abs(NORMAL.y) + vec3(1.0, 0.0, 0.0) * abs(NORMAL.z));
+	BINORMAL = normalize(vec3(0.0, 1.0, 0.0) * abs(NORMAL.x) + vec3(0.0, 0.0, -1.0) * abs(NORMAL.y) + vec3(0.0, 1.0, 0.0) * abs(NORMAL.z));
+	uv_power_normal = pow(abs(NORMAL), vec3(uv_triplanar_sharpness));
+	uv_power_normal /= dot(uv_power_normal, vec3(1.0));
+	uv_triplanar_pos = (VERTEX * uv_scale + uv_offset) * vec3(1.0, -1.0, 1.0);
+
+	VERTEX = nlp_scale(VERTEX, MODELVIEW_MATRIX);
+}
+// @end
+
+// @common solid_surface
+	vec3 color = albedo.rgb * COLOR.rgb;
+	if (detail_paint_strength != 0.0) {
+		float detail = pow(triplanar_texture(detail_texture, uv_power_normal, uv_triplanar_pos * detail_paint_scale).g, detail_paint_contrast);
+		color = max(color + vec3(detail * detail_paint_strength), vec3(0.0));
+	}
+	ALBEDO = color;
+	if (detail_normal_strength != 0.0) {
+		NORMALMAP = triplanar_texture(normal_texture, uv_power_normal, uv_triplanar_pos * detail_normal_scale).rgb;
+		NORMALMAP_DEPTH = detail_normal_strength;
+	}
+	EMISSION = emission.rgb * COLOR.rgb * emission_strength;
+// @end
+
+// @common solid_light
+void light() {
+	// Lambert, dithered and posterized into toon bands; the rim brightens lit edges.
+	float lit = dither_posterize(max(0.0, dot(NORMAL, LIGHT)), FRAGCOORD.xy);
+	float fresnel = 1.0 - clamp(abs(dot(NORMAL, VIEW)), 0.0, 1.0);
+	float rim = pow(fresnel, rim_exponent) * rim_strength * rim_intensity;
+	DIFFUSE_LIGHT += ALBEDO * (lit + rim * lit) * ATTENUATION * LIGHT_COLOR;
+}
+// @end

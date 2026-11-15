@@ -67,4 +67,5 @@ func test_every_shader_dithers_and_posterizes():
 	for path in _shaders():
 		var text := _read(path)
 		assert_true(_blocks(text).has("dither"), "%s carries the dither block" % path)
-		assert_true("dither_posterize" in text.split("// @end")[-1], "%s uses it" % path)
+		var outside: String = text.replace(_blocks(text).dither, "")  # Own code or another block (solid_light)
+		assert_true("dither_posterize" in outside, "%s uses it (dither_posterize or dither_posterize3)" % path)
