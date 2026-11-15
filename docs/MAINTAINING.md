@@ -114,7 +114,13 @@ Content authors keep **Duel two archetypes** (Archetypes, `d`) and **Sector econ
   - Godot scripts the flows run: `validate.gd`, `sector_maker.gd`, `tscn_text.gd`;
   - `tests/`: the self-test (`tools/dev.py selftest`).
 - **Every Godot it starts** (tasks, the bridge, the flows) gets `tasks.environment()`: `DISPLAY=:0` when none is set, since the x11 build needs a display even with `--no-window`. The Overview reports a display that is not there (`display_problem`). Tools that time frames turn vsync off themselves (`OS.vsync_enabled = false`); a sleeping monitor otherwise holds them to a frame a second.
-- **To add a task,** add a `Task` to `TASKS` in `tasks.py`, in its group. Put it in the `Maintainer` group if content authors do not need it. Its `about` says what it does.
+- **To add a task,** add a `Task` to `TASKS` in `tasks.py`, in its group. Put it in the `Maintainer` group if content authors do not need it. Its `about` says what it does (and how long it takes, if more than a few seconds).
+- **A new tool's arguments** follow the kind of tool it is (the tasks hide the differences from the menu; the old tools stay as they are):
+  - a SceneTree script (`godot -s tools/x.gd`) takes `--flag=value` after `--`, read from `OS.get_cmdline_args()`;
+  - a scene (`godot res://tools/x.tscn`) takes `key=value`;
+  - a Python flow in `tools/devtool/` takes `key=value`;
+  - the Blender scripts keep argparse's `--flag value` after `--`.
+  There is no shared parser in `src/core/utils/`; each tool reads its few arguments itself.
 - **To add a content rule,** add it to `src/core/validation/content_validator.gd`. The tool and the tests both pick it up.
 - **Field notes** come from the data scripts: the comment after an `export var` on its line, or the comment lines just above it. Sound bank slots take theirs from `SoundBank.SLOTS`.
   - `SHOWN_WHEN` in a script hides the fields that do not apply.
