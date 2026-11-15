@@ -554,8 +554,10 @@ TASKS = [
          " since the editor's --quit ends before its scan): converts the art, models and sounds into .import/, which git does not keep."
          " Needed once after a clone; under a minute.",
          lambda v: ["python3", "tools/devtool/import_project.py"]),
-    Task("editor", "Game", "Open the Godot editor", "Godot 3.6's editor, to compose a scene's look (the tool places, creates and links: World, Data).",
-         lambda v: godot("-e")),
+    Task("editor", "Game", "Open the Godot editor", "Godot 3.6's editor, to compose a scene's look (the tool places, creates and links: World, Data)."
+         " With a scene, the editor opens at it (World and Models: e does that for the picked one).",
+         lambda v: godot("-e", *([res(v["scene"])] if v.get("scene") else [])),
+         [Ask("scene", "Open at this scene (empty: the project)", "file", "", globs=["scenes/**/*.tscn"], optional=True, fresh=True)]),
     Task("apk", "Game", "Export the debug APK", "Android debug build to $GDTLANCER_APK (" + APK + "). About 25 s.",
          lambda v: godot("--no-window", "--export-debug", "Android", APK)),
     # Maintainer: evolution, releases, probes (docs/MAINTAINING.md); the menu hides these until m

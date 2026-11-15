@@ -1167,11 +1167,12 @@ HELP = """\
 [b]Tabs[/b]
   1 Overview    every content rule, checked; enter opens a problem's file; a, f, c fix derived data
   2 Models      every ship, station and rock model: import (i), open in Blender (o), review sheet (s),
-                a placeholder's shape (c), a rock in the asteroid fields or out (f)
+                a placeholder's shape (c), a rock in the asteroid fields or out (f), its scene in Godot (e)
   3 Archetypes  the twenty designs as the game flies them; pilot genes against evolution's ranges;
                 d on one, then d on another: they duel
   4 Factions    wars (pick a cell, w), rosters (space ticks, ctrl+s), traffic, havens (enter: World)
   5 World       a sector: its scene's bodies and belts, its layout's markers, on a map (top or side,
+                e opens the picked body's scene, or the layout, in the Godot editor;
                 filters); New sector and Copy sector buttons; new and copied sectors and bodies are
                 named by the rules; ctrl+n on a sector with no layout makes one; the Economy button:
                 its market (m), routes timed for a ship (r; [ and ] change the ship), hulls (h),
@@ -1238,6 +1239,7 @@ class ModelsPane(Vertical):
         Binding("i", "app.model('import')", "Import"), Binding("o", "app.model('open')", "Open in Blender"),
         Binding("s", "app.model('sheet')", "Review sheet"), Binding("ctrl+n", "app.new_model", "New model"),
         Binding("f", "app.toggle_field_rock", "Rock in fields"), Binding("c", "app.model('form')", "Placeholder shape"),
+        Binding("e", "app.edit_model_scene", "Scene in Godot"),
         Binding("ctrl+r", "app.refresh_models", "Refresh"),
     ]
 
@@ -1437,6 +1439,7 @@ class WorldPane(Horizontal):
         Binding("ctrl+s", "app.save_node", "Save"), Binding("ctrl+r", "app.reload_sector", "Refresh"),
         Binding("ctrl+u", "app.undo_save", "Undo last save"), Binding("ctrl+n", "app.new_marker", "New"),
         Binding("ctrl+d", "app.copy_marker", "Copy"), Binding("delete", "app.remove_marker", "Remove"),
+        Binding("e", "app.edit_world_scene", "Scene in Godot"),
     ]
     DEFAULT_CSS = """
     WorldPane #world-left { width: 42; }
@@ -1560,6 +1563,7 @@ class DevApp(App):
         self.problems = []
         self.open_file = None
         self.changes_source = changes  # Git, for the review screen (tests give a stand-in)
+        self.editor_starter = self._start_editor  # Starts the Godot editor detached (tests record instead)
         self.undo_stack = []  # Saves, newest last: ([(path, its text before that save)], what to reload after its undo)
         self.archetype_view = {"ranges": {}, "archetypes": []}
         self.duel_first = None  # The archetype d picked first (Archetypes tab)
@@ -1956,6 +1960,39 @@ class DevApp(App):
                 self.notify("%s has no .blend beside its .glb" % row.name, severity="warning")
                 return
             self.run_task(tasks.TASKS_BY_KEY["open_blender"], {"model": target}, wait=False)
+
+    def open_in_editor(self, scene):
+        """The Godot editor at `scene` (res://), detached: the menu stays usable while it is open."""
+        if not scene:
+            self.notify("No scene to open", severity="warning")
+            return
+        problem = tasks.godot_problem()
+        if problem:
+            self.notify(problem, severity="error")
+            return
+        self.editor_starter(tasks.godot("-e", scene))
+        self.notify("Opening %s in the Godot editor; ctrl+r here reads it again after you save there" % scene.replace("res://", ""))
+
+    @staticmethod
+    def _start_editor(command):
+        subprocess.Popen(command, cwd=tasks.ROOT, env=tasks.environment(), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                         stderr=subprocess.DEVNULL, start_new_session=True)
+
+    def action_edit_model_scene(self):
+        row = self._current_model()
+        if row is not None:
+            self.open_in_editor(row.scene if str(row.scene).endswith(".tscn") else None)
+
+    def action_edit_world_scene(self):
+        """The picked body's own scene, else the sector scene for its bodies, else the layout for markers."""
+        picked = self.world.get("picked", ".") if self.world else None
+        if picked is None:
+            return
+        node = self.world.get("nodes", {}).get(picked, {})
+        if picked.startswith(SCENE):
+            self.open_in_editor(node.get("scene") or self.world.get("scene"))
+        else:
+            self.open_in_editor(self.world.get("path"))
 
     def action_new_model(self):
         self._ask_task(tasks.TASKS_BY_KEY["new_model"])

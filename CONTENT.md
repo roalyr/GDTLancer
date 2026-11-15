@@ -69,6 +69,7 @@ Plain letters are each tab's own actions, and the footer lists them.
    - Enter on a haven opens it in World, and `e` opens the faction in Data.
 5. **World:** each sector's scene (stars, planets, moons, belts) and its layout (havens, beacons, hazards), on a map.
    - `ctrl+n` places something, `ctrl+d` copies it and `delete` removes it.
+   - `e` opens the picked body's scene (or the layout, for a marker) in the Godot editor; on Models, `e` opens the model's scene.
    - The **New sector** and **Copy sector** buttons make sectors.
    - **Economy** shows the open sector's market.
 6. **Parts:** weapons (`w`), modules (`m`), commodities (`c`) and starting kits (`k`), each with who uses it.
@@ -120,7 +121,7 @@ A field marked in orange, "Not in the game yet", is kept and saved, but nothing 
 **Make a new sector**
 1. World (`5`): **New sector**. This makes its folder, scene, layout (with its entry beacon) and Location file.
 2. Pick **Scene** and press `ctrl+n` to add a star, planet, moon or belt. It is a copy of one you pick, named by the rules.
-3. Change each body's looks in the Godot editor. Place havens, beacons and hazards in the layout.
+3. Change each body's looks in the Godot editor: pick it in World and press `e` to open its scene there. Place havens, beacons and hazards in the layout.
 
 **Make a ship or station model**
 1. Models (`2`): `ctrl+n` copies a starter and opens it in Blender.

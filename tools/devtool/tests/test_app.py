@@ -338,6 +338,25 @@ class AppTest(unittest.IsolatedAsyncioTestCase):
         app.load_sector("sector_elace", LAYOUT, "Havens/Port")
         await self._started(pilot, app)
 
+    async def test_e_opens_the_picked_scene_in_the_editor(self):
+        app = devapp.DevApp(bridge_factory=lambda: FakeBridge())
+        started = []
+        app.editor_starter = started.append
+        async with app.run_test(size=(160, 60)) as pilot:
+            await self._open_sector(pilot, app)
+            app.action_edit_world_scene()
+            self.assertEqual(started[-1][-2:], ["-e", LAYOUT], "A marker: its layout")
+            app._show_node("@SceneAssets/Planet A")
+            app.action_edit_world_scene()
+            body = app.world["nodes"]["@SceneAssets/Planet A"].get("scene") or LAYOUT.replace("_layout.tscn", ".tscn")
+            self.assertEqual(started[-1][-1], body, "A body: its own scene, else the sector scene")
+            await pilot.press("2")
+            await pilot.pause()
+            app.query_one("#models", DataTable).move_cursor(row=0)
+            app.action_edit_model_scene()
+            self.assertTrue(started[-1][-1].endswith(".tscn") and "-e" in started[-1], started[-1])
+        self.assertEqual(len(started), 3)
+
     async def test_a_marker_saves_only_what_changed(self):
         fake = FakeBridge()
         app = devapp.DevApp(bridge_factory=lambda: fake)
