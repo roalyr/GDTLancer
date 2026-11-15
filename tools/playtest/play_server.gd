@@ -1,5 +1,6 @@
 # Play server: the real game, driven from outside as a player would, for agent playtests.
 # tools/playtest/play.py starts it and sends commands; .claude/agents/playtester.md plays with them.
+# The whole procedure: docs/PLAYTESTS.md.
 #     godot --resolution 1920x1080 res://tools/playtest/play_server.tscn test_start=start_default port=47321 slot=l1 [fresh]
 #
 # Listens on 127.0.0.1:port. One connection per request: a JSON line {"cmd": name, "args": {...}},

@@ -67,6 +67,10 @@ The era number comes from `era.json`. If that is missing, the flow guesses from 
 
 One Godot process runs evolution on one CPU core. `tools/devtool/islands.py` runs several side by side, on this machine and on others over SSH, and merges them after each segment. See [ISLANDS.md](ISLANDS.md). From the tool: Tools, `m`, **Evolution islands** (check, push, segment, run, stop); segments and runs start detached, their output in `user://evolution/logs/islands_<date>.log`, and the Tools tab shows which islands a segment waits for and whether a stop was asked.
 
+## Agent playtests
+
+AI agents (Claude Code's `playtester`, `.claude/agents/playtester.md`) play the real game through its buttons and report bugs and confusing spots, on this machine and on the islands' hosts, one slot each. `tools/playtest/play.py` is what they drive; `tools/playtest/play.py slots` lists the slots, `push` updates the hosts. See [PLAYTESTS.md](PLAYTESTS.md): the parts, running them, checking their findings (they often take a design choice for a bug) and extending them.
+
 ## Checks: tests, selftest, soak
 
 - **Run the tests** (Tools): every GUT test, the content rules and models included. From a terminal: `godot --no-window -s addons/gut/gut_cmdln.gd -gexit` (`-gselect=<file>` for one test file).

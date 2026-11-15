@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Drive the real game as a player would, one command per call (for agent playtests).
+The procedure, the agent and how to check its findings: docs/PLAYTESTS.md.
 
     tools/playtest/play.py [--slot S] start [--keep] [--window]   launch a fresh game, wait for the menu
     tools/playtest/play.py [--slot S] look [--shot]       buttons (id, text, centre) and text on screen
