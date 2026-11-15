@@ -37,16 +37,9 @@ func _ready() -> void:
 	_launch_velocity = shooter.linear_velocity if is_instance_valid(shooter) and shooter is RigidBody else Vector3.ZERO
 	linear_velocity = velocity
 	var body := MeshInstance.new()
-	var mesh := CylinderMesh.new()
-	mesh.top_radius = Constants.MISSILE_MODEL_RADIUS * 0.6
-	mesh.bottom_radius = Constants.MISSILE_MODEL_RADIUS
-	mesh.height = Constants.MISSILE_MODEL_LENGTH
-	mesh.radial_segments = 8
-	mesh.rings = 1
-	var material := SpatialMaterial.new()
-	material.albedo_color = Constants.MISSILE_MODEL_COLOR
-	mesh.material = material
-	body.mesh = mesh
+	if not _LOOK.has("mesh"):
+		_LOOK["mesh"] = _new_mesh()
+	body.mesh = _LOOK.mesh
 	body.rotation_degrees = Vector3(-90, 0, 0)  # Cylinder along -Z, the top (narrow) forward
 	body.scale = Vector3.ONE * size
 	add_child(body)
@@ -57,6 +50,22 @@ func _ready() -> void:
 	engines.scale = Vector3.ONE * size * Constants.MISSILE_EXHAUST_SCALE
 	engines.add_child(EngineExhaustScene.instance())
 	add_child(engines)
+
+
+const _LOOK := {}  # The body's mesh and material, made once and shared by every missile
+
+
+static func _new_mesh() -> Mesh:
+	var mesh := CylinderMesh.new()
+	mesh.top_radius = Constants.MISSILE_MODEL_RADIUS * 0.6
+	mesh.bottom_radius = Constants.MISSILE_MODEL_RADIUS
+	mesh.height = Constants.MISSILE_MODEL_LENGTH
+	mesh.radial_segments = 8
+	mesh.rings = 1
+	var material := SpatialMaterial.new()
+	material.albedo_color = Constants.MISSILE_MODEL_COLOR
+	mesh.material = material
+	return mesh
 
 
 func get_engine_activity() -> float:

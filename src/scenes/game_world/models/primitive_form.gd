@@ -62,8 +62,18 @@ static func _piece(part: Dictionary, length: float, girth: float, mirrored: bool
 	return piece
 
 
-# A unit mesh (1 m across) of `shape`.
+# A unit mesh (1 m across) of `shape`, one shared by every piece of that shape (pieces size it by
+# their transform; nothing changes a piece's mesh), so ships do not each hold their own copies.
+const _MESHES := {}
+
+
 static func _mesh(shape: String) -> Mesh:
+	if not _MESHES.has(shape):
+		_MESHES[shape] = _new_mesh(shape)
+	return _MESHES[shape]
+
+
+static func _new_mesh(shape: String) -> Mesh:
 	match shape:
 		"box":
 			var box := CubeMesh.new()

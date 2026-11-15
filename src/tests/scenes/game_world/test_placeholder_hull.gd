@@ -57,3 +57,14 @@ func test_mirrored_parts_sit_either_side():
 	assert_almost_eq(form.get_child(0).transform.origin.x, 3.0, 0.001)
 	assert_almost_eq(form.get_child(1).transform.origin.x, -3.0, 0.001)
 	assert_almost_eq(form.get_child(1).transform.basis.get_euler().y, deg2rad(-20.0), 0.001, "Turned the other way")
+
+
+# Pieces of a shape share one unit mesh across hulls (sized by their transforms): one vertex buffer
+# a shape, not one a piece.
+func test_pieces_share_their_shapes_meshes():
+	var meshes := {}
+	for hull in [_hull("fighter", "light"), _hull("raider", "heavy")]:
+		for piece in hull.get_node("Model/PrimitiveForm").get_children():
+			if piece is MeshInstance:
+				meshes[piece.mesh] = true
+	assert_true(meshes.size() <= 4, "At most box, cylinder, cone and sphere: %d" % meshes.size())

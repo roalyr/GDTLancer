@@ -23,6 +23,16 @@ func launch(holder: Node, position: Vector3, velocity: Vector3) -> void:
 func _ready() -> void:
 	add_to_group(GROUP)
 	var flare := MeshInstance.new()
+	if not _LOOK.has("mesh"):
+		_LOOK["mesh"] = _new_mesh()
+	flare.mesh = _LOOK.mesh
+	add_child(flare)
+
+
+const _LOOK := {}  # The flare's mesh and material, made once and shared by every decoy
+
+
+static func _new_mesh() -> Mesh:
 	var mesh := SphereMesh.new()
 	mesh.radius = Constants.DECOY_MODEL_RADIUS
 	mesh.height = Constants.DECOY_MODEL_RADIUS * 2.0
@@ -32,8 +42,7 @@ func _ready() -> void:
 	material.flags_unshaded = true
 	material.albedo_color = Constants.DECOY_COLOR
 	mesh.material = material
-	flare.mesh = mesh
-	add_child(flare)
+	return mesh
 
 
 func _physics_process(delta: float) -> void:

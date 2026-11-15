@@ -9,8 +9,20 @@ const LaserHitScene = preload("res://scenes/prefabs/effects/laser_hit.tscn")
 var size: float = 1.0  # Streak scale: 1 for a reference round
 
 
+const _LOOK := {}  # The streak's mesh and material, made once and shared by every shell
+
+
 func _ready() -> void:
 	var streak := MeshInstance.new()
+	if not _LOOK.has("mesh"):
+		_LOOK["mesh"] = _new_mesh()
+	streak.mesh = _LOOK.mesh
+	streak.rotation_degrees = Vector3(-90, 0, 0)
+	streak.scale = Vector3(size, 1.0, size)
+	add_child(streak)
+
+
+static func _new_mesh() -> Mesh:
 	var mesh := CylinderMesh.new()
 	mesh.top_radius = Constants.SHELL_MODEL_RADIUS
 	mesh.bottom_radius = Constants.SHELL_MODEL_RADIUS * 0.3
@@ -21,10 +33,7 @@ func _ready() -> void:
 	material.flags_unshaded = true
 	material.albedo_color = Constants.SHELL_COLOR
 	mesh.material = material
-	streak.mesh = mesh
-	streak.rotation_degrees = Vector3(-90, 0, 0)
-	streak.scale = Vector3(size, 1.0, size)
-	add_child(streak)
+	return mesh
 
 
 func _burst_effect(body) -> void:
