@@ -298,7 +298,6 @@ func update_world_target_overlay(full: bool = true) -> void:
 	var now: int = OS.get_ticks_msec()
 	if full:
 		_last_full_refresh_ms = now
-		_limit_mark_distances()
 	else:
 		_refresh_bracket_slice(now)
 	# Per frame and per bracket, so kept lean: the camera read once; a bracket that does not show
@@ -310,6 +309,8 @@ func update_world_target_overlay(full: bool = true) -> void:
 	var camera_fwd: Vector3 = -camera_transform.basis.z
 	var viewport_rect = _hud.get_viewport_rect()
 	var fade_on: bool = _hud._is_projected_target_center_fade_enabled()
+	var screen_scale: Vector2 = ScreenSpace._scale(camera)  # ScreenSpace.world_to_screen's scale, read once
+	var interpolated: bool = Interp.enabled()
 	for button in _hud._world_target_buttons.values():
 		if not is_instance_valid(button):
 			continue
@@ -317,16 +318,19 @@ func update_world_target_overlay(full: bool = true) -> void:
 		if full and is_instance_valid(target_node) and target_node is Spatial:
 			button.world_shown = _refresh_world_bracket(button, target_node)
 		if not button.world_shown or not is_instance_valid(target_node):
-			_hide_world_bracket(button)
+			if button.visible or button.wanted_since >= 0:  # Else already hidden: nothing to do
+				_hide_world_bracket(button)
 			continue
-		var target_world_position: Vector3 = Interp.origin(target_node)
+		# Interp.origin and ScreenSpace.world_to_screen, inlined: this runs for every shown bracket
+		var target_world_position: Vector3 = target_node.get_global_transform_interpolated().origin if interpolated and target_node.is_inside_tree() else target_node.global_transform.origin
 		var wanted: bool = (target_world_position - camera_origin).dot(camera_fwd) >= 0.0
 		var screen_pos := Vector2.ZERO
 		if wanted:
-			screen_pos = ScreenSpace.world_to_screen(camera, target_world_position)
+			screen_pos = camera.unproject_position(target_world_position) * screen_scale
 			wanted = viewport_rect.has_point(screen_pos)
 		if not wanted:
-			_hide_world_bracket(button)
+			if button.visible or button.wanted_since >= 0:
+				_hide_world_bracket(button)
 			continue
 		var at: Vector2 = screen_pos - (button.rect_size / 2.0)  # Placed even while it waits to appear: it shows where it belongs
 		if button.rect_position.distance_squared_to(at) > 0.04:  # Unmoved (a fifth of a pixel): no relayout
@@ -336,6 +340,8 @@ func update_world_target_overlay(full: bool = true) -> void:
 			button.visible = shown
 		if shown:
 			button.set_distance_fade_alpha(get_projected_target_distance_fade_alpha(screen_pos, viewport_rect) if fade_on else 1.0)
+	if full:
+		_limit_mark_distances()  # After the loop: it goes by the fresh world_shown
 
 
 func _hide_world_bracket(button) -> void:
@@ -382,7 +388,9 @@ func _refresh_bracket_slice(now: int) -> void:
 
 
 # Only the nearest Constants.HUD_MARK_DISTANCES hostiles the player sees show their distance by their
-# mark (the selected target always does): a crowd's numbers would stack.
+# mark (the selected target always does): a crowd's numbers would stack. Only shown brackets
+# (world_shown) are ranked: a hidden one shows no number, and asking every ship in the sector
+# whether it is hostile made a spike of a few ms every round of the slow re-check.
 func _limit_mark_distances() -> void:
 	var player = GlobalRefs.player_agent_body
 	if not (is_instance_valid(player) and player is Spatial and player.is_inside_tree()):
@@ -393,7 +401,7 @@ func _limit_mark_distances() -> void:
 		if not is_instance_valid(button) or button.get("mark_distance_allowed") == null:
 			continue
 		var target_node = button.target_ref
-		var hostile: bool = is_instance_valid(target_node) and target_node is Spatial and target_node.is_inside_tree() and target_node.has_method("is_enemy_of") \
+		var hostile: bool = button.world_shown and is_instance_valid(target_node) and target_node is Spatial and target_node.is_inside_tree() and target_node.has_method("is_enemy_of") \
 			and not target_node.get("is_wreck") and target_node.is_enemy_of(player) and (not player.has_method("detects") or player.detects(target_node))
 		if hostile:
 			hostiles.append([player.global_transform.origin.distance_squared_to(target_node.global_transform.origin), button])

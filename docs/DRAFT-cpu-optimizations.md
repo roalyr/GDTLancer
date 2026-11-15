@@ -329,6 +329,15 @@ current modulate (or a stored bool) and skip the write. Also `ThreatRing._proces
 `update()` every frame even when it has nothing to draw: call it only when `_threats` or the
 partners list is non-empty or was non-empty last frame.
 
+Brackets, DONE (part): ~1.95 to ~1.45 ms a frame (three runs each; 186 brackets, 40 shown, 10 on
+screen). Split in the bench: the slow re-check slice 1.3 (detects 0.34, refresh_style 0.36, the
+distance-mark ranking 0.27, which is a ~2.7 ms spike each quarter second: `is_enemy_of` on all 58
+ships), the per-frame loop ~0.9. Now: marks ranked only among shown brackets (a hidden one shows no
+number; on a full refresh after the loop, so it goes by the fresh world_shown); the 146 hidden
+brackets skip the hide call when already hidden; the viewport scale and the interpolation setting
+are read once a frame and Interp.origin / ScreenSpace.world_to_screen inlined. Left: detects and
+refresh_style in the slice (per-bracket GDScript, nothing repeated).
+
 Brackets (1.7 ms a frame here with ~170 brackets) are already lean per bracket (~10 us); the
 remaining cost is per-bracket GDScript. Do not halve their update rate (static targets would judder
 during camera pans). If item 0 shows brackets still matter on the phone, the one safe cut is to skip

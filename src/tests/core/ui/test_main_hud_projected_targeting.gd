@@ -759,17 +759,17 @@ func test_only_the_nearest_hostiles_show_their_distance():
 		var hostile = AgentScript.new()
 		add_child_autofree(hostile)
 		hostile.faction = "raiders"
-		hostile.global_transform.origin = Vector3(0, 0, -1000.0 * (index + 1))
+		hostile.global_transform.origin = Vector3(0, 0, -100.0 * (index + 1))  # All within sensor range
 		var bracket = ProjectedTargetBracketScene.instance()
 		add_child_autofree(bracket)
 		bracket.configure_target(hostile, "Raider")
+		bracket.world_shown = index > 0  # The nearest is hidden (its overlay off): not ranked
 		hud._world_target_buttons[index] = bracket
 		labels.append(bracket.get_node("DistancePanel/DistanceLabel"))
 	projector._limit_mark_distances()
-	for index in range(labels.size()):
-		var seen: bool = player.detects(hud._world_target_buttons[index].target_ref)
-		if seen:
-			assert_eq(labels[index].text != "", index < Constants.HUD_MARK_DISTANCES, "Raider %d" % index)
+	for index in range(1, labels.size()):
+		assert_true(player.detects(hud._world_target_buttons[index].target_ref), "Raider %d seen" % index)
+		assert_eq(labels[index].text != "", index <= Constants.HUD_MARK_DISTANCES, "Raider %d" % index)
 
 
 func test_xenohive_is_purple_whatever_its_side():
