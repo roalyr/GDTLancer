@@ -85,7 +85,7 @@ Plain letters are each tab's own actions, and the footer lists them.
    - `ctrl+g` groups them by kind and `ctrl+f` finds one.
    - Godot checks that the script still parses before saving.
 0. **Tools:** every other tool. Enter asks its questions, then runs it.
-   - `g` reviews everything changed since the last commit and commits it with your message. Nothing is pushed.
+   - `g` reviews everything changed since the last commit and commits it with your message. Every file is ticked; `space` leaves one out, and **Put back this file** returns it to how the last commit had it (a new file is removed). A file outside the usual folders is marked `!`. Nothing is pushed.
    - `o` opens the newest output (sheets, screenshots go to `.dev/out/`).
    - `m` shows the maintainer tasks.
 

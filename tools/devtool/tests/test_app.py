@@ -149,17 +149,27 @@ class FakeBridge:
 class FakeGit:
     def __init__(self):
         self.committed = []
+        self.paths = []  # What each commit took (None: everything)
+        self.put_back_paths = []
+        self.files = [("changed", "database/factions/verdant.tres"), ("new", "database/registry/game_starts/start_test.tres"),
+                      ("new", "shot.png")]
 
     def status(self):
-        return [("changed", "database/factions/verdant.tres"), ("new", "database/registry/game_starts/start_test.tres")]
+        return list(self.files)
+
+    def put_back(self, path):
+        self.put_back_paths.append(path)
+        self.files = [item for item in self.files if item[1] != path]
+        return True, "put back: " + path
 
     def diff(self, path):
         return ["@@ -1 +1 @@", "-roster = [ ]", "+roster = [ \"fighter_light\" ]"] if path.endswith("verdant.tres") else ["(a new file)", "+[gd_resource]"]
 
-    def commit(self, message):
+    def commit(self, message, paths=None):
         if not message:
             return False, "A commit needs a message"
         self.committed.append(message)
+        self.paths.append(paths)
         return True, "abc123 " + message
 
 
@@ -625,7 +635,7 @@ class AppTest(unittest.IsolatedAsyncioTestCase):
             await pilot.pause()
             screen = app.screen
             self.assertIsInstance(screen, devapp.ChangesScreen)
-            self.assertEqual(screen.query_one("#change-list", DataTable).row_count, 2)
+            self.assertEqual(screen.query_one("#change-list", DataTable).row_count, 3)
             self.assertIn("fighter_light", str(screen.query_one("#change-text").content))
             screen.query_one("#change-commit").press()
             await pilot.pause()
@@ -634,7 +644,42 @@ class AppTest(unittest.IsolatedAsyncioTestCase):
             screen.query_one("#change-commit").press()
             await pilot.pause()
             self.assertEqual(git.committed, ["Roster: fighters"])
+            self.assertEqual(git.paths, [None], "All ticked: everything")
             self.assertNotIsInstance(app.screen, devapp.ChangesScreen)
+
+    async def test_a_file_can_be_left_out_or_put_back(self):
+        app = devapp.DevApp(bridge_factory=lambda: FakeBridge())
+        git = FakeGit()
+        app.changes_source = git
+        async with app.run_test(size=(180, 50)) as pilot:
+            await self._started(pilot, app)
+            await pilot.press("0")
+            await pilot.pause()
+            await pilot.press("g")
+            await pilot.pause()
+            screen = app.screen
+            table = screen.query_one("#change-list", DataTable)
+            self.assertIn("!", str(table.get_row_at(2)[2]), "A screenshot dropped in the project is marked")
+            table.move_cursor(row=2)
+            screen.query_one("#change-put-back").press()
+            await pilot.pause()
+            self.assertIsInstance(app.screen, devapp.ConfirmScreen, "Asked first")
+            await pilot.press("y")
+            await pilot.pause()
+            self.assertEqual(git.put_back_paths, ["shot.png"])
+            self.assertEqual(table.row_count, 2, "The list is read again")
+            table.move_cursor(row=1)
+            table.focus()
+            await pilot.press("space")
+            await pilot.pause()
+            self.assertEqual(str(table.get_row_at(1)[0]), "[ ]")
+            message = screen.query_one("#change-message", Input)
+            message.focus()
+            await pilot.press("a", "space", "b")
+            self.assertEqual(message.value, "a b", "A space in the message is a space")
+            screen.query_one("#change-commit").press()
+            await pilot.pause()
+        self.assertEqual(git.paths, [["database/factions/verdant.tres"]], "Only the ticked file")
 
     async def test_undo_steps_back_save_by_save(self):
         app = devapp.DevApp(bridge_factory=lambda: FakeBridge())

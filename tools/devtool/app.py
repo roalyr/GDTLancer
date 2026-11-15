@@ -33,6 +33,7 @@ from textual import on, work
 from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.containers import Horizontal, Vertical, VerticalScroll
+from textual.coordinate import Coordinate
 from textual.screen import ModalScreen
 from textual.suggester import SuggestFromList
 from textual.message import Message
@@ -866,8 +867,10 @@ class ConfirmScreen(ModalScreen):
 
 
 class ChangesScreen(ModalScreen):
-    """Every change since the last commit (changes.py): a file's diff below the list, and a
-    message line that commits them all (nothing is pushed). Dismisses with the commit's line, or None."""
+    """Every change since the last commit (changes.py): a file's diff below the list, a tick per file
+    (space; all ticked at first, the house rule), a message line that commits the ticked ones
+    (nothing is pushed), and Put back for the picked file. Files outside the usual places are marked.
+    Dismisses with the commit's line, or None."""
 
     DEFAULT_CSS = """
     ChangesScreen { align: center middle; }
@@ -877,38 +880,85 @@ class ChangesScreen(ModalScreen):
     ChangesScreen #change-buttons { height: auto; }
     ChangesScreen #change-buttons Button { margin-right: 1; }
     """
-    BINDINGS = [Binding("escape", "cancel", "Close")]
+    BINDINGS = [Binding("escape", "cancel", "Close"), Binding("space", "tick", "Tick / untick")]
 
     def __init__(self, git=changes):
         super().__init__()
         self.git, self.files = git, []
+        self.unticked = set()  # Paths left out of the commit
 
     def compose(self) -> ComposeResult:
         with Vertical():
-            yield Label("[b]Changes since the last commit[/b] (everything is committed together; nothing is pushed)", id="change-title")
+            yield Label("[b]Changes since the last commit[/b] (the ticked files are committed together; space ticks or "
+                        "unticks; [yellow]![/yellow] marks a file outside the usual folders; nothing is pushed)", id="change-title")
             table = DataTable(id="change-list", cursor_type="row", zebra_stripes=True)
-            table.add_columns("", "File")
+            table.add_columns("", "", "File")
             yield table
             with VerticalScroll(id="change-diff"):
                 yield Static("", id="change-text")
             yield Input(placeholder="What changed, for the commit message", id="change-message")
             with Horizontal(id="change-buttons"):
-                yield Button("Commit all", id="change-commit", variant="primary")
+                yield Button("Commit ticked", id="change-commit", variant="primary")
+                yield Button("Put back this file", id="change-put-back", variant="warning")
                 yield Button("Close", id="change-close")
 
     def on_mount(self):
+        self._list()
+
+    def _list(self):
+        table = self.query_one("#change-list", DataTable)
+        table.clear()
         try:
             self.files = self.git.status()
         except RuntimeError as error:
             self.query_one("#change-text", Static).update("[red]%s[/red]" % escape(str(error)))
             return
-        table = self.query_one("#change-list", DataTable)
+        self.unticked &= {path for _, path in self.files}
         for index, (word, path) in enumerate(self.files):
-            table.add_row(word, path, key=str(index))
+            table.add_row(self._tick(path), word, ("[yellow]! %s[/yellow]" % escape(path)) if changes.unusual(path) else escape(path),
+                          key=str(index))
         if not self.files:
             self.query_one("#change-text", Static).update("Nothing changed since the last commit.")
         else:
             self._show(0)
+
+    def _tick(self, path):
+        return "[ ]" if path in self.unticked else "[x]"
+
+    def _current(self):
+        table = self.query_one("#change-list", DataTable)
+        return table.cursor_row if self.files and 0 <= table.cursor_row < len(self.files) else None
+
+    def check_action(self, action, parameters):
+        if action == "tick" and isinstance(self.focused, Input):
+            return False  # A space typed in the commit message is a space
+        return True
+
+    def action_tick(self):
+        index = self._current()
+        if index is None:
+            return
+        path = self.files[index][1]
+        self.unticked.symmetric_difference_update({path})
+        table = self.query_one("#change-list", DataTable)
+        table.update_cell_at(Coordinate(index, 0), self._tick(path))
+
+    @on(Button.Pressed, "#change-put-back")
+    def _put_back(self, _event=None):
+        index = self._current()
+        if index is None:
+            return
+        word, path = self.files[index]
+        question = ("Put back %s as the last commit has it? This change is lost." if word != "new" else
+                    "Remove %s? It is new: it goes for good.") % path
+
+        def answered(yes):
+            if not yes:
+                return
+            ok, words = self.git.put_back(path)
+            self.app.notify(words, severity="information" if ok else "error")
+            self._list()
+        self.app.push_screen(ConfirmScreen(question), answered)
 
     @on(DataTable.RowHighlighted, "#change-list")
     def _picked(self, event):
@@ -933,7 +983,8 @@ class ChangesScreen(ModalScreen):
         if not self.files:
             self.app.notify("Nothing to commit", severity="warning")
             return
-        ok, words = self.git.commit(self.query_one("#change-message", Input).value)
+        picked = [path for _, path in self.files if path not in self.unticked]
+        ok, words = self.git.commit(self.query_one("#change-message", Input).value, paths=picked if self.unticked else None)
         if not ok:
             self.app.notify(words, severity="error")
             return
@@ -1127,7 +1178,8 @@ HELP = """\
   8 Data        every data file in a form made from its script; delete removes one nothing names
   9 Constants   Constants.gd by section (or by kind, ctrl+g); ctrl+f finds
   0 Tools       every other tool (enter asks its questions and runs it); the APK and outputs;
-                g reviews the changes since the last commit and commits them; m shows the
+                g reviews the changes since the last commit and commits the ticked ones
+                (space unticks; Put back returns a file as committed); m shows the
                 maintainer tasks and evolution (x stops it, n starts a new era)
 
 [b]Saving[/b]
