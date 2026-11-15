@@ -1601,7 +1601,19 @@ class DevApp(App):
     def ask(self, command, **args):
         if self.bridge is None:
             raise BridgeError("Godot is still starting")
-        return self.bridge.call(command, **args)
+        bridge = self.bridge
+        try:
+            return bridge.call(command, **args)
+        except BridgeError as error:
+            alive = getattr(bridge, "alive", None)
+            if alive is not None and not alive() and self.bridge is bridge:
+                self.bridge = None  # A hung or crashed Godot: start a new one rather than leave every call failing
+                try:
+                    self.call_from_thread(self.start_bridge)
+                except RuntimeError:  # Already on the app's thread
+                    self.start_bridge()
+                raise BridgeError("%s\nGodot is starting again; try again once the status says it is up." % error)
+            raise
 
     def on_unmount(self):
         if self.bridge is not None:
