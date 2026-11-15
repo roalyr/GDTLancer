@@ -3,6 +3,7 @@
 extends GutTest
 
 var MovementSystem = load("res://src/core/agents/components/movement_system.gd")
+const Autolevel = preload("res://src/core/agents/components/autolevel.gd")
 var agent_body
 var movement_system
 
@@ -154,3 +155,31 @@ func test_thrust_into_a_planet_it_is_against_is_dropped():
 	assert_gt(left.x, 0.0, "The sideways part stays: it slides off")
 	movement_system.cancel_thrust_toward(Vector3(-1, 0, 0))
 	assert_gt(movement_system.get_requested_force().x, 0.0, "Thrust away from one is let be")
+
+
+# The roll about the nose from `basis`'s up to the level up (signed), as autolevel measures it.
+func _roll(basis: Basis) -> float:
+	var forward: Vector3 = -basis.z.normalized()
+	var level: Vector3 = (Vector3.UP - forward * forward.dot(Vector3.UP)).normalized()
+	return atan2(basis.y.cross(level).dot(forward), basis.y.dot(level))
+
+
+func test_autolevel_rolls_about_the_nose_towards_level():
+	var heading := Basis(Vector3.UP, 0.7) * Basis(Vector3.RIGHT, 0.3)  # Turned and pitched a little
+	assert_lt(Autolevel.torque(heading, 4000.0, 5e6).length(), 0.01, "Level: nothing (pitch is the pilot's)")
+	for angle in [0.5, -0.5, 2.5, -2.5]:
+		var rolled: Basis = heading * Basis(Vector3.BACK, angle)  # Rolled about the nose
+		var torque: Vector3 = Autolevel.torque(rolled, 4000.0, 5e6)
+		var forward: Vector3 = -rolled.z
+		assert_almost_eq(abs(torque.normalized().dot(forward)), 1.0, 0.001, "About the nose only: the heading stays")
+		var nudged: Basis = Basis(torque.normalized(), 0.01) * rolled
+		assert_lt(abs(_roll(nudged)), abs(_roll(rolled)), "Turning with it rolls towards level (%s rad)" % angle)
+
+
+func test_autolevel_is_a_small_share_of_steering_and_none_nose_up():
+	var upside_down: Basis = Basis(Vector3.BACK, PI * 0.9)
+	var torque: Vector3 = Autolevel.torque(upside_down, 1e9, 5e6)
+	assert_almost_eq(torque.length(), 5e6 * Constants.AUTOLEVEL_TORQUE_SHARE, 1.0, "Capped: steering always wins")
+	var nose_up: Basis = Basis(Vector3.RIGHT, PI * 0.5) * Basis(Vector3.BACK, 1.0)
+	assert_eq(Autolevel.torque(nose_up, 4000.0, 5e6), Vector3.ZERO, "No level to roll to")
+	assert_true(Settings.get_option("autolevel"), "On by default")

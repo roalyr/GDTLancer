@@ -18,6 +18,8 @@
 #                          worked out, nor the agents' per-nozzle thrust); missiles keep theirs
 #   "dynamic_lights" (String) LaserHitEffect, WreckExplosionEffect: how many hits and explosions
 #                          light their surroundings at once (Constants.DYNAMIC_LIGHTS_LEVELS, _CAPS)
+#   "autolevel"    (bool)  MovementSystem: the player's ship slowly rolls about its nose until its up is
+#                          as near the world's up as the heading allows
 #   "tether_rope"  (String) Tether: "complex" simulates near cables, "simple" draws a straight line
 #                          (Constants.TETHER_ROPE_STYLES)
 # The file is read only by load_file() (the main scene's start), and written only after it: tests
@@ -43,6 +45,7 @@ const DEFAULTS = {
 	"engine_exhausts": true,
 	"tether_rope": "complex",
 	"dynamic_lights": "all",
+	"autolevel": true,
 }
 
 

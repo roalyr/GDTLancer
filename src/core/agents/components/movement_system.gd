@@ -3,6 +3,8 @@
 
 extends Node
 
+const Autolevel = preload("res://src/core/agents/components/autolevel.gd")
+
 # --- Movement Capabilities (Set by AgentBody during initialize) ---
 var linear_thrust: float = Constants.DEFAULT_LINEAR_THRUST
 var angular_thrust: float = Constants.DEFAULT_ANGULAR_THRUST
@@ -124,7 +126,7 @@ func integrate_forces(state: PhysicsDirectBodyState):
 	if not GameState.dev_cheats.empty() and GameState.cheat("speed_x5") and agent_body.has_method("is_player") and agent_body.is_player():
 		engines *= Constants.DEV_SPEED_FACTOR  # Top speed is thrust over drag: this many times as fast, what NPCs read unchanged
 	state.add_central_force(engines + _external_force)
-	state.add_torque(_accumulated_torque + _external_torque)
+	state.add_torque(_accumulated_torque + _external_torque + _autolevel_torque())
 	
 	last_thrust_fraction = clamp(_accumulated_force.length() * thrust_throttle / max(linear_thrust, 0.001), 0.0, 1.0)
 	last_thrust_vector = _accumulated_force.normalized() * last_thrust_fraction if last_thrust_fraction > 0.0 else Vector3.ZERO
@@ -134,6 +136,13 @@ func integrate_forces(state: PhysicsDirectBodyState):
 	_accumulated_torque = Vector3.ZERO
 	_external_force = Vector3.ZERO
 	_external_torque = Vector3.ZERO
+
+
+# The player's autolevel (Settings "autolevel"): Autolevel.torque, a small roll towards level.
+func _autolevel_torque() -> Vector3:
+	if not (agent_body.has_method("is_player") and agent_body.is_player() and Settings.get_option("autolevel")):
+		return Vector3.ZERO
+	return Autolevel.torque(agent_body.global_transform.basis, agent_body.mass, angular_thrust)
 
 
 # Force from outside the ship's own engines (e.g. a tether), applied on the next physics step.

@@ -80,6 +80,9 @@ const FALLBACK_SHIP_TEMPLATE_ID = "ship_default"  # If the game start names no s
 
 const LINEAR_DRAG = 0.5  # Velocity damping per second; top speed = thrust / (mass * LINEAR_DRAG)
 const ANGULAR_DRAG = 2.0  # Angular velocity damping per second
+const AUTOLEVEL_TIME = 6.0  # s: the player's autolevel (Settings) rolls the ship level at about this pace (MovementSystem)
+const AUTOLEVEL_TORQUE_SHARE = 0.05  # Of the ship's turning torque, at most: steering always wins
+const AUTOLEVEL_MIN_LEVEL_SQ = 0.01  # Nose within ~6 degrees of straight up or down: no level to roll to
 
 # Defaults when a ship template does not set its own.
 const DEFAULT_LINEAR_THRUST = 5e6  # N

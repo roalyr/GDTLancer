@@ -33,7 +33,7 @@ margin_left = 40.0
 margin_top = 32.0
 margin_right = 680.0
 margin_bottom = 888.0
-custom_constants/separation = 10
+custom_constants/separation = 6
 
 [node name="Header" type="HBoxContainer" parent="Panel/Layout"]
 margin_right = 640.0
@@ -128,6 +128,11 @@ text = "SAVE ON DOCKING: ON"
 rect_min_size = Vector2( 0, 56 )
 focus_mode = 0
 text = "ENGINE EXHAUSTS: ON"
+
+[node name="ButtonAutolevel" type="Button" parent="Panel/Layout"]
+rect_min_size = Vector2( 0, 56 )
+focus_mode = 0
+text = "AUTOLEVEL: ON"
 
 [node name="ButtonDynamicLights" type="Button" parent="Panel/Layout"]
 rect_min_size = Vector2( 0, 56 )
