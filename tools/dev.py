@@ -13,8 +13,8 @@ The menu needs Textual (tools/devtool/requirements.txt): on first use it is inst
 which only this tool uses. Linux only. Settings from the environment: GODOT (the Godot 3.6 binary,
 default "godot"), BLENDER (Blender 3.6, default tools/blender if linked, else "blender"),
 GDTLANCER_APK (where the debug APK goes). CONTENT.md, Getting started, says how to set up. Output
-files go to .dev/out/, which Godot and git ignore. Parts: tools/devtool/ (tasks.py, bridge.py and
-bridge.gd, data.py, models.py, app.py).
+files go to .dev/out/, which Godot and git ignore. Parts: tools/devtool/, listed in
+docs/MAINTAINING.md (The development tool itself).
 """
 
 import os

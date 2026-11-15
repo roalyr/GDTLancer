@@ -1170,8 +1170,10 @@ HELP = """\
                 d on one, then d on another: they duel
   4 Factions    wars (pick a cell, w), rosters (space ticks, ctrl+s), traffic, havens (enter: World)
   5 World       a sector: its scene's bodies and belts, its layout's markers, on a map (top or side,
-                filters); new and copied sectors and bodies are named by the rules; ctrl+n on a
-                sector with no layout makes one; Economy: its market, routes timed for a ship, problems
+                filters); New sector and Copy sector buttons; new and copied sectors and bodies are
+                named by the rules; ctrl+n on a sector with no layout makes one; the Economy button:
+                its market (m), routes timed for a ship (r; [ and ] change the ship), hulls (h),
+                problems (p), the 0.x scope (o)
   6 Parts       weapons (w), modules (m), commodities (c), starting kits (k; p plays one),
                 trade routes (t; e: the highlighted route's sector's economy)
   7 Look        shaders, faction paints, paint patterns, music; y syncs shader blocks

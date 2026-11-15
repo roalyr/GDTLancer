@@ -48,9 +48,9 @@ KINDS = [
     Kind("factions", "Factions", "database/factions/*.tres", DEFINITIONS + "faction_template.gd",
          "Who flies where, their paints, enemies and roster."),
     Kind("archetype_ships", "Archetype ships", ARCHETYPES + "preset_ship_archetype_*.tres", None,
-         "The fifteen designs' hulls and fits (frozen: the presets were evolved on them)."),
+         "The twenty designs' hulls and fits (frozen: the presets were evolved on them)."),
     Kind("archetype_pilots", "Archetype pilots", ARCHETYPES + "agent_archetype_*.tres", None,
-         "The fifteen designs' behaviour and genome (frozen)."),
+         "The twenty designs' behaviour and genome (frozen)."),
     Kind("parts", "Parts", "database/presets/parts/*.tres", None,
          "The part catalogue: three of every kind (light, medium, heavy) and the harpoon; the only parts there are."
          " Tune a part's law genes, then tools/dev.py apply_laws."),
