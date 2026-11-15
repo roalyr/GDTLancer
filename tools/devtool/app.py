@@ -451,7 +451,7 @@ class FieldEditor(Vertical):
         elif hint == "enum" and kind in ("String", "int"):
             options = [option.split(":")[0] for option in field.get("hint_string", "").split(",") if option != ""]
             choices = [(option, option if kind == "String" else index) for index, option in enumerate(options)]
-            self.editor = Select(choices, value=value if value in [c[1] for c in choices] else Select.BLANK, allow_blank=False)
+            self.editor = Select(choices, value=value if value in [c[1] for c in choices] else Select.NULL, allow_blank=False)
         elif kind in ("int", "float"):
             self.editor = Input(value=self._number_text(value), type="integer" if kind == "int" else "number")
         elif kind == "String":
@@ -664,6 +664,7 @@ class AskScreen(ModalScreen):
         super().__init__()
         self.task_, self.values = task, values
         self.widgets = {}
+        self.typed = {}  # File questions' typed paths, which win over the list
 
     def compose(self) -> ComposeResult:
         with Vertical():
@@ -676,12 +677,16 @@ class AskScreen(ModalScreen):
                         options = [option for option in ask.options() if option != tasks.TYPE_A_PATH]
                         if current and current not in options:
                             options.insert(0, current)
-                        widget = Select([(option, option) for option in options], value=current if current in options else Select.BLANK,
+                        widget = Select([(option, option) for option in options], value=current if current in options else Select.NULL,
                                         allow_blank=ask.optional or not options)
                     else:
-                        widget = Input(value=current)
+                        widget = Input(value=current, type={"int": "integer", "float": "number"}.get(ask.kind, "text"))
                     self.widgets[ask.key] = widget
                     yield widget
+                    if ask.kind == "file":  # Any file, not only those the list finds
+                        typed = Input(placeholder="or type a path (from the project folder)", id="typed-" + ask.key)
+                        self.typed[ask.key] = typed
+                        yield typed
             with Horizontal(id="ask-buttons"):
                 yield Button("Run", variant="primary", id="run")
                 yield Button("Cancel", id="cancel")
@@ -691,7 +696,13 @@ class AskScreen(ModalScreen):
         answers = {}
         for key, widget in self.widgets.items():
             value = widget.value
-            answers[key] = "" if value is Select.BLANK or value is None else str(value)
+            answers[key] = "" if value is Select.NULL or value is Select.BLANK or value is None else str(value)
+            if key in self.typed and self.typed[key].value.strip():
+                answers[key] = self.typed[key].value.strip()
+        wrong = tasks.invalid(self.task_, answers)
+        if wrong:
+            self.app.notify("\n".join(wrong), severity="error")
+            return
         self.dismiss(answers)
 
     @on(Button.Pressed, "#cancel")
@@ -764,7 +775,7 @@ class BodyScreen(ModalScreen):
             yield Select([], id="body-from", allow_blank=True)
             yield Label("Its planet", id="body-of-label")
             yield Select([("Planet " + letter.upper(), letter) for letter in self.planets], id="body-of", allow_blank=not self.planets,
-                         value=self.planets[0] if self.planets else Select.BLANK)
+                         value=self.planets[0] if self.planets else Select.NULL)
             yield Label("Its word", id="body-word-label")
             yield Input(placeholder="deep", id="body-word")
             yield Static("", id="body-rule")
@@ -777,7 +788,7 @@ class BodyScreen(ModalScreen):
 
     @on(Select.Changed, "#body-kind")
     def _kind_changed(self, event):
-        if event.value is not Select.BLANK:
+        if event.value is not Select.NULL and event.value is not Select.BLANK:
             self._kind_shown(event.value)
 
     def _kind_shown(self, kind):
@@ -800,7 +811,7 @@ class BodyScreen(ModalScreen):
     def _done(self, _event):
         kind = self.query_one("#body-kind", Select).value
         source = self.query_one("#body-from", Select).value
-        if source is Select.BLANK or source is None:
+        if source is Select.NULL or source is Select.BLANK or source is None:
             self.notify("Nothing to make it like", severity="warning")
             return
         word = self.query_one("#body-word", Input).value.strip()
@@ -808,7 +819,7 @@ class BodyScreen(ModalScreen):
             self.dismiss({"kind": kind, "from": source, "name": word or title_of(source)})
             return
         of = self.query_one("#body-of", Select).value
-        if kind == "moon" and (of is Select.BLANK or of is None):
+        if kind == "moon" and (of is Select.NULL or of is Select.BLANK or of is None):
             self.notify("A moon needs a planet: make one first", severity="warning")
             return
         self.dismiss({"kind": kind, "from": source, "of": of if kind == "moon" else "", "word": word if kind == "belt" else ""})

@@ -37,14 +37,35 @@ TYPE_A_PATH = "(type a path)"
 # --- Questions --------------------------------------------------------------------------------
 
 class Ask:
-    """One question a task asks. kind: "text", "choice" (from `choices`), "file" (from `globs`,
-    relative to the project) or "flag" (yes/no)."""
+    """One question a task asks. kind: "text", "int" (a whole number), "float" (a number), "choice"
+    (from `choices`), "file" (from `globs`, relative to the project, or any path typed) or "flag"
+    (yes/no)."""
 
     def __init__(self, key, label, kind="text", default="", choices=None, globs=None, optional=False, fresh=False):
         """`default` may be a function; `fresh`: always the default, never the last answer."""
         self.fresh = fresh
         self.key, self.label, self.kind = key, label, kind
         self.default, self.choices, self.globs, self.optional = default, choices, globs, optional
+
+    def problem(self, value):
+        """What is wrong with `value` as an answer ("" when nothing): numbers must be numbers, a typed
+        file must exist. Empty answers are missing()'s business."""
+        value = str(value).strip()
+        if value == "":
+            return ""
+        if self.kind == "int":
+            try:
+                int(value)
+            except ValueError:
+                return "%s: a whole number (got %r)" % (self.label, value)
+        if self.kind == "float":
+            try:
+                float(value)
+            except ValueError:
+                return "%s: a number (got %r)" % (self.label, value)
+        if self.kind == "file" and not os.path.exists(os.path.join(ROOT, value[len("res://"):] if value.startswith("res://") else value)):
+            return "%s: no such file %s" % (self.label, value)
+        return ""
 
     def options(self):
         if self.kind == "flag":
@@ -411,7 +432,7 @@ TASKS = [
     Task("import_model", "Models", "Import a model", "Export (.blend), fit to 17 m (ships), LODs, import, hit surface, scene, check.",
          _import_model, [Ask("model", "Model", "file", globs=MODEL_SOURCES),
                          Ask("kind", "Ship or station", "choice", "auto", ["auto", "ship", "station"]),
-                         Ask("ratio", "LOD ratio", default="0.7"), Ask("levels", "LOD levels", default="3")]),
+                         Ask("ratio", "LOD ratio", "float", default="0.7"), Ask("levels", "LOD levels", "int", default="3")]),
     Task("open_blender", "Models", "Open a model in Blender", "Blender 3.6 (BLENDER, else tools/blender, else blender on PATH) with the file.",
          lambda v: blender(v["model"]), [Ask("model", "Model", "file", globs=["assets/models/**/*.blend"])]),
     Task("model_sheet", "Models", "Model review sheet", "One model in every faction's paint (across) at every LOD (down), to .dev/out/.",
@@ -425,7 +446,7 @@ TASKS = [
          lambda v: godot_script("tools/bake_hit_shapes.gd")),
     Task("lods", "Models", "Make LODs for a .glb", "Levels of detail only (import_model does this for ships).",
          lambda v: blender("-b", "-P", "tools/generate_lods.py", "--", "--levels", v["levels"], "--ratio", v["ratio"], v["model"]),
-         [Ask("model", "Model", "file", globs=["assets/models/**/*.glb"]), Ask("ratio", "Ratio", default="0.5"), Ask("levels", "Levels", default="3")]),
+         [Ask("model", "Model", "file", globs=["assets/models/**/*.glb"]), Ask("ratio", "Ratio", "float", default="0.5"), Ask("levels", "Levels", "int", default="3")]),
     Task("paint_patterns", "Models", "Paint pattern library", "Regenerates the faction paint patterns and their contact sheet.",
          lambda v: ["python3", "tools/generate_paint_patterns.py", "--library"]),
     # Content (derived data: put right after a change; the Overview says when)
@@ -438,14 +459,14 @@ TASKS = [
     # Balance
     Task("duel", "Balance", "Duel two archetypes", "Two archetypes as the game flies them, one on one: wins, time, hull left, rounds.",
          _duel, [Ask("a", "First (Verdant)", "choice", "fighter_light", archetypes), Ask("b", "Second (Violet)", "choice", "raider_light", archetypes),
-                 Ask("duels", "Duels", default="6"), Ask("speed", "Speed", default="6")]),
+                 Ask("duels", "Duels", "int", default="6"), Ask("speed", "Speed", "float", default="6")]),
     Task("economy", "Balance", "Sector economy", "A sector's market, trade routes timed for a ship (WP an hour), every hull's trading,"
          " problems (stock that pays nowhere, buy-and-sell-back loops) and what 0.x has yet to estimate. Also World: Economy.",
          lambda v: ["python3", "tools/devtool/economy.py", "sector=" + v["sector"], "ship=" + v["ship"]],
          [Ask("sector", "Sector", "choice", "sector_elace", sectors), Ask("ship", "Ship to time routes for", "choice", "trader_medium", archetypes)]),
     # Look
     Task("render_preview", "Look", "Render preview", "A scene from a few distances, side by side, to .dev/out/.",
-         _render_preview, [Ask("scene", "Scene", "file", globs=["scenes/**/*.tscn"]), Ask("radius", "Object size (m)", default="100"),
+         _render_preview, [Ask("scene", "Scene", "file", globs=["scenes/**/*.tscn"]), Ask("radius", "Object size (m)", "float", default="100"),
                            Ask("distances", "Distances (in sizes)", default="3,10,40")]),
     # Game
     Task("play", "Game", "Play", "Runs the game in a window.", lambda v: godot()),
@@ -465,35 +486,35 @@ TASKS = [
     Task("soak", "Maintainer", "Soak the game", "The real game left running (a new game in Elace, docked at home, 1x): fails on errors,"
          " orphaned nodes or memory growing, wrecks over their caps, bookkeeping growing. Frame rates printed. Needs a display.",
          lambda v: ["python3", "tools/devtool/soak.py", "minutes=" + v["minutes"]],
-         [Ask("minutes", "Minutes (real time)", default="5")]),
+         [Ask("minutes", "Minutes (real time)", "float", default="5")]),
     Task("export_presets", "Maintainer", "Export presets from evolution", "The fittest designs of evolution's save as drafts, in database/drafts/export/ (pick_archetypes takes archetypes from drafts).",
-         _export_presets, [Ask("top", "Archetypes", default="60"), Ask("min_lives", "Minimum lives", default="10"),
+         _export_presets, [Ask("top", "Archetypes", "int", default="60"), Ask("min_lives", "Minimum lives", "int", default="10"),
                            Ask("clean", "Empty database/drafts/export/ first", "flag", "no")]),
     Task("pick_archetypes", "Maintainer", "Pick archetypes from drafts", "Each archetype the drafts folder has a design for is replaced by it; then classify_presets.",
          _pick_archetypes, [Ask("folder", "Drafts folder", "choice", lambda: max(draft_folders(), key=lambda name: (int(name.split("_")[0][len("era"):]), name.endswith("min10")), default=""), draft_folders),
                             Ask("add", "Also make archetypes there are none of yet", "flag", "no")]),
     Task("evolution", "Maintainer", "Run evolution (headless)", "Goes on with the saved evolution, detached: the menu comes back, the Tools"
          " tab shows it and x stops it (it saves first). A new era: new_era.",
-         _evolution, [Ask("hours", "Simulated hours (0: until stopped)", default="1"), Ask("speed", "Speed", default="6"),
+         _evolution, [Ask("hours", "Simulated hours (0: until stopped)", "float", default="1"), Ask("speed", "Speed", "float", default="6"),
                       Ask("follow", "Run it in this terminal instead (ctrl+c kills it, unsaved time lost)", "flag", "no", fresh=True)]),
     Task("new_era", "Maintainer", "New era (backs up first)",
          "Backs up the save, exports its drafts, rewrites the catalog and commits them, then starts the next era.",
-         _new_era, [Ask("era", "This era's number", default=_era_default("era"), fresh=True),
+         _new_era, [Ask("era", "This era's number", "int", default=_era_default("era"), fresh=True),
                     Ask("label", "This era's name (its backup and drafts)", default=_era_default("label"), fresh=True),
                     Ask("next", "The next era's name (what changed)"),
                     Ask("kind", "Next era: era (genomes stay, their records start over) or fresh (a new evolution)", "choice", "era", ["era", "fresh"]),
-                    Ask("hours", "Simulated hours (0: until stopped)", default="20"), Ask("speed", "Speed", default="8"),
+                    Ask("hours", "Simulated hours (0: until stopped)", "float", default="20"), Ask("speed", "Speed", "float", default="8"),
                     Ask("min_lives", "Drafts for these minimum lives", default="10,5"),
                     Ask("redo_drafts", "Export again over this era's drafts if they exist (they may be edited)", "flag", "no", fresh=True),
                     Ask("commit", "Commit the drafts and catalog", "flag", "yes"),
                     Ask("start", "Start the next era now", "flag", "yes")]),
     Task("evolution_report", "Maintainer", "Evolution report", "Summary of the newest evolution life log.",
          lambda v: ["python3", "tools/evolution_report.py"] + (["--last-hours", v["hours"]] if v["hours"] else []),
-         [Ask("hours", "Only the last hours (empty: all)", default="", optional=True)]),
+         [Ask("hours", "Only the last hours (empty: all)", "float", default="", optional=True)]),
     Task("balance_sim", "Maintainer", "Battle balance sim", "A headless faction battle by the home station: kills, fight times, damage.",
          lambda v: godot_script("tools/balance_sim.gd")),
     Task("lance_duel", "Maintainer", "Lance duels", "Designs fight one on one; what the lance did.",
-         _lance_duel, [Ask("duels", "Duels per match", default="8"), Ask("speed", "Speed", default="6"),
+         _lance_duel, [Ask("duels", "Duels per match", "int", default="8"), Ask("speed", "Speed", "float", default="6"),
                        Ask("match", "Only this match (e.g. lancer,laser; empty: all)", default="", optional=True),
                        Ask("weapons", "Missile and cannon designs", "flag", "no")]),
     Task("perf", "Maintainer", "Performance ablation", "Frame times with one system switched off.",
@@ -501,18 +522,18 @@ TASKS = [
          [Ask("mode", "Mode", "choice", "base", PERF_MODES)]),
     Task("fight_bench", "Maintainer", "Fight bench", "Frame times and profiler sections in a staged fight by the home station.",
          lambda v: godot_script("tools/fight_bench.gd", "n=" + v["n"], "secs=" + v["secs"]),
-         [Ask("n", "Ships a side", default="8"), Ask("secs", "Seconds measured", default="30")]),
+         [Ask("n", "Ships a side", "int", default="8"), Ask("secs", "Seconds measured", "int", default="30")]),
     Task("ui_shots", "Maintainer", "UI screenshots", "Every store tab and prompt, the SHIP and PILOT windows, with control dumps, to .dev/out/ui/.",
          lambda v: godot("res://tools/ui_shots.tscn", "out=" + out_file("ui"))),
     Task("flight_shots", "Maintainer", "Flight screenshots", "The HUD in flight, plain and with the nearest ship selected, to .dev/out/flight/.",
-         _flight_shots, [Ask("wait", "Seconds of flight first", default="12"),
+         _flight_shots, [Ask("wait", "Seconds of flight first", "float", default="12"),
                          Ask("near", "Start near a ship of this faction", "choice", "none", lambda: ["none"] + factions()),
                          Ask("nebula", "A nebula ahead", "flag", "no")]),
     Task("sound_probe", "Maintainer", "Sound probe", "Undocks and prints every playing sound each second.",
          lambda v: godot("res://tools/sound_probe.tscn", "seconds=" + v["seconds"], "plan=" + v["plan"]),
-         [Ask("seconds", "Seconds", default="20"), Ask("plan", "What the ship does", "choice", "line", ["line", "approach", "docked"])]),
+         [Ask("seconds", "Seconds", "float", default="20"), Ask("plan", "What the ship does", "choice", "line", ["line", "approach", "docked"])]),
     Task("harpoon_probe", "Maintainer", "Harpoon probe", "Fires the player's harpoon at a nearby target and prints the tether each second.",
-         _harpoon_probe, [Ask("seconds", "Seconds", default="30"), Ask("dist", "Start distance (m)", default="150"),
+         _harpoon_probe, [Ask("seconds", "Seconds", "float", default="30"), Ask("dist", "Start distance (m)", "float", default="150"),
                           Ask("target", "Target", "choice", "wreck", ["wreck", "chunk"]),
                           Ask("approach", "Approach first", "flag", "no"), Ask("full", "Cargo hold full", "flag", "no")]),
     Task("release", "Maintainer", "Release a version", "Tests, a soak, versions the Android build, exports GDTLancer-<version>.apk, commits and tags"
@@ -520,7 +541,7 @@ TASKS = [
          lambda v: ["python3", "tools/devtool/release.py", "version=" + v["version"], "tests=" + v["tests"], "soak=" + v["soak"],
                     "tag=" + v["tag"], "out=" + os.path.dirname(APK)],
          [Ask("version", "Version", default=next_version, fresh=True), Ask("tests", "Run the tests first", "flag", "yes"),
-          Ask("soak", "Soak minutes first (the game left running; 0: none)", default="3"),
+          Ask("soak", "Soak minutes first (the game left running; 0: none)", "float", default="3"),
           Ask("tag", "Tag it v<version>", "flag", "yes")]),
 ]
 TASKS_BY_KEY = {task.key: task for task in TASKS}
@@ -560,11 +581,20 @@ def missing(task, values):
     return [ask.label for ask in task.asks if not ask.optional and str(values.get(ask.key, "")).strip() == ""]
 
 
+def invalid(task, values):
+    """What is wrong with the answers given (Ask.problem), one line each."""
+    return [problem for ask in task.asks for problem in [ask.problem(values.get(ask.key, ""))] if problem]
+
+
 def run(task, values, dry=False):
     """Builds and runs `task`'s command from the project folder; returns its exit code."""
     lacking = missing(task, values)
     if lacking:
         print("Missing: " + ", ".join(lacking))
+        return 2
+    wrong = invalid(task, values)
+    if wrong:
+        print("\n".join(wrong))
         return 2
     command = task.build(values) if not dry or task.key != "new_model" else ["(copies a starter, then)", BLENDER]
     if command is None:

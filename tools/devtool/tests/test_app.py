@@ -251,6 +251,38 @@ class AppTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(answers[0]["duels"], "3")
         self.assertEqual(answers[0]["weapons"], "no")
 
+    async def test_every_tasks_questions_open(self):
+        app = devapp.DevApp(bridge_factory=lambda: FakeBridge())
+        async with app.run_test(size=(160, 50)) as pilot:
+            await self._started(pilot, app)
+            for task in tasks.TASKS:
+                if not task.asks:
+                    continue
+                app.push_screen(devapp.AskScreen(task, task.defaults({})))
+                await pilot.pause()
+                self.assertIsInstance(app.screen, devapp.AskScreen, task.key)
+                app.screen.action_cancel()
+                await pilot.pause()
+
+    async def test_a_bad_number_or_path_keeps_the_questions_open(self):
+        app = devapp.DevApp(bridge_factory=lambda: FakeBridge())
+        answers = []
+        async with app.run_test(size=(160, 50)) as pilot:
+            await self._started(pilot, app)
+            task = tasks.TASKS_BY_KEY["render_preview"]
+            app.push_screen(devapp.AskScreen(task, task.defaults({})), answers.append)
+            await pilot.pause()
+            screen = app.screen
+            screen.typed["scene"].value = "scenes/no_such_scene.tscn"
+            screen.query_one("#run").press()  # Pressed, not clicked: the error toast may cover it
+            await pilot.pause()
+            self.assertEqual(answers, [], "No such file: not run")
+            self.assertIs(app.screen, screen)
+            screen.typed["scene"].value = "scenes/prefabs/celestial/asteroid.tscn"  # Typed: any scene, not only the list's
+            screen.query_one("#run").press()
+            await pilot.pause()
+        self.assertEqual(answers[0]["scene"], "scenes/prefabs/celestial/asteroid.tscn")
+
 
     async def _open_sector(self, pilot, app):
         await self._started(pilot, app)

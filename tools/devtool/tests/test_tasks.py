@@ -99,6 +99,20 @@ class TasksTest(unittest.TestCase):
                 if value is not None:
                     os.environ[key] = value
 
+    def test_numbers_and_typed_files_are_checked_before_running(self):
+        task = tasks.TASKS_BY_KEY["fight_bench"]
+        values = task.defaults({})
+        self.assertEqual(tasks.invalid(task, values), [])
+        values["n"] = "8x"
+        self.assertEqual(tasks.invalid(task, values), ["Ships a side: a whole number (got '8x')"])
+        self.assertEqual(tasks.run(task, values, dry=True), 2, "Not run")
+        evolution_task = tasks.TASKS_BY_KEY["evolution"]
+        self.assertEqual(tasks.invalid(evolution_task, dict(evolution_task.defaults({}), hours="0.5")), [], "Decimals are numbers")
+        self.assertIn("a number", tasks.invalid(evolution_task, dict(evolution_task.defaults({}), speed="fast"))[0])
+        preview = tasks.TASKS_BY_KEY["render_preview"]
+        self.assertIn("no such file", tasks.invalid(preview, dict(preview.defaults({}), scene="scenes/none.tscn"))[0])
+        self.assertEqual(tasks.invalid(preview, dict(preview.defaults({}), scene="res://scenes/prefabs/celestial/asteroid.tscn")), [])
+
     def test_missing_answers_are_named(self):
         task = tasks.TASKS_BY_KEY["check_model"]
         self.assertEqual(tasks.missing(task, {"scene": ""}), ["Scene"])
