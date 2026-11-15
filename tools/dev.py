@@ -18,6 +18,7 @@ bridge.gd, data.py, models.py, app.py).
 """
 
 import os
+import shutil
 import subprocess
 import sys
 
@@ -44,10 +45,28 @@ def with_textual(argv):
     if not os.path.exists(VENV_PYTHON):
         print("First run: installing the menu's packages into %s ..." % os.path.relpath(VENV, tasks.ROOT), flush=True)
         tasks.dev_dir()
-        subprocess.check_call([sys.executable, "-m", "venv", VENV])
-        subprocess.check_call([VENV_PYTHON, "-m", "pip", "install", "-q", "-r", REQUIREMENTS])
+        install()
     os.execv(VENV_PYTHON, [VENV_PYTHON, os.path.abspath(__file__)] + argv)
     return True
+
+
+def install():
+    """Makes .dev/venv and installs Textual into it; on failure removes the half-made venv (so the next
+    run tries again), says the likely cause and the ways on, and exits."""
+    step = "make a Python venv"
+    try:
+        subprocess.check_call([sys.executable, "-m", "venv", VENV])
+        step = "install Textual from %s" % os.path.relpath(REQUIREMENTS, tasks.ROOT)
+        subprocess.check_call([VENV_PYTHON, "-m", "pip", "install", "-q", "-r", REQUIREMENTS])
+    except (subprocess.CalledProcessError, OSError) as error:
+        shutil.rmtree(VENV, ignore_errors=True)
+        print("\nCould not %s (%s). Likely causes:\n"
+              "  - Python's venv module is missing: on Debian or Ubuntu, sudo apt install python3-venv\n"
+              "  - no network for pip\n"
+              "Ways on: fix that and run tools/dev.py again; or pip install textual==8.2.8 into any Python and\n"
+              "run tools/dev.py with it; or use the tasks without the menu (tools/dev.py list), which need no\n"
+              "Textual." % (step, error))
+        sys.exit(1)
 
 
 def selftest():
