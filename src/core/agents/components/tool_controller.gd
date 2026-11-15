@@ -494,9 +494,16 @@ func _cycle(delta: float) -> void:
 	_point_defence()
 	if _targets.empty():
 		return
+	var seen := {}  # Target id -> sees(target): asked once per target, not per tool on it
 	for index in _targets.keys():
 		var target = _targets[index]
-		if not can_target(_tools[index], target):
+		var usable := false  # can_target(tool, target)
+		if is_instance_valid(target):
+			var id: int = target.get_instance_id()
+			if not seen.has(id):
+				seen[id] = sees(target)
+			usable = seen[id] and fits(_tools[index], target)
+		if not usable:
 			deactivate(index, "target_lost")
 			continue
 		match _tools[index].tool_type:

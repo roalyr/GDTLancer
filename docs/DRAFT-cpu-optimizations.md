@@ -150,6 +150,21 @@ Verify: `test_ship_controller_ai.gd`, `test_evolution.gd` (desire figures), and 
 
 ### 2. One ship snapshot per step for the many group walks
 
+MEASURED, DROPPED as designed: its premise is wrong. Timed on live ships, a dynamic `get()` or
+`has_method()` is ~0.4 us and a property read ~0.1 us, not the ~17 us of a whole `detects()`; a
+snapshot would save loop overhead only. Where "tools" and "offscreen" do go (temporary sections):
+- tools ~1.2 to 1.5 ms a frame: point defence ~0.45, lasers 0.26, the per-tool `can_target` 0.23,
+  missiles and cannons ~0.09 each. Point defence is per-ship overhead (58 ships a step), not its
+  missile loop: a per-step list of missiles by target was tried, exact, and left it at 0.41 to 0.64
+  (dropped). Done: the tool cycle asks `sees` once per target, not per tool on it (exact; a target
+  under fire from two or three tools is asked once a step).
+- offscreen ~0.7: nearly all `_nearest_enemy` (0.26 to 0.43). Each call is ~0.3 ms in a step (~0.7
+  outside, unsigned signatures): with no enemy near, every live ship (36 of 59) passes the distance
+  test and goes through `detects` (and `is_enemy_of` if seen); the property filters are ~0.1 ms.
+  If it matters: test the signature range inline before calling `detects` (its own last line,
+  with no cheats on), or keep the nearest enemy per off-screen ship for its 1 s tick only.
+
+
 Where: every per-step or per-second loop over `"agent_body"` that reads `get("is_wreck")`,
 `get("is_docked")`, `get("faction")`, `global_transform.origin` through dynamic property access:
 `ToolController.friend_in_the_way` (691, per laser/cannon cycle), `OffScreen._nearest_enemy` (281,
@@ -213,6 +228,14 @@ both match. Identical values within a step. Optionally let `_fire_at` (935) reus
 Verify: `test_ship_controller_ai.gd`. Small but free.
 
 ### 5. Rounds raycast for rocks every step
+
+GRID TRIED, DROPPED: built as described (cells of 1 km, exact: tested against the plain filter
+for 300 random rounds, same ships in the same order) it cut the ships a round looks at from 37 to
+2.3, and almost none reach the box test. But binning 59 ships a step costs ~0.26 ms a frame, what
+the rounds saved (the plain loop is ~1 us a ship), so the ship test stayed ~1.1 ms a step. Its parts
+now: building `hittable_ships` once a step ~0.33 ms a frame (~7 us a ship: radius call, gets,
+transform, velocity), the rounds' loops ~0.4 (10 rounds a step). A grid pays only with many more
+rounds in flight; the build could lose the `get_apparent_radius` call per ship (~0.1 ms).
 
 MEASURED, NOT WORTH IT as written: split in the bench, the rounds section (~1.15 ms a frame) is
 ships 0.63, the rock raycast 0.12, the rest (steering, moving) ~0.4. A pre-cull would save at most
