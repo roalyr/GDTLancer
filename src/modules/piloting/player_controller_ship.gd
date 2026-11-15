@@ -225,6 +225,11 @@ func toggle_tool_for_selected() -> void:
 	var result: Dictionary = _tool_controller.activate(index, target)
 	if not result.get("success", false):
 		EventBus.emit_signal("attack_action_feedback", false, _describe_tool_failure(result.get("reason", "")))
+	elif _tool_controller.get_tool(index).tool_type == "laser" and is_instance_valid(target) and target.is_in_group("mineable"):
+		EventBus.emit_signal("attack_action_feedback", true, LASER_ON_ROCK)  # It fires, but a whole rock gives no ore
+
+
+const LASER_ON_ROCK = "Laser on a rock: no ore from it. Break chunks off with the lance, burn their crust off with the laser, then harpoon them"
 
 
 # HUD interact button: the interaction window on the selected ship (Interactions, InteractionWindow:
@@ -397,6 +402,8 @@ func _on_tool_button_pressed(index: int) -> void:
 	var result: Dictionary = _tool_controller.activate(index, target)
 	if not result.get("success", false):
 		EventBus.emit_signal("attack_action_feedback", false, _describe_tool_failure(result.get("reason", "")))
+	elif tool_template.tool_type == "laser" and is_instance_valid(target) and target.is_in_group("mineable"):
+		EventBus.emit_signal("attack_action_feedback", true, LASER_ON_ROCK)  # It fires, but a whole rock gives no ore
 
 
 # The player's missiles go one per press (their stock is limited): a launch switches the rack off.
@@ -842,6 +849,8 @@ func _on_Player_Orbit_Pressed():
 		return
 	if is_instance_valid(_selected_target) and _selected_target is Spatial:
 		agent_script.command_orbit(_selected_target)
+	else:
+		EventBus.emit_signal("attack_action_feedback", false, "Select something to orbit")
 
 
 # Whether the ship is flying one of `types` on the selected target; if so, it lets go and coasts on.
@@ -880,6 +889,25 @@ func _approach_selected() -> void:
 			if is_charge_ready() and worked_out(_selected_target):  # Armed, but nothing to break off it
 				EventBus.emit_signal("attack_action_feedback", false, worked_out_notice(_selected_target))
 			agent_script.command_approach(_selected_target, true)
+			var hold: float = approach_hold(_selected_target)
+			if hold > 0.0:  # The button reads HOLD <distance>: say once what it means
+				EventBus.emit_signal("attack_action_feedback", true, hold_notice(hold))
+	else:
+		EventBus.emit_signal("attack_action_feedback", false, "Select something to approach")
+
+
+# Where an approach on `target` stops: the fighting range of the weapons switched on against it
+# (ToolController.fighting_range, as the HUD's HOLD shows it), 0 if it flies all the way in.
+func approach_hold(target) -> float:
+	var tools = agent_body.get_node_or_null("ToolController") if is_instance_valid(agent_body) else null
+	if tools == null or not tools.has_method("fighting_range"):
+		return 0.0
+	return tools.fighting_range(target) * Constants.NAV_APPROACH_WEAPON_SHARE
+
+
+static func hold_notice(metres: float) -> String:
+	var distance: String = ("%.1f km" % (metres / 1000.0)) if metres >= 1000.0 else ("%d m" % int(round(metres)))
+	return "Holding at weapon range: %s off, as your weapons on it reach. Switch them off to fly all the way in" % distance
 
 
 # A mineable rock with no ore left: the lance has nothing to break off it (it grows back: Asteroid).
@@ -940,6 +968,8 @@ func _on_Player_Flee_Pressed():
 		return
 	if is_instance_valid(_selected_target) and _selected_target is Spatial:
 		agent_script.command_flee(_selected_target)
+	else:
+		EventBus.emit_signal("attack_action_feedback", false, "Select something to flee from")
 
 func _on_player_target_selection_requested(target_ref) -> void:
 	_set_selected_target(target_ref)

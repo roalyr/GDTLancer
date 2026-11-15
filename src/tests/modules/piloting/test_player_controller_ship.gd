@@ -129,6 +129,31 @@ func test_double_click_approaches_and_the_buttons_toggle_to_a_coast():
 	controller.free()
 
 
+# ORBIT, FLEE and APPROACH with nothing selected say so (they did nothing, silently).
+func test_course_buttons_with_nothing_selected_say_so():
+	var ship = load("res://src/core/agents/agent.gd").new()
+	add_child_autofree(ship)
+	var controller = PlayerControllerScript.new()
+	var recorder = autofree(CommandRecorder.new())
+	controller.agent_body = ship
+	controller.agent_script = recorder
+	watch_signals(EventBus)
+	controller._on_Player_Orbit_Pressed()
+	assert_signal_emitted_with_parameters(EventBus, "attack_action_feedback", [false, "Select something to orbit"])
+	controller._on_Player_Flee_Pressed()
+	assert_signal_emitted_with_parameters(EventBus, "attack_action_feedback", [false, "Select something to flee from"])
+	controller._on_Player_Approach_Pressed()
+	assert_signal_emitted_with_parameters(EventBus, "attack_action_feedback", [false, "Select something to approach"])
+	assert_eq(recorder.last, "", "and fly nothing")
+	assert_eq(controller.approach_hold(ship), 0.0, "No tools: an approach flies all the way in")
+	controller.free()
+
+
+func test_the_hold_notice_names_the_distance():
+	assert_string_starts_with(PlayerControllerScript.hold_notice(601.0), "Holding at weapon range: 601 m off")
+	assert_string_starts_with(PlayerControllerScript.hold_notice(1800.0), "Holding at weapon range: 1.8 km off")
+
+
 class CommandRecorder:
 	extends Node
 	var last := ""
