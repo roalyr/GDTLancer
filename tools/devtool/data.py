@@ -8,6 +8,7 @@ import glob
 import os
 import struct
 
+from . import tasks
 from .tasks import ROOT
 
 DEFINITIONS = "res://database/definitions/"
@@ -114,18 +115,8 @@ SAVE_DIRS = ("savegames", "test_start_saves")  # The game's play saves under its
 
 
 def user_dir():
-    """The game's user:// folder (Godot's app_userdata/<config/name>; GODOT_USER_DIR overrides it)."""
-    if os.environ.get("GODOT_USER_DIR"):
-        return os.environ["GODOT_USER_DIR"]
-    name = "GDTLancer"
-    try:
-        with open(os.path.join(ROOT, "project.godot")) as handle:
-            for line in handle:
-                if line.startswith("config/name="):
-                    name = line.split("=", 1)[1].strip().strip('"')
-    except OSError:
-        pass
-    return os.path.join(os.path.expanduser("~/.local/share/godot/app_userdata"), name)
+    """The game's user:// folder (tasks.user_dir: the one answer the whole tool uses)."""
+    return tasks.user_dir()
 
 
 def saves_naming(res):

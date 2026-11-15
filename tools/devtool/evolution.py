@@ -43,7 +43,7 @@ if __package__ in (None, ""):  # Run as a file: tools/devtool/evolution.py
     sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     __package__ = "devtool"
 
-from .tasks import GODOT, ROOT, environment  # noqa: E402
+from .tasks import GODOT, ROOT, environment, user_dir as tasks_user_dir  # noqa: E402
 
 DRAFTS_DIR = os.path.join(ROOT, "database", "drafts")  # era<N>_min<k>/ folders
 CATALOG = "database/presets/CATALOG.md"
@@ -54,14 +54,8 @@ LABEL = re.compile(r"^[a-z0-9_]+$")
 
 
 def user_dir():
-    """Godot's user:// for this project (Linux: ~/.local/share/godot/app_userdata/<config/name>)."""
-    name = "GDTLancer"
-    with open(os.path.join(ROOT, "project.godot")) as handle:
-        for line in handle:
-            if line.startswith("config/name="):
-                name = line.split("=", 1)[1].strip().strip('"')
-    data = os.environ.get("XDG_DATA_HOME") or os.path.expanduser("~/.local/share")
-    return os.path.join(data, "godot", "app_userdata", name)
+    """Godot's user:// for this project (tasks.user_dir: the one answer the whole tool uses)."""
+    return tasks_user_dir()
 
 
 def evolution_dir():

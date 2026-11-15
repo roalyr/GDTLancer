@@ -1582,6 +1582,7 @@ class DevApp(App):
         self.call_from_thread(self._godot_status, "Godot %s" % version)
         try:
             self.user_dir = self.bridge.call("user_dir")["path"]
+            tasks.set_user_dir(self.user_dir)  # Godot's answer for every part of the tool
         except BridgeError:
             pass
         self.call_from_thread(self._show_status)

@@ -143,6 +143,42 @@ def setup_problems():
     return [problem for problem in (godot_problem(), display_problem(), blender_problem()) if problem]
 
 
+_godot_user_dir = None  # user:// as Godot itself reported it (the menu's bridge), when known
+
+
+def set_user_dir(path):
+    """Godot's own answer for user:// (BridgeCommands user_dir): it wins over the guess below."""
+    global _godot_user_dir
+    _godot_user_dir = path or None
+
+
+def project_setting(key, root=None):
+    """A project.godot value (application section keys as written, e.g. "config/name"), unquoted; None if absent."""
+    try:
+        with open(os.path.join(root or ROOT, "project.godot")) as handle:
+            for line in handle:
+                if line.startswith(key + "="):
+                    return line.split("=", 1)[1].strip().strip('"')
+    except OSError:
+        pass
+    return None
+
+
+def user_dir(root=None):
+    """The game's user:// folder, the one answer every part of the tool uses: Godot's own (once the
+    menu has asked it), else GODOT_USER_DIR, else Godot 3's rule on Linux: $XDG_DATA_HOME (or
+    ~/.local/share), then godot/app_userdata/<config/name>, or <custom_user_dir_name> with
+    use_custom_user_dir."""
+    if _godot_user_dir and root is None:
+        return _godot_user_dir
+    if os.environ.get("GODOT_USER_DIR"):
+        return os.environ["GODOT_USER_DIR"]
+    data = os.environ.get("XDG_DATA_HOME") or os.path.expanduser("~/.local/share")
+    if project_setting("config/use_custom_user_dir", root) == "true" and project_setting("config/custom_user_dir_name", root):
+        return os.path.join(data, project_setting("config/custom_user_dir_name", root))
+    return os.path.join(data, "godot", "app_userdata", project_setting("config/name", root) or "GDTLancer")
+
+
 def environment():
     """The tools' environment: GODOT and BLENDER as found, for the shell scripts, and DISPLAY=:0
     when none is set (from a bare terminal or over SSH: the x11 Godot needs a display even with

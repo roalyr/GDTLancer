@@ -73,6 +73,32 @@ class TasksTest(unittest.TestCase):
             if saved is not None:
                 os.environ["DISPLAY"] = saved
 
+    def test_one_user_folder_for_the_whole_tool(self):
+        from devtool import data, evolution
+        saved = {key: os.environ.pop(key, None) for key in ("GODOT_USER_DIR", "XDG_DATA_HOME")}
+        try:
+            name = tasks.project_setting("config/name")
+            self.assertEqual(tasks.user_dir(), os.path.expanduser("~/.local/share/godot/app_userdata/" + name))
+            os.environ["XDG_DATA_HOME"] = "/tmp/xdg"
+            self.assertEqual(tasks.user_dir(), "/tmp/xdg/godot/app_userdata/" + name, "Godot's rule: XDG_DATA_HOME")
+            os.environ["GODOT_USER_DIR"] = "/tmp/given"
+            self.assertEqual(tasks.user_dir(), "/tmp/given")
+            tasks.set_user_dir("/tmp/from-godot")
+            self.assertEqual(tasks.user_dir(), "/tmp/from-godot", "Godot's own answer wins")
+            for env in ({}, {"XDG_DATA_HOME": "/tmp/xdg"}, {"GODOT_USER_DIR": "/tmp/given"}):
+                tasks.set_user_dir(None)
+                for key in ("GODOT_USER_DIR", "XDG_DATA_HOME"):
+                    os.environ.pop(key, None)
+                os.environ.update(env)
+                self.assertEqual(data.user_dir(), evolution.user_dir(), env)
+                self.assertEqual(data.user_dir(), tasks.user_dir(), env)
+        finally:
+            tasks.set_user_dir(None)
+            for key, value in saved.items():
+                os.environ.pop(key, None)
+                if value is not None:
+                    os.environ[key] = value
+
     def test_missing_answers_are_named(self):
         task = tasks.TASKS_BY_KEY["check_model"]
         self.assertEqual(tasks.missing(task, {"scene": ""}), ["Scene"])

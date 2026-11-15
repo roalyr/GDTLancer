@@ -163,6 +163,9 @@ class FakeGit:
 
 
 class AppTest(unittest.IsolatedAsyncioTestCase):
+    def tearDown(self):
+        tasks.set_user_dir(None)  # The fake bridge's user folder must not reach the next test
+
     async def asyncSetUp(self):
         import asyncio
         asyncio.get_running_loop().set_debug(False)  # The test runner's debug mode reports slow steps
