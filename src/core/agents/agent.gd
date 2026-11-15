@@ -963,6 +963,14 @@ func set_afterburner(on: bool) -> bool:
 	return afterburner_lit
 
 
+# Top speed with the afterburner out, lit or not (the exhausts measure speed against it: a lit one
+# must not make the same speed look slower).
+func get_cruise_top_speed() -> float:
+	if fit_stats.empty() or not is_instance_valid(movement_system):
+		return get_top_speed()
+	return float(fit_stats.get("linear_thrust", 0.0)) / max(mass * Constants.LINEAR_DRAG, 0.001)
+
+
 # Top speed with the afterburner lit (as it is without one).
 func get_burst_top_speed() -> float:
 	if not has_afterburner() or not is_instance_valid(movement_system):

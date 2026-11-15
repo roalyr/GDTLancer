@@ -7,7 +7,9 @@
 # get_engine_thrust(), in ship space), so a ship flying sideways burns its side nozzles. Speed along
 # that push scales the plume's length (Constants.ENGINE_PLUME_STANDSTILL_SHARE when still, longer and
 # slimmer at top speed) and brightness (ENGINE_GLOW_STANDSTILL_SHARE): it grows as the ship speeds
-# up, and shrinks and fades as it slows down, even while braking hard. A host without
+# up, and shrinks and fades as it slows down, even while braking hard. Speed is a share of the
+# cruise top speed (the afterburner out), so lighting one never shortens the plume; while it is lit
+# the pushing exhausts stretch further (ENGINE_PLUME_AFTERBURNER_STRETCH) and burn brighter. A host without
 # get_engine_thrust (a missile) pushes straight ahead at get_engine_activity().
 # Sits on the ship scene's "Engines" node; exhausts facing the same way share one set of material
 # copies (one per ship and direction), so ships and directions do not change each other's glow.
@@ -29,7 +31,7 @@ func _ready() -> void:
 		var exhaust: Vector3 = (transform.basis * engine.transform.basis).z.normalized()
 		var key: String = "%.2f,%.2f,%.2f" % [exhaust.x, exhaust.y, exhaust.z]
 		if not by_direction.has(key):
-			by_direction[key] = {"push": -exhaust, "exhausts": [], "materials": [], "copies": {}, "thrust": -2.0, "speed": -1.0}
+			by_direction[key] = {"push": -exhaust, "exhausts": [], "materials": [], "copies": {}, "thrust": -2.0, "speed": -1.0, "boost": false}
 			_groups.append(by_direction[key])
 		var group: Dictionary = by_direction[key]
 		group.exhausts.append(engine)
@@ -43,7 +45,7 @@ func _ready() -> void:
 		group.erase("copies")
 	_agent = _find_agent()
 	for group in _groups:
-		_apply(group, 0.0, 0.0)
+		_apply(group, 0.0, 0.0, false)
 	Settings.connect("changed", self, "_on_settings_changed")
 	_show_setting()
 
@@ -75,6 +77,7 @@ func _burn(_delta: float) -> void:
 	var thrust := Vector3.ZERO  # Ship space, length 0 idle .. 1 full burn
 	var velocity := Vector3.ZERO  # Ship space, shares of top speed
 	var dead := false
+	var boost := false  # The afterburner lit
 	if is_instance_valid(_agent):
 		dead = bool(_agent.get("is_wreck"))
 		var basis: Basis = _agent.global_transform.basis.orthonormalized()
@@ -82,22 +85,27 @@ func _burn(_delta: float) -> void:
 			thrust = _agent.get_engine_thrust()
 		else:
 			thrust = Vector3.FORWARD * _agent.get_engine_activity()
-		velocity = basis.xform_inv(_agent.linear_velocity) / max(_agent.get_top_speed(), 1.0)
+		var top: float = _agent.get_cruise_top_speed() if _agent.has_method("get_cruise_top_speed") else _agent.get_top_speed()
+		velocity = basis.xform_inv(_agent.linear_velocity) / max(top, 1.0)
+		boost = bool(_agent.get("afterburner_lit"))
 	for group in _groups:
 		var push: float = -1.0 if dead else max(0.0, thrust.dot(group.push))
 		var speed: float = clamp(velocity.dot(group.push), 0.0, 1.0)
-		if abs(push - group.thrust) > 0.005 or abs(speed - group.speed) > Constants.ENGINE_PLUME_SPEED_STEP:
-			_apply(group, push, speed)
+		if abs(push - group.thrust) > 0.005 or abs(speed - group.speed) > Constants.ENGINE_PLUME_SPEED_STEP or boost != group.boost:
+			_apply(group, push, speed, boost)
 
 
 # One direction's exhausts at `thrust` (0 idle .. 1 full burn; below 0 the engines are dead, a wreck)
-# and `speed` (share of top speed along their push).
-func _apply(group: Dictionary, thrust: float, speed: float) -> void:
+# and `speed` (share of cruise top speed along their push); `boost`: the afterburner lit.
+func _apply(group: Dictionary, thrust: float, speed: float, boost: bool) -> void:
 	group.thrust = thrust
 	group.speed = speed
+	group.boost = boost
 	var dead: bool = thrust < 0.0
 	var t: float = clamp(thrust, 0.0, 1.0)
 	var length: float = lerp(Constants.ENGINE_PLUME_IDLE_LENGTH, Constants.ENGINE_PLUME_MAX_LENGTH, t) * lerp(Constants.ENGINE_PLUME_STANDSTILL_SHARE, 1.0 + Constants.ENGINE_PLUME_SPEED_STRETCH, speed)
+	if boost:
+		length *= 1.0 + Constants.ENGINE_PLUME_AFTERBURNER_STRETCH * t  # Only where it pushes
 	var width: float = lerp(Constants.ENGINE_PLUME_MIN_WIDTH, Constants.ENGINE_PLUME_MAX_WIDTH, t) * (1.0 - Constants.ENGINE_PLUME_SPEED_SLIM * speed)
 	for engine in group.exhausts:
 		var plume = engine.get_node_or_null("PlumeShapes")
@@ -108,6 +116,8 @@ func _apply(group: Dictionary, thrust: float, speed: float) -> void:
 		if nozzle != null:
 			nozzle.visible = not dead
 	var glow: float = 0.0 if dead else lerp(Constants.ENGINE_GLOW_IDLE, 1.0, t * lerp(Constants.ENGINE_GLOW_STANDSTILL_SHARE, 1.0, speed))
+	if boost:
+		glow *= 1.0 + Constants.ENGINE_GLOW_AFTERBURNER_BOOST * t
 	for material in group.materials:
 		material.set_shader_param("intensity", glow)
 

@@ -14,6 +14,11 @@ class FakeShip:
 	var thrust := Vector3.ZERO
 	var linear_velocity := Vector3.ZERO
 	var is_wreck := false
+	var afterburner_lit := false
+	var top_speed := 100.0  # Lit: the burst top speed (Agent.get_top_speed follows the thrust)
+
+	func get_cruise_top_speed() -> float:
+		return 100.0
 
 	func get_engine_activity() -> float:
 		return thrust.length()
@@ -22,7 +27,7 @@ class FakeShip:
 		return thrust
 
 	func get_top_speed() -> float:
-		return 100.0
+		return top_speed
 
 
 func _hull(form: String) -> Spatial:
@@ -76,6 +81,29 @@ func test_nozzles_burn_the_way_the_thrust_pushes():
 	engines._process(0.0)
 	for group in engines.get_groups():
 		assert_lt(group.thrust, 0.0, "A wreck's are dead")
+
+
+# Lit, the afterburner raises the top speed: the same speed must not look slower (it shortened the
+# plume), and the pushing plume stretches and brightens instead.
+func test_a_lit_afterburner_lengthens_the_plume():
+	var ship := FakeShip.new()
+	add_child_autofree(ship)
+	var hull: Spatial = load("res://scenes/prefabs/ships/placeholders/fighter_medium.tscn").instance()
+	ship.add_child(hull)
+	var engines: Node = hull.get_node("Engines")
+	ship.thrust = Vector3.FORWARD
+	ship.linear_velocity = Vector3.FORWARD * 97.0
+	engines._process(0.0)
+	var rear: Dictionary = {}
+	for group in engines.get_groups():
+		if group.push.dot(Vector3.FORWARD) > 0.99:
+			rear = group
+	var cruising: float = rear.exhausts[0].get_node("PlumeShapes").scale.z
+	ship.afterburner_lit = true
+	ship.top_speed = 148.0
+	engines._process(0.0)
+	var lit: float = rear.exhausts[0].get_node("PlumeShapes").scale.z
+	assert_almost_eq(lit / cruising, 1.0 + Constants.ENGINE_PLUME_AFTERBURNER_STRETCH, 0.01, "Lit at the same speed: longer by the stretch")
 
 
 func test_outside_parts_take_hardpoints_and_internal_ones_none():

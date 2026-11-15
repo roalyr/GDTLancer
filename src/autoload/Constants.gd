@@ -348,6 +348,8 @@ const ENGINE_GLOW_STANDSTILL_SHARE = 0.3  # and its brightness above idle: a bra
 const ENGINE_PLUME_SPEED_STRETCH = 0.8  # At top speed the plume is this much longer (0.8: 1.8x)
 const ENGINE_PLUME_SPEED_SLIM = 0.2  # and this much slimmer
 const ENGINE_PLUME_SPEED_STEP = 0.02  # Speed share change that redraws the plume
+const ENGINE_PLUME_AFTERBURNER_STRETCH = 0.6  # The afterburner lit: a full-thrust plume this much longer (0.6: 1.6x)
+const ENGINE_GLOW_AFTERBURNER_BOOST = 0.3  # and this much brighter
 const ENGINE_GLOW_IDLE = 0.12  # Exhaust brightness of an idle engine (1 = full burn)
 
 # Laser hit flash and vapour.
