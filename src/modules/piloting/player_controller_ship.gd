@@ -291,10 +291,13 @@ func _on_lance_button_pressed() -> void:
 		EventBus.emit_signal("attack_action_feedback", false, worked_out_notice(_selected_target))
 
 
-# Why the safety keeps the lance from being armed at `target` (the selected one), "" if it may be:
+# Why the lance may not be armed at `target` (the selected one), "" if it may be: never at what it
+# cannot strike (a moon, a station, a beacon: as the laser and harpoon refuse them), safety or not;
 # with the safety on, only at a rock or a hostile ship, never with an allied or neutral ship, a
-# station, a wreck or nothing selected (the lance strikes hard whatever its charge meets).
+# wreck or nothing selected (the lance strikes hard whatever its charge meets).
 func lance_block_reason(target) -> String:
+	if is_instance_valid(target) and target is Spatial and not lance_can_strike(target):
+		return "The lance strikes only ships and rocks"
 	if not GameState.weapons_safe:
 		return ""
 	if not (is_instance_valid(target) and target is Spatial):
@@ -304,6 +307,13 @@ func lance_block_reason(target) -> String:
 	if target is RigidBody and target.has_method("is_enemy_of") and target.get("is_wreck") == false and is_instance_valid(agent_body) and target.is_enemy_of(agent_body):
 		return ""
 	return "Safety on: the lance arms only at an asteroid or a hostile (SAFETY to arm)"
+
+
+# What a lance can meet: a rock, or a ship or wreck (not a loose lance: harpooned, not struck).
+static func lance_can_strike(target) -> bool:
+	if target.is_in_group("mineable"):
+		return true
+	return target is RigidBody and target.has_method("apply_damage") and not target.is_in_group("loose_lance")
 
 
 # Whether the player's armed lance may be thrown at `target` now (LanceController asks before each
@@ -439,7 +449,7 @@ func _cannot_target_message(tool_template, target) -> String:
 			return "%s: burn the crust off with a laser first" % tool_template.tool_name
 		if target.is_hot():
 			return "%s: the ore is still hot, wait for it to cool" % tool_template.tool_name
-	var needs: String = "a wreck or bared ore" if tool_template.tool_type == "harpoon" else "a ship or rock"
+	var needs: String = {"harpoon": "a wreck or bared ore", "laser": "a ship or rock"}.get(tool_template.tool_type, "a ship")  # Cannons and missiles: live ships only
 	return "%s needs %s selected" % [tool_template.tool_name, needs]
 
 

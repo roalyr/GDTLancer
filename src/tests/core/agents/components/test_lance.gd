@@ -13,7 +13,10 @@ const ShipLaws = preload("res://src/core/systems/ship_laws.gd")
 
 
 class NavigationStub extends Node:
+	signal idled
 	const CommandType = preload("res://src/core/agents/components/navigation_system.gd").CommandType
+	func set_command_idle():
+		emit_signal("idled")
 	var target = null
 	var type: int = 0
 	var _current_command: Dictionary = {}
@@ -157,7 +160,7 @@ func test_an_armed_ship_does_not_scoop_its_lances_back():
 	loose.free()
 
 
-func test_the_players_lances_disarm_after_a_throw():
+func test_each_of_the_players_throws_is_their_own():
 	thrower.set_lances_armed(true)
 	thrower._on_player_lance_launched(target)
 	yield(get_tree(), "idle_frame")
@@ -167,10 +170,17 @@ func test_the_players_lances_disarm_after_a_throw():
 	navigation.type = NavigationStub.CommandType.CHARGE
 	thrower.navigation_system = navigation
 	thrower.set_lances_armed(true)
+	var idled: Array = []
+	navigation.connect("idled", self, "_on_idled", [idled])
 	thrower._on_player_lance_launched(target)
 	yield(get_tree(), "idle_frame")
-	assert_true(lance.armed, "In a charge it stays armed: pass after pass, until made safe")
+	assert_true(lance.armed, "In a charge it stays armed: CHARGE again throws the next")
+	assert_eq(idled.size(), 1, "but the throw ends the charge: one volley per press, never pass after pass")
 	thrower.navigation_system = null
+
+
+func _on_idled(idled: Array) -> void:
+	idled.append(true)
 
 
 func test_a_thrown_lance_flies_kicks_the_ship_back_and_strikes():

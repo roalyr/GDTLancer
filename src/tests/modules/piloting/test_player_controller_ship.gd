@@ -334,9 +334,27 @@ func test_the_safety_keeps_the_lance_from_arming_at_anything_but_an_asteroid_or_
 	controller._selected_target = neutral
 	controller._on_lance_button_pressed()
 	assert_true(lance.armed, "SAFETY off: arms at any ship")
+	lance.armed = false
+	var moon = Spatial.new()  # A moon, a station, a beacon: nothing a lance can strike
+	add_child_autofree(moon)
+	controller._selected_target = moon
+	watch_signals(EventBus)
+	controller._on_lance_button_pressed()
+	assert_false(lance.armed, "SAFETY off, a moon: not armed (as the laser and harpoon refuse it)")
+	assert_signal_emitted_with_parameters(EventBus, "attack_action_feedback", [false, "The lance strikes only ships and rocks"])
 	GameState.weapons_safe = true
 	ship.remove_child(controller)
 	controller.free()
+
+
+# What each tool says it needs: a cannon or a missile rack fires at live ships only, so it never asks
+# for a rock.
+func test_each_tool_names_the_targets_it_takes():
+	var controller = autofree(PlayerControllerScript.new())
+	var needs := {"cannon": "a ship", "missile": "a ship", "laser": "a ship or rock", "harpoon": "a wreck or bared ore"}
+	for kind in needs:
+		var tool_template = {"tool_type": kind, "tool_name": "Tool"}
+		assert_eq(controller._cannot_target_message(tool_template, null), "Tool needs %s selected" % needs[kind], kind)
 
 
 func test_a_lost_target_stops_the_commands_on_it():

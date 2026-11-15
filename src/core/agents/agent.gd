@@ -435,11 +435,13 @@ func _on_agent_charged(agent_body, charger) -> void:
 		EventBus.emit_signal("announcement", "%s ship charging you with a lance!" % (who if who != "" else "A"), "danger")
 
 
-# The player's lances are thrown one volley per arming (their stock is limited): a throw disarms them,
-# after launchers side by side have thrown together this frame. Not in a charge (command_charge): it
-# was told to come round for pass after pass, armed, as an NPC's is; making them safe ends it.
+# Every throw of the player's is their own: one volley per CHARGE (launchers side by side throw
+# together this frame). In a charge the throw ends it, the ship flying on as it goes, and the lances
+# stay armed: CHARGE again throws the next. An NPC's charge comes round pass after pass. A throw
+# outside a charge (none should be) disarms them.
 func _on_player_lance_launched(_target) -> void:
 	if is_instance_valid(navigation_system) and navigation_system.get_current_command_type() == navigation_system.CommandType.CHARGE:
+		call_deferred("command_idle")
 		return
 	call_deferred("set_lances_armed", false)
 
