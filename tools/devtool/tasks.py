@@ -125,15 +125,31 @@ def blender_problem():
     return ""
 
 
+def display_problem(env=None):
+    """"" when Godot has a display to open; else what to do. The x11 build needs one even with
+    --no-window, and the tools use DISPLAY=:0 when none is set (environment())."""
+    display = (env or environment()).get("DISPLAY", "")
+    number = display.split(":")[-1].split(".")[0] if ":" in display else ""
+    if display.split(":")[0] not in ("", "unix") or not number.isdigit():
+        return ""  # A remote or unusual display: Godot will say if it cannot open it
+    if os.path.exists("/tmp/.X11-unix/X%s" % number):
+        return ""
+    return ("No display %s: Godot (the x11 build) needs one even without a window. Log in to the desktop on this "
+            "machine, or set DISPLAY to the display that is running." % display)
+
+
 def setup_problems():
     """Everything missing to run the tools, each saying what to do."""
-    return [problem for problem in (godot_problem(), blender_problem()) if problem]
+    return [problem for problem in (godot_problem(), display_problem(), blender_problem()) if problem]
 
 
 def environment():
-    """The tools' environment: GODOT and BLENDER as found, for the shell scripts."""
+    """The tools' environment: GODOT and BLENDER as found, for the shell scripts, and DISPLAY=:0
+    when none is set (from a bare terminal or over SSH: the x11 Godot needs a display even with
+    --no-window, and would fail every task with its own display error)."""
     env = dict(os.environ)
     env["GODOT"], env["BLENDER"] = GODOT, BLENDER
+    env.setdefault("DISPLAY", ":0")
     return env
 
 

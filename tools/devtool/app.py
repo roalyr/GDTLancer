@@ -174,7 +174,7 @@ def catalog_stale():
     """What database/presets/CATALOG.md and the preset labels lack (classify_presets --check; [] when current)."""
     try:
         out = subprocess.run(tasks.godot_script("tools/classify_presets.gd", "--", "--check"), cwd=tasks.ROOT,
-                             capture_output=True, text=True, timeout=300).stdout
+                             env=tasks.environment(), capture_output=True, text=True, timeout=300).stdout
     except (OSError, subprocess.TimeoutExpired):
         return []
     return [line[len("CLASSIFY stale: "):] for line in out.splitlines() if line.startswith("CLASSIFY stale: ")]
@@ -1574,7 +1574,7 @@ class DevApp(App):
             self.bridge = self.bridge_factory()
             version = self.bridge.call("ping")["godot"]
         except (BridgeError, OSError) as error:
-            problem = tasks.godot_problem()
+            problem = tasks.godot_problem() or tasks.display_problem()
             self.call_from_thread(self._set_summary, "[red]Godot did not start.[/red] %s" % escape(problem or str(error))
                                   + "\n(CONTENT.md, Getting started; then restart the tool)")
             self.call_from_thread(self._godot_status, "Godot did not start")

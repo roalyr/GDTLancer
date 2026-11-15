@@ -34,7 +34,7 @@ if __package__ in (None, ""):  # Run as a file: tools/devtool/evolution.py
     sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     __package__ = "devtool"
 
-from .tasks import GODOT, ROOT  # noqa: E402
+from .tasks import GODOT, ROOT, environment  # noqa: E402
 
 DRAFTS_DIR = os.path.join(ROOT, "database", "drafts")  # era<N>_min<k>/ folders
 CATALOG = "database/presets/CATALOG.md"
@@ -141,7 +141,7 @@ class NewEra:
         self.hours, self.speed, self.min_lives, self.fresh = str(hours), str(speed), list(min_lives), fresh
         self.commit, self.start, self.number, self.drafts_dir = commit, start, number, drafts_dir
         self.redo_drafts = redo_drafts
-        self.run = run or (lambda command: subprocess.call(command, cwd=ROOT))
+        self.run = run or (lambda command: subprocess.call(command, cwd=ROOT, env=environment()))
         self.start_process = start_process or start_detached
         self.say = say
         self.done = []
@@ -250,7 +250,8 @@ class NewEra:
 def start_detached(command, log):
     """Starts `command` in its own session (it outlives the tool and the terminal), output to `log`."""
     handle = open(log, "a")
-    process = subprocess.Popen(command, cwd=ROOT, stdout=handle, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL, start_new_session=True)
+    process = subprocess.Popen(command, cwd=ROOT, env=environment(), stdout=handle, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL,
+                               start_new_session=True)
     return process.pid
 
 

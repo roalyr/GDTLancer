@@ -16,7 +16,7 @@ if __package__ in (None, ""):  # Run as a file: tools/devtool/sounds.py
     __package__ = "devtool"
 
 from .bridge import Bridge, file_path  # noqa: E402
-from .tasks import GODOT, ROOT  # noqa: E402
+from .tasks import GODOT, ROOT, environment  # noqa: E402
 
 LOOP_KEYS = {".wav": ("edit/loop_mode", "1", "0"), ".ogg": ("loop", "true", "false"), ".mp3": ("loop", "true", "false")}
 
@@ -66,7 +66,8 @@ def fix(slots, reimport=True, godot=GODOT):
             if path not in changed:
                 changed.append(path)
     if changed and reimport:
-        subprocess.run([godot, "--no-window", "--editor", "--quit"], cwd=ROOT, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        subprocess.run([godot, "--no-window", "--editor", "--quit"], cwd=ROOT, env=environment(), stdout=subprocess.DEVNULL,
+                       stderr=subprocess.DEVNULL)
     return changed
 
 

@@ -59,6 +59,20 @@ class TasksTest(unittest.TestCase):
             tasks.godot_problem.cache_clear()
             tasks.blender_problem.cache_clear()
 
+    def test_godot_gets_a_display_from_a_bare_terminal(self):
+        saved = os.environ.pop("DISPLAY", None)
+        try:
+            self.assertEqual(tasks.environment()["DISPLAY"], ":0", "None set: the desktop's")
+            os.environ["DISPLAY"] = ":7"
+            self.assertEqual(tasks.environment()["DISPLAY"], ":7", "One set: kept")
+            self.assertIn("No display :987", tasks.display_problem({"DISPLAY": ":987"}))
+            self.assertIn("set DISPLAY", tasks.display_problem({"DISPLAY": ":987"}))
+            self.assertEqual(tasks.display_problem({"DISPLAY": "otherhost:0"}), "", "Remote: Godot will say")
+        finally:
+            os.environ.pop("DISPLAY", None)
+            if saved is not None:
+                os.environ["DISPLAY"] = saved
+
     def test_missing_answers_are_named(self):
         task = tasks.TASKS_BY_KEY["check_model"]
         self.assertEqual(tasks.missing(task, {"scene": ""}), ["Scene"])

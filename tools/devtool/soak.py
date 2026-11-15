@@ -24,9 +24,9 @@ import time
 
 if __package__ in (None, ""):
     sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    from devtool.tasks import ROOT, godot_script  # noqa: E402
+    from devtool.tasks import ROOT, godot_script, environment as tasks_environment  # noqa: E402
 else:
-    from .tasks import ROOT, godot_script
+    from .tasks import ROOT, godot_script, environment as tasks_environment
 
 WARM_MINUTES = 2.0
 ORPHAN_SLACK = 10
@@ -41,9 +41,7 @@ def command(minutes=5, every=30):
 
 
 def environment():
-    env = dict(os.environ)
-    env.setdefault("DISPLAY", ":0")
-    return env
+    return tasks_environment()
 
 
 def samples(text):

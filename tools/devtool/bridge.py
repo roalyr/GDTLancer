@@ -15,7 +15,7 @@ import os
 import subprocess
 import threading
 
-from .tasks import GODOT, ROOT
+from .tasks import GODOT, ROOT, environment
 
 REPLY = "@@BRIDGE "
 START_TIMEOUT = 120.0  # s for Godot to start and load the project
@@ -28,7 +28,7 @@ class BridgeError(RuntimeError):
 class Bridge:
     def __init__(self, godot=GODOT, root=ROOT):
         self._process = subprocess.Popen(
-            [godot, "--no-window", "-s", "tools/devtool/bridge.gd"], cwd=root,
+            [godot, "--no-window", "-s", "tools/devtool/bridge.gd"], cwd=root, env=environment(),
             stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1)
         self._lock = threading.Lock()
         self._next_id = 0
