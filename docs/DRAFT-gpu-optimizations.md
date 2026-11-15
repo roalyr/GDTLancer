@@ -41,7 +41,8 @@ need the phone and its FPS readout (Settings `show_fps`).
   as today, the user decides.
 - **Commit style:** one commit per item, long plain-prose message: what was drawn, why it cost, what
   changed, the numbers before/after and on which machine. Include the user's own uncommitted edits.
-- **Do not touch** (the user's decisions): GLES2 stays; the dither/posterize look stays; the
+- **Do not touch** (the user's decisions): the starsphere and its nebulas stay as they are (item 1
+  struck); GLES2 stays; the dither/posterize look stays; the
   wrecks, scars and effects stay as features; Godot stays 3.6.
 
 ## GLES2 facts that shape every item (Godot 3.6)
@@ -194,7 +195,12 @@ Phone readings with the existing options are still owed (the user's device, `sho
   (`render_scale` 0.25 vs 1 tells fill from everything else; `engine_exhausts` off; `particles` off;
   `hit_effects` off) and write the readings here.
 
-### 1. The background: 20 full-screen additive passes (largest fill cost)
+### 1. The background: 20 full-screen additive passes (largest fill cost) — STRUCK (user, 2026-11-15)
+
+The starsphere and its nebulas stay as they are: no bake, no fewer shells, no shader changes. Its
+cost is recorded under item 0 (7.5 ms of idle at full scale on this desktop) and is the price of the
+look; the `render_scale` dial is how a slow device pays less of it.
+
 
 Where: `global_nebulas.tscn` (19 nebula shells + sprites) over a ProceduralSky
 (`assets/art/environments/global_environment.tres`, `background_mode = 1`).
@@ -404,9 +410,8 @@ could skip emitting below VIEW_FAR like the lights do (`should_light` has the te
 
 ## Suggested order and checkpoints
 
-Status 2026-11-15: 0, 6, 7, 4 done, 3 dropped (see each). Next: item 1 (the starsphere: 7.5 ms of the
-~8 ms full scale adds on this desktop), which needs the user's eye on before/after shots; then 5,
-2 and 11 (questions for the user), 8 to 10.
+Status 2026-11-15: 0, 6, 7, 4 done, 3 dropped, 1 struck by the user (see each). Next: 5, then 2 and
+11 (questions for the user), 8 to 10.
 
 1. Item 0: ablation lines pasted here (desktop), phone readings with the existing options.
 2. Item 6 (hull preview) and 7 (shared meshes): trivial, same picture. Commit each.
