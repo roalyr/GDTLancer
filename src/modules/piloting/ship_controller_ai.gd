@@ -25,6 +25,8 @@
 # own the player can read. It turns its nose on the ship in question and eases off to a drift,
 # holding fire; one wavering over breaking off a fight keeps fighting meanwhile. Being shot while
 # hesitating turns any pending decision into one about the shooter, without starting over.
+# Pilots misjudge: by its level (PilotLevel) an NPC may read an opponent as weaker or stronger than
+# it is (read_of), and so pick a fight it loses or run from one it would win.
 # Uses the same commands and ToolController as the player. Child of AgentBody in npc_agent.tscn.
 
 extends Node
@@ -38,6 +40,7 @@ const BeaconNetwork = preload("res://src/scenes/game_world/sector_layout/beacon_
 const Market = preload("res://src/core/systems/market.gd")
 const Radio = preload("res://src/core/systems/radio.gd")
 const NavigationSystem = preload("res://src/core/agents/components/navigation_system.gd")
+const PilotLevel = preload("res://src/core/systems/pilot_level.gd")
 
 enum AIState { IDLE, PATROL, COMBAT, FLEE, DISABLED, SALVAGE, DEPART, HESITATE, DOCKED, MINE }
 
@@ -65,6 +68,8 @@ var _scan_timer: float = 0.0
 var _orbiting: bool = false
 var _provoked: bool = false  # Shot at: chase the attacker from any distance
 var skill: float = 0.5  # 0 novice .. 1 veteran: decision speed
+var judgement: float = 1.0  # Chance it reads an opponent right (PilotLevel); misread, it seems weaker or stronger
+var _reads: Dictionary = {}  # Instance id -> [how it reads that ship (desire times this), Evolution.game_time it reads it again]
 var _pending: Dictionary = {}  # A decision being made: {"kind", "target", "timer"}
 var _resume_state: int = AIState.PATROL  # What it was doing before it started hesitating
 var _resume_target: RigidBody = null  # and on what
@@ -148,6 +153,7 @@ func initialize(config: Dictionary) -> void:
 	_home_position = config.get("patrol_center", agent_script.global_transform.origin)
 	_home_point = config.get("home_point", agent_script.global_transform.origin)
 	skill = clamp(float(config.get("skill", skill)), 0.0, 1.0)
+	judgement = clamp(float(config.get("judgement", judgement)), 0.0, 1.0)
 	_havens = config.get("havens", {})
 	var behavior: Dictionary = config.get("behavior", {})
 	_engage_desire = float(behavior.get("engage", Constants.AI_ENGAGE_DESIRE))
@@ -1812,7 +1818,22 @@ func desire_against(target) -> float:
 	var desire: float = compute_desire(ours.hull, ours.dps, theirs.hull, theirs.dps, target.get_salvage_value())
 	if target.has_method("detects") and not target.detects(agent_script):
 		desire *= Constants.AI_UNSEEN_DESIRE_FACTOR  # It strikes first
-	return desire * (Constants.AI_ENEMY_DESIRE_FACTOR if agent_script.is_enemy_of(target) else 1.0)
+	return desire * read_of(target) * (Constants.AI_ENEMY_DESIRE_FACTOR if agent_script.is_enemy_of(target) else 1.0)
+
+
+# How it reads `target` (PilotLevel.misread_factor by its judgement): 1 if right, held for
+# PILOT_MISREAD_TIME s, then read again. A pilot without a level always reads right.
+func read_of(target) -> float:
+	if judgement >= 1.0 or not is_instance_valid(target):
+		return 1.0
+	var key: int = target.get_instance_id()
+	var read = _reads.get(key)
+	if read == null or Evolution.game_time >= read[1]:
+		if _reads.size() > 64:
+			_reads.clear()  # Ships long gone
+		read = [PilotLevel.misread_factor(judgement), Evolution.game_time + Constants.PILOT_MISREAD_TIME]
+		_reads[key] = read
+	return read[0]
 
 
 static func compute_desire(own_hull: float, own_dps: float, target_hull: float, target_dps: float, gain: float) -> float:

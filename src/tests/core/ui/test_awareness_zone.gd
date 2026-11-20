@@ -35,7 +35,7 @@ func test_it_shows_the_target_and_own_state():
 		zone.add_radio_line(line)
 	zone.refresh()
 	assert_true(zone.visible)
-	assert_eq(zone.get_node("Layout/TargetRow/Name").text, "RAIDER")
+	assert_eq(zone.get_node("Layout/TargetRow/Name").text, "[%s] RAIDER" % raider.get_faction_name().to_upper(), "Its faction's tag first")
 	assert_eq(zone.get_node("Layout/TargetRow/Distance").text, "1500")
 	assert_almost_eq(zone.get_node("Layout/TargetRow/Hull").value, 0.25, 0.01, "Its hull")
 	assert_almost_eq(zone.get_node("Layout/Bars/Hull").value, 0.5, 0.01, "Own hull")

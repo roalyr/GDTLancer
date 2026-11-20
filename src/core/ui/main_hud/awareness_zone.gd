@@ -1,7 +1,8 @@
 # AwarenessZone (scenes/ui/hud/awareness_zone.tscn): the strip along the top of the HUD with what a
 # pilot glances at, read as colours and lengths more than words:
-# - the target (large): its name, distance, how a fight with it would go (EASY .. DEADLY) and its
-#   hull, in its mark's colour (TargetKinds); the bracket then keeps only its distance;
+# - the target (large): a ship's faction tag before its name ("[VERDANT] ..."), distance, how a
+#   fight with it would go (EASY .. DEADLY) with its pilot's level (ROOKIE .. ACE, PilotLevel) and
+#   its hull, in its mark's colour (TargetKinds); the bracket then keeps only its distance;
 # - own speed, ships the sensors see as pips (HudPips; the hostile ones filled, red), own signature
 #   as a bar (Agent.get_signature against the hull's quiet base), dim while quiet, bright as it grows;
 # - bars: own hull, energy and cargo space used;
@@ -15,6 +16,7 @@ extends Control
 const TargetKinds = preload("res://src/core/ui/main_hud/target_kinds.gd")
 const Bracket = preload("res://src/core/ui/main_hud/projected_target_bracket.gd")
 const CombatAssessment = preload("res://src/core/systems/combat_assessment.gd")
+const PilotLevel = preload("res://src/core/systems/pilot_level.gd")
 
 var target = null  # The selected target (MainHUD)
 var target_name: String = ""
@@ -83,9 +85,9 @@ func _refresh_target(player) -> void:
 	var color: Color = TargetKinds.color_of(target, player)
 	if TargetKinds.kind_of(target) in ["rock", "body"]:
 		color = TargetKinds.graded(Constants.COLOR_UI_TARGET_SELECTED)
-	_set_text(_target_name, target_name.to_upper())
+	_set_text(_target_name, name_text(target, target_name))
 	_set_text(_target_distance, distance_text(player.global_transform.origin.distance_to(target.global_transform.origin)))
-	_set_text(_target_threat, threat_word(player, target))
+	_set_text(_target_threat, threat_text(player, target))
 	for label in [_target_name, _target_distance, _target_threat]:
 		label.add_color_override("font_color", color)
 	var has_hull: bool = target.has_method("get_hull_fraction") and not target.get("is_wreck")
@@ -122,6 +124,21 @@ static func threat_word(player, target_node) -> String:
 	if not (target_node.has_method("is_enemy_of") and not target_node.get("is_wreck") and player.has_method("get_damage_per_second")):
 		return ""
 	return CombatAssessment.difficulty_label(CombatAssessment.team_advantage(player, target_node))
+
+
+# The threat word and, for a ship with a pilot level, the level: "HARD · VETERAN".
+static func threat_text(player, target_node) -> String:
+	var word: String = threat_word(player, target_node)
+	var level: String = PilotLevel.name_of(PilotLevel.of(target_node)) if word != "" else ""
+	return word + (" · " + level if level != "" else "")
+
+
+# The target's name in capitals, a live ship's after its faction's tag: "[VERDANT] FIGHTER M".
+static func name_text(target_node, name: String) -> String:
+	var tag: String = ""
+	if target_node.has_method("is_enemy_of") and not target_node.get("is_wreck"):
+		tag = PilotLevel.faction_tag(target_node)
+	return ((tag + " ") if tag != "" else "") + name.to_upper()
 
 
 # [ships the player's sensors see, of them hostile to it]: live and undocked, itself left out.

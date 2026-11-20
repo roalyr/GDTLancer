@@ -23,6 +23,7 @@ const Market = preload("res://src/core/systems/market.gd")
 const Havens = preload("res://src/core/systems/havens.gd")
 const Wages = preload("res://src/core/systems/wages.gd")
 const ShipLaws = preload("res://src/core/systems/ship_laws.gd")
+const PilotLevel = preload("res://src/core/systems/pilot_level.gd")
 const SAVE_VERSION = 1
 
 var run_id: String = ""  # Names the log file; a new game starts a new run
@@ -242,6 +243,9 @@ func begin_life(faction: String, zone_id: String) -> Dictionary:
 
 func _start(record: Dictionary) -> void:
 	var entry: Dictionary = genomes[record.genome_id]
+	if frozen and not record.has("level"):  # Play: a pilot level (PilotLevel), at least its hull's
+		record.level = PilotLevel.roll(PilotLevel.least_for_weight(niche_weight(Genome.niche(entry.genome))))
+		record.skill = PilotLevel.skill_for(record.level)
 	var built: Dictionary = Genome.build(entry.genome, record.genome_id, record.faction)
 	record.ship_template_id = built.ship_template_id
 	record.fit = built.fit

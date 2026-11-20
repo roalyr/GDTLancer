@@ -1,0 +1,162 @@
+# Tests for PilotLevel: levels rolled no lower than the hull allows, the hull caps, misreading by
+# judgement, an NPC misjudging a fight by it, levels on lives in play (none in evolution's runs),
+# the chevrons, the top strip's tag and level, and the interaction window's PILOT tab.
+
+extends GutTest
+
+const PilotLevel = preload("res://src/core/systems/pilot_level.gd")
+const AgentScript = preload("res://src/core/agents/agent.gd")
+const AIScript = preload("res://src/modules/piloting/ship_controller_ai.gd")
+const ToolControllerScript = preload("res://src/core/agents/components/tool_controller.gd")
+const Marker = preload("res://src/core/ui/main_hud/target_marker.gd")
+const Zone = preload("res://src/core/ui/main_hud/awareness_zone.gd")
+
+
+func after_each():
+	GlobalRefs.player_agent_body = null
+	GameState.reset_state()
+
+
+func _ship(position: Vector3, faction: String, hull: float, agent_type: String = "npc") -> RigidBody:
+	var body = AgentScript.new()
+	var ship = ShipTemplate.new()
+	ship.signature = 1500.0
+	ship.base_value = 1000
+	ship.ship_model_name = "Fighter Mk I-light"
+	body.ship_template = ship
+	body.agent_type = agent_type
+	body.wallet = 1e6
+	add_child_autofree(body)
+	body.global_transform.origin = position
+	body.faction = faction
+	body.hull_max = hull
+	body.hull = hull
+	var laser = UtilityToolTemplate.new()
+	laser.damage = 6.0
+	laser.cycle_time = 1.0
+	var tools = ToolControllerScript.new()
+	tools.name = "ToolController"
+	body.add_child(tools)
+	tools.set_tools([laser])
+	if agent_type == "npc":
+		var ai = AIScript.new()
+		ai.name = Constants.AI_CONTROLLER_NODE_NAME
+		body.add_child(ai)
+		ai._current_state = AIScript.AIState.PATROL
+	return body
+
+
+func test_hull_weight_caps_the_level():
+	assert_eq(PilotLevel.least_for_weight("light"), 0)
+	assert_eq(PilotLevel.least_for_weight("superheavy"), 3)
+	assert_true(PilotLevel.may_fly(0, "light"), "A rookie flies light hulls")
+	assert_false(PilotLevel.may_fly(0, "medium"), "but no heavier")
+	assert_true(PilotLevel.may_fly(1, "medium"))
+	assert_false(PilotLevel.may_fly(2, "superheavy"), "A veteran flies up to heavies")
+	assert_true(PilotLevel.may_fly(3, "superheavy"), "An ace flies anything")
+	for _i in range(50):
+		assert_true(PilotLevel.roll(2) >= 2, "Rolled no lower than its hull allows")
+	var seen := {}
+	for _i in range(400):
+		seen[PilotLevel.roll()] = true
+	assert_eq(seen.size(), Constants.PILOT_LEVELS.size(), "Every level comes up")
+
+
+func test_better_pilots_decide_faster_and_judge_better():
+	for level in range(Constants.PILOT_LEVELS.size() - 1):
+		assert_lt(PilotLevel.skill_for(level), PilotLevel.skill_for(level + 1) + 1e-6)
+		assert_lt(PilotLevel.judgement_for(level), PilotLevel.judgement_for(level + 1))
+	assert_eq(PilotLevel.judgement_for(-1), 1.0, "No level: always right")
+
+
+func test_misreads_are_weaker_or_stronger_by_the_set_factor():
+	assert_eq(PilotLevel.misread_factor(1.0), 1.0)
+	var weaker := false
+	var stronger := false
+	for _i in range(100):
+		var factor: float = PilotLevel.misread_factor(0.0)
+		if factor > 1.0:
+			stronger = true
+			assert_true(factor >= Constants.PILOT_MISREAD_FACTOR[0] - 1e-4 and factor <= Constants.PILOT_MISREAD_FACTOR[1] + 1e-4)
+		else:
+			weaker = true
+			assert_true(1.0 / factor >= Constants.PILOT_MISREAD_FACTOR[0] - 1e-4 and 1.0 / factor <= Constants.PILOT_MISREAD_FACTOR[1] + 1e-4)
+	assert_true(weaker and stronger, "Either way")
+
+
+func test_a_misjudging_pilot_reads_an_opponent_wrong_for_a_while():
+	var hunter = _ship(Vector3.ZERO, "violet", 50.0)
+	var prey = _ship(Vector3(0, 0, -800), "verdant", 50.0)
+	var ai = hunter.get_node(Constants.AI_CONTROLLER_NODE_NAME)
+	var right: float = ai.desire_against(prey)
+	ai.judgement = 0.0  # Always misreads
+	var wrong: float = ai.desire_against(prey)
+	assert_ne(wrong, right, "Misread: weaker or stronger than it is")
+	assert_eq(ai.desire_against(prey), wrong, "The same read until PILOT_MISREAD_TIME is up")
+	ai._reads[prey.get_instance_id()][1] = Evolution.game_time - 1.0
+	ai.judgement = 1.0
+	assert_almost_eq(ai.desire_against(prey), right, 1e-4, "Read again (and a sure pilot reads right)")
+
+
+func test_lives_in_play_get_a_level_their_hull_allows_and_evolution_none():
+	Evolution.new_run()
+	Evolution.frozen = true
+	var records: Array = []
+	for _i in range(12):
+		records.append(Evolution.begin_life("raiders", "arena_raiders_haven"))
+	Evolution.frozen = false
+	for record in records:
+		if record.empty():
+			continue
+		assert_true(record.has("level"), "A pilot level")
+		var weight: String = Evolution.niche_weight(Evolution.Genome.niche(Evolution.genomes[record.genome_id].genome))
+		assert_true(PilotLevel.may_fly(int(record.level), weight), "%s flies %s" % [PilotLevel.name_of(record.level), weight])
+		var span: Array = Constants.PILOT_LEVEL_SKILL[record.level]
+		assert_true(record.skill >= span[0] and record.skill <= span[1], "Its skill by its level")
+		Evolution._end_life(record.uid, true, "")
+	Evolution.new_run()
+
+
+func test_a_hostiles_mark_shows_its_level_as_chevrons():
+	var marker = Marker.new()
+	add_child_autofree(marker)
+	marker.set_mark("ship", true, false, 2)
+	assert_eq(marker.level, 2, "Three chevrons: a veteran")
+	marker.set_mark("ship", true, false)
+	assert_eq(marker.level, -1, "None by default")
+
+
+func test_the_strip_tags_the_faction_and_names_the_level():
+	var player = _ship(Vector3.ZERO, "player", 100.0, "player")
+	GlobalRefs.player_agent_body = player
+	var raider = _ship(Vector3(0, 0, -1500), "raiders", 50.0)
+	raider.pilot_level = 3
+	var tag: String = PilotLevel.faction_tag(raider)
+	assert_eq(tag, "[%s]" % raider.get_faction_name().to_upper())
+	assert_eq(Zone.name_text(raider, "Raider"), tag + " RAIDER")
+	assert_eq(Zone.threat_text(player, raider), Zone.threat_word(player, raider) + " · ACE")
+	raider.pilot_level = -1
+	assert_eq(Zone.threat_text(player, raider), Zone.threat_word(player, raider), "No level: the word alone")
+
+
+func test_the_window_has_a_pilot_tab_of_public_facts():
+	var player = _ship(Vector3.ZERO, "player", 100.0, "player")
+	GlobalRefs.player_agent_body = player
+	var raider = _ship(Vector3(0, 0, 900), "raiders", 50.0)
+	raider.pilot_level = 1
+	raider.bounties = {"verdant": 120.0}
+	var window = load("res://scenes/ui/menus/interaction_window.tscn").instance()
+	add_child_autofree(window)
+	window.open(raider)
+	assert_eq(window.tab, "pilot", "Nothing to ask of a hostile: opens on its pilot")
+	var pilot = window.get_node("Center/Panel/Layout/Pilot")
+	assert_true(pilot.visible)
+	assert_eq(pilot.get_node("Value_LEVEL").text, "TRAINED")
+	assert_string_contains(pilot.get_node("Value_WANTED_BY").text, "120 WP")
+	assert_eq(pilot.get_node("Value_FLIES_FOR").text, raider.get_faction_name().to_upper())
+	for row in PilotLevel.public_record(player, raider):
+		assert_false(str(row[0]) in ["WALLET", "SKILL", "JUDGEMENT"], "Nothing private")
+	window.show_tab("ask")
+	assert_false(pilot.visible)
+	assert_true(window.get_node("Center/Panel/Layout/Options").visible)
+	window.close()

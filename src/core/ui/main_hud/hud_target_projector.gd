@@ -4,6 +4,7 @@ extends Reference
 const Interp = preload("res://src/core/utils/interp.gd")
 
 const CombatAssessment = preload("res://src/core/systems/combat_assessment.gd")
+const PilotLevel = preload("res://src/core/systems/pilot_level.gd")
 const ScreenSpace = preload("res://src/core/ui/screen_space.gd")
 const Standing = preload("res://src/core/systems/standing.gd")
 const Bounty = preload("res://src/core/systems/bounty.gd")
@@ -485,6 +486,8 @@ func get_ship_cues(target_ref, detailed: bool = true) -> Array:
 		ai = target_ref.get_node_or_null(Constants.PLATFORM_CONTROLLER_NODE_NAME)  # A weapon platform
 	if ai != null and ai.has_method("get_activity_label") and ai.get_activity_label() != "":
 		cues.append(ai.get_activity_label())
+	if detailed and PilotLevel.of(target_ref) >= 0:
+		cues.append(PilotLevel.name_of(PilotLevel.of(target_ref)))
 	var uid = target_ref.get("evo_uid")
 	if detailed and uid != null and str(uid) != "":  # Its place in its group (Evolution ranks)
 		var rank: int = Evolution.rank_of(str(uid))

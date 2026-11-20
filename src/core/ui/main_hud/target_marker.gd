@@ -2,18 +2,25 @@
 # texture scaled up went soft): a shape per kind, diamond ship, square station, triangle beacon
 # (filled for a mayday's), ring planet, moon or jump point, dot rock, x wreck, small filled
 # diamond for ore chunks and loose lances. A hostile's mark is bigger; a ship's is filled once it
-# has seen the player (`filled`), a station's never is. Drawn white: the bracket's BracketNormal
-# tints it (side, kind), and the bracket fades it with distance.
+# has seen the player (`filled`), a station's never is. A hostile ship's pilot level (PilotLevel)
+# shows as chevrons under its mark, one for a rookie to four for an ace. Drawn white: the bracket's
+# BracketNormal tints it (side, kind), and the bracket fades it with distance.
 
 extends Control
 
 const LINE = 2.5  # px
 const SIZE = 1.5  # Every mark's size, times (a phone held at arm's length wants them this big)
 const SEGMENTS = 24
+const CHEVRON_GAP = 6.0  # px under the mark
+const CHEVRON_STEP = 7.0  # px between chevrons
+const CHEVRON_HALF_WIDTH = 7.0
+const CHEVRON_HEIGHT = 4.0
+const CHEVRON_LINE = 2.0
 
 var kind: String = "other"  # TargetKinds.kind_of
 var hostile: bool = false
 var filled: bool = false
+var level: int = -1  # Chevrons under the mark: level + 1 of them; -1 none
 
 
 func _ready() -> void:
@@ -22,17 +29,29 @@ func _ready() -> void:
 	anchor_bottom = 1.0
 
 
-func set_mark(new_kind: String, new_hostile: bool, new_filled: bool = false) -> void:
-	if new_kind == kind and new_hostile == hostile and new_filled == filled:
+func set_mark(new_kind: String, new_hostile: bool, new_filled: bool = false, new_level: int = -1) -> void:
+	if new_kind == kind and new_hostile == hostile and new_filled == filled and new_level == level:
 		return
 	kind = new_kind
 	hostile = new_hostile
 	filled = new_filled
+	level = new_level
 	update()
 
 
 func _draw() -> void:
-	_shape(rect_size * 0.5, (1.35 if hostile else 1.0) * SIZE)
+	var grow: float = (1.35 if hostile else 1.0) * SIZE
+	_shape(rect_size * 0.5, grow)
+	if level >= 0:
+		_chevrons(rect_size * 0.5 + Vector2(0, 5.0 * grow + CHEVRON_GAP), level + 1)  # Under the diamond
+
+
+# `count` chevrons pointing up, stacked downward from `top`.
+func _chevrons(top: Vector2, count: int) -> void:
+	for index in range(count):
+		var tip: Vector2 = top + Vector2(0, index * CHEVRON_STEP)
+		var arm := Vector2(CHEVRON_HALF_WIDTH, CHEVRON_HEIGHT)
+		draw_polyline(PoolVector2Array([tip + Vector2(-arm.x, arm.y), tip, tip + arm]), Color.white, CHEVRON_LINE, true)
 
 
 func _shape(centre: Vector2, grow: float) -> void:

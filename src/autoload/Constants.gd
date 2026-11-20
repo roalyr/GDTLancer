@@ -565,6 +565,20 @@ const AI_DECISION_DELAY_FAST = 0.3  # s for a veteran (skill 1)
 const AI_DECISION_AMBIGUITY_WEIGHT = 1.0  # A coin-flip situation takes up to this much longer again
 const AI_DECISION_RANDOMNESS = 0.4
 
+# Pilot levels (PilotLevel): every NPC in play flies with one, rolled at its birth by
+# PILOT_LEVEL_SHARES and raised to the least its hull allows (level i flies hulls up to
+# PRESET_WEIGHT_CLASSES[i]: a rookie only light ones, an ace any), so the rosters' mix of hulls is
+# kept. The level sets how fast it decides (its skill, from PILOT_LEVEL_SKILL) and how often it reads
+# an opponent right (PILOT_LEVEL_JUDGEMENT); otherwise it misreads that one for PILOT_MISREAD_TIME s,
+# seeing it PILOT_MISREAD_FACTOR times weaker or stronger than it is: it picks a fight it loses, or
+# runs from one it would win. Evolution's own runs fly no levels: every ship judges right there.
+const PILOT_LEVELS = ["ROOKIE", "TRAINED", "VETERAN", "ACE"]
+const PILOT_LEVEL_SHARES = [0.35, 0.35, 0.2, 0.1]
+const PILOT_LEVEL_SKILL = [[0.3, 0.45], [0.45, 0.6], [0.6, 0.75], [0.75, 0.9]]
+const PILOT_LEVEL_JUDGEMENT = [0.55, 0.75, 0.9, 0.97]  # Chance of reading an opponent right
+const PILOT_MISREAD_FACTOR = [1.6, 3.0]  # A misread opponent seems this many times (range) weaker or stronger
+const PILOT_MISREAD_TIME = 120.0  # s before it reads that opponent again
+
 # Factions: one FactionTemplate each in FACTIONS_DIR (who is at war with whom, standing, wages,
 # looks, rosters), read as TemplateDatabase.factions.
 const FACTIONS_DIR = "res://database/factions/"

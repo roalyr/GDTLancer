@@ -41,6 +41,21 @@ rect_min_size = Vector2( 160, 64 )
 focus_mode = 0
 text = "CLOSE"
 
+[node name="Tabs" type="HBoxContainer" parent="Center/Panel/Layout"]
+custom_constants/separation = 8
+
+[node name="ButtonAsk" type="Button" parent="Center/Panel/Layout/Tabs"]
+rect_min_size = Vector2( 0, 64 )
+focus_mode = 0
+size_flags_horizontal = 3
+text = "ASK"
+
+[node name="ButtonPilot" type="Button" parent="Center/Panel/Layout/Tabs"]
+rect_min_size = Vector2( 0, 64 )
+focus_mode = 0
+size_flags_horizontal = 3
+text = "PILOT"
+
 [node name="Side" type="Label" parent="Center/Panel/Layout"]
 modulate = Color( 1, 1, 1, 0.6 )
 text = "ALLIED"
@@ -58,6 +73,23 @@ text = "OPTION: OFF"
 visible = false
 modulate = Color( 1, 1, 1, 0.6 )
 autowrap = true
+
+[node name="Pilot" type="GridContainer" parent="Center/Panel/Layout"]
+visible = false
+custom_constants/vseparation = 8
+custom_constants/hseparation = 24
+columns = 2
+
+[node name="Key" type="Label" parent="Center/Panel/Layout/Pilot"]
+visible = false
+modulate = Color( 1, 1, 1, 0.6 )
+text = "KEY"
+
+[node name="Value" type="Label" parent="Center/Panel/Layout/Pilot"]
+visible = false
+size_flags_horizontal = 3
+autowrap = true
+text = "VALUE"
 
 [node name="Note" type="Label" parent="Center/Panel/Layout"]
 modulate = Color( 1, 1, 1, 0.6 )

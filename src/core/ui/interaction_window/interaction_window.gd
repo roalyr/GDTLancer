@@ -2,27 +2,41 @@
 # selected ship (Interactions), opened by the HUD's INTERACT button. One button per interaction that
 # applies to that ship now or is going with it, tapped to start it (ON, highlighted as an active HUD
 # button is) or to end it (OFF); a line under each says what it means. A ship offering nothing says
-# why. Open, it pauses the game, as the options window does; closing puts the pause back as it was.
+# why. A second tab, PILOT, lists what is public of the ship's pilot (PilotLevel.public_record: call
+# sign, side, level, ship, bounties...). It opens on ASK, or on PILOT when there is nothing to ask.
+# Open, it pauses the game, as the options window does; closing puts the pause back as it was.
 
 extends Control
 
 const Interactions = preload("res://src/core/systems/interactions.gd")
 const TargetKinds = preload("res://src/core/ui/main_hud/target_kinds.gd")
+const PilotLevel = preload("res://src/core/systems/pilot_level.gd")
+const NOTE_ASK = "THE GAME IS PAUSED WHILE THIS IS OPEN. TAP AN OPTION TO ASK IT, AGAIN TO END IT."
+const NOTE_PILOT = "THE GAME IS PAUSED WHILE THIS IS OPEN. WHAT ANYONE MAY KNOW OF THIS PILOT."
 const ACTIVE_MODULATE = Color8(255, 230, 89, 255)  # As MainHUD.BUTTON_ACTIVE_MODULATE
 
 var target = null  # The ship asked
 var _was_paused: bool = false
+var tab: String = "ask"  # "ask" or "pilot"
 
 onready var _title: Label = $Center/Panel/Layout/Header/Title
 onready var _side: Label = $Center/Panel/Layout/Side
 onready var _options: VBoxContainer = $Center/Panel/Layout/Options
 onready var _option_pattern: Button = $Center/Panel/Layout/Options/Option
 onready var _note_pattern: Label = $Center/Panel/Layout/Options/OptionNote
+onready var _ask_button: Button = $Center/Panel/Layout/Tabs/ButtonAsk
+onready var _pilot_button: Button = $Center/Panel/Layout/Tabs/ButtonPilot
+onready var _pilot: GridContainer = $Center/Panel/Layout/Pilot
+onready var _key_pattern: Label = $Center/Panel/Layout/Pilot/Key
+onready var _value_pattern: Label = $Center/Panel/Layout/Pilot/Value
+onready var _note: Label = $Center/Panel/Layout/Note
 
 
 func _ready() -> void:
 	pause_mode = PAUSE_MODE_PROCESS
 	$Center/Panel/Layout/Header/ButtonClose.connect("pressed", self, "close")
+	_ask_button.connect("pressed", self, "show_tab", ["ask"])
+	_pilot_button.connect("pressed", self, "show_tab", ["pilot"])
 
 
 func open(ship) -> void:
@@ -31,6 +45,12 @@ func open(ship) -> void:
 		_was_paused = get_tree().paused
 		get_tree().paused = true
 		visible = true
+	var asks: bool = Interactions.is_npc_ship(ship) and not Interactions.options(GlobalRefs.player_agent_body, ship).empty()
+	show_tab("ask" if asks or not Interactions.is_npc_ship(ship) else "pilot")
+
+
+func show_tab(which: String) -> void:
+	tab = which
 	refresh()
 
 
@@ -47,7 +67,16 @@ func refresh() -> void:
 		if child != _option_pattern and child != _note_pattern:
 			_options.remove_child(child)
 			child.queue_free()
+	for child in _pilot.get_children():
+		if child != _key_pattern and child != _value_pattern:
+			_pilot.remove_child(child)
+			child.queue_free()
 	var player = GlobalRefs.player_agent_body
+	_ask_button.modulate = ACTIVE_MODULATE if tab == "ask" else Color.white
+	_pilot_button.modulate = ACTIVE_MODULATE if tab == "pilot" else Color.white
+	_options.visible = tab == "ask"
+	_pilot.visible = tab == "pilot"
+	_note.text = NOTE_PILOT if tab == "pilot" else NOTE_ASK
 	if not Interactions.is_npc_ship(target):
 		_title.text = "INTERACT"
 		_side.text = "NO SHIP SELECTED"
@@ -60,6 +89,9 @@ func refresh() -> void:
 		activity = ai.get_activity_label()
 	_side.text = side.to_upper() + ((" · " + activity) if activity != "" else "")
 	_side.add_color_override("font_color", TargetKinds.side_color(side))
+	if tab == "pilot":
+		_fill_pilot(player)
+		return
 	var options: Array = Interactions.options(player, target)
 	for option in options:
 		var button: Button = _option_pattern.duplicate()
@@ -80,6 +112,21 @@ func refresh() -> void:
 		note.text = ("NOTHING TO ASK OF IT: %s" % _why_nothing(player)).to_upper()
 		note.visible = true
 		_options.add_child(note)
+
+
+# The PILOT tab: one row per public fact, its name dim on the left.
+func _fill_pilot(player) -> void:
+	for row in PilotLevel.public_record(player, target):
+		var key: Label = _key_pattern.duplicate()
+		key.name = "Key_%s" % str(row[0]).replace(" ", "_")
+		key.text = str(row[0])
+		key.visible = true
+		_pilot.add_child(key)
+		var value: Label = _value_pattern.duplicate()
+		value.name = "Value_%s" % str(row[0]).replace(" ", "_")
+		value.text = str(row[1])
+		value.visible = true
+		_pilot.add_child(value)
 
 
 # The reasons the interactions give for not applying (hostile, not allied...), each once.

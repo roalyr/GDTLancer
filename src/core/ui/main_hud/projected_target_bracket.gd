@@ -4,12 +4,14 @@
 # its own while unselected too, beside its mark. Distances are never dimmed for awareness.
 # A ship in an interaction with the player (Interactions: escorting, escorted, in its wing or
 # caravan) has its diamond filled in its side's colour, as a hostile that has seen the player does.
+# A live hostile ship's mark carries its pilot level as chevrons (TargetMarker, PilotLevel).
 
 extends Button
 
 const BRACKET_TEXTURE_RECT_SIZE = Vector2(150, 150)
 const TargetMarker = preload("res://src/core/ui/main_hud/target_marker.gd")
 const TargetKinds = preload("res://src/core/ui/main_hud/target_kinds.gd")
+const PilotLevel = preload("res://src/core/systems/pilot_level.gd")
 const DISTANCE_KILOUNIT_SCALE = 1000.0
 const DISTANCE_PLAIN_THRESHOLD = 2000.0
 const DISTANCE_DECIMAL_K_THRESHOLD = 10000.0
@@ -164,7 +166,8 @@ func _apply_bracket_style() -> void:
 		var hostile: bool = kind in ["ship", "station"] and TargetKinds.side_of(target_ref, GlobalRefs.player_agent_body) == "hostile"
 		if is_instance_valid(_marker):
 			var partner: bool = kind == "ship" and _is_partner()  # In an interaction with the player: filled in its side's colour
-			_marker.set_mark(kind, hostile, kind == "ship" and (partner or hostile and _is_live_ship() and _sees_player()))
+			var level: int = PilotLevel.of(target_ref) if kind == "ship" and hostile and _is_live_ship() else -1  # Chevrons: a hostile's pilot level
+			_marker.set_mark(kind, hostile, kind == "ship" and (partner or hostile and _is_live_ship() and _sees_player()), level)
 			var player = GlobalRefs.player_agent_body
 			var near: bool = not (target_ref is Spatial and is_instance_valid(player) and player.is_inside_tree() and target_ref.is_inside_tree())
 			_marker.modulate.a = 1.0 if near else mark_fade(player.global_transform.origin.distance_to(target_ref.global_transform.origin))

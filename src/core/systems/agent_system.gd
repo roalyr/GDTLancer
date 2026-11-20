@@ -298,6 +298,7 @@ func _spawn_haven_npc(layout: Node, haven: Dictionary, faction: String) -> Rigid
 		"fit": life.fit,
 		"evo_uid": life.uid,
 		"skill": life.skill,
+		"pilot_level": int(life.get("level", -1)),
 		"behavior": life.behavior,
 		"patrol_center": station.global_transform.origin,
 		"home_point": station.global_transform.origin,

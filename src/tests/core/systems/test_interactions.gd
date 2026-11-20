@@ -189,7 +189,9 @@ func test_the_window_lists_the_options_as_toggles():
 	hire.emit_signal("pressed")
 	assert_eq(_ai(fighter).player_role(), "", "Tapped again: let go")
 	window.open(_ship(Vector3(0, 0, 900), "raiders", true))
-	assert_true(options.get_node_or_null("Note_none") != null or options.get_child_count() > 2, "A hostile: why there is nothing")
+	assert_eq(window.tab, "pilot", "A hostile: nothing to ask, its pilot shown")
+	window.show_tab("ask")
+	assert_true(options.get_node_or_null("Note_none") != null or options.get_child_count() > 2, "and on ASK, why there is nothing")
 	window.close()
 	assert_false(get_tree().paused)
 	GlobalRefs.player_agent_body = before

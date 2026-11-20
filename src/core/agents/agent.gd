@@ -19,6 +19,7 @@ var bounty_paid: float = 0.0  # A wreck: what its killer was paid for it (Bounty
 var _last_hit_by = null  # weakref to the ship that hit it last: the killer, when it becomes a wreck
 var ship_template = null  # ShipTemplate this agent flies
 var evo_uid: String = ""  # Arena NPCs: their life in Evolution
+var pilot_level: int = -1  # PilotLevel (Constants PILOT_LEVELS), -1 for none (the player, platforms, evolution's runs)
 var is_platform: bool = false  # A weapon platform (PlatformController): turns, never moves; no one's prey
 var wallet: float = 0.0  # WP a non-evolving NPC has (random at spawn; see get_wallet)
 var _fit_override: Dictionary = {}  # A fit given at spawn (evolving NPCs' genomes); otherwise random
@@ -50,6 +51,7 @@ const ShipModel = preload("res://src/scenes/game_world/models/ship_model.gd")
 const ViewDetail = preload("res://src/core/agents/components/view_detail.gd")
 const ShipFit = preload("res://src/core/systems/ship_fit.gd")
 const Standing = preload("res://src/core/systems/standing.gd")
+const PilotLevel = preload("res://src/core/systems/pilot_level.gd")
 const Bounty = preload("res://src/core/systems/bounty.gd")
 const CombatAssessment = preload("res://src/core/systems/combat_assessment.gd")
 
@@ -99,6 +101,7 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 	self.faction = "player" if is_player() else str(overrides.get("faction", template.faction))
 	var ship_template_id: String = str(overrides.get("ship_template_id", template.ship_template_id))
 	self.evo_uid = str(overrides.get("evo_uid", ""))
+	self.pilot_level = int(overrides.get("pilot_level", -1))
 	self.is_platform = bool(overrides.get("platform", false))
 	_fit_override = overrides.get("fit", {})
 
@@ -165,6 +168,7 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 			"patrol_center": overrides.get("patrol_center", global_transform.origin),
 			"home_point": overrides.get("home_point", global_transform.origin),
 			"skill": float(overrides.get("skill", template.skill)),
+			"judgement": PilotLevel.judgement_for(pilot_level),
 			"havens": overrides.get("havens", {}),
 			"behavior": overrides.get("behavior", template.behavior),
 			"docked_at": overrides.get("docked_at", null),
