@@ -481,7 +481,7 @@ func _on_player_spawned(_player_body) -> void:
 	_refresh_process_state()
 
 
-# A ship, chunk or loose lance come into the world gets its own bracket; the others are untouched
+# A ship, chunk, loose lance or mayday's beacon come into the world gets its own bracket; the others are untouched
 # (a rebuild of them all made every bracket blink and cost a frame spike).
 func _on_agent_spawned(agent_body, _init_data) -> void:
 	if is_instance_valid(agent_body) and _target_projector.is_world_projectable_target(agent_body):
@@ -1379,9 +1379,19 @@ func _on_combat_ended(result_dict: Dictionary) -> void:
 	print("[HUD] Combat ended: ", outcome)
 
 
-func _on_agent_damaged(agent_body, damage_amount: float, _source_agent) -> void:
-	if agent_body == GlobalRefs.player_agent_body:
+func _on_agent_damaged(agent_body, damage_amount: float, source_agent) -> void:
+	var player = GlobalRefs.player_agent_body
+	if agent_body == player:
 		print("[HUD] Player took ", damage_amount, " damage")
+	# Fire between the player and a ship may turn it hostile (a grudge): its bracket at once, not at
+	# the next round of the slow re-check (pips, colour, its distance among the nearest hostiles).
+	var other = source_agent if agent_body == player else (agent_body if source_agent == player else null)
+	if is_instance_valid(other) and other is Object:
+		var button = _world_target_buttons.get(other.get_instance_id())
+		var marker = button.get("_marker") if is_instance_valid(button) else null
+		if is_instance_valid(marker) and other.has_method("is_enemy_of") and marker.hostile != other.is_enemy_of(player):  # Only on a change
+			button.refresh_style()
+			_target_projector._limit_mark_distances()
 
 
 func _on_agent_disabled(agent_body) -> void:

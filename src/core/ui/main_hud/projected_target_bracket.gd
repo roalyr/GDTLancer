@@ -4,7 +4,9 @@
 # its own while unselected too, beside its mark. Distances are never dimmed for awareness.
 # A ship in an interaction with the player (Interactions: escorting, escorted, in its wing or
 # caravan) has its diamond filled in its side's colour, as a hostile that has seen the player does.
-# A live hostile ship's mark carries its pilot level as chevrons (TargetMarker, PilotLevel).
+# A live hostile ship's mark carries its pilot level as pips (TargetMarker, PilotLevel).
+# Selected, a ship's or station's cross and circle (and distance) take its side's colour; anything
+# else's stay yellow.
 
 extends Button
 
@@ -166,7 +168,7 @@ func _apply_bracket_style() -> void:
 		var hostile: bool = kind in ["ship", "station"] and TargetKinds.side_of(target_ref, GlobalRefs.player_agent_body) == "hostile"
 		if is_instance_valid(_marker):
 			var partner: bool = kind == "ship" and _is_partner()  # In an interaction with the player: filled in its side's colour
-			var level: int = PilotLevel.of(target_ref) if kind == "ship" and hostile and _is_live_ship() else -1  # Chevrons: a hostile's pilot level
+			var level: int = PilotLevel.of(target_ref) if kind == "ship" and hostile and _is_live_ship() else -1  # Pips: a hostile's pilot level
 			_marker.set_mark(kind, hostile, kind == "ship" and (partner or hostile and _is_live_ship() and _sees_player()), level)
 			var player = GlobalRefs.player_agent_body
 			var near: bool = not (target_ref is Spatial and is_instance_valid(player) and player.is_inside_tree() and target_ref.is_inside_tree())
@@ -181,12 +183,22 @@ func _apply_bracket_style() -> void:
 		_refresh_distance_process_state()
 
 
-# Red while the selected target is a live ship hostile to the player (purple for the xenohive's;
-# dim while it has not detected the player), yellow otherwise (wrecks included).
+# The selected bracket (cross and circle): a live ship or a station in its side's colour, as its mark
+# (red hostile, green allied, white-grey neutral; the xenohive's purple), a ship's dim while it has
+# not detected the player; anything else yellow (wrecks, beacons, rocks, celestials, routes).
 func _apply_selected_color() -> void:
 	if not is_instance_valid(_selected_bracket):
 		return
-	_selected_bracket.modulate = _awareness_shade(_hostile_color()) if _is_hostile_to_player() else TargetKinds.graded(Constants.COLOR_UI_TARGET_SELECTED)
+	_selected_bracket.modulate = _selected_color()
+
+
+func _selected_color() -> Color:
+	var kind: String = TargetKinds.kind_of(target_ref)
+	if kind == "ship" and _is_live_ship():
+		return _awareness_shade(_get_ship_color())
+	if kind == "station":
+		return _get_ship_color()
+	return TargetKinds.graded(Constants.COLOR_UI_TARGET_SELECTED)
 
 
 func _hostile_color() -> Color:
@@ -274,7 +286,13 @@ func _sync_distance_label() -> void:
 	var text: String = _build_distance_label_text()
 	if _distance_label.text != text:
 		_distance_label.text = text
-	var color: Color = _hostile_color() if _is_hostile_to_player() else TargetKinds.graded(Constants.COLOR_UI_TARGET_SELECTED)
+	var color: Color = TargetKinds.graded(Constants.COLOR_UI_TARGET_SELECTED)
+	if _is_selected:
+		var kind: String = TargetKinds.kind_of(target_ref)
+		if kind == "ship" and _is_live_ship() or kind == "station":
+			color = _get_ship_color()  # As its bracket, at full strength: never dimmed for awareness
+	elif _is_hostile_to_player():
+		color = _hostile_color()
 	var style: Array = [_is_selected, color]
 	if style == _distance_style:
 		return

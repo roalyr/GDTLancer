@@ -111,7 +111,9 @@ func test_no_beacon_is_cut_off_by_distance():
 
 func test_a_mayday_draws_its_patrols_and_their_enemies_then_goes():
 	_beacon("patrol", Vector3(2000, 0, 0), "verdant")
+	watch_signals(EventBus)
 	var mayday = network.call_distress("verdant", Vector3(8000, 0, 0), "Verdant VE-1")
+	assert_signal_emitted_with_parameters(EventBus, "debris_spawned", [mayday])  # Announced: the HUD brackets it
 	assert_eq(mayday.kind, "distress")
 	assert_true(mayday.player_visible, "Heard on the common frequency")
 	assert_eq(network.choose(_ship("patrol")).beacon, mayday, "Its patrols go to help")

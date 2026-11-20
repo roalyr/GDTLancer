@@ -747,6 +747,60 @@ func test_hostile_marks_fill_once_they_see_you_and_show_their_distance_unselecte
 	assert_eq(label.text, "", "A wreck's distance shows only when selected")
 
 
+func test_a_ship_turning_hostile_gets_its_pips_and_distance():
+	var player = AgentScript.new()
+	player.faction = "player"
+	add_child_autofree(player)
+	GlobalRefs.player_agent_body = player
+	var bracket = ProjectedTargetBracketScene.instance()
+	add_child_autofree(bracket)
+	var ship = AgentScript.new()
+	add_child_autofree(ship)
+	ship.faction = "freeport"
+	ship.pilot_level = 2
+	ship.global_transform.origin = Vector3(0, 0, -1500)
+	bracket.configure_target(ship, "Trader")
+	var marker = bracket.get_node("BracketNormal/Marker")
+	var label: Label = bracket.get_node("DistancePanel/DistanceLabel")
+	assert_eq(marker.level, -1, "Friendly: no pips")
+	assert_eq(label.text, "", "and no distance")
+	ship._hold_grudge(player)  # The player shot it
+	bracket.refresh_style()
+	bracket._process(0.016)
+	assert_true(marker.hostile, "Hostile now")
+	assert_eq(marker.level, 2, "Its pips")
+	assert_eq(label.text, "1500", "and its distance")
+
+
+func test_the_selected_bracket_takes_a_ships_side_colour_and_objects_stay_yellow():
+	var TargetKinds = load("res://src/core/ui/main_hud/target_kinds.gd")
+	var player = AgentScript.new()
+	player.faction = "player"
+	add_child_autofree(player)
+	GlobalRefs.player_agent_body = player
+	var ship = AgentScript.new()
+	add_child_autofree(ship)
+	ship.faction = "freeport"  # Allied at the start
+	ship.global_transform.origin = Vector3(0, 0, -500)
+	var bracket = ProjectedTargetBracketScene.instance()
+	add_child_autofree(bracket)
+	bracket.configure_target(ship, "Trader")
+	bracket.set_selected_state(true)
+	var selected = bracket.get_node("BracketSelected")
+	assert_eq(selected.modulate, bracket._awareness_shade(TargetKinds.side_color("allied")), "An allied ship: green")
+	assert_eq(bracket.get_node("DistancePanel/DistanceLabel").get_color("font_color"), TargetKinds.side_color("allied"), "its distance too, undimmed")
+	ship._hold_grudge(player)
+	bracket._process(0.016)
+	assert_eq(selected.modulate, bracket._awareness_shade(TargetKinds.side_color("hostile")), "Turned hostile: red")
+	var rock = Spatial.new()
+	add_child_autofree(rock)
+	var other = ProjectedTargetBracketScene.instance()
+	add_child_autofree(other)
+	other.configure_target(rock, "Rock")
+	other.set_selected_state(true)
+	assert_eq(other.get_node("BracketSelected").modulate, TargetKinds.graded(Constants.COLOR_UI_TARGET_SELECTED), "An object: yellow")
+
+
 func test_only_the_nearest_hostiles_show_their_distance():
 	var player = AgentScript.new()
 	player.faction = "player"

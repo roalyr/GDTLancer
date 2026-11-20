@@ -190,6 +190,7 @@ func call_distress(faction: String, at: Vector3, caller_name: String) -> Node:
 	beacon.global_transform.origin = at
 	Interp.placed(beacon)
 	register(beacon)
+	EventBus.emit_signal("debris_spawned", beacon)  # Its bracket: the HUD brackets a zone's targets only as it loads
 	return beacon
 
 
