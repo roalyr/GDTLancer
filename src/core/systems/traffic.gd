@@ -18,6 +18,7 @@ extends Node
 const Genome = preload("res://src/core/evolution/genome.gd")
 const Market = preload("res://src/core/systems/market.gd")
 const BeaconNetwork = preload("res://src/scenes/game_world/sector_layout/beacon_network.gd")
+const FactionRoster = preload("res://src/core/systems/faction_roster.gd")
 
 var _bodies: Dictionary = {}  # Traveller id -> its ship in the current sector
 var _unloading: bool = false  # The sector is going: its ships leave with it, not through a jump point
@@ -96,13 +97,13 @@ func _new_traveler(faction: String, role: String) -> Dictionary:
 # none), as its havens fly.
 static func best_genome(faction: String, role: String) -> Dictionary:
 	if Evolution.frozen:
-		var roster: Array = TemplateDatabase.factions.get(faction, {}).get("roster", [])
+		var flown: Array = FactionRoster.flown(TemplateDatabase.factions.get(faction, {}))
 		var kind: Array = []
-		for name in roster:
+		for name in flown:
 			if role == "" or name.begins_with(role + "_"):
 				kind.append(name)
 		if kind.empty():
-			kind = roster
+			kind = flown
 		if not kind.empty():
 			var genome_id: String = Evolution.archetype_genome(faction, kind[randi() % kind.size()])
 			if genome_id != "":

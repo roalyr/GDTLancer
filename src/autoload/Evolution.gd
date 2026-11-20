@@ -6,8 +6,8 @@
 # genomes of each archetype until they have enough lives to be presets (_unproven).
 # Two modes (GameStateManager.mode), their data apart:
 # - Play, the game (`frozen`): evolves nothing and knows no evolution tree. Its havens fly the
-#   presets, the picked archetypes (database/presets/archetypes/, FactionTemplate.roster), as their
-#   preset files say (Genome.build: the preset ship, its fit and model); no pools, no seeds, no life
+#   presets, the picked archetypes (database/presets/archetypes/; which, by FactionRoster), as
+#   their preset files say (Genome.build: the preset ship, its fit and model); no pools, no seeds, no life
 #   log, and a save holds only the NPCs flying, by archetype (read again from the presets on load).
 # - Evolution, the arena (tools/evolution_sim.gd, its own process and save; the tests too): the
 #   pools evolve, every ship on its family's placeholder hull.
@@ -24,6 +24,7 @@ const Havens = preload("res://src/core/systems/havens.gd")
 const Wages = preload("res://src/core/systems/wages.gd")
 const ShipLaws = preload("res://src/core/systems/ship_laws.gd")
 const PilotLevel = preload("res://src/core/systems/pilot_level.gd")
+const FactionRoster = preload("res://src/core/systems/faction_roster.gd")
 const SAVE_VERSION = 1
 
 var run_id: String = ""  # Names the log file; a new game starts a new run
@@ -222,7 +223,7 @@ func begin_life(faction: String, zone_id: String) -> Dictionary:
 			return saved
 	var pick: Dictionary = _pick_archetype(faction, zone_id) if frozen else _pick_genome(faction, _preferred_role(faction, zone_id))
 	if pick.empty():
-		return {}  # Play: a faction without a roster flies nothing
+		return {}  # Play: a faction that flies nothing
 	var genome_id: String = pick.genome_id
 	var entry: Dictionary = genomes[genome_id]
 	var prefix: String = TemplateDatabase.factions.get(faction, {}).get("name", faction).substr(0, 2).to_upper()
@@ -232,6 +233,9 @@ func begin_life(faction: String, zone_id: String) -> Dictionary:
 		"cost": Genome.cost(entry.genome), "hull_value": Genome.hull_value(entry.genome), "kills": 0, "victims": [], "earned": 0, "bounty": 0.0, "spent": 0.0,
 		"damage_dealt": 0.0, "damage_taken": 0.0, "docks": 0,
 	}
+	if pick.has("level"):  # Play: the pilot came first, its hull by its level
+		record.level = int(pick.level)
+		record.skill = PilotLevel.skill_for(record.level)
 	_next_uid += 1
 	totals.births = int(totals.get("births", 0)) + 1
 	_start(record)
@@ -243,7 +247,7 @@ func begin_life(faction: String, zone_id: String) -> Dictionary:
 
 func _start(record: Dictionary) -> void:
 	var entry: Dictionary = genomes[record.genome_id]
-	if frozen and not record.has("level"):  # Play: a pilot level (PilotLevel), at least its hull's
+	if frozen and not record.has("level"):  # Play, a life from an older save: a level its hull allows
 		record.level = PilotLevel.roll(PilotLevel.least_for_weight(niche_weight(Genome.niche(entry.genome))))
 		record.skill = PilotLevel.skill_for(record.level)
 	var built: Dictionary = Genome.build(entry.genome, record.genome_id, record.faction)
@@ -255,7 +259,7 @@ func _start(record: Dictionary) -> void:
 
 
 # A play save: the NPCs flying again, each on its archetype as the presets say now (a life on
-# anything else, or a faction's archetype gone from its roster, is dropped).
+# anything else, or an archetype its faction no longer flies, is dropped).
 func _deserialize_play(data: Dictionary) -> bool:
 	run_id = str(data.get("run_id", run_id))
 	game_time = float(data.get("game_time", 0.0))
@@ -265,7 +269,7 @@ func _deserialize_play(data: Dictionary) -> bool:
 	for record in data.get("lives", []):
 		var faction: String = str(record.get("faction", ""))
 		var name: String = str(record.get("genome_id", "")).trim_prefix(faction + "-")
-		if not name in TemplateDatabase.factions.get(faction, {}).get("roster", []):
+		if not FactionRoster.flies(TemplateDatabase.factions.get(faction, {}), name):
 			continue
 		if archetype_genome(faction, name) == record.genome_id:
 			record.zone = _haven_for(faction, str(record.get("zone", "")))
@@ -699,23 +703,16 @@ func _preferred_role(faction: String, zone_id: String) -> String:
 	return ""
 
 
-# A frozen world's spawn: one of the faction's archetypes (FactionTemplate.roster), each as likely;
-# a zone's preferred role (a family name, the sector's layout scene) as often as it asks. {} if the
-# faction has no roster.
+# A frozen world's spawn (FactionRoster.pick): a pilot by the faction's pilot_shares, a family by
+# its family_shares (a zone's preferred role as often as it asks), and the hull its level flies.
+# {"genome_id", "how", "level"}; {} if the faction flies nothing.
 func _pick_archetype(faction: String, zone_id: String) -> Dictionary:
-	var roster: Array = TemplateDatabase.factions.get(faction, {}).get("roster", [])
 	var haven: Dictionary = Havens.spec(zone_id)
-	if haven.has("prefer_role") and randf() < float(haven.get("prefer_share", 0.0)):
-		var preferred: Array = []
-		for name in roster:
-			if name.begins_with(str(haven.prefer_role) + "_"):
-				preferred.append(name)
-		if not preferred.empty():
-			roster = preferred
-	if roster.empty():
+	var picked: Dictionary = FactionRoster.pick(TemplateDatabase.factions.get(faction, {}), str(haven.get("prefer_role", "")), float(haven.get("prefer_share", 0.0)))
+	if picked.empty():
 		return {}
-	var genome_id: String = archetype_genome(faction, roster[randi() % roster.size()])
-	return {} if genome_id == "" else {"genome_id": genome_id, "how": "archetype"}
+	var genome_id: String = archetype_genome(faction, picked.name)
+	return {} if genome_id == "" else {"genome_id": genome_id, "how": "archetype", "level": picked.level}
 
 
 # The genome id an archetype flies as for `faction` ("verdant-fighter_light"), registered from its

@@ -3,7 +3,7 @@
 # (filled for a mayday's), ring planet, moon or jump point, dot rock, x wreck, small filled
 # diamond for ore chunks and loose lances. A hostile's mark is bigger; a ship's is filled once it
 # has seen the player (`filled`), a station's never is. A hostile ship's pilot level (PilotLevel)
-# shows as chevrons under its mark, one for a rookie to four for an ace. Drawn white: the bracket's
+# shows as pips in a row under its mark, one for a rookie to four for an ace. Drawn white: the bracket's
 # BracketNormal tints it (side, kind), and the bracket fades it with distance.
 
 extends Control
@@ -11,16 +11,14 @@ extends Control
 const LINE = 2.5  # px
 const SIZE = 1.5  # Every mark's size, times (a phone held at arm's length wants them this big)
 const SEGMENTS = 24
-const CHEVRON_GAP = 6.0  # px under the mark
-const CHEVRON_STEP = 7.0  # px between chevrons
-const CHEVRON_HALF_WIDTH = 7.0
-const CHEVRON_HEIGHT = 4.0
-const CHEVRON_LINE = 2.0
+const PIP_GAP = 7.0  # px from the mark's bottom to the pips' centres
+const PIP_STEP = 8.0  # px between pips
+const PIP_RADIUS = 2.0
 
 var kind: String = "other"  # TargetKinds.kind_of
 var hostile: bool = false
 var filled: bool = false
-var level: int = -1  # Chevrons under the mark: level + 1 of them; -1 none
+var level: int = -1  # Pips under the mark: level + 1 of them; -1 none
 
 
 func _ready() -> void:
@@ -43,15 +41,13 @@ func _draw() -> void:
 	var grow: float = (1.35 if hostile else 1.0) * SIZE
 	_shape(rect_size * 0.5, grow)
 	if level >= 0:
-		_chevrons(rect_size * 0.5 + Vector2(0, 5.0 * grow + CHEVRON_GAP), level + 1)  # Under the diamond
+		_pips(rect_size * 0.5 + Vector2(0, 5.0 * grow + PIP_GAP), level + 1)  # Under the diamond
 
 
-# `count` chevrons pointing up, stacked downward from `top`.
-func _chevrons(top: Vector2, count: int) -> void:
+# `count` dots in a row centred on `centre`.
+func _pips(centre: Vector2, count: int) -> void:
 	for index in range(count):
-		var tip: Vector2 = top + Vector2(0, index * CHEVRON_STEP)
-		var arm := Vector2(CHEVRON_HALF_WIDTH, CHEVRON_HEIGHT)
-		draw_polyline(PoolVector2Array([tip + Vector2(-arm.x, arm.y), tip, tip + arm]), Color.white, CHEVRON_LINE, true)
+		_dot(centre + Vector2((index - (count - 1) * 0.5) * PIP_STEP, 0), PIP_RADIUS)
 
 
 func _shape(centre: Vector2, grow: float) -> void:

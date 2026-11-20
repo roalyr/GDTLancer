@@ -5,6 +5,7 @@ extends GutTest
 const PartCatalog = preload("res://src/core/systems/part_catalog.gd")
 
 const Genome = preload("res://src/core/evolution/genome.gd")
+const FactionRoster = preload("res://src/core/systems/faction_roster.gd")
 
 var _bodies: Array = []
 
@@ -320,7 +321,7 @@ func test_a_frozen_world_flies_its_factions_archetypes_on_their_hulls():
 	assert_eq(record.how, "archetype")
 	assert_true(record.genome_id.begins_with("verdant-"), "Its own faction's (violet shares the initial)")
 	var name: String = record.genome_id.split("-")[1]
-	assert_has(TemplateDatabase.factions.verdant.roster, name, "One of its roster")
+	assert_true(FactionRoster.flies(TemplateDatabase.factions.verdant, name), "One it flies")
 	var ship = TemplateDatabase.get_template(record.ship_template_id)
 	assert_eq(ship.ship_scene.resource_path, Constants.PLACEHOLDER_HULLS_DIR.plus_file(name + ".tscn"), "On its placeholder hull")
 	var agent = load(Constants.ARCHETYPES_DIR.plus_file("agent_archetype_%s.tres" % name))
@@ -351,9 +352,9 @@ func test_a_free_port_ships_life_ends_on_record_though_evolution_has_no_pool_for
 	assert_string_contains(text, record.uid)
 
 
-func test_every_roster_archetype_has_its_genome():
+func test_every_flown_archetype_has_its_genome():
 	for faction in TemplateDatabase.factions:
-		for name in TemplateDatabase.factions[faction].roster:
+		for name in FactionRoster.mix(TemplateDatabase.factions[faction]):
 			assert_ne(Evolution.archetype_genome(faction, name), "", "%s: %s" % [faction, name])
 
 

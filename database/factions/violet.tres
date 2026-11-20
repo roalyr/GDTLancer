@@ -23,4 +23,15 @@ traffic = {
 "fighter": 2,
 "prospector": 3
 }
-roster = [ "fighter_light", "fighter_medium", "fighter_heavy", "prospector_light", "prospector_medium", "prospector_heavy", "scavenger_light", "scavenger_medium", "scavenger_heavy", "trader_medium", "trader_superheavy", "fighter_superheavy" ]
+pilot_shares = {
+"rookie": 0.3,
+"regular": 0.35,
+"veteran": 0.2,
+"ace": 0.15
+}
+family_shares = {
+"fighter": 0.35,
+"prospector": 0.25,
+"scavenger": 0.25,
+"trader": 0.15
+}

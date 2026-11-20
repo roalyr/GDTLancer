@@ -20,4 +20,14 @@ open_havens = true
 hull_material = "res://assets/art/materials_generic/mat_hull_faction_freeport.tres"
 station_material = "res://assets/art/materials_generic/mat_hull_faction_freeport.tres"
 ship_scene = ""
-roster = [ "trader_light", "trader_medium", "prospector_light", "prospector_medium", "fighter_light", "fighter_medium" ]
+pilot_shares = {
+"rookie": 0.5,
+"regular": 0.4,
+"veteran": 0.1,
+"ace": 0.0
+}
+family_shares = {
+"trader": 0.4,
+"prospector": 0.3,
+"fighter": 0.3
+}

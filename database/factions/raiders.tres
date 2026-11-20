@@ -23,4 +23,13 @@ ship_scene = ""
 traffic = {
 "": 4
 }
-roster = [ "raider_light", "raider_medium", "raider_heavy", "fighter_light", "raider_superheavy" ]
+pilot_shares = {
+"rookie": 0.35,
+"regular": 0.3,
+"veteran": 0.2,
+"ace": 0.15
+}
+family_shares = {
+"raider": 0.8,
+"fighter": 0.2
+}

@@ -46,7 +46,7 @@ class Kind:
 ARCHETYPES = "database/presets/archetypes/"
 KINDS = [
     Kind("factions", "Factions", "database/factions/*.tres", DEFINITIONS + "faction_template.gd",
-         "Who flies where, their paints, enemies and roster."),
+         "Who flies where, their paints, enemies, pilots and ship families."),
     Kind("archetype_ships", "Archetype ships", ARCHETYPES + "preset_ship_archetype_*.tres", None,
          "The twenty designs' hulls and fits (frozen: the presets were evolved on them)."),
     Kind("archetype_pilots", "Archetype pilots", ARCHETYPES + "agent_archetype_*.tres", None,

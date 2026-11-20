@@ -1,8 +1,9 @@
 # PilotLevel: how good an NPC pilot is, ROOKIE to ACE (Constants PILOT_LEVELS), and what of a pilot
 # is public: what the player can read about any ship (the interaction window's PILOT tab).
 # The level is the player's cue for an NPC's judgement (parity): NPCs misjudge opponents by it
-# (ShipControllerAI.desire_against), and the player sees it as chevrons under a hostile's mark, on
-# the HUD's top strip and in the PILOT tab. Levels are rolled in Evolution.begin_life (play only).
+# (ShipControllerAI.desire_against), and the player sees it as pips under a hostile's mark, on
+# the HUD's top strip and in the PILOT tab. At a spawn the level comes first, the hull after
+# (FactionRoster; play only).
 
 extends Reference
 

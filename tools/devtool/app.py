@@ -7,7 +7,7 @@ The development tool's menu (Textual): the project's content and its checks in o
     Models     every ship and station model: its files, who uses it, its check; import, open, review
     Archetypes the twenty designs side by side as the game flies them (fitted mass, speed, guns),
                their pilots' genes against evolution's ranges, and who flies each
-    Factions   who is at war with whom (toggled in a matrix), each faction's roster and havens
+    Factions   who is at war with whom (toggled in a matrix), each faction's pilots, ship families (the mix they fly) and havens
     Parts      weapons, modules, commodities and the starting kit side by side, with who uses each
     Look       shaders (shared blocks in date, who uses each), faction paints, paint patterns, music
     Data       every data file by kind (the material library too), edited in a form made from its
@@ -38,7 +38,7 @@ from textual.coordinate import Coordinate
 from textual.screen import ModalScreen
 from textual.suggester import SuggestFromList
 from textual.message import Message
-from textual.widgets import (Button, DataTable, Footer, Header, Input, Label, Select, SelectionList, Static, Switch,
+from textual.widgets import (Button, DataTable, Footer, Header, Input, Label, Select, Static, Switch,
                              TabbedContent, TabPane, TextArea, Tree)
 
 from rich.markup import escape
@@ -127,6 +127,35 @@ def archetype_order(name):
     family, _, weight = name.rpartition("_")
     return (FAMILIES.index(family) if family in FAMILIES else len(FAMILIES), family,
             WEIGHTS.index(weight) if weight in WEIGHTS else len(WEIGHTS))
+
+
+PILOT_LEVELS = ["ROOKIE", "REGULAR", "VETERAN", "ACE"]  # As Constants PILOT_LEVELS
+
+
+def shares_line(pairs, what, empty):
+    """A share table's line under its rows: each key's share in %, or what an empty one means."""
+    total = sum(v for v in pairs.values() if v > 0)
+    if total <= 0:
+        return empty
+    return "Of its %s: %s." % (what, ", ".join("%s %d%%" % (key, round(100.0 * v / total)) for key, v in pairs.items() if v > 0))
+
+
+def roster_text(faction):
+    """A faction's pilots, ship families and the mix of archetypes they make (the bridge's `mix`)."""
+    lines = []
+    pilots = faction.get("pilot_shares") or {}
+    lines.append("Pilots: " + (shares_line(pilots, "pilots", "").replace("Of its pilots: ", "") if pilots
+                               else "[dim]the default shares[/dim]"))
+    families = faction.get("family_shares") or {}
+    lines.append("Families: " + (shares_line(families, "ships", "").replace("Of its ships: ", "") if families
+                                 else "[red]none: its havens fly nothing[/red]"))
+    mix = faction.get("mix") or {}
+    if mix:
+        lines.append("")
+        lines.append("[b]The mix[/b] (share of its spawns):")
+        for name in sorted(mix, key=archetype_order):
+            lines.append("  %-24s %5.1f%%  %s" % (name, 100.0 * mix[name], "#" * int(round(mix[name] * 40))))
+    return "\n".join(lines)
 
 
 def gene_bar(value, low, high, default):
@@ -1170,7 +1199,7 @@ HELP = """\
                 a placeholder's shape (c), a rock in the asteroid fields or out (f), its scene in Godot (e)
   3 Archetypes  the twenty designs as the game flies them; pilot genes against evolution's ranges;
                 d on one, then d on another: they duel
-  4 Factions    wars (pick a cell, w), rosters (space ticks, ctrl+s), traffic, havens (enter: World)
+  4 Factions    wars (pick a cell, w), pilots and families (e: edit in Data), traffic, havens (enter: World)
   5 World       a sector: its scene's bodies and belts, its layout's markers, on a map (top or side,
                 e opens the picked body's scene, or the layout, in the Godot editor;
                 filters); New sector and Copy sector buttons; new and copied sectors and bodies are
@@ -1292,7 +1321,7 @@ class ArchetypesPane(Vertical):
 
 class FactionsPane(Horizontal):
     BINDINGS = [
-        Binding("w", "app.toggle_war", "War / peace"), Binding("ctrl+s", "app.save_roster", "Save roster"),
+        Binding("w", "app.toggle_war", "War / peace"),
         Binding("e", "app.edit_faction", "Faction in Data"), Binding("ctrl+u", "app.undo_save", "Undo last save"),
         Binding("ctrl+r", "app.refresh_views", "Refresh"),
     ]
@@ -1301,7 +1330,7 @@ class FactionsPane(Horizontal):
     FactionsPane #faction-right { width: 2fr; padding: 0 1; }
     FactionsPane #factions { height: auto; max-height: 12; }
     FactionsPane #wars { height: auto; max-height: 12; }
-    FactionsPane #roster { height: auto; max-height: 20; }
+    FactionsPane #roster { height: auto; }
     FactionsPane #havens { height: auto; max-height: 14; }
     FactionsPane .caption { height: auto; margin-top: 1; color: $text-muted; }
     FactionsPane #faction-detail { height: auto; }
@@ -1310,15 +1339,16 @@ class FactionsPane(Horizontal):
     def compose(self) -> ComposeResult:
         with Vertical(id="faction-left"):
             table = DataTable(id="factions", cursor_type="row", zebra_stripes=True, cursor_foreground_priority="renderable")
-            table.add_columns("", "Faction", "Name", "Paint", "Standing", "Flags", "Roster", "Havens", "Ships", "Traffic")
+            table.add_columns("", "Faction", "Name", "Paint", "Standing", "Flags", "Designs", "Havens", "Ships", "Traffic")
             yield table
             yield Static("Wars (row against column). Either side's list makes a war; \"(theirs)\": only the column's list has it."
                          " Pick a cell, w makes war or peace.", classes="caption")
             yield DataTable(id="wars", cursor_type="cell")
             yield Static("", id="faction-detail")
         with Vertical(id="faction-right"):
-            yield Static("Roster: the archetypes its havens fly (space ticks; ctrl+s saves).", classes="caption", id="roster-caption")
-            yield SelectionList(id="roster")
+            yield Static("What its havens fly: pilots first, then a ship family, then the hull the pilot's level flies (e: edit in Data).",
+                         classes="caption", id="roster-caption")
+            yield Static("", id="roster")
             yield Static("Havens (Enter opens one in World).", classes="caption")
             table = OpenTable(id="havens", cursor_type="row", zebra_stripes=True)
             table.add_columns("Sector", "Haven", "Name", "Ships")
@@ -2256,7 +2286,7 @@ class DevApp(App):
                             if faction.get(key))
             ships = sum(sum(int(n) for n in haven["ships"].values()) for haven in faction["havens"] if isinstance(haven["ships"], dict))
             table.add_row(swatch(faction.get("color")), faction["id"], faction.get("display_name", ""), swatch(faction.get("paint")),
-                          "%+.2f" % faction.get("starting_standing", 0.0), flags or "-", str(len(faction.get("roster", []))),
+                          "%+.2f" % faction.get("starting_standing", 0.0), flags or "-", str(len(faction.get("mix", {}))),
                           str(len(faction["havens"])), str(ships), str(traffic_count(faction)), key=faction["id"])
         wars = self.query_one("#wars", DataTable)
         wars.clear(columns=True)
@@ -2287,18 +2317,12 @@ class DevApp(App):
     def _pick_faction(self, faction_id):
         faction = self._faction(faction_id) if faction_id else None
         self.faction_picked = faction_id
-        roster = self.query_one("#roster", SelectionList)
-        roster.clear_options()
         havens = self.query_one("#havens", DataTable)
         havens.clear()
+        self.query_one("#roster", Static).update("")
         if faction is None:
             return
-        flown = faction.get("roster", [])
-        names = sorted(set(self.faction_view["archetypes"]) | set(flown), key=archetype_order)
-        roster.add_options([(name if name in self.faction_view["archetypes"] else "%s [red](no such archetype)[/red]" % name, name, name in flown)
-                            for name in names])
-        self.query_one("#roster-caption", Static).update(
-            "[b]%s[/b] roster: %d of %d archetypes its havens fly (space ticks or unticks; ctrl+s saves)." % (faction_id, len(flown), len(names)))
+        self.query_one("#roster", Static).update(roster_text(faction))
         for index, haven in enumerate(faction["havens"]):
             ships = ", ".join("%s %s" % (n, kind) for kind, n in haven["ships"].items()) if isinstance(haven["ships"], dict) else ""
             havens.add_row(haven["sector"], haven["id"], haven["name"], ships, key=str(index))
@@ -2348,17 +2372,6 @@ class DevApp(App):
             changes = {a["id"]: list(a.get("enemies", [])) + [b["id"]]}
             done = "%s and %s are at war" % (a["id"], b["id"])
         self.factions_worker({self._faction(fid)["path"]: {"enemies": enemies} for fid, enemies in changes.items()}, done)
-
-    def action_save_roster(self):
-        faction = self._faction(self.faction_picked)
-        if faction is None:
-            return
-        picked = list(self.query_one("#roster", SelectionList).selected)
-        roster = [name for name in faction.get("roster", []) if name in picked] + [name for name in picked if name not in faction.get("roster", [])]
-        if roster == faction.get("roster", []):
-            self.notify("Nothing changed")
-            return
-        self.factions_worker({faction["path"]: {"roster": roster}}, "Saved %s's roster (%d)" % (faction["id"], len(roster)))
 
     @work(thread=True, exclusive=True, group="views")
     def factions_worker(self, writes, done):
@@ -2457,7 +2470,12 @@ class DevApp(App):
             families = sorted({archetype.rsplit("_", 1)[0] for archetype in self.faction_view.get("archetypes", [])})
             return {"traffic": Special(pairs=[(family, family) for family in families], integer=True, default=1,
                                        any_key=("", "any family"),
-                                       total=lambda pairs: "%d travellers; a family missing from its roster flies any." % sum(pairs.values()))}
+                                       total=lambda pairs: "%d travellers; a family missing from its ship families flies any." % sum(pairs.values())),
+                    "pilot_shares": Special(pairs=[(level.lower(), "%s (hulls up to %s)" % (level, WEIGHTS[min(i, len(WEIGHTS) - 1)]))
+                                                   for i, level in enumerate(PILOT_LEVELS)], default=0.25,
+                                            total=lambda pairs: shares_line(pairs, "pilots", "Empty: the default shares (Constants PILOT_LEVEL_SHARES).")),
+                    "family_shares": Special(pairs=[(family, family) for family in families], default=0.25,
+                                             total=lambda pairs: shares_line(pairs, "ships", "Empty: its havens fly nothing."))}
         if name == "beacon_marker.gd":
             return {"owner_faction": Special(choices=[("", "(none)")] + factions)}
         return {}

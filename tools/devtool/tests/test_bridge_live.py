@@ -23,7 +23,8 @@ class LiveBridgeTest(unittest.TestCase):
         self.assertEqual(read["class"], "FactionTemplate")
         self.assertEqual(read["values"]["template_id"], "verdant")
         names = [field["name"] for field in self.bridge.call("schema", path=read["path"])["fields"]]
-        self.assertIn("roster", names)
+        self.assertIn("pilot_shares", names)
+        self.assertIn("family_shares", names)
 
     def test_floats_arrive_whole(self):
         read = self.bridge.call("read", path="res://database/presets/parts/preset_laser_heavy.tres")

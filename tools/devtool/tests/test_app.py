@@ -113,10 +113,11 @@ class FakeBridge:
         if command == "factions":
             return {"archetypes": ["fighter_light", "fighter_heavy", "raider_light"], "factions": [
                 {"id": "blue", "path": "res://database/factions/verdant.tres", "display_name": "Blue", "enemies": ["red"], "at_war": ["red"],
-                 "roster": ["fighter_light"], "havens": [{"sector": "sector_elace", "layout": LAYOUT, "node": "Havens/Port", "id": "port",
+                 "pilot_shares": {"rookie": 0.5, "ace": 0.5}, "family_shares": {"fighter": 1.0},
+                 "mix": {"fighter_light": 0.6, "fighter_heavy": 0.4}, "havens": [{"sector": "sector_elace", "layout": LAYOUT, "node": "Havens/Port", "id": "port",
                                                           "name": "Port", "ships": {"blue": 4}}]},
-                {"id": "green", "path": "res://database/factions/xenohive.tres", "display_name": "Green", "enemies": [], "at_war": [], "roster": [], "havens": []},
-                {"id": "red", "path": "res://database/factions/violet.tres", "display_name": "Red", "enemies": ["blue"], "at_war": ["blue"], "roster": [], "havens": []}]}
+                {"id": "green", "path": "res://database/factions/xenohive.tres", "display_name": "Green", "enemies": [], "at_war": [], "pilot_shares": {}, "family_shares": {}, "mix": {}, "havens": []},
+                {"id": "red", "path": "res://database/factions/violet.tres", "display_name": "Red", "enemies": ["blue"], "at_war": ["blue"], "pilot_shares": {}, "family_shares": {}, "mix": {}, "havens": []}]}
         if command == "user_dir":
             return {"path": self.user_dir}
         if command == "parts":
@@ -790,7 +791,7 @@ class AppTest(unittest.IsolatedAsyncioTestCase):
             self.assertIsNone(app.duel_first, "d twice on one cancels")
             self.assertEqual(len(ran), 1)
 
-    async def test_war_and_peace_and_rosters(self):
+    async def test_war_and_peace_and_what_factions_fly(self):
         fake = FakeBridge()
         app = devapp.DevApp(bridge_factory=lambda: fake)
         async with app.run_test(size=(200, 60)) as pilot:
@@ -808,11 +809,13 @@ class AppTest(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(fake.writes, [dict(command="write", path="res://database/factions/xenohive.tres", values={"enemies": ["blue"]})])
             fake.writes.clear()
             app._pick_faction("blue")
-            roster = app.query_one("#roster")
-            roster.select("raider_light")
-            app.action_save_roster()
-            await self._started(pilot, app)
-            self.assertEqual(fake.writes[0]["values"], {"roster": ["fighter_light", "raider_light"]})
+            shown = str(app.query_one("#roster").render())
+            self.assertIn("rookie 50%", shown, "Its pilots")
+            self.assertIn("fighter 100%", shown, "its families")
+            self.assertIn("fighter_heavy", shown, "and the mix they make")
+            self.assertIn("60.0%", shown)
+            app._pick_faction("green")
+            self.assertIn("fly nothing", str(app.query_one("#roster").render()))
 
     async def test_every_tab_shows_the_shared_keys_and_help(self):
         app = devapp.DevApp(bridge_factory=lambda: FakeBridge())

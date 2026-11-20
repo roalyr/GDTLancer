@@ -326,7 +326,7 @@ func test_the_archetypes_view_has_every_design_with_its_numbers():
 	for design in view.archetypes:
 		if design.name == "fighter_light":
 			light = design
-	assert_has(light.flown_by, "verdant", "Verdant's roster has it")
+	assert_has(light.flown_by, "verdant", "Verdant flies it")
 	assert_almost_eq(light.length, 0.868992 * Constants.SHIP_MODEL_LENGTH, 0.001)
 	assert_eq(light.parts[0].name, "Missile Rack Mk I-light")
 	assert_gt(light.gun_dps, 0.0)

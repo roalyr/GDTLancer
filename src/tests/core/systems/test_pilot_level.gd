@@ -1,6 +1,7 @@
 # Tests for PilotLevel: levels rolled no lower than the hull allows, the hull caps, misreading by
 # judgement, an NPC misjudging a fight by it, levels on lives in play (none in evolution's runs),
-# the chevrons, the top strip's tag and level, and the interaction window's PILOT tab.
+# the pips, the top strip's tag and level, and the interaction window's PILOT tab. FactionRoster:
+# pilots first, then families, then the hull the level flies; the mix of archetypes that makes.
 
 extends GutTest
 
@@ -10,6 +11,7 @@ const AIScript = preload("res://src/modules/piloting/ship_controller_ai.gd")
 const ToolControllerScript = preload("res://src/core/agents/components/tool_controller.gd")
 const Marker = preload("res://src/core/ui/main_hud/target_marker.gd")
 const Zone = preload("res://src/core/ui/main_hud/awareness_zone.gd")
+const FactionRoster = preload("res://src/core/systems/faction_roster.gd")
 
 
 func after_each():
@@ -98,7 +100,7 @@ func test_a_misjudging_pilot_reads_an_opponent_wrong_for_a_while():
 	assert_almost_eq(ai.desire_against(prey), right, 1e-4, "Read again (and a sure pilot reads right)")
 
 
-func test_lives_in_play_get_a_level_their_hull_allows_and_evolution_none():
+func test_lives_in_play_fly_a_hull_their_level_allows():
 	Evolution.new_run()
 	Evolution.frozen = true
 	var records: Array = []
@@ -117,11 +119,11 @@ func test_lives_in_play_get_a_level_their_hull_allows_and_evolution_none():
 	Evolution.new_run()
 
 
-func test_a_hostiles_mark_shows_its_level_as_chevrons():
+func test_a_hostiles_mark_shows_its_level_as_pips():
 	var marker = Marker.new()
 	add_child_autofree(marker)
 	marker.set_mark("ship", true, false, 2)
-	assert_eq(marker.level, 2, "Three chevrons: a veteran")
+	assert_eq(marker.level, 2, "Three pips: a veteran")
 	marker.set_mark("ship", true, false)
 	assert_eq(marker.level, -1, "None by default")
 
@@ -151,7 +153,7 @@ func test_the_window_has_a_pilot_tab_of_public_facts():
 	assert_eq(window.tab, "pilot", "Nothing to ask of a hostile: opens on its pilot")
 	var pilot = window.get_node("Center/Panel/Layout/Pilot")
 	assert_true(pilot.visible)
-	assert_eq(pilot.get_node("Value_LEVEL").text, "TRAINED")
+	assert_eq(pilot.get_node("Value_LEVEL").text, "REGULAR")
 	assert_string_contains(pilot.get_node("Value_WANTED_BY").text, "120 WP")
 	assert_eq(pilot.get_node("Value_FLIES_FOR").text, raider.get_faction_name().to_upper())
 	for row in PilotLevel.public_record(player, raider):
@@ -160,3 +162,38 @@ func test_the_window_has_a_pilot_tab_of_public_facts():
 	assert_false(pilot.visible)
 	assert_true(window.get_node("Center/Panel/Layout/Options").visible)
 	window.close()
+
+
+func test_pilots_come_first_and_their_level_picks_the_hull():
+	var spec := {"pilot_shares": {"rookie": 1.0}, "family_shares": {"fighter": 1.0}}
+	for _i in range(20):
+		var picked: Dictionary = FactionRoster.pick(spec)
+		assert_eq(picked.name, "fighter_light", "A rookie flies light")
+		assert_eq(picked.level, 0)
+	spec.pilot_shares = {"ace": 1.0}
+	var heavy := 0
+	for _i in range(200):
+		var picked: Dictionary = FactionRoster.pick(spec)
+		assert_eq(picked.level, 3, "An ace stays an ace")
+		heavy += int(picked.name == "fighter_superheavy")
+	assert_true(heavy > 100 and heavy < 180, "Mostly its own class (%d of 200)" % heavy)
+	assert_eq_deep(FactionRoster.pick({"pilot_shares": {"ace": 1.0}, "family_shares": {}}), {})
+
+
+func test_the_mix_follows_the_shares():
+	var mix: Dictionary = FactionRoster.mix({"pilot_shares": {"rookie": 1.0, "regular": 1.0}, "family_shares": {"fighter": 3.0, "trader": 1.0}})
+	var total := 0.0
+	for name in mix:
+		total += mix[name]
+	assert_almost_eq(total, 1.0, 1e-4, "Shares of every spawn")
+	assert_almost_eq(mix.fighter_light, 0.75 * (0.5 + 0.5 * (1.0 - Constants.PILOT_OWN_CLASS_SHARE)), 1e-4)
+	assert_almost_eq(mix.fighter_medium, 0.75 * 0.5 * Constants.PILOT_OWN_CLASS_SHARE, 1e-4)
+	assert_false(mix.has("fighter_heavy"), "No veterans: no heavies")
+	assert_true(FactionRoster.flies({"family_shares": {"trader": 1.0}}, "trader_superheavy"), "Default pilot shares include aces")
+	for faction in TemplateDatabase.factions:
+		assert_false(FactionRoster.mix(TemplateDatabase.factions[faction]).empty(), "%s flies something" % faction)
+
+
+func test_a_family_without_a_class_flies_the_nearest():
+	assert_eq(FactionRoster.archetype_for("fighter", 2), "fighter_heavy")
+	assert_eq(FactionRoster.archetype_for("no_such", 2), "")

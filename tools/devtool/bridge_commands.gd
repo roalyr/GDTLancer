@@ -12,6 +12,7 @@
 extends Reference
 
 const Validator = preload("res://src/core/validation/content_validator.gd")
+const FactionRoster = preload("res://src/core/systems/faction_roster.gd")
 const ModelCheck = preload("res://src/scenes/game_world/models/model_check.gd")
 const SoundBank = preload("res://src/core/sound/sound_bank.gd")
 const TscnText = preload("res://tools/devtool/tscn_text.gd")
@@ -410,10 +411,10 @@ func cmd_sector_map(args: Dictionary):
 # power, regen, signature, gun_dps (weapons as an observer counts them; ToolController), parts:
 # [{id, name, kind}], flown_by: [faction ids]}]}.
 func cmd_archetypes(_args: Dictionary):
-	var rosters := {}
+	var rosters := {}  # Archetype -> factions whose havens fly it (FactionRoster)
 	for faction_path in Validator.faction_files().values():
 		var faction = _fresh(faction_path)
-		for name in faction.roster:
+		for name in FactionRoster.mix(faction.to_spec()):
 			if not rosters.has(name):
 				rosters[name] = []
 			rosters[name].append(faction.template_id)
@@ -464,7 +465,8 @@ func cmd_archetypes(_args: Dictionary):
 
 
 # Every faction with what the generic form cannot show: {"factions": [{id, path, name, color,
-# enemies, at_war (either side's list), roster, flags..., paint (albedo of its hull material),
+# enemies, at_war (either side's list), pilot_shares, family_shares, mix (archetype -> share of its
+# spawns: FactionRoster), flags..., paint (albedo of its hull material),
 # havens: [{sector, layout, node, id, name, ships}]}], "archetypes": [names]}.
 func cmd_factions(_args: Dictionary):
 	var specs := {}
@@ -498,6 +500,7 @@ func cmd_factions(_args: Dictionary):
 		entry["id"] = id
 		entry["path"] = paths[id]
 		entry["at_war"] = at_war
+		entry["mix"] = FactionRoster.mix(faction.to_spec())  # Archetype -> share of its havens' spawns
 		entry["paint"] = encode(paint.get_shader_param("albedo")) if paint is ShaderMaterial else null
 		entry["havens"] = havens.get(id, [])
 		out.append(entry)

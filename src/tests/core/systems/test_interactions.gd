@@ -10,6 +10,7 @@ const ToolControllerScript = preload("res://src/core/agents/components/tool_cont
 const Interactions = preload("res://src/core/systems/interactions.gd")
 const Wages = preload("res://src/core/systems/wages.gd")
 const Havens = preload("res://src/core/systems/havens.gd")
+const FactionRoster = preload("res://src/core/systems/faction_roster.gd")
 
 
 class FakeController extends Node:
@@ -81,7 +82,7 @@ func test_the_free_port_is_an_allied_faction_open_to_others():
 	assert_true(Interactions.is_allied("freeport"), "The player starts allied with it")
 	assert_true(freeport.open_havens and freeport.escorts)
 	var roles := {}
-	for name in freeport.roster:
+	for name in FactionRoster.mix(freeport):
 		roles[name.split("_")[0]] = true
 	assert_true(roles.has("trader") and roles.has("prospector") and roles.has("fighter"), "Traders, prospectors and escorts")
 

@@ -14,6 +14,7 @@ const ModelCheck = preload("res://src/scenes/game_world/models/model_check.gd")
 const SectorNames = preload("res://src/core/validation/sector_names.gd")
 const SoundBank = preload("res://src/core/sound/sound_bank.gd")
 const SectorEconomy = preload("res://src/core/validation/sector_economy.gd")
+const FactionRoster = preload("res://src/core/systems/faction_roster.gd")
 const SOUND_BANK_PATH = "res://database/sounds/sound_bank.tres"
 const SECTIONS = ["factions", "locations", "sectors", "parts", "archetypes", "starts", "models", "materials", "sounds"]
 const STARTS_DIR = "res://database/registry/game_starts/"
@@ -124,22 +125,31 @@ static func factions(dir_path: String = Constants.FACTIONS_DIR) -> Array:
 				out.append(_problem(path, "%s '%s' does not exist" % [key, faction[key]]))
 		if faction.ship_scene != "" and not _exists(faction.ship_scene):
 			out.append(_problem(path, "Own hull '%s' does not exist" % faction.ship_scene))
-		for name in faction.roster:
-			if not _exists(_archetype_agent_path(name)):
-				out.append(_problem(path, "Roster archetype '%s' does not exist" % name))
+		for level in faction.pilot_shares:
+			if not str(level).to_upper() in Constants.PILOT_LEVELS:
+				out.append(_problem(path, "Pilot level '%s' is not one of %s" % [level, PoolStringArray(Constants.PILOT_LEVELS).join(", ").to_lower()]))
+			elif float(faction.pilot_shares[level]) < 0.0:
+				out.append(_problem(path, "Pilot level '%s': a share below 0" % level))
+		if not faction.pilot_shares.empty() and _sum(faction.pilot_shares) <= 0.0:
+			out.append(_problem(path, "Pilot shares add up to 0: no pilots"))
+		for family in faction.family_shares:
+			if FactionRoster.archetype_for(str(family), 0) == "":
+				out.append(_problem(path, "Ship family '%s' has no archetype" % family))
+			elif float(faction.family_shares[family]) < 0.0:
+				out.append(_problem(path, "Ship family '%s': a share below 0" % family))
 		for family in faction.traffic:
 			if int(faction.traffic[family]) < 0:
 				out.append(_problem(path, "Traffic '%s': a count below 0" % family))
-			elif family != "" and not _roster_has_family(faction.roster, str(family)):
-				out.append(_problem(path, "Traffic family '%s' is not in its roster (its travellers would fly any)" % family))
+			elif family != "" and float(faction.family_shares.get(family, 0.0)) <= 0.0:
+				out.append(_problem(path, "Traffic family '%s' is not among its ship families (its travellers would fly any)" % family))
 	return out
 
 
-static func _roster_has_family(roster: Array, family: String) -> bool:
-	for name in roster:
-		if str(name).begins_with(family + "_"):
-			return true
-	return false
+static func _sum(table: Dictionary) -> float:
+	var total := 0.0
+	for key in table:
+		total += max(float(table[key]), 0.0)
+	return total
 
 
 # --- Locations: the sector graph ---
@@ -257,8 +267,8 @@ static func sectors() -> Array:
 			for faction in haven.ships:
 				if not factions.has(faction):
 					out.append(_problem(path, "Haven '%s': ships' faction '%s' is not a faction" % [haven.id, faction]))
-				elif factions[faction].roster.empty():
-					out.append(_problem(path, "Haven '%s': %s has no roster to fly" % [haven.id, faction]))
+				elif FactionRoster.mix(factions[faction]).empty():
+					out.append(_problem(path, "Haven '%s': %s flies no ships (no ship families)" % [haven.id, faction]))
 			var commodities: Array = commodity_ids()
 			var buys: Dictionary = haven.get("services", {}).get("buys", {})
 			for commodity in buys:
