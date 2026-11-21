@@ -37,6 +37,7 @@ const HUD_PARTNERS_INTERVAL = 1.0  # s between rechecks of the ships in an inter
 const HUD_BRACKET_APPEAR_DELAY = 0.15  # A bracket about to show waits this, already placed (no flash in the corner). Max ~0.3
 const HUD_BRACKET_REFRESH_INTERVAL = 0.25  # Each target bracket's re-check (shown, cues, colours), a slice of them each frame (positions follow every frame). Max ~0.5
 const HUD_AWARENESS_INTERVAL = 0.13  # The HUD's top strip (AwarenessZone). Max ~0.25
+const HUD_BAR_FLASH_TIME = 0.8  # s the own hull bar takes to cool from red back to white after a hit (HudBar.flash_on_drop)
 const THREAT_REFRESH_INTERVAL = 0.27  # The threat ring's recheck of who is hostile (its marks move every frame). Max ~0.5
 const THREAT_WATCH_INTERVAL = 0.5  # ThreatWatch's looks (danger announcements). Max ~1
 const HUD_FPS_OFFSET = Vector2(24, 16)  # px from the HUD's top left corner (inside its screen margin) to the FPS readout

@@ -92,6 +92,7 @@ script = ExtResource( 2 )
 caption = "HULL"
 low_share = 0.35
 caption_width = 80.0
+flash_on_drop = true
 
 [node name="Energy" type="Control" parent="Layout/Bars"]
 rect_min_size = Vector2( 150, 26 )

@@ -107,3 +107,27 @@ func test_the_targets_name_follows_it():
 	names.name = "Ore chunk (3)"  # Bared
 	zone.refresh()
 	assert_eq(zone.get_node("Layout/TargetRow/Name").text, "ORE CHUNK (3)", "Without picking it again")
+
+
+# The own hull bar flashes red as the hull falls, cooling back to white; a rise or another bar does not.
+func test_the_hull_bar_flashes_red_on_a_hit_and_cools_back():
+	var zone = ZoneScene.instance()
+	add_child_autofree(zone)
+	var hull = zone.get_node("Layout/Bars/Hull")
+	var energy = zone.get_node("Layout/Bars/Energy")
+	assert_true(hull.flash_on_drop)
+	assert_false(energy.flash_on_drop, "Only the hull")
+	hull.set_value(1.0)
+	assert_eq(hull.fill_color(), hull.color, "White at rest")
+	hull.set_value(0.8)
+	assert_true(hull.fill_color().is_equal_approx(hull.flash_color), "Red the moment it falls")
+	hull._process(Constants.HUD_BAR_FLASH_TIME * 0.5)
+	var mid: Color = hull.fill_color()
+	assert_true(mid.g > hull.flash_color.g and mid.g < hull.color.g, "Cooling")
+	hull._process(Constants.HUD_BAR_FLASH_TIME)
+	assert_true(hull.fill_color().is_equal_approx(hull.color), "White again")
+	assert_false(hull.is_processing())
+	hull.set_value(0.9)
+	assert_eq(hull.flash, 0.0, "A repair does not flash")
+	energy.set_value(0.5)
+	assert_eq(energy.flash, 0.0)
