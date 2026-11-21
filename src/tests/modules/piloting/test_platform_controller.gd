@@ -113,11 +113,13 @@ func test_a_faction_platform_fires_on_whoever_attacks_its_side():
 	var guns = platform.get_node(Constants.PLATFORM_CONTROLLER_NODE_NAME)
 	var trader = _ship(Vector3(0, 0, -600), "verdant")
 	var raider = _ship(Vector3(0, 0, -1000), "raiders")
+	assert_true(guns.is_foe(raider), "At war with its side: a foe on sight")
+	var shooter = _ship(Vector3(0, 0, -1000), "freeport")  # At peace with Verdant
 	var stranger = _ship(Vector3(0, 0, -700), "xenohive")
-	guns._on_agent_damaged(stranger, 5.0, raider)
-	assert_false(guns.is_foe(raider), "Fire on a ship not of its side: none of its business")
-	guns._on_agent_damaged(trader, 5.0, raider)
-	assert_true(guns.is_foe(raider), "Fire on its side")
+	guns._on_agent_damaged(stranger, 5.0, shooter)
+	assert_false(guns.is_foe(shooter), "Fire on a ship not of its side: none of its business")
+	guns._on_agent_damaged(trader, 5.0, shooter)
+	assert_true(guns.is_foe(shooter), "Fire on its side")
 	var guard = _ship(Vector3(0, 0, -700), "xenohive")
 	var attacker = _ship(Vector3(0, 0, -900), "verdant")
 	guard._hold_grudge(attacker)  # The verdant ship shot first

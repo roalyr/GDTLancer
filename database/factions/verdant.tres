@@ -6,16 +6,18 @@
 script = ExtResource( 1 )
 template_id = "verdant"
 display_name = "Verdant"
-color = Color( 0.45, 1.0, 0.35, 1.0 )
-enemies = [ "violet" ]
+color = Color( 0.45, 1, 0.35, 1 )
+enemies = [ "violet", "raiders" ]
 starting_standing = 0.0
 no_standing = false
+outlaw = false
 distress = true
 silent = false
 territory = 0.0
 salvage_as = ""
 escorts = true
 patrol_wages = true
+open_havens = false
 hull_material = "res://assets/art/materials_generic/mat_hull_faction_verdant.tres"
 station_material = "res://assets/art/materials_generic/mat_hull_faction_verdant.tres"
 ship_scene = ""
@@ -24,10 +26,10 @@ traffic = {
 "prospector": 3
 }
 pilot_shares = {
-"rookie": 0.3,
+"ace": 0.15,
 "regular": 0.35,
-"veteran": 0.2,
-"ace": 0.15
+"rookie": 0.3,
+"veteran": 0.2
 }
 family_shares = {
 "fighter": 0.35,
