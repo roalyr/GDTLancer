@@ -5,38 +5,20 @@ const Interp = preload("res://src/core/utils/interp.gd")
 
 const WorldRendering = preload("res://src/scenes/game_world/world_rendering.gd")
 
-enum OverlayEnvelopeState { INACTIVE, RISING, HOLDING, DECAYING }
-
 var _transition_camera: Camera = null
 var _nebula_holder: Spatial = null
 var _jump_transition_particles: Spatial = null
 var _transition_overlay: ColorRect = null
 var _transition_overlay_base_color: Color = Color(0, 0, 0, 1)
 var _transition_overlay_alpha: float = 0.0
-var _transition_overlay_immediate_override: bool = false
-var _transition_overlay_state: int = OverlayEnvelopeState.INACTIVE
-var _transition_overlay_elapsed_sec: float = 0.0
-var _transition_overlay_duration_sec: float = 0.0
-var _transition_overlay_rise_curve_power: float = 0.7
-var _transition_overlay_auto_decay_duration_sec: float = 0.0
-var _transition_overlay_hold_decay_duration_sec: float = 0.0
-var _transition_overlay_decay_start_alpha: float = 0.0
 var _transition_particle_emitters = []
 var _travel_direction: Vector3 = Constants.JUMP_TRANSITION_DEFAULT_DIRECTION
-var _current_velocity: float = 0.0
-var _target_velocity: float = 0.0
-var _velocity_step_rate: float = 0.0
-var _cruise_active: bool = false
-var _arrival_active: bool = false
 var _captured_camera_transform: Transform = Transform.IDENTITY
 var _has_captured_camera_transform: bool = false
 var _route_origin_world_position: Vector3 = Vector3.ZERO
 var _route_world_position: Vector3 = Vector3.ZERO
 var _route_target_world_position: Vector3 = Vector3.ZERO
 var _route_has_valid_positions: bool = false
-var _route_complete: bool = false
-var _source_sector_id: String = ""
-var _target_sector_id: String = ""
 
 
 func _ready() -> void:
@@ -49,7 +31,6 @@ func _ready() -> void:
 	if is_instance_valid(_transition_overlay):
 		_transition_overlay_base_color = _transition_overlay.color
 	visible = false
-	set_process(false)
 	if is_instance_valid(_transition_camera):
 		_transition_camera.pause_mode = Node.PAUSE_MODE_PROCESS
 		_transition_camera.current = false
@@ -74,18 +55,11 @@ func set_transition_fov(fov_deg: float) -> void:
 
 
 func begin_departure(source_sector_id: String, target_sector_id: String, travel_direction: Vector3) -> void:
-	_source_sector_id = source_sector_id
-	_target_sector_id = target_sector_id
 	_travel_direction = _normalize_travel_direction(travel_direction)
-	_current_velocity = 0.0
-	_target_velocity = 0.0
-	_cruise_active = false
-	_arrival_active = false
 	_route_origin_world_position = _get_world_position_for_sector(source_sector_id)
 	_route_world_position = _get_world_position_for_sector(source_sector_id)
 	_route_target_world_position = _get_world_position_for_sector(target_sector_id)
 	_route_has_valid_positions = _route_world_position != Vector3.ZERO or _route_target_world_position != Vector3.ZERO
-	_route_complete = false
 	visible = false
 	set_transition_particles_active(false, true)
 	if is_instance_valid(_transition_camera):
@@ -99,60 +73,13 @@ func begin_departure(source_sector_id: String, target_sector_id: String, travel_
 			_transition_camera.global_transform = Transform(Basis(), _get_route_local_position())
 		_align_camera_to_travel_direction()
 	_update_nebula_anchor_for_sector(source_sector_id)
-	set_process(false)
-
-
-func begin_cruise(target_velocity: float) -> void:
-	visible = true
-	_cruise_active = true
-	_arrival_active = false
-	_route_complete = false
-	_target_velocity = max(target_velocity, 0.0)
-	_current_velocity = _target_velocity
-	if is_instance_valid(_transition_camera):
-		_transition_camera.current = true
-	set_process(true)
-
-
-func begin_arrival() -> void:
-	_cruise_active = false
-	_arrival_active = true
-	_target_velocity = 0.0
-	_current_velocity = 0.0
-	_route_complete = true
-	set_process(false)
 
 
 func update_travel_progress(t: float) -> void:
 	if _route_has_valid_positions:
-		var old_pos = _route_world_position
 		_route_world_position = lerp(_route_origin_world_position, _route_target_world_position, t)
-		
-		# Estimate current velocity based on position change and delta time
-		var delta = get_process_delta_time()
-		if delta > 0.0001:
-			_current_velocity = old_pos.distance_to(_route_world_position) / delta
-		else:
-			_current_velocity = 0.0
-
 		if is_instance_valid(_transition_camera):
 			_transition_camera.global_transform.origin = _get_route_local_position()
-
-
-func begin_departure_overlay_window() -> void:
-	pass
-
-
-func on_departure_cruise_entered() -> void:
-	pass
-
-
-func begin_arrival_overlay_window() -> void:
-	pass
-
-
-func on_arrival_fov_stabilized() -> void:
-	pass
 
 
 func get_transition_overlay_alpha() -> float:
@@ -160,20 +87,13 @@ func get_transition_overlay_alpha() -> float:
 
 
 func reset_transition_state() -> void:
-	_source_sector_id = ""
-	_target_sector_id = ""
 	_travel_direction = Constants.JUMP_TRANSITION_DEFAULT_DIRECTION
-	_current_velocity = 0.0
-	_target_velocity = 0.0
-	_cruise_active = false
-	_arrival_active = false
 	_has_captured_camera_transform = false
 	_captured_camera_transform = Transform.IDENTITY
 	_route_origin_world_position = Vector3.ZERO
 	_route_world_position = Vector3.ZERO
 	_route_target_world_position = Vector3.ZERO
 	_route_has_valid_positions = false
-	_route_complete = false
 	visible = false
 	if is_instance_valid(_transition_camera):
 		_transition_camera.current = false
@@ -181,13 +101,14 @@ func reset_transition_state() -> void:
 	_apply_transition_overlay_alpha(0.0)
 	set_transition_particles_active(false, true)
 	_update_nebula_anchor_for_sector("")
-	set_process(false)
 
 
-func get_transition_fov() -> float:
+# Shows the jump: the rig's view and camera on, its particles running.
+func activate_transition_view() -> void:
+	visible = true
 	if is_instance_valid(_transition_camera):
-		return _transition_camera.fov
-	return Constants.MAX_ORBIT_CAMERA_FOV
+		_transition_camera.current = true
+	set_transition_particles_active(true, true)
 
 
 func deactivate_transition_view() -> void:
@@ -195,34 +116,6 @@ func deactivate_transition_view() -> void:
 	if is_instance_valid(_transition_camera):
 		_transition_camera.current = false
 	set_transition_particles_active(false, true)
-	set_process(false)
-
-
-func _process(delta: float) -> void:
-	if _cruise_active:
-		var remaining = _get_remaining_route_distance()
-		var step = _target_velocity * delta
-		if remaining > 0.0:
-			step = min(step, remaining)
-			_route_world_position += _travel_direction * step
-			if is_instance_valid(_transition_camera):
-				_transition_camera.global_transform.origin = _get_route_local_position()
-			if _get_remaining_route_distance() <= 0.1:
-				_route_complete = true
-				_cruise_active = false
-				set_process(false)
-		else:
-			_route_complete = true
-			_cruise_active = false
-			set_process(false)
-
-
-func get_current_velocity() -> float:
-	return _current_velocity
-
-
-func is_route_complete() -> bool:
-	return _route_complete
 
 
 func get_route_world_position() -> Vector3:
@@ -233,10 +126,6 @@ func get_transition_camera_forward_direction() -> Vector3:
 	if is_instance_valid(_transition_camera):
 		return -_transition_camera.global_transform.basis.z.normalized()
 	return _travel_direction
-
-
-func _set_transition_overlay_active(is_active: bool) -> void:
-	_apply_transition_overlay_alpha(1.0 if is_active else 0.0)
 
 
 func set_transition_particles_active(is_active: bool, clear_existing: bool = false) -> void:
@@ -251,10 +140,6 @@ func set_transition_particles_active(is_active: bool, clear_existing: bool = fal
 		if clear_existing and emitter.has_method("restart"):
 			emitter.restart()
 		emitter.emitting = is_active
-
-
-func _set_jump_transition_particles_active(is_active: bool, clear_existing: bool = false) -> void:
-	set_transition_particles_active(is_active, clear_existing)
 
 
 func _apply_transition_overlay_alpha(alpha: float) -> void:
@@ -302,12 +187,6 @@ func _align_camera_to_travel_direction() -> void:
 		_transition_camera.global_transform.origin + _travel_direction,
 		up_direction
 	)
-
-
-func _get_remaining_route_distance() -> float:
-	if not _route_has_valid_positions:
-		return 0.0
-	return _route_world_position.distance_to(_route_target_world_position)
 
 
 func _get_route_local_position() -> Vector3:

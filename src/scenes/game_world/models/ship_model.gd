@@ -55,12 +55,6 @@ func paint(material: Material) -> void:
 	ModelLooks.dress(self, material)
 
 
-# The engine markers under `root`, in root space: empties (Spatials that draw nothing) named
-# "Engine...", outside an "Engines" node.
-static func engine_markers(root: Node) -> Array:
-	return _markers(root, ENGINE_PREFIX)
-
-
 static func is_engine_marker(node: Node) -> bool:
 	return _is_marker(node, ENGINE_PREFIX)
 

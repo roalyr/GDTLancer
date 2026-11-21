@@ -109,29 +109,15 @@ func _run_jump_transition_sequence(target_sector_id: String) -> void:
 	yield(_world_manager.get_tree(), "idle_frame")
 
 	# Enable transition camera/rig and configure
-	if is_instance_valid(jump_transition_rig):
-		if jump_transition_rig.has_method("capture_from_camera") and is_instance_valid(GlobalRefs.main_camera):
-			jump_transition_rig.capture_from_camera(GlobalRefs.main_camera)
-
-		# Set transition camera fov to the max orbit camera fov
-		if jump_transition_rig.has_method("set_transition_fov"):
-			jump_transition_rig.set_transition_fov(Constants.MAX_ORBIT_CAMERA_FOV)
-		elif "_transition_camera" in jump_transition_rig and is_instance_valid(jump_transition_rig._transition_camera):
-			jump_transition_rig._transition_camera.fov = Constants.MAX_ORBIT_CAMERA_FOV
-
-		# Initialize transition rig route details
-		if jump_transition_rig.has_method("begin_departure"):
-			jump_transition_rig.begin_departure(old_sector, resolved_target_sector_id, departure_direction)
-
-		# Make sure the rig is visible and active for rendering
-		if "visible" in jump_transition_rig:
-			jump_transition_rig.visible = true
-
-		if "_transition_camera" in jump_transition_rig and is_instance_valid(jump_transition_rig._transition_camera):
-			jump_transition_rig._transition_camera.current = true
-
-		if jump_transition_rig.has_method("set_transition_particles_active"):
-			jump_transition_rig.set_transition_particles_active(true, true)
+	if is_instance_valid(GlobalRefs.main_camera):
+		_call_jump_transition_rig_method(jump_transition_rig, "capture_from_camera", [GlobalRefs.main_camera])
+	_call_jump_transition_rig_method(jump_transition_rig, "set_transition_fov", [Constants.MAX_ORBIT_CAMERA_FOV])
+	_call_jump_transition_rig_method(
+		jump_transition_rig,
+		"begin_departure",
+		[old_sector, resolved_target_sector_id, departure_direction]
+	)
+	_call_jump_transition_rig_method(jump_transition_rig, "activate_transition_view")
 
 	# Gradually lift the fade
 	var fade_out_rig_state = _world_manager._fade_transition_overlay(0.0, Constants.JUMP_FADE_DURATION)
@@ -156,19 +142,7 @@ func _run_jump_transition_sequence(target_sector_id: String) -> void:
 		# This guarantees that both velocity and acceleration start and end at 0.
 		var eased_t = t * t * t * (t * (t * 6.0 - 15.0) + 10.0)
 
-		# Interpolate rig position
-		if is_instance_valid(jump_transition_rig):
-			if jump_transition_rig.has_method("update_travel_progress"):
-				jump_transition_rig.update_travel_progress(eased_t)
-			else:
-				if "_route_has_valid_positions" in jump_transition_rig and jump_transition_rig._route_has_valid_positions:
-					jump_transition_rig._route_world_position = lerp(
-						jump_transition_rig._route_origin_world_position,
-						jump_transition_rig._route_target_world_position,
-						eased_t
-					)
-					if "_transition_camera" in jump_transition_rig and is_instance_valid(jump_transition_rig._transition_camera):
-						jump_transition_rig._transition_camera.global_transform.origin = jump_transition_rig._get_route_local_position()
+		_call_jump_transition_rig_method(jump_transition_rig, "update_travel_progress", [eased_t])
 
 		# At threshold, start the fade-in to black asynchronously
 		if travel_time >= threshold_time and not fade_in_started:
@@ -182,17 +156,7 @@ func _run_jump_transition_sequence(target_sector_id: String) -> void:
 	if final_fade_state is GDScriptFunctionState:
 		yield(final_fade_state, "completed")
 
-	# Deactivate transition rig view
-	if is_instance_valid(jump_transition_rig):
-		if jump_transition_rig.has_method("deactivate_transition_view"):
-			jump_transition_rig.deactivate_transition_view()
-		else:
-			if "visible" in jump_transition_rig:
-				jump_transition_rig.visible = false
-			if "_transition_camera" in jump_transition_rig and is_instance_valid(jump_transition_rig._transition_camera):
-				jump_transition_rig._transition_camera.current = false
-		if jump_transition_rig.has_method("set_transition_particles_active"):
-			jump_transition_rig.set_transition_particles_active(false, true)
+	_call_jump_transition_rig_method(jump_transition_rig, "deactivate_transition_view")
 
 	# Load destination sector
 	_world_manager.load_sector(resolved_target_sector_id)
@@ -329,9 +293,7 @@ func _fade_transition_overlay(target_alpha: float, duration: float):
 	var rig = _world_manager._get_jump_transition_rig()
 	if not is_instance_valid(rig):
 		return
-	var start_alpha = 0.0
-	if rig.has_method("get_transition_overlay_alpha"):
-		start_alpha = rig.get_transition_overlay_alpha()
+	var start_alpha = _call_jump_transition_rig_method(rig, "get_transition_overlay_alpha", [], 0.0)
 
 	var start_time_ms = OS.get_ticks_msec()
 	var duration_ms = max(int(duration * 1000.0), 1)
@@ -339,8 +301,7 @@ func _fade_transition_overlay(target_alpha: float, duration: float):
 		var elapsed_ms = OS.get_ticks_msec() - start_time_ms
 		var t = clamp(float(elapsed_ms) / float(duration_ms), 0.0, 1.0)
 		var current_alpha = lerp(start_alpha, target_alpha, t)
-		if rig.has_method("_apply_transition_overlay_alpha"):
-			rig._apply_transition_overlay_alpha(current_alpha)
+		_call_jump_transition_rig_method(rig, "_apply_transition_overlay_alpha", [current_alpha])
 		if t >= 1.0:
 			break
 		yield(_world_manager.get_tree(), "idle_frame")
@@ -442,18 +403,13 @@ func _get_jump_transition_rig() -> Node:
 	return null
 
 
-func _jump_transition_rig_supports_method(jump_transition_rig: Node, method_name: String) -> bool:
-	return is_instance_valid(jump_transition_rig) and jump_transition_rig.has_method(method_name)
-
-
+# Calls `method_name` on the rig when it has one (tests stand in rigs with only some methods).
 func _call_jump_transition_rig_method(
 		jump_transition_rig: Node,
 		method_name: String,
 		args: Array = [],
 		default_value = null
 	):
-	if not _jump_transition_rig_supports_method(jump_transition_rig, method_name):
+	if not is_instance_valid(jump_transition_rig) or not jump_transition_rig.has_method(method_name):
 		return default_value
-	if args.empty():
-		return jump_transition_rig.call(method_name)
 	return jump_transition_rig.callv(method_name, args)

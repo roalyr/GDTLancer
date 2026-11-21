@@ -102,8 +102,6 @@ func clear_route_target_overlay() -> void:
 		if is_instance_valid(button):
 			button.queue_free()
 	_hud._route_target_buttons.clear()
-	_hud._route_target_overlay_sector_id = ""
-	_hud._route_target_overlay_signature = ""
 	_hud._refresh_process_state()
 
 func clear_world_target_overlay() -> void:
@@ -125,8 +123,6 @@ func rebuild_route_target_overlay() -> void:
 	var current_sector_id: String = GameState.current_sector_id
 	if current_sector_id == "" or not Constants.jumps_enabled:
 		return
-	_hud._route_target_overlay_sector_id = current_sector_id
-	_hud._route_target_overlay_signature = get_route_target_overlay_signature(current_sector_id)
 	var route_targets: Array = _hud._route_target_provider.build_targets_for_sector(current_sector_id)
 	for route_target in route_targets:
 		var button = _hud._instance_projected_target_bracket()
@@ -139,22 +135,6 @@ func rebuild_route_target_overlay() -> void:
 		_hud._route_target_buttons[route_target.selection_key] = button
 	update_route_target_selection_state()
 	_hud._refresh_process_state()
-
-func sync_route_target_overlay_with_topology() -> void:
-	var current_sector_id: String = GameState.current_sector_id
-	var route_signature: String = get_route_target_overlay_signature(current_sector_id)
-	if current_sector_id != _hud._route_target_overlay_sector_id or route_signature != _hud._route_target_overlay_signature:
-		rebuild_route_target_overlay()
-
-func get_route_target_overlay_signature(sector_id: String) -> String:
-	if sector_id == "":
-		return ""
-	var connections: Array = TemplateDatabase.get_sector_connections(sector_id)
-	var normalized_connections: Array = []
-	for target_sector_id in connections:
-		normalized_connections.append(str(target_sector_id))
-	normalized_connections.sort()
-	return "%s|%s" % [sector_id, str(normalized_connections)]
 
 # The world's brackets brought in line with the zone (a zone or sector loaded): a bracket for every
 # target that has none, none for targets gone. Brackets that stay keep their state, so none blinks.
