@@ -4,6 +4,7 @@
 # burns the crust off (MINING_CRUST_HP) and bares the ore, a cluster of smooth metal lumps in place
 # of the rock, glowing hot and fading as it cools (MINING_COOL_TIME); cooled, a harpoon tows and
 # strips it. Stripped bare, it is gone (take_salvage).
+# Named as it goes: "Rock chunk" crusted, "Molten ore" bared and hot, "Ore" cooled.
 # A derelict's piece (setup with derelict: Asteroid.chunk_derelict, the megastructure's debris) is a
 # fragment of its structure instead, in its material: "Derelict debris"; bared, a few molten alloy
 # ingots ("Molten derelict alloy" while hot, "Derelict alloy" cooled).
@@ -184,7 +185,9 @@ func get_display_name() -> String:
 		if has_crust():
 			return "Derelict debris (%d)" % units
 		return ("Molten derelict alloy (%d)" if is_hot() else "Derelict alloy (%d)") % units
-	return "Ore chunk (%d)" % units if not has_crust() else "Rock chunk (%d)" % units
+	if has_crust():
+		return "Rock chunk (%d)" % units
+	return ("Molten ore (%d)" if is_hot() else "Ore (%d)") % units
 
 
 func is_player() -> bool:

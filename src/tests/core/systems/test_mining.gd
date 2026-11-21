@@ -320,6 +320,11 @@ func test_a_rock_breaks_into_rock_chunks():
 	assert_false(chunk.derelict)
 	assert_string_starts_with(chunk.get_display_name(), "Rock chunk (")
 	assert_eq(rock.regrow_time(), Constants.MINING_REGROW_TIME)
+	chunk.crust = 0.0
+	chunk.heat = 5.0
+	assert_string_starts_with(chunk.get_display_name(), "Molten ore (", "Bared, hot")
+	chunk.heat = 0.0
+	assert_string_starts_with(chunk.get_display_name(), "Ore (", "cooled")
 
 
 # Chunks and loose lances break off into the world, not freed with their rock or ship.

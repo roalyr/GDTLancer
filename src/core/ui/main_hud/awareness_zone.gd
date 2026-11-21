@@ -18,6 +18,7 @@ const TargetKinds = preload("res://src/core/ui/main_hud/target_kinds.gd")
 const Bracket = preload("res://src/core/ui/main_hud/projected_target_bracket.gd")
 const CombatAssessment = preload("res://src/core/systems/combat_assessment.gd")
 const PilotLevel = preload("res://src/core/systems/pilot_level.gd")
+const Fuel = preload("res://src/core/systems/fuel.gd")
 
 var target = null  # The selected target (MainHUD): a node, or a jump route (RouteTarget)
 var target_name: String = ""  # Its name when picked; name_source, if set, names it afresh each refresh
@@ -87,13 +88,15 @@ func refresh() -> void:
 
 
 func _refresh_target(player) -> void:
-	if is_route(target):  # A jump route: where it goes, nothing to measure
+	if is_route(target):  # A jump route: where it goes, and the fuel the jump burns of what is held
 		_target_row.modulate.a = 1.0
 		_set_text(_target_name, route_text(target))
-		_set_text(_target_distance, "")
+		_set_text(_target_distance, fuel_text(player))
 		_set_text(_target_threat, "")
 		for label in [_target_name, _target_distance, _target_threat]:
 			label.add_color_override("font_color", TargetKinds.graded(Constants.COLOR_UI_TARGET_SELECTED))
+		if is_instance_valid(player) and Fuel.carried(player) < Fuel.jump_cost(player):
+			_target_distance.add_color_override("font_color", TargetKinds.graded(Constants.COLOR_UI_TARGET_HOSTILE))  # Short of it
 		_target_hull.visible = false
 		return
 	var has_target: bool = is_instance_valid(target) and target is Spatial and target.is_inside_tree()
@@ -147,6 +150,13 @@ static func is_route(target_node) -> bool:
 static func route_text(route) -> String:
 	var name: String = str(route.display_name) if str(route.display_name) != "" else str(route.target_sector_id)
 	return "JUMP TO " + name.to_upper()
+
+
+# A jump's fuel, needed / held: "FUEL 5 / 12" (Fuel.jump_cost, Fuel.carried); "" without a ship.
+static func fuel_text(player) -> String:
+	if not is_instance_valid(player):
+		return ""
+	return "FUEL %d / %d" % [Fuel.jump_cost(player), Fuel.carried(player)]
 
 
 # How a fight with a live ship would go (CombatAssessment), "" for anything else.

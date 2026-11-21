@@ -2,7 +2,7 @@
 # FactionTemplate.traffic), the population of the world besides the evolving NPCs. Each traveller is a record in GameState.travelers:
 #   {"id", "faction", "role", "genome", "sector", "status" ("dwell" or "transit"), "until" (world
 #    time), "from" (the sector it came from), "next" (the one it leaves for), "fuel" (units), "bank"
-#    (WP), "cargo" {commodity: units}, "hull" (share, 1 = whole)}
+#    (WP), "cargo" {commodity: units}, "hull" (share, 1 = whole), "level" (its pilot's: pilot_level)}
 # Off-screen it keeps a timetable: it stays in a sector until "until", then jumps to "next", burning a
 # jump's fuel (ceil(mass / FUEL_MASS_PER_UNIT), as everyone), and arrives TRAFFIC_TRANSIT_TIME later.
 # Without fuel for a jump it stays put. In Elace it sells its cargo (home station prices) into its bank, buys
@@ -21,6 +21,7 @@ const Genome = preload("res://src/core/evolution/genome.gd")
 const Market = preload("res://src/core/systems/market.gd")
 const BeaconNetwork = preload("res://src/scenes/game_world/sector_layout/beacon_network.gd")
 const FactionRoster = preload("res://src/core/systems/faction_roster.gd")
+const PilotLevel = preload("res://src/core/systems/pilot_level.gd")
 
 var _bodies: Dictionary = {}  # Traveller id -> its ship in the current sector
 var _unloading: bool = false  # The sector is going: its ships leave with it, not through a jump point
@@ -88,9 +89,18 @@ func _new_traveler(faction: String, role: String) -> Dictionary:
 		"fuel": 0, "bank": Constants.TRAFFIC_START_BANK, "cargo": {}, "hull": 1.0,
 	}
 	GameState.traffic_next_id += 1
+	record.level = pilot_level(record)
 	_restock(record)
 	record.next = _pick_next(record)
 	return record
+
+
+# A traveller's pilot level, as a haven's (FactionRoster.pick): by its faction's pilot_shares, at
+# least what its hull's weight class takes (PilotLevel.least_for_weight).
+static func pilot_level(record: Dictionary) -> int:
+	var spec: Dictionary = TemplateDatabase.factions.get(record.faction, {})
+	var least: int = PilotLevel.least_for_weight(Evolution.niche_weight(Genome.niche(record.genome)))
+	return int(clamp(max(FactionRoster._pick_index(FactionRoster.pilot_shares(spec)), least), 0, Constants.PILOT_LEVELS.size() - 1))
 
 
 # The fittest design of its kind in Evolution's pools (role: a niche's role, "" for any), or its
@@ -232,6 +242,8 @@ func _spawn(record: Dictionary) -> void:
 	var spawner = get_parent()
 	if not (is_instance_valid(spawner) and spawner.has_method("spawn_npc_from_template")):
 		return
+	if not record.has("level"):  # From an older save: a level now, kept with it
+		record.level = pilot_level(record)
 	var built: Dictionary = Genome.build(record.genome, "traffic_" + record.id, record.faction)
 	var entry: Vector3 = _entry_point()
 	var arriving: bool = bool(record.get("arriving", false))
@@ -242,7 +254,8 @@ func _spawn(record: Dictionary) -> void:
 		"faction": record.faction,
 		"ship_template_id": built.ship_template_id,
 		"fit": built.fit,
-		"skill": 0.6,
+		"skill": PilotLevel.skill_for(int(record.level)),
+		"pilot_level": int(record.level),
 		"behavior": record.genome.get("behavior", Genome.default_behavior()),
 		"patrol_center": work,
 		"home_point": _jump_shell_point(entry, record.next),

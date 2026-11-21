@@ -4,6 +4,8 @@
 extends GutTest
 
 const Traffic = preload("res://src/core/systems/traffic.gd")
+const PilotLevel = preload("res://src/core/systems/pilot_level.gd")
+const Genome = preload("res://src/core/evolution/genome.gd")
 
 var traffic: Node = null
 var _saved_locations: Dictionary = {}
@@ -33,6 +35,11 @@ func test_the_roster_fills_in_elace_fuelled():
 		assert_eq(int(record.fuel), Traffic.jump_cost(record) * Constants.TRAFFIC_FUEL_JUMPS)
 		assert_true(record.next in Traffic.neighbours_of(record.sector))
 		assert_true(record.genome.has("ship"))
+		assert_between(int(record.level), PilotLevel.least_for_weight(Evolution.niche_weight(Genome.niche(record.genome))), Constants.PILOT_LEVELS.size() - 1,
+			"A pilot level, as a haven's spawn has, that its hull allows")
+	var old: Dictionary = GameState.travelers[0].duplicate(true)
+	old.erase("level")
+	assert_true(Traffic.pilot_level(old) >= 0, "A traveller from an older save gets one too")
 
 
 func test_a_traveller_jumps_burning_fuel_and_arrives_after_its_transit():

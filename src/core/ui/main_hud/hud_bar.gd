@@ -8,6 +8,8 @@
 tool
 extends Control
 
+const LEAD_GAP = 4.0  # px left clear between the lead (fuel) and the value (the rest of the cargo)
+
 export var caption: String = "" setget _set_caption
 export var color: Color = Color(1, 1, 1, 0.85) setget _set_color
 export var low_color: Color = Color(1.0, 0.3, 0.15, 1.0)
@@ -79,8 +81,11 @@ func _draw() -> void:
 		x = caption_width
 	var width: float = max(0.0, rect_size.x - x)
 	var top: float = (rect_size.y - bar_height) * 0.5
-	draw_rect(Rect2(x, top, width, bar_height), Color(1, 1, 1, 0.15))
 	var lead_width: float = width * lead
+	var gap: float = LEAD_GAP if lead_width > 0.0 else 0.0  # Clear between the lead and the rest
+	var rest: float = max(0.0, width - lead_width - gap)
+	draw_rect(Rect2(x, top, lead_width, bar_height), Color(1, 1, 1, 0.15))
+	draw_rect(Rect2(x + lead_width + gap, top, rest, bar_height), Color(1, 1, 1, 0.15))
 	if lead_width > 0.0:
 		draw_rect(Rect2(x, top, lead_width, bar_height), lead_color)
-	draw_rect(Rect2(x + lead_width, top, min(width * value, width - lead_width), bar_height), fill_color())
+	draw_rect(Rect2(x + lead_width + gap, top, min(width * value, rest), bar_height), fill_color())

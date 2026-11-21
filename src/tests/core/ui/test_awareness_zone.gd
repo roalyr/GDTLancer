@@ -5,6 +5,8 @@ extends GutTest
 const ZoneScene = preload("res://scenes/ui/hud/awareness_zone.tscn")
 const Zone = preload("res://src/core/ui/main_hud/awareness_zone.gd")
 const AgentScript = preload("res://src/core/agents/agent.gd")
+const TargetKinds = preload("res://src/core/ui/main_hud/target_kinds.gd")
+const Fuel = preload("res://src/core/systems/fuel.gd")
 
 
 func after_each():
@@ -75,13 +77,16 @@ func test_a_jump_route_shows_where_it_goes():
 	player.hull_max = 100.0
 	player.hull = 100.0
 	GlobalRefs.player_agent_body = player
+	player.mass = Constants.FUEL_MASS_PER_UNIT * 4.5  # A jump burns 5
+	player.cargo = {Constants.FUEL_COMMODITY: 3}
 	var route = load("res://src/core/targeting/route_target.gd").new().configure("sector_elace", "sector_vidr", "Vidr", Vector3.UP)
 	var zone = ZoneScene.instance()
 	add_child_autofree(zone)
 	zone.target = route
 	zone.refresh()
 	assert_eq(zone.get_node("Layout/TargetRow/Name").text, "JUMP TO VIDR")
-	assert_eq(zone.get_node("Layout/TargetRow/Distance").text, "", "Nothing to measure")
+	assert_eq(zone.get_node("Layout/TargetRow/Distance").text, "FUEL 5 / 3", "The jump's fuel, needed / held")
+	assert_eq(zone.get_node("Layout/TargetRow/Distance").get_color("font_color"), TargetKinds.graded(Constants.COLOR_UI_TARGET_HOSTILE), "short of it: warned")
 	assert_eq(zone.get_node("Layout/TargetRow").modulate.a, 1.0, "Shown")
 
 
@@ -108,9 +113,9 @@ func test_the_targets_name_follows_it():
 	zone.target_name = names.name
 	zone.refresh()
 	assert_eq(zone.get_node("Layout/TargetRow/Name").text, "ROCK CHUNK (3)")
-	names.name = "Ore chunk (3)"  # Bared
+	names.name = "Molten ore (3)"  # Bared
 	zone.refresh()
-	assert_eq(zone.get_node("Layout/TargetRow/Name").text, "ORE CHUNK (3)", "Without picking it again")
+	assert_eq(zone.get_node("Layout/TargetRow/Name").text, "MOLTEN ORE (3)", "Without picking it again")
 
 
 # The own hull bar flashes red as the hull falls, cooling back to white; a rise or another bar does not.
