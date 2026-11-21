@@ -356,7 +356,34 @@ func test_station_window_is_shown_while_docked_at_home():
 	yield(get_tree(), "idle_frame")
 	assert_true(window.visible, "Other stations open it too, to sell the hold,")
 	assert_eq(window._tab, "cargo", "on the cargo tab only")
-	assert_false(window._slots.get_parent().visible, "with no refitting.")
+	assert_false(window._slots.get_parent().visible, "with no refitting,")
+	assert_false(window.get_node("Panel/Layout/Header/TabFitting").visible, "and no views to pick.")
+	GlobalRefs.player_agent_body = null
+
+
+# At home, two views: FITTING (the ship and storage) and MARKET (storage and the store).
+func test_the_station_window_has_a_fitting_and_a_market_view():
+	GlobalRefs.player_agent_body = _player_ship()
+	var window = load("res://scenes/ui/menus/fitting_window.tscn").instance()
+	add_child_autofree(window)
+	GameState.player_docked_at = "home"
+	window.open()
+	var ship_column: Control = window._slots.get_parent()
+	var storage_column: Control = window._storage.get_parent().get_parent()
+	var store_column: Control = window._store.get_parent().get_parent()
+	assert_eq(window.view, window.FITTING)
+	assert_true(ship_column.visible and storage_column.visible, "FITTING: the ship beside storage")
+	assert_false(store_column.visible, "and no store")
+	assert_gt(window._stats.get_node("Ship").get_child_count(), 0, "The ship's numbers")
+	assert_eq(window._ship_preview.ship_id, GameState.player_ship_template_id, "and its hull, turning")
+	window.get_node("Panel/Layout/Header/TabMarket").emit_signal("pressed")
+	assert_eq(window.view, window.MARKET)
+	assert_true(storage_column.visible and store_column.visible, "MARKET: storage beside the store")
+	assert_false(ship_column.visible, "and no ship column")
+	assert_eq(window.get_node("Panel/Layout/Header/TabMarket").text, "[MARKET]")
+	window.get_node("Panel/Layout/Header/TabFitting").emit_signal("pressed")
+	assert_true(ship_column.visible, "and back")
+	GameState.player_docked_at = ""
 	GlobalRefs.player_agent_body = null
 
 

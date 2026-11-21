@@ -46,7 +46,29 @@ focus_mode = 0
 text = "CLOSE"
 
 [node name="Summary" type="Label" parent="Panel/Layout"]
+visible = false
 autowrap = true
+
+[node name="Stats" type="VBoxContainer" parent="Panel/Layout"]
+custom_constants/separation = 10
+
+[node name="Now" type="GridContainer" parent="Panel/Layout/Stats"]
+mouse_filter = 2
+custom_constants/vseparation = 6
+custom_constants/hseparation = 36
+columns = 6
+
+[node name="Ship" type="GridContainer" parent="Panel/Layout/Stats"]
+mouse_filter = 2
+custom_constants/vseparation = 6
+custom_constants/hseparation = 36
+columns = 6
+
+[node name="Power" type="GridContainer" parent="Panel/Layout/Stats"]
+mouse_filter = 2
+custom_constants/vseparation = 6
+custom_constants/hseparation = 36
+columns = 6
 
 [node name="Scroll" type="ScrollContainer" parent="Panel/Layout"]
 size_flags_vertical = 3

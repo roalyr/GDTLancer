@@ -1,12 +1,12 @@
-# OptionsWindow (scenes/ui/menus/options_window.tscn): the player's options (Settings), one button
-# each, tapped to step through its values. Open, it pauses the game; closing puts the pause back as
-# it was (the main menu keeps its own). Each button reads its option's value; OPTIONS lists them.
-# To add an option: a key in Settings.DEFAULTS, who applies it (Settings' header), a button in the
-# scene and a row here.
+# OptionsWindow (scenes/ui/menus/options_window.tscn): the player's options (Settings), a table
+# that scrolls, a row each (its name, its value), tapped to step through its values. Open, it
+# pauses the game; closing puts the pause back as it was (the main menu keeps its own). OPTIONS
+# lists the rows, in order. To add an option: a key in Settings.DEFAULTS, who applies it
+# (Settings' header) and a row here.
 
 extends Control
 
-# Button node -> [option key, values stepped through (null: on/off), label]
+# Row node -> [option key, values stepped through (null: on/off), label]
 # Volumes (PERCENT) read as a percentage, 0 as OFF.
 const PERCENT = ["music", "effects"]
 const OPTIONS = {
@@ -26,14 +26,20 @@ const OPTIONS = {
 	"ButtonDynamicCamera": ["camera_dynamic", null, "DYNAMIC CAMERA (UNFINISHED, JITTERS)"],
 }
 
+const ROW_HEIGHT = 80.0
+const ROW_MARGIN = 24.0  # px from the row's ends to its words
+const ODD_ROW_SHADE = 0.35  # Every other row's own fill this strong, so rows read apart (as the store's)
+
 var _was_paused: bool = false
 
 
 func _ready() -> void:
 	pause_mode = PAUSE_MODE_PROCESS
 	$Panel/Layout/Header/ButtonClose.connect("pressed", self, "close")
+	var index := 0
 	for name in OPTIONS:
-		get_node("Panel/Layout/" + name).connect("pressed", self, "step", [OPTIONS[name][0]])
+		_add_row(name, index)
+		index += 1
 	Settings.connect("changed", self, "_on_settings_changed")
 	_refresh()
 
@@ -71,12 +77,52 @@ func _on_settings_changed(_key, _value) -> void:
 	_refresh()
 
 
+# A row: a button the width of the table, its option's name to the left, its value to the right.
+func _add_row(name: String, index: int) -> void:
+	var button := Button.new()
+	button.name = name
+	button.focus_mode = Control.FOCUS_NONE
+	button.rect_min_size = Vector2(0, ROW_HEIGHT)
+	if index % 2 != 0:
+		button.self_modulate = Color(1, 1, 1, ODD_ROW_SHADE)  # Its fill only: not its words
+	button.connect("pressed", self, "step", [OPTIONS[name][0]])
+	var row := HBoxContainer.new()
+	row.name = "Row"
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.anchor_right = 1.0
+	row.anchor_bottom = 1.0
+	row.margin_left = ROW_MARGIN
+	row.margin_right = -ROW_MARGIN
+	for part in [["Name", "LargeLabel", OPTIONS[name][2]], ["Value", "LargeValueLabel", ""]]:
+		var label := Label.new()
+		label.name = part[0]
+		label.theme_type_variation = part[1]
+		label.text = part[2]
+		label.valign = Label.VALIGN_CENTER
+		label.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		if part[0] == "Name":
+			label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			label.clip_text = true
+		else:
+			label.align = Label.ALIGN_RIGHT
+		row.add_child(label)
+	button.add_child(row)
+	$Panel/Layout/Scroll/List.add_child(button)
+
+
 func _refresh() -> void:
 	for name in OPTIONS:
-		var button: Button = get_node_or_null("Panel/Layout/" + name)
-		if button != null:
+		var label: Label = get_node_or_null("Panel/Layout/Scroll/List/%s/Row/Value" % name)
+		if label != null:
 			var key: String = OPTIONS[name][0]
-			button.text = "%s: %s" % [OPTIONS[name][2], percent_text(Settings.get_option(key)) if key in PERCENT else value_text(Settings.get_option(key))]
+			label.text = percent_text(Settings.get_option(key)) if key in PERCENT else value_text(Settings.get_option(key))
+
+
+# "NAME: VALUE" of a row, as shown.
+func row_text(name: String) -> String:
+	var row: Node = get_node("Panel/Layout/Scroll/List/%s/Row" % name)
+	return "%s: %s" % [row.get_node("Name").text, row.get_node("Value").text]
 
 
 static func percent_text(value) -> String:

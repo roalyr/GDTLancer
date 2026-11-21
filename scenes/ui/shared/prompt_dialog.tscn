@@ -46,5 +46,6 @@ alignment = 1
 
 [node name="Choice" type="Button" parent="Center/Frame/Box/Choices"]
 visible = false
-rect_min_size = Vector2( 260, 64 )
+rect_min_size = Vector2( 300, 84 )
+theme_type_variation = "LargeButton"
 focus_mode = 0

@@ -1,6 +1,6 @@
 # ShipWindow (scenes/ui/menus/ship_window.tscn): the HUD's SHIP button. The ship flown, read only:
-# what it is worth, how it stands now (hull, power, speed), its stats and power flow (as the docking
-# view gives them), every slot and what sits in it (rounds left in a magazine, lances in a quiver),
+# what it is worth, how it stands now (hull, power, speed), its stats and power flow (ShipStats, as
+# the docking view shows them), every slot and what sits in it (rounds left in a magazine, lances in a quiver),
 # decoys and the hold. Refitting is at home, docked.
 
 extends "res://src/core/ui/info_window/info_window.gd"
@@ -8,6 +8,7 @@ extends "res://src/core/ui/info_window/info_window.gd"
 const Fitting = preload("res://src/core/systems/fitting.gd")
 const ShipFit = preload("res://src/core/systems/ship_fit.gd")
 const FittingWindow = preload("res://src/core/ui/fitting_window/fitting_window.gd")
+const ShipStats = preload("res://src/core/ui/helpers/ship_stats.gd")
 
 
 func fill() -> void:
@@ -15,11 +16,18 @@ func fill() -> void:
 	if not is_instance_valid(ship) or ship.get("fit") == null or ship.get("fit_stats") == null:
 		_title.text = "SHIP"
 		_summary.text = "NO SHIP"
+		_summary.visible = true
+		$Panel/Layout/Stats.visible = false
 		return
+	_summary.visible = false
 	_title.text = "%s  -  WORTH %d WP" % [Fitting.part_name(GameState.player_ship_template_id).to_upper(), int(ship.get_value())]
-	_summary.text = "HULL %d / %d   POWER %d / %d   SPEED %d / %d m/s\n%s" % [
-		ceil(ship.hull), ship.hull_max, floor(ship.power), ship.power_max, ship.linear_velocity.length(), ship.get_top_speed(),
-		FittingWindow.describe_stats(ship)]
+	var stats: Node = $Panel/Layout/Stats
+	stats.visible = true
+	ShipStats.fill(stats.get_node("Now"), ShipStats.now_entries(ship.hull, ship.hull_max, ship.power, ship.power_max,
+		ship.linear_velocity.length(), ship.get_top_speed()))
+	ShipStats.fill(stats.get_node("Ship"), ShipStats.entries(ship.fit_stats, ship.mass, ship.get("ship_template")))
+	var flow: Dictionary = FittingWindow.power_numbers(ship)
+	ShipStats.fill(stats.get_node("Power"), ShipStats.power_entries(flow.regen, flow.damper, flow.tools_draw, flow.power_max, flow.afterburner))
 	_fill_tools(ship)
 	_fill_modules(ship)
 	_fill_hold(ship)

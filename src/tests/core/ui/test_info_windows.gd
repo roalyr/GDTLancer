@@ -60,6 +60,12 @@ func _player_ship() -> RigidBody:
 
 func _texts(window) -> String:
 	var lines: Array = [window.get_node("Panel/Layout/Header/Title").text, window.get_node("Panel/Layout/Summary").text]
+	var stats: Node = window.get_node_or_null("Panel/Layout/Stats")
+	if stats != null and stats.visible:
+		for grid in stats.get_children():
+			for cell in grid.get_children():
+				if not cell.is_queued_for_deletion():
+					lines.append("%s %s" % [cell.get_node("Caption").text, cell.get_node("Value").text])
 	for child in window.get_node("Panel/Layout/Scroll/List").get_children():
 		if child is Label:
 			lines.append(child.text)

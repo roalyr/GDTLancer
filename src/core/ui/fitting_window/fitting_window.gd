@@ -1,6 +1,8 @@
 # FittingWindow: the home station's store and refitting, mouse-only. Covers the screen for as
 # long as the player is docked (the docked ship is out of the world); UNDOCK leaves; MENU opens the main menu (the HUD's menu button is under it). Away from home
-# it shows the cargo tab only: the hold is sold here, by the player, never on docking (Fitting). Slots (click to unfit), storage (fit or sell) and the store, which
+# it shows the cargo tab only: the hold is sold here, by the player, never on docking (Fitting). At
+# home, two views: FITTING, the ship (its stats, its hull turning, its slots: tap to unfit) beside
+# storage (fit or sell); MARKET, storage beside the store, which
 # sells every ship (the one flown is traded in; preset designs come fitted), part and commodity
 # (bought into the hold, sold back from it). The store shows one tab at a time (STORE_TABS), its
 # goods under headings (weight class, part kind), each a two-line row: name over what it is, its
@@ -13,10 +15,12 @@ const Fitting = preload("res://src/core/systems/fitting.gd")
 const ShipFit = preload("res://src/core/systems/ship_fit.gd")
 const PresetClassifier = preload("res://src/core/evolution/preset_classifier.gd")
 const Market = preload("res://src/core/systems/market.gd")
+const ShipStats = preload("res://src/core/ui/helpers/ship_stats.gd")
 
 onready var _title: Label = $Panel/Layout/Header/Title
-onready var _stats: Label = $Panel/Layout/Body/Content/Stats
-onready var _slots: VBoxContainer = $Panel/Layout/Body/Content/Columns/Slots/List
+onready var _stats: VBoxContainer = $Panel/Layout/Body/Content/Columns/Ship/Stats  # The ship flown: its numbers (Ship), where the power goes (Power)
+onready var _ship_preview: Control = $Panel/Layout/Body/Content/Columns/Ship/ShipPreview  # The ship flown, turning
+onready var _slots: VBoxContainer = $Panel/Layout/Body/Content/Columns/Ship/List
 onready var _storage: VBoxContainer = $Panel/Layout/Body/Content/Columns/Storage/Scroll/List
 onready var _store: VBoxContainer = $Panel/Layout/Body/Content/Columns/Store/Scroll/List
 onready var _store_scroll: ScrollContainer = $Panel/Layout/Body/Content/Columns/Store/Scroll
@@ -32,8 +36,13 @@ const ButtonScene = preload("res://scenes/ui/menus/fitting/fitting_button.tscn")
 const GroupHeadingScene = preload("res://scenes/ui/menus/fitting/fitting_group_heading.tscn")
 const HeadingScene = preload("res://scenes/ui/menus/fitting/fitting_heading.tscn")
 const NoteScene = preload("res://scenes/ui/menus/fitting/fitting_note.tscn")
+const STORE_STAT_COLUMNS = 4  # A store hull's numbers (ShipStats, brief: eight) in two rows
 const GROUP_OPEN_MAX = 12  # A part heading over more rows than this starts folded (tap it to unfold)
 
+const FITTING = "fitting"  # The view: the ship (stats, its hull turning, its slots) and storage
+const MARKET = "market"  # storage and the store
+
+var view: String = FITTING
 var _tab: String = "ships"
 var _folded: Dictionary = {}  # Tab/heading -> folded, once tapped
 var _ship_rows: Dictionary = {}  # Ships tab: ship id -> its row (tapping one shows it in the preview)
@@ -43,6 +52,8 @@ const SELECTED_SHADE = Color(1, 1, 1, 0.16)  # The previewed ship's row
 func _ready() -> void:
 	$Panel/Layout/Header/ButtonUndock.connect("pressed", EventBus, "emit_signal", ["player_undocked"])
 	$Panel/Layout/Header/ButtonMenu.connect("pressed", EventBus, "emit_signal", ["main_menu_requested"])  # The HUD's menu button is under the store
+	$Panel/Layout/Header/TabFitting.connect("pressed", self, "show_view", [FITTING])
+	$Panel/Layout/Header/TabMarket.connect("pressed", self, "show_view", [MARKET])
 	EventBus.connect("player_docked", self, "_on_player_docked")
 	EventBus.connect("player_undocked", self, "_on_player_undocked")
 
@@ -74,12 +85,22 @@ func refresh() -> void:
 		close()
 		return
 	_title.text = "DOCKED AT %s  -  BANK %d WP" % [_station_name(GameState.player_docked_at).to_upper(), GameState.player_bank]
-	_stats.text = describe_stats(ship_body)
+	ShipStats.fill(_stats.get_node("Ship"), ShipStats.entries(ship_body.fit_stats, ship_body.mass, ship_body.get("ship_template")))
+	var flow: Dictionary = power_numbers(ship_body)
+	ShipStats.fill(_stats.get_node("Power"), ShipStats.power_entries(flow.regen, flow.damper, flow.tools_draw, flow.power_max, flow.afterburner))
 	var home: bool = Fitting.is_available()
-	_slots.get_parent().visible = home
+	var header: Node = $Panel/Layout/Header
+	header.get_node("TabFitting").visible = home  # Away from home: the cargo market alone
+	header.get_node("TabMarket").visible = home
+	header.get_node("TabFitting").text = "[FITTING]" if view == FITTING else "FITTING"
+	header.get_node("TabMarket").text = "[MARKET]" if view == MARKET else "MARKET"
+	_slots.get_parent().visible = home and view == FITTING
 	_storage.get_parent().get_parent().visible = home
+	_store.get_parent().get_parent().visible = not home or view == MARKET
 	if not home:
 		_tab = "cargo"
+	if _ship_preview.ship_id != GameState.player_ship_template_id:
+		_ship_preview.show_ship(GameState.player_ship_template_id)
 	_rebuild_slots(ship_body)
 	_rebuild_storage(ship_body)
 	_rebuild_store(ship_body)
@@ -97,12 +118,24 @@ func _station_name(location_id: String) -> String:
 # at full thrust, and the net with the tools on: what a long fight costs or leaves. One entry per
 # line of the HUD's ship info; the docking view runs them together.
 static func power_flow(ship_body) -> Array:
-	var stats: Dictionary = ship_body.get("fit_stats") if ship_body.get("fit_stats") != null else {}
-	var damper: float = Constants.LAW_DAMPER_POWER_PER_KG * float(stats.get("damper_mass", 0.0))
-	var reactor: String = "REACTOR +%.1f/s" % (ship_body.power_regen + damper)
-	if damper > 0.0:
-		reactor += "  DAMPER -%.1f/s" % damper
+	var flow: Dictionary = power_numbers(ship_body)
+	var reactor: String = "REACTOR +%.1f/s" % (flow.regen + flow.damper)
+	if flow.damper > 0.0:
+		reactor += "  DAMPER -%.1f/s" % flow.damper
 	var lines: Array = [reactor]
+	if flow.tools_draw > 0.0:
+		var net: float = flow.regen - flow.tools_draw
+		lines.append("TOOLS ON -%.1f/s  NET %s%.1f/s%s" % [flow.tools_draw, "+" if net >= 0.0 else "-", abs(net),
+			"" if net >= 0.0 else "  FULL TO EMPTY %ds" % int(flow.power_max / -net)])
+	if flow.afterburner > 0.0:
+		lines.append("AFTERBURNER -%.1f/s at full thrust" % flow.afterburner)
+	return lines
+
+
+# power_flow's numbers: {regen (the reactor's, less the damper's), damper, tools_draw (all on),
+# power_max, afterburner (at full thrust)}, per second.
+static func power_numbers(ship_body) -> Dictionary:
+	var stats: Dictionary = ship_body.get("fit_stats") if ship_body.get("fit_stats") != null else {}
 	var tools_draw := 0.0
 	var tools = ship_body.get_node_or_null("ToolController")
 	if is_instance_valid(tools):
@@ -110,23 +143,13 @@ static func power_flow(ship_body) -> Array:
 			var tool_template = tools.get_tool(index)
 			if tool_template != null and tool_template.tool_type != "harpoon" and tool_template.cycle_time > 0.0:
 				tools_draw += tool_template.power_per_cycle / tool_template.cycle_time
-	if tools_draw > 0.0:
-		var net: float = ship_body.power_regen - tools_draw
-		lines.append("TOOLS ON -%.1f/s  NET %s%.1f/s%s" % [tools_draw, "+" if net >= 0.0 else "-", abs(net),
-			"" if net >= 0.0 else "  FULL TO EMPTY %ds" % int(ship_body.power_max / -net)])
-	var afterburner: float = float(stats.get("afterburner_thrust", 0.0)) / 1000.0 * Constants.LAW_AFTERBURNER_POWER_PER_KN
-	if afterburner > 0.0:
-		lines.append("AFTERBURNER -%.1f/s at full thrust" % afterburner)
-	return lines
+	return {"regen": float(ship_body.power_regen), "damper": Constants.LAW_DAMPER_POWER_PER_KG * float(stats.get("damper_mass", 0.0)),
+		"tools_draw": tools_draw, "power_max": float(ship_body.power_max),
+		"afterburner": float(stats.get("afterburner_thrust", 0.0)) / 1000.0 * Constants.LAW_AFTERBURNER_POWER_PER_KN}
 
 
 static func describe_stats(ship_body) -> String:
-	var stats: Dictionary = ship_body.fit_stats
-	var top_speed: float = stats.linear_thrust / max(ship_body.mass * Constants.LINEAR_DRAG, 0.001)
-	return "HULL %d   POWER %d (+%d/s)   CARGO %d   THRUST %d kN   MASS %.1f t   TOP SPEED %d m/s   SIGNATURE %.1f km   SENSORS x%.1f" % [
-		stats.hull, stats.power_capacity, stats.power_regen, stats.cargo_capacity,
-		stats.linear_thrust / 1000.0, ship_body.mass / 1000.0, top_speed, stats.signature / 1000.0, stats.sensor_strength
-	] + "\nPOWER FLOW   " + PoolStringArray(power_flow(ship_body)).join("   ")
+	return ShipStats.text(ShipStats.entries(ship_body.fit_stats, ship_body.mass)) + "\nPOWER FLOW   " + PoolStringArray(power_flow(ship_body)).join("   ")
 
 
 const STAT_LABELS = {
@@ -245,6 +268,7 @@ func _store_ships() -> void:
 			var label: String = "FLYING" if flying else ("BUY %d" % cost if cost >= 0 else "BUY +%d" % -cost)
 			var title: String = Fitting.part_name(ship_id) + ("  PROVEN" if TemplateDatabase.proven_presets.has(ship_id) else "")
 			var row: Control = _add_row(_store, i, title, describe_ship(ship_id), [[label, flying or GameState.player_bank < cost, "_on_buy_ship", [ship_id]]])
+			_add_ship_stats(row, ship_id)
 			row.connect("gui_input", self, "_on_ship_row_input", [ship_id])
 			_ship_rows[ship_id] = row
 
@@ -324,15 +348,11 @@ static func part_kind(part) -> String:
 	return "other"
 
 
-# A hull, in a line: role, hull points, tool slots by size, module slots, mass; then its fit.
+# A hull's role (and its evolved pilot's temperament), then its fit; its numbers are ShipStats' (_add_ship_stats).
 static func describe_ship(ship_id: String) -> String:
 	var ship = TemplateDatabase.get_template(ship_id)
 	if not ship is ShipTemplate:
 		return ship_id
-	var tools: Array = []
-	for size in [["small", ship.tool_slots_small], ["medium", ship.tool_slots_medium], ["large", ship.tool_slots_large]]:
-		if size[1] > 0:
-			tools.append("%d %s" % [size[1], size[0]])
 	var fitted: Array = []
 	for part_id in ship.equipped_tools + ship.equipped_modules:
 		if str(part_id) != "":
@@ -342,8 +362,19 @@ static func describe_ship(ship_id: String) -> String:
 	if agent != null and agent.temperament != "":
 		role += ", " + agent.temperament  # How its evolved pilot flies it (NPCs; a hint to the player)
 	var fit_note: String = "Evolved with: " if TemplateDatabase.presets.has(ship_id) else "Comes with: "
-	return "%s   hull %d   tools %s   modules %d %s   %.1f t\n%s" % [role.to_upper(), ship.hull_integrity, PoolStringArray(tools).join(" + "),
-		ship.module_slots, ShipFit.module_slot_size(ship), ship.mass / 1000.0, (fit_note + PoolStringArray(fitted).join(", ")) if not fitted.empty() else "Bare hull"]
+	return "%s\n%s" % [role.to_upper(), (fit_note + PoolStringArray(fitted).join(", ")) if not fitted.empty() else "Bare hull"]
+
+
+# A store hull's numbers as it comes fitted (ShipStats, brief: as the ship flown's header shows
+# them), between its name and its role.
+func _add_ship_stats(row: Control, ship_id: String) -> void:
+	var ship = TemplateDatabase.get_template(ship_id)
+	if not ship is ShipTemplate:
+		return
+	var stats: Dictionary = ShipFit.compute_stats(ship, {"tools": ship.equipped_tools, "modules": ship.equipped_modules})
+	var strip: GridContainer = ShipStats.new_grid(STORE_STAT_COLUMNS)
+	row.get_node("Row/Text").add_child_below_node(row.get_node("Row/Text/Name"), strip)
+	ShipStats.fill(strip, ShipStats.entries(stats, float(stats.get("mass", ship.mass)), ship, true))
 
 
 func _ships_first(a: String, b: String) -> bool:
@@ -464,6 +495,12 @@ func _report(error: String, success: String) -> void:
 
 func _on_fold(key: String, folded: bool) -> void:
 	_folded[key] = folded
+	refresh()
+
+
+# FITTING: the ship beside storage; MARKET: storage beside the store.
+func show_view(which: String) -> void:
+	view = which
 	refresh()
 
 
