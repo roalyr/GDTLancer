@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=2]
+[gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://assets/art/ui/main_menu/button_start_new_game.png" type="Texture" id=1]
 [ext_resource path="res://assets/themes/main_theme.tres" type="Theme" id=2]
@@ -7,25 +7,8 @@
 [ext_resource path="res://assets/art/ui/main_menu/button_exit_game.png" type="Texture" id=5]
 [ext_resource path="res://assets/art/ui/main_menu/button_save_game.png" type="Texture" id=6]
 [ext_resource path="res://assets/art/ui/main_menu/button_settings.png" type="Texture" id=7]
-[ext_resource path="res://assets/fonts/Roboto_Condensed/static/RobotoCondensed-Regular.ttf" type="DynamicFontData" id=8]
 [ext_resource path="res://src/core/ui/helpers/centered_growing_label.gd" type="Script" id=10]
 [ext_resource path="res://scenes/ui/shared/window_close_button.tscn" type="PackedScene" id=11]
-
-[sub_resource type="DynamicFont" id=4]
-size = 50
-font_data = ExtResource( 8 )
-
-[sub_resource type="DynamicFont" id=1]
-size = 100
-font_data = ExtResource( 8 )
-
-[sub_resource type="DynamicFont" id=2]
-size = 50
-font_data = ExtResource( 8 )
-
-[sub_resource type="DynamicFont" id=3]
-size = 50
-font_data = ExtResource( 8 )
 
 [node name="MainMenu" type="Control"]
 anchor_right = 1.0
@@ -131,7 +114,7 @@ margin_top = -30.0
 margin_right = 47.0
 margin_bottom = 30.0
 theme = ExtResource( 2 )
-custom_fonts/font = SubResource( 4 )
+theme_type_variation = "MenuLabel"
 text = "New"
 align = 1
 script = ExtResource( 10 )
@@ -171,7 +154,7 @@ margin_top = -30.0
 margin_right = 56.0
 margin_bottom = 30.0
 theme = ExtResource( 2 )
-custom_fonts/font = SubResource( 4 )
+theme_type_variation = "MenuLabel"
 text = "Load"
 align = 1
 script = ExtResource( 10 )
@@ -211,7 +194,7 @@ margin_top = -30.0
 margin_right = 54.0
 margin_bottom = 30.0
 theme = ExtResource( 2 )
-custom_fonts/font = SubResource( 4 )
+theme_type_variation = "MenuLabel"
 text = "Save"
 align = 1
 script = ExtResource( 10 )
@@ -251,7 +234,7 @@ margin_top = -30.0
 margin_right = 101.5
 margin_bottom = 30.0
 theme = ExtResource( 2 )
-custom_fonts/font = SubResource( 4 )
+theme_type_variation = "MenuLabel"
 text = "Settings"
 align = 1
 script = ExtResource( 10 )
@@ -291,7 +274,7 @@ margin_top = -30.0
 margin_right = 46.0
 margin_bottom = 30.0
 theme = ExtResource( 2 )
-custom_fonts/font = SubResource( 4 )
+theme_type_variation = "MenuLabel"
 text = "Exit"
 align = 1
 script = ExtResource( 10 )
@@ -307,7 +290,7 @@ margin_top = 40.0
 margin_right = 217.5
 margin_bottom = 158.0
 theme = ExtResource( 2 )
-custom_fonts/font = SubResource( 1 )
+theme_type_variation = "MenuTitleLabel"
 text = "GDTLancer"
 __meta__ = {
 "_edit_lock_": true
@@ -323,7 +306,7 @@ margin_top = -100.0
 margin_right = -40.0
 margin_bottom = -40.0
 theme = ExtResource( 2 )
-custom_fonts/font = SubResource( 2 )
+theme_type_variation = "MenuLabel"
 text = "14:45"
 __meta__ = {
 "_edit_lock_": true
@@ -337,7 +320,7 @@ margin_top = -100.0
 margin_right = 256.0
 margin_bottom = -40.0
 theme = ExtResource( 2 )
-custom_fonts/font = SubResource( 3 )
+theme_type_variation = "MenuLabel"
 text = "version 0.1"
 __meta__ = {
 "_edit_lock_": true

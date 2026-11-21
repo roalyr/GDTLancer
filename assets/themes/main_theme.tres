@@ -1,8 +1,14 @@
-[gd_resource type="Theme" load_steps=15 format=2]
+[gd_resource type="Theme" load_steps=20 format=2]
 
 [ext_resource path="res://assets/art/ui/controls/slider_vert.png" type="Texture" id=1]
 [ext_resource path="res://assets/art/ui/controls/slider_tick.png" type="Texture" id=2]
 [ext_resource path="res://assets/fonts/Roboto_Condensed/static/RobotoCondensed-Regular.ttf" type="DynamicFontData" id=3]
+[ext_resource path="res://assets/themes/font_debug.tres" type="DynamicFont" id=4]
+[ext_resource path="res://assets/themes/font_menu.tres" type="DynamicFont" id=5]
+[ext_resource path="res://assets/themes/font_menu_title.tres" type="DynamicFont" id=6]
+[ext_resource path="res://assets/themes/style_announcement.tres" type="StyleBox" id=7]
+[ext_resource path="res://assets/themes/style_store_row.tres" type="StyleBox" id=8]
+[ext_resource path="res://assets/themes/style_window.tres" type="StyleBox" id=9]
 
 [sub_resource type="DynamicFont" id=2]
 size = 22
@@ -42,18 +48,6 @@ use_mipmaps = true
 use_filter = true
 font_data = ExtResource( 3 )
 
-[sub_resource type="StyleBoxFlat" id=9]
-content_margin_left = 40.0
-content_margin_right = 40.0
-content_margin_top = 32.0
-content_margin_bottom = 32.0
-bg_color = Color( 0.0588235, 0.0392157, 0.0745098, 1 )
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color( 1, 1, 1, 0.12 )
-
 [sub_resource type="StyleBoxFlat" id=4]
 bg_color = Color( 0, 0, 0, 0 )
 
@@ -86,7 +80,8 @@ HScrollBar/styles/scroll_focus = SubResource( 10 )
 ItemList/fonts/font = SubResource( 1 )
 Label/colors/font_color_shadow = Color( 0, 0, 0, 0.827451 )
 Label/fonts/font = SubResource( 2 )
-PanelContainer/styles/panel = SubResource( 9 )
+Panel/styles/panel = ExtResource( 9 )
+PanelContainer/styles/panel = ExtResource( 9 )
 RichTextLabel/fonts/normal_font = SubResource( 2 )
 TabContainer/fonts/font = SubResource( 2 )
 VScrollBar/styles/grabber = SubResource( 11 )
@@ -101,3 +96,21 @@ VSlider/icons/tick = ExtResource( 2 )
 VSlider/styles/grabber_area = SubResource( 4 )
 VSlider/styles/grabber_area_highlight = SubResource( 5 )
 VSlider/styles/slider = SubResource( 6 )
+AnnouncementPanel/base_type = "PanelContainer"
+AnnouncementPanel/styles/panel = ExtResource( 7 )
+DebugLabel/base_type = "Label"
+DebugLabel/fonts/font = ExtResource( 4 )
+HeadingButton/base_type = "Button"
+HeadingButton/colors/font_color = Color( 1, 0.82, 0.45, 1 )
+HeadingButton/colors/font_color_hover = Color( 1, 0.82, 0.45, 1 )
+HeadingButton/colors/font_color_pressed = Color( 1, 0.82, 0.45, 1 )
+HeadingLabel/base_type = "Label"
+HeadingLabel/colors/font_color = Color( 1, 0.82, 0.45, 1 )
+MenuLabel/base_type = "Label"
+MenuLabel/fonts/font = ExtResource( 5 )
+MenuTitleLabel/base_type = "Label"
+MenuTitleLabel/fonts/font = ExtResource( 6 )
+NoteLabel/base_type = "Label"
+NoteLabel/colors/font_color = Color( 1, 1, 1, 0.6 )
+StoreRow/base_type = "PanelContainer"
+StoreRow/styles/panel = ExtResource( 8 )

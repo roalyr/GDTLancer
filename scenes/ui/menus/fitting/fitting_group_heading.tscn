@@ -2,7 +2,5 @@
 
 [node name="GroupHeading" type="Button"]
 rect_min_size = Vector2( 0, 40 )
-custom_colors/font_color = Color( 1, 0.82, 0.45, 1 )
-custom_colors/font_color_hover = Color( 1, 0.82, 0.45, 1 )
-custom_colors/font_color_pressed = Color( 1, 0.82, 0.45, 1 )
+theme_type_variation = "HeadingButton"
 align = 0

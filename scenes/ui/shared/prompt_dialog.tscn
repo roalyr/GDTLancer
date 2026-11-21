@@ -30,7 +30,7 @@ custom_constants/separation = 24
 
 [node name="Title" type="Label" parent="Center/Frame/Box"]
 mouse_filter = 2
-custom_colors/font_color = Color( 1, 0.82, 0.45, 1 )
+theme_type_variation = "HeadingLabel"
 align = 1
 
 [node name="Text" type="Label" parent="Center/Frame/Box"]

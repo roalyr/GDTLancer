@@ -116,15 +116,21 @@ func _find(node: Node, method: String) -> Node:
 	return null
 
 
-# Every visible control as it lays out: class, global rect, modulate, colour overrides, panel style.
+# Every visible control as it lays out: class, global rect, modulate, colours and font size where
+# overridden or set by a theme variation (main_theme's named looks), panel style.
 func _dump(node: Node, lines: Array) -> void:
 	if node is CanvasItem and not node.visible:
 		return
 	if node is Control:
 		var line: String = "%s %s %s m%s sm%s" % [node.get_class(), node.get_global_rect().position.round(), node.rect_size.round(), node.modulate, node.self_modulate]
+		var styled: bool = node.theme_type_variation != ""
 		for key in ["font_color", "font_color_hover", "font_color_pressed"]:
-			if node.has_color_override(key):
+			if node.has_color_override(key) or (styled and node.has_color(key)):
 				line += " %s=%s" % [key, node.get_color(key)]
+		if node.has_font_override("font") or styled:
+			var font = node.get_font("font")
+			if font is DynamicFont:
+				line += " font=%d" % font.size
 		if node is PanelContainer:
 			var style = node.get_stylebox("panel")
 			line += " panel=%s" % (style.bg_color if style is StyleBoxFlat else style.get_class())

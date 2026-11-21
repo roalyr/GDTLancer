@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=2]
+[gd_scene load_steps=21 format=2]
 
 [ext_resource path="res://src/core/ui/main_hud/main_hud.gd" type="Script" id=1]
 [ext_resource path="res://assets/art/ui/controls/button_approach.png" type="Texture" id=2]
@@ -20,11 +20,6 @@
 [ext_resource path="res://assets/art/ui/controls/button_character.png" type="Texture" id=18]
 [ext_resource path="res://assets/art/ui/controls/button_ship.png" type="Texture" id=19]
 [ext_resource path="res://assets/art/ui/controls/button_structure.png" type="Texture" id=20]
-[ext_resource path="res://assets/fonts/Roboto_Condensed/static/RobotoCondensed-Regular.ttf" type="DynamicFontData" id=21]
-
-[sub_resource type="DynamicFont" id=1]
-size = 18
-font_data = ExtResource( 21 )
 
 [node name="MainHUD" type="Control"]
 anchor_right = 1.0
@@ -1013,7 +1008,7 @@ margin_top = 80.0
 margin_right = 255.0
 margin_bottom = 102.0
 theme = ExtResource( 9 )
-custom_fonts/font = SubResource( 1 )
+theme_type_variation = "DebugLabel"
 autowrap = true
 
 [node name="LabelTools" type="Label" parent="ScreenControls/DebugOverlay/LeftColumn"]
@@ -1021,7 +1016,7 @@ margin_top = 118.0
 margin_right = 255.0
 margin_bottom = 140.0
 theme = ExtResource( 9 )
-custom_fonts/font = SubResource( 1 )
+theme_type_variation = "DebugLabel"
 autowrap = true
 
 [node name="RightColumn" type="VBoxContainer" parent="ScreenControls/DebugOverlay"]
@@ -1071,7 +1066,7 @@ text = "TO TARGET"
 margin_right = 255.0
 margin_bottom = 22.0
 theme = ExtResource( 9 )
-custom_fonts/font = SubResource( 1 )
+theme_type_variation = "DebugLabel"
 align = 2
 autowrap = true
 
@@ -1080,7 +1075,7 @@ margin_top = 38.0
 margin_right = 255.0
 margin_bottom = 60.0
 theme = ExtResource( 9 )
-custom_fonts/font = SubResource( 1 )
+theme_type_variation = "DebugLabel"
 align = 2
 autowrap = true
 
@@ -1091,7 +1086,7 @@ margin_top = 64.0
 margin_right = -10.0
 margin_bottom = 195.0
 theme = ExtResource( 9 )
-custom_fonts/font = SubResource( 1 )
+theme_type_variation = "DebugLabel"
 autowrap = true
 
 [node name="LabelFrame" type="Label" parent="ScreenControls/DebugOverlay"]
@@ -1102,7 +1097,7 @@ margin_top = 64.0
 margin_right = -395.0
 margin_bottom = 195.0
 theme = ExtResource( 9 )
-custom_fonts/font = SubResource( 1 )
+theme_type_variation = "DebugLabel"
 align = 2
 autowrap = true
 
@@ -1113,7 +1108,7 @@ margin_top = 210.0
 margin_right = -395.0
 margin_bottom = 420.0
 theme = ExtResource( 9 )
-custom_fonts/font = SubResource( 1 )
+theme_type_variation = "DebugLabel"
 autowrap = true
 
 [connection signal="pressed" from="ScreenControls/CenterLeftZone/ButtonMenu" to="." method="_on_ButtonMenu_pressed"]
