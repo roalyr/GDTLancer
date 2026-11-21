@@ -13,6 +13,7 @@
 [node name="MainMenu" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
+theme = ExtResource( 2 )
 script = ExtResource( 3 )
 __meta__ = {
 "_edit_lock_": true
@@ -59,10 +60,10 @@ margin_right = 960.0
 margin_bottom = 1.0
 color = Color( 1, 1, 1, 0.12549 )
 
-[node name="Background" type="ColorRect" parent="ScreenControls"]
+[node name="Background" type="Panel" parent="ScreenControls"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-color = Color( 0.14902, 0.211765, 0.196078, 1 )
+theme_type_variation = "MenuBackground"
 __meta__ = {
 "_edit_lock_": true
 }

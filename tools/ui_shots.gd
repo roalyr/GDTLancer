@@ -131,7 +131,7 @@ func _dump(node: Node, lines: Array) -> void:
 			var font = node.get_font("font")
 			if font is DynamicFont:
 				line += " font=%d" % font.size
-		if node is PanelContainer:
+		if node is PanelContainer or node is Panel:
 			var style = node.get_stylebox("panel")
 			line += " panel=%s" % (style.bg_color if style is StyleBoxFlat else style.get_class())
 		if node is Label or node is Button:

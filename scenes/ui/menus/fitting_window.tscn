@@ -47,9 +47,8 @@ rect_min_size = Vector2( 160, 64 )
 focus_mode = 0
 text = "UNDOCK"
 
-[node name="Body" type="ColorRect" parent="Panel/Layout"]
+[node name="Body" type="Control" parent="Panel/Layout"]
 size_flags_vertical = 3
-color = Color( 0.0588235, 0.0392157, 0.0745098, 1 )
 
 [node name="Content" type="VBoxContainer" parent="Panel/Layout/Body"]
 anchor_right = 1.0

@@ -2,115 +2,80 @@
 
 [ext_resource path="res://assets/art/ui/controls/slider_vert.png" type="Texture" id=1]
 [ext_resource path="res://assets/art/ui/controls/slider_tick.png" type="Texture" id=2]
-[ext_resource path="res://assets/fonts/Roboto_Condensed/static/RobotoCondensed-Regular.ttf" type="DynamicFontData" id=3]
-[ext_resource path="res://assets/themes/font_debug.tres" type="DynamicFont" id=4]
-[ext_resource path="res://assets/themes/font_menu.tres" type="DynamicFont" id=5]
-[ext_resource path="res://assets/themes/font_menu_title.tres" type="DynamicFont" id=6]
-[ext_resource path="res://assets/themes/style_announcement.tres" type="StyleBox" id=7]
-[ext_resource path="res://assets/themes/style_store_row.tres" type="StyleBox" id=8]
-[ext_resource path="res://assets/themes/style_window.tres" type="StyleBox" id=9]
-
-[sub_resource type="DynamicFont" id=2]
-size = 22
-use_mipmaps = true
-use_filter = true
-font_data = ExtResource( 3 )
-
-[sub_resource type="StyleBoxFlat" id=7]
-bg_color = Color( 0, 0, 0, 0.25 )
-
-[sub_resource type="StyleBoxEmpty" id=8]
-
-[sub_resource type="StyleBoxFlat" id=11]
-content_margin_left = 14.0
-content_margin_right = 14.0
-content_margin_top = 14.0
-content_margin_bottom = 14.0
-bg_color = Color( 1, 1, 1, 0.35 )
-
-[sub_resource type="StyleBoxFlat" id=12]
-content_margin_left = 14.0
-content_margin_right = 14.0
-content_margin_top = 14.0
-content_margin_bottom = 14.0
-bg_color = Color( 1, 1, 1, 0.6 )
-
-[sub_resource type="StyleBoxFlat" id=10]
-content_margin_left = 14.0
-content_margin_right = 14.0
-content_margin_top = 14.0
-content_margin_bottom = 14.0
-bg_color = Color( 0, 0, 0, 0.25 )
-
-[sub_resource type="DynamicFont" id=1]
-size = 18
-use_mipmaps = true
-use_filter = true
-font_data = ExtResource( 3 )
-
-[sub_resource type="StyleBoxFlat" id=4]
-bg_color = Color( 0, 0, 0, 0 )
-
-[sub_resource type="StyleBoxFlat" id=5]
-bg_color = Color( 0, 0, 0, 0 )
-
-[sub_resource type="StyleBoxFlat" id=6]
-border_width_left = 50
-border_width_right = 50
-border_color = Color( 0, 0, 0, 0 )
+[ext_resource path="res://assets/themes/font_default.tres" type="DynamicFont" id=3]
+[ext_resource path="res://assets/themes/font_small.tres" type="DynamicFont" id=4]
+[ext_resource path="res://assets/themes/font_debug.tres" type="DynamicFont" id=5]
+[ext_resource path="res://assets/themes/font_menu.tres" type="DynamicFont" id=6]
+[ext_resource path="res://assets/themes/font_menu_title.tres" type="DynamicFont" id=7]
+[ext_resource path="res://assets/themes/style_button.tres" type="StyleBox" id=8]
+[ext_resource path="res://assets/themes/style_none.tres" type="StyleBox" id=9]
+[ext_resource path="res://assets/themes/style_scroll_grabber.tres" type="StyleBox" id=10]
+[ext_resource path="res://assets/themes/style_scroll_grabber_lit.tres" type="StyleBox" id=11]
+[ext_resource path="res://assets/themes/style_scroll_track.tres" type="StyleBox" id=12]
+[ext_resource path="res://assets/themes/style_slider_grabber_area.tres" type="StyleBox" id=13]
+[ext_resource path="res://assets/themes/style_slider.tres" type="StyleBox" id=14]
+[ext_resource path="res://assets/themes/style_window.tres" type="StyleBox" id=15]
+[ext_resource path="res://assets/themes/style_announcement.tres" type="StyleBox" id=16]
+[ext_resource path="res://assets/themes/style_store_row.tres" type="StyleBox" id=17]
+[ext_resource path="res://assets/themes/style_shade.tres" type="StyleBox" id=18]
+[ext_resource path="res://assets/themes/style_menu_background.tres" type="StyleBox" id=19]
 
 [resource]
-default_font = SubResource( 2 )
+default_font = ExtResource( 3 )
 Button/colors/font_color = Color( 1, 1, 1, 1 )
 Button/colors/font_color_disabled = Color( 1, 1, 1, 0.4 )
 Button/colors/font_color_hover = Color( 1, 1, 1, 1 )
 Button/colors/font_color_pressed = Color( 1, 1, 1, 1 )
-Button/fonts/font = SubResource( 2 )
-Button/styles/disabled = SubResource( 7 )
-Button/styles/focus = SubResource( 8 )
-Button/styles/hover = SubResource( 7 )
-Button/styles/normal = SubResource( 7 )
-Button/styles/pressed = SubResource( 7 )
+Button/fonts/font = ExtResource( 3 )
+Button/styles/disabled = ExtResource( 8 )
+Button/styles/focus = ExtResource( 9 )
+Button/styles/hover = ExtResource( 8 )
+Button/styles/normal = ExtResource( 8 )
+Button/styles/pressed = ExtResource( 8 )
 HBoxContainer/constants/separation = 40
-HScrollBar/styles/grabber = SubResource( 11 )
-HScrollBar/styles/grabber_highlight = SubResource( 12 )
-HScrollBar/styles/grabber_pressed = SubResource( 12 )
-HScrollBar/styles/scroll = SubResource( 10 )
-HScrollBar/styles/scroll_focus = SubResource( 10 )
-ItemList/fonts/font = SubResource( 1 )
+HScrollBar/styles/grabber = ExtResource( 10 )
+HScrollBar/styles/grabber_highlight = ExtResource( 11 )
+HScrollBar/styles/grabber_pressed = ExtResource( 11 )
+HScrollBar/styles/scroll = ExtResource( 12 )
+HScrollBar/styles/scroll_focus = ExtResource( 12 )
+ItemList/fonts/font = ExtResource( 4 )
 Label/colors/font_color_shadow = Color( 0, 0, 0, 0.827451 )
-Label/fonts/font = SubResource( 2 )
-Panel/styles/panel = ExtResource( 9 )
-PanelContainer/styles/panel = ExtResource( 9 )
-RichTextLabel/fonts/normal_font = SubResource( 2 )
-TabContainer/fonts/font = SubResource( 2 )
-VScrollBar/styles/grabber = SubResource( 11 )
-VScrollBar/styles/grabber_highlight = SubResource( 12 )
-VScrollBar/styles/grabber_pressed = SubResource( 12 )
-VScrollBar/styles/scroll = SubResource( 10 )
-VScrollBar/styles/scroll_focus = SubResource( 10 )
+Label/fonts/font = ExtResource( 3 )
+Panel/styles/panel = ExtResource( 15 )
+PanelContainer/styles/panel = ExtResource( 15 )
+RichTextLabel/fonts/normal_font = ExtResource( 3 )
+TabContainer/fonts/font = ExtResource( 3 )
+VScrollBar/styles/grabber = ExtResource( 10 )
+VScrollBar/styles/grabber_highlight = ExtResource( 11 )
+VScrollBar/styles/grabber_pressed = ExtResource( 11 )
+VScrollBar/styles/scroll = ExtResource( 12 )
+VScrollBar/styles/scroll_focus = ExtResource( 12 )
 VSlider/icons/grabber = ExtResource( 1 )
 VSlider/icons/grabber_disabled = ExtResource( 1 )
 VSlider/icons/grabber_highlight = ExtResource( 1 )
 VSlider/icons/tick = ExtResource( 2 )
-VSlider/styles/grabber_area = SubResource( 4 )
-VSlider/styles/grabber_area_highlight = SubResource( 5 )
-VSlider/styles/slider = SubResource( 6 )
+VSlider/styles/grabber_area = ExtResource( 13 )
+VSlider/styles/grabber_area_highlight = ExtResource( 13 )
+VSlider/styles/slider = ExtResource( 14 )
 AnnouncementPanel/base_type = "PanelContainer"
-AnnouncementPanel/styles/panel = ExtResource( 7 )
+AnnouncementPanel/styles/panel = ExtResource( 16 )
 DebugLabel/base_type = "Label"
-DebugLabel/fonts/font = ExtResource( 4 )
+DebugLabel/fonts/font = ExtResource( 5 )
 HeadingButton/base_type = "Button"
 HeadingButton/colors/font_color = Color( 1, 0.82, 0.45, 1 )
 HeadingButton/colors/font_color_hover = Color( 1, 0.82, 0.45, 1 )
 HeadingButton/colors/font_color_pressed = Color( 1, 0.82, 0.45, 1 )
 HeadingLabel/base_type = "Label"
 HeadingLabel/colors/font_color = Color( 1, 0.82, 0.45, 1 )
+MenuBackground/base_type = "Panel"
+MenuBackground/styles/panel = ExtResource( 19 )
 MenuLabel/base_type = "Label"
-MenuLabel/fonts/font = ExtResource( 5 )
+MenuLabel/fonts/font = ExtResource( 6 )
 MenuTitleLabel/base_type = "Label"
-MenuTitleLabel/fonts/font = ExtResource( 6 )
+MenuTitleLabel/fonts/font = ExtResource( 7 )
 NoteLabel/base_type = "Label"
 NoteLabel/colors/font_color = Color( 1, 1, 1, 0.6 )
+Shade/base_type = "Panel"
+Shade/styles/panel = ExtResource( 18 )
 StoreRow/base_type = "PanelContainer"
-StoreRow/styles/panel = ExtResource( 8 )
+StoreRow/styles/panel = ExtResource( 17 )
