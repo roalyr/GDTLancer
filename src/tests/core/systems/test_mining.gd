@@ -32,6 +32,9 @@ func before_each():
 
 
 func after_each():
+	for chunk in get_tree().get_nodes_in_group("ore_chunk"):  # Broken off into the test: not freed with the rock
+		if is_instance_valid(chunk) and not chunk.is_queued_for_deletion():
+			chunk.free()
 	GameState.rock_deposits = {}
 	GameState.world_time = 0.0
 	for child in get_children():
@@ -293,3 +296,28 @@ func test_a_worked_out_rock_is_approached_with_a_word_and_its_mark_fades():
 	assert_true(Bracket.is_worked_out(rock))
 	assert_false(Player.is_chargeable(rock), "No charge at it")
 	assert_string_contains(Player.worked_out_notice(rock), "Worked out: ore back in")
+
+
+# A derelict's piece breaks into derelict debris (not rock), bared to molten alloy that cools, and
+# grows back slower than a rock.
+func test_a_derelict_breaks_into_debris_bared_to_alloy():
+	rock.chunk_derelict = true
+	rock.deposit_id = "commodity_relic"
+	var chunks: Array = _strike()[1]
+	assert_gt(chunks.size(), 0)
+	var chunk = chunks[0]
+	assert_true(chunk.derelict)
+	assert_string_starts_with(chunk.get_display_name(), "Derelict debris (")
+	chunk.cut(Constants.MINING_CRUST_HP)
+	assert_string_starts_with(chunk.get_display_name(), "Molten derelict alloy (")
+	chunk.heat = 0.0
+	assert_string_starts_with(chunk.get_display_name(), "Derelict alloy (")
+	assert_eq(rock.regrow_time(), Constants.MINING_REGROW_TIME_DERELICT)
+	assert_gt(Constants.MINING_REGROW_TIME_DERELICT, Constants.MINING_REGROW_TIME)
+
+
+func test_a_rock_breaks_into_rock_chunks():
+	var chunk = _strike()[1][0]
+	assert_false(chunk.derelict)
+	assert_string_starts_with(chunk.get_display_name(), "Rock chunk (")
+	assert_eq(rock.regrow_time(), Constants.MINING_REGROW_TIME)

@@ -1,6 +1,7 @@
 # AwarenessZone (scenes/ui/hud/awareness_zone.tscn): the strip along the top of the HUD with what a
 # pilot glances at, read as colours and lengths more than words:
-# - the target (large): a ship's faction tag before its name ("[VERDANT] ..."), distance, how a
+# - the target (large), its name kept up to date (a rock chunk bared becomes an ore chunk), or a
+#   jump route's destination ("JUMP TO VIDR"): a ship's faction tag before its name ("[VERDANT] ..."), distance, how a
 #   fight with it would go (EASY .. DEADLY) with its pilot's level (ROOKIE .. ACE, PilotLevel) and
 #   its hull, in its mark's colour (TargetKinds); the bracket then keeps only its distance;
 # - own speed, ships the sensors see as pips (HudPips; the hostile ones filled, red), own signature
@@ -18,8 +19,9 @@ const Bracket = preload("res://src/core/ui/main_hud/projected_target_bracket.gd"
 const CombatAssessment = preload("res://src/core/systems/combat_assessment.gd")
 const PilotLevel = preload("res://src/core/systems/pilot_level.gd")
 
-var target = null  # The selected target (MainHUD)
-var target_name: String = ""
+var target = null  # The selected target (MainHUD): a node, or a jump route (RouteTarget)
+var target_name: String = ""  # Its name when picked; name_source, if set, names it afresh each refresh
+var name_source: FuncRef = null  # MainHUD._resolve_target_display_name: a chunk's name follows it bared
 var radio_lines: Array = []  # [[line, age in s]], oldest first
 var suppressed: bool = false  # Hidden while the debug overlay is up (MainHUD)
 
@@ -78,6 +80,15 @@ func refresh() -> void:
 
 
 func _refresh_target(player) -> void:
+	if is_route(target):  # A jump route: where it goes, nothing to measure
+		_target_row.modulate.a = 1.0
+		_set_text(_target_name, route_text(target))
+		_set_text(_target_distance, "")
+		_set_text(_target_threat, "")
+		for label in [_target_name, _target_distance, _target_threat]:
+			label.add_color_override("font_color", TargetKinds.graded(Constants.COLOR_UI_TARGET_SELECTED))
+		_target_hull.visible = false
+		return
 	var has_target: bool = is_instance_valid(target) and target is Spatial and target.is_inside_tree()
 	_target_row.modulate.a = 1.0 if has_target else 0.0
 	if not has_target:
@@ -85,6 +96,8 @@ func _refresh_target(player) -> void:
 	var color: Color = TargetKinds.color_of(target, player)
 	if TargetKinds.kind_of(target) in ["rock", "body"]:
 		color = TargetKinds.graded(Constants.COLOR_UI_TARGET_SELECTED)
+	if name_source != null and name_source.is_valid():
+		target_name = str(name_source.call_func(target))
 	_set_text(_target_name, name_text(target, target_name))
 	_set_text(_target_distance, distance_text(player.global_transform.origin.distance_to(target.global_transform.origin)))
 	_set_text(_target_threat, threat_text(player, target))
@@ -117,6 +130,16 @@ func _refresh_radio() -> void:
 	_set_text(_radio, PoolStringArray(shown).join("\n"))
 	var fade_from: float = Constants.HUD_RADIO_FADE * 0.75
 	_radio.modulate.a = Constants.HUD_RADIO_ALPHA * clamp(1.0 - (newest_age - fade_from) / (Constants.HUD_RADIO_FADE - fade_from), 0.0, 1.0)
+
+
+static func is_route(target_node) -> bool:
+	return target_node is Reference and target_node.get("target_kind") == "jump_route"
+
+
+# A jump route's line: "JUMP TO VIDR".
+static func route_text(route) -> String:
+	var name: String = str(route.display_name) if str(route.display_name) != "" else str(route.target_sector_id)
+	return "JUMP TO " + name.to_upper()
 
 
 # How a fight with a live ship would go (CombatAssessment), "" for anything else.

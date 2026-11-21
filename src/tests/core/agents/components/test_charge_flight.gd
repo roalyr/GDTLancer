@@ -100,3 +100,45 @@ func test_a_charge_strafes_in_strikes_head_on_and_breaks_off_watching():
 	assert_true(broke_off, "and broke off")
 	assert_lt(watched_off, 30.0, "its nose kept on the target")
 	assert_true(came_back, "then came in again")
+
+
+func test_rocks_and_debris_are_charged_straight_ships_the_long_way():
+	var NavigationSystem = load("res://src/core/agents/components/navigation_system.gd")
+	var ship = load("res://src/core/agents/agent.gd").new()
+	autofree(ship)
+	assert_false(NavigationSystem.is_straight_charge(ship), "A live ship: strafe and break off")
+	ship.is_wreck = true
+	assert_true(NavigationSystem.is_straight_charge(ship), "A wreck: straight")
+	var rock = load("res://scenes/prefabs/celestial/asteroid.tscn").instance()
+	autofree(rock)
+	assert_true(NavigationSystem.is_straight_charge(rock), "A rock: straight")
+
+
+# A charge at an ore chunk flies straight at it and on through the shove: no break-off.
+func test_a_charge_at_debris_never_breaks_off():
+	Engine.iterations_per_second = 240
+	Engine.time_scale = 4.0
+	var lancer = _ship(LANCER, "charge_test_debris", "verdant", Vector3(0, 0, 1500))
+	var chunk = load("res://src/scenes/game_world/celestial/ore_chunk.gd").new()
+	chunk.setup({Constants.MINING_DEPOSIT: 4}, null, 3.0)
+	_container.add_child(chunk)
+	yield(get_tree(), "idle_frame")
+	lancer.set_lances_armed(true)
+	lancer.command_charge(chunk)
+	var nav = lancer.navigation_system
+	var off := 0.0  # Most degrees its velocity was off the line to the chunk, once moving, until it gets there
+	var reached := false
+	for i in range(240 * 4):
+		yield(get_tree(), "physics_frame")
+		if bool(nav._current_command.get("running_up", false)):
+			assert_true(false, "Never breaks off")
+			break
+		var to: Vector3 = chunk.global_transform.origin - lancer.global_transform.origin
+		if to.length() < 100.0:
+			reached = true
+		if not reached and lancer.linear_velocity.length() > 30.0:
+			off = max(off, rad2deg(lancer.linear_velocity.angle_to(to)))
+	assert_true(reached, "It got there")
+	for loose in get_tree().get_nodes_in_group("loose_lance"):  # A lance lost in the shove lands outside the container
+		loose.free()
+	assert_lt(off, 15.0, "Straight at it: no strafe, no spiral")

@@ -62,3 +62,48 @@ func test_the_bracket_leaves_the_name_to_the_strip():
 	zone.suppressed = true
 	bracket._sync_label()
 	assert_eq(bracket.get_node("InfoPanel/InfoLabel").text, "Elace Exchange", "Back while the strip is hidden")
+
+
+func test_a_jump_route_shows_where_it_goes():
+	var player = AgentScript.new()
+	player.agent_type = "player"
+	add_child_autofree(player)
+	player.hull_max = 100.0
+	player.hull = 100.0
+	GlobalRefs.player_agent_body = player
+	var route = load("res://src/core/targeting/route_target.gd").new().configure("sector_elace", "sector_vidr", "Vidr", Vector3.UP)
+	var zone = ZoneScene.instance()
+	add_child_autofree(zone)
+	zone.target = route
+	zone.refresh()
+	assert_eq(zone.get_node("Layout/TargetRow/Name").text, "JUMP TO VIDR")
+	assert_eq(zone.get_node("Layout/TargetRow/Distance").text, "", "Nothing to measure")
+	assert_eq(zone.get_node("Layout/TargetRow").modulate.a, 1.0, "Shown")
+
+
+class Names:
+	var name := "Rock chunk (3)"
+	func of(_target) -> String:
+		return name
+
+
+func test_the_targets_name_follows_it():
+	var player = AgentScript.new()
+	player.agent_type = "player"
+	add_child_autofree(player)
+	player.hull_max = 100.0
+	player.hull = 100.0
+	GlobalRefs.player_agent_body = player
+	var chunk = Spatial.new()
+	add_child_autofree(chunk)
+	var names = Names.new()
+	var zone = ZoneScene.instance()
+	add_child_autofree(zone)
+	zone.name_source = funcref(names, "of")
+	zone.target = chunk
+	zone.target_name = names.name
+	zone.refresh()
+	assert_eq(zone.get_node("Layout/TargetRow/Name").text, "ROCK CHUNK (3)")
+	names.name = "Ore chunk (3)"  # Bared
+	zone.refresh()
+	assert_eq(zone.get_node("Layout/TargetRow/Name").text, "ORE CHUNK (3)", "Without picking it again")

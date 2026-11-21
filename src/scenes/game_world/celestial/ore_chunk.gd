@@ -4,6 +4,9 @@
 # burns the crust off (MINING_CRUST_HP) and bares the ore, a cluster of smooth metal lumps in place
 # of the rock, glowing hot and fading as it cools (MINING_COOL_TIME); cooled, a harpoon tows and
 # strips it. Stripped bare, it is gone (take_salvage).
+# A derelict's piece (setup with derelict: Asteroid.chunk_derelict, the megastructure's debris) is a
+# fragment of its structure instead, in its material: "Derelict debris"; bared, a few molten alloy
+# ingots ("Molten derelict alloy" while hot, "Derelict alloy" cooled).
 
 extends RigidBody
 
@@ -21,15 +24,21 @@ var wreck_time_ms: int = 0
 var hull_bounds: AABB = AABB(Vector3(-1, -1, -1), Vector3(2, 2, 2))
 var crust: float = Constants.MINING_CRUST_HP  # Laser damage left before the ore is bared
 var heat: float = 0.0  # s of cooling left once bared
+var derelict: bool = false  # A piece of a derelict: structure debris, bared to alloy ingots
 var _radius: float = 1.0
 var _slag_material: ShaderMaterial = null
+var _surface: Material = RockMaterial
 
 
-# `model`: a rock mesh scene; `radius`: m.
-func setup(units: Dictionary, model: PackedScene, radius: float) -> void:
+# `model`: a rock mesh scene; `radius`: m. `derelict_surface`: a derelict's piece, in this material
+# (a structure fragment, not a rock: `model` is not used).
+func setup(units: Dictionary, model: PackedScene, radius: float, derelict_surface: Material = null) -> void:
 	salvage = units.duplicate()
 	_radius = max(radius, 0.5)
 	name = "OreChunk"
+	if derelict_surface != null:
+		derelict = true
+		_surface = derelict_surface
 	gravity_scale = 0.0
 	can_sleep = false
 	var unit_mass := 0.0
@@ -45,13 +54,15 @@ func setup(units: Dictionary, model: PackedScene, radius: float) -> void:
 	var holder := Spatial.new()
 	holder.name = "Model"
 	add_child(holder)
-	if model != null:
+	if derelict:
+		holder.add_child(_fragment())
+	elif model != null:
 		holder.add_child(model.instance())
 	var bounds := AABB()
 	var found := false
 	for node in _all_nodes(holder):
 		if node is MeshInstance:
-			node.material_override = RockMaterial
+			node.material_override = _surface
 			if node.mesh != null:
 				bounds = node.get_aabb() if not found else bounds.merge(node.get_aabb())
 				found = true
@@ -96,8 +107,26 @@ func cut(damage: float) -> void:
 		set_process(true)
 
 
+# A derelict's fragment: a plate and a strut of its structure, crossed, a shape of their own for
+# each chunk (unit size; setup scales it).
+func _fragment() -> Spatial:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = get_instance_id()
+	var fragment := Spatial.new()
+	var plate := CubeMesh.new()
+	plate.size = Vector3(rng.randf_range(1.2, 2.0), rng.randf_range(0.15, 0.35), rng.randf_range(0.8, 1.6))
+	var strut := CubeMesh.new()
+	strut.size = Vector3(rng.randf_range(0.2, 0.4), rng.randf_range(0.2, 0.4), rng.randf_range(1.4, 2.0))
+	for mesh in [plate, strut]:
+		var part := MeshInstance.new()
+		part.mesh = mesh
+		part.transform = Transform(Basis(Vector3(rng.randf(), rng.randf(), rng.randf()).normalized(), rng.randf_range(0, 0.6)), Vector3.ZERO)
+		fragment.add_child(part)
+	return fragment
+
+
 # The rock model gives way to the ore: ORE_LUMPS smooth low-poly lumps round the middle, a shape
-# of their own for each chunk.
+# of their own for each chunk (a derelict's: ORE_LUMPS alloy ingots).
 func _bare_ore() -> void:
 	var model = get_node_or_null("Model")
 	if model != null:
@@ -109,13 +138,18 @@ func _bare_ore() -> void:
 	add_child(ore)
 	for index in range(ORE_LUMPS):
 		var size: float = _radius * rng.randf_range(0.45, 0.7)
-		var lump := SphereMesh.new()
-		lump.radius = size
-		lump.height = size * rng.randf_range(1.3, 2.0)
-		lump.radial_segments = 7
-		lump.rings = 4
 		var part := MeshInstance.new()
-		part.mesh = lump
+		if derelict:  # An ingot
+			var ingot := CubeMesh.new()
+			ingot.size = Vector3(size * 1.8, size * 0.6, size * 0.9)
+			part.mesh = ingot
+		else:
+			var lump := SphereMesh.new()
+			lump.radius = size
+			lump.height = size * rng.randf_range(1.3, 2.0)
+			lump.radial_segments = 7
+			lump.rings = 4
+			part.mesh = lump
 		part.material_override = _slag_material
 		var offset := Vector3(rng.randf_range(-1, 1), rng.randf_range(-1, 1), rng.randf_range(-1, 1)).normalized() * _radius * 0.3
 		part.transform = Transform(Basis(Vector3(rng.randf(), rng.randf(), rng.randf()).normalized(), rng.randf_range(0, TAU)), offset)
@@ -146,6 +180,10 @@ func get_display_name() -> String:
 	var units := 0
 	for commodity_id in salvage:
 		units += int(salvage[commodity_id])
+	if derelict:
+		if has_crust():
+			return "Derelict debris (%d)" % units
+		return ("Molten derelict alloy (%d)" if is_hot() else "Derelict alloy (%d)") % units
 	return "Ore chunk (%d)" % units if not has_crust() else "Rock chunk (%d)" % units
 
 

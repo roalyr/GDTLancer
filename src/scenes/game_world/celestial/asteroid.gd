@@ -3,7 +3,8 @@
 # since the rock meshes come without one.
 # Mining (Constants MINING): it holds a deposit (`deposit_id`, units by size unless `deposit` is set).
 # A lance thrown into it breaks a few OreChunks off its face (break_chunks); lasers only chip it.
-# A worked rock grows its ore back, all of it in MINING_REGROW_TIME of world time, counted when
+# A worked rock grows its ore back, all of it in MINING_REGROW_TIME (a derelict's piece:
+# MINING_REGROW_TIME_DERELICT; regrow_time()) of world time, counted when
 # asked (no per-frame cost); while short of full its ore is in GameState.rock_deposits, so a save
 # keeps it (keyed by sector and the rock's path in the zone: fields are built the same every load;
 # restore_deposit puts it back).
@@ -27,6 +28,7 @@ export var deposit: int = -1  # Units; negative: by size (MINING_ORE_PER_METRE)
 export var mineable: bool = true
 export var surface: Material = null  # The rock material if unset
 export var display_name: String = "Asteroid"
+export var chunk_derelict: bool = false  # A derelict's piece (Megastructure): breaks into derelict debris in its surface, not rock
 
 
 var hull_bounds: AABB = AABB(Vector3(-0.5, -0.5, -0.5), Vector3.ONE)
@@ -91,11 +93,11 @@ func get_deposit() -> int:
 		deposit = int(round(get_apparent_radius() * Constants.MINING_ORE_PER_METRE))
 	if _full < 0:
 		_full = deposit
-	if mineable and deposit < _full and Constants.MINING_REGROW_TIME > 0.0:
+	if mineable and deposit < _full and regrow_time() > 0.0:
 		var now: float = GameState.world_time
 		if _worked_at < 0.0 or _worked_at > now:  # A clock set back (a load): counted from now
 			_worked_at = now
-		var per_unit: float = Constants.MINING_REGROW_TIME / float(max(_full, 1))
+		var per_unit: float = regrow_time() / float(max(_full, 1))
 		var grown: int = int(min(floor((now - _worked_at) / per_unit), _full - deposit))
 		if grown > 0:
 			deposit += grown
@@ -107,9 +109,9 @@ func get_deposit() -> int:
 # Seconds of world time until it is full again (0: full).
 func regrow_left() -> float:
 	var left: int = get_full_deposit() - get_deposit()
-	if left <= 0 or Constants.MINING_REGROW_TIME <= 0.0:
+	if left <= 0 or regrow_time() <= 0.0:
 		return 0.0
-	var per_unit: float = Constants.MINING_REGROW_TIME / float(max(_full, 1))
+	var per_unit: float = regrow_time() / float(max(_full, 1))
 	return max(0.0, left * per_unit - (GameState.world_time - _worked_at))
 
 
@@ -117,8 +119,13 @@ func regrow_left() -> float:
 func ore_back_in() -> float:
 	if get_deposit() > 0:
 		return 0.0
-	var per_unit: float = Constants.MINING_REGROW_TIME / float(max(get_full_deposit(), 1))
+	var per_unit: float = regrow_time() / float(max(get_full_deposit(), 1))
 	return max(0.0, per_unit - (GameState.world_time - _worked_at))
+
+
+# s of world time it takes to grow all its ore back.
+func regrow_time() -> float:
+	return Constants.MINING_REGROW_TIME_DERELICT if chunk_derelict else Constants.MINING_REGROW_TIME
 
 
 # The full deposit, as untouched.
@@ -178,7 +185,11 @@ func break_chunks(point: Vector3, axis: Vector3, damage: float) -> Array:
 	for index in range(pieces):
 		var share: int = units / pieces + (1 if index < units % pieces else 0)  # Biggest first
 		var chunk = OreChunk.new()
-		chunk.setup({deposit_id: share}, load(models[randi() % models.size()]), Constants.MINING_CHUNK_RADIUS * pow(float(share), 1.0 / 3.0))
+		var radius: float = Constants.MINING_CHUNK_RADIUS * pow(float(share), 1.0 / 3.0)
+		if chunk_derelict:
+			chunk.setup({deposit_id: share}, null, radius, _surface())
+		else:
+			chunk.setup({deposit_id: share}, load(models[randi() % models.size()]), radius)
 		get_parent().add_child(chunk)
 		var heading: Vector3 = outward
 		if pieces > 1:  # Fanned round the face

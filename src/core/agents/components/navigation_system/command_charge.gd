@@ -20,9 +20,11 @@
 #   NAV_CHARGE_MAX_RUN_UP_TIME s: a target that keeps up with it is charged anyway). A charge starting
 #   too close to reach strike speed breaks off first.
 # Thrust is the same any way (MovementSystem), so it strafes and backs off with its nose where it
-# wants it. A wreck or an ore chunk is charged at head-on, no strafe (a shove: lances are not thrown
-# at them). A rock: it closes to NAV_CHARGE_ROCK_STANDOFF off the surface and holds there, facing
-# it, to throw from. A target running away is chased, never run from.
+# wants it. Rocks and debris are flown at straight (NavigationSystem.is_straight_charge: no
+# sidestepping either): a wreck or an ore chunk head-on at its lead, no strafe and no break-off, on
+# through the shove (lances are not thrown at them); a rock: it closes to NAV_CHARGE_ROCK_STANDOFF
+# off the surface and holds there, facing it, to throw from. A target running away is chased, never
+# run from.
 
 extends Node
 
@@ -70,6 +72,10 @@ func execute(delta: float):
 	var direction: Vector3 = offset / distance if distance > 0.01 else _movement_system.get_forward()
 	var closing: float = (_movement_system.get_velocity() - _target_velocity).dot(direction)
 	var is_ship: bool = target_node.get("is_wreck") == false
+	if not is_ship:
+		cmd.running_up = false
+		_straight_at(target_pos, direction, distance, delta)
+		return
 	var strike_at: float = strike_range(target_node)
 	var throws: int = _agent_body.get_lance_throws() if _agent_body.has_method("get_lance_throws") else 0
 	if not cmd.started:  # Once, as the charge starts: from how it moves now, can it charge?
@@ -196,6 +202,24 @@ func _pass_side(cmd: Dictionary, direction: Vector3) -> Vector3:
 	side = side.normalized()
 	cmd["side"] = side
 	return side
+
+
+# Debris (a wreck, an ore chunk): straight at its lead, nose and thrust on it, leaning against the
+# sideways slip; no break-off, so a shove that does not move it far is followed by another.
+func _straight_at(target_pos: Vector3, direction: Vector3, distance: float, delta: float) -> void:
+	var speed: float = max(_movement_system.get_velocity().length(), Constants.NAV_CHARGE_MIN_LEAD_SPEED)
+	var offset: Vector3 = target_pos - _agent_body.global_transform.origin
+	var lead_time: float = intercept_time(offset, _target_velocity, speed)
+	if lead_time < 0.0:
+		lead_time = distance / speed
+	lead_time = min(lead_time, Constants.NAV_CHARGE_MAX_LEAD_TIME)
+	var lead: Vector3 = offset + _target_velocity * lead_time
+	lead = lead.normalized() if lead.length_squared() > 0.0001 else direction
+	var relative: Vector3 = _movement_system.get_velocity() - _target_velocity
+	var drift: Vector3 = relative - direction * relative.dot(direction)
+	var thrust: Vector3 = (lead - drift / max(relative.length(), Constants.NAV_CHARGE_MIN_LEAD_SPEED) * Constants.NAV_CHARGE_DRIFT_GAIN).normalized()
+	_movement_system.request_rotation_to_pid(lead, delta, aim_gain(distance))
+	_movement_system.request_thrust_direction(thrust)
 
 
 # A rock: closes until the lance's tip is NAV_CHARGE_ROCK_STANDOFF off its surface and holds there,

@@ -36,6 +36,7 @@ func _piece(layer: Dictionary, material: Material, size: float, position: Vector
 	piece.display_name = layer.name
 	piece.mineable = bool(layer.mineable)
 	if piece.mineable:
+		piece.chunk_derelict = true  # Breaks into derelict debris, bared to alloy
 		piece.deposit_id = str(layer.deposit_id)
 		piece.deposit = int(max(1.0, round(size * 0.5 * float(layer.deposit_per_metre))))
 	var mesh_instance := MeshInstance.new()

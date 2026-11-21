@@ -253,6 +253,7 @@ func _ready():
 	add_child(debug_map)
 	$ScreenControls/DebugOverlay/RightColumn/ButtonDebugMap.connect("pressed", debug_map, "open")
 	awareness_zone = AwarenessZoneScene.instance()
+	awareness_zone.name_source = funcref(self, "_resolve_target_display_name")
 	$ScreenControls.add_child(awareness_zone)
 	var threat_watch = ThreatWatch.new()
 	threat_watch.name = "ThreatWatch"

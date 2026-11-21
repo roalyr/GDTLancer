@@ -193,15 +193,23 @@ func _update_navigation(delta: float):
 	handler.execute(delta)
 
 	if cmd_type != CommandType.IDLE and cmd_type != CommandType.MOVE_DIRECTION:
-		_apply_obstacle_avoidance(target_node, delta)
+		_apply_obstacle_avoidance(target_node, delta, cmd_type == CommandType.CHARGE and is_straight_charge(target_node))
 	movement_system.apply_facing(delta)
 
 
+# A charge at a rock or at debris (a wreck, an ore chunk) is flown straight at it: no strafe, no
+# break-off (command_charge) and no sidestepping the rocks round it; only a live ship is charged the
+# long way.
+static func is_straight_charge(target) -> bool:
+	return is_instance_valid(target) and target.get("is_wreck") != false
+
+
 # Sidesteps obstacles (group "obstacle") in the way of the current velocity, except the command's
-# own target (e.g. the station being approached). The push is worked out every
+# own target (e.g. the station being approached); `straight` (a charge at a rock or debris): only
+# keeps from pressing into a planet, no sidestep. The push is worked out every
 # Constants.NAV_AVOID_INTERVAL (ships staggered) and applied every step in between: it looks seconds
 # ahead, so a fresher one would barely differ, and it was the costliest part of a physics step.
-func _apply_obstacle_avoidance(target_node, delta: float) -> void:
+func _apply_obstacle_avoidance(target_node, delta: float, straight: bool = false) -> void:
 	_avoid_timer -= delta
 	if _avoid_timer <= 0.0:
 		_avoid_timer += Constants.NAV_AVOID_INTERVAL
@@ -215,7 +223,7 @@ func _apply_obstacle_avoidance(target_node, delta: float) -> void:
 	if not _avoid_contacts.empty() and movement_system.has_method("cancel_thrust_toward"):
 		for inward in _avoid_contacts:
 			movement_system.cancel_thrust_toward(inward)  # Against a planet: no pressing on into it
-	if _avoid_push != Vector3.ZERO:
+	if _avoid_push != Vector3.ZERO and not straight:
 		movement_system.request_thrust_direction(_avoid_push, min(1.0, _avoid_push.length()) * Constants.NAV_AVOID_THRUST)
 
 
