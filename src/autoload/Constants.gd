@@ -40,7 +40,7 @@ const HUD_AWARENESS_INTERVAL = 0.13  # The HUD's top strip (AwarenessZone). Max 
 const HUD_BAR_FLASH_TIME = 0.8  # s the own hull bar takes to cool from red back to white after a hit (HudBar.flash_on_drop)
 const THREAT_REFRESH_INTERVAL = 0.27  # The threat ring's recheck of who is hostile (its marks move every frame). Max ~0.5
 const THREAT_WATCH_INTERVAL = 0.5  # ThreatWatch's looks (danger announcements). Max ~1
-const HUD_FPS_OFFSET = Vector2(24, 16)  # px from the HUD's top left corner (inside its screen margin) to the FPS readout
+const HUD_FPS_OFFSET = Vector2(8, 112)  # px from ScreenControls' top left (inside its screen margin) to the FPS readout: under the top left buttons (y 0-100), clear of them
 const HUD_FPS_INTERVAL = 0.47  # The FPS readout (Settings show_fps). Max ~1
 const HUD_DEBUG_INTERVAL = 0.5  # The debug readout's text (its frame figures are per-second averages). Max ~1
 const VIEW_CHECK_INTERVAL = 0.29  # View band (detail level) checks per host (and at once when the field of view changes). Max ~0.5
@@ -126,8 +126,9 @@ const NAV_CHARGE_BREAK_ANGLE = 45.0  # (see NAV_CHARGE_STRIKE_DRIFT_GAIN below)
 const NAV_CHARGE_STRIKE_DRIFT_GAIN = 3.0  # How hard the strike's thrust leans against its sideways slip off the pass line: the strafe's must be gone by the throw (LanceController.firing_solution)  # degrees off straight away a break-off spirals out at, toward its passing side, nose on the target
 const NAV_CHARGE_PASS_CLEARANCE = 10.0  # m between hulls a charge passes a ship by (it throws its lance on the way, LanceController)
 const NAV_CHARGE_ROCK_STANDOFF = 40.0  # m off a rock's surface a charge on a rock stops its lance's tip, to throw from
-const NAV_CHARGE_ROCK_SPEED_GAIN = 0.5  # 1/s: closing on that standoff at this times the distance left
-const NAV_CHARGE_ROCK_MAX_SPEED = 80.0  # m/s
+const NAV_CHARGE_ROCK_BRAKE_SHARE = 0.6  # Of its thrust a rock charge counts on to brake (the drag helps): the margin
+const NAV_CHARGE_ROCK_SETTLE_GAIN = 1.0  # 1/s: the last metres to that standoff at this times the distance left
+const NAV_CHARGE_ROCK_RESPONSE = 2.0  # 1/s: how hard its thrust pulls its velocity onto the one wanted
 const NAV_CHARGE_MIN_LEAD_SPEED = 50.0  # m/s
 const NAV_CHARGE_MAX_LEAD_TIME = 5.0  # s
 const NAV_CHARGE_PID_GAIN = 3.0  # Times PID_ROTATION_KP at the target while charging (command_charge.aim_gain)
@@ -1519,7 +1520,7 @@ const UI_WORKED_OUT_ALPHA = 0.35  # A worked-out rock's mark, fainter still (tim
 # The HUD's looks (the HUD LOOK button, Settings "hud_preset"): `tint` multiplies the whole HUD
 # (grey: less contrast against space), `saturation` grades the marks' colours (1 as they are, 0 grey).
 const HUD_PRESETS = {
-	"standard": {"tint": Color(1, 1, 1), "saturation": 1.0, "alpha": 1.0},
+	"standard": {"tint": Color(1, 1, 1), "saturation": 1.0, "alpha": 1.0, "label": "normal"},
 	"soft": {"tint": Color(0.62, 0.62, 0.64), "saturation": 0.45, "alpha": 1.0},
 	"dim": {"tint": Color(0.36, 0.36, 0.38), "saturation": 0.3, "alpha": 0.6},  # Barely there: for watching the scene
 }
@@ -1532,6 +1533,11 @@ const AMBIENT_STRIPPED_GROUPS = ["agent_body", "Agents", "asteroid", "beacon", "
 
 static func hud_preset(name: String) -> Dictionary:
 	return HUD_PRESETS.get(name, HUD_PRESETS.standard)
+
+
+# A look's name on the HUD LOOK button and in the options: "standard" reads NORMAL (it fits the button).
+static func hud_preset_label(name: String) -> String:
+	return str(HUD_PRESETS.get(name, {}).get("label", name)).to_upper()
 
 
 # Unselected marks fade with distance from the player, never out of sight.

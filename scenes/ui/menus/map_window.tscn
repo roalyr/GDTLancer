@@ -36,6 +36,7 @@ size_flags_horizontal = 3
 size_flags_vertical = 4
 text = "MAP"
 clip_text = true
+theme_type_variation = "TitleLabel"
 
 [node name="TabSector" type="Button" parent="Panel/Layout/Header"]
 rect_min_size = Vector2( 200, 64 )

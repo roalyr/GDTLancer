@@ -40,6 +40,29 @@ func test_button_debug_toggles_the_readout() -> void:
 	assert_false(hud.debug_overlay.visible, "and hides it again.")
 
 
+func test_the_eye_button_hides_the_whole_hud_and_the_dot_brings_it_back() -> void:
+	var hud = MainHUDScene.instance()
+	add_child_autofree(hud)
+	yield(get_tree(), "idle_frame")
+	var eye: Control = hud.get_node("ScreenControls/CenterRightZone/ButtonHideHud")
+	eye.emit_signal("pressed")
+	assert_true(hud.hud_hidden)
+	assert_false(hud.get_node("ScreenControls").visible, "The controls, the eye button with them,")
+	assert_false(hud.get_node("ProjectedTargetOverlay").visible, "the brackets")
+	assert_false(hud.threat_ring.visible, "and the threat ring go")
+	var dot: Control = hud.get_node("HudDot")
+	assert_true(dot.visible, "A dot is left")
+	assert_eq(dot.rect_global_position, eye.rect_global_position, "where the eye button was")
+	dot.emit_signal("pressed")
+	assert_false(hud.hud_hidden)
+	assert_true(hud.get_node("ScreenControls").visible, "and brings the HUD back")
+	assert_false(dot.visible)
+	hud.toggle_hud()
+	EventBus.emit_signal("player_docked", "home")
+	assert_false(hud.hud_hidden, "Docking shows it again")
+	GameState.player_docked_at = ""
+
+
 func test_debug_overlay_opens_the_debug_map() -> void:
 	var hud = MainHUDScene.instance()
 	add_child_autofree(hud)

@@ -36,6 +36,7 @@ size_flags_horizontal = 3
 size_flags_vertical = 5
 text = "MAP"
 valign = 1
+theme_type_variation = "TitleLabel"
 
 [node name="ButtonRotLeft" type="Button" parent="Panel/Layout/Header"]
 rect_min_size = Vector2( 100, 64 )

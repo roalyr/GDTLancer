@@ -696,7 +696,7 @@ margin_bottom = 1.0
 mouse_filter = 2
 color = Color( 1, 1, 1, 0.12549 )
 
-[node name="ButtonUIOpacity" type="TextureButton" parent="ScreenControls/CenterRightZone"]
+[node name="ButtonHideHud" type="TextureButton" parent="ScreenControls/CenterRightZone"]
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
@@ -1121,5 +1121,5 @@ autowrap = true
 [connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonFlee" to="." method="_on_ButtonFlee_pressed"]
 [connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonDock" to="." method="_on_ButtonDock_pressed"]
 [connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonInteract" to="." method="_on_ButtonInteract_pressed"]
-[connection signal="pressed" from="ScreenControls/CenterRightZone/ButtonUIOpacity" to="." method="_on_ButtonUIOpacity_pressed"]
+[connection signal="pressed" from="ScreenControls/CenterRightZone/ButtonHideHud" to="." method="toggle_hud"]
 [connection signal="value_changed" from="ScreenControls/CenterRightZone/SliderControlRight" to="." method="_on_SliderControlRight_value_changed"]

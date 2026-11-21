@@ -8,7 +8,6 @@ extends Control
 signal picked(item)  # The item tapped, or {} for none
 
 const TargetMarker = preload("res://src/core/ui/main_hud/target_marker.gd")
-const FontSmall = preload("res://assets/themes/font_small.tres")
 
 const ZOOM_STEP = 1.5
 const MIN_METRES_PER_PX = 2.0
@@ -234,11 +233,11 @@ func _label(item: Dictionary, taken: Array) -> void:
 	var radius: float = 0.0 if _is_mark(item) else min(item.radius / metres_per_px, 2000.0)
 	var at: Vector2 = to_px(item.at) + LABEL_OFFSET + Vector2(radius * 0.7, -radius * 0.7)
 	if item.kind in ["belt", "hazard"]:
-		at = to_px(item.at) + Vector2(-FontSmall.get_string_size(text).x * 0.5, -radius - 6.0)  # Over its circle
-	var size: Vector2 = FontSmall.get_string_size(text)
+		at = to_px(item.at) + Vector2(-_font().get_string_size(text).x * 0.5, -radius - 6.0)  # Over its circle
+	var size: Vector2 = _font().get_string_size(text)
 	var picked: bool = item.get("ref") == selected.get("ref")
 	for attempt in range(LABEL_TRIES):
-		var box := Rect2(at + Vector2(0, -FontSmall.get_ascent()), size).grow(2.0)
+		var box := Rect2(at + Vector2(0, -_font().get_ascent()), size).grow(2.0)
 		var free := true
 		for other in taken:
 			if other.intersects(box):
@@ -246,7 +245,7 @@ func _label(item: Dictionary, taken: Array) -> void:
 				break
 		if free or picked:  # The picked thing's name always shows
 			taken.append(box)
-			draw_string(FontSmall, at, text, Color(item.color.r, item.color.g, item.color.b, 0.9))
+			draw_string(_font(), at, text, Color(item.color.r, item.color.g, item.color.b, 0.9))
 			return
 		at.y += size.y
 	# No room: the name shows when the thing is tapped (the side bar)
@@ -285,7 +284,7 @@ func _draw_scale() -> void:
 	draw_line(start, start + Vector2(length, 0), COLOR_TEXT, 2.0)
 	draw_line(start - Vector2(0, 6), start + Vector2(0, 6), COLOR_TEXT, 2.0)
 	draw_line(start + Vector2(length, -6), start + Vector2(length, 6), COLOR_TEXT, 2.0)
-	draw_string(FontSmall, start + Vector2(length + 10, 6), units_text(step) if units else distance_text(step), COLOR_TEXT)
+	draw_string(_font(), start + Vector2(length + 10, 6), units_text(step) if units else distance_text(step), COLOR_TEXT)
 
 
 # The smallest 1, 2 or 5 x 10^n m not below `at_least`.
@@ -311,6 +310,11 @@ static func distance_text(metres: float) -> String:
 		var km: float = metres / 1000.0
 		return ("%d KM" % int(round(km))) if km >= 10.0 or km == floor(km) else ("%.1f KM" % km)
 	return "%d M" % int(round(metres))
+
+
+# The names' and the scale's lettering: main_theme's SmallLabel.
+func _font() -> Font:
+	return get_font("font", "SmallLabel")
 
 
 func _still_there(item: Dictionary) -> bool:

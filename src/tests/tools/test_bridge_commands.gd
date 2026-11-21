@@ -205,7 +205,7 @@ func test_the_ui_theme_and_its_files_show_their_fields_and_round_trip():
 	assert_has(comments, "HeadingLabel/colors/font_color")
 	assert_has(comments, "Panel/styles/panel")
 	assert_string_contains(comments["HeadingLabel/base_type"], "A named look on Label")
-	assert_string_contains(comments["HeadingLabel/base_type"], "prompt_dialog.tscn", "Its users")
+	assert_string_contains(comments["HeadingLabel/base_type"], "fitting_window.tscn", "Its users")
 	var copy := "user://test_bridge_theme_file.tres"
 	var baseline := "user://test_bridge_theme_baseline.tres"
 	for path in BridgeCommands.Validator._files_in("res://assets/themes/", ".tres"):

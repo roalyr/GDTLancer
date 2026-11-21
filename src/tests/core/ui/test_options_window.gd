@@ -42,6 +42,23 @@ func test_buttons_step_their_options():
 	assert_eq(window.row_text("ButtonDynamicLights"), "DYNAMIC LIGHTS: FEW")
 
 
+func test_every_option_is_in_one_tab_and_tabs_show_their_own():
+	var window = OptionsScene.instance()
+	add_child_autofree(window)
+	var seen := {}
+	for category in window.CATEGORIES:
+		for name in category[2]:
+			assert_false(seen.has(name), name + " is in one tab only")
+			seen[name] = true
+	for name in window.OPTIONS:
+		assert_true(seen.has(name), name + " has a tab")
+	window.show_tab("sound")
+	assert_true(window.get_node("Panel/Layout/Scroll/List/ButtonMusic").visible, "SOUND shows the music")
+	assert_false(window.get_node("Panel/Layout/Scroll/List/ButtonParticles").visible, "and not the particles")
+	assert_eq(window.get_node("Panel/Layout/Tabs/Tab_sound").text, "[SOUND]")
+	assert_eq(window.row_text("ButtonHudLook"), "HUD LOOK: NORMAL", "The standard look reads NORMAL")
+
+
 func test_hud_look_greys_the_marks():
 	var red: Color = TargetKinds.side_color("hostile")
 	assert_eq(red, Constants.COLOR_UI_TARGET_HOSTILE, "Standard: as they are")

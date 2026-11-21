@@ -19,7 +19,6 @@ const DISTANCE_PLAIN_THRESHOLD = 2000.0
 const DISTANCE_DECIMAL_K_THRESHOLD = 10000.0
 const DISTANCE_SINGLE_DECIMAL_K_THRESHOLD = 100000.0
 const DISTANCE_FAR_THRESHOLD = 1000000.0
-const FontLarge = preload("res://assets/themes/font_large.tres")
 const DISTANCE_RECT_SELECTED = Rect2(12, -62, 130, 50)  # The distance's box, from the bracket's centre
 const DISTANCE_RECT_MARK = Rect2(10, -38, 90, 30)  # Beside an unselected mark
 
@@ -298,10 +297,7 @@ func _sync_distance_label() -> void:
 		return
 	_distance_style = style
 	_distance_label.add_color_override("font_color", color)  # Full strength: never dimmed for awareness
-	if _is_selected:
-		_distance_label.add_font_override("font", FontLarge)
-	else:
-		_distance_label.remove_font_override("font")
+	_distance_label.theme_type_variation = "LargeLabel" if _is_selected else ""  # main_theme's looks: larger while selected
 	if is_instance_valid(_distance_panel):
 		var box: Rect2 = DISTANCE_RECT_SELECTED if _is_selected else DISTANCE_RECT_MARK
 		_distance_panel.margin_left = box.position.x

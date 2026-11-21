@@ -32,6 +32,7 @@ const Interactions = preload("res://src/core/systems/interactions.gd")
 const FittingWindowScript = preload("res://src/core/ui/fitting_window/fitting_window.gd")
 const DebugMapScene = preload("res://scenes/ui/menus/debug_map.tscn")
 const MapWindowScene = preload("res://scenes/ui/menus/map_window.tscn")
+const HudDot = preload("res://src/core/ui/main_hud/hud_dot.gd")
 const DebugTools = preload("res://src/core/ui/debug_tools/debug_tools.gd")
 const RadioScript = preload("res://src/core/systems/radio.gd")
 const ThreatRing = preload("res://src/core/ui/main_hud/threat_ring.gd")
@@ -95,7 +96,8 @@ var _partner_ids: Dictionary = {}  # Their instance ids, for the brackets
 var _partners_left: float = 0.0
 var _main_camera: Camera = null
 var _announcements: Control = null  # Fading feedback labels (Announcements)
-var _hud_alpha = 1.0
+var hud_hidden: bool = false  # The eye button: every HUD element hidden (for screenshots), a dot left to bring it back
+var _hud_dot: TextureButton = null
 var _dock_location_id: String = ""  # Currently available dock location
 var _jump_target_id: String = ""  # Currently available jump route target
 var _route_target_provider: Reference = RouteTargetProviderScript.new()
@@ -338,9 +340,7 @@ func _make_fps_label() -> void:
 	_fps_label = Label.new()
 	_fps_label.name = "FpsLabel"
 	_fps_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_fps_label.theme = MainTheme
-	if is_instance_valid(label_button_approach):  # The HUD's own lettering, as on its buttons
-		_fps_label.add_font_override("font", label_button_approach.get_font("font"))
+	_fps_label.theme = MainTheme  # A plain Label of it: the HUD's lettering, as on its buttons
 	_fps_label.rect_position = Constants.HUD_FPS_OFFSET
 	holder.add_child(_fps_label)
 	_fps_label.visible = bool(Settings.get_option("show_fps"))
@@ -875,6 +875,8 @@ func _on_dock_unavailable():
 
 
 func _on_player_docked(_location_id):
+	if hud_hidden:
+		set_hud_hidden(false)  # The station window is the HUD's: the dot would sit over it
 	_dock_location_id = ""
 	_jump_target_id = ""
 	_refresh_projected_target_info_hints()
@@ -1258,20 +1260,46 @@ func _on_settings_changed(key: String, _value) -> void:
 func apply_hud_preset() -> void:
 	var preset: Dictionary = Constants.hud_preset(Settings.get_option("hud_preset"))
 	var tint: Color = preset.tint
-	set_modulate(Color(tint.r, tint.g, tint.b, _hud_alpha * float(preset.get("alpha", 1.0))))
+	set_modulate(Color(tint.r, tint.g, tint.b, float(preset.get("alpha", 1.0))))
 	if is_instance_valid(label_hud_look):
-		label_hud_look.text = "HUD\n%s" % str(Settings.get_option("hud_preset")).to_upper()
+		label_hud_look.text = "HUD\n%s" % Constants.hud_preset_label(Settings.get_option("hud_preset"))
 	for button in _world_target_buttons.values():
 		if is_instance_valid(button) and button.has_method("refresh_style"):
 			button.refresh_style()
 
 
-func _on_ButtonUIOpacity_pressed() -> void:
-	"""Handle main HUD transparency (cycle)."""
-	_hud_alpha -= 0.25
-	if _hud_alpha <= 0.0:
-		_hud_alpha = 1.0
-	apply_hud_preset()
+# The eye button: hides every HUD element (its controls, brackets, threat ring, announcements),
+# the button too, leaving a faint dot (HudDot) where it was; the dot brings it all back. The HUD's
+# looks (HUD LOOK) are another button's. Docking shows the HUD again (the station window is the
+# HUD's).
+func toggle_hud() -> void:
+	set_hud_hidden(not hud_hidden)
+
+
+func set_hud_hidden(hidden: bool) -> void:
+	hud_hidden = hidden
+	for node in _hud_parts():
+		node.visible = not hidden
+	if hidden:
+		var eye: Control = $ScreenControls/CenterRightZone/ButtonHideHud
+		if not is_instance_valid(_hud_dot):
+			_hud_dot = HudDot.new()
+			_hud_dot.name = "HudDot"
+			_hud_dot.connect("pressed", self, "toggle_hud")
+			add_child(_hud_dot)
+		_hud_dot.rect_global_position = eye.rect_global_position
+		_hud_dot.rect_size = eye.rect_size
+		_hud_dot.visible = true
+	elif is_instance_valid(_hud_dot):
+		_hud_dot.visible = false
+
+
+func _hud_parts() -> Array:
+	var parts: Array = [$ScreenControls, $ProjectedTargetOverlay]
+	for node in [threat_ring, _announcements]:
+		if is_instance_valid(node):
+			parts.append(node)
+	return parts
 
 
 func _on_zone_unloading(_zone_node) -> void:

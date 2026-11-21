@@ -39,6 +39,7 @@ size_flags_horizontal = 3
 size_flags_vertical = 4
 text = "SHIP"
 autowrap = true
+theme_type_variation = "TitleLabel"
 
 [node name="ButtonClose" type="Button" parent="Panel/Layout/Header"]
 rect_min_size = Vector2( 160, 64 )
@@ -78,6 +79,6 @@ scroll_horizontal_enabled = false
 size_flags_horizontal = 3
 
 [node name="Note" type="Label" parent="Panel/Layout"]
-modulate = Color( 1, 1, 1, 0.6 )
+theme_type_variation = "NoteLabel"
 autowrap = true
 text = "THE GAME IS PAUSED WHILE THIS IS OPEN."

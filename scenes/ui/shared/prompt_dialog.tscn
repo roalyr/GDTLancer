@@ -30,7 +30,7 @@ custom_constants/separation = 24
 
 [node name="Title" type="Label" parent="Center/Frame/Box"]
 mouse_filter = 2
-theme_type_variation = "HeadingLabel"
+theme_type_variation = "TitleLabel"
 align = 1
 
 [node name="Text" type="Label" parent="Center/Frame/Box"]

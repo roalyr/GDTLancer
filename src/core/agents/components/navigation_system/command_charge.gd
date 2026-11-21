@@ -223,7 +223,9 @@ func _straight_at(target_pos: Vector3, direction: Vector3, distance: float, delt
 
 
 # A rock: closes until the lance's tip is NAV_CHARGE_ROCK_STANDOFF off its surface and holds there,
-# nose on (the lance is thrown from there; the throw alone is past strike speed).
+# nose on (the lance is thrown from there; the throw alone is past strike speed). In at top speed,
+# braking only as late as its engines can stop it (rock_closing_speed); the thrust steers its own
+# velocity onto that, holding against the drag.
 func _hold_off_rock(rock: Spatial, delta: float) -> void:
 	var offset: Vector3 = rock.global_transform.origin - _agent_body.global_transform.origin
 	var distance: float = offset.length()
@@ -235,9 +237,21 @@ func _hold_off_rock(rock: Spatial, delta: float) -> void:
 	for lance in (_agent_body.get_lances() if _agent_body.has_method("get_lances") else []):
 		reach = max(reach, lance.get_reach())
 	var gap: float = distance - radius - Constants.NAV_CHARGE_ROCK_STANDOFF - reach
-	var speed: float = clamp(gap * Constants.NAV_CHARGE_ROCK_SPEED_GAIN, -Constants.NAV_CHARGE_ROCK_MAX_SPEED, Constants.NAV_CHARGE_ROCK_MAX_SPEED)
+	var top: float = _agent_body.get_top_speed() if _agent_body.has_method("get_top_speed") else Constants.NAV_CHARGE_MIN_LEAD_SPEED
+	var mass: float = max(_agent_body.mass, 0.001)
+	var thrust: float = _movement_system.linear_thrust
+	var wanted: Vector3 = direction * rock_closing_speed(gap, top, thrust / mass)
+	var force: Vector3 = ((wanted - _movement_system.get_velocity()) * Constants.NAV_CHARGE_ROCK_RESPONSE + wanted * Constants.LINEAR_DRAG) * mass
 	_movement_system.request_rotation_to_pid(direction, delta)
-	_movement_system.request_velocity_pid(direction * speed, delta)
+	_movement_system.request_thrust_direction(force, force.length() / max(thrust, 0.001))
+
+
+# m/s to close on a rock `gap` m off the standoff (negative: inside it, back out): top speed, until
+# the distance left is what NAV_CHARGE_ROCK_BRAKE_SHARE of its thrust (`acceleration` m/s²) needs to
+# stop in; then down to the standoff, the last of it at NAV_CHARGE_ROCK_SETTLE_GAIN times the gap.
+static func rock_closing_speed(gap: float, top_speed: float, acceleration: float) -> float:
+	var braking: float = sqrt(2.0 * acceleration * Constants.NAV_CHARGE_ROCK_BRAKE_SHARE * abs(gap))
+	return sign(gap) * min(top_speed, min(braking, abs(gap) * Constants.NAV_CHARGE_ROCK_SETTLE_GAIN))
 
 
 # Rotation PID gain at `distance` m from the target: 1 from NAV_CHARGE_PID_GAIN_FROM out, easing up to

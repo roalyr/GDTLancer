@@ -33,13 +33,16 @@ custom_constants/separation = 16
 [node name="Title" type="Label" parent="Panel/Layout/Header"]
 size_flags_horizontal = 3
 size_flags_vertical = 4
-theme_type_variation = "LargeLabel"
+theme_type_variation = "TitleLabel"
 text = "OPTIONS"
 
 [node name="ButtonClose" type="Button" parent="Panel/Layout/Header"]
 rect_min_size = Vector2( 160, 64 )
 focus_mode = 0
 text = "CLOSE"
+
+[node name="Tabs" type="HBoxContainer" parent="Panel/Layout"]
+custom_constants/separation = 4
 
 [node name="Scroll" type="ScrollContainer" parent="Panel/Layout"]
 size_flags_vertical = 3

@@ -1,7 +1,7 @@
 # UI shots: starts a new game (docked at home: the fitting window), screenshots each store tab and
 # a prompt, for before/after checks of UI changes. Runs the project's autoloads, so as a scene:
 #     godot res://tools/ui_shots.tscn out=/abs/dir
-# Writes fitting_view.png (the FITTING view), fitting_<tab>.png (MARKET), fitting_ships_preview.png, announcement.png, prompt.png, notice.png, then undocked ship_window.png, pilot_window.png, map_sector.png, map_global.png and options_window.png there, and beside each a .txt of every control shown
+# Writes fitting_view.png (the FITTING view), fitting_<tab>.png (MARKET), fitting_ships_preview.png, announcement.png, prompt.png, notice.png, then undocked ship_window.png, pilot_window.png, map_sector.png, map_global.png, hud_<look>.png, hud_hidden.png and options_window.png there, and beside each a .txt of every control shown
 # (type, rect, colours, styles; no text: prices vary), then quits. Nothing is saved.
 extends Node
 
@@ -90,6 +90,10 @@ func _ready() -> void:
 		_shot("hud_%s" % look)
 	Settings.set_option("hud_preset", "standard")
 	hud.apply_hud_preset()
+	hud.toggle_hud()  # The eye button: the HUD gone, a dot left
+	yield(_wait(0.5), "completed")
+	_shot("hud_hidden")
+	hud.toggle_hud()
 	get_viewport().disable_3d = true
 	var options = menu.get("options_window")
 	if options != null:

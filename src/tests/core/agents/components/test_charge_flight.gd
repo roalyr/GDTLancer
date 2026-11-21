@@ -114,6 +114,47 @@ func test_rocks_and_debris_are_charged_straight_ships_the_long_way():
 	assert_true(NavigationSystem.is_straight_charge(rock), "A rock: straight")
 
 
+func test_a_rock_is_closed_at_top_speed_braking_late():
+	var top := 170.0
+	assert_eq(CommandCharge.rock_closing_speed(2000.0, top, 90.0), top, "Far off: top speed")
+	assert_lt(CommandCharge.rock_closing_speed(100.0, top, 90.0), top, "Braking as it nears")
+	assert_almost_eq(CommandCharge.rock_closing_speed(2.0, top, 90.0), 2.0 * Constants.NAV_CHARGE_ROCK_SETTLE_GAIN, 0.01, "settling the last metres")
+	assert_lt(CommandCharge.rock_closing_speed(-10.0, top, 90.0), 0.0, "Inside the standoff: back out")
+
+
+# The default ship (the light prospector) charging a rock 2 km off: well past the old 45-80 m/s
+# crawl, and it stops at the standoff without hitting it.
+func test_a_rock_charge_flies_at_speed_and_stops_short():
+	Engine.iterations_per_second = 60
+	Engine.time_scale = 4.0
+	var ship_id := "preset_ship_archetype_prospector_light"
+	var preset = load(Constants.ARCHETYPES_DIR.plus_file(ship_id + ".tres"))
+	TemplateDatabase.register_evolved(preset)
+	for part_id in preset.equipped_tools + preset.equipped_modules:
+		if TemplateDatabase.get_template(part_id) == null:
+			TemplateDatabase.register_evolved(load("res://database/presets/parts/%s.tres" % part_id))
+	var spawner = AgentSystemScript.new()
+	autofree(spawner)
+	var body = spawner.spawn_npc_from_template(Constants.NPC_BASE_TEMPLATE_PATH, Vector3(0, 0, 2000), {"faction": "verdant", "ship_template_id": ship_id, "fit": {"tools": preset.equipped_tools, "modules": preset.equipped_modules}})
+	body.get_node(Constants.AI_CONTROLLER_NODE_NAME).set_physics_process(false)
+	var rock = load("res://scenes/prefabs/celestial/asteroid.tscn").instance()
+	rock.scale = Vector3.ONE * 60.0
+	_container.add_child(rock)
+	yield(get_tree(), "idle_frame")
+	body.set_lances_armed(true)
+	body.command_charge(rock)
+	var fastest := 0.0
+	var closest := INF
+	for i in range(60 * 40):
+		yield(get_tree(), "physics_frame")
+		fastest = max(fastest, body.linear_velocity.length())
+		closest = min(closest, body.global_transform.origin.distance_to(rock.global_transform.origin) - rock.get_apparent_radius())
+	gut.p("rock charge: fastest %.0f m/s (top %.0f), closest %.0f m off" % [fastest, body.get_top_speed(), closest])
+	assert_gt(fastest, body.get_top_speed() * 0.85, "Near its top speed on the way in")
+	assert_gt(closest, body.get_apparent_radius(), "Never into the rock")
+	assert_lt(body.linear_velocity.length(), 5.0, "Holding at the standoff")
+
+
 # A charge at an ore chunk flies straight at it and on through the shove: no break-off.
 func test_a_charge_at_debris_never_breaks_off():
 	Engine.iterations_per_second = 240

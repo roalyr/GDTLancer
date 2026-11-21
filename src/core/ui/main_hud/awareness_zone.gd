@@ -6,7 +6,7 @@
 #   its hull, in its mark's colour (TargetKinds); the bracket then keeps only its distance;
 # - own speed, ships the sensors see as pips (HudPips; the hostile ones filled, red), own signature
 #   as a bar (Agent.get_signature against the hull's quiet base), dim while quiet, bright as it grows;
-# - bars: own hull, energy and cargo space used;
+# - bars: own hull, energy and cargo space used (fuel, then the rest of the hold);
 # - the radio, dimmer than the rest: the last HUD_RADIO_LINES lines heard, each fading out
 #   HUD_RADIO_FADE s after it came (MainHUD calls add_radio_line).
 # Refreshed every Constants.HUD_AWARENESS_INTERVAL s (labels lay out again on every change). It
@@ -75,7 +75,14 @@ func refresh() -> void:
 	_signature.modulate.a = lerp(Constants.HUD_SIGNATURE_ALPHA[0], Constants.HUD_SIGNATURE_ALPHA[1], loudness)
 	_hull.set_value(player.get_hull_fraction())
 	_energy.set_value(player.power / max(player.power_max, 0.001))
-	_cargo.set_value(float(player.get_cargo_units()) / max(float(player.cargo_capacity), 1.0) if player.has_method("get_cargo_units") else 0.0)
+	if player.has_method("get_cargo_units"):  # Fuel first (its own colour), then the rest of the hold
+		var capacity: float = max(float(player.cargo_capacity), 1.0)
+		var fuel: float = float(player.cargo.get(Constants.FUEL_COMMODITY, 0)) if player.get("cargo") is Dictionary else 0.0
+		_cargo.set_lead(fuel / capacity)
+		_cargo.set_value((float(player.get_cargo_units()) - fuel) / capacity)
+	else:
+		_cargo.set_lead(0.0)
+		_cargo.set_value(0.0)
 	_refresh_radio()
 
 

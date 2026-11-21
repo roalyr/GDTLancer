@@ -20,6 +20,8 @@ func test_it_shows_the_target_and_own_state():
 	player.hull = 50.0
 	player.power_max = 10.0
 	player.power = 10.0
+	player.cargo_capacity = 20
+	player.cargo = {Constants.FUEL_COMMODITY: 4, "commodity_ore": 6}
 	GlobalRefs.player_agent_body = player
 	var raider = AgentScript.new()
 	raider.faction = "raiders"
@@ -39,6 +41,8 @@ func test_it_shows_the_target_and_own_state():
 	assert_eq(zone.get_node("Layout/TargetRow/Distance").text, "1500")
 	assert_almost_eq(zone.get_node("Layout/TargetRow/Hull").value, 0.25, 0.01, "Its hull")
 	assert_almost_eq(zone.get_node("Layout/Bars/Hull").value, 0.5, 0.01, "Own hull")
+	assert_almost_eq(zone.get_node("Layout/Bars/Cargo").lead, 0.2, 0.01, "The hold: fuel first")
+	assert_almost_eq(zone.get_node("Layout/Bars/Cargo").value, 0.3, 0.01, "then the rest of it")
 	assert_eq(zone.get_node("Layout/Radio").text, "two\\nthree".c_unescape(), "The last lines only")
 	assert_eq(zone.get_node("Layout/TargetRow/Threat").text, Zone.threat_word(player, raider), "How a fight would go")
 	var seen: Array = Zone.ships_seen(player, [player, raider])

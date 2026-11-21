@@ -51,6 +51,7 @@ size_flags_horizontal = 3
 size_flags_vertical = 5
 text = "HOME STATION"
 valign = 1
+theme_type_variation = "TitleLabel"
 
 [node name="ButtonUndock" type="Button" parent="Panel/Layout/Header"]
 rect_min_size = Vector2( 160, 64 )
@@ -78,6 +79,7 @@ size_flags_horizontal = 3
 custom_constants/separation = 8
 
 [node name="Title" type="Label" parent="Panel/Layout/Body/Content/Columns/Ship"]
+theme_type_variation = "HeadingLabel"
 text = "SHIP - tap a slot to unfit"
 
 [node name="Stats" type="VBoxContainer" parent="Panel/Layout/Body/Content/Columns/Ship"]
@@ -104,6 +106,7 @@ size_flags_vertical = 3
 size_flags_horizontal = 3
 
 [node name="Title" type="Label" parent="Panel/Layout/Body/Content/Columns/Storage"]
+theme_type_variation = "HeadingLabel"
 text = "STORAGE - fit or sell"
 
 [node name="Scroll" type="ScrollContainer" parent="Panel/Layout/Body/Content/Columns/Storage"]
@@ -118,6 +121,7 @@ size_flags_horizontal = 3
 size_flags_stretch_ratio = 2.0
 
 [node name="Title" type="Label" parent="Panel/Layout/Body/Content/Columns/Store"]
+theme_type_variation = "HeadingLabel"
 text = "STORE"
 
 [node name="Tabs" type="HBoxContainer" parent="Panel/Layout/Body/Content/Columns/Store"]

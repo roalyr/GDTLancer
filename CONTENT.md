@@ -373,6 +373,21 @@ To give a sector its music (a new one or an existing one):
 - A font's `size` is its letter height in px. A style's `bg_color` is its fill, `border_*` its border, `content_margin_*` the space inside it.
 - One file can be named by several entries: `style_window.tres` is every window's and prompt's background. A new font or style starts as a copy of one (`ctrl+n`); then pick it in the theme's entry.
 - A scene picks a look in the Godot editor (Inspector, Theme, Type Variation). The rules flag a look a scene names that the theme does not have.
+- **Labels use the shared sizes, never their own font.** Every label takes its size from a named look (or the plain `Label`), so the same kind of text is the same size everywhere. For a new UI element pick from these:
+
+  | Text | Look | Font, size |
+  |---|---|---|
+  | Window and prompt titles | `TitleLabel` | font_large, 33 |
+  | Section headings (amber) | `HeadingLabel` | font_default, 22 |
+  | Body text, values, buttons | plain `Label` / `Button` | font_default, 22 |
+  | Notes, hints, dim keys | `NoteLabel` | font_default, 22, faded |
+  | Small print: captions, map names, radio | `SmallLabel`, `StatCaption` | font_small, 18 |
+  | Ship numbers | `StatHull`, `StatPower`, `StatCargo`, `StatMotion`, `StatSensors`, `StatWarning` | font_medium, 28, coloured |
+  | Emphasis: selected target, large buttons | `LargeLabel`, `LargeValueLabel`, `LargeButton` | font_large, 33 |
+  | Symbols (+, -) | `SymbolButton` | font_menu, 50 |
+  | Main menu | `MenuTitleLabel`, `MenuLabel` | font_menu_title 100, font_menu 50 |
+
+  No `custom_fonts` in scenes and no `add_font_override` in code: switch `theme_type_variation` instead, and code that draws text reads the look's font (`get_font("font", "SmallLabel")`). A size that none of these fits is a new look in the theme, not an override.
 
 To see a change: Tools, `m`, **UI screenshots** (every store tab, a prompt, the windows), or play.
 
