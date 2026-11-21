@@ -3,6 +3,7 @@
 
 extends GutTest
 
+const SectorMaker = preload("res://tools/devtool/sector_maker.gd")
 const BridgeCommands = preload("res://tools/devtool/bridge_commands.gd")
 const FACTION = "res://database/factions/verdant.tres"
 const COPY = "user://test_bridge_faction.tres"
@@ -344,7 +345,7 @@ func test_the_factions_view_has_wars_both_ways_and_havens():
 		for other in faction.at_war:
 			assert_has(by_id[other].at_war, faction.id, "War goes both ways")
 	assert_gt(by_id.verdant.havens.size(), 0)
-	assert_has([Constants.INITIAL_SECTOR_ID, Constants.EVO_SECTOR_ID], by_id.verdant.havens[0].sector)
+	assert_true(BridgeCommands.Validator.layout_files().has(by_id.verdant.havens[0].sector), "A haven's sector has a layout")
 	assert_true(by_id.verdant.paint is Dictionary and by_id.verdant.paint.has("v"))
 	assert_eq(view.archetypes, BridgeCommands.Validator.archetype_names())
 
@@ -485,7 +486,10 @@ func test_a_sector_without_a_layout_gets_one_with_its_entry():
 	var dirs: Dictionary = _test_dirs()
 	var folder: String = TEST_SECTORS.plus_file("sector_cob")
 	Directory.new().make_dir_recursive(folder)
-	Directory.new().copy("res://scenes/levels/sectors/sector_cob/sector_cob.tscn", folder.plus_file("sector_cob.tscn"))
+	var file := File.new()  # A sector scene with no layout yet (Cob's own has one now)
+	file.open(folder.plus_file("sector_cob.tscn"), File.WRITE)
+	file.store_string(SectorMaker.SCENE_TEMPLATE % "Sector Cob")
+	file.close()
 	Directory.new().copy("res://database/registry/locations/sector_cob.tres", TEST_LOCATIONS.plus_file("sector_cob.tres"))
 	var made: Dictionary = _ok(commands.handle("layout_new", dict_with(dirs, {"sector": "sector_cob"})))
 	assert_eq(made.layout, folder.plus_file("sector_cob_layout.tscn"))

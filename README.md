@@ -24,7 +24,7 @@ You fly the ship, not the guns: distance and relative velocity decide a fight, a
 
 ## Status
 
-0.x: one sector (Elace), playable as a sandbox. Content and balance are still changing.
+0.x: four sectors (home: Elace; Cob, Lywin, Vidr a jump away), playable as a sandbox. Content and balance are still changing.
 
 For developers (Linux, Godot 3.6): [CONTENT.md](CONTENT.md) gets you set up and through the development tool, `tools/dev.py`; [docs/MAINTAINING.md](docs/MAINTAINING.md) covers evolution and releases.
 

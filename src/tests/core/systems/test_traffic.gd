@@ -158,6 +158,29 @@ func test_travellers_come_in_one_at_a_time_and_apart():
 	assert_ne(a, b, "Two from the same sector come in apart")
 
 
+# NPCs do not jump with the player: in a sector outside TRAFFIC_SECTORS a traveller there is no
+# ship, and it still leaves on its timetable.
+func test_travellers_are_ships_only_in_traffic_sectors_and_leave_elsewhere_on_time():
+	var counting = Counting.new()
+	add_child_autofree(counting)
+	GameState.current_sector_id = "sector_cob"
+	var saved_container = GlobalRefs.agent_container
+	var container := Node.new()
+	add_child_autofree(container)
+	GlobalRefs.agent_container = container
+	counting.fill_roster()
+	var record: Dictionary = GameState.travelers[0]
+	record.sector = "sector_cob"
+	record.next = Constants.INITIAL_SECTOR_ID
+	counting.tick()
+	assert_eq(counting.spawned.size(), 0, "No traveller comes in outside Elace")
+	GameState.world_time = float(record.until) + 1.0
+	counting.tick()
+	assert_eq(record.status, "transit", "It leaves the player's sector on time all the same")
+	assert_eq(record.sector, Constants.INITIAL_SECTOR_ID)
+	GlobalRefs.agent_container = saved_container
+
+
 func test_who_travels_comes_from_the_factions():
 	var by_kind := {}
 	for entry in Traffic.roster():

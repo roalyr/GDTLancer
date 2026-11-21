@@ -1,0 +1,51 @@
+[gd_scene load_steps=10 format=2]
+
+[ext_resource path="res://src/scenes/game_world/starsphere_slot.gd" type="Script" id=1]
+[ext_resource path="res://scenes/starspheres/global_nebulas_starsphere/global_nebulas.tscn" type="PackedScene" id=2]
+[ext_resource path="res://src/scenes/game_world/ambient/ambient_visuals.gd" type="Script" id=999]
+[ext_resource path="res://src/scenes/game_world/sector_layout/sector_layout.gd" type="Script" id=1000]
+[ext_resource path="res://scenes/levels/sectors/sector_vidr/sector_vidr_layout.tscn" type="PackedScene" id=1001]
+[ext_resource path="res://scenes/levels/sectors/sector_vidr/star_vidr/star_vidr.tscn" type="PackedScene" id=1002]
+[ext_resource path="res://scenes/levels/sectors/sector_vidr/planet_vidr_a/planet_vidr_a.tscn" type="PackedScene" id=1003]
+[ext_resource path="res://scenes/levels/sectors/sector_vidr/planet_vidr_b/planet_vidr_b.tscn" type="PackedScene" id=1004]
+[ext_resource path="res://scenes/levels/sectors/sector_vidr/moon_vidr_b1/moon_vidr_b1.tscn" type="PackedScene" id=1005]
+
+[node name="Sector Vidr" type="Spatial"]
+
+[node name="AgentContainer" type="Spatial" parent="."]
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="StarsphereSlot" type="Spatial" parent="."]
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Globalnebulas" parent="StarsphereSlot" instance=ExtResource( 2 )]
+visible = false
+
+[node name="SceneAssets" type="Spatial" parent="."]
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="SectorLayout" type="Spatial" parent="SceneAssets"]
+script = ExtResource( 1000 )
+
+[node name="Layout" parent="SceneAssets/SectorLayout" instance=ExtResource( 1001 )]
+
+[node name="Star Vidr" parent="SceneAssets" instance=ExtResource( 1002 )]
+
+[node name="Planet Vidr A" parent="SceneAssets" instance=ExtResource( 1003 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -30000, 0, 20000 )
+
+[node name="Planet Vidr B" parent="SceneAssets" instance=ExtResource( 1004 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 25000, 5000, -30000 )
+
+[node name="Moon Vidr B1" parent="SceneAssets" instance=ExtResource( 1005 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 31000, 5000, -30000 )
+
+[node name="AmbientVisuals" type="Spatial" parent="."]
+script = ExtResource( 999 )

@@ -679,6 +679,7 @@ const TRAFFIC_START_BANK = 2000.0  # WP a new traveller has
 const TRAFFIC_ARRIVAL_SCATTER = 3000.0  # m round its jump shell point a traveller comes in at: never on top of another
 const TRAFFIC_ARRIVAL_GAP = 20.0  # s of world time between two travellers coming into the player's sector: a stream, not a pile
 const TRAFFIC_WORK_SEARCH = 40000.0  # m from the entry point a prospector looks for something to mine
+const TRAFFIC_SECTORS = ["sector_elace"]  # Where travellers show up as ships; elsewhere their timetable runs off-screen only (NPCs do not jump with the player)
 const TRAFFIC_HOTSPOT_HAVEN_CLEAR = 10000.0  # m past a field's edge: a territorial haven (a xenohive) this near makes it no traveller's hotspot
 
 # Prices (Market): physics value * (1 + the station's markup) * (1 -+ standing share).
@@ -1395,10 +1396,11 @@ const EVO_LOG_DIR = "user://evolution/logs/"  # One .jsonl per evolution run: ev
 # SECTORS, DOCKING AND JUMPS
 # ==================================================================================================
 
-# Jumps between sectors: off for 0.x (Elace only; the other sectors are not laid out). Off, the HUD
-# shows no routes or jump toggle and a jump request is refused; the debug overlay's JUMP page still
-# works. A var so tests can exercise jumping (pre-run hook).
-var jumps_enabled: bool = false
+# Jumps between sectors: the player jumps (fuel, routes on the HUD); NPCs do not (each sector has its
+# own havens' population; travellers come in to Elace only: TRAFFIC_SECTORS). Off, the HUD shows no
+# routes or jump toggle and a jump request is refused; the debug overlay's JUMP page still works. A
+# var so tests can exercise both (pre-run hook).
+var jumps_enabled: bool = true
 
 const DOCKING_PROMPT_RADIUS: float = 500.0  # m; the dock prompt appears
 const DOCKING_ACTION_RADIUS: float = 300.0  # m; dock / jump works

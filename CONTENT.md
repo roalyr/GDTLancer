@@ -259,7 +259,7 @@ Every genome uses the catalogue's genes for its parts, so a change here re-balan
   - Its bank, and the kit waiting in home storage (`starting_storage`).
   - `starting_standing` sets the player's standing with chosen factions.
   - Add starts to test with: see [Common tasks](#common-tasks).
-- `locations/`: the sector graph, one Location per sector. Jumps between sectors are off for 0.x (`Constants.jumps_enabled`), so the game is Elace only. World lists a Location with no scene yet (such as `sector_vidr`) and opens it in Data.
+- `locations/`: the sector graph, one Location per sector. The player jumps between connected sectors (fuel from the hold); NPCs stay in their sector: each sector's population is its havens' `ships`, and travellers show up only in `Constants.TRAFFIC_SECTORS` (Elace). World lists a Location with no scene yet and opens it in Data.
 - `agents/`: the player's and the NPCs' agent settings.
 
 (These folders are under `database/registry/`, not the top-level `assets/` folder, which holds art, models and audio.)

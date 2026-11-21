@@ -11,6 +11,8 @@
 # beacons to its work point (the sector's hotspot: _work_point), mines, raids or patrols there, and
 # when its time is up, or its hold full, it flies out toward "next" and jumps. A traveller that dies is
 # gone; another takes its place in Elace TRAFFIC_REPLACE_TIME later, from the best design of its kind.
+# Only in TRAFFIC_SECTORS (Elace) is it ever a ship: the player jumps, NPCs do not; in other
+# sectors the havens are the population, and a traveller's visits there stay on its timetable.
 # A child of AgentSystem, ticked by its population timer.
 
 extends Node
@@ -141,9 +143,10 @@ func tick() -> void:
 			continue
 		if record.status == "transit" and now >= float(record.until):
 			_arrive(record)
-		elif record.status == "dwell" and now >= float(record.until) and record.sector != GameState.current_sector_id:
+		elif record.status == "dwell" and now >= float(record.until) and (record.sector != GameState.current_sector_id or not record.sector in Constants.TRAFFIC_SECTORS):
 			_depart(record)
-		if record.status == "dwell" and record.sector == GameState.current_sector_id and not _unloading and is_instance_valid(GlobalRefs.agent_container) \
+		if record.status == "dwell" and record.sector == GameState.current_sector_id and GameState.current_sector_id in Constants.TRAFFIC_SECTORS \
+				and not _unloading and is_instance_valid(GlobalRefs.agent_container) \
 				and now >= _next_arrival:
 			_next_arrival = now + Constants.TRAFFIC_ARRIVAL_GAP  # One at a time, as from a jump
 			_spawn(record)
