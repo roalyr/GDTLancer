@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=2]
+[gd_scene load_steps=22 format=2]
 
 [ext_resource path="res://src/core/ui/main_hud/main_hud.gd" type="Script" id=1]
 [ext_resource path="res://assets/art/ui/controls/button_approach.png" type="Texture" id=2]
@@ -20,6 +20,7 @@
 [ext_resource path="res://assets/art/ui/controls/button_character.png" type="Texture" id=18]
 [ext_resource path="res://assets/art/ui/controls/button_ship.png" type="Texture" id=19]
 [ext_resource path="res://assets/art/ui/controls/button_structure.png" type="Texture" id=20]
+[ext_resource path="res://assets/art/ui/controls/button_map.png" type="Texture" id=21]
 
 [node name="MainHUD" type="Control"]
 anchor_right = 1.0
@@ -785,8 +786,7 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="ButtonPlaceholder4" type="TextureButton" parent="ScreenControls/CenterRightZone"]
-visible = false
+[node name="ButtonMap" type="TextureButton" parent="ScreenControls/CenterRightZone"]
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
@@ -794,7 +794,7 @@ anchor_bottom = 1.0
 margin_left = -100.0
 margin_top = -1040.0
 margin_bottom = -940.0
-texture_normal = ExtResource( 4 )
+texture_normal = ExtResource( 21 )
 expand = true
 __meta__ = {
 "_edit_lock_": true

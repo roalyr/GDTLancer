@@ -4,7 +4,8 @@
 # diamond for ore chunks and loose lances. A hostile's mark is bigger; a ship's is filled once it
 # has seen the player (`filled`), a station's never is. A hostile ship's pilot level (PilotLevel)
 # shows as pips in a row under its mark, one for a rookie to four for an ace. Drawn white: the bracket's
-# BracketNormal tints it (side, kind), and the bracket fades it with distance.
+# BracketNormal tints it (side, kind), and the bracket fades it with distance. paint() draws the same
+# marks on any canvas (the map's).
 
 extends Control
 
@@ -38,60 +39,68 @@ func set_mark(new_kind: String, new_hostile: bool, new_filled: bool = false, new
 
 
 func _draw() -> void:
-	var grow: float = (1.35 if hostile else 1.0) * SIZE
-	_shape(rect_size * 0.5, grow)
-	if level >= 0:
-		_pips(rect_size * 0.5 + Vector2(0, 5.0 * grow + PIP_GAP), level + 1)  # Under the diamond
+	paint(self, rect_size * 0.5, kind, hostile, filled, Color.white, level)
+
+
+# Draws the mark of a `kind` target (TargetKinds.kind_of) centred on `centre`, on any CanvasItem in
+# its _draw: the brackets draw it white and tint it, the map (MapView) in its colour. `scale`: of
+# the mark's size (the map's are smaller).
+static func paint(canvas: CanvasItem, centre: Vector2, mark_kind: String, is_hostile: bool, is_filled: bool, color: Color,
+		pips: int = -1, scale: float = 1.0) -> void:
+	var grow: float = (1.35 if is_hostile else 1.0) * SIZE * scale
+	_shape(canvas, centre, mark_kind, grow, SIZE * scale, is_filled, color)
+	if pips >= 0:
+		_pips(canvas, centre + Vector2(0, 5.0 * grow + PIP_GAP * scale), pips + 1, color, scale)  # Under the diamond
 
 
 # `count` dots in a row centred on `centre`.
-func _pips(centre: Vector2, count: int) -> void:
+static func _pips(canvas: CanvasItem, centre: Vector2, count: int, color: Color, scale: float) -> void:
 	for index in range(count):
-		_dot(centre + Vector2((index - (count - 1) * 0.5) * PIP_STEP, 0), PIP_RADIUS)
+		_dot(canvas, centre + Vector2((index - (count - 1) * 0.5) * PIP_STEP * scale, 0), PIP_RADIUS * scale, color)
 
 
-func _shape(centre: Vector2, grow: float) -> void:
-	var size: float = SIZE
-	match kind:
+static func _shape(canvas: CanvasItem, centre: Vector2, mark_kind: String, grow: float, size: float, is_filled: bool, color: Color) -> void:
+	match mark_kind:
 		"ship":
-			_polygon(centre, [Vector2(0, -1), Vector2(1, 0), Vector2(0, 1), Vector2(-1, 0)], 5.0 * grow, filled)
+			_polygon(canvas, centre, [Vector2(0, -1), Vector2(1, 0), Vector2(0, 1), Vector2(-1, 0)], 5.0 * grow, is_filled, color)
 		"station":
-			_polygon(centre, [Vector2(-1, -1), Vector2(1, -1), Vector2(1, 1), Vector2(-1, 1)], 6.0 * grow, false)
+			_polygon(canvas, centre, [Vector2(-1, -1), Vector2(1, -1), Vector2(1, 1), Vector2(-1, 1)], 6.0 * grow, false, color)
 		"beacon":
-			_polygon(centre, [Vector2(0, -1.15), Vector2(1, 0.7), Vector2(-1, 0.7)], 5.0 * size, false)
+			_polygon(canvas, centre, [Vector2(0, -1.15), Vector2(1, 0.7), Vector2(-1, 0.7)], 5.0 * size, false, color)
 		"distress":
-			_polygon(centre, [Vector2(0, -1.15), Vector2(1, 0.7), Vector2(-1, 0.7)], 6.0 * size, true, Constants.UI_DISTRESS_FILL_ALPHA)
+			_polygon(canvas, centre, [Vector2(0, -1.15), Vector2(1, 0.7), Vector2(-1, 0.7)], 6.0 * size, true, color, Constants.UI_DISTRESS_FILL_ALPHA)
 		"body", "jump":
-			_ring(centre, 6.0 * size, LINE)
+			_ring(canvas, centre, 6.0 * size, LINE, color)
 		"rock":
-			_dot(centre, 2.5 * size)
+			_dot(canvas, centre, 2.5 * size, color)
 		"wreck":
 			var arm: float = 4.5 * size
-			draw_line(centre + Vector2(-arm, -arm), centre + Vector2(arm, arm), Color.white, LINE, true)
-			draw_line(centre + Vector2(arm, -arm), centre + Vector2(-arm, arm), Color.white, LINE, true)
+			canvas.draw_line(centre + Vector2(-arm, -arm), centre + Vector2(arm, arm), color, LINE, true)
+			canvas.draw_line(centre + Vector2(arm, -arm), centre + Vector2(-arm, arm), color, LINE, true)
 		"pickup":
-			_polygon(centre, [Vector2(0, -1), Vector2(1, 0), Vector2(0, 1), Vector2(-1, 0)], 4.0 * size, true)
+			_polygon(canvas, centre, [Vector2(0, -1), Vector2(1, 0), Vector2(0, 1), Vector2(-1, 0)], 4.0 * size, true, color)
 		_:
-			_dot(centre, 3.0 * size)
+			_dot(canvas, centre, 3.0 * size, color)
 
 
-func _dot(centre: Vector2, radius: float) -> void:
-	draw_colored_polygon(_circle(centre, radius), Color.white, PoolVector2Array(), null, null, true)
+static func _dot(canvas: CanvasItem, centre: Vector2, radius: float, color: Color) -> void:
+	canvas.draw_colored_polygon(_circle(centre, radius), color, PoolVector2Array(), null, null, true)
 
 
-func _ring(centre: Vector2, radius: float, width: float) -> void:
-	draw_arc(centre, radius, 0.0, TAU, SEGMENTS, Color.white, width, true)
+static func _ring(canvas: CanvasItem, centre: Vector2, radius: float, width: float, color: Color) -> void:
+	canvas.draw_arc(centre, radius, 0.0, TAU, SEGMENTS, color, width, true)
 
 
-# A closed outline through `corners` (unit offsets times `size`), filled if `fill` (this opaque).
-func _polygon(centre: Vector2, corners: Array, size: float, fill: bool, fill_alpha: float = 1.0) -> void:
+# A closed outline through `corners` (unit offsets times `size`), filled if `fill` (at `fill_alpha`
+# of the colour's own).
+static func _polygon(canvas: CanvasItem, centre: Vector2, corners: Array, size: float, fill: bool, color: Color, fill_alpha: float = 1.0) -> void:
 	var points := PoolVector2Array()
 	for corner in corners:
 		points.append(centre + corner * size)
 	if fill:
-		draw_colored_polygon(points, Color(1, 1, 1, fill_alpha), PoolVector2Array(), null, null, true)
+		canvas.draw_colored_polygon(points, Color(color.r, color.g, color.b, color.a * fill_alpha), PoolVector2Array(), null, null, true)
 	points.append(points[0])
-	draw_polyline(points, Color.white, LINE, true)
+	canvas.draw_polyline(points, color, LINE, true)
 
 
 static func _circle(centre: Vector2, radius: float) -> PoolVector2Array:

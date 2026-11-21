@@ -31,6 +31,7 @@ const PilotWindowScene = preload("res://scenes/ui/menus/pilot_window.tscn")
 const Interactions = preload("res://src/core/systems/interactions.gd")
 const FittingWindowScript = preload("res://src/core/ui/fitting_window/fitting_window.gd")
 const DebugMapScene = preload("res://scenes/ui/menus/debug_map.tscn")
+const MapWindowScene = preload("res://scenes/ui/menus/map_window.tscn")
 const DebugTools = preload("res://src/core/ui/debug_tools/debug_tools.gd")
 const RadioScript = preload("res://src/core/systems/radio.gd")
 const ThreatRing = preload("res://src/core/ui/main_hud/threat_ring.gd")
@@ -76,6 +77,7 @@ var interaction_window: Control = null  # INTERACT: what the selected ship may b
 var ship_window: Control = null  # SHIP: the ship flown, its fit and stats (ShipWindow)
 var pilot_window: Control = null  # PILOT: bank, standing, bounties, work (PilotWindow)
 var debug_map: Control = null
+var map_window: Control = null  # MAP: the sector and the sectors from above (MapWindow)
 var debug_tools: Control = null
 var radio_lines: Array = []  # The radio lines heard last (Radio), oldest first, with their time: the debug overlay's (the top strip keeps its own, fading)
 var threat_ring: Control = null
@@ -247,6 +249,9 @@ func _ready():
 	pilot_window = PilotWindowScene.instance()
 	add_child(pilot_window)
 	$ScreenControls/CenterRightZone/ButtonCharacter.connect("pressed", pilot_window, "toggle")
+	map_window = MapWindowScene.instance()
+	add_child(map_window)
+	$ScreenControls/CenterRightZone/ButtonMap.connect("pressed", map_window, "toggle")
 	debug_map = DebugMapScene.instance()
 	add_child(debug_map)
 	$ScreenControls/DebugOverlay/RightColumn/ButtonDebugMap.connect("pressed", debug_map, "open")
