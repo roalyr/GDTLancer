@@ -32,7 +32,7 @@ Set them in your shell profile (for example `export GODOT=~/apps/godot-3.6.2/god
 
 **First run:**
 1. Clone the repository.
-2. Run `tools/dev.py`. The first run installs its one package (Textual) into `.dev/venv`, which only this tool uses, and imports the project (Godot converts the art and models into `.import/`, which git does not keep; under a minute). Opening the project once in the Godot editor does the same import.
+2. Run `tools/dev.py`. The first run installs its one package (Textual) into `.dev/venv`, which only this tool uses (`tools/devtool/setup.sh` does that step on its own: to set up ahead, or `--fresh` to repair the venv), and imports the project (Godot converts the art and models into `.import/`, which git does not keep; under a minute). Opening the project once in the Godot editor does the same import.
 3. The **Overview** tab checks everything. If Godot or Blender is missing or is the wrong version, or the project was never imported, a red **Setup** line says what to do.
 4. Play the game from the Tools tab (`0`, then **Play**), or with `godot` in the project folder.
 

@@ -514,8 +514,18 @@ class AppTest(unittest.IsolatedAsyncioTestCase):
             self.assertEqual((fake.writes[-1]["command"], fake.writes[-1]["node"]), ("scene_remove", "Havens/Port"))
 
     async def test_a_sector_without_a_layout_is_listed_and_gets_one(self):
+        # Every real sector has a scene and a layout now: Cob is shown without its layout, Vidr as a
+        # Location with no scene.
         fake = FakeBridge()
         app = devapp.DevApp(bridge_factory=lambda: fake)
+        cob = "res://scenes/levels/sectors/sector_cob/sector_cob_layout.tscn"
+        real_file_path, real_scenes = devapp.file_path, devapp.sector_scenes
+        hidden = mock.patch.multiple(devapp, file_path=lambda path: os.devnull + ".none" if path == cob else real_file_path(path),
+                                     sector_scenes=lambda: [scene for scene in real_scenes() if not scene.endswith("sector_vidr.tscn")])
+        with hidden:
+            await self._sector_without_a_layout(fake, app, cob)
+
+    async def _sector_without_a_layout(self, fake, app, cob):
         async with app.run_test(size=(160, 60)) as pilot:
             await self._started(pilot, app)
             app.query_one("TabbedContent").active = "world"
@@ -527,7 +537,6 @@ class AppTest(unittest.IsolatedAsyncioTestCase):
             locations = [child.data["location"] for child in tree.root.children if "location" in child.data]
             self.assertIn("res://database/registry/locations/sector_vidr.tres", locations, "A Location with no scene is listed too")
             self.assertNotIn("sector_vidr", sectors)
-            cob = "res://scenes/levels/sectors/sector_cob/sector_cob_layout.tscn"
             app.load_sector("sector_cob", cob, ".")
             await self._started(pilot, app)
             self.assertTrue(app.world["nodes"]["."].get("missing"))

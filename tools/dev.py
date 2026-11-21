@@ -11,7 +11,7 @@ in one place. Code is edited elsewhere; everything else goes through here.
     tools/dev.py selftest             the tool's own tests
 
 The menu needs Textual (tools/devtool/requirements.txt): on first use it is installed into .dev/venv,
-which only this tool uses. Linux only. Settings from the environment: GODOT (the Godot 3.6 binary,
+which only this tool uses (tools/devtool/setup.sh does that ahead, or anew with --fresh). Linux only. Settings from the environment: GODOT (the Godot 3.6 binary,
 default "godot"), BLENDER (Blender 3.6, default tools/blender if linked, else "blender"),
 GDTLANCER_APK (where the debug APK goes). CONTENT.md, Getting started, says how to set up. Output
 files go to .dev/out/, which Godot and git ignore. Parts: tools/devtool/, listed in
@@ -65,7 +65,7 @@ def install():
         print("\nCould not %s (%s). Likely causes:\n"
               "  - Python's venv module is missing: on Debian or Ubuntu, sudo apt install python3-venv\n"
               "  - no network for pip\n"
-              "Ways on: fix that and run tools/dev.py again; or pip install textual==8.2.8 into any Python and\n"
+              "Ways on: fix that and run tools/dev.py (or tools/devtool/setup.sh --fresh) again; or pip install textual==8.2.8 into any Python and\n"
               "run tools/dev.py with it; or use the tasks without the menu (tools/dev.py list), which need no\n"
               "Textual." % (step, error))
         sys.exit(1)
