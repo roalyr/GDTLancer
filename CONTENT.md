@@ -145,7 +145,7 @@ A field marked in orange, "Not in the game yet", is kept and saved, but nothing 
 ## Factions
 
 **Where:** `database/factions/<id>.tres`. Each file is a `FactionTemplate`, and it sets:
-- its name and colour, who it is at war with (`enemies`), and the player's starting standing with it;
+- its name and colour, who it is at war with (`enemies`), and the player's starting standing with it. A war named on either side counts for both. When the player hits or kills a faction's ship, every faction at war with it thinks better of the player (`STANDING_ATTACK_ENEMY`, `STANDING_KILL_ENEMY`);
 - whether it calls for help (`distress`), hires escorts (`escorts`) and pays patrol wages (`patrol_wages`);
 - whether its havens welcome other factions as a neutral one does (`open_havens`, as the Free Port does). An open faction's own ships may also dock at any haven not at war with it;
 - its paints (`hull_material`, `station_material`);

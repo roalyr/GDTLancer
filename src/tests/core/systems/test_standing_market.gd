@@ -44,8 +44,36 @@ func test_the_first_hit_on_a_ship_costs_standing_once_and_a_kill_more_and_please
 	assert_almost_eq(Standing.of("verdant"), -Constants.STANDING_ATTACK, 0.0001, "Once per ship")
 	victim.apply_damage(200.0, player)
 	assert_almost_eq(Standing.of("verdant"), -Constants.STANDING_ATTACK - Constants.STANDING_KILL, 0.0001)
-	assert_almost_eq(Standing.of("violet"), Constants.STANDING_KILL_ENEMY, 0.0001, "Verdant's enemy")
-	assert_almost_eq(Standing.of("raiders"), -1.0 + Constants.STANDING_KILL_ENEMY, 0.0001, "Raiders are at war with Verdant too")
+	var gain: float = Constants.STANDING_ATTACK_ENEMY + Constants.STANDING_KILL_ENEMY
+	assert_almost_eq(Standing.of("violet"), gain, 0.0001, "Verdant's enemy")
+	assert_almost_eq(Standing.of("raiders"), -1.0 + gain, 0.0001, "Raiders are at war with Verdant too")
+	assert_almost_eq(Standing.of("freeport"), float(TemplateDatabase.factions["freeport"].get("standing", 0.0)), 0.0001, "Not at war with Verdant: as it started")
+
+
+# The rivalries the player's fights move, with the game's factions: Verdant and Violet please each
+# other's rival; raiders please every faction they war on (theirs or the other's enemies list naming
+# it); hitting or killing any of those pleases the raiders. Aliens have no standing.
+func test_each_kill_pleases_the_victims_rivals_whichever_side_names_the_war():
+	var cases = {
+		"verdant": ["violet", "raiders"],
+		"violet": ["verdant", "raiders"],
+		"freeport": ["raiders"],
+		"raiders": ["freeport", "verdant", "violet"],
+	}
+	var player = _ship("player", "player")
+	for victim_faction in cases:
+		GameState.player_standing = {"verdant": 0.0, "violet": 0.0, "freeport": 0.0, "raiders": 0.0}
+		var victim = _ship(victim_faction)
+		victim.apply_damage(10.0, player)
+		for other in ["verdant", "violet", "freeport", "raiders"]:
+			var expected: float = Constants.STANDING_ATTACK_ENEMY if other in cases[victim_faction] else 0.0
+			if other == victim_faction:
+				expected = -Constants.STANDING_ATTACK
+			assert_almost_eq(Standing.of(other), expected, 0.0001, "Hit %s: %s" % [victim_faction, other])
+		victim.apply_damage(200.0, player)
+		for other in cases[victim_faction]:
+			assert_almost_eq(Standing.of(other), Constants.STANDING_ATTACK_ENEMY + Constants.STANDING_KILL_ENEMY, 0.0001, "Kill %s: %s pleased" % [victim_faction, other])
+	assert_false("xenohive" in Standing.rivals("raiders"), "Aliens have no standing")
 
 
 func test_kills_by_others_leave_standing_alone():

@@ -22,6 +22,7 @@ func before_each():
 	add_child_autofree(rock)
 	rock.scale = Vector3.ONE * 30.0
 	rock.deposit = 20
+	_free_strays()  # Left by an earlier test (here or another file's): the tests count these
 	miner = AgentScript.new()
 	add_child_autofree(miner)
 	miner.global_transform.origin = Vector3(0, 0, 200)
@@ -32,9 +33,7 @@ func before_each():
 
 
 func after_each():
-	for chunk in get_tree().get_nodes_in_group("ore_chunk"):  # Broken off into the test: not freed with the rock
-		if is_instance_valid(chunk) and not chunk.is_queued_for_deletion():
-			chunk.free()
+	_free_strays()
 	GameState.rock_deposits = {}
 	GameState.world_time = 0.0
 	for child in get_children():
@@ -321,3 +320,11 @@ func test_a_rock_breaks_into_rock_chunks():
 	assert_false(chunk.derelict)
 	assert_string_starts_with(chunk.get_display_name(), "Rock chunk (")
 	assert_eq(rock.regrow_time(), Constants.MINING_REGROW_TIME)
+
+
+# Chunks and loose lances break off into the world, not freed with their rock or ship.
+func _free_strays() -> void:
+	for group in ["ore_chunk", "loose_lance"]:
+		for node in get_tree().get_nodes_in_group(group):
+			if is_instance_valid(node) and not node.is_queued_for_deletion():
+				node.free()

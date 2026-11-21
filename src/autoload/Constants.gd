@@ -591,7 +591,8 @@ const STANDING_HOSTILE = -0.6  # At or below: its ships attack the player on sig
 const STANDING_FRIENDLY = 0.6  # At or above: friendly (shown; prices are best)
 const STANDING_ATTACK = 0.03  # Lost with a ship's faction the first time the player hits that ship
 const STANDING_KILL = 0.12  # Lost with a ship's faction when the player kills it
-const STANDING_KILL_ENEMY = 0.04  # Gained with each faction at war with the victim's
+const STANDING_KILL_ENEMY = 0.04  # Gained with each faction at war with the victim's (either side's enemies naming the other)
+const STANDING_ATTACK_ENEMY = 0.01  # Gained with each of those the first time the player hits the ship
 
 # Bounties (Bounty): shares of the ship's value (Agent.get_value).
 const BOUNTY_WAR_SHARE = 0.2  # Paid by a faction for a ship of a faction it is at war with
