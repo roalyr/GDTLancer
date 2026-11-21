@@ -122,6 +122,7 @@ A field marked in orange, "Not in the game yet", is kept and saved, but nothing 
 1. World (`5`): **New sector**. This makes its folder, scene, layout (with its entry beacon) and Location file.
 2. Pick **Scene** and press `ctrl+n` to add a star, planet, moon or belt. It is a copy of one you pick, named by the rules.
 3. Change each body's looks in the Godot editor: pick it in World and press `e` to open its scene there. Place havens, beacons and hazards in the layout.
+4. Optionally, give it music of its own (its Location's `music_*` fields; see [Sounds](#sounds)). Left empty, it plays the game's.
 
 **Make a ship or station model**
 1. Models (`2`): `ctrl+n` copies a starter and opens it in Blender.
@@ -132,6 +133,8 @@ A field marked in orange, "Not in the game yet", is kept and saved, but nothing 
 **Add or change a sound**
 1. Data (`8`), Sound bank: type or pick a sound file's path in a slot. Each slot's note says when it plays.
 2. If the Overview says a sound loops wrong for its slot, press `l` there.
+
+**Give a sector its own music:** see [Sounds](#sounds), "A sector's own music".
 
 **Test a game start**
 1. Data (`8`), Game starts, `ctrl+n`: pick a ship, a haven, a bank and a kit.
@@ -348,7 +351,17 @@ A model is made in Blender and imported with one key (Models, `i`). The game bui
 - `danger_stream`: hostiles are on the sensors, but none has seen you;
 - `combat_stream`: one has seen you, or you are under fire.
 
-The music crossfades between them as the danger changes. These are the game's own tracks. A sector can have its own: its Location (Data, Locations) has `music_calm`, `music_danger` and `music_combat`, and each one left empty plays the game's. On a jump to a sector with other tracks, the old ones fade out and the sector's own fade in.
+The music crossfades between them as the danger changes. These are the game's own tracks.
+
+**A sector's own music.** Each sector's Location (Data, Locations) has three music fields: `music_calm`, `music_danger` and `music_combat`.
+- Each one left empty plays the game's track, so a new sector needs nothing to start with. Fill in only the tracks the sector should play differently.
+- On a jump to a sector with other tracks, the old ones fade out as the jump leaves and the sector's own fade in. Between sectors with the same tracks, the music plays on.
+
+To give a sector its music (a new one or an existing one):
+1. Save each track as an `.ogg` file that loops cleanly (end to start), in the folder for its kind: `assets/audio/music/ambient/`, `danger/` or `combat/`. Name it after the sector and the kind: `assets/audio/music/ambient/vidr_calm.ogg`, `assets/audio/music/combat/vidr_combat.ogg`.
+2. Import it and switch looping on. Open the project in the Godot editor, pick the file, and in the Import dock tick **Loop** and press **Reimport**. (Without the editor: Tools, `import`, then set `loop=true` in the file's `.ogg.import` and import again.) A track that does not loop stops when it ends; nothing checks this yet.
+3. Data (`8`), Locations: open the sector's Location (`sector_<word>`). Pick the file in `music_calm`, `music_danger` or `music_combat`, and save.
+4. Play: jump to the sector (or use the debug overlay's JUMP page). The calm track plays first; the danger and combat tracks take over as hostiles show up.
 
 **Placeholders:** `tools/make_placeholder_sounds.py` synthesizes stand-in sounds into `assets/audio/placeholders/` and `assets/audio/music/`. Fill a slot with a real file to replace one.
 
