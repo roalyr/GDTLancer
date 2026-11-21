@@ -16,11 +16,13 @@ DEFINITIONS = "res://database/definitions/"
 
 class Kind:
     """`script` makes a new file; or, with `copies`, a new file is a copy of the one picked (its
-    name then starts with `prefix`)."""
+    name then starts with `prefix`). `by_name`: other files name these by their bare name too (as
+    models take materials), not only by path; by default, as `copies`."""
 
-    def __init__(self, key, title, pattern, script=None, about="", exclude=(), copies=False, prefix=""):
+    def __init__(self, key, title, pattern, script=None, about="", exclude=(), copies=False, prefix="", by_name=None):
         self.key, self.title, self.pattern, self.script, self.about = key, title, pattern, script, about
         self.exclude, self.copies, self.prefix = exclude, copies, prefix
+        self.by_name = copies if by_name is None else by_name
 
     def files(self):
         """res:// paths of this kind's files, sorted."""
@@ -67,6 +69,10 @@ KINDS = [
          " then rebuild the starters (Tools: starters).", copies=True, prefix="mat_"),
     Kind("sounds", "Sound bank", "database/sounds/sound_bank.tres", None,
          "One slot per game event; an empty slot is silent."),
+    Kind("ui_theme", "UI theme", "assets/themes/*.tres", None,
+         "main_theme.tres: how every UI control looks, and its named looks (a look's base_type: the control it changes;"
+         " its note: the scenes using it). font_*.tres and style_*.tres: the fonts and styles it names. New: a copy of the one picked.",
+         copies=True, by_name=False),
 ]
 KINDS_BY_KEY = {kind.key: kind for kind in KINDS}
 

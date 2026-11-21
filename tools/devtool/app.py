@@ -49,6 +49,7 @@ from .bridge import Bridge, BridgeError, file_path
 RESOURCE_FILES = {  # Resource type -> the files a field of it can point at
     "PackedScene": ("*.tscn",), "AudioStream": ("*.wav", "*.ogg", "*.mp3"), "Material": ("*.tres",),
     "ShaderMaterial": ("*.tres",), "Texture": ("*.png",), "Resource": ("*.tres",), "Shader": ("*.gdshader",),
+    "Font": ("font_*.tres",), "StyleBox": ("style_*.tres",), "DynamicFontData": ("*.ttf", "*.otf"),
 }
 SKIPPED_DIRS = (".git", ".import", ".dev", "addons")
 SECTOR_SCENES = "scenes/levels/sectors/*/*.tscn"  # A sector is its folder's <folder>.tscn; its layout <folder>_layout.tscn
@@ -2064,7 +2065,7 @@ class DevApp(App):
         title = "[b]%s[/b] · %s  [dim](%s%s)[/dim]" % (os.path.basename(path), path, schema["class"], (", " + kind.title) if kind else "")
         form.show(title, schema["fields"], read["values"], schema.get("script", ""))
         form.result(result)
-        self.named_in_worker(path, title, bool(kind and kind.copies))
+        self.named_in_worker(path, title, bool(kind and kind.by_name))
 
     @work(thread=True, exclusive=True, group="named-in")
     def named_in_worker(self, path, title, by_name=False):
@@ -2137,7 +2138,7 @@ class DevApp(App):
         if not kind.can_create():
             self.notify("%s are not deleted here (%s)" % (kind.title, kind.about or "a fixed set"), severity="warning")
             return
-        users = data.references(path, by_name=kind.copies)
+        users = data.references(path, by_name=kind.by_name)
         if users:
             self.notify("Not deleted: %s is still named in %s%s" % (os.path.basename(path), ", ".join(user.replace("res://", "") for user in users[:4]),
                                                                     " and %d more" % (len(users) - 4) if len(users) > 4 else ""), severity="error")

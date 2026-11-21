@@ -4,7 +4,7 @@
 # over stdin/stdout; the tests call them directly. Godot reads and writes every file, so what the
 # tool saves is what the editor would.
 # Resources: ping, schema, read, write, create (fields: a script's exported variables; a
-# ShaderMaterial's shader and shader parameters). Scenes: scene_nodes, scene_write, scene_add,
+# ShaderMaterial's shader and shader parameters; a theme's entries, a font's or a style's own). Scenes: scene_nodes, scene_write, scene_add,
 # scene_remove (nodes and their fields, translation included), world_scene, scene_instance,
 # sector_map; sectors and bodies as files: layout_new, sector_new, sector_clone, body_new, body_remove. Views: archetypes,
 # factions, parts, economy, look. Checks: validate, models, sound_slots, check_script. user_dir.
@@ -34,6 +34,17 @@ const SHADERS_DIR = "res://assets/art/shaders/"
 const SOUND_KIND_NOTES = {"world": "Heard where it happens", "loop": "A loop a ship carries while it applies (import it with Loop on)",
 	"ui": "Heard as it is, wherever the player is", "ambient": "Heard as it is, a loop while it lasts (import it with Loop on)"}  # SoundBank.SLOTS kinds, before each slot's own note
 const PATTERNS_DIR = "res://assets/art/textures/paint_patterns/"
+const LOOK_USAGE = PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_EDITOR  # A theme's, a font's or a style's saved fields
+const LOOK_NOTES = {  # Notes on the UI theme's fonts' and styles' fields: a name, or a prefix ending in _
+	"size": "Letter height, px", "use_filter": "Smooth the letters when scaled", "use_mipmaps": "Smooth the letters when drawn small",
+	"outline_size": "Outline around the letters, px", "outline_color": "The outline's colour", "extra_spacing_": "Space added, px",
+	"font_data": "The typeface (a .ttf or .otf)",
+	"bg_color": "The fill", "draw_center": "Fill drawn (off: the border alone)", "content_margin_": "Space inside before the contents, px (-1: none; a plain Panel ignores it)",
+	"border_width_": "Border, px", "border_color": "The border's colour", "border_blend": "Border fades into the fill",
+	"corner_radius_": "Corner rounding, px", "corner_detail": "Segments per rounded corner", "expand_margin_": "Drawn this far outside, px",
+	"shadow_": "Drop shadow", "anti_aliasing": "Smooth edges", "skew": "Slant (x, y)",
+	"default_font": "The font of anything with no font of its own",
+}
 const HINT_NAMES = {
 	PROPERTY_HINT_NONE: "", PROPERTY_HINT_RANGE: "range", PROPERTY_HINT_EXP_RANGE: "range", PROPERTY_HINT_ENUM: "enum",
 	PROPERTY_HINT_FLAGS: "flags", PROPERTY_HINT_FILE: "file", PROPERTY_HINT_DIR: "dir", PROPERTY_HINT_GLOBAL_FILE: "file",
@@ -928,6 +939,8 @@ static func fields_of(target: Object) -> Array:
 					"hint_name": HINT_NAMES.get(param.hint, ""), "hint_string": param.hint_string, "default": null,
 					"comment": comments.get(param.name, "")})
 		return fields
+	if target is Theme or target is Font or target is StyleBox:
+		return _look_fields(target)
 	var script: Script = target.get_script()
 	if script == null:
 		return fields
@@ -951,6 +964,30 @@ static func fields_of(target: Object) -> Array:
 		fields.append(field)
 	if probe is Node:
 		probe.free()
+	return fields
+
+
+# The UI theme's files (assets/themes/, ContentValidator.theme): a theme's entries, as Godot saves
+# them (<Type>/<colors|fonts|styles|constants|icons>/<name>; a named look's <Look>/base_type is the
+# plain control it changes, and its note names the files that use it); a font's or a style's fields.
+static func _look_fields(target: Resource) -> Array:
+	var fields: Array = []
+	var probe = null if target is Theme else ClassDB.instance(target.get_class())  # Its defaults
+	var users: Dictionary = Validator.looks_in_use() if target is Theme else {}
+	for property in target.get_property_list():
+		var name: String = property.name
+		if property.usage & LOOK_USAGE != LOOK_USAGE or name == "script" or name.begins_with("resource_") or name.begins_with("fallback/"):
+			continue
+		var comment: String = ""
+		for key in LOOK_NOTES:
+			if name == key or (key.ends_with("_") and name.begins_with(key)):
+				comment = LOOK_NOTES[key]
+		if name.ends_with("/base_type"):
+			var look: String = name.get_slice("/", 0)
+			comment = "A named look on %s; used by %s" % [target.get(name), PoolStringArray(users[look]).join(", ") if users.has(look) else "nothing yet"]
+		fields.append({"name": name, "type": TYPE_NAMES.get(property.type, str(property.type)), "hint": property.hint,
+			"hint_name": HINT_NAMES.get(property.hint, ""), "hint_string": property.hint_string,
+			"default": encode(probe.get(name)) if probe != null else null, "comment": comment})
 	return fields
 
 

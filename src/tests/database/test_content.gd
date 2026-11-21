@@ -66,6 +66,37 @@ func test_the_sound_bank_keeps_the_rules():
 	assert_eq(_texts(Validator.sounds()), [])
 
 
+func test_the_ui_theme_keeps_the_rules():
+	assert_eq(_texts(Validator.theme()), [])
+	assert_eq(Validator.section_for("res://assets/themes/style_window.tres"), "theme")
+	var used: Dictionary = Validator.looks_in_use()
+	assert_has(used, "Shade")
+	assert_has(used["Shade"], "prompt_dialog.tscn")
+
+
+# A scene naming a look the theme lacks, a look built on no control, a stray file: each caught.
+func test_a_broken_ui_theme_is_caught():
+	var dir_path := "user://test_validator_theme/"
+	Directory.new().make_dir_recursive(dir_path.plus_file("scenes"))
+	var theme = ResourceLoader.load(Validator.MAIN_THEME, "", true)
+	theme.set_type_variation("Bent", "Spatial")
+	ResourceSaver.save(dir_path.plus_file("main_theme.tres"), theme)
+	ResourceSaver.save(dir_path.plus_file("stray.tres"), Resource.new())
+	var file := File.new()
+	file.open(dir_path.plus_file("scenes/odd.tscn"), File.WRITE)
+	file.store_string('[gd_scene format=2]\n\n[node name="Odd" type="Label"]\ntheme_type_variation = "NoSuchLook"\n')
+	file.close()
+	var texts: Array = _texts(Validator.theme(dir_path.plus_file("main_theme.tres"), [dir_path.plus_file("scenes")]))
+	assert_eq(texts.size(), 3, str(texts))
+	assert_string_contains(str(texts), "odd.tscn name the look NoSuchLook")
+	assert_string_contains(str(texts), "The look Bent is built on Spatial")
+	assert_string_contains(str(texts), "Not a theme, font or style")
+	for name in ["scenes/odd.tscn", "main_theme.tres", "stray.tres"]:
+		Directory.new().remove(dir_path.plus_file(name))
+	Directory.new().remove(dir_path.plus_file("scenes"))
+	Directory.new().remove(dir_path)
+
+
 func test_every_section_runs_and_files_find_their_section():
 	for section in Validator.SECTIONS:
 		assert_true(Validator.section(section) is Array, section)

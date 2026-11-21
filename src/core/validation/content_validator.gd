@@ -3,7 +3,7 @@
 # (src/tests/database/test_content.gd) want every list empty, and the development tool
 # (tools/dev.py) checks each file it saves and shows the lists. A new rule goes here, nowhere else.
 # Sections: factions, locations (the sector graph), sectors (layouts, havens and their market (SectorEconomy), beacons), archetypes, models (every ship and station
-# model in use, ModelCheck: the slow one), sounds (the sound bank). all() runs them all.
+# model in use, ModelCheck: the slow one), sounds (the sound bank), theme (the UI theme and its looks). all() runs them all.
 # Files are read afresh (not from TemplateDatabase's caches), so a just-saved edit counts.
 
 extends Reference
@@ -16,7 +16,7 @@ const SoundBank = preload("res://src/core/sound/sound_bank.gd")
 const SectorEconomy = preload("res://src/core/validation/sector_economy.gd")
 const FactionRoster = preload("res://src/core/systems/faction_roster.gd")
 const SOUND_BANK_PATH = "res://database/sounds/sound_bank.tres"
-const SECTIONS = ["factions", "locations", "sectors", "parts", "archetypes", "starts", "models", "materials", "sounds"]
+const SECTIONS = ["factions", "locations", "sectors", "parts", "archetypes", "starts", "models", "materials", "sounds", "theme"]
 const STARTS_DIR = "res://database/registry/game_starts/"
 const LOCATIONS_DIR = "res://database/registry/locations/"
 const COMMODITIES_DIR = "res://database/registry/assets/commodities/"
@@ -26,6 +26,10 @@ const ANY_COMMODITY = "*"
 const MATERIALS_DIR = "res://assets/art/materials_generic/"
 const MATERIAL_SHADERS = ["res://assets/art/shaders/solid.gdshader", "res://assets/art/shaders/solid_fading.gdshader", "res://assets/art/shaders/glow.gdshader"]
 const BEACON_KINDS = ["patrol", "field", "landmark", "entry"]
+const THEMES_DIR = "res://assets/themes/"
+const MAIN_THEME = "res://assets/themes/main_theme.tres"
+const LOOK_PATTERN = "theme_type_variation = \"([A-Za-z_][A-Za-z0-9_]*)\""  # How a scene (or a script) names a look
+const LOOK_SKIPPED = ["res://src/tests/"]  # Tests name made-up looks
 # A part whose stats are not what its law_genes give (ShipLaws.stale_fields).
 const LAWS_STALE = "%s not what its law_genes give: change law_genes, not the stats, then run apply_laws (Tools)"
 
@@ -57,6 +61,8 @@ static func section(name: String) -> Array:
 			return starts()
 		"sounds":
 			return sounds()
+		"theme":
+			return theme()
 	return [_problem("", "No validator section '%s'" % name)]
 
 
@@ -76,6 +82,8 @@ static func section_for(path: String) -> String:
 		return "sounds"
 	if path.begins_with(MATERIALS_DIR):
 		return "materials"
+	if path.begins_with(THEMES_DIR):
+		return "theme"
 	if path.begins_with(STARTS_DIR):
 		return "starts"
 	if path.begins_with("res://scenes/prefabs/ships/") or path.begins_with("res://scenes/prefabs/station/"):
@@ -675,6 +683,56 @@ static func materials() -> Array:
 	return out
 
 
+# --- Theme ---
+
+# The UI theme (MAIN_THEME): every UI scene takes it, and its named looks (type variations: a
+# look's base_type, the plain control it changes, and what it sets) stand in for local overrides.
+# Every look a scene or a script names is in the theme (else that control quietly falls back to the
+# plain look), each look is built on a control or another look, and the folder holds only themes,
+# fonts and styles. `scenes_dirs`: where looks are named (others only for tests).
+static func theme(theme_path: String = MAIN_THEME, scenes_dirs: Array = ["res://scenes/", "res://src/"]) -> Array:
+	var out: Array = []
+	var main = _fresh(theme_path)
+	if not main is Theme:
+		return [_problem(theme_path, "Not a Theme")]
+	for property in main.get_property_list():  # Every look, those that set nothing yet too
+		if not property.name.ends_with("/base_type"):
+			continue
+		var look: String = property.name.get_slice("/", 0)
+		var base: String = main.get_type_variation_base(look)
+		if not ClassDB.is_parent_class(base, "Control") and main.get_type_variation_base(base) == "":
+			out.append(_problem(theme_path, "The look %s is built on %s: name a control (Label, Button, Panel...) or another look" % [look, base]))
+	var used: Dictionary = looks_in_use(scenes_dirs)
+	for look in used:
+		if main.get_type_variation_base(look) == "":
+			out.append(_problem(theme_path, "%s name the look %s, which the theme does not have (they show the plain look)" % [
+				PoolStringArray(used[look]).join(", "), look]))
+	for path in _files_in(theme_path.get_base_dir(), ".tres"):
+		var resource = _fresh(path)
+		if not (resource is Theme or resource is Font or resource is StyleBox):
+			out.append(_problem(path, "Not a theme, font or style (this folder holds the UI theme's files)"))
+	return out
+
+
+# {look: [file names]}: the looks (theme_type_variation) the .tscn and .gd files under `dirs` name.
+static func looks_in_use(dirs: Array = ["res://scenes/", "res://src/"]) -> Dictionary:
+	var out := {}
+	var pattern := RegEx.new()
+	pattern.compile(LOOK_PATTERN)
+	for dir_path in dirs:
+		for path in _files_under(dir_path, [".tscn", ".gd"]):
+			if _skipped(path):
+				continue
+			var file := File.new()
+			if file.open(path, File.READ) != OK:
+				continue
+			var text: String = file.get_as_text()
+			file.close()
+			for found in pattern.search_all(text):
+				_use(out, found.get_string(1), path.get_file())
+	return out
+
+
 # --- Sounds ---
 
 static func sounds() -> Array:
@@ -723,6 +781,34 @@ static func _use(table: Dictionary, path: String, user: String) -> void:
 		table[path] = []
 	if not user in table[path]:
 		table[path].append(user)
+
+
+static func _skipped(path: String) -> bool:
+	for prefix in LOOK_SKIPPED:
+		if path.begins_with(prefix):
+			return true
+	return false
+
+
+# Files under `dir_path`, any depth, ending in one of `suffixes`; sorted.
+static func _files_under(dir_path: String, suffixes: Array) -> Array:
+	var out: Array = []
+	var dir := Directory.new()
+	if dir.open(dir_path) != OK:
+		return out
+	dir.list_dir_begin(true, true)
+	var name: String = dir.get_next()
+	while name != "":
+		var path: String = dir_path.plus_file(name)
+		if dir.current_is_dir():
+			out += _files_under(path, suffixes)
+		else:
+			for suffix in suffixes:
+				if name.ends_with(suffix):
+					out.append(path)
+		name = dir.get_next()
+	out.sort()
+	return out
 
 
 static func _files_in(dir_path: String, suffix: String) -> Array:

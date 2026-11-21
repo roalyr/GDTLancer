@@ -213,6 +213,16 @@ class DataKindsTest(unittest.TestCase):
         self.assertFalse(parts & set(data.KINDS_BY_KEY["archetype_pilots"].files()))
 
 
+    def test_the_ui_theme_kind_lists_the_theme_its_fonts_and_styles(self):
+        kind = data.KINDS_BY_KEY["ui_theme"]
+        names = [os.path.basename(path) for path in kind.files()]
+        for name in ("main_theme.tres", "font_default.tres", "style_window.tres", "style_shade.tres"):
+            self.assertIn(name, names)
+        self.assertTrue(kind.copies and kind.can_create(), "A new font or style: a copy")
+        self.assertFalse(kind.by_name, "Named by path only")
+        self.assertTrue(data.KINDS_BY_KEY["materials"].by_name, "Materials stay named by name too")
+
+
 class ModelRowsTest(unittest.TestCase):
     def test_rows_read_their_files(self):
         report = {"ships": {"res://src/tests/fixtures/models/test_hull/test_hull.tscn": {"users": ["u"], "problems": []},

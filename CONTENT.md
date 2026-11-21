@@ -365,6 +365,17 @@ To give a sector its music (a new one or an existing one):
 
 **Placeholders:** `tools/make_placeholder_sounds.py` synthesizes stand-in sounds into `assets/audio/placeholders/` and `assets/audio/music/`. Fill a slot with a real file to replace one.
 
+## The UI's look
+
+**Where:** `assets/themes/` (Data, UI theme). `main_theme.tres` sets how every UI control looks; the fonts (`font_*.tres`) and styles (`style_*.tres`) it names are files beside it, so each can be tweaked on its own.
+- An entry is `<Type>/<colors|fonts|styles|constants|icons>/<name>`. `Button/styles/normal` is every button's background, `Label/fonts/font` every label's font.
+- **Named looks** stand in for one-off changes in scenes: `HeadingLabel` (amber headings), `NoteLabel`, `StoreRow`, `Shade` (the dim behind windows and prompts), `MenuBackground` and others. A look's `base_type` is the control it changes, and its note names the scenes that use it. It sets only what differs; the rest comes from the base type.
+- A font's `size` is its letter height in px. A style's `bg_color` is its fill, `border_*` its border, `content_margin_*` the space inside it.
+- One file can be named by several entries: `style_window.tres` is every window's and prompt's background. A new font or style starts as a copy of one (`ctrl+n`); then pick it in the theme's entry.
+- A scene picks a look in the Godot editor (Inspector, Theme, Type Variation). The rules flag a look a scene names that the theme does not have.
+
+To see a change: Tools, `m`, **UI screenshots** (every store tab, a prompt, the windows), or play.
+
 ## Play saves and changed content
 
 Play saves are in `user://savegames/`. A save can name a hull, part, haven, commodity or faction that has since been removed or renamed. It still loads, put right as it loads (`SaveRepair`):
@@ -380,7 +391,7 @@ The rules live in one place, `src/core/validation/content_validator.gd`. Two thi
 - the development tool, on every save and on its Overview;
 - the tests (Tools, tests), which also run everything else.
 
-They check every faction, sector layout, haven, game start, archetype and part, every ship and station model in use, the material library and the sound bank. Examples of what fails:
+They check every faction, sector layout, haven, game start, archetype and part, every ship and station model in use, the material library, the sound bank and the UI theme. Examples of what fails:
 - broken references, a missing roster genome, a broken haven;
 - a buy list or kit naming something that does not exist;
 - a market that does not pay, or pays too well;
@@ -404,6 +415,7 @@ Tools, validate lists every problem from a terminal. Tools, check_model checks o
 | `scenes/levels/sectors/` | sectors: their scenes, layouts and bodies |
 | `scenes/prefabs/` | ship and station scenes, placeholders, shared celestial bodies, scenery |
 | `assets/` | art (materials, shaders, textures), models (the `.blend` and `.glb` files), audio |
+| `assets/themes/` | the UI theme, its fonts and styles |
 | `src/` | the game's code; `src/autoload/Constants.gd` holds the tuning values |
 | `tools/` | the development tool (`tools/dev.py`, `tools/devtool/`) and the scripts it runs |
 | `docs/` | maintainer notes ([MAINTAINING.md](docs/MAINTAINING.md)) and Godot 3.6 shader reference pages |

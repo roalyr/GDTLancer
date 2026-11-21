@@ -195,6 +195,40 @@ func test_a_new_material_is_a_copy():
 	Directory.new().remove(copy)
 
 
+# The UI theme's files: a theme's entries (its looks named with the scenes using them), a font's and
+# a style's fields; each reads and writes back unchanged, and a change sticks.
+func test_the_ui_theme_and_its_files_show_their_fields_and_round_trip():
+	var schema: Dictionary = _ok(commands.handle("schema", {"path": "res://assets/themes/main_theme.tres"}))
+	var comments := {}
+	for field in schema.fields:
+		comments[field.name] = field.comment
+	assert_has(comments, "HeadingLabel/colors/font_color")
+	assert_has(comments, "Panel/styles/panel")
+	assert_string_contains(comments["HeadingLabel/base_type"], "A named look on Label")
+	assert_string_contains(comments["HeadingLabel/base_type"], "prompt_dialog.tscn", "Its users")
+	var copy := "user://test_bridge_theme_file.tres"
+	var baseline := "user://test_bridge_theme_baseline.tres"
+	for path in BridgeCommands.Validator._files_in("res://assets/themes/", ".tres"):
+		ResourceSaver.save(baseline, ResourceLoader.load(path, "", true))
+		ResourceSaver.save(copy, ResourceLoader.load(path, "", true))
+		var values: Dictionary = JSON.parse(BridgeCommands.json(_ok(commands.handle("read", {"path": copy})).values)).result
+		assert_false(values.empty(), path)
+		_ok(commands.handle("write", {"path": copy, "values": values}))
+		assert_eq(_text(copy), _text(baseline), path)
+	ResourceSaver.save(copy, ResourceLoader.load("res://assets/themes/main_theme.tres", "", true))
+	_ok(commands.handle("write", {"path": copy, "values": {"HeadingLabel/colors/font_color": {"$": "Color", "v": [1.0, 0.0, 0.0, 1.0]},
+		"Panel/styles/panel": {"$": "Resource", "path": "res://assets/themes/style_shade.tres"}}}))
+	var theme = ResourceLoader.load(copy, "", true)
+	assert_eq(theme.get_color("font_color", "HeadingLabel"), Color(1, 0, 0, 1))
+	assert_eq(theme.get_stylebox("panel", "Panel").resource_path, "res://assets/themes/style_shade.tres")
+	assert_eq(_text(copy).count("[sub_resource"), 0, "Its fonts and styles stay files")
+	var font: Dictionary = _ok(commands.handle("schema", {"path": "res://assets/themes/font_menu.tres"}))
+	assert_eq(font.fields[0].name, "size")
+	assert_eq(font.fields[0].comment, "Letter height, px")
+	Directory.new().remove(copy)
+	Directory.new().remove(baseline)
+
+
 # --- Scenes ---
 
 const LAYOUT = "res://scenes/levels/sectors/sector_elace/sector_elace_layout.tscn"
