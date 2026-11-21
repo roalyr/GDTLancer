@@ -8,6 +8,8 @@
 # the camera's way; Constants "SOUND" sets distances, the voice cap and the loops' budget: only the
 # nearest SOUND_LOOP_CARRIERS ships and missiles play their loops (engine, hum, winch, leak,
 # thruster), and a silent loop is stopped, not played.
+# "ambient" slots loop while a state lasts (play_ambient / stop_ambient): the jump's travel, from
+# jump_transition_started to jump_transition_finished, heard on through the pause the jump makes.
 # To add an event: a slot in SoundBank.SLOTS (and its export there), then a play() where it happens.
 
 extends Spatial
@@ -43,6 +45,7 @@ var _heard: Dictionary = {}  # loop_carriers(), re-ranked every Constants.SOUND_
 var _next_carriers: int = 0  # ms
 var _hull_low: bool = false  # The player's hull at SOUND_HULL_CRITICAL_SHARE or below, last seen
 var _power_out: bool = false  # The player's power run out, last seen
+var _ambient: Dictionary = {}  # "ambient" slot -> its playing AudioStreamPlayer
 
 
 func _ready() -> void:
@@ -65,6 +68,8 @@ func _ready() -> void:
 	_connect(EventBus, "player_target_selected", "_on_player_target_selected")
 	_connect(EventBus, "player_traded", "_on_player_traded")
 	_connect(EventBus, "player_interactions_changed", "_on_player_interactions_changed")
+	_connect(EventBus, "jump_transition_started", "_on_jump_transition_started")
+	_connect(EventBus, "jump_transition_finished", "_on_jump_transition_finished")
 	_connect(Settings, "changed", "_on_settings_changed")
 	_connect(get_tree(), "node_added", "_on_node_added")
 	AudioBuses.apply()
@@ -80,6 +85,8 @@ func _exit_tree() -> void:
 # with no source passes a longer one). Returns the player, or null when nothing plays (an empty
 # slot, too far, too soon, too many voices).
 func play(slot: String, at = null, source: Object = null, gap: float = Constants.SOUND_REPEAT_GAP) -> Node:
+	if SoundBank.SLOTS.get(slot) == "ambient":
+		return play_ambient(slot)  # A loop while it lasts, not a one-shot
 	var stream: AudioStream = bank.stream(slot)
 	if stream == null:
 		return null
@@ -109,6 +116,51 @@ func play(slot: String, at = null, source: Object = null, gap: float = Constants
 	var length: float = stream.get_length()
 	_voices.append([player, now + int((length if length > 0.0 else ONE_SHOT_FALLBACK) * 1000.0) + 200])
 	return player
+
+
+# Starts the "ambient" slot `slot` looping, fading in over SOUND_AMBIENT_FADE; it plays on while the
+# game is paused, until stop_ambient. Returns its player, or null (an empty slot, or already on).
+func play_ambient(slot: String) -> AudioStreamPlayer:
+	var stream: AudioStream = bank.stream(slot) if bank != null else null
+	if stream == null or is_instance_valid(_ambient.get(slot)):
+		return null
+	var player := AudioStreamPlayer.new()
+	player.name = "Ambient_" + slot
+	player.pause_mode = Node.PAUSE_MODE_PROCESS
+	player.bus = AudioBuses.EFFECTS
+	player.stream = stream
+	player.volume_db = Constants.MUSIC_SILENT_DB
+	add_child(player)
+	player.play()
+	_fade(player, Constants.SOUND_EFFECTS_VOLUME_DB, false)
+	_ambient[slot] = player
+	return player
+
+
+# Fades the "ambient" slot `slot` out over SOUND_AMBIENT_FADE and lets it go.
+func stop_ambient(slot: String) -> void:
+	var player = _ambient.get(slot)
+	_ambient.erase(slot)
+	if is_instance_valid(player):
+		_fade(player, Constants.MUSIC_SILENT_DB, true)
+
+
+func _fade(player: AudioStreamPlayer, to_db: float, free_after: bool) -> void:
+	var tween := Tween.new()
+	tween.pause_mode = Node.PAUSE_MODE_PROCESS
+	player.add_child(tween)
+	tween.interpolate_property(player, "volume_db", player.volume_db, to_db, Constants.SOUND_AMBIENT_FADE)
+	if free_after:
+		tween.connect("tween_all_completed", player, "queue_free")
+	tween.start()
+
+
+func _on_jump_transition_started(_target_sector_id) -> void:
+	play_ambient("jump_travel")
+
+
+func _on_jump_transition_finished() -> void:
+	stop_ambient("jump_travel")
 
 
 # Where world sounds are heard from: the player's ship, else the camera.

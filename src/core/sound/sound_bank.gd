@@ -6,10 +6,14 @@
 #   "loop":  a looping sound carried by a ship (or missile) while it applies; its stream must be
 #            imported with looping on (Godot's Import dock: "Loop"). Only the nearest
 #            SOUND_LOOP_CARRIERS ships and missiles play theirs;
-#   "ui":    heard as it is, wherever the player is (buttons, notices, docking, the player's alarms).
+#   "ui":    heard as it is, wherever the player is (buttons, notices, docking, the player's alarms);
+#   "ambient": heard as it is, a loop that plays while a state lasts (a jump's travel), fading in and
+#            out (SOUND_AMBIENT_FADE); its stream must be imported with looping on, as a "loop" slot's.
 # Every slot plays on the "Effects" bus (AudioBuses).
 
 extends Resource
+
+const LOOPING_KINDS = ["loop", "ambient"]  # Slot kinds whose sounds must loop
 
 const SLOTS = {
 	# Weapons and tools, at the ship using them
@@ -58,6 +62,8 @@ const SLOTS = {
 	"target_selected": "ui",  # The player picks a target
 	"trade": "ui",  # The player buys or sells (parts, ships, cargo)
 	"interaction": "ui",  # The player's interactions (hire, wing, caravan) start or end
+	# Ambience
+	"jump_travel": "ambient",  # The jump between sectors, from the run-up to the arrival (the hum of the jump drive, the rush of the passage)
 }
 
 export(AudioStream) var laser_hit
@@ -103,6 +109,12 @@ export(AudioStream) var hold_full
 export(AudioStream) var target_selected
 export(AudioStream) var trade
 export(AudioStream) var interaction
+export(AudioStream) var jump_travel
+
+
+# Whether `slot`'s sound must loop (its kind is one of LOOPING_KINDS).
+static func loops(slot: String) -> bool:
+	return SLOTS.get(slot, "") in LOOPING_KINDS
 
 
 # The stream in `slot`, or null when it is empty. An unknown slot is an error.

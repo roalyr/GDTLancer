@@ -1456,6 +1456,7 @@ const MUSIC_CROSSFADE = 4.0  # s from one of the sector's tracks to the next (Am
 # Sound effects (SoundEffects plays the slots of database/sounds/sound_bank.tres). World sounds are
 # heard from the player's ship (the camera's when there is none), turned the camera's way.
 const SOUND_EFFECTS_VOLUME_DB = -6.0  # Every effect, on top of its file's own loudness
+const SOUND_AMBIENT_FADE = 2.0  # s an "ambient" slot (SoundBank: the jump's travel) fades in and out
 const SOUND_UNIT_SIZE = 80.0  # m within which a world sound plays at full loudness
 const SOUND_MAX_DISTANCE = 3000.0  # m beyond which a world sound is not played at all
 const SOUND_MAX_VOICES = 24  # World sounds at once; more are dropped

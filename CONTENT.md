@@ -336,6 +336,7 @@ A model is made in Blender and imported with one key (Models, `i`). The game bui
 - **World** slots are heard where they happen, fading with distance.
 - **Loop** slots (`engine`, `laser_hum`, `harpoon_reel`, `missile_engine`, `fuel_leak`) are carried by the nearest ships and missiles while they apply (`SOUND_LOOP_CARRIERS` of them). Their files must loop, and the other slots' files must not. The Overview says when one is wrong; `l` there sets each file's loop setting and imports it again.
 - **UI** slots are heard as they are, wherever the player is.
+- **Ambient** slots (`jump_travel`) are heard as they are and loop while something lasts: `jump_travel` from a jump's run-up to the arrival, fading in and out (`SOUND_AMBIENT_FADE`). Their files must loop, as loop slots' do.
 
 **Files.** Short `.wav` files suit effects and `.ogg` suits loops. Make the files about equally loud.
 - `Constants.gd` ("SOUND") sets the overall volume, the hearing distance and how many sounds play at once.
@@ -347,7 +348,7 @@ A model is made in Blender and imported with one key (Models, `i`). The game bui
 - `danger_stream`: hostiles are on the sensors, but none has seen you;
 - `combat_stream`: one has seen you, or you are under fire.
 
-The music crossfades between them as the danger changes.
+The music crossfades between them as the danger changes. These are the game's own tracks. A sector can have its own: its Location (Data, Locations) has `music_calm`, `music_danger` and `music_combat`, and each one left empty plays the game's. On a jump to a sector with other tracks, the old ones fade out and the sector's own fade in.
 
 **Placeholders:** `tools/make_placeholder_sounds.py` synthesizes stand-in sounds into `assets/audio/placeholders/` and `assets/audio/music/`. Fill a slot with a real file to replace one.
 

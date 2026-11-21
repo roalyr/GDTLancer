@@ -1,5 +1,5 @@
 """
-Sound loop settings: a sound in a "loop" slot of the sound bank must loop, one in any other slot
+Sound loop settings: a sound in a "loop" or "ambient" slot of the sound bank must loop, one in any other slot
 must not (ContentValidator's sounds rule). Whether a sound loops is an import setting, kept in its
 .import file; this sets it there and has Godot import the sound again.
 
@@ -40,9 +40,12 @@ def imported_md5(import_text):
     return file_path(found.group(1) + ".md5") if found else None
 
 
+LOOPING_KINDS = ("loop", "ambient")  # SoundBank.LOOPING_KINDS
+
+
 def wrong_slots(slots):
     """The bridge's sound_slots entries whose sound loops when it should not, or the other way."""
-    return [slot for slot in slots if slot["path"] and slot["loops"] != (slot["kind"] == "loop")]
+    return [slot for slot in slots if slot["path"] and slot["loops"] != (slot["kind"] in LOOPING_KINDS)]
 
 
 def fix(slots, reimport=True, godot=GODOT):
@@ -56,7 +59,7 @@ def fix(slots, reimport=True, godot=GODOT):
             continue
         with open(import_file) as handle:
             text = handle.read()
-        new_text = set_loop(text, extension, slot["kind"] == "loop")
+        new_text = set_loop(text, extension, slot["kind"] in LOOPING_KINDS)
         if new_text != text:
             with open(import_file, "w") as handle:
                 handle.write(new_text)

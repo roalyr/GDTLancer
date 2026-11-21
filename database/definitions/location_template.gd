@@ -32,6 +32,11 @@ export var procedural_hints: Dictionary = {}
 ## Human-readable description of the sector for UI and generator context.
 export var sector_description: String = ""
 
+# --- Music (AmbientMusic) ---
+export(AudioStream) var music_calm = null  # The sector's calm track (an .ogg or .mp3 that loops); empty: the game's (the main scene's AmbientMusic)
+export(AudioStream) var music_danger = null  # Hostiles seen, none has seen you; empty: the game's
+export(AudioStream) var music_combat = null  # A hostile sees you, or you are under fire; empty: the game's
+
 # --- Sector Graph ---
 ## IDs of connected sectors. These define the sector graph and jump routes.
 export var connections: PoolStringArray = PoolStringArray()

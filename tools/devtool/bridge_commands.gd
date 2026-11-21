@@ -32,7 +32,7 @@ const MUSIC_NODE = "AmbientMusic"
 const PART_DIRS = {"parts": Constants.PARTS_DIR, "commodities": "res://database/registry/assets/commodities/"}  # The part catalogue (PartCatalog) and the goods
 const SHADERS_DIR = "res://assets/art/shaders/"
 const SOUND_KIND_NOTES = {"world": "Heard where it happens", "loop": "A loop a ship carries while it applies (import it with Loop on)",
-	"ui": "Heard as it is, wherever the player is"}  # SoundBank.SLOTS kinds, before each slot's own note
+	"ui": "Heard as it is, wherever the player is", "ambient": "Heard as it is, a loop while it lasts (import it with Loop on)"}  # SoundBank.SLOTS kinds, before each slot's own note
 const PATTERNS_DIR = "res://assets/art/textures/paint_patterns/"
 const HINT_NAMES = {
 	PROPERTY_HINT_NONE: "", PROPERTY_HINT_RANGE: "range", PROPERTY_HINT_EXP_RANGE: "range", PROPERTY_HINT_ENUM: "enum",

@@ -690,8 +690,8 @@ static func sounds() -> Array:
 			out.append(_problem(SOUND_BANK_PATH, "Slot %s holds no sound" % slot))
 			continue
 		var looped: bool = stream_loops(stream)
-		if looped != (SoundBank.SLOTS[slot] == "loop"):
-			out.append(_problem(SOUND_BANK_PATH, "Slot %s: %s should %s (Import dock: Loop)" % [slot, stream.resource_path, "loop" if SoundBank.SLOTS[slot] == "loop" else "not loop"]))
+		if looped != SoundBank.loops(slot):
+			out.append(_problem(SOUND_BANK_PATH, "Slot %s: %s should %s (Import dock: Loop)" % [slot, stream.resource_path, "loop" if SoundBank.loops(slot) else "not loop"]))
 	return out
 
 

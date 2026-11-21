@@ -50,6 +50,7 @@ func _begin_jump_transition_foundation(source_sector_id: String, target_sector_i
 
 func _reset_jump_transition_foundation() -> void:
 	_world_manager._jump_transition_active = false
+	EventBus.emit_signal("jump_transition_finished")
 	var jump_transition_rig = _world_manager._get_jump_transition_rig()
 	_call_jump_transition_rig_method(jump_transition_rig, "reset_transition_state")
 	_world_manager._jump_transition_mouse_mode_before_lock = Input.MOUSE_MODE_VISIBLE
@@ -70,6 +71,7 @@ func _run_jump_transition_sequence(target_sector_id: String) -> void:
 	if not _world_manager._jump_transition_active:
 		_world_manager._travel_to_sector_immediate(resolved_target_sector_id)
 		return
+	EventBus.emit_signal("jump_transition_started", resolved_target_sector_id)
 
 	var departure_direction = _world_manager._get_departure_direction_for_route(old_sector, resolved_target_sector_id)
 

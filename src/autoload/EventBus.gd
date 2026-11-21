@@ -67,4 +67,6 @@ signal radio_message(speaker, text)  # An NPC on the common frequency (Radio.say
 signal jump_available(target_sector_id, target_sector_name)
 signal jump_unavailable
 signal player_jump_requested(target_sector_id)
+signal jump_transition_started(target_sector_id)  # The player's jump: from the run-up (JumpOrchestrator)
+signal jump_transition_finished  # ... to the arrival, or the jump given up (also sent when none was on)
 signal sector_changed(new_sector_id, old_sector_id)

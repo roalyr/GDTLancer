@@ -42,3 +42,34 @@ func test_on_it_plays_and_off_again_it_fades_out():
 	music._process(2.0)
 	assert_eq(music._gain["calm"], 0.0, "Off: faded out")
 	assert_false(music.playing)
+
+
+# A sector's Location may name its own tracks; one left empty takes the game's. Changing to a sector
+# with other tracks fades the playing ones out before the new ones come in.
+func test_a_sector_plays_its_own_music_and_fades_over_to_it():
+	Settings._values["music"] = 1.0
+	var music = _music()
+	var game_calm = music.stream
+	var own := AudioStreamSample.new()
+	own.loop_mode = AudioStreamSample.LOOP_FORWARD
+	var location = LocationTemplate.new()
+	location.music_calm = own
+	var saved = TemplateDatabase.locations
+	TemplateDatabase.locations = {"sector_own": location, "sector_plain": LocationTemplate.new()}
+	var tracks: Dictionary = music.tracks_for("sector_own")
+	assert_eq(tracks.calm, own, "Its own calm track")
+	assert_eq(tracks.danger, music._defaults.danger, "The game's danger track where it names none")
+	assert_eq(music.tracks_for("sector_plain").calm, game_calm, "A sector with none: the game's")
+	music._process(2.0)
+	assert_eq(music._gain["calm"], 1.0, "The game's calm track on")
+	music.follow_sector("sector_own")
+	assert_eq(music.stream, game_calm, "Not cut off: it fades out first")
+	music._process(0.5)
+	assert_lt(music._gain["calm"], 1.0, "Fading out")
+	for i in range(20):
+		music._process(0.5)
+	assert_eq(music.stream, own, "Then the sector's own comes in")
+	assert_eq(music._gain["calm"], 1.0)
+	music.follow_sector("sector_own")
+	assert_true(music._pending.empty(), "The same tracks: nothing to change")
+	TemplateDatabase.locations = saved

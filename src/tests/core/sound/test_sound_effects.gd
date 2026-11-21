@@ -39,7 +39,7 @@ func _sample(looped: bool = false) -> AudioStreamSample:
 func _effects(filled: Array) -> Node:
 	var bank = SoundBank.new()
 	for slot in filled:
-		bank.set(slot, _sample(SoundBank.SLOTS[slot] == "loop"))
+		bank.set(slot, _sample(SoundBank.loops(slot)))
 	var fx = SoundEffects.new()
 	fx.bank = bank
 	add_child_autofree(fx)
@@ -61,7 +61,7 @@ func test_every_slot_is_an_exported_stream_and_back():
 	for name in exported:
 		assert_true(SoundBank.SLOTS.has(name), "Export %s is a listed slot" % name)
 	for kind in SoundBank.SLOTS.values():
-		assert_has(["world", "loop", "ui"], kind)
+		assert_has(["world", "loop", "ui", "ambient"], kind)
 
 
 func test_the_game_bank_keeps_the_rules():
@@ -74,7 +74,7 @@ func test_the_game_bank_keeps_the_rules():
 		assert_true(stream is AudioStream, "%s holds a sound" % slot)
 		var loops: bool = (stream is AudioStreamSample and stream.loop_mode != AudioStreamSample.LOOP_DISABLED) \
 			or (stream is AudioStreamOGGVorbis and stream.loop) or (stream is AudioStreamMP3 and stream.loop)
-		assert_eq(loops, SoundBank.SLOTS[slot] == "loop", "%s: loop slots loop, the rest play once (Import dock: Loop)" % slot)
+		assert_eq(loops, SoundBank.loops(slot), "%s: loop and ambient slots loop, the rest play once (Import dock: Loop)" % slot)
 
 
 func test_the_main_scene_plays_the_game_bank():
@@ -465,3 +465,28 @@ func test_effects_pause_with_the_game():
 	get_tree().paused = false
 	assert_true(paused, "The pause menu holds the sounds")
 	assert_false(player.stream_paused, "And lets them go")
+
+
+# The jump's travel: an "ambient" slot that loops from the jump's start to its end, heard through the
+# pause the jump makes, then fades out and goes.
+func test_the_jump_travel_loops_through_the_jump_and_fades_out():
+	var fx = _effects(["jump_travel"])
+	EventBus.emit_signal("jump_transition_started", "sector_vidr")
+	var player = fx.get_node_or_null("Ambient_jump_travel")
+	assert_not_null(player, "It plays as the jump starts")
+	if player == null:
+		return
+	assert_true(player.playing)
+	assert_eq(player.pause_mode, Node.PAUSE_MODE_PROCESS, "Heard while the jump pauses the game")
+	assert_eq(player.bus, "Effects")
+	assert_null(fx.play_ambient("jump_travel"), "Once at a time")
+	EventBus.emit_signal("jump_transition_finished")
+	yield(get_tree().create_timer(Constants.SOUND_AMBIENT_FADE + 0.3), "timeout")
+	assert_false(is_instance_valid(player), "Faded out and gone")
+
+
+func test_an_empty_jump_travel_slot_plays_nothing():
+	var fx = _effects([])
+	EventBus.emit_signal("jump_transition_started", "sector_vidr")
+	assert_null(fx.get_node_or_null("Ambient_jump_travel"))
+	EventBus.emit_signal("jump_transition_finished")
