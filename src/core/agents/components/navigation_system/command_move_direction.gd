@@ -17,17 +17,8 @@ func execute(delta: float):
 	if not is_instance_valid(_movement_system):
 		return
 	
-	var move_dir = _nav_sys._current_command.get("target_dir", Vector3.ZERO)
+	var move_dir: Vector3 = _nav_sys._current_command.get("target_dir", Vector3.ZERO)
 	if move_dir.length_squared() > 0.001:
-		# Rotate toward movement direction using PID
+		# Nose and velocity along it, flat out ("How a ship is flown"); the throttle scales the engines
 		_movement_system.request_rotation_to_pid(move_dir, delta)
-		
-		# Thrust based on alignment
-		if _movement_system.is_aligned_to(move_dir):
-			_movement_system.request_thrust_forward()
-		else:
-			# Can use backward thrust if facing opposite
-			var forward = _movement_system.get_forward()
-			if forward.dot(move_dir) < -0.7:
-				_movement_system.request_thrust_backward(0.5)
-			# Otherwise drag handles deceleration
+		_movement_system.request_velocity(move_dir.normalized() * _movement_system.top_speed())

@@ -16,6 +16,10 @@ var thrust_throttle: float = 1.0
 
 # --- Accumulated Forces/Torques for Current Frame ---
 # These are accumulated by commands and applied in _integrate_forces
+var _heading_prev := Vector3.ZERO  # The heading asked for last step (_heading_turn)
+var _heading_frame := -1
+var _wanted_velocity = null  # The velocity asked for this step (request_velocity), or null; its force is worked out last
+var _wanted_response: float = 0.25
 var _accumulated_force := Vector3.ZERO
 var _accumulated_torque := Vector3.ZERO
 var _external_force := Vector3.ZERO  # From tethers, leaks and other bodies; not scaled by throttle
@@ -33,17 +37,6 @@ var _heading := Vector3.ZERO
 
 # Reference to the parent AgentBody RigidBody
 var agent_body: RigidBody = null
-
-# --- PID Controller State for Rotation ---
-var _rotation_error_integral := Vector3.ZERO
-var _rotation_error_prev := Vector3.ZERO
-var _rotation_integral_limit := 2.0  # Anti-windup limit
-
-# --- PID Controller State for Position/Stopping ---
-var _position_error_integral := Vector3.ZERO
-var _position_error_prev := Vector3.ZERO
-var _position_integral_limit := 50.0
-
 
 func _ready():
 	agent_body = get_parent()
@@ -87,10 +80,7 @@ func initialize_movement_params(params: Dictionary):
 
 
 func reset_pid_states():
-	_rotation_error_integral = Vector3.ZERO
-	_rotation_error_prev = Vector3.ZERO
-	_position_error_integral = Vector3.ZERO
-	_position_error_prev = Vector3.ZERO
+	pass  # The holds keep no state between steps ("How a ship is flown")
 
 
 # Turns the nose to `facing` (after the command has run); nothing without one.
@@ -121,6 +111,10 @@ func integrate_forces(state: PhysicsDirectBodyState):
 	var angular_drag_torque = -state.angular_velocity * Constants.ANGULAR_DRAG * agent_body.mass
 	state.add_torque(angular_drag_torque)
 	
+	# The velocity asked for (steered by the autopilot's avoidance since): its force, now
+	if _wanted_velocity != null:
+		_accumulated_force += _velocity_force(_wanted_velocity, _wanted_response, state.linear_velocity, state.step)
+		_wanted_velocity = null
 	# Apply accumulated forces from navigation commands (scaled by throttle)
 	var engines: Vector3 = _accumulated_force * thrust_throttle
 	if not GameState.dev_cheats.empty() and GameState.cheat("speed_x5") and agent_body.has_method("is_player") and agent_body.is_player():
@@ -162,7 +156,9 @@ func add_external_force_at(force: Vector3, world_point: Vector3) -> void:
 # Request thrust in a specific world direction (autopilot decides direction)
 # The thrust asked for so far this step (commands add theirs before the autopilot's avoidance).
 func get_requested_force() -> Vector3:
-	return _accumulated_force
+	if _wanted_velocity == null or not is_instance_valid(agent_body):
+		return _accumulated_force
+	return _accumulated_force + _velocity_force(_wanted_velocity, _wanted_response, agent_body.linear_velocity, _step())
 
 
 func request_thrust_direction(direction: Vector3, magnitude_scale: float = 1.0):
@@ -179,6 +175,8 @@ func cancel_thrust_toward(direction: Vector3) -> void:
 	var into: float = _accumulated_force.dot(direction)
 	if into > 0.0:
 		_accumulated_force -= direction * into
+	if _wanted_velocity != null and _wanted_velocity.dot(direction) > 0.0:  # Nor a velocity into it
+		_wanted_velocity -= direction * _wanted_velocity.dot(direction)
 
 
 # Request thrust along the ship's forward axis
@@ -196,44 +194,147 @@ func request_thrust_backward(magnitude_scale: float = 1.0):
 	_accumulated_force += backward * linear_thrust * clamp(magnitude_scale, 0.0, 1.0)
 
 
-# Request reverse thrust (brake by thrusting opposite to velocity)
-# Uses ship orientation - prefer braking with aligned thrusters
+# --- How a ship is flown ---
+# One physical model for every command, the player's and NPCs' alike. The engines push the same in
+# every direction, up to linear_thrust (thrust_throttle scales it), and turn the ship about its centre
+# of mass up to angular_thrust; drag (LINEAR_DRAG, ANGULAR_DRAG) slows both. A command asks for one of
+# two things, and the force or torque that gets it is worked out from the body's own mass and inertia,
+# so no hull flies differently for its shape:
+# - a velocity (request_velocity): the force that takes the difference off over VELOCITY_RESPONSE
+#   (never more than all of it in a step: no overshoot), plus what holds that velocity against drag;
+# - a heading (request_rotation_to_pid): a spin toward it, as fast as the turn can still be braked
+#   to rest on it (POINT_BRAKE_SHARE of the angular thrust), slower as it nears (POINT_GAIN), and the
+#   torque that gets that spin over POINT_RESPONSE; a roll is let go of, as a stop's spin is.
+# The autopilot steers the wanted velocity round obstacles (steer_velocity) before its force is
+# worked out, so the hold flies round them instead of undoing the swerve. Stopping the spin (request_rotation_damping_pid)
+#   asks for none, over SPIN_DAMP_TIME: the ship's inertia is felt.
+# Braking needs no flip: a ship slows in place, its nose where it was.
+const VELOCITY_RESPONSE = 0.25  # s over which a velocity's difference is taken off (full thrust until near)
+const POINT_GAIN = 3.0  # 1/s: spin toward a heading per radian off it, near it
+const POINT_BRAKE_SHARE = 0.2  # Of the angular thrust a turn counts on to stop on its heading: lower, slower and softer turns (about the old PID's)
+const POINT_RESPONSE = 0.05  # s over which a wanted spin is reached (within the torque there is)
+const HEADING_JUMP = 0.05  # rad: a heading moving more than this in a step jumped (a new aim), not turned
+const SPIN_DAMP_TIME = 0.8  # s over which a stop takes the spin off (lower: a harder stop, less inertia felt)
+
+
+const ARRIVAL_BRAKE_SHARE = 0.6  # Of the thrust an arrival counts on to brake (the drag helps): the margin
+const ARRIVAL_SETTLE_GAIN = 1.0  # 1/s: the last metres of an arrival at this times the distance left
+
+
+# m/s to close on a point `distance` m off (negative: past it, back): top speed until the distance
+# left is what `brake_share` of its thrust (`acceleration` m/s²) stops it in, then down to it, the
+# last of it at ARRIVAL_SETTLE_GAIN times the distance. Every arrival flies it (move-to, approach,
+# a charge at a rock).
+func arrival_speed(distance: float, top_speed: float, acceleration: float, brake_share: float = ARRIVAL_BRAKE_SHARE) -> float:
+	var braking: float = sqrt(2.0 * acceleration * brake_share * abs(distance))
+	return sign(distance) * min(top_speed, min(braking, abs(distance) * ARRIVAL_SETTLE_GAIN))
+
+
+# m/s the engines hold against the drag: thrust / (mass * LINEAR_DRAG).
+func top_speed() -> float:
+	return linear_thrust / max(agent_body.mass * Constants.LINEAR_DRAG, 0.001) if is_instance_valid(agent_body) else 0.0
+
+
+# m/s² full thrust gives.
+func acceleration() -> float:
+	return linear_thrust / max(agent_body.mass, 0.001) if is_instance_valid(agent_body) else 0.0
+
+
+# Brakes: holds still (request_velocity, zero), thrusting straight against the motion.
 func request_thrust_brake():
+	request_velocity(Vector3.ZERO)
+
+
+# Asks for `target_velocity` this step ("How a ship is flown"); the last ask stands. Its force is
+# worked out at the end of the step, after the autopilot's avoidance has steered it (steer_velocity).
+func request_velocity(target_velocity: Vector3, response: float = VELOCITY_RESPONSE) -> void:
+	_wanted_velocity = target_velocity
+	_wanted_response = response
+
+
+# This step's wanted velocity (request_velocity), or null if none was asked for.
+func get_wanted_velocity():
+	return _wanted_velocity
+
+
+# Bends this step's wanted velocity by `change` (the autopilot round an obstacle); false if none
+# was asked for (the thrust is the command's own: the caller pushes instead).
+func steer_velocity(change: Vector3) -> bool:
+	if _wanted_velocity == null:
+		return false
+	_wanted_velocity += change
+	return true
+
+
+# The force that takes `velocity` to `target` over `response` s (never past it in a `step`) and
+# holds it against the drag; at most linear_thrust.
+func _velocity_force(target: Vector3, response: float, velocity: Vector3, step: float) -> Vector3:
+	var force: Vector3 = agent_body.mass * ((target - velocity) / max(response, step) + target * Constants.LINEAR_DRAG)
+	return force.normalized() * linear_thrust if force.length() > linear_thrust else force
+
+
+# Kept for its callers: request_velocity.
+func request_velocity_pid(target_velocity: Vector3, _delta: float = 0.0):
+	request_velocity(target_velocity)
+
+
+# The torque toward spin `target_spin` (rad/s, world) over `response` s, from the body's inertia,
+# holding it against the angular drag; at most angular_thrust. With `roll_axis`, the spin about it
+# is taken to its target over SPIN_DAMP_TIME instead (a heading's hold: its roll let go of softly).
+func request_spin(target_spin: Vector3, response: float, roll_axis: Vector3 = Vector3.ZERO) -> void:
 	if not is_instance_valid(agent_body):
 		return
-	var velocity = agent_body.linear_velocity
-	var speed = velocity.length()
-	if speed < 0.1:
-		return
-	
-	var velocity_dir = velocity / speed
-	var forward = _course_forward()
-	var backward = -forward
-	
-	# Check alignment with velocity for efficient braking
-	var forward_dot = forward.dot(velocity_dir)  # Positive if facing velocity direction
-	var backward_dot = backward.dot(velocity_dir)  # Positive if facing away from velocity
-	
-	# Use forward thrust if facing away from velocity (retrograde)
-	# Use backward thrust if facing toward velocity (prograde)
-	if backward_dot > 0.7:
-		# Mostly aligned backward to velocity - use forward thrust
-		_accumulated_force += forward * linear_thrust
-	elif forward_dot > 0.7:
-		# Mostly aligned forward to velocity - use backward thrust
-		_accumulated_force += backward * linear_thrust
-	else:
-		# Not well aligned - thrust opposite to velocity at reduced power
-		_accumulated_force += -velocity_dir * linear_thrust * 0.5
+	var step: float = _step()
+	var difference: Vector3 = target_spin - agent_body.angular_velocity
+	var change: Vector3 = difference / max(response, step)
+	if roll_axis != Vector3.ZERO:
+		var roll: Vector3 = roll_axis * difference.dot(roll_axis)
+		change = (difference - roll) / max(response, step) + roll / max(SPIN_DAMP_TIME, step)
+	var torque: Vector3 = _inertia_times(change) + target_spin * Constants.ANGULAR_DRAG * agent_body.mass
+	if torque.length() > angular_thrust:
+		torque = torque.normalized() * angular_thrust
+	_accumulated_torque += torque
 
 
-# Request PID-controlled rotation torque to align ship's forward (-Z) to target direction
-# `gain` scales the proportional term: above 1 the ship swings harder at small errors (fine aim,
-# as when charging), at the cost of some overshoot.
+# Inertia (the body's, about its centre of mass) times a world vector: the torque for that change
+# of spin a second. Godot 3 gives the inertia along the body's own axes.
+func _inertia_times(world: Vector3) -> Vector3:
+	var inverse_inertia: Vector3 = _inverse_inertia()
+	var basis: Basis = agent_body.global_transform.basis.orthonormalized()
+	var local: Vector3 = basis.xform_inv(world)
+	for axis in range(3):
+		local[axis] = local[axis] / inverse_inertia[axis] if inverse_inertia[axis] > 1e-12 else 0.0
+	return basis.xform(local)
+
+
+# Angular acceleration (rad/s²) full angular thrust gives about world `axis`.
+func _turn_acceleration(axis: Vector3) -> float:
+	var inverse_inertia: Vector3 = _inverse_inertia()
+	var local: Vector3 = agent_body.global_transform.basis.orthonormalized().xform_inv(axis.normalized())
+	return angular_thrust * (local.x * local.x * inverse_inertia.x + local.y * local.y * inverse_inertia.y + local.z * local.z * inverse_inertia.z)
+
+
+# s a physics step lasts (time_scale included: evolution's runs go faster).
+func _step() -> float:
+	return max(agent_body.get_physics_process_delta_time(), 0.0001)
+
+
+func _inverse_inertia() -> Vector3:
+	var state = PhysicsServer.body_get_direct_state(agent_body.get_rid())
+	return state.inverse_inertia if state != null else Vector3.ZERO
+
+
+# Turns the nose to `target_direction` ("How a ship is flown"). `gain` scales POINT_GAIN: above 1, a
+# quicker settle on it (a charge's aim).
 func request_rotation_to_pid(target_direction: Vector3, delta: float, gain: float = 1.0):
 	if _steer_heading(target_direction):
 		return
 	_rotate_pid(target_direction, delta, gain)
+
+
+# The same, for callers without a step.
+func request_rotation_to(target_direction: Vector3):
+	request_rotation_to_pid(target_direction, 0.0)
 
 
 # A cannon has the nose: the requested direction becomes the course's heading. True if so.
@@ -245,166 +346,53 @@ func _steer_heading(target_direction: Vector3) -> bool:
 	return true
 
 
-func _rotate_pid(target_direction: Vector3, delta: float, gain: float) -> void:
-	if not is_instance_valid(agent_body):
+# The heading's spin: about the axis to it, as fast as it can be braked to rest there, slower as it
+# nears. A roll the ship has is left to it (the player's autolevel).
+func _rotate_pid(target_direction: Vector3, _delta: float, gain: float) -> void:
+	if not is_instance_valid(agent_body) or target_direction.length_squared() < 0.001:
 		return
-	if target_direction.length_squared() < 0.001:
-		return
-	if delta <= 0.0:
-		return
-	
-	var target_dir = target_direction.normalized()
-	var current_forward = -agent_body.global_transform.basis.z.normalized()
-	
-	# Calculate the rotation axis and angle error
-	var cross = current_forward.cross(target_dir)
-	var dot = current_forward.dot(target_dir)
-	
-	# Already aligned
-	if dot > 0.9999:
-		_rotation_error_integral = Vector3.ZERO
-		return
-	
-	var angle_error = acos(clamp(dot, -1.0, 1.0))
-	
-	if cross.length_squared() < 0.0001:
-		# Parallel or anti-parallel - pick an arbitrary axis
-		cross = current_forward.cross(Vector3.UP)
-		if cross.length_squared() < 0.0001:
-			cross = current_forward.cross(Vector3.RIGHT)
-	
-	var torque_axis = cross.normalized()
-	
-	# Error vector for PID (angle error along torque axis)
-	var error = torque_axis * angle_error
-	
-	# PID calculation
-	_rotation_error_integral += error * delta
-	# Anti-windup: clamp integral
-	if _rotation_error_integral.length() > _rotation_integral_limit:
-		_rotation_error_integral = _rotation_error_integral.normalized() * _rotation_integral_limit
-	
-	var error_derivative = (error - _rotation_error_prev) / delta
-	_rotation_error_prev = error
-	
-	# Include current angular velocity as additional damping term
-	var angular_vel_error = -agent_body.angular_velocity
-	
-	var pid_output = (
-		Constants.PID_ROTATION_KP * gain * error +
-		Constants.PID_ROTATION_KI * _rotation_error_integral +
-		Constants.PID_ROTATION_KD * (error_derivative + angular_vel_error * 0.5)
-	)
-	
-	# Scale by angular thrust and clamp magnitude
-	var torque_magnitude = pid_output.length()
-	if torque_magnitude > 1.0:
-		pid_output = pid_output / torque_magnitude
-	
-	_accumulated_torque += pid_output * angular_thrust
+	var target_dir: Vector3 = target_direction.normalized()
+	var forward: Vector3 = -agent_body.global_transform.basis.z.normalized()
+	var angle: float = forward.angle_to(target_dir)
+	var axis: Vector3 = forward.cross(target_dir)
+	if axis.length_squared() > 1e-12:
+		axis = axis.normalized()
+	else:
+		axis = Vector3.ZERO if angle < 0.1 else agent_body.global_transform.basis.y.normalized()  # On it, or right behind it
+	var rate: float = angle * POINT_GAIN * gain
+	if axis != Vector3.ZERO:
+		var acceleration: float = _turn_acceleration(axis)
+		if acceleration > 0.0:
+			rate = min(rate, sqrt(2.0 * acceleration * POINT_BRAKE_SHARE * angle))
+	var turn: Vector3 = axis * rate + _heading_turn(target_dir)
+	request_spin(turn - forward * turn.dot(forward), POINT_RESPONSE, forward)  # No roll: let go of over SPIN_DAMP_TIME
 
 
-# Simple proportional rotation (for non-PID cases)
-func request_rotation_to(target_direction: Vector3):
-	if _steer_heading(target_direction):
-		return
-	if not is_instance_valid(agent_body):
-		return
-	if target_direction.length_squared() < 0.001:
-		return
-	
-	var target_dir = target_direction.normalized()
-	var current_forward = -agent_body.global_transform.basis.z.normalized()
-	
-	var cross = current_forward.cross(target_dir)
-	var dot = current_forward.dot(target_dir)
-	
-	if dot > 0.9999:
-		return
-	
-	var angle_error = acos(clamp(dot, -1.0, 1.0))
-	
-	if cross.length_squared() > 0.0001:
-		var torque_axis = cross.normalized()
-		# Proportional + derivative (P+D) for basic stability
-		var torque_mag = min(angle_error * 3.0, 1.0)
-		# Add damping from current angular velocity
-		var angular_vel_component = agent_body.angular_velocity.dot(torque_axis)
-		torque_mag = max(0.0, torque_mag - angular_vel_component * 0.5)
-		_accumulated_torque += torque_axis * torque_mag * angular_thrust
+# How fast the heading asked for turns (rad/s, world): a heading on a moving target, or one a
+# circling ship watches, is led by its own turn, not chased behind it.
+func _heading_turn(target_dir: Vector3) -> Vector3:
+	var frame: int = Engine.get_physics_frames()
+	var turn := Vector3.ZERO
+	if _heading_frame == frame - 1 and _heading_prev != Vector3.ZERO:
+		var cross: Vector3 = _heading_prev.cross(target_dir)
+		var angle: float = _heading_prev.angle_to(target_dir)
+		if cross.length_squared() > 1e-14 and angle < HEADING_JUMP:  # A jump (a new aim) is no turn
+			turn = cross.normalized() * angle / _step()
+	if _heading_frame != frame:  # The step's first heading: one a step (a facing after the command's)
+		_heading_prev = target_dir
+		_heading_frame = frame
+	return turn
 
 
-# PID-controlled damping for stopping rotation precisely
-func request_rotation_damping_pid(delta: float):
+# Stops the ship's spin (stop, align): a spin of none over SPIN_DAMP_TIME.
+func request_rotation_damping_pid(_delta: float = 0.0):
 	if facing != Vector3.ZERO or not is_instance_valid(agent_body):
 		return
-	if delta <= 0.0:
-		return
-	
-	var angular_vel = agent_body.angular_velocity
-	if angular_vel.length_squared() < 0.0001:
-		return
-	
-	# Target is zero angular velocity - error is current angular velocity
-	var error = -angular_vel
-	
-	# Simple PD controller (no integral for damping)
-	var error_derivative = (error - _rotation_error_prev) / delta
-	_rotation_error_prev = error
-	
-	var pid_output = (
-		Constants.PID_ROTATION_KP * error +
-		Constants.PID_ROTATION_KD * error_derivative
-	)
-	
-	var torque_magnitude = pid_output.length()
-	if torque_magnitude > 1.0:
-		pid_output = pid_output / torque_magnitude
-	
-	_accumulated_torque += pid_output * angular_thrust
+	request_spin(Vector3.ZERO, SPIN_DAMP_TIME)
 
 
-# Dampen angular velocity (used by stop command)
 func request_rotation_damping():
-	if facing != Vector3.ZERO or not is_instance_valid(agent_body):
-		return
-	var angular_vel = agent_body.angular_velocity
-	if angular_vel.length_squared() < 0.01:
-		return
-	# Apply counter-torque to slow rotation
-	var damping_torque = -angular_vel.normalized() * angular_thrust * 0.5
-	_accumulated_torque += damping_torque
-
-
-# PID-controlled thrust to achieve target velocity
-func request_velocity_pid(target_velocity: Vector3, delta: float):
-	if not is_instance_valid(agent_body):
-		return
-	if delta <= 0.0:
-		return
-	
-	var current_vel = agent_body.linear_velocity
-	var error = target_velocity - current_vel
-	
-	_position_error_integral += error * delta
-	if _position_error_integral.length() > _position_integral_limit:
-		_position_error_integral = _position_error_integral.normalized() * _position_integral_limit
-	
-	var error_derivative = (error - _position_error_prev) / delta
-	_position_error_prev = error
-	
-	var pid_output = (
-		Constants.PID_POSITION_KP * error +
-		Constants.PID_POSITION_KI * _position_error_integral +
-		Constants.PID_POSITION_KD * error_derivative
-	)
-	
-	# Normalize and scale by thrust
-	var force_magnitude = pid_output.length()
-	if force_magnitude > 1.0:
-		pid_output = pid_output / force_magnitude
-	
-	_accumulated_force += pid_output * linear_thrust
+	request_rotation_damping_pid()
 
 
 # Check if ship is approximately aligned with target direction

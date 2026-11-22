@@ -5,9 +5,11 @@
 # A ship has a main nozzle facing each way (ShipModel.NOZZLE_DIRECTIONS): each exhaust burns by how
 # much of the thrust pushes away from it (its own +Z is where its exhaust points; the ship's
 # get_engine_thrust(), in ship space), so a ship flying sideways burns its side nozzles. Speed along
-# that push scales the plume's length (Constants.ENGINE_PLUME_STANDSTILL_SHARE when still, longer and
-# slimmer at top speed) and brightness (ENGINE_GLOW_STANDSTILL_SHARE): it grows as the ship speeds
-# up, and shrinks and fades as it slows down, even while braking hard. Speed is a share of the
+# that push makes the plume longer and slimmer (up to ENGINE_PLUME_SPEED_STRETCH at top speed). A
+# burning plume is at least ENGINE_PLUME_BURN_LENGTH, whichever way it points: its length says the
+# nozzle burns, its brightness how hard (thrust) and how fast it goes that way (fainter when slow,
+# ENGINE_PLUME_STANDSTILL_ALPHA). A ship holding a pace sideways, on a little thrust, shows a side
+# plume as long as a rear one would be, only fainter; never a flat one. Speed is a share of the
 # cruise top speed (the afterburner out), so lighting one never shortens the plume; while it is lit
 # the pushing exhausts stretch further (ENGINE_PLUME_AFTERBURNER_STRETCH) and burn brighter. A host without
 # get_engine_thrust (a missile) pushes straight ahead at get_engine_activity().
@@ -32,14 +34,20 @@ func _ready() -> void:
 		var key: String = "%.2f,%.2f,%.2f" % [exhaust.x, exhaust.y, exhaust.z]
 		if not by_direction.has(key):
 			by_direction[key] = {"push": -exhaust, "exhausts": [], "materials": [], "copies": {}, "thrust": -2.0, "speed": -1.0, "boost": false}
+			by_direction[key]["plume_materials"] = []
 			_groups.append(by_direction[key])
 		var group: Dictionary = by_direction[key]
 		group.exhausts.append(engine)
+		var plume_shapes = engine.get_node_or_null("PlumeShapes")
 		for node in _all_nodes(engine):
 			if node is MeshInstance and node.material_override is ShaderMaterial:
 				if not group.copies.has(node.material_override):
 					group.copies[node.material_override] = node.material_override.duplicate()
-					group.materials.append(group.copies[node.material_override])
+					var copy: ShaderMaterial = group.copies[node.material_override]
+					if plume_shapes != null and plume_shapes.is_a_parent_of(node):
+						group.plume_materials.append(copy)  # The plume's: faint at low speed
+					else:
+						group.materials.append(copy)  # The nozzle's
 				node.material_override = group.copies[node.material_override]
 	for group in _groups:
 		group.erase("copies")
@@ -103,7 +111,7 @@ func _apply(group: Dictionary, thrust: float, speed: float, boost: bool) -> void
 	group.boost = boost
 	var dead: bool = thrust < 0.0
 	var t: float = clamp(thrust, 0.0, 1.0)
-	var length: float = lerp(Constants.ENGINE_PLUME_IDLE_LENGTH, Constants.ENGINE_PLUME_MAX_LENGTH, t) * lerp(Constants.ENGINE_PLUME_STANDSTILL_SHARE, 1.0 + Constants.ENGINE_PLUME_SPEED_STRETCH, speed)
+	var length: float = lerp(Constants.ENGINE_PLUME_BURN_LENGTH, Constants.ENGINE_PLUME_MAX_LENGTH, t) * (1.0 + Constants.ENGINE_PLUME_SPEED_STRETCH * speed)
 	if boost:
 		length *= 1.0 + Constants.ENGINE_PLUME_AFTERBURNER_STRETCH * t  # Only where it pushes
 	var width: float = lerp(Constants.ENGINE_PLUME_MIN_WIDTH, Constants.ENGINE_PLUME_MAX_WIDTH, t) * (1.0 - Constants.ENGINE_PLUME_SPEED_SLIM * speed)
@@ -120,6 +128,11 @@ func _apply(group: Dictionary, thrust: float, speed: float, boost: bool) -> void
 		glow *= 1.0 + Constants.ENGINE_GLOW_AFTERBURNER_BOOST * t
 	for material in group.materials:
 		material.set_shader_param("intensity", glow)
+	var plume_glow: float = 0.0 if dead else lerp(Constants.ENGINE_GLOW_IDLE, 1.0, t) * lerp(Constants.ENGINE_PLUME_STANDSTILL_ALPHA, 1.0, speed)  # By thrust; speed: how faint
+	if boost:
+		plume_glow *= 1.0 + Constants.ENGINE_GLOW_AFTERBURNER_BOOST * t
+	for material in group.plume_materials:
+		material.set_shader_param("intensity", plume_glow)
 
 
 # The exhausts' groups by direction, for tests: [{"push": Vector3, "thrust": float, ...}].

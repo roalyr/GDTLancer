@@ -30,15 +30,6 @@ func execute(delta: float):
 		else -_agent_body.global_transform.basis.z
 	)
 	
-	# Rotate toward flee direction using PID
+	# Nose and velocity away, flat out ("How a ship is flown")
 	_movement_system.request_rotation_to_pid(direction_away, delta)
-	
-	# Thrust based on alignment
-	if _movement_system.is_aligned_to(direction_away):
-		_movement_system.request_thrust_forward()
-	else:
-		# Can use backward thrust if facing toward threat
-		var forward = _movement_system.get_forward()
-		if forward.dot(direction_away) < -0.5:
-			# Facing threat - use backward thrust to flee immediately
-			_movement_system.request_thrust_backward(0.7)
+	_movement_system.request_velocity(direction_away * _movement_system.top_speed())

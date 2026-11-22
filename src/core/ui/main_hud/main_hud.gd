@@ -10,7 +10,7 @@ const Wages = preload("res://src/core/systems/wages.gd")
 const Announcements = preload("res://src/core/ui/main_hud/announcements.gd")
 const RouteTargetProviderScript = preload("res://src/core/targeting/route_target_provider.gd")
 const ProjectedTargetBracketScene = preload("res://scenes/ui/hud/projected_target_bracket.tscn")
-const BUTTON_ACTIVE_MODULATE = Color8(255, 230, 89, 255)
+const BUTTON_ACTIVE_MODULATE = Constants.UI_SWITCH_ON_MODULATE
 const BUTTON_INACTIVE_MODULATE = Color8(255, 255, 255, 255)
 const PROJECTED_TARGET_EDGE_ALPHA = 0.1
 const PROJECTED_TARGET_EDGE_POW = 0.75
@@ -803,7 +803,7 @@ func _update_lance_button() -> void:
 		elif is_instance_valid(target) and target is RigidBody:
 			state = "%d / %d" % [int(seated.strike_speed_on(target)), int(Constants.LAW_LANCE_MIN_SPEED)]
 	button_lance.get_node("Label").text = "LANCE %d\n%s" % [player.get_lance_nails(), state]
-	_apply_button_toggle_state(button_lance, lance.armed)
+	_apply_button_toggle_state(button_lance, lance.armed, true)
 
 
 func _on_lance_button_pressed() -> void:
@@ -823,7 +823,7 @@ func _update_afterburner_button() -> void:
 	if decoys:
 		text += "\nDECOYS %d" % player.decoys
 	button_afterburner.get_node("Label").text = text
-	_apply_button_toggle_state(button_afterburner, fitted and player.afterburner_lit)
+	_apply_button_toggle_state(button_afterburner, fitted and player.afterburner_lit, true)
 
 
 func _on_afterburner_button_pressed() -> void:
@@ -850,7 +850,7 @@ func _update_safety_button() -> void:
 	var label: Label = button_safety.get_node("Label")
 	if label.text != text:
 		label.text = text
-	_apply_button_toggle_state(button_safety, GameState.weapons_safe)
+	_apply_button_toggle_state(button_safety, GameState.weapons_safe, true)
 
 
 func _on_safety_button_pressed() -> void:
@@ -958,9 +958,9 @@ func _is_camera_target_follow_active() -> bool:
 
 
 func _refresh_toggle_button_states() -> void:
-	_apply_button_toggle_state(button_overlay_structures, _overlay_structures_enabled)
-	_apply_button_toggle_state(button_overlay_stellar, _overlay_stellar_enabled)
-	_apply_button_toggle_state(button_overlay_jump, _overlay_jump_enabled)
+	_apply_button_toggle_state(button_overlay_structures, _overlay_structures_enabled, true)
+	_apply_button_toggle_state(button_overlay_stellar, _overlay_stellar_enabled, true)
+	_apply_button_toggle_state(button_overlay_jump, _overlay_jump_enabled, true)
 
 	var is_free_flight_active = _is_player_free_flight_active()
 	var active_navigation_command_type = _get_player_navigation_command_type()
@@ -971,10 +971,11 @@ func _refresh_toggle_button_states() -> void:
 	_apply_button_toggle_state(button_camera, _is_camera_target_follow_active())
 
 
-func _apply_button_toggle_state(button: TextureButton, is_active: bool) -> void:
+# Yellow while active; else white, or grey for an ON/OFF `switch` (lance, burn, safety, overlays).
+func _apply_button_toggle_state(button: TextureButton, is_active: bool, switch: bool = false) -> void:
 	if not is_instance_valid(button):
 		return
-	button.modulate = BUTTON_ACTIVE_MODULATE if is_active else BUTTON_INACTIVE_MODULATE
+	button.modulate = BUTTON_ACTIVE_MODULATE if is_active else (Constants.UI_SWITCH_OFF_MODULATE if switch else BUTTON_INACTIVE_MODULATE)
 
 
 func _get_world_rendering_node() -> Node:

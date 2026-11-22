@@ -97,7 +97,7 @@ func refresh() -> void:
 		var button: Button = _option_pattern.duplicate()
 		button.name = "Option_%s" % option.kind
 		button.text = "%s: %s" % [option.label, "ON" if option.active else "OFF"]
-		button.modulate = ACTIVE_MODULATE if option.active else Color.white
+		button.modulate = Constants.UI_SWITCH_ON_MODULATE if option.active else Constants.UI_SWITCH_OFF_MODULATE
 		button.visible = true
 		button.connect("pressed", self, "_on_option_pressed", [option.kind])
 		_options.add_child(button)

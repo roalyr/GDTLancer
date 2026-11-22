@@ -159,7 +159,7 @@ func _build_filters() -> void:
 		button.text = "%s: %s" % [spec[1], "ON" if on else "OFF"]
 		button.rect_min_size = Vector2(0, FILTER_HEIGHT)
 		button.focus_mode = Control.FOCUS_NONE
-		button.modulate = Color(1, 1, 1, 1.0 if on else 0.55)
+		button.modulate = Constants.UI_SWITCH_ON_MODULATE if on else Constants.UI_SWITCH_OFF_MODULATE
 		button.connect("pressed", self, "toggle_filter", [spec[0]])
 		_filters.add_child(button)
 

@@ -157,6 +157,7 @@ func _refresh() -> void:
 				label.text = Constants.hud_preset_label(Settings.get_option(key))
 			else:
 				label.text = percent_text(Settings.get_option(key)) if key in PERCENT else value_text(Settings.get_option(key))
+			label.theme_type_variation = "LargeOffLabel" if label.text == "OFF" else "LargeValueLabel"  # Off: grey
 
 
 # "NAME: VALUE" of a row, as shown.

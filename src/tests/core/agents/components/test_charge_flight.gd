@@ -116,10 +116,12 @@ func test_rocks_and_debris_are_charged_straight_ships_the_long_way():
 
 func test_a_rock_is_closed_at_top_speed_braking_late():
 	var top := 170.0
-	assert_eq(CommandCharge.rock_closing_speed(2000.0, top, 90.0), top, "Far off: top speed")
-	assert_lt(CommandCharge.rock_closing_speed(100.0, top, 90.0), top, "Braking as it nears")
-	assert_almost_eq(CommandCharge.rock_closing_speed(2.0, top, 90.0), 2.0 * Constants.NAV_CHARGE_ROCK_SETTLE_GAIN, 0.01, "settling the last metres")
-	assert_lt(CommandCharge.rock_closing_speed(-10.0, top, 90.0), 0.0, "Inside the standoff: back out")
+	var movement = load("res://src/core/agents/components/movement_system.gd").new()
+	autofree(movement)
+	assert_eq(movement.arrival_speed(2000.0, top, 90.0), top, "Far off: top speed")
+	assert_lt(movement.arrival_speed(100.0, top, 90.0), top, "Braking as it nears")
+	assert_almost_eq(movement.arrival_speed(2.0, top, 90.0), 2.0 * movement.ARRIVAL_SETTLE_GAIN, 0.01, "settling the last metres")
+	assert_lt(movement.arrival_speed(-10.0, top, 90.0), 0.0, "Past the point: back")
 
 
 # The default ship (the light prospector) charging a rock 2 km off: well past the old 45-80 m/s

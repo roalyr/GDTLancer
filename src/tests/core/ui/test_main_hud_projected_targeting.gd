@@ -222,7 +222,7 @@ func test_main_hud_refreshes_persistent_button_states_from_live_owners() -> void
 	assert_eq(hud.button_camera.modulate, MainHUDScript.BUTTON_ACTIVE_MODULATE, "Camera button should highlight while target-follow mode is active.")
 
 	hud._on_ButtonOverlayJump_pressed()
-	assert_eq(hud.button_overlay_jump.modulate, MainHUDScript.BUTTON_INACTIVE_MODULATE, "Overlay buttons should use the OFF visual state after their toggle is disabled.")
+	assert_eq(hud.button_overlay_jump.modulate, Constants.UI_SWITCH_OFF_MODULATE, "Overlay buttons should use the OFF visual state (grey) after their toggle is disabled.")
 
 
 func test_main_hud_projected_target_distance_fade_alpha_matches_center_and_edge_targets() -> void:

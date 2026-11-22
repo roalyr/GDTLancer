@@ -384,6 +384,7 @@ To give a sector its music (a new one or an existing one):
   | Small print: captions, map names, radio | `SmallLabel`, `StatCaption` | font_small, 18 |
   | Ship numbers | `StatHull`, `StatPower`, `StatCargo`, `StatMotion`, `StatSensors`, `StatWarning` | font_medium, 28, coloured |
   | Emphasis: selected target, large buttons | `LargeLabel`, `LargeValueLabel`, `LargeButton` | font_large, 33 |
+  | A setting that is OFF | `LargeOffLabel` (grey; ON values `LargeValueLabel`, yellow) | font_large, 33 |
   | Symbols (+, -) | `SymbolButton` | font_menu, 50 |
   | Main menu | `MenuTitleLabel`, `MenuLabel` | font_menu_title 100, font_menu 50 |
 

@@ -33,6 +33,12 @@ func before_each():
 	# Stub methods for the new RigidBody-based API
 	stub(mock_movement_system, "_ready").to_return(null)
 	stub(mock_movement_system, "request_thrust_forward").to_return(null)
+	stub(mock_movement_system, "request_velocity").to_return(null)
+	stub(mock_movement_system, "request_velocity_pid").to_return(null)
+	stub(mock_movement_system, "request_spin").to_return(null)
+	stub(mock_movement_system, "arrival_speed").to_return(100.0)
+	stub(mock_movement_system, "top_speed").to_return(170.0)
+	stub(mock_movement_system, "acceleration").to_return(90.0)
 	stub(mock_movement_system, "request_thrust_brake").to_return(null)
 	stub(mock_movement_system, "request_thrust_direction").to_return(null)
 	stub(mock_movement_system, "request_rotation_to").to_return(null)
@@ -152,7 +158,7 @@ func test_approach_holds_on_arrival_and_closes_in_again():
 	target_node.global_transform.origin = agent_body.global_transform.origin + Vector3(0, 0, -(hold + Constants.NAV_APPROACH_RESUME_MARGIN * 2.0))
 	nav_system.update_navigation(0.1)
 	assert_false(nav_system._current_command.get("holding", false), "pulled away: closing in again")
-	assert_called(mock_movement_system, "request_thrust_forward")
+	assert_called(mock_movement_system, "request_velocity")
 
 
 func test_orbit_holds_the_distance_it_was_given_around_a_moving_target():
@@ -217,7 +223,7 @@ func test_set_command_flee():
 
 	nav_system.update_navigation(0.1)
 	assert_called(mock_movement_system, "request_rotation_to_pid")
-	assert_called(mock_movement_system, "request_thrust_forward")
+	assert_called(mock_movement_system, "request_velocity")  # Away, by the velocity hold
 
 
 func test_set_command_align_to():
@@ -410,3 +416,14 @@ func test_a_charge_leads_a_crossing_target_to_where_they_meet():
 	var meet: Vector3 = Vector3(0, 0, -1000) + Vector3(100, 0, 0) * t
 	assert_almost_eq(meet.length(), 200.0 * t, 0.01, "Both get there at once")
 	assert_eq(Charge.intercept_time(Vector3(0, 0, -1000), Vector3(0, 0, -300), 200.0), -1.0, "A faster runner is never caught")
+
+
+func test_steer_round_turns_a_velocity_onto_the_keep_outs_tangent():
+	var Nav = load("res://src/core/agents/components/navigation_system.gd")
+	var threat := [Vector3(0, 0, -1000), 500.0]
+	var steered: Vector3 = Nav.steer_round(Vector3.ZERO, Vector3(0, 0, -100), [threat])
+	assert_almost_eq(steered.length(), 100.0, 0.01, "Its speed kept")
+	assert_almost_eq(rad2deg(steered.angle_to(Vector3(0, 0, -1))), rad2deg(asin(0.5)), 0.1, "On the tangent: asin(clearance / distance) off the centre")
+	assert_eq(Nav.steer_round(Vector3.ZERO, Vector3(100, 0, 0), [threat]), Vector3(100, 0, 0), "Clear of it: as it was")
+	var inside: Vector3 = Nav.steer_round(Vector3(0, 0, -600), Vector3(0, 0, -50), [threat])
+	assert_almost_eq(inside.dot(Vector3(0, 0, -1)), 0.0, 0.01, "Inside it: along its face, no deeper")

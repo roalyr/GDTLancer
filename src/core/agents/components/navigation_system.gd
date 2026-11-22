@@ -18,6 +18,7 @@ var _current_command = {}
 var _avoid_timer: float = randf() * Constants.NAV_AVOID_INTERVAL  # Staggers ships' avoidance checks
 var _avoid_push := Vector3.ZERO  # Last avoidance push, applied every step until the next check
 var _avoid_contacts: Array = []  # Directions to the planets it is up against (contacts), as of the last push
+var _avoid_threats: Array = []  # [centre, clearance] of the obstacles in its way, as of the last check (steer_round)
 
 # --- Child Components ---
 var _command_handlers = {}
@@ -204,10 +205,13 @@ static func is_straight_charge(target) -> bool:
 	return is_instance_valid(target) and target.get("is_wreck") != false
 
 
-# Sidesteps obstacles (group "obstacle") in the way of the current velocity, except the command's
-# own target (e.g. the station being approached); `straight` (a charge at a rock or debris): only
-# keeps from pressing into a planet, no sidestep. The push is worked out every
-# Constants.NAV_AVOID_INTERVAL (ships staggered) and applied every step in between: it looks seconds
+# Flies round obstacles (group "obstacle") in the way, except the command's own target (e.g. the
+# station being approached); `straight` (a charge at a rock or debris): only keeps from pressing into
+# a planet, no sidestep. A command that asks for a velocity has it turned onto the tangent of each
+# obstacle's keep-out sphere (its radius and the ship's, times NAV_AVOID_CLEARANCE: steer_round), so
+# the hold flies round it with that clearance, not a nudge that fades as it swerves and grazes; one
+# that thrusts on its own (a charge at a ship) is pushed aside. What is in the way is worked out every
+# Constants.NAV_AVOID_INTERVAL (ships staggered) and used every step in between: it looks seconds
 # ahead, so a fresher one would barely differ, and it was the costliest part of a physics step.
 func _apply_obstacle_avoidance(target_node, delta: float, straight: bool = false) -> void:
 	_avoid_timer -= delta
@@ -220,11 +224,22 @@ func _apply_obstacle_avoidance(target_node, delta: float, straight: bool = false
 		var position: Vector3 = agent_body.global_transform.origin
 		_avoid_push = _avoidance(position, agent_body.linear_velocity, own_radius, index.tree, intent, target_node)
 		_avoid_contacts = contacts(position, own_radius, index.celestials)
+		_avoid_threats = []
+		var wanted = movement_system.get_wanted_velocity() if movement_system.has_method("get_wanted_velocity") else null
+		var speed: float = max(agent_body.linear_velocity.length(), Constants.NAV_AVOID_MIN_SPEED)
+		for heading in [agent_body.linear_velocity, wanted if wanted is Vector3 else Vector3.ZERO]:
+			if heading.length() > Constants.NAV_AVOID_MIN_SPEED:
+				_threats_along(position, heading.normalized(), speed * Constants.NAV_AVOID_LOOKAHEAD_TIME, own_radius, index.tree, target_node, _avoid_threats)
+	if not straight:
+		var wanted = movement_system.get_wanted_velocity() if movement_system.has_method("get_wanted_velocity") else null
+		if wanted is Vector3:
+			if not _avoid_threats.empty():
+				movement_system.steer_velocity(steer_round(agent_body.global_transform.origin, wanted, _avoid_threats) - wanted)
+		elif _avoid_push != Vector3.ZERO:
+			movement_system.request_thrust_direction(_avoid_push, min(1.0, _avoid_push.length()) * Constants.NAV_AVOID_THRUST)  # A command's own thrust (a charge): pushed aside
 	if not _avoid_contacts.empty() and movement_system.has_method("cancel_thrust_toward"):
 		for inward in _avoid_contacts:
 			movement_system.cancel_thrust_toward(inward)  # Against a planet: no pressing on into it
-	if _avoid_push != Vector3.ZERO and not straight:
-		movement_system.request_thrust_direction(_avoid_push, min(1.0, _avoid_push.length()) * Constants.NAV_AVOID_THRUST)
 
 
 # Every obstacle as [centre, radius, node]. Obstacles never move (rocks, stations, planets and moons
@@ -325,6 +340,70 @@ static func _avoidance(position: Vector3, velocity: Vector3, own_radius: float, 
 		if pushing.length_squared() > push.length_squared():
 			push = pushing
 	return push
+
+
+# `velocity` turned, its speed kept, so its path clears each of `threats` ([centre, clearance],
+# nearest first): onto the tangent of a keep-out sphere it points into, out along its face if inside one.
+static func steer_round(position: Vector3, velocity: Vector3, threats: Array) -> Vector3:
+	var speed: float = velocity.length()
+	if speed < 0.01:
+		return velocity
+	var heading: Vector3 = velocity / speed
+	var sorted: Array = threats.duplicate()
+	sorted.sort_custom(_NearestFirst.new(position), "less")
+	for threat in sorted:
+		var to_centre: Vector3 = threat[0] - position
+		var distance: float = to_centre.length()
+		if distance < 0.01:
+			continue
+		var inward: Vector3 = to_centre / distance
+		var cosine: float = heading.dot(inward)
+		if cosine <= 0.0:
+			continue  # Heading away from it
+		var side: Vector3 = heading - inward * cosine
+		side = side.normalized() if side.length_squared() > 1e-8 else _any_perpendicular(inward)
+		if distance <= threat[1]:
+			heading = side  # Inside its keep-out: along its face, no deeper
+			continue
+		var edge: float = asin(clamp(threat[1] / distance, 0.0, 1.0))  # The tangent's angle off its centre
+		if acos(clamp(cosine, -1.0, 1.0)) < edge:
+			heading = (inward * cos(edge) + side * sin(edge)).normalized()
+	return heading * speed
+
+
+class _NearestFirst:
+	var from: Vector3
+	func _init(at: Vector3) -> void:
+		from = at
+	func less(a, b) -> bool:
+		return from.distance_squared_to(a[0]) < from.distance_squared_to(b[0])
+
+
+# Adds to `out` [centre, clearance] of the obstacles among `items` (and clusters) whose keep-out a
+# path from `position` along `heading` crosses within `reach` m, as _push_along finds them.
+static func _threats_along(position: Vector3, heading: Vector3, reach: float, own_radius: float, items: Array, exclude, out: Array) -> void:
+	for item in items:
+		if item.size() > 3:  # A cluster: as _push_along
+			var widest: float = (item[2] + own_radius) * Constants.NAV_AVOID_CLEARANCE
+			var to_cluster: Vector3 = item[0] - position
+			var nearest: float = clamp(to_cluster.dot(heading), 0.0, reach + widest)
+			var keep: float = item[1] + widest
+			if (to_cluster - heading * nearest).length_squared() < keep * keep:
+				_threats_along(position, heading, reach, own_radius, item[3], exclude, out)
+			continue
+		if exclude != null and item[2] == exclude:
+			continue
+		var to_centre: Vector3 = item[0] - position
+		var clearance: float = (item[1] + own_radius) * Constants.NAV_AVOID_CLEARANCE
+		var along: float = to_centre.dot(heading)
+		if along < -clearance or along > reach + clearance:
+			continue
+		if (to_centre - heading * along).length() < clearance:
+			for known in out:
+				if known[0] == item[0]:
+					clearance = -1.0
+			if clearance > 0.0:
+				out.append([item[0], clearance])
 
 
 # The push off `items` (obstacles and clusters) of a path from `position` along `heading`, `reach` m

@@ -821,9 +821,22 @@ func _announce(state: int) -> void:
 				Radio.say(agent_script, ("Taking my hold to %s." if agent_script.get_cargo_value() > 0.0 else "Heading in to %s.") % Radio.name_of(_station))
 		AIState.SALVAGE:
 			if is_instance_valid(_target_agent) and _target_agent.get("is_wreck"):
-				Radio.say(agent_script, "Stripping a wreck.")
+				Radio.say(agent_script, work_line(_target_agent))
 		AIState.MINE:
-			Radio.say(agent_script, "Working a rock.")
+			Radio.say(agent_script, work_line(_rock))
+
+
+# The radio's line for working `target`, named as the HUD names it: "Working a rock." / "Working a
+# derelict." (Asteroid.chunk_derelict) to mine; "Stripping a wreck." / "Stripping ore." / "Stripping
+# derelict alloy." (OreChunk, its derelict flag) to salvage.
+static func work_line(target) -> String:
+	if not is_instance_valid(target):
+		return "Working a rock."
+	if target.get("chunk_derelict") != null:  # A rock
+		return "Working a derelict." if target.chunk_derelict else "Working a rock."
+	if target.get("salvage") is Dictionary and target.get("derelict") != null:  # A chunk broken off one
+		return "Stripping derelict alloy." if target.derelict else "Stripping ore."
+	return "Stripping a wreck."
 
 
 # A mayday (BeaconNetwork.call_distress), at most every DISTRESS_COOLDOWN s; true if it called one.

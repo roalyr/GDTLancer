@@ -143,7 +143,9 @@ func open_dev() -> void:
 	_status.text = "FOR TESTING. NPCS STILL JUDGE YOUR SHIP BY WHAT IT IS."
 	for cheat in CHEATS:
 		var on: bool = GameState.cheat(cheat[0])
-		_list.add_child(_button("%s: %s" % [cheat[1], "ON" if on else "OFF"], self, "toggle_cheat", [cheat[0]]))
+		var button: Button = _button("%s: %s" % [cheat[1], "ON" if on else "OFF"], self, "toggle_cheat", [cheat[0]])
+		button.modulate = Constants.UI_SWITCH_ON_MODULATE if on else Constants.UI_SWITCH_OFF_MODULATE
+		_list.add_child(button)
 
 
 func toggle_cheat(name: String) -> void:

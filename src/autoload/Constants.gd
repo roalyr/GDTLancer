@@ -92,15 +92,8 @@ const DEFAULT_ANGULAR_THRUST = 5e6  # N*m
 const DEFAULT_SHIP_MASS = 6e4  # kg
 const DEFAULT_ALIGNMENT_ANGLE_THRESHOLD = 45.0  # Degrees
 
-# Autopilot rotation PID: angular velocity toward the target orientation.
-const PID_ROTATION_KP = 8.0
-const PID_ROTATION_KI = 0.1  # Low to prevent windup
-const PID_ROTATION_KD = 4.0
-
-# Autopilot position / velocity PID: orbit radius and stopping precision.
-const PID_POSITION_KP = 0.5
-const PID_POSITION_KI = 0.01
-const PID_POSITION_KD = 0.8
+# How ships are flown (velocity and heading holds, from mass and inertia): MovementSystem, "How a
+# ship is flown", and its constants.
 
 
 # ==================================================================================================
@@ -127,11 +120,9 @@ const NAV_CHARGE_STRIKE_DRIFT_GAIN = 3.0  # How hard the strike's thrust leans a
 const NAV_CHARGE_PASS_CLEARANCE = 10.0  # m between hulls a charge passes a ship by (it throws its lance on the way, LanceController)
 const NAV_CHARGE_ROCK_STANDOFF = 40.0  # m off a rock's surface a charge on a rock stops its lance's tip, to throw from
 const NAV_CHARGE_ROCK_BRAKE_SHARE = 0.35  # Of its thrust a rock charge counts on to brake (the drag helps): the margin
-const NAV_CHARGE_ROCK_SETTLE_GAIN = 1.0  # 1/s: the last metres to that standoff at this times the distance left
-const NAV_CHARGE_ROCK_RESPONSE = 4.0  # 1/s: how hard its thrust pulls its velocity onto the one wanted
 const NAV_CHARGE_MIN_LEAD_SPEED = 50.0  # m/s
 const NAV_CHARGE_MAX_LEAD_TIME = 5.0  # s
-const NAV_CHARGE_PID_GAIN = 3.0  # Times PID_ROTATION_KP at the target while charging (command_charge.aim_gain)
+const NAV_CHARGE_PID_GAIN = 3.0  # Times MovementSystem.POINT_GAIN at the target while charging (command_charge.aim_gain)
 const NAV_CHARGE_PID_GAIN_FROM = 200.0  # m: the usual gain from here out
 const NAV_CHARGE_PID_GAIN_FULL = 15.0  # m: the full gain from here in (smoothstep between)
 const NAV_CHARGE_MAX_RUN_UP = 600.0  # m: a run-up never goes further
@@ -341,11 +332,11 @@ const HULL_SLAG_MAX_SIZE = 0.9  # m: never larger than this (a fresh hit's scar 
 # Engine exhausts (EngineExhaustSet): plume size relative to the exhaust cone models, by thrust,
 # then scaled by speed (a share of the ship's top speed): short when slow, long and slim when fast,
 # so a plume grows as a ship speeds up and shrinks as it slows down, even while braking hard.
-const ENGINE_PLUME_IDLE_LENGTH = 0.15
+const ENGINE_PLUME_BURN_LENGTH = 3.0  # A burning plume at least this long (scale of the exhaust scene), at the least thrust; its brightness tells how hard
 const ENGINE_PLUME_MAX_LENGTH = 6.0
 const ENGINE_PLUME_MIN_WIDTH = 0.5
 const ENGINE_PLUME_MAX_WIDTH = 1.0
-const ENGINE_PLUME_STANDSTILL_SHARE = 0.2  # Plume length at no speed, as a share of its length by thrust
+const ENGINE_PLUME_STANDSTILL_ALPHA = 0.3  # Plume brightness at no speed along its push, as a share of its brightness by thrust (never shorter: EngineExhaustSet)
 const ENGINE_GLOW_STANDSTILL_SHARE = 0.3  # and its brightness above idle: a braking ship's exhaust fades as it stops
 const ENGINE_PLUME_SPEED_STRETCH = 0.8  # At top speed the plume is this much longer (0.8: 1.8x)
 const ENGINE_PLUME_SPEED_SLIM = 0.2  # and this much slimmer
@@ -1495,6 +1486,8 @@ const ANNOUNCE_ANCHOR = 0.62  # The newest's bottom edge, as a share of the scre
 const ANNOUNCE_GAP = 4.0  # px between two
 const ANNOUNCE_SLIDE_RATE = 12.0  # How fast pushed ones slide up to their places (1/s)
 # Selected-target bracket.
+const UI_SWITCH_ON_MODULATE = Color8(255, 230, 89, 255)  # An ON/OFF switch that is on: its words yellow (HUD, options, map filters, interactions)
+const UI_SWITCH_OFF_MODULATE = Color8(140, 140, 140, 255)  # and off: grey
 const COLOR_UI_TARGET_SELECTED = Color(1.0, 0.9, 0.35, 1.0)  # Yellow: the selected target, anything not hostile, wrecks included
 # Unselected targets' marks and labels. Ships and stations by their side to the player only, not
 # their factions' colours: green allied (standing friendly), white-grey neutral, red hostile

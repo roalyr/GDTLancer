@@ -1058,11 +1058,13 @@ func test_a_move_coasts_once_at_its_cruising_speed():
 	nav._current_command = {"target_pos": hostile.global_transform.origin + ahead}
 	hostile.linear_velocity = movement.get_forward() * 100.0
 	command.execute(0.016)
-	assert_gt(movement._accumulated_force.length(), 0.0, "Flat out: thrusts on")
+	assert_gt(movement.get_requested_force().length(), 0.0, "Flat out: thrusts on")
 	movement._accumulated_force = Vector3.ZERO
+	movement._wanted_velocity = null
 	nav.cruise_speed = 90.0
 	command.execute(0.016)
-	assert_almost_eq(movement._accumulated_force.length(), 0.0, 0.001, "At its cruise: coasts")
+	var hold: float = hostile.mass * Constants.LINEAR_DRAG * 90.0  # What holds its cruise against the drag
+	assert_lt(movement.get_requested_force().dot(movement.get_forward()), hold, "Past its cruise: eases back to it, no harder")
 	command.free()
 
 
@@ -1121,3 +1123,21 @@ func test_a_ship_that_outran_a_charge_is_not_charged_again_until_the_wait_is_up_
 	target.linear_velocity = Vector3(0, 0, -50)
 	ai._think(Constants.AI_CHARGE_OUTRUN_WAIT + 0.1)
 	assert_true(ai._charge(target), "The wait up, it charges again")
+
+
+# The radio's work lines name what is worked, as the HUD names it.
+func test_the_radio_says_what_it_works():
+	var rock = load("res://scenes/prefabs/celestial/asteroid.tscn").instance()
+	autofree(rock)
+	assert_eq(AIScript.work_line(rock), "Working a rock.")
+	rock.chunk_derelict = true
+	assert_eq(AIScript.work_line(rock), "Working a derelict.")
+	var chunk = OreChunkScript.new()
+	autofree(chunk)
+	assert_eq(AIScript.work_line(chunk), "Stripping ore.")
+	chunk.derelict = true
+	assert_eq(AIScript.work_line(chunk), "Stripping derelict alloy.")
+	var wreck = AgentScript.new()
+	autofree(wreck)
+	wreck.is_wreck = true
+	assert_eq(AIScript.work_line(wreck), "Stripping a wreck.")

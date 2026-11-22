@@ -75,7 +75,7 @@ func test_request_thrust_brake_opposes_velocity():
 	movement_system.request_thrust_brake()
 	
 	assert_true(
-		movement_system._accumulated_force.z > 0,
+		movement_system.get_requested_force().z > 0,
 		"Brake thrust should oppose current velocity direction."
 	)
 
