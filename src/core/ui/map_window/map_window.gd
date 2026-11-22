@@ -7,6 +7,8 @@
 
 extends Control
 
+const TabLook = preload("res://src/core/ui/helpers/tab_look.gd")
+
 const MapItems = preload("res://src/core/ui/map_window/map_items.gd")
 const MapView = preload("res://src/core/ui/map_window/map_view.gd")
 const TargetKinds = preload("res://src/core/ui/main_hud/target_kinds.gd")
@@ -85,8 +87,8 @@ func _on_player_docked(_location_id) -> void:
 func show_tab(which: String) -> void:
 	tab = which
 	var header = $Panel/Overflow/Layout/Header
-	header.get_node("TabSector").text = ("[%s]" if tab == SECTOR else "%s") % Strings.t("map.tab.sector")
-	header.get_node("TabGlobal").text = ("[%s]" if tab == GLOBAL else "%s") % Strings.t("map.tab.global")
+	TabLook.show(header.get_node("TabSector"), Strings.t("map.tab.sector"), tab == SECTOR)
+	TabLook.show(header.get_node("TabGlobal"), Strings.t("map.tab.global"), tab == GLOBAL)
 	_view.selected = {}
 	refresh()
 	_build_filters()

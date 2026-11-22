@@ -9,12 +9,13 @@
 
 extends Control
 
+const TabLook = preload("res://src/core/ui/helpers/tab_look.gd")
+
 const Interactions = preload("res://src/core/systems/interactions.gd")
 const TargetKinds = preload("res://src/core/ui/main_hud/target_kinds.gd")
 const PilotLevel = preload("res://src/core/systems/pilot_level.gd")
 const NOTE_ASK = "THE GAME IS PAUSED WHILE THIS IS OPEN. TAP AN OPTION TO ASK IT, AGAIN TO END IT."
 const NOTE_PILOT = "THE GAME IS PAUSED WHILE THIS IS OPEN. WHAT ANYONE MAY KNOW OF THIS PILOT."
-const ACTIVE_MODULATE = Color8(255, 230, 89, 255)  # As MainHUD.BUTTON_ACTIVE_MODULATE
 
 var target = null  # The ship asked
 var _was_paused: bool = false
@@ -73,8 +74,8 @@ func refresh() -> void:
 			_pilot.remove_child(child)
 			child.queue_free()
 	var player = GlobalRefs.player_agent_body
-	_ask_button.modulate = ACTIVE_MODULATE if tab == "ask" else Color.white
-	_pilot_button.modulate = ACTIVE_MODULATE if tab == "pilot" else Color.white
+	TabLook.show(_ask_button, Strings.t("interact.tab.ask"), tab == "ask")
+	TabLook.show(_pilot_button, Strings.t("interact.tab.pilot"), tab == "pilot")
 	_options.visible = tab == "ask"
 	_pilot.visible = tab == "pilot"
 	_note.text = Strings.t("interact.note.pilot") if tab == "pilot" else Strings.t("interact.note.ask")

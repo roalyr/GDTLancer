@@ -11,6 +11,8 @@
 
 extends Control
 
+const TabLook = preload("res://src/core/ui/helpers/tab_look.gd")
+
 const Fitting = preload("res://src/core/systems/fitting.gd")
 const ShipFit = preload("res://src/core/systems/ship_fit.gd")
 const PresetClassifier = preload("res://src/core/evolution/preset_classifier.gd")
@@ -92,8 +94,8 @@ func refresh() -> void:
 	var header: Node = $Panel/Overflow/Layout/Header
 	header.get_node("TabFitting").visible = home  # Away from home: the cargo market alone
 	header.get_node("TabMarket").visible = home
-	header.get_node("TabFitting").text = ("[%s]" if view == FITTING else "%s") % Strings.t("fit.tab.fitting")
-	header.get_node("TabMarket").text = ("[%s]" if view == MARKET else "%s") % Strings.t("fit.tab.market")
+	TabLook.show(header.get_node("TabFitting"), Strings.t("fit.tab.fitting"), view == FITTING)
+	TabLook.show(header.get_node("TabMarket"), Strings.t("fit.tab.market"), view == MARKET)
 	_slots.get_parent().visible = home and view == FITTING
 	_storage.get_parent().get_parent().visible = home
 	_store.get_parent().get_parent().visible = not home or view == MARKET
@@ -221,9 +223,10 @@ func _rebuild_storage(_ship_body) -> void:
 func _rebuild_tabs() -> void:
 	_clear(_tabs)
 	for tab in STORE_TABS if Fitting.is_available() else ["cargo"]:
-		var button: Button = _add_button(_tabs, ("[%s]" if tab == _tab else "%s") % Strings.t("fit.store." + tab), false, "_on_tab", [tab])
+		var button: Button = _add_button(_tabs, "", false, "_on_tab", [tab])
 		button.align = Button.ALIGN_CENTER
 		button.theme_type_variation = "TabButton"
+		TabLook.show(button, Strings.t("fit.store." + tab), tab == _tab)
 		button.size_flags_horizontal = SIZE_EXPAND_FILL
 
 

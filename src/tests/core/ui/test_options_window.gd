@@ -5,6 +5,7 @@ extends GutTest
 
 const OptionsScene = preload("res://scenes/ui/menus/options_window.tscn")
 const TargetKinds = preload("res://src/core/ui/main_hud/target_kinds.gd")
+const TabLook = preload("res://src/core/ui/helpers/tab_look.gd")
 
 
 func after_each():
@@ -131,3 +132,28 @@ func test_the_language_switches_every_word_at_once():
 	assert_eq(window.row_text("ButtonParticles"), "ЧАСТИНКИ: УВІМК")
 	Settings.set_option("language", "en")
 	assert_eq(window.row_text("ButtonParticles"), "PARTICLES: ON")
+
+
+# Every window marks its open tab the one way (TabLook): its title in brackets and the open look,
+# whose amber is the theme's.
+func test_the_open_tab_is_bracketed_and_amber():
+	var window = OptionsScene.instance()
+	add_child_autofree(window)
+	window.show_tab("sound")
+	var tabs: Node = window.get_node("Panel/Overflow/Layout/Tabs")
+	var open: Button = tabs.get_node("Tab_sound")
+	var shut: Button = tabs.get_node("Tab_game")
+	assert_eq(open.text, "[SOUND]")
+	assert_eq(open.theme_type_variation, "LargeTabButtonOpen")
+	assert_eq(shut.text, "GAME")
+	assert_eq(shut.theme_type_variation, "LargeTabButton")
+	assert_eq(open.get_color("font_color"), Color(1, 0.82, 0.45, 1), "Amber, from the theme")
+	assert_eq(shut.get_color("font_color"), Color(1, 1, 1, 1))
+	var button := Button.new()
+	add_child_autofree(button)
+	button.theme_type_variation = "TabButton"
+	TabLook.show(button, "MAP", true)
+	TabLook.show(button, "MAP", true)
+	assert_eq(button.theme_type_variation, "TabButtonOpen", "Shown open twice: still one suffix")
+	TabLook.show(button, "MAP", false)
+	assert_eq([button.text, button.theme_type_variation], ["MAP", "TabButton"])

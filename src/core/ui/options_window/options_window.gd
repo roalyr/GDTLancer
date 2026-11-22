@@ -9,6 +9,8 @@
 
 extends Control
 
+const TabLook = preload("res://src/core/ui/helpers/tab_look.gd")
+
 # Row node -> [option key, values stepped through (a Constants array; null: on/off)].
 # Volumes (PERCENT) read as a percentage, 0 as OFF.
 const PERCENT = ["music", "effects"]
@@ -193,8 +195,7 @@ func _refresh() -> void:
 	$Panel/Overflow/Layout/Header/ButtonClose.text = Strings.t("common.close")
 	$Panel/Overflow/Layout/Note.text = Strings.t("options.note")
 	for category in CATEGORIES:
-		var title: String = Strings.t("options.tab." + category[0])
-		$Panel/Overflow/Layout/Tabs.get_node("Tab_" + category[0]).text = ("[%s]" if category[0] == tab else "%s") % title
+		TabLook.show($Panel/Overflow/Layout/Tabs.get_node("Tab_" + category[0]), Strings.t("options.tab." + category[0]), category[0] == tab)
 	for name in OPTIONS:
 		var row: Node = _list.get_node_or_null(name + "/Row")
 		if row == null:

@@ -1,6 +1,6 @@
 # UI labels and their looks
 
-Every piece of text in the game UI and the named look (theme_type_variation) that sizes it; sizes are at UI SCALE x1.0. To change one, pick another look for the node in the Godot editor (Inspector, Theme, Type Variation) or change the look itself in the theme (CONTENT.md, "The UI's look"); **Change to** is left for notes. The 2026-11-22 requests are applied; row 87 (the options' Info/Value) was removed. The words themselves are in database/strings/strings.json (CONTENT.md, "Words and languages"); "Shows" is the English. The looks are listed in CONTENT.md ("Labels use the shared sizes"). Generated 2026-11-22; debug-only text is at the end.
+Every piece of text in the game UI and the named look (theme_type_variation) that sizes it; sizes are at UI SCALE x1.0. To change one, pick another look for the node in the Godot editor (Inspector, Theme, Type Variation) or change the look itself in the theme (CONTENT.md, "The UI's look"); **Change to** is left for notes. The 2026-11-22 requests are applied; row 87 (the options' Info/Value) was removed. The words themselves are in database/strings/strings.json (CONTENT.md, "Words and languages"); "Shows" is the English. The looks are listed in CONTENT.md ("Labels use the shared sizes"). Generated 2026-11-22; debug-only text is at the end. Every tab, while open, reads in brackets in its look's amber open twin (`TabButtonOpen`, `LargeTabButtonOpen`).
 
 ## HUD: top strip
 
