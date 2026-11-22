@@ -47,6 +47,9 @@ theme_type_variation = "TitleLabel"
 rect_min_size = Vector2( 160, 64 )
 focus_mode = 0
 text = "CLOSE"
+__meta__ = {
+"str": "common.close"
+}
 
 [node name="Summary" type="Label" parent="Panel/Overflow/Layout"]
 visible = false
@@ -85,3 +88,6 @@ size_flags_horizontal = 3
 theme_type_variation = "NoteLabel"
 autowrap = true
 text = "THE GAME IS PAUSED WHILE THIS IS OPEN."
+__meta__ = {
+"str": "common.paused"
+}

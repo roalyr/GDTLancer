@@ -83,13 +83,13 @@ static func on_kill(killer, victim) -> float:
 		var amount: float = Constants.BOUNTY_POST_SHARE * _value(victim)
 		posted[victim_faction] = float(posted.get(victim_faction, 0.0)) + amount
 		if killer.has_method("is_player") and killer.is_player():
-			EventBus.emit_signal("announcement", "%s posts a bounty on you: %d WP" % [TemplateDatabase.factions[victim_faction].get("name", victim_faction), int(posted[victim_faction])], "warning")
+			EventBus.emit_signal("announcement", Strings.t("msg.bounty_posted", [TemplateDatabase.factions[victim_faction].get("name", victim_faction), int(posted[victim_faction])]), "warning")
 	postings(victim).clear()
 	if paid <= 0.0:
 		return 0.0
 	if killer.has_method("is_player") and killer.is_player():
 		GameState.player_bank += int(round(paid))
-		EventBus.emit_signal("announcement", "Bounty: %d WP" % int(round(paid)), "info")
+		EventBus.emit_signal("announcement", Strings.t("msg.bounty_paid", [int(round(paid))]), "info")
 	elif str(killer.get("evo_uid")) == "" and killer.get("wallet") != null:
 		killer.wallet += paid  # Arena pilots are paid through Evolution (agent_disabled)
 	return paid

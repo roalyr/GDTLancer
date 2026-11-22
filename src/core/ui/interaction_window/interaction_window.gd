@@ -77,18 +77,18 @@ func refresh() -> void:
 	_pilot_button.modulate = ACTIVE_MODULATE if tab == "pilot" else Color.white
 	_options.visible = tab == "ask"
 	_pilot.visible = tab == "pilot"
-	_note.text = NOTE_PILOT if tab == "pilot" else NOTE_ASK
+	_note.text = Strings.t("interact.note.pilot") if tab == "pilot" else Strings.t("interact.note.ask")
 	if not Interactions.is_npc_ship(target):
-		_title.text = "INTERACT"
-		_side.text = "NO SHIP SELECTED"
+		_title.text = Strings.t("hud.button.interact")
+		_side.text = Strings.t("interact.no_ship")
 		return
 	_title.text = Interactions.name_of(target).to_upper()
 	var side: String = TargetKinds.side_of(target, player)
 	var activity: String = ""
 	var ai = Interactions.ai_of(target)
 	if ai != null and ai.has_method("get_activity_label"):
-		activity = ai.get_activity_label()
-	_side.text = side.to_upper() + ((" · " + activity) if activity != "" else "")
+		activity = Strings.word(ai.get_activity_label())
+	_side.text = Strings.word(side).to_upper() + ((" · " + activity) if activity != "" else "")
 	_side.add_color_override("font_color", TargetKinds.side_color(side))
 	if tab == "pilot":
 		_fill_pilot(player)
@@ -97,7 +97,7 @@ func refresh() -> void:
 	for option in options:
 		var button: Button = _option_pattern.duplicate()
 		button.name = "Option_%s" % option.kind
-		button.text = "%s: %s" % [option.label, "ON" if option.active else "OFF"]
+		button.text = "%s: %s" % [option.label, Strings.t("hud.on") if option.active else Strings.t("hud.off")]
 		button.modulate = Constants.UI_SWITCH_ON_MODULATE if option.active else Constants.UI_SWITCH_OFF_MODULATE
 		button.visible = true
 		button.connect("pressed", self, "_on_option_pressed", [option.kind])
@@ -110,7 +110,7 @@ func refresh() -> void:
 	if options.empty():
 		var note: Label = _note_pattern.duplicate()
 		note.name = "Note_none"
-		note.text = ("NOTHING TO ASK OF IT: %s" % _why_nothing(player)).to_upper()
+		note.text = Strings.t("interact.nothing", [_why_nothing(player)]).to_upper()
 		note.visible = true
 		_options.add_child(note)
 
@@ -120,12 +120,12 @@ func _fill_pilot(player) -> void:
 	for row in PilotLevel.public_record(player, target):
 		var key: Label = _key_pattern.duplicate()
 		key.name = "Key_%s" % str(row[0]).replace(" ", "_")
-		key.text = str(row[0])
+		key.text = Strings.word(str(row[0]))  # The rows' captions and fixed words are English (their nodes' names)
 		key.visible = true
 		_pilot.add_child(key)
 		var value: Label = _value_pattern.duplicate()
 		value.name = "Value_%s" % str(row[0]).replace(" ", "_")
-		value.text = str(row[1])
+		value.text = Strings.word(str(row[1]))
 		value.visible = true
 		_pilot.add_child(value)
 

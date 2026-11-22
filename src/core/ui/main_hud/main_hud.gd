@@ -240,6 +240,7 @@ func _ready():
 	button_safety.connect("pressed", self, "_on_safety_button_pressed")
 	button_hud_look.connect("pressed", self, "_on_ButtonHudLook_pressed")
 	Settings.connect("changed", self, "_on_settings_changed")
+	Strings.connect("changed", self, "_on_language_changed")
 	fitting_window = FittingWindowScene.instance()
 	add_child(fitting_window)
 	interaction_window = InteractionWindowScene.instance()
@@ -361,10 +362,10 @@ func _on_fps_setting_changed(key, value) -> void:
 func _update_fps_label() -> void:
 	if not (is_instance_valid(_fps_label) and _fps_label.visible):
 		return
-	var text: String = "FPS %d" % Performance.get_monitor(Performance.TIME_FPS)
+	var text: String = Strings.t("hud.fps", [Performance.get_monitor(Performance.TIME_FPS)])
 	var speed: float = _frame_governor.speed if is_instance_valid(_frame_governor) else 1.0
 	if speed < 1.0:
-		text += "  SPEED X%.2f" % speed
+		text += "  " + Strings.t("hud.game_speed", [speed])
 	if _fps_label.text != text:
 		_fps_label.text = text
 
@@ -374,17 +375,17 @@ func _update_fps_label() -> void:
 func _update_approach_button_label() -> void:
 	if not is_instance_valid(label_button_approach):
 		return
-	var text := "APPROACH"
+	var text := Strings.t("hud.button.approach")
 	var player = GlobalRefs.player_agent_body
 	var controller = _get_player_controller()
 	if _current_target != null and is_instance_valid(player):
 		var tools = player.get_node_or_null("ToolController")
 		if is_instance_valid(controller) and controller.has_method("is_charge_ready") and controller.is_charge_ready(_current_target):
-			text = "CHARGE"
+			text = Strings.t("hud.button.charge")
 		elif tools != null and tools.has_method("fighting_range"):
 			var hold: float = tools.fighting_range(_current_target) * Constants.NAV_APPROACH_WEAPON_SHARE
 			if hold > 0.0:
-				text = "HOLD %s" % _short_distance(hold)
+				text = Strings.t("hud.button.hold", [_short_distance(hold)])
 	if label_button_approach.text != text:
 		label_button_approach.text = text
 
@@ -398,7 +399,7 @@ static func _short_distance(metres: float) -> String:
 func _update_interact_button_label() -> void:
 	if not is_instance_valid(label_button_interact):
 		return
-	var text := "INTERACTING" if _current_target != null and is_partner(_current_target) else "INTERACT"
+	var text := Strings.t("hud.button.interacting") if _current_target != null and is_partner(_current_target) else Strings.t("hud.button.interact")
 	if label_button_interact.text != text:
 		label_button_interact.text = text
 
@@ -633,7 +634,7 @@ func _on_ButtonDock_pressed():
 		EventBus.emit_signal("player_undocked")
 		_update_dock_button_label()
 		return
-	if is_instance_valid(label_button_dock) and label_button_dock.text == "TRAVEL":
+	if is_instance_valid(label_button_dock) and label_button_dock.text == Strings.t("hud.button.travel"):
 		if _jump_target_id != "":
 			EventBus.emit_signal("player_jump_requested", _jump_target_id)
 		else:
@@ -687,15 +688,15 @@ func _update_tool_buttons() -> void:
 		var tool_template = tools.get_tool(index)
 		var active: bool = tools.is_active(index)
 		var actions: Array = TOOL_ACTIONS.get(tool_template.tool_type, ["USE", "STOP"])
-		var name: String = tool_template.hud_label if tool_template.hud_label != "" else tool_template.tool_name.to_upper()
+		var name: String = Strings.name_of(tool_template.hud_label) if tool_template.hud_label != "" else Strings.name_of(tool_template.tool_name).to_upper()
 		var action: String = ""
 		var fill: float = tools.get_cycle_progress(index) if active else 0.0
 		if tools.has_method("is_retracting") and tools.is_retracting(index):
-			action = "WINCHING"
+			action = Strings.t("hud.tool.winching")
 		if tools.has_method("has_magazine") and tools.has_magazine(index):
 			fill = float(tools.get_ammo(index)) / max(1.0, float(tools.get_capacity(index)))
 			if tools.get_ammo(index) <= 0:
-				action = "EMPTY"
+				action = Strings.t("hud.tool.empty")
 		if action == "" and active and tool_template.tool_type == "cannon":
 			action = cannon_word(player, tools, index)
 		var text: String = name if action == "" else "%s\n%s" % [name, action]
@@ -719,10 +720,10 @@ static func cannon_word(player, tools, index: int) -> String:
 			var to_target: Vector3 = target.global_transform.origin - player.global_transform.origin
 			var target_velocity = target.get("linear_velocity")
 			var relative: Vector3 = (target_velocity if target_velocity is Vector3 else Vector3.ZERO) - player.linear_velocity
-			return "CLOSING" if relative.dot(to_target) < 0.0 else "FAR"
+			return Strings.t("hud.cannon.closing") if relative.dot(to_target) < 0.0 else Strings.t("hud.cannon.far")
 		"turning":
-			return "TURNING"
-	return "BLOCKED" if tools.is_holding(index) else ""
+			return Strings.t("hud.cannon.turning")
+	return Strings.t("hud.cannon.blocked") if tools.is_holding(index) else ""
 
 
 # The bar along a tool button's foot (HudBar), made the first time.
@@ -929,26 +930,26 @@ func _update_lance_button() -> void:
 	var charge_target = selected if charge and is_instance_valid(selected) else null
 	if lance == null:
 		return
-	var state: String = "ARM"
+	var state: String = Strings.t("hud.lance.arm")
 	var seated = null  # A launcher with a lance ready
 	for each in player.get_lances():
 		if each.is_seated():
 			seated = each
 			break
 	if player.get_lance_nails() <= 0:
-		state = "EMPTY"
+		state = Strings.t("hud.tool.empty")
 	elif seated == null:
-		state = "LOADING"
+		state = Strings.t("hud.lance.loading")
 	elif not lance.armed and is_instance_valid(controller) and controller.has_method("lance_block_reason") and controller.lance_block_reason(selected) != "":
-		state = "SAFE"  # The safety keeps it from arming at the selection (only at an asteroid or a hostile)
+		state = Strings.t("hud.lance.safe")  # The safety keeps it from arming at the selection (only at an asteroid or a hostile)
 	elif lance.armed:
-		state = "ARMED"
+		state = Strings.t("hud.lance.armed")
 		var target = _current_target
 		if charge_target != null and player.outruns_charge(charge_target):
-			state = "TOO SLOW"
+			state = Strings.t("hud.lance.too_slow")
 		elif is_instance_valid(target) and target is RigidBody:
 			state = "%d / %d" % [int(seated.strike_speed_on(target)), int(Constants.LAW_LANCE_MIN_SPEED)]
-	button_lance.get_node("Label").text = "LANCE %d\n%s" % [player.get_lance_nails(), state]
+	button_lance.get_node("Label").text = Strings.t("hud.lance.label", [player.get_lance_nails(), state])
 	_apply_button_toggle_state(button_lance, lance.armed, true)
 
 
@@ -965,9 +966,9 @@ func _update_afterburner_button() -> void:
 	button_afterburner.visible = fitted or decoys
 	if not button_afterburner.visible:
 		return
-	var text: String = "BURN %s\n%d m/s" % ["ON" if player.afterburner_lit else "OFF", int(player.get_burst_top_speed())] if fitted else "NO BURNER"
+	var text: String = Strings.t("hud.burner.label", [Strings.t("hud.on") if player.afterburner_lit else Strings.t("hud.off"), int(player.get_burst_top_speed())]) if fitted else Strings.t("hud.burner.none")
 	if decoys:
-		text += "\nDECOYS %d" % player.decoys
+		text += "\n" + Strings.t("hud.burner.decoys", [player.decoys])
 	button_afterburner.get_node("Label").text = text
 	_apply_button_toggle_state(button_afterburner, fitted and player.afterburner_lit, true)
 
@@ -992,7 +993,7 @@ func _update_safety_button() -> void:
 	button_safety.visible = armed
 	if not armed:
 		return
-	var text: String = "SAFETY\n%s" % ("ON" if GameState.weapons_safe else "OFF")
+	var text: String = Strings.t("hud.safety.label", [Strings.t("hud.on") if GameState.weapons_safe else Strings.t("hud.off")])
 	var label: Label = button_safety.get_node("Label")
 	if label.text != text:
 		label.text = text
@@ -1412,7 +1413,7 @@ func apply_hud_preset() -> void:
 	for node in _hud_parts() + ([_hud_dot] if is_instance_valid(_hud_dot) else []):
 		node.modulate = look  # The HUD's own parts only: windows and prompts keep their looks
 	if is_instance_valid(label_hud_look):
-		label_hud_look.text = "HUD\n%s" % Constants.hud_preset_label(Settings.get_option("hud_preset"))
+		label_hud_look.text = Strings.t("hud.button.hud_look", [Constants.hud_preset_label(Settings.get_option("hud_preset"))])
 	for button in _world_target_buttons.values():
 		if is_instance_valid(button) and button.has_method("refresh_style"):
 			button.refresh_style()
@@ -1505,19 +1506,19 @@ func _resolve_target_display_name(target_node) -> String:
 			return target_node.target_sector_name
 		if "target_sector_id" in target_node:
 			return target_node.target_sector_id
-		return "Jump Point"
+		return Strings.t("target.jump_point")
 	if target_node.is_in_group("dockable_station"):
 		if "station_name" in target_node and target_node.station_name != "":
 			return target_node.station_name
-		return "Station"
+		return Strings.t("target.station")
 	if target_node.has_method("get_display_name"):
 		return target_node.get_display_name()
 	if target_node.is_in_group("asteroid"):
-		return "Asteroid"
+		return Strings.t("target.asteroid")
 	if target_node.is_in_group("agent_body"):
 		var ship = target_node.get("ship_template")
-		var ship_name: String = ship.ship_model_name if is_instance_valid(ship) else target_node.name
-		return "Wreck of " + ship_name if target_node.get("is_wreck") else ship_name
+		var ship_name: String = Strings.name_of(ship.ship_model_name) if is_instance_valid(ship) else target_node.name
+		return Strings.t("target.wreck_of", [ship_name]) if target_node.get("is_wreck") else ship_name
 	return target_node.name.replace("_", " ")
 
 
@@ -1588,7 +1589,7 @@ func _on_agent_disabled(agent_body) -> void:
 # The ship is lost: the camera orbits the wreck (not tracking a target) so the player can watch the
 # scene play out until WorldManager fades to the respawn at home (Constants RESPAWN_DELAY).
 func _watch_own_wreck() -> void:
-	EventBus.emit_signal("announcement", "SHIP LOST", "danger")
+	EventBus.emit_signal("announcement", Strings.t("hud.ship_lost"), "danger")
 	var camera = GlobalRefs.main_camera
 	if is_instance_valid(camera) and is_instance_valid(GlobalRefs.player_agent_body):
 		if camera.has_method("set_camera_mode"):
@@ -1597,15 +1598,21 @@ func _watch_own_wreck() -> void:
 	_refresh_toggle_button_states()
 
 
+# Words code wrote (the scene's own follow their keys by themselves; most others are redone each frame).
+func _on_language_changed(_language) -> void:
+	apply_hud_preset()
+	_update_dock_button_label()
+
+
 func _update_dock_button_label() -> void:
 	if not is_instance_valid(label_button_dock):
 		return
 	if GameState.player_docked_at != "":
-		label_button_dock.text = "UNDOCK"
+		label_button_dock.text = Strings.t("hud.button.undock")
 	elif _current_target != null and (_is_route_target(_current_target) or (is_instance_valid(_current_target) and _current_target.is_in_group("jump_point"))):
-		label_button_dock.text = "TRAVEL"
+		label_button_dock.text = Strings.t("hud.button.travel")
 	else:
-		label_button_dock.text = "DOCK"
+		label_button_dock.text = Strings.t("hud.button.dock")
 
 
 func _instance_projected_target_bracket():

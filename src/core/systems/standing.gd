@@ -43,7 +43,7 @@ static func change(faction, amount: float) -> void:
 	var after: String = label(faction)
 	if after != before:
 		var name: String = TemplateDatabase.factions[faction].get("name", faction)
-		EventBus.emit_signal("announcement", "%s: %s" % [name, after], "danger" if after == "HOSTILE" else "info")
+		EventBus.emit_signal("announcement", "%s: %s" % [name, Strings.word(after)], "danger" if after == "HOSTILE" else "info")
 
 
 # Whether factions `a` and `b` are at war: either one's `enemies` names the other.

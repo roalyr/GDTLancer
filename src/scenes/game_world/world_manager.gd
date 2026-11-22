@@ -142,7 +142,7 @@ func _on_agent_disabled(agent_body) -> void:
 	if dock_state is GDScriptFunctionState:
 		yield(dock_state, "completed")
 	GameStateManager.autosave()  # The autosave's slot: the player's own saves are kept
-	EventBus.emit_signal("announcement", "Back home in a new ship. The bank and storage are kept: %d WP" % GameState.player_bank, "info")
+	EventBus.emit_signal("announcement", Strings.t("msg.respawn", [GameState.player_bank]), "info")
 	_respawning = false
 	_fade_transition_overlay_async(0.0, Constants.RESPAWN_FADE_DURATION)
 
@@ -166,7 +166,7 @@ func _emit_loaded_dock_signal() -> void:
 # What SaveRepair changed in the save just loaded (content gone since it was saved), once.
 func _announce_save_repairs() -> void:
 	for note in GameStateManager.repair_notes:
-		EventBus.emit_signal("announcement", "Save updated: %s" % note, "warning")
+		EventBus.emit_signal("announcement", Strings.t("msg.save_updated", [note]), "warning")
 	GameStateManager.repair_notes = []
 
 

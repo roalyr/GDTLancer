@@ -231,7 +231,7 @@ func _draw_item(item: Dictionary) -> void:
 func _label(item: Dictionary, taken: Array) -> void:
 	var text: String = item.label.to_upper()
 	if item.kind == "sector" and item.get("here"):
-		text += "  (HERE)"
+		text += "  " + Strings.t("map.here")
 	var radius: float = 0.0 if _is_mark(item) else min(item.radius / metres_per_px, 2000.0)
 	var at: Vector2 = to_px(item.at) + LABEL_OFFSET + Vector2(radius * 0.7, -radius * 0.7)
 	if item.kind in ["belt", "hazard"]:
@@ -304,14 +304,14 @@ static func nice_step(at_least: float) -> float:
 static func units_text(metres: float) -> String:
 	var count: float = metres / 1000.0
 	var text: String = ("%d" % int(round(count))) if count >= 10.0 or count == floor(count) else ("%.1f" % count)
-	return text + (" UNIT" if text == "1" else " UNITS")
+	return Strings.t("map.unit" if text == "1" else "map.units", [text])
 
 
 static func distance_text(metres: float) -> String:
 	if metres >= 1000.0:
 		var km: float = metres / 1000.0
-		return ("%d KM" % int(round(km))) if km >= 10.0 or km == floor(km) else ("%.1f KM" % km)
-	return "%d M" % int(round(metres))
+		return Strings.t("unit.km_big", [("%d" % int(round(km))) if km >= 10.0 or km == floor(km) else ("%.1f" % km)])
+	return Strings.t("unit.m_big", [int(round(metres))])
 
 
 # The names' and the scale's lettering: main_theme's SmallLabel.

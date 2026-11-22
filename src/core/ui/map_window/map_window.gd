@@ -85,8 +85,8 @@ func _on_player_docked(_location_id) -> void:
 func show_tab(which: String) -> void:
 	tab = which
 	var header = $Panel/Overflow/Layout/Header
-	header.get_node("TabSector").text = "[SECTOR]" if tab == SECTOR else "SECTOR"
-	header.get_node("TabGlobal").text = "[GLOBAL]" if tab == GLOBAL else "GLOBAL"
+	header.get_node("TabSector").text = ("[%s]" if tab == SECTOR else "%s") % Strings.t("map.tab.sector")
+	header.get_node("TabGlobal").text = ("[%s]" if tab == GLOBAL else "%s") % Strings.t("map.tab.global")
 	_view.selected = {}
 	refresh()
 	_build_filters()
@@ -121,11 +121,11 @@ func refresh() -> void:
 		var namer: Object = hud if hud != null and hud.has_method("_resolve_target_display_name") else null
 		_view.set_items(MapItems.sector(GlobalRefs.current_zone, targets, GlobalRefs.player_agent_body, namer, float(layout.get("play_radius", INF))))
 		var location = TemplateDatabase.locations.get(GameState.current_sector_id)
-		_title.text = "MAP  ·  %s" % (str(location.location_name).to_upper() if location != null else GameState.current_sector_id.to_upper())
+		_title.text = Strings.t("map.title", [str(location.location_name).to_upper() if location != null else GameState.current_sector_id.to_upper()])
 	else:
 		var known: Dictionary = MapItems.global(TemplateDatabase.locations, GameState.current_sector_id)
 		_view.set_items(known.sectors, known.routes)
-		_title.text = "MAP  ·  %d SECTORS" % known.sectors.size()
+		_title.text = Strings.t("map.title_sectors", [known.sectors.size()])
 	_centre.visible = tab == SECTOR
 
 
@@ -156,7 +156,7 @@ func _build_filters() -> void:
 		var on: bool = _shown[tab].get(spec[0], true)
 		var button := Button.new()
 		button.name = "Filter_" + spec[0]
-		button.text = "%s: %s" % [spec[1], "ON" if on else "OFF"]
+		button.text = "%s: %s" % [Strings.t("map.filter." + spec[0]), Strings.t("hud.on") if on else Strings.t("hud.off")]
 		button.rect_min_size = Vector2(0, FILTER_HEIGHT)
 		button.focus_mode = Control.FOCUS_NONE
 		button.modulate = Constants.UI_SWITCH_ON_MODULATE if on else Constants.UI_SWITCH_OFF_MODULATE
@@ -170,11 +170,11 @@ func target_picked() -> void:
 	if item.empty() or not is_instance_valid(item.get("ref")) or not item.kind in TARGETABLE:
 		return
 	EventBus.emit_signal("player_target_selection_requested", item.ref)
-	_info.text = describe(item) + "\nTARGET SET."
+	_info.text = describe(item) + "\n" + Strings.t("map.target_set")
 
 
 func _on_picked(item: Dictionary) -> void:
-	_info.text = describe(item) if not item.empty() else ("TAP A THING TO SEE IT." if tab == SECTOR else "TAP A SECTOR TO SEE IT.")
+	_info.text = describe(item) if not item.empty() else (Strings.t("map.tap_thing") if tab == SECTOR else Strings.t("map.tap_sector"))
 	_target.visible = tab == SECTOR and not item.empty() and item.kind in TARGETABLE and is_instance_valid(item.get("ref"))
 
 
@@ -182,24 +182,28 @@ func _on_picked(item: Dictionary) -> void:
 func describe(item: Dictionary) -> String:
 	var lines: Array = []
 	if item.kind == "sector":
-		lines.append(item.label.to_upper() + ("  (HERE)" if item.here else ""))
-		lines.append("%s, %d ROUTE%s" % [str(item.type).to_upper(), item.routes, "" if item.routes == 1 else "S"])
+		lines.append(item.label.to_upper() + ("  " + Strings.t("map.here") if item.here else ""))
+		lines.append(Strings.t("map.route" if item.routes == 1 else "map.routes", [Strings.word(str(item.type).to_upper()), item.routes]))
 		var here = TemplateDatabase.locations.get(GameState.current_sector_id)
 		if here != null and not item.here:
 			var from: Vector2 = Vector2(here.global_position.x, here.global_position.z)
-			lines.append(MapView.units_text(from.distance_to(item.at)) + " AWAY")
+			lines.append(Strings.t("map.away", [MapView.units_text(from.distance_to(item.at))]))
 		return PoolStringArray(lines).join("\n")
 	var name: String = item.label if item.label != "" else item.get("field", "")
-	lines.append(name.to_upper() if name != "" else KIND_NAMES.get(item.kind, item.kind.to_upper()))
-	var what: String = KIND_NAMES.get(item.kind, item.kind.to_upper())
+	lines.append(name.to_upper() if name != "" else kind_name(item.kind))
+	var what: String = kind_name(item.kind)
 	if item.kind == "ship":
-		what = "%s SHIP" % TargetKinds.side_of(item.ref, GlobalRefs.player_agent_body).to_upper() if is_instance_valid(item.ref) else what
+		what = Strings.t("map.side_ship", [Strings.word(TargetKinds.side_of(item.ref, GlobalRefs.player_agent_body)).to_upper()]) if is_instance_valid(item.ref) else what
 	elif item.kind == "belt":
-		what = "ROCK FIELD" if item.has("field") else "BELT, %d ROCKS SEEN" % item.get("rocks", 0)
+		what = Strings.t("map.rock_field") if item.has("field") else Strings.t("map.belt_rocks", [item.get("rocks", 0)])
 	if item.radius > 0.0:
-		what += ", %s ACROSS" % MapView.distance_text(item.radius * 2.0)
+		what += ", " + Strings.t("map.across", [MapView.distance_text(item.radius * 2.0)])
 	lines.append(what)
 	for other in _view.items:
 		if other.kind == "player":
-			lines.append(MapView.distance_text(max(0.0, other.at.distance_to(item.at) - (item.radius if item.kind in ["star", "planet", "moon"] else 0.0))) + " AWAY")
+			lines.append(Strings.t("map.away", [MapView.distance_text(max(0.0, other.at.distance_to(item.at) - (item.radius if item.kind in ["star", "planet", "moon"] else 0.0)))]))
 	return PoolStringArray(lines).join("\n")
+
+
+static func kind_name(kind: String) -> String:
+	return Strings.t("map.kind." + kind) if Strings.has("map.kind." + kind) else kind.to_upper()

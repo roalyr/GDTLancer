@@ -57,7 +57,7 @@ static func pay_escorts(ward, value: int) -> int:
 		return 0
 	var each: int = int(round(value * Constants.ESCORT_SHARE / near.size()))
 	for escort in near:
-		_pay(escort, each, "Escort pay from %s: %d WP" % [_name(ward), each])
+		_pay(escort, each, Strings.t("msg.escort_pay", [_name(ward), each]))
 	return each * near.size()
 
 
@@ -80,7 +80,7 @@ static func pay_player_escorts(player, value: int) -> int:
 	for escort in near:
 		GameState.player_bank -= each
 		_pay(escort, each, "")
-	EventBus.emit_signal("announcement", "Your escorts' share: %d WP" % (each * near.size()), "info")
+	EventBus.emit_signal("announcement", Strings.t("msg.escorts_share", [each * near.size()]), "info")
 	return each * near.size()
 
 
@@ -101,7 +101,7 @@ static func on_patrol(ship, beacon, seconds: float, arrived: bool) -> void:
 	time[beacon.faction] = float(time.get(beacon.faction, 0.0)) + seconds
 	ship.set_meta("patrol_time", time)
 	if is_player and arrived:
-		EventBus.emit_signal("announcement", "%s: on %s patrol, paid at its havens" % [beacon.get_display_name(), TemplateDatabase.factions[beacon.faction].get("name", beacon.faction)], "info")
+		EventBus.emit_signal("announcement", Strings.t("msg.on_patrol", [beacon.get_display_name(), TemplateDatabase.factions[beacon.faction].get("name", beacon.faction)]), "info")
 
 
 # The worker `ship` escorts now, within ESCORT_PAY_RANGE: an NPC's ward, or the player's
@@ -168,7 +168,7 @@ static func pay_player_patrol(ship, faction: String, seconds: float) -> int:
 
 static func _name(ship) -> String:
 	var template = ship.get("ship_template")
-	return template.ship_model_name if is_instance_valid(template) else str(ship.name)
+	return Strings.name_of(template.ship_model_name) if is_instance_valid(template) else str(ship.name)
 
 
 static func _pay(ship, amount: int, message: String) -> void:

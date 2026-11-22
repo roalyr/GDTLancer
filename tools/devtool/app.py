@@ -19,6 +19,9 @@ The development tool's menu (Textual): the project's content and its checks in o
                Godot checks the script before it is saved
     Tools      the APK and the newest outputs at a glance; every tool (tasks.py) to run; the
                Maintainer group (evolution, releases, probes) and evolution's status on m
+    Strings    the game's words in every language (database/strings/strings.json): find, edit,
+               add, delete; empty translations, placeholders that differ and keys the code asks
+               for but the file lacks are listed as problems (ctrl+e shows only those)
 
 Godot does the reading, writing and checking (bridge.py), so the files stay as Godot writes them.
 Keys are listed in the footer and on the help screen (?).
@@ -43,7 +46,7 @@ from textual.widgets import (Button, DataTable, Footer, Header, Input, Label, Se
 
 from rich.markup import escape
 
-from . import changes, constants, data, economy, evolution, models, tasks, worldmap
+from . import changes, constants, data, economy, evolution, models, strings, tasks, worldmap
 from .bridge import Bridge, BridgeError, file_path
 
 RESOURCE_FILES = {  # Resource type -> the files a field of it can point at
@@ -1541,6 +1544,40 @@ class ConstantsPane(Horizontal):
             yield Static("", id="const-status")
 
 
+class StringsPane(Horizontal):
+    """The game's words (strings.py): a key per row with its text in each language; pick one, edit
+    its texts on the right, ctrl+s writes database/strings/strings.json. The running game reads the
+    file when it starts (a language switch in Options needs no restart)."""
+    BINDINGS = [
+        Binding("ctrl+s", "app.save_string", "Save"), Binding("ctrl+u", "app.undo_save", "Undo last save"),
+        Binding("ctrl+n", "app.new_string", "New key"), Binding("ctrl+d", "app.delete_string", "Delete key"),
+        Binding("ctrl+e", "app.strings_problems_only", "Problems only / all"), Binding("ctrl+f", "app.find_string", "Find"),
+        Binding("ctrl+r", "app.reload_strings", "Refresh"),
+    ]
+    DEFAULT_CSS = """
+    StringsPane #strings-left { width: 3fr; }
+    StringsPane #strings { height: 1fr; }
+    StringsPane #strings-side { width: 2fr; padding: 0 1; }
+    StringsPane #string-detail { height: auto; }
+    StringsPane .string-text { height: 1fr; min-height: 4; }
+    StringsPane #string-status { height: auto; min-height: 1; }
+    """
+
+    def compose(self) -> ComposeResult:
+        with Vertical(id="strings-left"):
+            yield Input(placeholder="Find: a key or a word in any language", id="strings-filter")
+            table = OpenTable(id="strings", cursor_type="row", zebra_stripes=True)
+            table.add_columns("Key", *[strings.LANGUAGE_NAMES[language] for language in strings.LANGUAGES], "Problem")
+            yield table
+        with Vertical(id="strings-side"):
+            yield Static("Pick a key on the left. Its texts are edited here, one box a language; %d, %s and the like "
+                         "are filled in by the game and must match in every language. ctrl+s saves.", id="string-detail")
+            for language in strings.LANGUAGES:
+                yield Label(strings.LANGUAGE_NAMES[language])
+                yield TextArea(id="string-" + language, classes="string-text")
+            yield Static("", id="string-status")
+
+
 class TasksPane(Vertical):
     BINDINGS = [Binding("m", "app.toggle_maintainer", "Maintainer tasks"),
                 Binding("x", "app.stop_evolution", "Stop evolution"), Binding("n", "app.new_era", "New era"),
@@ -1563,11 +1600,12 @@ class TasksPane(Vertical):
 
 UNDO_DEPTH = 50  # Saves ctrl+u can step back through in one session
 NAMED_IN_SHOWN = 6  # Files a form's 'Named in' line spells out
-TABS = ["overview", "models-tab", "archetypes-tab", "factions-tab", "world", "parts-tab", "look-tab", "data", "constants", "tasks-tab"]
-TAB_KEYS = "1234567890"
+STRING_CELL = 40  # Characters of each language's text the Strings table shows (the whole text is on the right)
+TABS = ["overview", "models-tab", "archetypes-tab", "factions-tab", "world", "parts-tab", "look-tab", "data", "constants", "tasks-tab", "strings-tab"]
+TAB_KEYS = "1234567890-"
 TAB_FOCUS = {"overview": "#problems", "models-tab": "#models", "archetypes-tab": "#archetypes", "factions-tab": "#factions",
              "world": "#world-tree", "parts-tab": "#parts", "look-tab": "#look-tree", "data": "#data-tree", "constants": "#const-tree",
-             "tasks-tab": "#tasks"}
+             "tasks-tab": "#tasks", "strings-tab": "#strings"}
 
 
 class DevApp(App):
@@ -1575,7 +1613,7 @@ class DevApp(App):
     SUB_TITLE = "development tool"
     BINDINGS = [Binding("q", "quit", "Quit"), Binding("question_mark,f1", "help", "Help"),
                 Binding("tab", "app.focus_next", "Next box", show=False), Binding("shift+tab", "app.focus_previous", "Box before", show=False)] + [
-        Binding(TAB_KEYS[index], "tab(%d)" % index, tab, show=False) for index, tab in enumerate(TABS)]
+        Binding({"-": "minus"}.get(TAB_KEYS[index], TAB_KEYS[index]), "tab(%d)" % index, tab, show=False) for index, tab in enumerate(TABS)]
     CSS = """
     #summary, #model-detail, #task-detail { height: auto; padding: 0 1; }
     #problems, #models, #tasks { height: 1fr; }
@@ -1611,6 +1649,11 @@ class DevApp(App):
         self.constant_entries = []
         self.constant_picked = None
         self.constants_by_kind = False
+        self.strings_table = {}  # strings.json as loaded or last saved
+        self.strings_used = {}  # Keys the code names (strings.used_keys)
+        self.strings_rows = []  # The keys the table shows, in order
+        self.string_picked = None
+        self.strings_problems_only = False
 
     @property
     def fields(self):
@@ -1639,6 +1682,8 @@ class DevApp(App):
                 yield ConstantsPane()
             with TabPane("0 Tools", id="tasks-tab"):
                 yield TasksPane()
+            with TabPane("- Strings", id="strings-tab"):
+                yield StringsPane()
         yield Footer()
 
     def on_mount(self):
@@ -1646,6 +1691,7 @@ class DevApp(App):
         self._fill_data_tree()
         self._fill_world_tree()
         self._load_constants()
+        self._load_strings()
         self.start_bridge()
 
     def action_tab(self, index):
@@ -3120,6 +3166,130 @@ class DevApp(App):
         self.load_sector(sector, path, picked, result)
 
     # --- Constants ---
+
+    # --- Strings ---
+
+    def _load_strings(self, keep=None):
+        try:
+            self.strings_table = strings.load()
+        except (OSError, ValueError) as error:
+            self.strings_table = {}
+            self.query_one("#string-status", Static).update("[red]%s[/red]" % escape(str(error)))
+        self.strings_used = strings.used_keys()
+        self._fill_strings(keep)
+
+    def _fill_strings(self, keep=None):
+        table = self.query_one("#strings", DataTable)
+        table.clear()
+        words = self.query_one("#strings-filter", Input).value.lower().split()
+        problems = {}
+        for key, problem in strings.problems(self.strings_table, self.strings_used):
+            problems.setdefault(key, []).append(problem)
+        self.strings_rows = []
+        for key in sorted(set(self.strings_table) | set(problems)):
+            entry = self.strings_table.get(key, {})
+            haystack = " ".join([key] + [str(entry.get(language, "")) for language in strings.LANGUAGES]).lower()
+            if words and not all(word in haystack for word in words):
+                continue
+            if self.strings_problems_only and key not in problems:
+                continue
+            self.strings_rows.append(key)
+            cells = [key] + [str(entry.get(language, "")).replace("\n", " / ")[:STRING_CELL] for language in strings.LANGUAGES]
+            table.add_row(*[escape(cell) for cell in cells], "[red]%s[/red]" % escape("; ".join(problems.get(key, []))))
+        shown = len(self.strings_rows)
+        self.query_one("#string-status", Static).update("%d keys%s, %d with problems%s" % (
+            len(self.strings_table), (", %d shown" % shown) if shown != len(self.strings_table) else "", len(problems),
+            "  (problems only: ctrl+e)" if self.strings_problems_only else ""))
+        if keep in self.strings_rows:
+            table.move_cursor(row=self.strings_rows.index(keep))
+
+    @on(Input.Changed, "#strings-filter")
+    def _strings_filter(self, _event):
+        self._fill_strings(self.string_picked)
+
+    @on(DataTable.RowHighlighted, "#strings")
+    def _string_highlighted(self, event):
+        if event.cursor_row < 0 or event.cursor_row >= len(self.strings_rows):
+            return
+        key = self.strings_rows[event.cursor_row]
+        if key == self.string_picked:
+            return
+        self.string_picked = key
+        entry = self.strings_table.get(key, {})
+        for language in strings.LANGUAGES:
+            self.query_one("#string-" + language, TextArea).load_text(str(entry.get(language, "")))
+        problems = strings.entry_problems(entry) if entry else ["missing: not in the file yet (ctrl+s adds it)"]
+        self.query_one("#string-detail", Static).update("[b]%s[/b]%s" % (escape(key), "".join(
+            "\n[red]%s[/red]" % escape(problem) for problem in problems)))
+
+    @on(DataTable.RowSelected, "#strings")
+    def _string_selected(self, _event):
+        self.query_one("#string-" + strings.LANGUAGES[0], TextArea).focus()
+
+    def _write_strings(self, table, keep):
+        before = strings.dumps(self.strings_table) if os.path.exists(strings.full_path()) else None
+        strings.save(table)
+        self.strings_table = table
+        self._undo_point([(strings.full_path(), before)], lambda: self._load_strings(keep))
+        self.string_picked = None
+        self._fill_strings(keep)
+
+    def action_save_string(self):
+        key = self.string_picked
+        if key is None:
+            self.notify("Pick a key first")
+            return
+        entry = {language: self.query_one("#string-" + language, TextArea).text for language in strings.LANGUAGES}
+        table = dict(self.strings_table)
+        table[key] = entry
+        self._write_strings(table, key)
+        problems = strings.entry_problems(entry)
+        self.notify("Saved %s%s" % (key, (": " + "; ".join(problems)) if problems else ""), severity="warning" if problems else "information")
+
+    def action_new_string(self):
+        def made(key):
+            if not key:
+                return
+            if not strings.valid_key(key):
+                self.notify("A key is lower_case words joined by dots: hud.button.dock", severity="error")
+                return
+            if key in self.strings_table:
+                self.notify("%s is there already" % key, severity="warning")
+            else:
+                table = dict(self.strings_table)
+                table[key] = {language: "" for language in strings.LANGUAGES}
+                self._write_strings(table, key)
+            self.query_one("#strings-filter", Input).value = ""
+            self._fill_strings(key)
+            self.query_one("#strings", DataTable).focus()
+        self.push_screen(NameScreen("New string: its key (code reads it as Strings.t(\"key\"))", "section.what"), made)
+
+    def action_delete_string(self):
+        key = self.string_picked
+        if key not in self.strings_table:
+            self.notify("Pick a key that is in the file")
+            return
+        where = self.strings_used.get(key)
+
+        def answered(yes):
+            if yes:
+                table = dict(self.strings_table)
+                del table[key]
+                self._write_strings(table, None)
+                self.notify("Deleted %s (ctrl+u puts it back)" % key)
+        self.push_screen(ConfirmScreen("Delete %s?%s" % (key, ("  It is used in " + where) if where else "")), answered)
+
+    def action_strings_problems_only(self):
+        self.strings_problems_only = not self.strings_problems_only
+        self._fill_strings(self.string_picked)
+
+    def action_find_string(self):
+        self.query_one("#strings-filter", Input).focus()
+
+    def action_reload_strings(self):
+        self.string_picked = None
+        self._load_strings()
+        self.notify("Strings read again")
 
     def _load_constants(self):
         self.constant_entries = constants.parse(read_text(self.constants_path))

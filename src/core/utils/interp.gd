@@ -13,13 +13,19 @@
 extends Reference
 
 
-const _STATE := {}  # The project settings, read once (they hold for the run; brackets ask every frame)
+const _STATE := {}  # The project settings, read once (brackets ask every frame); set_enabled changes it
 
 
 static func enabled() -> bool:
 	if not _STATE.has("on"):
 		_STATE["on"] = bool(ProjectSettings.get_setting("physics/common/physics_interpolation"))
 	return _STATE.on
+
+
+# Switches interpolation for the whole tree (Settings "smooth_motion", WorldRendering).
+static func set_enabled(tree: SceneTree, on: bool) -> void:
+	_STATE["on"] = on
+	tree.physics_interpolation = on
 
 
 # Physics steps per second of game time (project setting physics/common/physics_fps).

@@ -436,7 +436,7 @@ func _on_agent_charged(agent_body, charger) -> void:
 	_hold_grudge(charger)
 	if is_player():
 		var who: String = charger.get_faction_name() if charger.has_method("get_faction_name") else ""
-		EventBus.emit_signal("announcement", "%s ship charging you with a lance!" % (who if who != "" else "A"), "danger")
+		EventBus.emit_signal("announcement", Strings.t("msg.lance_charge", [who]) if who != "" else Strings.t("msg.lance_charge_unknown"), "danger")
 
 
 # Every throw of the player's is their own: one volley per CHARGE (launchers side by side throw
@@ -452,13 +452,31 @@ func _on_player_lance_launched(_target) -> void:
 
 func _on_player_lance_struck(target, damage) -> void:
 	if is_instance_valid(target) and target.is_in_group("ore_chunk"):
-		EventBus.emit_signal("attack_action_feedback", true, "Ore broken off: burn each piece's crust off, let it cool, harpoon it. The lance is in the rock: make the lance safe and fly by it slowly, or harpoon it out")
+		EventBus.emit_signal("attack_action_feedback", true, Strings.t("msg.lance.ore_broken"))
 		return
-	EventBus.emit_signal("attack_action_feedback", true, "Lance in: %d damage" % int(damage))
+	EventBus.emit_signal("attack_action_feedback", true, Strings.t("msg.lance.in", [int(damage)]))
 
 
 func _on_player_lance_glanced(_target, reason) -> void:
-	EventBus.emit_signal("attack_action_feedback", false, "Lance glanced off: %s" % reason)
+	EventBus.emit_signal("attack_action_feedback", false, Strings.t("msg.lance.glanced", [glance_reason_text(str(reason))]))
+
+
+# LanceController's glance reason (English, which NPCs read too) as the player reads it.
+static func glance_reason_text(reason: String) -> String:
+	var numbers: Array = []
+	var pattern := RegEx.new()
+	pattern.compile("\\d+")
+	for found in pattern.search_all(reason):
+		numbers.append(int(found.get_string()))
+	if reason.begins_with("too slow") and numbers.size() >= 2:
+		return Strings.t("msg.lance.reason.too_slow", [numbers[0], numbers[1]])
+	if reason.begins_with("at ") and numbers.size() >= 1:
+		return Strings.t("msg.lance.reason.angle", [numbers[0]])
+	if reason == "the rock is worked out":
+		return Strings.t("msg.lance.reason.worked_out")
+	if reason == "missed":
+		return Strings.t("msg.lance.reason.missed")
+	return reason
 
 
 func _on_tool_ammo_changed(_index: int, _ammo: int) -> void:
@@ -1020,7 +1038,7 @@ func _launch_decoys() -> void:
 		if taken:
 			missile.target = decoy
 		if is_player():
-			EventBus.emit_signal("announcement", "Decoy out (%d left): %s" % [decoys, "the missile took it" if taken else "the missile kept on"], "info" if taken else "danger")
+			EventBus.emit_signal("announcement", Strings.t("msg.decoy.taken" if taken else "msg.decoy.missed", [decoys]), "info" if taken else "danger")
 		elif evo_uid != "":
 			Evolution.note(evo_uid, "decoyed" if taken else "decoy_failed")
 

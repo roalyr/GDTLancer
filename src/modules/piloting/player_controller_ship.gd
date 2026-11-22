@@ -214,22 +214,22 @@ func toggle_tool_for_selected() -> void:
 	var target = _get_current_target()
 	var index: int = _tool_controller.find_tool_for(target) if is_instance_valid(_tool_controller) else -1
 	if index < 0:
-		EventBus.emit_signal("attack_action_feedback", false, "No fitted tool works on this target")
+		EventBus.emit_signal("attack_action_feedback", false, Strings.t("msg.tool.no_tool_for_target"))
 		return
 	if _tool_controller.is_active(index) and _tool_controller.get_target(index) == target:
 		_tool_controller.deactivate(index)
 		return
 	if is_safe_from(target, _tool_controller.get_tool(index)):
-		EventBus.emit_signal("attack_action_feedback", false, SAFETY_MESSAGE)
+		EventBus.emit_signal("attack_action_feedback", false, Strings.t(SAFETY_MESSAGE))
 		return
 	var result: Dictionary = _tool_controller.activate(index, target)
 	if not result.get("success", false):
 		EventBus.emit_signal("attack_action_feedback", false, _describe_tool_failure(result.get("reason", "")))
 	elif _tool_controller.get_tool(index).tool_type == "laser" and is_instance_valid(target) and target.is_in_group("mineable"):
-		EventBus.emit_signal("attack_action_feedback", true, LASER_ON_ROCK)  # It fires, but a whole rock gives no ore
+		EventBus.emit_signal("attack_action_feedback", true, Strings.t(LASER_ON_ROCK))  # It fires, but a whole rock gives no ore
 
 
-const LASER_ON_ROCK = "Laser on a rock: no ore from it. Break chunks off with the lance, burn their crust off with the laser, then harpoon them"
+const LASER_ON_ROCK = "msg.laser_on_rock"  # A Strings key
 
 
 # HUD interact button: the interaction window on the selected ship (Interactions, InteractionWindow:
@@ -237,7 +237,7 @@ const LASER_ON_ROCK = "Laser on a rock: no ore from it. Break chunks off with th
 func _on_interact_button_pressed() -> void:
 	var target = _selected_target
 	if not Interactions.is_npc_ship(target):
-		EventBus.emit_signal("attack_action_feedback", false, "Select a ship to interact with")
+		EventBus.emit_signal("attack_action_feedback", false, Strings.t("msg.select_ship_to_interact"))
 		return
 	if is_instance_valid(GlobalRefs.main_hud) and GlobalRefs.main_hud.has_method("open_interactions"):
 		GlobalRefs.main_hud.open_interactions(target)
@@ -247,8 +247,8 @@ func _on_interact_button_pressed() -> void:
 func _on_interaction_ended(ship, kind: String) -> void:
 	if not is_instance_valid(ship):
 		return
-	var lines := {"hire": "no longer escorts you", "wing": "has left your wing", "caravan": "caravan is over"}
-	EventBus.emit_signal("announcement", "%s %s" % [Interactions.name_of(ship), lines.get(kind, "has let go")], "info")
+	var key: String = "msg.interaction_ended." + kind
+	EventBus.emit_signal("announcement", Strings.t(key if Strings.has(key) else "msg.interaction_ended.other", [Interactions.name_of(ship)]), "info")
 	EventBus.emit_signal("player_interactions_changed")
 
 
@@ -284,7 +284,7 @@ func _on_lance_button_pressed() -> void:
 	if lance == null:
 		return
 	if GameState.player_docked_at != "":
-		EventBus.emit_signal("attack_action_feedback", false, "Undock first")
+		EventBus.emit_signal("attack_action_feedback", false, Strings.t("msg.undock_first"))
 		return
 	if not lance.armed:
 		var why: String = lance_block_reason(_selected_target)
@@ -302,16 +302,16 @@ func _on_lance_button_pressed() -> void:
 # wreck or nothing selected (the lance strikes hard whatever its charge meets).
 func lance_block_reason(target) -> String:
 	if is_instance_valid(target) and target is Spatial and not lance_can_strike(target):
-		return "The lance strikes only ships and rocks"
+		return Strings.t("msg.lance.only_ships_rocks")
 	if not GameState.weapons_safe:
 		return ""
 	if not (is_instance_valid(target) and target is Spatial):
-		return "Safety on: select an asteroid or a hostile to arm the lance"
+		return Strings.t("msg.lance.safety_select")
 	if target.is_in_group("mineable"):
 		return ""
 	if target is RigidBody and target.has_method("is_enemy_of") and target.get("is_wreck") == false and is_instance_valid(agent_body) and target.is_enemy_of(agent_body):
 		return ""
-	return "Safety on: the lance arms only at an asteroid or a hostile (SAFETY to arm)"
+	return Strings.t("msg.lance.safety_only_at")
 
 
 # What a lance can meet: a rock, or a ship or wreck (not a loose lance: harpooned, not struck).
@@ -338,17 +338,17 @@ func _guard_lance() -> void:
 	for target in [_selected_target, charged]:
 		if is_instance_valid(target) and lance_block_reason(target) != "":
 			agent_body.set_lances_armed(false)
-			EventBus.emit_signal("attack_action_feedback", false, "Lance made safe: %s" % lance_block_reason(target).trim_prefix("Safety on: ").replace(" (SAFETY to arm)", ""))
+			EventBus.emit_signal("attack_action_feedback", false, Strings.t("msg.lance.made_safe"))
 			return
 
 
 # The SAFETY button: the weapons safety on or off (GameState.weapons_safe).
 func _on_safety_button_pressed() -> void:
 	GameState.weapons_safe = not GameState.weapons_safe
-	EventBus.emit_signal("attack_action_feedback", true, "Safety on: allied and neutral ships are safe from your weapons" if GameState.weapons_safe else "Safety off: your weapons fire on any ship")
+	EventBus.emit_signal("attack_action_feedback", true, Strings.t("msg.safety.on") if GameState.weapons_safe else Strings.t("msg.safety.off"))
 
 
-const SAFETY_MESSAGE = "Safety on: not hostile (SAFETY to fire)"
+const SAFETY_MESSAGE = "msg.safety.not_hostile"  # A Strings key
 
 
 # Whether the weapons safety keeps `target` from the player's weapons (tool_template: a tool's;
@@ -371,17 +371,17 @@ func _on_afterburner_button_pressed() -> void:
 	if not is_instance_valid(agent_body) or not agent_body.has_method("has_afterburner") or not agent_body.has_afterburner():
 		return
 	if GameState.player_docked_at != "":
-		EventBus.emit_signal("attack_action_feedback", false, "Undock first")
+		EventBus.emit_signal("attack_action_feedback", false, Strings.t("msg.undock_first"))
 		return
 	if not agent_body.set_afterburner(not agent_body.afterburner_lit) and agent_body.power <= 0.0:
-		EventBus.emit_signal("attack_action_feedback", false, "Afterburner: no power")
+		EventBus.emit_signal("attack_action_feedback", false, Strings.t("msg.afterburner.no_power"))
 
 
 func _on_tool_button_pressed(index: int) -> void:
 	if _is_jump_transition_active() or not is_instance_valid(_tool_controller):
 		return
 	if GameState.player_docked_at != "":
-		EventBus.emit_signal("attack_action_feedback", false, "Undock first")
+		EventBus.emit_signal("attack_action_feedback", false, Strings.t("msg.undock_first"))
 		return
 	var tool_template = _tool_controller.get_tool(index)
 	if tool_template == null:
@@ -391,7 +391,7 @@ func _on_tool_button_pressed(index: int) -> void:
 		return
 	var target = _get_current_target()
 	if is_safe_from(target, tool_template):
-		EventBus.emit_signal("attack_action_feedback", false, SAFETY_MESSAGE)
+		EventBus.emit_signal("attack_action_feedback", false, Strings.t(SAFETY_MESSAGE))
 		return
 	if not _tool_controller.can_target(tool_template, target):
 		EventBus.emit_signal("attack_action_feedback", false, _cannot_target_message(tool_template, target))
@@ -403,7 +403,7 @@ func _on_tool_button_pressed(index: int) -> void:
 	if not result.get("success", false):
 		EventBus.emit_signal("attack_action_feedback", false, _describe_tool_failure(result.get("reason", "")))
 	elif tool_template.tool_type == "laser" and is_instance_valid(target) and target.is_in_group("mineable"):
-		EventBus.emit_signal("attack_action_feedback", true, LASER_ON_ROCK)  # It fires, but a whole rock gives no ore
+		EventBus.emit_signal("attack_action_feedback", true, Strings.t(LASER_ON_ROCK))  # It fires, but a whole rock gives no ore
 
 
 # The player's missiles go one per press (their stock is limited): a launch switches the rack off.
@@ -416,10 +416,10 @@ func _on_projectile_fired(index: int, _projectile) -> void:
 # A tool that stops by itself says why: a magazine ran dry; a harpoon let go of its wreck (pressing
 # it again, or a target lost, says nothing: the player saw that).
 const HARPOON_RELEASES = {
-	"stripped": [true, "Harpoon: nothing left to strip, cable released"],
-	"snapped": [false, "Harpoon: the cable snapped"],
-	"missed": [false, "Harpoon: missed, winching in"],
-	"no_power": [false, "Harpoon: not enough energy to fire"],
+	"stripped": [true, "msg.harpoon.nothing_left"],  # Strings keys
+	"snapped": [false, "msg.harpoon.snapped"],
+	"missed": [false, "msg.harpoon.missed"],
+	"no_power": [false, "msg.harpoon.no_power"],
 }
 
 
@@ -432,36 +432,36 @@ func _on_tool_deactivated(index: int, reason: String) -> void:
 	elif tool_template.tool_type == "harpoon" and reason == "stripped":
 		EventBus.emit_signal("attack_action_feedback", true, stripped_message(_tool_controller.get_stripped(index)))
 	elif tool_template.tool_type == "harpoon" and HARPOON_RELEASES.has(reason):
-		EventBus.emit_signal("attack_action_feedback", HARPOON_RELEASES[reason][0], HARPOON_RELEASES[reason][1])
+		EventBus.emit_signal("attack_action_feedback", HARPOON_RELEASES[reason][0], Strings.t(HARPOON_RELEASES[reason][1]))
 
 
 # What a harpoon that let go of a stripped wreck or chunk says: what this tow brought into the hold.
 static func stripped_message(units: int) -> String:
 	if units <= 0:
-		return "Harpoon: nothing left to strip, cable released"
-	return "Harpoon: stripped clean, %d unit%s into the hold, cable released" % [units, "" if units == 1 else "s"]
+		return Strings.t("msg.harpoon.nothing_left")
+	return Strings.t("msg.harpoon.stripped_one" if units == 1 else "msg.harpoon.stripped", [units])
 
 
 func _on_hold_full(_index: int) -> void:
-	EventBus.emit_signal("attack_action_feedback", false, "Hold full: nothing more can be stripped. The harpoon keeps towing; sell cargo at a station")
+	EventBus.emit_signal("attack_action_feedback", false, Strings.t("msg.harpoon.hold_full"))
 
 
 # Why `tool_template` cannot take `target`: off the sensors, an ore chunk still crusted or hot, or
 # the wrong kind of target.
 func _cannot_target_message(tool_template, target) -> String:
 	if is_instance_valid(target) and agent_body.has_method("detects") and not agent_body.detects(target):
-		return "%s: the target is off the sensors, close in" % tool_template.tool_name
+		return Strings.t("msg.tool.off_sensors", [Strings.name_of(tool_template.tool_name)])
 	if tool_template.tool_type == "harpoon" and is_instance_valid(target) and target.has_method("has_crust"):
 		if target.has_crust():
-			return "%s: burn the crust off with a laser first" % tool_template.tool_name
+			return Strings.t("msg.tool.crust", [Strings.name_of(tool_template.tool_name)])
 		if target.is_hot():
-			return "%s: the ore is still hot, wait for it to cool" % tool_template.tool_name
-	var needs: String = {"harpoon": "a wreck or bared ore", "laser": "a ship or rock"}.get(tool_template.tool_type, "a ship")  # Cannons and missiles: live ships only
-	return "%s needs %s selected" % [tool_template.tool_name, needs]
+			return Strings.t("msg.tool.hot", [Strings.name_of(tool_template.tool_name)])
+	var needs: String = {"harpoon": "msg.tool.needs_harpoon", "laser": "msg.tool.needs_laser"}.get(tool_template.tool_type, "msg.tool.needs_ship")  # Cannons and missiles: live ships only
+	return Strings.t(needs, [Strings.name_of(tool_template.tool_name)])
 
 
 func _empty_message(tool_template) -> String:
-	return "%s empty: refill at a base, or salvage a wreck that carried the same" % tool_template.tool_name
+	return Strings.t("msg.tool.empty", [Strings.name_of(tool_template.tool_name)])
 
 
 func _is_tool_target(target) -> bool:
@@ -471,14 +471,14 @@ func _is_tool_target(target) -> bool:
 func _describe_tool_failure(reason: String) -> String:
 	match reason:
 		"invalid_target":
-			return "No fitted tool works on this target"
+			return Strings.t("msg.tool.no_tool_for_target")
 		"not_implemented":
-			return "This tool does not work yet"
+			return Strings.t("msg.tool.not_implemented")
 		"wrecked":
-			return "Ship is wrecked"
+			return Strings.t("msg.tool.wrecked")
 		"retracting":
-			return "Harpoon cable still winching in"
-	return "Tool unavailable"
+			return Strings.t("msg.tool.retracting")
+	return Strings.t("msg.tool.unavailable")
 
 
 # The selected ship, wreck or rock (route markers are not bodies).
@@ -531,14 +531,14 @@ func _handle_interact_input() -> void:
 		if _selected_target.is_in_group("dockable_station"):
 			request_dock(_selected_target)
 			return
-	EventBus.emit_signal("dock_action_feedback", false, "Select a station to dock at")
+	EventBus.emit_signal("dock_action_feedback", false, Strings.t("msg.dock.select_station"))
 
 
 func request_dock(station: Spatial) -> void:
 	_clear_queued_jump()
 	var gap: float = get_docking_gap(station)
 	if gap > Constants.DOCKING_ACTION_RADIUS:
-		EventBus.emit_signal("dock_action_feedback", false, "Too far to dock: %.0f m to the station, %.0f m needed" % [gap, Constants.DOCKING_ACTION_RADIUS])
+		EventBus.emit_signal("dock_action_feedback", false, Strings.t("msg.dock.too_far", [gap, Constants.DOCKING_ACTION_RADIUS]))
 		return
 	if Standing.is_hostile(station.get("faction")):
 		EventBus.emit_signal("dock_action_feedback", false, "%s refuses docking: hostile standing" % TemplateDatabase.factions[station.faction].get("name", station.faction))
@@ -686,7 +686,7 @@ func _attempt_selected_jump() -> void:
 	var target_sector_id = _get_jump_target_sector_id(_selected_target)
 	if target_sector_id == "":
 		_clear_queued_jump()
-		EventBus.emit_signal("dock_action_feedback", false, "Can not dock with target")
+		EventBus.emit_signal("dock_action_feedback", false, Strings.t("msg.dock.cannot"))
 		return
 	var jump_direction = _resolve_jump_direction_from_target(_selected_target)
 	if jump_direction.length_squared() < 0.001:
@@ -850,7 +850,7 @@ func _on_Player_Orbit_Pressed():
 	if is_instance_valid(_selected_target) and _selected_target is Spatial:
 		agent_script.command_orbit(_selected_target)
 	else:
-		EventBus.emit_signal("attack_action_feedback", false, "Select something to orbit")
+		EventBus.emit_signal("attack_action_feedback", false, Strings.t("msg.select_to_orbit"))
 
 
 # Whether the ship is flying one of `types` on the selected target; if so, it lets go and coasts on.
@@ -893,7 +893,7 @@ func _approach_selected() -> void:
 			if hold > 0.0:  # The button reads HOLD <distance>: say once what it means
 				EventBus.emit_signal("attack_action_feedback", true, hold_notice(hold))
 	else:
-		EventBus.emit_signal("attack_action_feedback", false, "Select something to approach")
+		EventBus.emit_signal("attack_action_feedback", false, Strings.t("msg.select_to_approach"))
 
 
 # Where an approach on `target` stops: the fighting range of the weapons switched on against it
@@ -906,8 +906,8 @@ func approach_hold(target) -> float:
 
 
 static func hold_notice(metres: float) -> String:
-	var distance: String = ("%.1f km" % (metres / 1000.0)) if metres >= 1000.0 else ("%d m" % int(round(metres)))
-	return "Holding at weapon range: %s off, as your weapons on it reach. Switch them off to fly all the way in" % distance
+	var distance: String = Strings.t("unit.km", [metres / 1000.0]) if metres >= 1000.0 else Strings.t("unit.m", [int(round(metres))])
+	return Strings.t("msg.holding", [distance])
 
 
 # A mineable rock with no ore left: the lance has nothing to break off it (it grows back: Asteroid).
@@ -918,8 +918,8 @@ static func worked_out(target) -> bool:
 # What the player is told when a charge at a worked-out rock turns into an approach.
 static func worked_out_notice(target) -> String:
 	var wait: float = target.ore_back_in() if target.has_method("ore_back_in") else 0.0
-	var when: String = ("%d s" % int(ceil(wait))) if wait < 60.0 else ("%d min" % int(ceil(wait / 60.0)))
-	return "Worked out: ore back in %s; pick another rock" % when
+	var when: String = Strings.t("unit.s", [int(ceil(wait))]) if wait < 60.0 else Strings.t("time.minutes", [int(ceil(wait / 60.0))])
+	return Strings.t("msg.worked_out", [when])
 
 
 # Whether approaching `target` means charging it: the lance armed with lances left, and something it
@@ -969,7 +969,7 @@ func _on_Player_Flee_Pressed():
 	if is_instance_valid(_selected_target) and _selected_target is Spatial:
 		agent_script.command_flee(_selected_target)
 	else:
-		EventBus.emit_signal("attack_action_feedback", false, "Select something to flee from")
+		EventBus.emit_signal("attack_action_feedback", false, Strings.t("msg.select_to_flee"))
 
 func _on_player_target_selection_requested(target_ref) -> void:
 	_set_selected_target(target_ref)
@@ -1124,13 +1124,13 @@ func _on_player_docked(location_id):
 	if HomePort.is_home(location_id):
 		var result: Dictionary = HomePort.service(agent_body)
 		if result.repaired > 0.0 or result.lances > 0 or result.rounds > 0 or result.decoys > 0:
-			var message: String = "Home port: repaired %d hull" % result.repaired
+			var message: String = Strings.t("msg.home.repaired", [result.repaired])
 			if result.lances > 0:
-				message += ", %d lances for %d WP" % [result.lances, result.lance_cost]
+				message += ", " + Strings.t("msg.home.lances", [result.lances, result.lance_cost])
 			if result.rounds > 0:
-				message += ", %d rounds for %d WP" % [result.rounds, result.ammo_cost]
+				message += ", " + Strings.t("msg.home.rounds", [result.rounds, result.ammo_cost])
 			if result.decoys > 0:
-				message += ", %d decoys for %d WP" % [result.decoys, result.decoy_cost]
+				message += ", " + Strings.t("msg.home.decoys", [result.decoys, result.decoy_cost])
 			EventBus.emit_signal("dock_action_feedback", true, message)
 	_collect_patrol_wage(_find_station(location_id))
 	set_process_unhandled_input(false)
@@ -1146,7 +1146,7 @@ func _collect_patrol_wage(station: Node) -> void:
 		return
 	var wage: int = Wages.pay_player_patrol(agent_body, str(faction), Wages.take_patrol_time(agent_body, str(faction)))
 	if wage > 0:
-		EventBus.emit_signal("announcement", "%s patrol wage: %d WP" % [TemplateDatabase.factions[faction].get("name", faction), wage], "info")
+		EventBus.emit_signal("announcement", Strings.t("msg.patrol_wage", [TemplateDatabase.factions[faction].get("name", faction), wage]), "info")
 
 
 func _on_player_undocked():

@@ -1469,6 +1469,9 @@ const SOUND_LOOP_CARRIERS = 8  # Ships and missiles whose loops play at once, th
 const SOUND_LOOP_SILENT = 0.002  # A loop quieter than this (linear) is stopped rather than played unheard
 const SOUND_ALERT_GAP = 1.0  # s: a notice with no source (hostile detected, hostile aware) plays at most this often
 const SOUND_HULL_CRITICAL_SHARE = 0.25  # The player's hull at or below this share of full: the hull_critical alarm, once each time it drops there
+const MSAA_LEVELS = ["off", "2x", "4x", "8x"]  # Settings "msaa" (WorldRendering)
+const MSAA_MODES = {"off": Viewport.MSAA_DISABLED, "2x": Viewport.MSAA_2X, "4x": Viewport.MSAA_4X, "8x": Viewport.MSAA_8X}
+const FRAME_CAP_STEPS = [0, 60, 30]  # Settings "frame_cap": Engine.target_fps (0: none)
 const VOLUME_STEPS = [1.0, 0.75, 0.5, 0.25, 0.0]  # The music and effects volume buttons (Options) cycle through these (0: off)
 
 
@@ -1476,12 +1479,12 @@ const VOLUME_STEPS = [1.0, 0.75, 0.5, 0.25, 0.0]  # The music and effects volume
 # UI COLOURS
 # ==================================================================================================
 
-const UI_SCALE_STEPS = [1.0, 1.25, 1.5, 0.5, 0.6, 0.7, 0.8, 0.9]  # The UI SCALE option (UiScale) cycles through these: 1.0 for a 12" 1366x768, more for denser screens (phones), less for large desktop monitors
+const UI_SCALE_STEPS = [1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 0.5, 0.6, 0.7, 0.8, 0.9]  # The UI SCALE option (UiScale) cycles through these: 1.0 for a 12" 1366x768, more for denser screens (phones), less for large desktop monitors
 const UI_SCALE_MIN = 0.5  # UiScale holds the factor between these
 const UI_SCALE_MAX = 1.5
 const UI_SCALE_BASE_HEIGHT_IN = 5.88  # Inches tall the 12" 1366x768 screen the UI is drawn for is (UiScale.auto_factor)
 const UI_SCALE_AUTO_MAX = 1.5  # The most a phone's first UI scale is (UiScale.auto_factor): a full match (about 2.2 on a 6" phone) crowds the HUD
-const RENDER_SCALE_STEPS = [1.0, 0.5, 0.25]  # Render resolution shares the HUD's render scale button cycles through
+const RENDER_SCALE_STEPS = [1.0, 0.75, 0.5, 0.25]  # Render resolution shares the HUD's render scale button cycles through
 
 # HUD announcements (Announcements): fading labels stacked up from ANNOUNCE_ANCHOR (share of the
 # screen height, from the top), newest at the bottom.
@@ -1520,7 +1523,7 @@ const UI_WORKED_OUT_ALPHA = 0.35  # A worked-out rock's mark, fainter still (tim
 # The HUD's looks (the HUD LOOK button, Settings "hud_preset"): `tint` multiplies the HUD's own
 # parts, not its windows nor prompts (grey: less contrast against space), `saturation` grades the marks' colours (1 as they are, 0 grey).
 const HUD_PRESETS = {
-	"standard": {"tint": Color(1, 1, 1), "saturation": 1.0, "alpha": 1.0, "label": "normal"},
+	"standard": {"tint": Color(1, 1, 1), "saturation": 1.0, "alpha": 1.0},
 	"soft": {"tint": Color(0.62, 0.62, 0.64), "saturation": 0.45, "alpha": 1.0},
 	"dim": {"tint": Color(0.36, 0.36, 0.38), "saturation": 0.3, "alpha": 0.6},  # Barely there: for watching the scene
 }
@@ -1537,7 +1540,7 @@ static func hud_preset(name: String) -> Dictionary:
 
 # A look's name on the HUD LOOK button and in the options: "standard" reads NORMAL (it fits the button).
 static func hud_preset_label(name: String) -> String:
-	return str(HUD_PRESETS.get(name, {}).get("label", name)).to_upper()
+	return Strings.t("hud.look." + name)  # Strings: hud.look.standard ...
 
 
 # Unselected marks fade with distance from the player, never out of sight.

@@ -23,6 +23,20 @@
 #   "ui_scale"     (float) UiScale: lettering, buttons and the HUD this many times their size
 #                          (Constants.UI_SCALE_STEPS, x0.5-x1.5; 1.0 for a 12" 1366x768, more for
 #                          denser screens, less for large monitors)
+#   "language"     (String) Strings: the language every text is in (Strings.LANGUAGES)
+#   "pixel_smoothing" (bool) WorldRendering: smooths the 3D picture when a render scale below 1.0
+#                          stretches it (off: crisp pixels)
+#   "msaa"         (String) WorldRendering: the 3D picture's multisampling (Constants.MSAA_LEVELS)
+#   "fxaa"         (bool)  WorldRendering: FXAA on the 3D picture (cheap, softens edges)
+#   "vsync"        (bool)  WorldRendering: OS.vsync_enabled
+#   "frame_cap"    (int)   WorldRendering: Engine.target_fps (0: no cap; Constants.FRAME_CAP_STEPS)
+#   "fullscreen"   (bool)  WorldRendering: OS.window_fullscreen (desktop; a phone is always full)
+#   "smooth_motion" (bool) WorldRendering: physics interpolation (off: things move in 30 Hz steps,
+#                          a little cheaper)
+#   "jump_animation" (bool) JumpOrchestrator (WorldRendering.jump_transition_enabled): the jump's
+#                          flight through the tunnel; off, a jump is a cut
+#   "bracket_fade" (bool)  MainHUD (WorldRendering.projected_target_center_fade_enabled): brackets
+#                          fade near the screen's centre, off the ship
 #   "tether_rope"  (String) Tether: "complex" simulates near cables, "simple" draws a straight line
 #                          (Constants.TETHER_ROPE_STYLES)
 # The file is read only by load_file() (the main scene's start), and written only after it: tests
@@ -51,6 +65,16 @@ const DEFAULTS = {
 	"dynamic_lights": "all",
 	"autolevel": true,
 	"ui_scale": 1.0,
+	"language": "en",
+	"pixel_smoothing": false,
+	"msaa": "off",
+	"fxaa": false,
+	"vsync": true,
+	"frame_cap": 0,
+	"fullscreen": false,
+	"smooth_motion": true,
+	"jump_animation": true,
+	"bracket_fade": true,
 }
 
 

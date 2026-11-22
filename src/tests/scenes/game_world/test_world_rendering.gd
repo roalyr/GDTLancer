@@ -26,7 +26,8 @@ func before_each():
 	scene.add_child(world_rendering)
 
 
-func test_cycles_full_half_quarter_and_back():
+func test_cycles_full_three_quarters_half_quarter_and_back():
+	assert_eq(world_rendering.cycle_downscale_factor(), 0.75)
 	assert_eq(world_rendering.cycle_downscale_factor(), 0.5)
 	assert_eq(world_rendering.cycle_downscale_factor(), 0.25)
 	assert_eq(world_rendering.cycle_downscale_factor(), 1.0)

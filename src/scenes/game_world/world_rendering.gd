@@ -6,6 +6,8 @@
 
 extends Node
 
+const Interp = preload("res://src/core/utils/interp.gd")
+
 # This is a section that holds rendering settings.
 # Render resolution of the 3D world as a share of the window: 1.0 full, 0.5 half, 0.25 quarter.
 # Cycled from the HUD's render scale button (Constants.RENDER_SCALE_STEPS).
@@ -41,12 +43,11 @@ func _ready():
 		printerr("WorldRendering: no WorldViewContainer/WorldViewport next to it")
 		set_process(false)
 		return
-	_world_viewport.msaa = viewport_msaa
-	_world_viewport.fxaa = viewport_fxaa
 	_world_viewport.disable_3d = viewport_disable_3d
 	_world_viewport.sharpen_intensity = viewport_sharpen_intensity
 	_world_viewport.keep_3d_linear = viewport_keep_3d_linear
-	_world_viewport.get_texture().flags = Texture.FLAG_FILTER if viewport_filter_upscaled else 0
+	for key in PICTURE_OPTIONS:
+		_apply_option(key, Settings.get_option(key))
 	_apply_downscale()
 	if Constants.VERBOSE_RUNTIME_LOGS:
 		print("Viewport: Is ready")
@@ -59,8 +60,44 @@ func _process(_delta):
 		_apply_downscale()
 
 
-# Options (Settings) as they change: particles, render scale and hit effects.
+# Options (Settings) that set up the picture, applied at start and as they change.
+const PICTURE_OPTIONS = ["pixel_smoothing", "msaa", "fxaa", "vsync", "frame_cap", "fullscreen", "smooth_motion", "jump_animation", "bracket_fade"]
+
+
+func _apply_option(key: String, value) -> void:
+	match key:
+		"pixel_smoothing":
+			viewport_filter_upscaled = bool(value)
+			if is_instance_valid(_world_viewport):
+				_world_viewport.get_texture().flags = Texture.FLAG_FILTER if viewport_filter_upscaled else 0
+		"msaa":
+			viewport_msaa = Constants.MSAA_MODES.get(str(value), Viewport.MSAA_DISABLED)
+			if is_instance_valid(_world_viewport):
+				_world_viewport.msaa = viewport_msaa
+		"fxaa":
+			viewport_fxaa = bool(value)
+			if is_instance_valid(_world_viewport):
+				_world_viewport.fxaa = viewport_fxaa
+		"vsync":
+			OS.vsync_enabled = bool(value)
+		"frame_cap":
+			Engine.target_fps = int(value)
+		"fullscreen":
+			if not OS.get_name() in ["Android", "iOS"]:  # Always full there
+				OS.window_fullscreen = bool(value)
+		"smooth_motion":
+			Interp.set_enabled(get_tree(), bool(value))
+		"jump_animation":
+			jump_transition_enabled = bool(value)
+		"bracket_fade":
+			projected_target_center_fade_enabled = bool(value)
+
+
+# Options (Settings) as they change: particles, render scale, hit effects and the picture's.
 func _on_settings_changed(key: String, value) -> void:
+	if key in PICTURE_OPTIONS:
+		_apply_option(key, value)
+		return
 	match key:
 		"particles":
 			set_particles_enabled(bool(value))

@@ -810,15 +810,17 @@ func _announce(state: int) -> void:
 	match state:
 		AIState.COMBAT:
 			if is_instance_valid(_target_agent):
-				Radio.say(agent_script, ("Returning fire on %s." if _provoked else "Engaging %s.") % Radio.name_of(_target_agent))
+				Radio.say(agent_script, Strings.t("radio.returning_fire" if _provoked else "radio.engaging", [Radio.name_of(_target_agent)]))
 		AIState.FLEE:
 			if _call_distress():
 				return
-			var refuge: String = (" for " + Radio.name_of(_station)) if is_instance_valid(_station) and not _havens.empty() else ""
-			Radio.say(agent_script, "Breaking off, running%s." % refuge)
+			if is_instance_valid(_station) and not _havens.empty():
+				Radio.say(agent_script, Strings.t("radio.running_for", [Radio.name_of(_station)]))
+			else:
+				Radio.say(agent_script, Strings.t("radio.running"))
 		AIState.DEPART:
 			if is_instance_valid(_station) and not _havens.empty():
-				Radio.say(agent_script, ("Taking my hold to %s." if agent_script.get_cargo_value() > 0.0 else "Heading in to %s.") % Radio.name_of(_station))
+				Radio.say(agent_script, Strings.t("radio.taking_hold" if agent_script.get_cargo_value() > 0.0 else "radio.heading_in", [Radio.name_of(_station)]))
 		AIState.SALVAGE:
 			if is_instance_valid(_target_agent) and _target_agent.get("is_wreck"):
 				Radio.say(agent_script, work_line(_target_agent))
@@ -831,12 +833,12 @@ func _announce(state: int) -> void:
 # derelict alloy." (OreChunk, its derelict flag) to salvage.
 static func work_line(target) -> String:
 	if not is_instance_valid(target):
-		return "Working a rock."
+		return Strings.t("radio.working_rock")
 	if target.get("chunk_derelict") != null:  # A rock
-		return "Working a derelict." if target.chunk_derelict else "Working a rock."
+		return Strings.t("radio.working_derelict") if target.chunk_derelict else Strings.t("radio.working_rock")
 	if target.get("salvage") is Dictionary and target.get("derelict") != null:  # A chunk broken off one
-		return "Stripping derelict alloy." if target.derelict else "Stripping ore."
-	return "Stripping a wreck."
+		return Strings.t("radio.stripping_alloy") if target.derelict else Strings.t("radio.stripping_ore")
+	return Strings.t("radio.stripping_wreck")
 
 
 # A mayday (BeaconNetwork.call_distress), at most every DISTRESS_COOLDOWN s; true if it called one.
@@ -849,10 +851,10 @@ func _call_distress() -> bool:
 	_next_distress = Evolution.game_time + Constants.DISTRESS_COOLDOWN
 	var at: Vector3 = agent_script.global_transform.origin
 	var near = network.nearest(at)
-	var place: String = (" near " + near.get_display_name()) if near != null and near.kind != "distress" else ""
+	var place: String = (" " + Strings.t("radio.near", [near.get_display_name()])) if near != null and near.kind != "distress" else ""
 	network.call_distress(agent_script.faction, at, Radio.call_sign(agent_script))
-	var by: String = (" by " + Radio.name_of(_target_agent)) if _is_live_target(_target_agent) else ""
-	Radio.say(agent_script, "Mayday, mayday! Under attack%s%s!" % [by, place], true)
+	var by: String = (" " + Strings.t("radio.by", [Radio.name_of(_target_agent)])) if _is_live_target(_target_agent) else ""
+	Radio.say(agent_script, Strings.t("radio.mayday", [by, place]), true)
 	return true
 
 
@@ -1955,17 +1957,17 @@ func _choose_beacon() -> void:
 func _say_going(beacon: Node, job: String) -> void:
 	var place: String = beacon.get_display_name()
 	if beacon.kind == "distress":
-		Radio.say(agent_script, ("Responding to %s." if beacon.faction == agent_script.faction else "Heard %s. Going to see.") % place, true)
+		Radio.say(agent_script, Strings.t("radio.responding" if beacon.faction == agent_script.faction else "radio.heard", [place]), true)
 		return
 	match job:
 		"mine":
-			Radio.say(agent_script, "Off to mine %s." % place)
+			Radio.say(agent_script, Strings.t("radio.off_to_mine", [place]))
 		"hunt":
-			Radio.say(agent_script, "Hunting round %s." % place)
+			Radio.say(agent_script, Strings.t("radio.hunting", [place]))
 		"scavenge":
-			Radio.say(agent_script, "Looking for pickings at %s." % place)
+			Radio.say(agent_script, Strings.t("radio.scavenging", [place]))
 		_:
-			Radio.say(agent_script, "Patrolling %s." % place)
+			Radio.say(agent_script, Strings.t("radio.patrolling", [place]))
 
 
 # A mayday called since it last chose (BeaconNetwork distress_serial): a patrolling ship that roams
@@ -2166,7 +2168,7 @@ func _tick_decision(delta: float) -> void:
 			if _should_let_go(target):
 				_spared[target.get_instance_id()] = Constants.AI_SPARE_TIME
 				_note("let_go")
-				Radio.say(agent_script, "Letting %s go." % Radio.name_of(target))
+				Radio.say(agent_script, Strings.t("radio.letting_go", [Radio.name_of(target)]))
 				var spared_uid = target.get("evo_uid")
 				if spared_uid is String and spared_uid != "":
 					Evolution.note(spared_uid, "spared")

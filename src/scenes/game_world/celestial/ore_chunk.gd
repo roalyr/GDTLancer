@@ -183,11 +183,11 @@ func get_display_name() -> String:
 		units += int(salvage[commodity_id])
 	if derelict:
 		if has_crust():
-			return "Derelict debris (%d)" % units
-		return ("Molten derelict alloy (%d)" if is_hot() else "Derelict alloy (%d)") % units
+			return Strings.t("chunk.debris", [units])
+		return Strings.t("chunk.molten_alloy" if is_hot() else "chunk.alloy", [units])
 	if has_crust():
-		return "Rock chunk (%d)" % units
-	return ("Molten ore (%d)" if is_hot() else "Ore (%d)") % units
+		return Strings.t("chunk.rock", [units])
+	return Strings.t("chunk.molten_ore" if is_hot() else "chunk.ore", [units])
 
 
 func is_player() -> bool:

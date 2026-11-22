@@ -22,23 +22,23 @@ static func entries(stats: Dictionary, mass: float, ship = null, brief: bool = f
 	var top_speed: float = thrust / max(mass * Constants.LINEAR_DRAG, 0.001)
 	out.append(_entry("HULL", "%d" % int(stats.get("hull", 0.0)), "StatHull"))
 	out.append(_entry("POWER", "%d" % int(stats.get("power_capacity", 0.0)), "StatPower"))
-	out.append(_entry("CHARGE", "+%d/s" % int(stats.get("power_regen", 0.0)), "StatPower"))
+	out.append(_entry("CHARGE", Strings.t("unit.per_s_plus_int", [int(stats.get("power_regen", 0.0))]), "StatPower"))
 	out.append(_entry("CARGO", "%d" % int(stats.get("cargo_capacity", 0.0)), "StatCargo"))
-	out.append(_entry("TOP SPEED", "%d m/s" % int(top_speed), "StatMotion"))
+	out.append(_entry("TOP SPEED", Strings.t("unit.m_s", [int(top_speed)]), "StatMotion"))
 	if not brief:
-		out.append(_entry("THRUST", "%d kN" % int(thrust / 1000.0), "StatMotion"))
-	out.append(_entry("MASS", "%.1f t" % (mass / 1000.0), "StatMotion"))
+		out.append(_entry("THRUST", Strings.t("unit.kn", [int(thrust / 1000.0)]), "StatMotion"))
+	out.append(_entry("MASS", Strings.t("unit.t", [mass / 1000.0]), "StatMotion"))
 	if not brief:
-		out.append(_entry("SIGNATURE", "%.1f km" % (float(stats.get("signature", 0.0)) / 1000.0), "StatSensors"))
+		out.append(_entry("SIGNATURE", Strings.t("unit.km", [float(stats.get("signature", 0.0)) / 1000.0]), "StatSensors"))
 		out.append(_entry("SENSORS", "x%.1f" % float(stats.get("sensor_strength", 1.0)), "StatSensors"))
 	if ship is ShipTemplate:
 		var tools: Array = []
 		for size in SLOT_SIZES:
 			var count: int = int(ship.get("tool_slots_" + size))
 			if count > 0:
-				tools.append("%d %s" % [count, size.to_upper()])
-		out.append(_entry("TOOLS", PoolStringArray(tools).join(" + ") if not tools.empty() else "NONE", "StatHull"))
-		out.append(_entry("MODULES", "%d %s" % [ship.module_slots, ShipFit.module_slot_size(ship).to_upper()] if ship.module_slots > 0 else "NONE", "StatHull"))
+				tools.append("%d %s" % [count, Strings.t("size." + size).to_upper()])
+		out.append(_entry("TOOLS", PoolStringArray(tools).join(" + ") if not tools.empty() else Strings.t("stat.none"), "StatHull"))
+		out.append(_entry("MODULES", "%d %s" % [ship.module_slots, Strings.t("size." + str(ShipFit.module_slot_size(ship))).to_upper()] if ship.module_slots > 0 else Strings.t("stat.none"), "StatHull"))
 	return out
 
 
@@ -48,23 +48,23 @@ static func now_entries(hull: float, hull_max: float, power: float, power_max: f
 	var low: bool = hull_max > 0.0 and hull / hull_max < HULL_LOW_SHARE
 	return [_entry("HULL NOW", "%d / %d" % [ceil(hull), hull_max], "StatWarning" if low else "StatHull"),
 		_entry("POWER NOW", "%d / %d" % [floor(power), power_max], "StatPower"),
-		_entry("SPEED NOW", "%d / %d m/s" % [speed, top_speed], "StatMotion")]
+		_entry("SPEED NOW", "%d / %s" % [speed, Strings.t("unit.m_s", [top_speed])], "StatMotion")]
 
 
 # Where the power goes (FittingWindow.power_flow's numbers): the reactor's charge, a damper's draw,
 # the tools' draw all on, the net (StatWarning when it drains), the afterburner's.
 static func power_entries(regen: float, damper: float, tools_draw: float, power_max: float, afterburner: float) -> Array:
-	var out: Array = [_entry("REACTOR", "+%.1f/s" % (regen + damper), "StatPower")]
+	var out: Array = [_entry("REACTOR", Strings.t("unit.per_s_plus", [regen + damper]), "StatPower")]
 	if damper > 0.0:
-		out.append(_entry("DAMPER", "-%.1f/s" % damper, "StatWarning"))
+		out.append(_entry("DAMPER", Strings.t("unit.per_s_minus", [damper]), "StatWarning"))
 	if tools_draw > 0.0:
 		var net: float = regen - tools_draw
-		out.append(_entry("TOOLS ON", "-%.1f/s" % tools_draw, "StatPower"))
-		out.append(_entry("NET", "%s%.1f/s" % ["+" if net >= 0.0 else "-", abs(net)], "StatPower" if net >= 0.0 else "StatWarning"))
+		out.append(_entry("TOOLS ON", Strings.t("unit.per_s_minus", [tools_draw]), "StatPower"))
+		out.append(_entry("NET", ("+" if net >= 0.0 else "-") + Strings.t("unit.per_s", [abs(net)]), "StatPower" if net >= 0.0 else "StatWarning"))
 		if net < 0.0:
-			out.append(_entry("FULL TO EMPTY", "%d s" % int(power_max / -net), "StatWarning"))
+			out.append(_entry("FULL TO EMPTY", Strings.t("unit.s", [int(power_max / -net)]), "StatWarning"))
 	if afterburner > 0.0:
-		out.append(_entry("AFTERBURNER", "-%.1f/s" % afterburner, "StatWarning"))
+		out.append(_entry("AFTERBURNER", Strings.t("unit.per_s_minus", [afterburner]), "StatWarning"))
 	return out
 
 
@@ -112,5 +112,6 @@ static func text(items: Array) -> String:
 	return PoolStringArray(parts).join("   ")
 
 
+# `caption` in English: its Strings key is "stat." and it in lower case ("TOP SPEED": stat.top_speed).
 static func _entry(caption: String, value: String, look: String) -> Dictionary:
-	return {"caption": caption, "value": value, "look": look}
+	return {"caption": Strings.t("stat." + caption.to_lower().replace(" ", "_")), "value": value, "look": look}

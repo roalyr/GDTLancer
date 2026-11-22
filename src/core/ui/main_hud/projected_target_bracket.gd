@@ -310,11 +310,11 @@ func _build_distance_label_text() -> String:
 	if not (_is_selected or _shows_mark_distance):
 		return ""
 	if _is_route_target(target_ref):
-		return "FAR"
+		return Strings.t("hud.cannon.far")
 	if not (is_instance_valid(target_ref) and target_ref is Spatial):
 		return ""
 	if target_ref.is_in_group("jump_point"):
-		return "FAR"
+		return Strings.t("hud.cannon.far")
 	if not target_ref.is_inside_tree():
 		return ""
 	var player_agent = GlobalRefs.player_agent_body
@@ -332,7 +332,7 @@ func _format_distance_label(distance_units: float) -> String:
 static func format_distance(distance_units: float) -> String:
 	var safe_distance_units = max(0.0, distance_units)
 	if safe_distance_units >= DISTANCE_FAR_THRESHOLD:
-		return "FAR"
+		return Strings.t("hud.cannon.far")
 	if safe_distance_units < DISTANCE_PLAIN_THRESHOLD:
 		return str(int(round(safe_distance_units)))
 

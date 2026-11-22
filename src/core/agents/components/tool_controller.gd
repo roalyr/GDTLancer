@@ -556,7 +556,7 @@ func _point_defence() -> void:
 		var destroyed: bool = best.take_hit(damage)
 		emit_signal("missile_intercepted", index, best, destroyed)
 		if destroyed and _agent_body.has_method("is_player") and _agent_body.is_player():
-			EventBus.emit_signal("attack_action_feedback", true, "Missile shot down")
+			EventBus.emit_signal("attack_action_feedback", true, Strings.t("msg.missile_down"))
 		if destroyed:
 			missiles.erase(best)
 
@@ -590,7 +590,7 @@ func _process_missile(index: int, target: Node) -> void:
 	_in_flight.append(missile)
 	_after_shot(index, tool_template, missile)
 	if target.has_method("is_player") and target.is_player():
-		EventBus.emit_signal("announcement", "Missile inbound! Lasers shoot it down; a rock in its path stops it", "danger")
+		EventBus.emit_signal("announcement", Strings.t("msg.missile_inbound"), "danger")
 
 
 # Damage of this ship's missiles still on their way to `target`.

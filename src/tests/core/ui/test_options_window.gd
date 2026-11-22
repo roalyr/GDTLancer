@@ -32,13 +32,13 @@ func test_buttons_step_their_options():
 	window.step("particles")
 	assert_false(Settings.get_option("particles"))
 	assert_eq(window.row_text("ButtonParticles"), "PARTICLES: OFF")
-	var value: Label = window.get_node("Panel/Overflow/Layout/Scroll/List/ButtonParticles/Row/Value")
+	var value: Label = window.get_node("Panel/Overflow/Layout/Body/Scroll/List/ButtonParticles/Row/Value")
 	assert_eq(value.theme_type_variation, "LargeOffLabel", "OFF reads grey")
 	window.step("particles")
 	assert_eq(value.theme_type_variation, "LargeValueLabel", "and ON yellow")
 	window.step("render_scale")
 	assert_eq(Settings.get_option("render_scale"), Constants.RENDER_SCALE_STEPS[1])
-	assert_eq(window.row_text("ButtonRenderScale"), "RENDER SCALE: X0.5")
+	assert_eq(window.row_text("ButtonRenderScale"), "RENDER SCALE: X0.75")
 	window.step("hud_preset")
 	assert_eq(Settings.get_option("hud_preset"), Constants.HUD_PRESET_ORDER[1])
 	window.step("dynamic_lights")
@@ -51,14 +51,14 @@ func test_every_option_is_in_one_tab_and_tabs_show_their_own():
 	add_child_autofree(window)
 	var seen := {}
 	for category in window.CATEGORIES:
-		for name in category[2]:
+		for name in category[1]:
 			assert_false(seen.has(name), name + " is in one tab only")
 			seen[name] = true
 	for name in window.OPTIONS:
 		assert_true(seen.has(name), name + " has a tab")
 	window.show_tab("sound")
-	assert_true(window.get_node("Panel/Overflow/Layout/Scroll/List/ButtonMusic").visible, "SOUND shows the music")
-	assert_false(window.get_node("Panel/Overflow/Layout/Scroll/List/ButtonParticles").visible, "and not the particles")
+	assert_true(window.get_node("Panel/Overflow/Layout/Body/Scroll/List/ButtonMusic").visible, "SOUND shows the music")
+	assert_false(window.get_node("Panel/Overflow/Layout/Body/Scroll/List/ButtonParticles").visible, "and not the particles")
 	assert_eq(window.get_node("Panel/Overflow/Layout/Tabs/Tab_sound").text, "[SOUND]")
 	assert_eq(window.row_text("ButtonHudLook"), "HUD LOOK: NORMAL", "The standard look reads NORMAL")
 
@@ -109,3 +109,24 @@ func test_volumes_step_down_to_off_and_set_their_buses():
 	Settings.reset_to_defaults()
 	AudioBuses.apply()
 	assert_false(AudioServer.is_bus_mute(music), "Back to full")
+
+
+func test_the_right_half_tells_of_the_row_tapped():
+	var window = OptionsScene.instance()
+	add_child_autofree(window)
+	var info: Node = window.get_node("Panel/Overflow/Layout/Body/Info")
+	assert_eq(info.get_node("Title").text, "GAME", "A tab's own words first")
+	window.step("autolevel")
+	assert_eq(info.get_node("Title").text, "AUTOLEVEL")
+	assert_eq(info.get_node("Text").text, Strings.t("options.autolevel.about"))
+	assert_eq(info.get_node("Value").text, "OFF")
+
+
+func test_the_language_switches_every_word_at_once():
+	var window = OptionsScene.instance()
+	add_child_autofree(window)
+	Settings.set_option("language", "uk")
+	assert_eq(window.get_node("Panel/Overflow/Layout/Header/Title").text, "НАЛАШТУВАННЯ")
+	assert_eq(window.row_text("ButtonParticles"), "ЧАСТИНКИ: УВІМК")
+	Settings.set_option("language", "en")
+	assert_eq(window.row_text("ButtonParticles"), "PARTICLES: ON")

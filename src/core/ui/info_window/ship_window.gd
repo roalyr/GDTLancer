@@ -14,13 +14,13 @@ const ShipStats = preload("res://src/core/ui/helpers/ship_stats.gd")
 func fill() -> void:
 	var ship = GlobalRefs.player_agent_body
 	if not is_instance_valid(ship) or ship.get("fit") == null or ship.get("fit_stats") == null:
-		_title.text = "SHIP"
-		_summary.text = "NO SHIP"
+		_title.text = Strings.t("ship.title")
+		_summary.text = Strings.t("ship.none")
 		_summary.visible = true
 		$Panel/Overflow/Layout/Stats.visible = false
 		return
 	_summary.visible = false
-	_title.text = "%s  -  WORTH %d WP" % [Fitting.part_name(GameState.player_ship_template_id).to_upper(), int(ship.get_value())]
+	_title.text = Strings.t("ship.title_worth", [Fitting.part_name(GameState.player_ship_template_id).to_upper(), int(ship.get_value())])
 	var stats: Node = $Panel/Overflow/Layout/Stats
 	stats.visible = true
 	ShipStats.fill(stats.get_node("Now"), ShipStats.now_entries(ship.hull, ship.hull_max, ship.power, ship.power_max,
@@ -31,52 +31,52 @@ func fill() -> void:
 	_fill_tools(ship)
 	_fill_modules(ship)
 	_fill_hold(ship)
-	add_note("Refit at home: dock at %s." % station_name(GameState.home_location_id))
+	add_note(Strings.t("ship.refit_note", [station_name(GameState.home_location_id)]))
 
 
 func _fill_tools(ship) -> void:
-	add_heading("Tools")
+	add_heading(Strings.t("ship.tools"))
 	var sizes: Array = ShipFit.tool_slot_sizes(ship.ship_template)
 	var tools = ship.get_node_or_null("ToolController")
 	var fitted_index: int = 0  # ToolController holds the fitted tools only, in slot order
 	for i in range(ship.fit.tools.size()):
 		var part_id: String = ship.fit.tools[i]
-		var size: String = str(sizes[i]).capitalize() if i < sizes.size() else ""
+		var size: String = Strings.t("size." + str(sizes[i])).capitalize() if i < sizes.size() else ""
 		if part_id == "":
-			add_row("%s slot: empty" % size, "")
+			add_row(Strings.t("ship.slot", [size, Strings.t("fit.slot.empty")]), "")
 			continue
 		var detail: String = FittingWindow.part_detail(part_id)
 		if is_instance_valid(tools) and fitted_index < tools.get_tool_count() and tools.has_magazine(fitted_index):
-			detail += "\n%d / %d rounds" % [tools.get_ammo(fitted_index), tools.get_capacity(fitted_index)]
+			detail += "\n" + Strings.t("ship.rounds", [tools.get_ammo(fitted_index), tools.get_capacity(fitted_index)])
 		fitted_index += 1
-		add_row("%s slot: %s" % [size, Fitting.part_name(part_id)], detail)
+		add_row(Strings.t("ship.slot", [size, Fitting.part_name(part_id)]), detail)
 	if ship.fit.tools.empty():
-		add_note("No tool slots")
+		add_note(Strings.t("ship.no_tool_slots"))
 
 
 func _fill_modules(ship) -> void:
-	add_heading("Modules")
-	var size: String = ShipFit.module_slot_size(ship.ship_template).capitalize()
+	add_heading(Strings.t("ship.modules"))
+	var size: String = Strings.t("size." + str(ShipFit.module_slot_size(ship.ship_template))).capitalize()
 	for i in range(ship.fit.modules.size()):
 		var part_id: String = ship.fit.modules[i]
-		add_row("%s slot: %s" % [size, Fitting.part_name(part_id) if part_id != "" else "empty"], FittingWindow.part_detail(part_id) if part_id != "" else "")
+		add_row(Strings.t("ship.slot", [size, Fitting.part_name(part_id) if part_id != "" else Strings.t("fit.slot.empty")]), FittingWindow.part_detail(part_id) if part_id != "" else "")
 	if ship.fit.modules.empty():
-		add_note("No module slots")
+		add_note(Strings.t("ship.no_module_slots"))
 	var stores: Array = []
 	for lance in ship.get_lances():
-		stores.append("%d / %d lances" % [lance.nails, int(lance.lance.count)])
+		stores.append(Strings.t("ship.lances", [lance.nails, int(lance.lance.count)]))
 	if ship.get_decoy_capacity() > 0:
-		stores.append("%d / %d decoys" % [ship.decoys, ship.get_decoy_capacity()])
+		stores.append(Strings.t("ship.decoys", [ship.decoys, ship.get_decoy_capacity()]))
 	if not stores.empty():
-		add_note("Carried: " + PoolStringArray(stores).join(", ") + ". Home restocks them when you dock.")
+		add_note(Strings.t("ship.carried", [PoolStringArray(stores).join(", ")]))
 
 
 func _fill_hold(ship) -> void:
-	add_heading("Hold  %d / %d  worth %d WP" % [ship.get_cargo_units(), ship.cargo_capacity, int(ship.get_cargo_value())])
+	add_heading(Strings.t("ship.hold", [ship.get_cargo_units(), ship.cargo_capacity, int(ship.get_cargo_value())]))
 	var ids: Array = ship.cargo.keys()
 	ids.sort()
 	for commodity_id in ids:
 		if int(ship.cargo[commodity_id]) > 0:
 			add_row("%s  x%d" % [Fitting.part_name(commodity_id), int(ship.cargo[commodity_id])], "")
 	if ship.get_cargo_units() <= 0:
-		add_note("The hold is empty")
+		add_note(Strings.t("fit.cargo.empty"))

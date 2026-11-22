@@ -71,7 +71,7 @@ func refresh() -> void:
 	if not visible:
 		return
 	_refresh_target(player)
-	_set_text(_speed, "%d M/S" % int(round(player.linear_velocity.length())))
+	_set_text(_speed, Strings.t("unit.m_s", [int(round(player.linear_velocity.length()))]).to_upper())
 	var seen: Array = ships_seen(player, get_tree().get_nodes_in_group("agent_body"))
 	_ships.set_counts(seen[0], seen[1], TargetKinds.graded(Constants.COLOR_UI_TARGET_HOSTILE))
 	var loudness: float = signature_loudness(player)
@@ -177,27 +177,27 @@ static func is_route(target_node) -> bool:
 # A jump route's line: "JUMP TO VIDR".
 static func route_text(route) -> String:
 	var name: String = str(route.display_name) if str(route.display_name) != "" else str(route.target_sector_id)
-	return "JUMP TO " + name.to_upper()
+	return Strings.t("hud.jump_to", [name.to_upper()])
 
 
 # A jump's fuel, needed / held: "FUEL 5 / 12" (Fuel.jump_cost, Fuel.carried); "" without a ship.
 static func fuel_text(player) -> String:
 	if not is_instance_valid(player):
 		return ""
-	return "FUEL %d / %d" % [Fuel.jump_cost(player), Fuel.carried(player)]
+	return Strings.t("hud.fuel", [Fuel.jump_cost(player), Fuel.carried(player)])
 
 
 # How a fight with a live ship would go (CombatAssessment), "" for anything else.
 static func threat_word(player, target_node) -> String:
 	if not (target_node.has_method("is_enemy_of") and not target_node.get("is_wreck") and player.has_method("get_damage_per_second")):
 		return ""
-	return CombatAssessment.difficulty_label(CombatAssessment.team_advantage(player, target_node))
+	return Strings.word(CombatAssessment.difficulty_label(CombatAssessment.team_advantage(player, target_node)))
 
 
 # The threat word and, for a ship with a pilot level, the level: "HARD · VETERAN".
 static func threat_text(player, target_node) -> String:
 	var word: String = threat_word(player, target_node)
-	var level: String = PilotLevel.name_of(PilotLevel.of(target_node)) if word != "" else ""
+	var level: String = Strings.word(PilotLevel.name_of(PilotLevel.of(target_node))) if word != "" else ""
 	return word + (" · " + level if level != "" else "")
 
 

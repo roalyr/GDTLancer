@@ -34,9 +34,9 @@ static func call_sign(speaker: Node) -> String:
 # its call sign, or a station's or beacon's name.
 static func name_of(body: Node) -> String:
 	if not is_instance_valid(body):
-		return "someone"
+		return Strings.t("radio.someone")
 	if body.has_method("is_player") and body.is_player():
-		return "you"
+		return Strings.t("radio.you")
 	if body.has_method("get_faction_name") and body.get_faction_name() != "":
 		return call_sign(body)
 	for property in ["station_name", "beacon_name"]:

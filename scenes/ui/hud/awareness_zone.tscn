@@ -76,6 +76,9 @@ mouse_filter = 2
 script = ExtResource( 2 )
 caption = "SIG"
 caption_width = 50.0
+__meta__ = {
+"str": "hud.bar.sig"
+}
 
 [node name="Bars" type="HBoxContainer" parent="Layout"]
 margin_right = 1170.0
@@ -93,6 +96,9 @@ caption = "HULL"
 low_share = 0.35
 caption_width = 80.0
 flash_on_drop = true
+__meta__ = {
+"str": "hud.bar.hull"
+}
 
 [node name="Energy" type="Control" parent="Layout/Bars"]
 rect_min_size = Vector2( 150, 26 )
@@ -104,6 +110,9 @@ color = Color( 0.55, 0.8, 1, 0.85 )
 low_share = 0.2
 low_color = Color( 1, 0.6, 0.2, 1 )
 caption_width = 80.0
+__meta__ = {
+"str": "hud.bar.energy"
+}
 
 [node name="Cargo" type="Control" parent="Layout/Bars"]
 rect_min_size = Vector2( 150, 26 )
@@ -114,6 +123,9 @@ caption = "CARGO"
 color = Color( 0.85, 0.75, 0.55, 0.85 )
 lead_color = Color( 0.72, 0.45, 1, 0.9 )
 caption_width = 80.0
+__meta__ = {
+"str": "hud.bar.cargo"
+}
 
 [node name="Radio" type="Label" parent="Layout"]
 margin_right = 1170.0

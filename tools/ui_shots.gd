@@ -1,8 +1,8 @@
 # UI shots: starts a new game (docked at home: the fitting window), screenshots each store tab and
 # a prompt, for before/after checks of UI changes. Runs the project's autoloads, so as a scene:
-#     godot res://tools/ui_shots.tscn out=/abs/dir [ui_scale=1.5]
+#     godot res://tools/ui_shots.tscn out=/abs/dir [ui_scale=1.5] [language=uk]
 # ui_scale: UiScale's factor for the run (the player's own option otherwise; nothing is saved).
-# Writes main_menu.png, hud_scale_<x>.png (each UI scale, "UI OVERLAP" lines for HUD controls that overlap), interaction_window.png, fitting_view.png (the FITTING view), fitting_<tab>.png (MARKET), fitting_ships_preview.png, announcement.png, prompt.png, notice.png, then undocked ship_window.png, pilot_window.png, map_sector.png, map_global.png, hud_<look>.png, hud_hidden.png and options_window.png there, and beside each a .txt of every control shown
+# Writes main_menu.png, hud_scale_<x>.png (each UI scale, "UI OVERLAP" lines for HUD controls that overlap), interaction_window.png, fitting_view.png (the FITTING view), fitting_<tab>.png (MARKET), fitting_ships_preview.png, announcement.png, prompt.png, notice.png, then undocked ship_window.png, pilot_window.png, map_sector.png, map_global.png, hud_<look>.png, hud_hidden.png, options_window.png, options_graphics.png and options_other_language.png there, and beside each a .txt of every control shown
 # (type, rect, colours, styles; no text: prices vary), then quits. Nothing is saved.
 extends Node
 
@@ -10,6 +10,7 @@ const PromptDialog = preload("res://src/core/ui/helpers/prompt_dialog.gd")
 
 var out: String = "user://ui_shots"
 var ui_scale: float = -1.0
+var language: String = ""
 
 
 func _ready() -> void:
@@ -18,11 +19,15 @@ func _ready() -> void:
 			out = a.trim_prefix("out=")
 		if a.begins_with("ui_scale="):
 			ui_scale = float(a.trim_prefix("ui_scale="))
+		if a.begins_with("language="):
+			language = a.trim_prefix("language=")
 	Directory.new().make_dir_recursive(out)
 	GameStateManager.save_dir = "user://ui_shots_saves/"  # A respawn saves: never into the player's saves
 	add_child(load(ProjectSettings.get_setting("application/run/main_scene")).instance())
 	if ui_scale > 0.0:
 		UiScale.set_factor(ui_scale)  # After the main scene read the player's options
+	if language != "":
+		Strings.set_language(language)  # Not through Settings: the player's file stays as it is
 	yield(_wait(2.0), "completed")
 	_shot("main_menu")
 	var menu: Node = _find(get_tree().root, "_on_new_game_pressed")
@@ -90,12 +95,13 @@ func _ready() -> void:
 	hud.map_window.show_tab(hud.map_window.SECTOR)
 	hud.map_window.close()
 	get_viewport().disable_3d = false  # The HUD's looks are judged over the world
+	var own_look = Settings.get_option("hud_preset")
 	for look in Constants.HUD_PRESET_ORDER:
 		Settings.set_option("hud_preset", look)
 		hud.apply_hud_preset()
 		yield(_wait(0.5), "completed")
 		_shot("hud_%s" % look)
-	Settings.set_option("hud_preset", "standard")
+	Settings.set_option("hud_preset", own_look)  # The player's own look back
 	hud.apply_hud_preset()
 	hud.toggle_hud()  # The eye button: the HUD gone, a dot left
 	yield(_wait(0.5), "completed")
@@ -109,6 +115,16 @@ func _ready() -> void:
 		options.open()
 		yield(_wait(0.5), "completed")
 		_shot("options_window")
+		options.show_tab("graphics")  # A row told of, without changing the player's options
+		options.about = "ButtonMsaa"
+		options._show_about()
+		yield(_wait(0.3), "completed")
+		_shot("options_graphics")
+		var was: String = Strings.language
+		Strings.set_language("uk" if was != "uk" else "en")
+		yield(_wait(0.3), "completed")
+		_shot("options_other_language")
+		Strings.set_language(was)
 		options.close()
 	get_tree().quit()
 

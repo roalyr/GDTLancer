@@ -98,24 +98,24 @@ static func _value(part_id: String) -> float:
 static func part_name(part_id: String) -> String:
 	var part = TemplateDatabase.get_template(part_id)
 	if part is UtilityToolTemplate:
-		return part.tool_name
+		return Strings.name_of(part.tool_name)
 	if part is ModuleTemplate:
-		return part.module_name
+		return Strings.name_of(part.module_name)
 	if part is ShipTemplate:
-		return part.ship_model_name
+		return Strings.name_of(part.ship_model_name)
 	if part is CommodityTemplate:
-		return part.commodity_name if "commodity_name" in part else part_id
+		return Strings.name_of(part.commodity_name) if "commodity_name" in part else part_id
 	return part_id
 
 
 static func buy(part_id: String) -> String:
 	if not is_available():
-		return "Dock at the home station to buy parts"
+		return Strings.t("fit.err.home_to_buy")
 	var cost: int = price(part_id)
 	if cost <= 0 or not part_id in catalog():
-		return "Not for sale"
+		return Strings.t("fit.err.not_for_sale")
 	if GameState.player_bank < cost:
-		return "Not enough banked WP (%d needed)" % cost
+		return Strings.t("fit.err.not_enough", [cost])
 	GameState.player_bank -= cost
 	_add_to_storage(part_id, 1)
 	EventBus.emit_signal("player_traded", "part")
@@ -132,17 +132,17 @@ static func ship_cost(ship_id: String) -> int:
 # hold is banked).
 static func buy_ship(ship_id: String) -> String:
 	if not is_available():
-		return "Dock at the home station to change ships"
+		return Strings.t("fit.err.home_to_change_ship")
 	if not (TemplateDatabase.get_template(ship_id) is ShipTemplate and ship_id in ship_catalog()):
-		return "Not for sale"
+		return Strings.t("fit.err.not_for_sale")
 	if ship_id == GameState.player_ship_template_id:
-		return "Already flying it"
+		return Strings.t("fit.err.already_flying")
 	var cost: int = ship_cost(ship_id)
 	if GameState.player_bank < cost:
-		return "Not enough banked WP (%d needed)" % cost
+		return Strings.t("fit.err.not_enough", [cost])
 	var spawner = GlobalRefs.agent_spawner
 	if not is_instance_valid(spawner) or not spawner.has_method("replace_player"):
-		return "Cannot change ships here"
+		return Strings.t("fit.err.cannot_change_ship")
 	GameState.player_bank -= cost
 	for kind in ["tools", "modules"]:
 		for part_id in GameState.player_fit.get(kind, []):
@@ -161,14 +161,14 @@ static func buy_ship(ship_id: String) -> String:
 # One unit of a commodity into the hold, at the station's price.
 static func buy_cargo(ship_body: Node, commodity_id: String) -> String:
 	if not can_sell_cargo():
-		return "Dock at a station to trade"
+		return Strings.t("fit.err.dock_to_trade")
 	var cost: int = cargo_price(commodity_id)
 	if cost <= 0 or not commodity_id in cargo_stock():
-		return "Not sold here"
+		return Strings.t("fit.err.not_sold_here")
 	if GameState.player_bank < cost:
-		return "Not enough banked WP (%d needed)" % cost
+		return Strings.t("fit.err.not_enough", [cost])
 	if ship_body.add_cargo(commodity_id, 1) <= 0:
-		return "Hold full"
+		return Strings.t("fit.err.hold_full")
 	GameState.player_bank -= cost
 	EventBus.emit_signal("player_traded", "cargo")
 	return ""
@@ -177,14 +177,14 @@ static func buy_cargo(ship_body: Node, commodity_id: String) -> String:
 # `units` of a commodity from the hold (-1: all of it), at the station's cargo price.
 static func sell_cargo(ship_body: Node, commodity_id: String, units: int = 1) -> String:
 	if not can_sell_cargo():
-		return "Dock to sell cargo"
+		return Strings.t("fit.err.dock_to_sell")
 	var price: int = cargo_sale_price(commodity_id)
 	if price <= 0:
-		return "This station does not buy it"
+		return Strings.t("fit.err.not_bought_here")
 	var held: int = int(ship_body.cargo.get(commodity_id, 0))
 	var taken: int = ship_body.remove_cargo(commodity_id, held if units < 0 else int(min(units, held))) if held > 0 else 0
 	if taken <= 0:
-		return "None in the hold"
+		return Strings.t("fit.err.none_in_hold")
 	GameState.player_bank += taken * price
 	Wages.pay_player_escorts(ship_body, taken * price)
 	EventBus.emit_signal("player_traded", "cargo")
@@ -204,9 +204,9 @@ static func sell_hold(ship_body: Node) -> Dictionary:
 
 static func sell(part_id: String) -> String:
 	if not is_available():
-		return "Dock at the home station to sell parts"
+		return Strings.t("fit.err.home_to_sell")
 	if int(GameState.player_storage.get(part_id, 0)) <= 0:
-		return "Not in storage"
+		return Strings.t("fit.err.not_in_storage")
 	_add_to_storage(part_id, -1)
 	GameState.player_bank += sale_price(part_id)
 	EventBus.emit_signal("player_traded", "part")
@@ -216,26 +216,26 @@ static func sell(part_id: String) -> String:
 # Fits a stored part into the first free slot that takes it.
 static func fit_part(ship_body: Node, part_id: String) -> String:
 	if not is_available():
-		return "Dock at the home station to refit"
+		return Strings.t("fit.err.home_to_refit")
 	if int(GameState.player_storage.get(part_id, 0)) <= 0:
-		return "Not in storage"
+		return Strings.t("fit.err.not_in_storage")
 	var ship = ship_body.ship_template
 	var fit: Dictionary = ship_body.fit.duplicate(true)
 	var part = TemplateDatabase.get_template(part_id)
 	if part is UtilityToolTemplate:
 		var slot: int = ShipFit.free_tool_slot(ship, fit, part_id)
 		if slot < 0:
-			return "No free %s or larger tool slot" % part.mount_size
+			return Strings.t("fit.err.no_tool_slot", [Strings.t("size." + str(part.mount_size))])
 		fit.tools[slot] = part_id
 	elif part is ModuleTemplate:
 		if not ShipFit.module_fits_slot(part, ShipFit.module_slot_size(ship)):
-			return "Too big: this hull's module bays are %s" % ShipFit.module_slot_size(ship)
+			return Strings.t("fit.err.too_big", [Strings.t("size." + str(ShipFit.module_slot_size(ship)))])
 		var slot: int = ShipFit.free_module_slot(fit)
 		if slot < 0:
-			return "No free module slot"
+			return Strings.t("fit.err.no_module_slot")
 		fit.modules[slot] = part_id
 	else:
-		return "Unknown part"
+		return Strings.t("fit.err.unknown_part")
 	_add_to_storage(part_id, -1)
 	_apply(ship_body, fit)
 	return ""
@@ -244,10 +244,10 @@ static func fit_part(ship_body: Node, part_id: String) -> String:
 # kind is "tools" or "modules".
 static func unfit(ship_body: Node, kind: String, slot: int) -> String:
 	if not is_available():
-		return "Dock at the home station to refit"
+		return Strings.t("fit.err.home_to_refit")
 	var fit: Dictionary = ship_body.fit.duplicate(true)
 	if slot < 0 or slot >= fit[kind].size() or fit[kind][slot] == "":
-		return "Slot is empty"
+		return Strings.t("fit.err.slot_empty")
 	_add_to_storage(fit[kind][slot], 1)
 	fit[kind][slot] = ""
 	_apply(ship_body, fit)

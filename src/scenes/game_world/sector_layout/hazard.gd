@@ -60,4 +60,4 @@ func _physics_process(delta: float) -> void:
 			body.apply_damage(dps * tick, null)
 	if player_inside != _player_inside:
 		_player_inside = player_inside
-		EventBus.emit_signal("announcement", "RADIATION: the nearer the star, the more hull it burns" if player_inside else "Out of the radiation", "danger" if player_inside else "info")
+		EventBus.emit_signal("announcement", Strings.t("msg.radiation.in") if player_inside else Strings.t("msg.radiation.out"), "danger" if player_inside else "info")

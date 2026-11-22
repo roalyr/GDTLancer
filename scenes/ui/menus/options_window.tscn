@@ -51,14 +51,39 @@ text = "CLOSE"
 [node name="Tabs" type="HBoxContainer" parent="Panel/Overflow/Layout"]
 custom_constants/separation = 4
 
-[node name="Scroll" type="ScrollContainer" parent="Panel/Overflow/Layout"]
+[node name="Body" type="HBoxContainer" parent="Panel/Overflow/Layout"]
+size_flags_vertical = 3
+custom_constants/separation = 24
+
+[node name="Scroll" type="ScrollContainer" parent="Panel/Overflow/Layout/Body"]
 rect_min_size = Vector2( 0, 240 )
+size_flags_horizontal = 3
 size_flags_vertical = 3
 scroll_horizontal_enabled = false
 
-[node name="List" type="VBoxContainer" parent="Panel/Overflow/Layout/Scroll"]
+[node name="List" type="VBoxContainer" parent="Panel/Overflow/Layout/Body/Scroll"]
 size_flags_horizontal = 3
 custom_constants/separation = 0
+
+[node name="Info" type="VBoxContainer" parent="Panel/Overflow/Layout/Body"]
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_constants/separation = 12
+
+[node name="Title" type="Label" parent="Panel/Overflow/Layout/Body/Info"]
+theme_type_variation = "HeadingLabel"
+autowrap = true
+
+[node name="Value" type="Label" parent="Panel/Overflow/Layout/Body/Info"]
+theme_type_variation = "LargeValueLabel"
+autowrap = true
+
+[node name="Text" type="Label" parent="Panel/Overflow/Layout/Body/Info"]
+autowrap = true
+
+[node name="Values" type="Label" parent="Panel/Overflow/Layout/Body/Info"]
+theme_type_variation = "NoteLabel"
+autowrap = true
 
 [node name="Note" type="Label" parent="Panel/Overflow/Layout"]
 theme_type_variation = "NoteLabel"

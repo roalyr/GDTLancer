@@ -105,4 +105,4 @@ func station_name(location_id: String) -> String:
 
 static func duration_text(seconds: float) -> String:
 	var minutes: int = int(seconds / 60.0)
-	return "%d h %02d min" % [minutes / 60, minutes % 60] if minutes >= 60 else "%d min" % minutes
+	return Strings.t("time.hours", [minutes / 60, minutes % 60]) if minutes >= 60 else Strings.t("time.minutes", [minutes])

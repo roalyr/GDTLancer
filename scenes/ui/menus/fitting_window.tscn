@@ -42,6 +42,9 @@ size_flags_vertical = 4
 rect_min_size = Vector2( 160, 64 )
 focus_mode = 0
 text = "MENU"
+__meta__ = {
+"str": "fit.button.menu"
+}
 
 [node name="TabFitting" type="Button" parent="Panel/Overflow/Layout/Header"]
 theme_type_variation = "TabButton"
@@ -70,6 +73,9 @@ size_flags_vertical = 4
 rect_min_size = Vector2( 160, 64 )
 focus_mode = 0
 text = "UNDOCK"
+__meta__ = {
+"str": "fit.button.undock"
+}
 
 [node name="Body" type="MarginContainer" parent="Panel/Overflow/Layout"]
 size_flags_vertical = 3
@@ -92,6 +98,9 @@ custom_constants/separation = 8
 [node name="Title" type="Label" parent="Panel/Overflow/Layout/Body/Content/Columns/Ship"]
 theme_type_variation = "HeadingLabel"
 text = "SHIP - tap a slot to unfit"
+__meta__ = {
+"str": "fit.ship.title"
+}
 
 [node name="Stats" type="VBoxContainer" parent="Panel/Overflow/Layout/Body/Content/Columns/Ship"]
 custom_constants/separation = 4
@@ -119,6 +128,9 @@ size_flags_horizontal = 3
 [node name="Title" type="Label" parent="Panel/Overflow/Layout/Body/Content/Columns/Storage"]
 theme_type_variation = "HeadingLabel"
 text = "STORAGE - fit or sell"
+__meta__ = {
+"str": "fit.storage.title"
+}
 
 [node name="Scroll" type="ScrollContainer" parent="Panel/Overflow/Layout/Body/Content/Columns/Storage"]
 rect_min_size = Vector2( 0, 240 )
@@ -135,6 +147,9 @@ size_flags_stretch_ratio = 2.0
 [node name="Title" type="Label" parent="Panel/Overflow/Layout/Body/Content/Columns/Store"]
 theme_type_variation = "HeadingLabel"
 text = "STORE"
+__meta__ = {
+"str": "fit.store.title"
+}
 
 [node name="Tabs" type="HBoxContainer" parent="Panel/Overflow/Layout/Body/Content/Columns/Store"]
 custom_constants/separation = 4

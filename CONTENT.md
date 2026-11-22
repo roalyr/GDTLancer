@@ -39,7 +39,7 @@ Set them in your shell profile (for example `export GODOT=~/apps/godot-3.6.2/god
 ## The development tool
 
 `tools/dev.py` opens the menu. `?` shows the keys. These keys work the same on every tab:
-- `1` to `9` and `0` switch tabs. Tab and shift+Tab move between boxes.
+- `1` to `9`, `0` and `-` switch tabs. Tab and shift+Tab move between boxes.
 - Enter opens or runs what is picked.
 - `ctrl+s` saves and `ctrl+u` undoes the last save (press it again to undo the one before).
 - `ctrl+n` makes something new (a file, a marker, a model). `ctrl+r` reads the files again.
@@ -88,6 +88,10 @@ Plain letters are each tab's own actions, and the footer lists them.
    - `g` reviews everything changed since the last commit and commits it with your message. Every file is ticked; `space` leaves one out, and **Put back this file** returns it to how the last commit had it (a new file is removed). A file outside the usual folders is marked `!`. Nothing is pushed.
    - `o` opens the newest output (sheets, screenshots go to `.dev/out/`).
    - `m` shows the maintainer tasks.
+
+**`-` Strings:** every word the player reads, a key per row with its English and Ukrainian (`database/strings/strings.json`).
+   - Type in the box to find a key or a word in any language; pick a key and edit its texts on the right, then `ctrl+s`.
+   - `ctrl+n` adds a key (`section.what`), `ctrl+d` deletes one, `ctrl+e` shows only the keys with problems: a language left empty, placeholders (`%d`, `%s`) that differ between languages, a key the code asks for that the file lacks.
 
 **Saving.** Godot writes every file, so the tool saves exactly what the Godot editor would.
 Each save is checked against the content rules at once:
@@ -391,9 +395,18 @@ To give a sector its music (a new one or an existing one):
   Backgrounds: every `ScrollContainer` is a shade lighter than its window (the theme's), except a window's whole-body `OverflowScroll`; a window's tab buttons take `TabButton` (lighter still), its other buttons the plain dark `Button`.
 
   No `custom_fonts` in scenes and no `add_font_override` in code: switch `theme_type_variation` instead, and code that draws text reads the look's font (`get_font("font", "SmallLabel")`). A size that none of these fits is a new look in the theme, not an override.
-- **UI SCALE** (Options, INTERFACE: x0.5 to x1.5; below 1.0 for large monitors) multiplies every font size above, every button's size, and the HUD as a whole about its screen anchors (`src/autoload/UiScale.gd`). The sizes here are at x1.0, for a 12" 1366x768 screen; a phone's first run picks one from its screen. A scene or code sets sizes at x1.0 too. A HUD element goes under `ScreenControls` and is anchored to the corner or edge it belongs to, so it grows from there. The HUD grows no wider than the screen holds (`HUD_SCALE_WIDTH`; its words still take the full scale), the sliders keep their length above x1.0 (below it they shrink with the rest), and the flight row shrinks to fit between the bottom corner groups. **UI screenshots** shoot the HUD at every scale and print a `UI OVERLAP` line for each clash.
+- **UI SCALE** (Options, INTERFACE: x0.5 to x1.5 in steps of 0.1; below 1.0 for large monitors) multiplies every font size above, every button's size, and the HUD as a whole about its screen anchors (`src/autoload/UiScale.gd`). The sizes here are at x1.0, for a 12" 1366x768 screen; a phone's first run picks one from its screen. A scene or code sets sizes at x1.0 too. A HUD element goes under `ScreenControls` and is anchored to the corner or edge it belongs to, so it grows from there. The HUD grows no wider than the screen holds (`HUD_SCALE_WIDTH`; its words still take the full scale), the sliders keep their length above x1.0 (below it they shrink with the rest), and the flight row shrinks to fit between the bottom corner groups. **UI screenshots** shoot the HUD at every scale and print a `UI OVERLAP` line for each clash.
 
 To see a change: Tools, `m`, **UI screenshots** (every store tab, a prompt, the windows), or play.
+
+## Words and languages
+
+Every word the player reads is a key in `database/strings/strings.json`, with its text in English and Ukrainian; the **Strings** tab edits them. Options, INTERFACE, LANGUAGE switches at once, without a restart; a first run starts in the system's language if the game has it.
+- Code reads a key: `Strings.t("hud.button.dock")`, or `Strings.t("fit.button.buy", [price])` to fill its `%d`. A scene's label or button carries the key as its `str` meta and takes the text itself.
+- Names from the data (parts, hulls, cargo) are keyed by their English name: `Laser Mk I-light` is `name.laser_mk_i_light`. Words the game keeps as state (an AI's `PATROLLING`, a side, a pilot level) are `word.` keys. A name with no key reads as it is: station, sector and faction names are not translated.
+- A new word: add the key on the Strings tab with both languages, then use it. The checks fail on a key the code uses that the file lacks, and on a language left empty.
+- Keep a word as short as the English where it sits on a button.
+- Debug text (the debug overlay, `describe_*` lines) stays English.
 
 ## Play saves and changed content
 
@@ -430,6 +443,7 @@ Tools, validate lists every problem from a terminal. Tools, check_model checks o
 | `database/drafts/` | evolution's exported designs, one folder per era. The game never reads them; archetypes are picked from them |
 | `database/registry/` | stock hulls, commodities, game starts, Locations (sectors), agents |
 | `database/sounds/` | the sound bank |
+| `database/strings/` | every word the player reads, in each language |
 | `database/definitions/` | the scripts each kind of data file is made from (their notes are the form's field notes) |
 | `scenes/levels/sectors/` | sectors: their scenes, layouts and bodies |
 | `scenes/prefabs/` | ship and station scenes, placeholders, shared celestial bodies, scenery |

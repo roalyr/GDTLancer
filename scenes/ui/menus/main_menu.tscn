@@ -115,6 +115,7 @@ text = "New"
 align = 1
 valign = 1
 __meta__ = {
+"str": "menu.button.new",
 "_edit_lock_": true
 }
 
@@ -149,6 +150,7 @@ text = "Load"
 align = 1
 valign = 1
 __meta__ = {
+"str": "menu.button.load",
 "_edit_lock_": true
 }
 
@@ -183,6 +185,7 @@ text = "Save"
 align = 1
 valign = 1
 __meta__ = {
+"str": "menu.button.save",
 "_edit_lock_": true
 }
 
@@ -217,6 +220,7 @@ text = "Settings"
 align = 1
 valign = 1
 __meta__ = {
+"str": "menu.button.settings",
 "_edit_lock_": true
 }
 
@@ -251,6 +255,7 @@ text = "Exit"
 align = 1
 valign = 1
 __meta__ = {
+"str": "menu.button.exit",
 "_edit_lock_": true
 }
 
@@ -299,6 +304,7 @@ theme = ExtResource( 2 )
 theme_type_variation = "MenuLabel"
 text = "version 0.1"
 __meta__ = {
+"str": "menu.version",
 "_edit_lock_": true
 }
 
@@ -314,6 +320,7 @@ focus_mode = 0
 theme = ExtResource( 2 )
 text = "CLOSE"
 __meta__ = {
+"str": "common.close",
 "_editor_description_": "Back to the game: where every window has its CLOSE (the window's 20 px margin and 16 px padding)",
 "_edit_lock_": true
 }

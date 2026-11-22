@@ -81,7 +81,7 @@ func _exit_tree() -> void:
 
 
 func get_display_name() -> String:
-	return display_name
+	return Strings.name_of(display_name)
 
 
 func _surface() -> Material:

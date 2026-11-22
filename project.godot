@@ -146,6 +146,7 @@ GameState="*res://src/autoload/GameState.gd"
 GameStateManager="*res://src/autoload/GameStateManager.gd"
 Settings="*res://src/autoload/Settings.gd"
 UiScale="*res://src/autoload/UiScale.gd"
+Strings="*res://src/autoload/Strings.gd"
 
 [display]
 

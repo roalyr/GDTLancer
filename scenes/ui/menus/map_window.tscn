@@ -60,6 +60,9 @@ text = "GLOBAL"
 rect_min_size = Vector2( 160, 64 )
 focus_mode = 0
 text = "CLOSE"
+__meta__ = {
+"str": "common.close"
+}
 
 [node name="Body" type="HBoxContainer" parent="Panel/Overflow/Layout"]
 size_flags_vertical = 3
@@ -105,11 +108,17 @@ rect_min_size = Vector2( 0, 56 )
 focus_mode = 0
 size_flags_horizontal = 3
 text = "FIT"
+__meta__ = {
+"str": "map.button.fit"
+}
 
 [node name="ButtonCentre" type="Button" parent="Panel/Overflow/Layout/Body/Side"]
 rect_min_size = Vector2( 0, 56 )
 focus_mode = 0
 text = "CENTRE ON SHIP"
+__meta__ = {
+"str": "map.button.centre"
+}
 
 [node name="Info" type="Label" parent="Panel/Overflow/Layout/Body/Side"]
 rect_min_size = Vector2( 0, 110 )
@@ -121,8 +130,14 @@ visible = false
 rect_min_size = Vector2( 0, 56 )
 focus_mode = 0
 text = "TARGET"
+__meta__ = {
+"str": "map.button.target"
+}
 
 [node name="Note" type="Label" parent="Panel/Overflow/Layout"]
 theme_type_variation = "NoteLabel"
 autowrap = true
 text = "THE GAME IS PAUSED WHILE THIS IS OPEN. DRAG TO MOVE, WHEEL OR + AND − TO ZOOM, TAP TO PICK."
+__meta__ = {
+"str": "map.note"
+}

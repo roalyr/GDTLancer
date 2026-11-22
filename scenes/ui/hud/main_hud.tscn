@@ -245,6 +245,7 @@ text = "ZOOM"
 align = 1
 valign = 0
 __meta__ = {
+"str": "hud.zoom",
 "_editor_description_": "As wide as its slider, under it: the same way from its screen edge as the other",
 "_edit_lock_": true
 }
@@ -316,6 +317,7 @@ text = "ORBIT"
 align = 1
 valign = 1
 __meta__ = {
+"str": "hud.button.orbit",
 "_edit_lock_": true
 }
 
@@ -339,6 +341,7 @@ text = "STOP"
 align = 1
 valign = 1
 __meta__ = {
+"str": "hud.button.stop",
 "_edit_lock_": true
 }
 
@@ -362,6 +365,7 @@ text = "MANUAL"
 align = 1
 valign = 1
 __meta__ = {
+"str": "hud.button.manual",
 "_edit_lock_": true
 }
 
@@ -408,6 +412,7 @@ text = "FLEE"
 align = 1
 valign = 1
 __meta__ = {
+"str": "hud.button.flee",
 "_edit_lock_": true
 }
 
@@ -799,6 +804,7 @@ text = "THRUST"
 align = 1
 valign = 0
 __meta__ = {
+"str": "hud.thrust",
 "_editor_description_": "As wide as its slider, under it: the same way from its screen edge as the other",
 "_edit_lock_": true
 }

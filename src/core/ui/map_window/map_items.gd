@@ -30,7 +30,7 @@ static func sector(zone: Node, targets: Array, player: Node, namer: Object = nul
 	for hazard in zone.get_tree().get_nodes_in_group("hazard") if zone.is_inside_tree() else []:
 		if zone.is_a_parent_of(hazard):
 			var item := _item("hazards", "hazard", _flat(to_sector, hazard), float(hazard.radius), Constants.COLOR_UI_TARGET_HOSTILE,
-				str(hazard.get("kind")).to_upper(), hazard)
+				Strings.word(str(hazard.get("kind"))).to_upper(), hazard)
 			item["core"] = float(hazard.get("core")) if hazard.get("core") != null else 0.0
 			out.append(item)
 	var belts := {}  # Parent node -> its rocks

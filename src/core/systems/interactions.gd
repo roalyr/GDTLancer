@@ -68,35 +68,35 @@ static func is_active(player, ship, kind: String) -> bool:
 # Why `kind` cannot be asked of `ship` now, "" if it can.
 static func why_not(player, ship, kind: String) -> String:
 	if not is_npc_ship(ship):
-		return "Not a ship that can be asked"
+		return Strings.t("interact.why.not_askable")
 	if ship.has_method("is_enemy_of") and ship.is_enemy_of(player):
-		return "Hostile"
+		return Strings.t("interact.why.hostile")
 	var faction = ship.get("faction")
 	var ai = ai_of(ship)
 	match kind:
 		"escort":
 			if not _armed(player):
-				return "You carry no weapons"
-			return "" if Wages.can_escort(player, ship) else "Not a worker of a faction that takes escorts"
+				return Strings.t("interact.why.no_weapons")
+			return "" if Wages.can_escort(player, ship) else Strings.t("interact.why.not_worker")
 		"hire", "wing":
 			if not is_allied(faction):
-				return "Only allies follow you"
+				return Strings.t("interact.why.only_allies_follow")
 			if not _armed(ship) or Wages.is_worker(ship):
-				return "Not a fighting ship"
+				return Strings.t("interact.why.not_fighter")
 			if kind == "hire" and not TemplateDatabase.factions.get(faction, {}).get("escorts", false):
-				return "Its faction does not escort"
+				return Strings.t("interact.why.faction_no_escort")
 			if not is_active(player, ship, "hire") and not is_active(player, ship, "wing") and followers(player).size() >= Constants.PLAYER_FOLLOWERS_MAX:
-				return "You have %d ships with you already" % Constants.PLAYER_FOLLOWERS_MAX
+				return Strings.t("interact.why.followers_full", [Constants.PLAYER_FOLLOWERS_MAX])
 			return ""
 		"caravan":
 			if not is_allied(faction):
-				return "Only allies take you in their caravan"
+				return Strings.t("interact.why.only_allies_caravan")
 			if not (ai.has_method("is_trader") and ai.is_trader()):
-				return "Not a trader"
+				return Strings.t("interact.why.not_trader")
 			if ai.bound_for() == null and ai.mustering_at() == null:
-				return "Not on its way anywhere"
+				return Strings.t("interact.why.not_travelling")
 			return ""
-	return "Unknown"
+	return Strings.t("interact.why.unknown")
 
 
 # What the window offers for `ship`: [{"kind", "label", "active", "note"}], the kinds that apply now
@@ -106,7 +106,7 @@ static func options(player, ship) -> Array:
 	for kind in KINDS:
 		var active: bool = is_active(player, ship, kind)
 		if active or why_not(player, ship, kind) == "":
-			found.append({"kind": kind, "label": LABELS[kind], "active": active, "note": describe(ship, kind)})
+			found.append({"kind": kind, "label": Strings.t("interact.option." + kind), "active": active, "note": describe(ship, kind)})
 	return found
 
 
@@ -116,16 +116,16 @@ static func describe(ship, kind: String) -> String:
 	var km: float = Constants.ESCORT_PAY_RANGE / 1000.0
 	match kind:
 		"escort":
-			return "Keep by it and guard it: %d%% of its sales while within %.0f km of it" % [share, km]
+			return Strings.t("interact.about.escort", [share, km])
 		"hire":
-			return "It keeps by you and guards you, for %d%% of your cargo sales while within %.0f km" % [share, km]
+			return Strings.t("interact.about.hire", [share, km])
 		"wing":
-			return "It keeps by you, guards you and joins the fights you start"
+			return Strings.t("interact.about.wing")
 		"caravan":
 			var ai = ai_of(ship)
 			var station = ai.bound_for() if ai != null and ai.has_method("bound_for") else null
 			var where: String = str(station.get("station_name")) if is_instance_valid(station) and station.get("station_name") != null else ""
-			return "Travel with it%s: it keeps your pace" % ((" to " + where) if where != "" else "")
+			return Strings.t("interact.about.caravan_to", [where]) if where != "" else Strings.t("interact.about.caravan")
 	return ""
 
 
@@ -144,7 +144,7 @@ static func toggle(player, ship, kind: String) -> String:
 			"caravan":
 				ai.dismiss_player()
 		EventBus.emit_signal("player_interactions_changed")
-		return "%s: %s ended" % [name_of(ship), LABELS[kind].capitalize()]
+		return Strings.t("interact.ended", [name_of(ship), Strings.t("interact.option." + kind).capitalize()])
 	var why: String = why_not(player, ship, kind)
 	if why != "":
 		return why
@@ -192,6 +192,6 @@ static func followers(player) -> Array:
 
 static func name_of(ship) -> String:
 	var template = ship.get("ship_template") if is_instance_valid(ship) else null
-	var model: String = template.ship_model_name if is_instance_valid(template) else str(ship.name)
+	var model: String = Strings.name_of(template.ship_model_name) if is_instance_valid(template) else str(ship.name)
 	var faction: String = ship.get_faction_name() if ship.has_method("get_faction_name") else ""
 	return ("%s %s" % [faction, model]).strip_edges()

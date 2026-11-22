@@ -42,11 +42,17 @@ size_flags_vertical = 4
 text = "PILOT"
 autowrap = true
 theme_type_variation = "TitleLabel"
+__meta__ = {
+"str": "pilot.title_plain"
+}
 
 [node name="ButtonClose" type="Button" parent="Panel/Overflow/Layout/Header"]
 rect_min_size = Vector2( 160, 64 )
 focus_mode = 0
 text = "CLOSE"
+__meta__ = {
+"str": "common.close"
+}
 
 [node name="Summary" type="Label" parent="Panel/Overflow/Layout"]
 autowrap = true
@@ -63,3 +69,6 @@ size_flags_horizontal = 3
 theme_type_variation = "NoteLabel"
 autowrap = true
 text = "THE GAME IS PAUSED WHILE THIS IS OPEN."
+__meta__ = {
+"str": "common.paused"
+}

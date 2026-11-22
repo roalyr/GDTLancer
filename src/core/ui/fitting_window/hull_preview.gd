@@ -45,7 +45,7 @@ func show_ship(template_id: String) -> void:
 		_pivot.remove_child(child)
 		child.queue_free()
 	var ship = TemplateDatabase.get_template(template_id)
-	_name.text = ship.ship_model_name.to_upper() if ship != null and "ship_model_name" in ship else ""
+	_name.text = Strings.name_of(ship.ship_model_name).to_upper() if ship != null and "ship_model_name" in ship else ""
 	if ship == null or ship.ship_scene == null:
 		return
 	var model: Spatial = ship.ship_scene.instance()

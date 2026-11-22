@@ -33,7 +33,7 @@ static func ask_list(parent: Node, title: String, text: String, choices: Array) 
 
 # A notice: `text` and an OK.
 static func tell(parent: Node, title: String, text: String) -> Control:
-	return ask(parent, title, text, [["ok", "OK"]])
+	return ask(parent, title, text, [["ok", Strings.t("common.ok")]])
 
 
 func build(title: String, text: String, choices: Array, vertical: bool = false) -> void:

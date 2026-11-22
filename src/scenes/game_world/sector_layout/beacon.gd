@@ -47,11 +47,11 @@ func get_display_name() -> String:
 func get_beacon_cues() -> Array:
 	var cues: Array = []
 	var owner_name: String = TemplateDatabase.factions.get(faction, {}).get("name", "")
-	cues.append(("%s %s" % [owner_name, kind]).strip_edges().to_upper())
-	cues.append(_word(heat, Constants.BEACON_HEAT_WORDS))
-	cues.append(_word(traffic, Constants.BEACON_TRAFFIC_WORDS))
+	cues.append(("%s %s" % [owner_name, Strings.word(kind)]).strip_edges().to_upper())
+	cues.append(Strings.word(_word(heat, Constants.BEACON_HEAT_WORDS)))
+	cues.append(Strings.word(_word(traffic, Constants.BEACON_TRAFFIC_WORDS)))
 	if kind == "field":
-		cues.append("ORE %d" % int(value))
+		cues.append(Strings.t("beacon.ore", [int(value)]))
 	return cues
 
 

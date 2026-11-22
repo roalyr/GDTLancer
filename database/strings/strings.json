@@ -1,0 +1,2646 @@
+{
+ "beacon.ore": {
+  "en": "ORE %d",
+  "uk": "РУДА %d"
+ },
+ "chunk.alloy": {
+  "en": "Derelict alloy (%d)",
+  "uk": "Сплав покинутого (%d)"
+ },
+ "chunk.debris": {
+  "en": "Derelict debris (%d)",
+  "uk": "Уламки покинутого (%d)"
+ },
+ "chunk.molten_alloy": {
+  "en": "Molten derelict alloy (%d)",
+  "uk": "Розплавлений сплав (%d)"
+ },
+ "chunk.molten_ore": {
+  "en": "Molten ore (%d)",
+  "uk": "Розплавлена руда (%d)"
+ },
+ "chunk.ore": {
+  "en": "Ore (%d)",
+  "uk": "Руда (%d)"
+ },
+ "chunk.rock": {
+  "en": "Rock chunk (%d)",
+  "uk": "Уламок скелі (%d)"
+ },
+ "common.cancel": {
+  "en": "CANCEL",
+  "uk": "СКАСУВАТИ"
+ },
+ "common.close": {
+  "en": "CLOSE",
+  "uk": "ЗАКРИТИ"
+ },
+ "common.ok": {
+  "en": "OK",
+  "uk": "ГАРАЗД"
+ },
+ "common.paused": {
+  "en": "THE GAME IS PAUSED WHILE THIS IS OPEN.",
+  "uk": "ГРУ ПРИЗУПИНЕНО, ПОКИ ЦЕ ВІКНО ВІДКРИТЕ."
+ },
+ "fit.bare_hull": {
+  "en": "Bare hull",
+  "uk": "Голий корпус"
+ },
+ "fit.button.buy": {
+  "en": "BUY %d",
+  "uk": "КУПИТИ %d"
+ },
+ "fit.button.buy_get": {
+  "en": "BUY +%d",
+  "uk": "КУПИТИ +%d"
+ },
+ "fit.button.fit": {
+  "en": "FIT",
+  "uk": "НА БОРТ"
+ },
+ "fit.button.flying": {
+  "en": "FLYING",
+  "uk": "У ПОЛЬОТІ"
+ },
+ "fit.button.menu": {
+  "en": "MENU",
+  "uk": "МЕНЮ"
+ },
+ "fit.button.not_bought": {
+  "en": "NOT BOUGHT",
+  "uk": "НЕ КУПУЮТЬ"
+ },
+ "fit.button.sell": {
+  "en": "SELL %d",
+  "uk": "ПРОДАТИ %d"
+ },
+ "fit.button.sell_all": {
+  "en": "ALL %d",
+  "uk": "УСЕ %d"
+ },
+ "fit.button.sell_hold": {
+  "en": "SELL HOLD",
+  "uk": "ПРОДАТИ ТРЮМ"
+ },
+ "fit.button.undock": {
+  "en": "UNDOCK",
+  "uk": "ВИЛІТ"
+ },
+ "fit.cargo.empty": {
+  "en": "The hold is empty",
+  "uk": "Трюм порожній"
+ },
+ "fit.cargo.heading": {
+  "en": "CARGO  hold %d / %d",
+  "uk": "ВАНТАЖ  трюм %d / %d"
+ },
+ "fit.cargo.held": {
+  "en": "%d in the hold",
+  "uk": "%d у трюмі"
+ },
+ "fit.comes_with": {
+  "en": "Comes with:",
+  "uk": "Постачається з:"
+ },
+ "fit.done.bought": {
+  "en": "Bought %s",
+  "uk": "Куплено: %s"
+ },
+ "fit.done.bought_one": {
+  "en": "Bought 1 %s",
+  "uk": "Куплено 1: %s"
+ },
+ "fit.done.fitted": {
+  "en": "Fitted %s",
+  "uk": "Встановлено: %s"
+ },
+ "fit.done.new_ship": {
+  "en": "Now flying %s; the old fit is in storage",
+  "uk": "Тепер ви на %s; старе спорядження на складі"
+ },
+ "fit.done.sold": {
+  "en": "Sold %s for %d WP",
+  "uk": "Продано %s за %d WP"
+ },
+ "fit.done.sold_cargo": {
+  "en": "Sold %d %s for %d WP",
+  "uk": "Продано %d %s за %d WP"
+ },
+ "fit.done.sold_hold": {
+  "en": "Sold %d units for %d WP",
+  "uk": "Продано %d од. за %d WP"
+ },
+ "fit.done.unfitted": {
+  "en": "Unfitted %s",
+  "uk": "Знято: %s"
+ },
+ "fit.err.already_flying": {
+  "en": "Already flying it",
+  "uk": "Ви вже на ньому"
+ },
+ "fit.err.cannot_change_ship": {
+  "en": "Cannot change ships here",
+  "uk": "Тут не можна змінити корабель"
+ },
+ "fit.err.dock_to_sell": {
+  "en": "Dock to sell cargo",
+  "uk": "Причальте, щоб продати вантаж"
+ },
+ "fit.err.dock_to_trade": {
+  "en": "Dock at a station to trade",
+  "uk": "Причальте до станції, щоб торгувати"
+ },
+ "fit.err.hold_full": {
+  "en": "Hold full",
+  "uk": "Трюм повний"
+ },
+ "fit.err.home_to_buy": {
+  "en": "Dock at the home station to buy parts",
+  "uk": "Причальте до рідної станції, щоб купувати деталі"
+ },
+ "fit.err.home_to_change_ship": {
+  "en": "Dock at the home station to change ships",
+  "uk": "Причальте до рідної станції, щоб змінити корабель"
+ },
+ "fit.err.home_to_refit": {
+  "en": "Dock at the home station to refit",
+  "uk": "Причальте до рідної станції для переспорядження"
+ },
+ "fit.err.home_to_sell": {
+  "en": "Dock at the home station to sell parts",
+  "uk": "Причальте до рідної станції, щоб продати деталі"
+ },
+ "fit.err.no_module_slot": {
+  "en": "No free module slot",
+  "uk": "Немає вільного слота модуля"
+ },
+ "fit.err.no_tool_slot": {
+  "en": "No free %s or larger tool slot",
+  "uk": "Немає вільного слота інструмента: %s чи більшого"
+ },
+ "fit.err.none_in_hold": {
+  "en": "None in the hold",
+  "uk": "У трюмі цього немає"
+ },
+ "fit.err.not_bought_here": {
+  "en": "This station does not buy it",
+  "uk": "Ця станція цього не купує"
+ },
+ "fit.err.not_enough": {
+  "en": "Not enough banked WP (%d needed)",
+  "uk": "Замало WP на рахунку (треба %d)"
+ },
+ "fit.err.not_for_sale": {
+  "en": "Not for sale",
+  "uk": "Не продається"
+ },
+ "fit.err.not_in_storage": {
+  "en": "Not in storage",
+  "uk": "Немає на складі"
+ },
+ "fit.err.not_sold_here": {
+  "en": "Not sold here",
+  "uk": "Тут не продається"
+ },
+ "fit.err.nothing_buys": {
+  "en": "Nothing here buys it",
+  "uk": "Тут цього ніхто не купує"
+ },
+ "fit.err.slot_empty": {
+  "en": "Slot is empty",
+  "uk": "Слот порожній"
+ },
+ "fit.err.too_big": {
+  "en": "Too big: this hull's module bays are %s",
+  "uk": "Завеликий: модульні відсіки цього корпусу — %s"
+ },
+ "fit.err.unknown_part": {
+  "en": "Unknown part",
+  "uk": "Невідома деталь"
+ },
+ "fit.evolved_with": {
+  "en": "Evolved with:",
+  "uk": "Еволюціонував із:"
+ },
+ "fit.hulls.heavy": {
+  "en": "HEAVY HULLS",
+  "uk": "ВАЖКІ КОРПУСИ"
+ },
+ "fit.hulls.light": {
+  "en": "LIGHT HULLS",
+  "uk": "ЛЕГКІ КОРПУСИ"
+ },
+ "fit.hulls.medium": {
+  "en": "MEDIUM HULLS",
+  "uk": "СЕРЕДНІ КОРПУСИ"
+ },
+ "fit.hulls.superheavy": {
+  "en": "SUPERHEAVY HULLS",
+  "uk": "НАДВАЖКІ КОРПУСИ"
+ },
+ "fit.proven": {
+  "en": "PROVEN",
+  "uk": "ПЕРЕВІРЕНИЙ"
+ },
+ "fit.ship.title": {
+  "en": "SHIP - tap a slot to unfit",
+  "uk": "КОРАБЕЛЬ - торкніться слота, щоб зняти"
+ },
+ "fit.slot.empty": {
+  "en": "empty",
+  "uk": "порожньо"
+ },
+ "fit.slot.module": {
+  "en": "%s module: %s",
+  "uk": "%s модуль: %s"
+ },
+ "fit.slot.tool": {
+  "en": "%s tool: %s",
+  "uk": "%s інструмент: %s"
+ },
+ "fit.storage.empty": {
+  "en": "Nothing stored",
+  "uk": "Склад порожній"
+ },
+ "fit.storage.title": {
+  "en": "STORAGE - fit or sell",
+  "uk": "СКЛАД - встановити чи продати"
+ },
+ "fit.store.cargo": {
+  "en": "CARGO",
+  "uk": "ВАНТАЖ"
+ },
+ "fit.store.equipment": {
+  "en": "EQUIPMENT",
+  "uk": "ОБЛАДНАННЯ"
+ },
+ "fit.store.modules": {
+  "en": "MODULES",
+  "uk": "МОДУЛІ"
+ },
+ "fit.store.nothing": {
+  "en": "Nothing here",
+  "uk": "Тут нічого немає"
+ },
+ "fit.store.ships": {
+  "en": "SHIPS",
+  "uk": "КОРАБЛІ"
+ },
+ "fit.store.ships.note": {
+  "en": "Tap a ship to see its hull above (drag it to turn it). Hulls only: yours is traded in for half, its parts go to storage. Each line says how the hull was fitted when it evolved; PROVEN ones flew 10 lives or more.",
+  "uk": "Торкніться корабля, щоб побачити його корпус угорі (тягніть, щоб обертати). Лише корпуси: ваш здається за половину ціни, його деталі йдуть на склад. Кожен рядок каже, як корпус був споряджений, коли еволюціонував; ПЕРЕВІРЕНІ прожили 10 життів чи більше."
+ },
+ "fit.store.title": {
+  "en": "STORE",
+  "uk": "КРАМНИЦЯ"
+ },
+ "fit.store.weapons": {
+  "en": "WEAPONS",
+  "uk": "ЗБРОЯ"
+ },
+ "fit.tab.fitting": {
+  "en": "FITTING",
+  "uk": "СПОРЯДЖЕННЯ"
+ },
+ "fit.tab.market": {
+  "en": "MARKET",
+  "uk": "РИНОК"
+ },
+ "fit.title": {
+  "en": "DOCKED AT %s  -  BANK %d WP",
+  "uk": "ПРИЧАЛЕНО: %s  -  РАХУНОК %d WP"
+ },
+ "hud.bar.cargo": {
+  "en": "CARGO",
+  "uk": "ВАНТАЖ"
+ },
+ "hud.bar.energy": {
+  "en": "ENERGY",
+  "uk": "ЕНЕРГІЯ"
+ },
+ "hud.bar.hull": {
+  "en": "HULL",
+  "uk": "КОРПУС"
+ },
+ "hud.bar.sig": {
+  "en": "SIG",
+  "uk": "СИГ"
+ },
+ "hud.burner.decoys": {
+  "en": "DECOYS %d",
+  "uk": "ПАСТКИ %d"
+ },
+ "hud.burner.label": {
+  "en": "BURN %s\n%d m/s",
+  "uk": "ФОРСАЖ %s\n%d м/с"
+ },
+ "hud.burner.none": {
+  "en": "NO BURNER",
+  "uk": "БЕЗ ФОРСАЖУ"
+ },
+ "hud.button.approach": {
+  "en": "APPROACH",
+  "uk": "ПІДЛІТ"
+ },
+ "hud.button.charge": {
+  "en": "CHARGE",
+  "uk": "ТАРАН"
+ },
+ "hud.button.dock": {
+  "en": "DOCK",
+  "uk": "ПРИЧАЛ"
+ },
+ "hud.button.flee": {
+  "en": "FLEE",
+  "uk": "ВТЕЧА"
+ },
+ "hud.button.hold": {
+  "en": "HOLD %s",
+  "uk": "ТРИМАТИ %s"
+ },
+ "hud.button.hud_look": {
+  "en": "HUD\n%s",
+  "uk": "HUD\n%s"
+ },
+ "hud.button.interact": {
+  "en": "INTERACT",
+  "uk": "ЗВ'ЯЗОК"
+ },
+ "hud.button.interacting": {
+  "en": "INTERACTING",
+  "uk": "НА ЗВ'ЯЗКУ"
+ },
+ "hud.button.manual": {
+  "en": "MANUAL",
+  "uk": "РУЧНЕ"
+ },
+ "hud.button.orbit": {
+  "en": "ORBIT",
+  "uk": "ОРБІТА"
+ },
+ "hud.button.stop": {
+  "en": "STOP",
+  "uk": "СТОП"
+ },
+ "hud.button.travel": {
+  "en": "TRAVEL",
+  "uk": "СТРИБОК"
+ },
+ "hud.button.undock": {
+  "en": "UNDOCK",
+  "uk": "ВИЛІТ"
+ },
+ "hud.cannon.blocked": {
+  "en": "BLOCKED",
+  "uk": "ЗАКРИТО"
+ },
+ "hud.cannon.closing": {
+  "en": "CLOSING",
+  "uk": "ЗБЛИЖЕННЯ"
+ },
+ "hud.cannon.far": {
+  "en": "FAR",
+  "uk": "ДАЛЕКО"
+ },
+ "hud.cannon.turning": {
+  "en": "TURNING",
+  "uk": "РОЗВОРОТ"
+ },
+ "hud.cue.bounty": {
+  "en": "BOUNTY %d",
+  "uk": "НАГОРОДА %d"
+ },
+ "hud.cue.leader": {
+  "en": "LEADER",
+  "uk": "ВАТАЖОК"
+ },
+ "hud.cue.rank": {
+  "en": "RANK %d/%d",
+  "uk": "РАНГ %d/%d"
+ },
+ "hud.cue.sees_you": {
+  "en": "SEES YOU",
+  "uk": "БАЧИТЬ ВАС"
+ },
+ "hud.cue.unaware": {
+  "en": "UNAWARE",
+  "uk": "НЕ БАЧИТЬ"
+ },
+ "hud.fps": {
+  "en": "FPS %d",
+  "uk": "FPS %d"
+ },
+ "hud.fuel": {
+  "en": "FUEL %d / %d",
+  "uk": "ПАЛЬНЕ %d / %d"
+ },
+ "hud.game_speed": {
+  "en": "SPEED X%.2f",
+  "uk": "ШВИДКІСТЬ X%.2f"
+ },
+ "hud.jump_to": {
+  "en": "JUMP TO %s",
+  "uk": "СТРИБОК ДО %s"
+ },
+ "hud.lance.arm": {
+  "en": "ARM",
+  "uk": "ЗВЕСТИ"
+ },
+ "hud.lance.armed": {
+  "en": "ARMED",
+  "uk": "ЗВЕДЕНО"
+ },
+ "hud.lance.label": {
+  "en": "LANCE %d\n%s",
+  "uk": "СПИС %d\n%s"
+ },
+ "hud.lance.loading": {
+  "en": "LOADING",
+  "uk": "ЗАРЯДЖАННЯ"
+ },
+ "hud.lance.safe": {
+  "en": "SAFE",
+  "uk": "ЗАПОБІЖНИК"
+ },
+ "hud.lance.too_slow": {
+  "en": "TOO SLOW",
+  "uk": "ЗАПОВІЛЬНО"
+ },
+ "hud.look.dim": {
+  "en": "DIM",
+  "uk": "ТЬМЯНИЙ"
+ },
+ "hud.look.soft": {
+  "en": "SOFT",
+  "uk": "М'ЯКИЙ"
+ },
+ "hud.look.standard": {
+  "en": "NORMAL",
+  "uk": "БАЗОВИЙ"
+ },
+ "hud.off": {
+  "en": "OFF",
+  "uk": "ВИМК"
+ },
+ "hud.on": {
+  "en": "ON",
+  "uk": "УВІМК"
+ },
+ "hud.safety.label": {
+  "en": "SAFETY\n%s",
+  "uk": "ЗАПОБІЖНИК\n%s"
+ },
+ "hud.ship_lost": {
+  "en": "SHIP LOST",
+  "uk": "КОРАБЕЛЬ ВТРАЧЕНО"
+ },
+ "hud.thrust": {
+  "en": "THRUST",
+  "uk": "ТЯГА"
+ },
+ "hud.tool.empty": {
+  "en": "EMPTY",
+  "uk": "ПОРОЖНЬО"
+ },
+ "hud.tool.winching": {
+  "en": "WINCHING",
+  "uk": "НАМОТУЄ"
+ },
+ "hud.zoom": {
+  "en": "ZOOM",
+  "uk": "ЗУМ"
+ },
+ "interact.about.caravan": {
+  "en": "Travel with it: it keeps your pace",
+  "uk": "Летіть разом: він тримає ваш темп"
+ },
+ "interact.about.caravan_to": {
+  "en": "Travel with it to %s: it keeps your pace",
+  "uk": "Летіть разом до %s: він тримає ваш темп"
+ },
+ "interact.about.escort": {
+  "en": "Keep by it and guard it: %d%% of its sales while within %.0f km of it",
+  "uk": "Тримайтеся поруч і охороняйте: %d%% його продажів, поки ви в межах %.0f км"
+ },
+ "interact.about.hire": {
+  "en": "It keeps by you and guards you, for %d%% of your cargo sales while within %.0f km",
+  "uk": "Тримається поруч і охороняє вас за %d%% ваших продажів вантажу, поки в межах %.0f км"
+ },
+ "interact.about.wing": {
+  "en": "It keeps by you, guards you and joins the fights you start",
+  "uk": "Тримається поруч, охороняє вас і вступає в бої, які ви починаєте"
+ },
+ "interact.ended": {
+  "en": "%s: %s ended",
+  "uk": "%s: «%s» завершено"
+ },
+ "interact.no_ship": {
+  "en": "NO SHIP SELECTED",
+  "uk": "КОРАБЕЛЬ НЕ ОБРАНО"
+ },
+ "interact.note.ask": {
+  "en": "THE GAME IS PAUSED WHILE THIS IS OPEN. TAP AN OPTION TO ASK IT, AGAIN TO END IT.",
+  "uk": "ГРУ ПРИЗУПИНЕНО, ПОКИ ЦЕ ВІКНО ВІДКРИТЕ. ТОРКНІТЬСЯ ВАРІАНТА, ЩОБ ПОПРОСИТИ, ЩЕ РАЗ — ЩОБ ПРИПИНИТИ."
+ },
+ "interact.note.pilot": {
+  "en": "THE GAME IS PAUSED WHILE THIS IS OPEN. WHAT ANYONE MAY KNOW OF THIS PILOT.",
+  "uk": "ГРУ ПРИЗУПИНЕНО, ПОКИ ЦЕ ВІКНО ВІДКРИТЕ. ТЕ, ЩО БУДЬ-ХТО МОЖЕ ЗНАТИ ПРО ЦЬОГО ПІЛОТА."
+ },
+ "interact.nothing": {
+  "en": "NOTHING TO ASK OF IT: %s",
+  "uk": "НЕМАЄ ПРО ЩО ПРОСИТИ: %s"
+ },
+ "interact.option.caravan": {
+  "en": "JOIN ITS CARAVAN",
+  "uk": "ПРИЄДНАТИСЯ ДО КАРАВАНУ"
+ },
+ "interact.option.escort": {
+  "en": "ESCORT IT",
+  "uk": "СУПРОВОДЖУВАТИ"
+ },
+ "interact.option.hire": {
+  "en": "HIRE AS ESCORT",
+  "uk": "НАЙНЯТИ В ЕСКОРТ"
+ },
+ "interact.option.wing": {
+  "en": "LEAD IT IN YOUR WING",
+  "uk": "ВЕСТИ У СВОЄМУ КРИЛІ"
+ },
+ "interact.tab.ask": {
+  "en": "ASK",
+  "uk": "ПРОХАННЯ"
+ },
+ "interact.tab.pilot": {
+  "en": "PILOT",
+  "uk": "ПІЛОТ"
+ },
+ "interact.why.faction_no_escort": {
+  "en": "Its faction does not escort",
+  "uk": "Його фракція не супроводжує"
+ },
+ "interact.why.followers_full": {
+  "en": "You have %d ships with you already",
+  "uk": "З вами вже %d кораблів"
+ },
+ "interact.why.hostile": {
+  "en": "Hostile",
+  "uk": "Ворожий"
+ },
+ "interact.why.no_weapons": {
+  "en": "You carry no weapons",
+  "uk": "У вас немає зброї"
+ },
+ "interact.why.not_askable": {
+  "en": "Not a ship that can be asked",
+  "uk": "Цей корабель не можна попросити"
+ },
+ "interact.why.not_fighter": {
+  "en": "Not a fighting ship",
+  "uk": "Не бойовий корабель"
+ },
+ "interact.why.not_trader": {
+  "en": "Not a trader",
+  "uk": "Не торговець"
+ },
+ "interact.why.not_travelling": {
+  "en": "Not on its way anywhere",
+  "uk": "Нікуди не прямує"
+ },
+ "interact.why.not_worker": {
+  "en": "Not a worker of a faction that takes escorts",
+  "uk": "Не робітник фракції, що приймає ескорт"
+ },
+ "interact.why.only_allies_caravan": {
+  "en": "Only allies take you in their caravan",
+  "uk": "До каравану беруть лише союзники"
+ },
+ "interact.why.only_allies_follow": {
+  "en": "Only allies follow you",
+  "uk": "За вами йдуть лише союзники"
+ },
+ "interact.why.unknown": {
+  "en": "Unknown",
+  "uk": "Невідомо"
+ },
+ "kind.afterburner": {
+  "en": "AFTERBURNER",
+  "uk": "ФОРСАЖ"
+ },
+ "kind.cannon": {
+  "en": "CANNON",
+  "uk": "ГАРМАТА"
+ },
+ "kind.damper": {
+  "en": "DAMPER",
+  "uk": "ГЛУШНИК"
+ },
+ "kind.decoy": {
+  "en": "DECOY",
+  "uk": "ПАСТКИ"
+ },
+ "kind.harpoon": {
+  "en": "HARPOON",
+  "uk": "ГАРПУН"
+ },
+ "kind.lance": {
+  "en": "LANCE",
+  "uk": "СПИС"
+ },
+ "kind.laser": {
+  "en": "LASER",
+  "uk": "ЛАЗЕР"
+ },
+ "kind.magazine": {
+  "en": "MAGAZINE",
+  "uk": "СНАРЯДНИЙ ВІДСІК"
+ },
+ "kind.missile": {
+  "en": "MISSILE",
+  "uk": "РАКЕТИ"
+ },
+ "kind.other": {
+  "en": "OTHER",
+  "uk": "ІНШЕ"
+ },
+ "kind.plating": {
+  "en": "PLATING",
+  "uk": "БРОНЯ"
+ },
+ "kind.power_cell": {
+  "en": "POWER CELL",
+  "uk": "ЕНЕРГОЕЛЕМЕНТ"
+ },
+ "kind.rack": {
+  "en": "RACK",
+  "uk": "РАКЕТНИЙ ВІДСІК"
+ },
+ "kind.sensor": {
+  "en": "SENSOR",
+  "uk": "СЕНСОР"
+ },
+ "kind.thruster": {
+  "en": "THRUSTER",
+  "uk": "ДВИГУН"
+ },
+ "map.across": {
+  "en": "%s ACROSS",
+  "uk": "%s У ПОПЕРЕЧНИКУ"
+ },
+ "map.away": {
+  "en": "%s AWAY",
+  "uk": "ЗА %s"
+ },
+ "map.belt_rocks": {
+  "en": "BELT, %d ROCKS SEEN",
+  "uk": "ПОЯС, ВИДНО СКЕЛЬ: %d"
+ },
+ "map.button.centre": {
+  "en": "CENTRE ON SHIP",
+  "uk": "ДО КОРАБЛЯ"
+ },
+ "map.button.fit": {
+  "en": "FIT",
+  "uk": "УСЕ"
+ },
+ "map.button.target": {
+  "en": "TARGET",
+  "uk": "ЦІЛЬ"
+ },
+ "map.filter.area": {
+  "en": "PLAY AREA",
+  "uk": "МЕЖІ ГРИ"
+ },
+ "map.filter.beacons": {
+  "en": "BEACONS",
+  "uk": "МАЯКИ"
+ },
+ "map.filter.belts": {
+  "en": "BELTS",
+  "uk": "ПОЯСИ"
+ },
+ "map.filter.hazards": {
+  "en": "HAZARDS",
+  "uk": "НЕБЕЗПЕКИ"
+ },
+ "map.filter.labels": {
+  "en": "NAMES",
+  "uk": "НАЗВИ"
+ },
+ "map.filter.moons": {
+  "en": "MOONS",
+  "uk": "СУПУТНИКИ"
+ },
+ "map.filter.pickups": {
+  "en": "PICKUPS",
+  "uk": "ЗНАХІДКИ"
+ },
+ "map.filter.planets": {
+  "en": "PLANETS",
+  "uk": "ПЛАНЕТИ"
+ },
+ "map.filter.rocks": {
+  "en": "ROCKS",
+  "uk": "СКЕЛІ"
+ },
+ "map.filter.routes": {
+  "en": "ROUTES",
+  "uk": "МАРШРУТИ"
+ },
+ "map.filter.ships": {
+  "en": "SHIPS",
+  "uk": "КОРАБЛІ"
+ },
+ "map.filter.stars": {
+  "en": "STARS",
+  "uk": "ЗОРІ"
+ },
+ "map.filter.stations": {
+  "en": "STATIONS",
+  "uk": "СТАНЦІЇ"
+ },
+ "map.filter.wrecks": {
+  "en": "WRECKS",
+  "uk": "УЛАМКИ"
+ },
+ "map.here": {
+  "en": "(HERE)",
+  "uk": "(ВИ ТУТ)"
+ },
+ "map.kind.beacon": {
+  "en": "BEACON",
+  "uk": "МАЯК"
+ },
+ "map.kind.belt": {
+  "en": "BELT",
+  "uk": "ПОЯС"
+ },
+ "map.kind.distress": {
+  "en": "MAYDAY",
+  "uk": "СИГНАЛ ЛИХА"
+ },
+ "map.kind.hazard": {
+  "en": "HAZARD",
+  "uk": "НЕБЕЗПЕКА"
+ },
+ "map.kind.moon": {
+  "en": "MOON",
+  "uk": "СУПУТНИК"
+ },
+ "map.kind.pickup": {
+  "en": "PICKUP",
+  "uk": "ЗНАХІДКА"
+ },
+ "map.kind.planet": {
+  "en": "PLANET",
+  "uk": "ПЛАНЕТА"
+ },
+ "map.kind.rock": {
+  "en": "ROCK",
+  "uk": "СКЕЛЯ"
+ },
+ "map.kind.ship": {
+  "en": "SHIP",
+  "uk": "КОРАБЕЛЬ"
+ },
+ "map.kind.star": {
+  "en": "STAR",
+  "uk": "ЗОРЯ"
+ },
+ "map.kind.station": {
+  "en": "STATION",
+  "uk": "СТАНЦІЯ"
+ },
+ "map.kind.wreck": {
+  "en": "WRECK",
+  "uk": "УЛАМОК"
+ },
+ "map.note": {
+  "en": "THE GAME IS PAUSED WHILE THIS IS OPEN. DRAG TO MOVE, WHEEL OR + AND − TO ZOOM, TAP TO PICK.",
+  "uk": "ГРУ ПРИЗУПИНЕНО, ПОКИ ЦЕ ВІКНО ВІДКРИТЕ. ТЯГНІТЬ, ЩОБ РУХАТИ, КОЛЕСО АБО + І − ДЛЯ МАСШТАБУ, ТОРКНІТЬСЯ, ЩОБ ОБРАТИ."
+ },
+ "map.rock_field": {
+  "en": "ROCK FIELD",
+  "uk": "ПОЛЕ СКЕЛЬ"
+ },
+ "map.route": {
+  "en": "%s, %d ROUTE",
+  "uk": "%s, МАРШРУТІВ: %d"
+ },
+ "map.routes": {
+  "en": "%s, %d ROUTES",
+  "uk": "%s, МАРШРУТІВ: %d"
+ },
+ "map.side_ship": {
+  "en": "%s SHIP",
+  "uk": "КОРАБЕЛЬ: %s"
+ },
+ "map.tab.global": {
+  "en": "GLOBAL",
+  "uk": "ГАЛАКТИКА"
+ },
+ "map.tab.sector": {
+  "en": "SECTOR",
+  "uk": "СЕКТОР"
+ },
+ "map.tap_sector": {
+  "en": "TAP A SECTOR TO SEE IT.",
+  "uk": "ТОРКНІТЬСЯ СЕКТОРА, ЩОБ ПОБАЧИТИ ЙОГО."
+ },
+ "map.tap_thing": {
+  "en": "TAP A THING TO SEE IT.",
+  "uk": "ТОРКНІТЬСЯ ОБ'ЄКТА, ЩОБ ПОБАЧИТИ ЙОГО."
+ },
+ "map.target_set": {
+  "en": "TARGET SET.",
+  "uk": "ЦІЛЬ ОБРАНО."
+ },
+ "map.title": {
+  "en": "MAP  ·  %s",
+  "uk": "МАПА  ·  %s"
+ },
+ "map.title_sectors": {
+  "en": "MAP  ·  %d SECTORS",
+  "uk": "МАПА  ·  СЕКТОРІВ: %d"
+ },
+ "map.unit": {
+  "en": "%s UNIT",
+  "uk": "%s ОД."
+ },
+ "map.units": {
+  "en": "%s UNITS",
+  "uk": "%s ОД."
+ },
+ "menu.button.exit": {
+  "en": "Exit",
+  "uk": "Вихід"
+ },
+ "menu.button.load": {
+  "en": "Load",
+  "uk": "Відкрити"
+ },
+ "menu.button.new": {
+  "en": "New",
+  "uk": "Нова"
+ },
+ "menu.button.save": {
+  "en": "Save",
+  "uk": "Зберегти"
+ },
+ "menu.button.settings": {
+  "en": "Settings",
+  "uk": "Опції"
+ },
+ "menu.exit.exit": {
+  "en": "EXIT",
+  "uk": "ВИЙТИ"
+ },
+ "menu.exit.save": {
+  "en": "SAVE AND EXIT",
+  "uk": "ЗБЕРЕГТИ Й ВИЙТИ"
+ },
+ "menu.exit.text": {
+  "en": "UNSAVED PLAY IS LOST ON EXIT.",
+  "uk": "НЕЗБЕРЕЖЕНУ ГРУ БУДЕ ВТРАЧЕНО ПІСЛЯ ВИХОДУ."
+ },
+ "menu.exit.title": {
+  "en": "Save before exiting?",
+  "uk": "Зберегти перед виходом?"
+ },
+ "menu.load.text": {
+  "en": "PICK A SAVE. PLAY SINCE THE LAST SAVE IS LOST.",
+  "uk": "ОБЕРІТЬ ЗБЕРЕЖЕННЯ. ГРУ ПІСЛЯ ОСТАННЬОГО ЗБЕРЕЖЕННЯ БУДЕ ВТРАЧЕНО."
+ },
+ "menu.load.title": {
+  "en": "Load game",
+  "uk": "Завантажити гру"
+ },
+ "menu.new.text": {
+  "en": "UNSAVED PLAY IS LOST.",
+  "uk": "НЕЗБЕРЕЖЕНУ ГРУ БУДЕ ВТРАЧЕНО."
+ },
+ "menu.new.title": {
+  "en": "Start a new game?",
+  "uk": "Почати нову гру?"
+ },
+ "menu.new.yes": {
+  "en": "NEW GAME",
+  "uk": "НОВА ГРА"
+ },
+ "menu.overwrite.title": {
+  "en": "Save over slot %d?",
+  "uk": "Перезаписати комірку %d?"
+ },
+ "menu.overwrite.yes": {
+  "en": "SAVE OVER IT",
+  "uk": "ПЕРЕЗАПИСАТИ"
+ },
+ "menu.save.text": {
+  "en": "PICK A SLOT. THE AUTOSAVE HAS ITS OWN.",
+  "uk": "ОБЕРІТЬ КОМІРКУ. АВТОЗБЕРЕЖЕННЯ МАЄ ВЛАСНУ."
+ },
+ "menu.save.title": {
+  "en": "Save game",
+  "uk": "Зберегти гру"
+ },
+ "menu.save_failed.text": {
+  "en": "THE GAME COULD NOT BE SAVED. THE CONSOLE SAYS WHY.",
+  "uk": "ГРУ НЕ ВДАЛОСЯ ЗБЕРЕГТИ. ПРИЧИНА — У КОНСОЛІ."
+ },
+ "menu.save_failed.title": {
+  "en": "Save failed",
+  "uk": "Не вдалося зберегти"
+ },
+ "menu.saved.slot": {
+  "en": "THE GAME IS SAVED IN SLOT %d.",
+  "uk": "ГРУ ЗБЕРЕЖЕНО В КОМІРЦІ %d."
+ },
+ "menu.saved.text": {
+  "en": "THE GAME IS SAVED.",
+  "uk": "ГРУ ЗБЕРЕЖЕНО."
+ },
+ "menu.saved.title": {
+  "en": "Saved",
+  "uk": "Збережено"
+ },
+ "menu.version": {
+  "en": "version 0.1",
+  "uk": "версія 0.1"
+ },
+ "msg.afterburner.no_power": {
+  "en": "Afterburner: no power",
+  "uk": "Форсаж: немає енергії"
+ },
+ "msg.bounty_paid": {
+  "en": "Bounty: %d WP",
+  "uk": "Нагорода: %d WP"
+ },
+ "msg.bounty_posted": {
+  "en": "%s posts a bounty on you: %d WP",
+  "uk": "%s оголошує нагороду за вас: %d WP"
+ },
+ "msg.decoy.missed": {
+  "en": "Decoy out (%d left): the missile kept on",
+  "uk": "Пастку випущено (лишилось %d): ракета не відхилилась"
+ },
+ "msg.decoy.taken": {
+  "en": "Decoy out (%d left): the missile took it",
+  "uk": "Пастку випущено (лишилось %d): ракета пішла на неї"
+ },
+ "msg.dock.cannot": {
+  "en": "Can not dock with target",
+  "uk": "До цієї цілі не можна причалити"
+ },
+ "msg.dock.select_station": {
+  "en": "Select a station to dock at",
+  "uk": "Оберіть станцію, щоб причалити"
+ },
+ "msg.dock.too_far": {
+  "en": "Too far to dock: %.0f m to the station, %.0f m needed",
+  "uk": "Задалеко для причалювання: %.0f м до станції, треба %.0f м"
+ },
+ "msg.escort_pay": {
+  "en": "Escort pay from %s: %d WP",
+  "uk": "Плата за супровід від %s: %d WP"
+ },
+ "msg.escorts_share": {
+  "en": "Your escorts' share: %d WP",
+  "uk": "Частка вашого ескорту: %d WP"
+ },
+ "msg.fuel_short": {
+  "en": "Not enough fuel to jump: %d of %d units",
+  "uk": "Замало пального для стрибка: %d із %d од."
+ },
+ "msg.harpoon.hold_full": {
+  "en": "Hold full: nothing more can be stripped. The harpoon keeps towing; sell cargo at a station",
+  "uk": "Трюм повний: більше нічого не зняти. Гарпун і далі буксирує; продайте вантаж на станції"
+ },
+ "msg.harpoon.missed": {
+  "en": "Harpoon: missed, winching in",
+  "uk": "Гарпун: промах, намотує трос"
+ },
+ "msg.harpoon.no_power": {
+  "en": "Harpoon: not enough energy to fire",
+  "uk": "Гарпун: замало енергії для пострілу"
+ },
+ "msg.harpoon.nothing_left": {
+  "en": "Harpoon: nothing left to strip, cable released",
+  "uk": "Гарпун: знімати більше нічого, трос відпущено"
+ },
+ "msg.harpoon.snapped": {
+  "en": "Harpoon: the cable snapped",
+  "uk": "Гарпун: трос обірвався"
+ },
+ "msg.harpoon.stripped": {
+  "en": "Harpoon: stripped clean, %d units into the hold, cable released",
+  "uk": "Гарпун: знято все, %d од. у трюм, трос відпущено"
+ },
+ "msg.harpoon.stripped_one": {
+  "en": "Harpoon: stripped clean, %d unit into the hold, cable released",
+  "uk": "Гарпун: знято все, %d од. у трюм, трос відпущено"
+ },
+ "msg.holding": {
+  "en": "Holding at weapon range: %s off, as your weapons on it reach. Switch them off to fly all the way in",
+  "uk": "Тримаюсь на дистанції зброї: %s, куди дістає ваша зброя. Вимкніть її, щоб підлетіти впритул"
+ },
+ "msg.home.decoys": {
+  "en": "%d decoys for %d WP",
+  "uk": "%d пасток за %d WP"
+ },
+ "msg.home.lances": {
+  "en": "%d lances for %d WP",
+  "uk": "%d списів за %d WP"
+ },
+ "msg.home.repaired": {
+  "en": "Home port: repaired %d hull",
+  "uk": "Рідний порт: відремонтовано %d корпусу"
+ },
+ "msg.home.rounds": {
+  "en": "%d rounds for %d WP",
+  "uk": "%d снарядів за %d WP"
+ },
+ "msg.interaction_ended.caravan": {
+  "en": "%s: the caravan is over",
+  "uk": "%s: караван завершено"
+ },
+ "msg.interaction_ended.hire": {
+  "en": "%s no longer escorts you",
+  "uk": "%s більше вас не супроводжує"
+ },
+ "msg.interaction_ended.other": {
+  "en": "%s has let go",
+  "uk": "%s відпустив вас"
+ },
+ "msg.interaction_ended.wing": {
+  "en": "%s has left your wing",
+  "uk": "%s покинув ваше крило"
+ },
+ "msg.lance.glanced": {
+  "en": "Lance glanced off: %s",
+  "uk": "Спис ковзнув: %s"
+ },
+ "msg.lance.in": {
+  "en": "Lance in: %d damage",
+  "uk": "Спис увійшов: %d шкоди"
+ },
+ "msg.lance.made_safe": {
+  "en": "Lance made safe: it arms only at an asteroid or a hostile",
+  "uk": "Спис на запобіжнику: зводиться лише на астероїд чи ворога"
+ },
+ "msg.lance.only_ships_rocks": {
+  "en": "The lance strikes only ships and rocks",
+  "uk": "Спис б'є лише по кораблях і скелях"
+ },
+ "msg.lance.ore_broken": {
+  "en": "Ore broken off: burn each piece's crust off, let it cool, harpoon it. The lance is in the rock: make the lance safe and fly by it slowly, or harpoon it out",
+  "uk": "Руду відколото: випаліть кірку з кожного шматка, дайте охолонути, візьміть гарпуном. Спис у скелі: поставте спис на запобіжник і повільно пролетіть поруч або витягніть гарпуном"
+ },
+ "msg.lance.reason.angle": {
+  "en": "at %d degrees",
+  "uk": "під кутом %d°"
+ },
+ "msg.lance.reason.missed": {
+  "en": "missed",
+  "uk": "промах"
+ },
+ "msg.lance.reason.too_slow": {
+  "en": "too slow, %d of %d m/s",
+  "uk": "заповільно, %d із %d м/с"
+ },
+ "msg.lance.reason.worked_out": {
+  "en": "the rock is worked out",
+  "uk": "скелю вироблено"
+ },
+ "msg.lance.safety_only_at": {
+  "en": "Safety on: the lance arms only at an asteroid or a hostile (SAFETY to arm)",
+  "uk": "Запобіжник: спис зводиться лише на астероїд чи ворога (ЗАПОБІЖНИК, щоб звести)"
+ },
+ "msg.lance.safety_select": {
+  "en": "Safety on: select an asteroid or a hostile to arm the lance",
+  "uk": "Запобіжник: оберіть астероїд чи ворога, щоб звести спис"
+ },
+ "msg.lance_charge": {
+  "en": "%s ship charging you with a lance!",
+  "uk": "Корабель %s таранить вас списом!"
+ },
+ "msg.lance_charge_unknown": {
+  "en": "A ship charging you with a lance!",
+  "uk": "Корабель таранить вас списом!"
+ },
+ "msg.laser_on_rock": {
+  "en": "Laser on a rock: no ore from it. Break chunks off with the lance, burn their crust off with the laser, then harpoon them",
+  "uk": "Лазер по скелі: руди з цього не буде. Відколіть шматки списом, випаліть кірку лазером, потім візьміть гарпуном"
+ },
+ "msg.missile_down": {
+  "en": "Missile shot down",
+  "uk": "Ракету збито"
+ },
+ "msg.missile_inbound": {
+  "en": "Missile inbound! Lasers shoot it down; a rock in its path stops it",
+  "uk": "Ракета летить! Лазери її збивають; скеля на шляху її зупиняє"
+ },
+ "msg.on_patrol": {
+  "en": "%s: on %s patrol, paid at its havens",
+  "uk": "%s: патруль %s, оплата в її притулках"
+ },
+ "msg.patrol_wage": {
+  "en": "%s patrol wage: %d WP",
+  "uk": "Плата за патруль від %s: %d WP"
+ },
+ "msg.radiation.in": {
+  "en": "RADIATION: the nearer the star, the more hull it burns",
+  "uk": "РАДІАЦІЯ: що ближче до зорі, то більше корпусу вона випалює"
+ },
+ "msg.radiation.out": {
+  "en": "Out of the radiation",
+  "uk": "Поза радіацією"
+ },
+ "msg.respawn": {
+  "en": "Back home in a new ship. The bank and storage are kept: %d WP",
+  "uk": "Знову вдома на новому кораблі. Рахунок і склад збережено: %d WP"
+ },
+ "msg.safety.not_hostile": {
+  "en": "Safety on: not hostile (SAFETY to fire)",
+  "uk": "Запобіжник: не ворог (ЗАПОБІЖНИК, щоб стріляти)"
+ },
+ "msg.safety.off": {
+  "en": "Safety off: your weapons fire on any ship",
+  "uk": "Запобіжник вимкнено: зброя стріляє по будь-якому кораблю"
+ },
+ "msg.safety.on": {
+  "en": "Safety on: allied and neutral ships are safe from your weapons",
+  "uk": "Запобіжник увімкнено: союзні й нейтральні кораблі в безпеці від вашої зброї"
+ },
+ "msg.save_updated": {
+  "en": "Save updated: %s",
+  "uk": "Збереження оновлено: %s"
+ },
+ "msg.select_ship_to_interact": {
+  "en": "Select a ship to interact with",
+  "uk": "Оберіть корабель для взаємодії"
+ },
+ "msg.select_to_approach": {
+  "en": "Select something to approach",
+  "uk": "Оберіть, до чого підлетіти"
+ },
+ "msg.select_to_flee": {
+  "en": "Select something to flee from",
+  "uk": "Оберіть, від чого тікати"
+ },
+ "msg.select_to_orbit": {
+  "en": "Select something to orbit",
+  "uk": "Оберіть, навколо чого кружляти"
+ },
+ "msg.tool.crust": {
+  "en": "%s: burn the crust off with a laser first",
+  "uk": "%s: спершу випаліть кірку лазером"
+ },
+ "msg.tool.empty": {
+  "en": "%s empty: refill at a base, or salvage a wreck that carried the same",
+  "uk": "%s: порожньо. Поповніть на базі або зніміть з уламка, що мав таке саме"
+ },
+ "msg.tool.hot": {
+  "en": "%s: the ore is still hot, wait for it to cool",
+  "uk": "%s: руда ще гаряча, зачекайте, поки охолоне"
+ },
+ "msg.tool.needs_harpoon": {
+  "en": "%s needs a wreck or bared ore selected",
+  "uk": "%s: оберіть уламок чи очищену руду"
+ },
+ "msg.tool.needs_laser": {
+  "en": "%s needs a ship or rock selected",
+  "uk": "%s: оберіть корабель чи скелю"
+ },
+ "msg.tool.needs_ship": {
+  "en": "%s needs a ship selected",
+  "uk": "%s: оберіть корабель"
+ },
+ "msg.tool.no_tool_for_target": {
+  "en": "No fitted tool works on this target",
+  "uk": "Жоден встановлений інструмент не діє на цю ціль"
+ },
+ "msg.tool.not_implemented": {
+  "en": "This tool does not work yet",
+  "uk": "Цей інструмент поки не працює"
+ },
+ "msg.tool.off_sensors": {
+  "en": "%s: the target is off the sensors, close in",
+  "uk": "%s: ціль поза сенсорами, підлетіть ближче"
+ },
+ "msg.tool.retracting": {
+  "en": "Harpoon cable still winching in",
+  "uk": "Трос гарпуна ще намотується"
+ },
+ "msg.tool.unavailable": {
+  "en": "Tool unavailable",
+  "uk": "Інструмент недоступний"
+ },
+ "msg.tool.wrecked": {
+  "en": "Ship is wrecked",
+  "uk": "Корабель зруйновано"
+ },
+ "msg.undock_first": {
+  "en": "Undock first",
+  "uk": "Спершу відчальте"
+ },
+ "msg.worked_out": {
+  "en": "Worked out: ore back in %s; pick another rock",
+  "uk": "Вироблено: руда повернеться за %s; оберіть іншу скелю"
+ },
+ "name.afterburner_mk_i_heavy": {
+  "en": "Afterburner Mk I-heavy",
+  "uk": "Форсаж Мк I-важкий"
+ },
+ "name.afterburner_mk_i_light": {
+  "en": "Afterburner Mk I-light",
+  "uk": "Форсаж Мк I-легкий"
+ },
+ "name.afterburner_mk_i_medium": {
+  "en": "Afterburner Mk I-medium",
+  "uk": "Форсаж Мк I-середній"
+ },
+ "name.biotech": {
+  "en": "Biotech",
+  "uk": "Біотех"
+ },
+ "name.cannon_i_h": {
+  "en": "CANNON I-H",
+  "uk": "ГАРМАТА I-В"
+ },
+ "name.cannon_i_l": {
+  "en": "CANNON I-L",
+  "uk": "ГАРМАТА I-Л"
+ },
+ "name.cannon_i_m": {
+  "en": "CANNON I-M",
+  "uk": "ГАРМАТА I-С"
+ },
+ "name.cannon_mk_i_heavy": {
+  "en": "Cannon Mk I-heavy",
+  "uk": "Гармата Мк I-важкий"
+ },
+ "name.cannon_mk_i_light": {
+  "en": "Cannon Mk I-light",
+  "uk": "Гармата Мк I-легкий"
+ },
+ "name.cannon_mk_i_medium": {
+  "en": "Cannon Mk I-medium",
+  "uk": "Гармата Мк I-середній"
+ },
+ "name.damper_mk_i_heavy": {
+  "en": "Damper Mk I-heavy",
+  "uk": "Глушник Мк I-важкий"
+ },
+ "name.damper_mk_i_light": {
+  "en": "Damper Mk I-light",
+  "uk": "Глушник Мк I-легкий"
+ },
+ "name.damper_mk_i_medium": {
+  "en": "Damper Mk I-medium",
+  "uk": "Глушник Мк I-середній"
+ },
+ "name.decoy_launcher_mk_i_heavy": {
+  "en": "Decoy Launcher Mk I-heavy",
+  "uk": "Пускова пасток Мк I-важкий"
+ },
+ "name.decoy_launcher_mk_i_light": {
+  "en": "Decoy Launcher Mk I-light",
+  "uk": "Пускова пасток Мк I-легкий"
+ },
+ "name.decoy_launcher_mk_i_medium": {
+  "en": "Decoy Launcher Mk I-medium",
+  "uk": "Пускова пасток Мк I-середній"
+ },
+ "name.fighter_mk_i_heavy": {
+  "en": "Fighter Mk I-heavy",
+  "uk": "Винищувач Мк I-важкий"
+ },
+ "name.fighter_mk_i_light": {
+  "en": "Fighter Mk I-light",
+  "uk": "Винищувач Мк I-легкий"
+ },
+ "name.fighter_mk_i_medium": {
+  "en": "Fighter Mk I-medium",
+  "uk": "Винищувач Мк I-середній"
+ },
+ "name.fighter_mk_i_superheavy": {
+  "en": "Fighter Mk I-superheavy",
+  "uk": "Винищувач Мк I-надважкий"
+ },
+ "name.harpoon": {
+  "en": "HARPOON",
+  "uk": "ГАРПУН"
+ },
+ "name.harpoon_mk_i": {
+  "en": "Harpoon Mk I",
+  "uk": "Гарпун Мк I"
+ },
+ "name.hostile_fighter": {
+  "en": "Hostile Fighter",
+  "uk": "Ворожий винищувач"
+ },
+ "name.lance_mk_i_heavy": {
+  "en": "Lance Mk I-heavy",
+  "uk": "Спис Мк I-важкий"
+ },
+ "name.lance_mk_i_light": {
+  "en": "Lance Mk I-light",
+  "uk": "Спис Мк I-легкий"
+ },
+ "name.lance_mk_i_medium": {
+  "en": "Lance Mk I-medium",
+  "uk": "Спис Мк I-середній"
+ },
+ "name.laser_i_h": {
+  "en": "LASER I-H",
+  "uk": "ЛАЗЕР I-В"
+ },
+ "name.laser_i_l": {
+  "en": "LASER I-L",
+  "uk": "ЛАЗЕР I-Л"
+ },
+ "name.laser_i_m": {
+  "en": "LASER I-M",
+  "uk": "ЛАЗЕР I-С"
+ },
+ "name.laser_mk_i_heavy": {
+  "en": "Laser Mk I-heavy",
+  "uk": "Лазер Мк I-важкий"
+ },
+ "name.laser_mk_i_light": {
+  "en": "Laser Mk I-light",
+  "uk": "Лазер Мк I-легкий"
+ },
+ "name.laser_mk_i_medium": {
+  "en": "Laser Mk I-medium",
+  "uk": "Лазер Мк I-середній"
+ },
+ "name.missile_bay_mk_i_heavy": {
+  "en": "Missile Bay Mk I-heavy",
+  "uk": "Ракетний відсік Мк I-важкий"
+ },
+ "name.missile_bay_mk_i_light": {
+  "en": "Missile Bay Mk I-light",
+  "uk": "Ракетний відсік Мк I-легкий"
+ },
+ "name.missile_bay_mk_i_medium": {
+  "en": "Missile Bay Mk I-medium",
+  "uk": "Ракетний відсік Мк I-середній"
+ },
+ "name.missile_rack_i_h": {
+  "en": "MISSILE RACK I-H",
+  "uk": "РАКЕТИ I-В"
+ },
+ "name.missile_rack_i_l": {
+  "en": "MISSILE RACK I-L",
+  "uk": "РАКЕТИ I-Л"
+ },
+ "name.missile_rack_i_m": {
+  "en": "MISSILE RACK I-M",
+  "uk": "РАКЕТИ I-С"
+ },
+ "name.missile_rack_mk_i_heavy": {
+  "en": "Missile Rack Mk I-heavy",
+  "uk": "Ракетна установка Мк I-важкий"
+ },
+ "name.missile_rack_mk_i_light": {
+  "en": "Missile Rack Mk I-light",
+  "uk": "Ракетна установка Мк I-легкий"
+ },
+ "name.missile_rack_mk_i_medium": {
+  "en": "Missile Rack Mk I-medium",
+  "uk": "Ракетна установка Мк I-середній"
+ },
+ "name.ore": {
+  "en": "Ore",
+  "uk": "Руда"
+ },
+ "name.plating_mk_i_heavy": {
+  "en": "Plating Mk I-heavy",
+  "uk": "Броня Мк I-важкий"
+ },
+ "name.plating_mk_i_light": {
+  "en": "Plating Mk I-light",
+  "uk": "Броня Мк I-легкий"
+ },
+ "name.plating_mk_i_medium": {
+  "en": "Plating Mk I-medium",
+  "uk": "Броня Мк I-середній"
+ },
+ "name.power_cell_mk_i_heavy": {
+  "en": "Power Cell Mk I-heavy",
+  "uk": "Енергоелемент Мк I-важкий"
+ },
+ "name.power_cell_mk_i_light": {
+  "en": "Power Cell Mk I-light",
+  "uk": "Енергоелемент Мк I-легкий"
+ },
+ "name.power_cell_mk_i_medium": {
+  "en": "Power Cell Mk I-medium",
+  "uk": "Енергоелемент Мк I-середній"
+ },
+ "name.prospector_mk_i_heavy": {
+  "en": "Prospector Mk I-heavy",
+  "uk": "Старатель Мк I-важкий"
+ },
+ "name.prospector_mk_i_light": {
+  "en": "Prospector Mk I-light",
+  "uk": "Старатель Мк I-легкий"
+ },
+ "name.prospector_mk_i_medium": {
+  "en": "Prospector Mk I-medium",
+  "uk": "Старатель Мк I-середній"
+ },
+ "name.prospector_mk_i_superheavy": {
+  "en": "Prospector Mk I-superheavy",
+  "uk": "Старатель Мк I-надважкий"
+ },
+ "name.raider_mk_i_heavy": {
+  "en": "Raider Mk I-heavy",
+  "uk": "Рейдер Мк I-важкий"
+ },
+ "name.raider_mk_i_light": {
+  "en": "Raider Mk I-light",
+  "uk": "Рейдер Мк I-легкий"
+ },
+ "name.raider_mk_i_medium": {
+  "en": "Raider Mk I-medium",
+  "uk": "Рейдер Мк I-середній"
+ },
+ "name.raider_mk_i_superheavy": {
+  "en": "Raider Mk I-superheavy",
+  "uk": "Рейдер Мк I-надважкий"
+ },
+ "name.relic": {
+  "en": "Relic",
+  "uk": "Реліквія"
+ },
+ "name.scavenger_mk_i_heavy": {
+  "en": "Scavenger Mk I-heavy",
+  "uk": "Збирач Мк I-важкий"
+ },
+ "name.scavenger_mk_i_light": {
+  "en": "Scavenger Mk I-light",
+  "uk": "Збирач Мк I-легкий"
+ },
+ "name.scavenger_mk_i_medium": {
+  "en": "Scavenger Mk I-medium",
+  "uk": "Збирач Мк I-середній"
+ },
+ "name.scavenger_mk_i_superheavy": {
+  "en": "Scavenger Mk I-superheavy",
+  "uk": "Збирач Мк I-надважкий"
+ },
+ "name.scrap_metal": {
+  "en": "Scrap Metal",
+  "uk": "Металобрухт"
+ },
+ "name.sensor_mk_i_heavy": {
+  "en": "Sensor Mk I-heavy",
+  "uk": "Сенсор Мк I-важкий"
+ },
+ "name.sensor_mk_i_light": {
+  "en": "Sensor Mk I-light",
+  "uk": "Сенсор Мк I-легкий"
+ },
+ "name.sensor_mk_i_medium": {
+  "en": "Sensor Mk I-medium",
+  "uk": "Сенсор Мк I-середній"
+ },
+ "name.shell_bay_mk_i_heavy": {
+  "en": "Shell Bay Mk I-heavy",
+  "uk": "Снарядний відсік Мк I-важкий"
+ },
+ "name.shell_bay_mk_i_light": {
+  "en": "Shell Bay Mk I-light",
+  "uk": "Снарядний відсік Мк I-легкий"
+ },
+ "name.shell_bay_mk_i_medium": {
+  "en": "Shell Bay Mk I-medium",
+  "uk": "Снарядний відсік Мк I-середній"
+ },
+ "name.starship_fuel": {
+  "en": "Starship Fuel",
+  "uk": "Зорельотне пальне"
+ },
+ "name.stock_hull": {
+  "en": "Stock Hull",
+  "uk": "Базовий корпус"
+ },
+ "name.tech_components": {
+  "en": "Tech Components",
+  "uk": "Техкомпоненти"
+ },
+ "name.thruster_mk_i_heavy": {
+  "en": "Thruster Mk I-heavy",
+  "uk": "Двигун Мк I-важкий"
+ },
+ "name.thruster_mk_i_light": {
+  "en": "Thruster Mk I-light",
+  "uk": "Двигун Мк I-легкий"
+ },
+ "name.thruster_mk_i_medium": {
+  "en": "Thruster Mk I-medium",
+  "uk": "Двигун Мк I-середній"
+ },
+ "name.trader_mk_i_heavy": {
+  "en": "Trader Mk I-heavy",
+  "uk": "Торговець Мк I-важкий"
+ },
+ "name.trader_mk_i_light": {
+  "en": "Trader Mk I-light",
+  "uk": "Торговець Мк I-легкий"
+ },
+ "name.trader_mk_i_medium": {
+  "en": "Trader Mk I-medium",
+  "uk": "Торговець Мк I-середній"
+ },
+ "name.trader_mk_i_superheavy": {
+  "en": "Trader Mk I-superheavy",
+  "uk": "Торговець Мк I-надважкий"
+ },
+ "options.autolevel.about": {
+  "en": "Slowly rolls your ship about its nose until its top points as near the sector's up as the heading allows, so the view stays level.",
+  "uk": "Повільно обертає корабель навколо носа, доки його верх не стане якомога ближче до «верху» сектора, тож вид лишається рівним."
+ },
+ "options.autolevel.name": {
+  "en": "AUTOLEVEL",
+  "uk": "АВТОВИРІВНЮВАННЯ"
+ },
+ "options.autosave_on_dock.about": {
+  "en": "Saves the game each time you dock at a station.",
+  "uk": "Зберігає гру щоразу, коли ви стикуєтеся зі станцією."
+ },
+ "options.autosave_on_dock.name": {
+  "en": "SAVE ON DOCKING",
+  "uk": "АВТОЗБЕРЕЖЕННЯ НА ПРИЧАЛІ"
+ },
+ "options.bracket_fade.about": {
+  "en": "Target brackets fade as they near the middle of the screen, so they do not cover your ship.",
+  "uk": "Рамки цілей згасають біля центру екрана, щоб не закривати ваш корабель."
+ },
+ "options.bracket_fade.name": {
+  "en": "BRACKET FADE",
+  "uk": "ЗГАСАННЯ РАМОК"
+ },
+ "options.camera_dynamic.about": {
+  "en": "The camera eases after the ship like on a spring instead of sitting fixed to it. Unfinished: it jitters.",
+  "uk": "Камера пружно рухається за кораблем замість жорсткого кріплення. Недороблена: тремтить."
+ },
+ "options.camera_dynamic.name": {
+  "en": "DYNAMIC CAMERA (UNFINISHED)",
+  "uk": "ДИНАМІЧНА КАМЕРА (НЕДОРОБЛЕНА)"
+ },
+ "options.dynamic_lights.about": {
+  "en": "How many hits and explosions light up their surroundings at once. Lights are costly on old graphics cards.",
+  "uk": "Скільки влучань і вибухів одночасно освітлюють усе довкола. Світло дороге для старих відеокарт."
+ },
+ "options.dynamic_lights.name": {
+  "en": "DYNAMIC LIGHTS",
+  "uk": "ДИНАМІЧНЕ СВІТЛО"
+ },
+ "options.effects.about": {
+  "en": "How loud the engines, weapons, hits and interface sounds are.",
+  "uk": "Гучність двигунів, зброї, влучань і звуків інтерфейсу."
+ },
+ "options.effects.name": {
+  "en": "SOUND EFFECTS",
+  "uk": "ЗВУКОВІ ЕФЕКТИ"
+ },
+ "options.engine_exhausts.about": {
+  "en": "Ships' engine plumes and nozzle glow. Missiles keep theirs.",
+  "uk": "Факели двигунів кораблів і світіння сопел. Ракети зберігають свої."
+ },
+ "options.engine_exhausts.name": {
+  "en": "ENGINE EXHAUSTS",
+  "uk": "ВИХЛОП ДВИГУНІВ"
+ },
+ "options.frame_cap.about": {
+  "en": "The most frames a second the game draws. A cap saves battery and heat on laptops and phones.",
+  "uk": "Найбільша кількість кадрів за секунду. Обмеження береже батарею та зменшує нагрів ноутбуків і телефонів."
+ },
+ "options.frame_cap.name": {
+  "en": "FRAME CAP",
+  "uk": "ОБМЕЖЕННЯ КАДРІВ"
+ },
+ "options.fullscreen.about": {
+  "en": "Fills the whole screen instead of a window (computers only; phones are always full screen).",
+  "uk": "Займає весь екран замість вікна (лише на комп'ютерах; телефони завжди в повноекранному режимі)."
+ },
+ "options.fullscreen.name": {
+  "en": "FULLSCREEN",
+  "uk": "ПОВНИЙ ЕКРАН"
+ },
+ "options.fxaa.about": {
+  "en": "A cheap edge smoothing over the whole 3D picture. Softens it a little; a good choice where MSAA is too slow.",
+  "uk": "Дешеве згладжування країв по всьому 3D-зображенню. Трохи розмиває його; добрий вибір там, де MSAA надто повільне."
+ },
+ "options.fxaa.name": {
+  "en": "FXAA",
+  "uk": "FXAA"
+ },
+ "options.hint": {
+  "en": "Tap a row to change it; what it does shows here.",
+  "uk": "Торкніться рядка, щоб змінити його; тут з'явиться, що він робить."
+ },
+ "options.hit_effects.about": {
+  "en": "Scars and molten slag on hulls where shots land, and the detailed surface shots strike. Off is cheaper; ships made after a change take it in full.",
+  "uk": "Шрами та розплавлений шлак на корпусах у місцях влучань і детальна поверхня для пострілів. Вимкнено дешевше; кораблі, створені після зміни, отримують її повністю."
+ },
+ "options.hit_effects.name": {
+  "en": "HIT EFFECTS",
+  "uk": "ЕФЕКТИ ВЛУЧАНЬ"
+ },
+ "options.hud_preset.about": {
+  "en": "How strongly the HUD stands out against space: normal, soft (greyer) or dim (barely there, for watching the scene). Windows keep their looks.",
+  "uk": "Наскільки HUD виділяється на тлі космосу: звичайний, м'який (сіріший) чи тьмяний (ледь помітний, щоб милуватися сценою). Вікна не змінюються."
+ },
+ "options.hud_preset.name": {
+  "en": "HUD LOOK",
+  "uk": "ВИГЛЯД HUD"
+ },
+ "options.jump_animation.about": {
+  "en": "The flight through the tunnel when you jump between sectors. Off, a jump is a cut.",
+  "uk": "Політ тунелем під час стрибка між секторами. Вимкнено: стрибок — миттєва зміна."
+ },
+ "options.jump_animation.name": {
+  "en": "JUMP ANIMATION",
+  "uk": "АНІМАЦІЯ СТРИБКА"
+ },
+ "options.language.about": {
+  "en": "The language of every text in the game. It changes at once.",
+  "uk": "Мова всіх текстів у грі. Змінюється одразу."
+ },
+ "options.language.name": {
+  "en": "LANGUAGE",
+  "uk": "МОВА"
+ },
+ "options.msaa.about": {
+  "en": "Multisample anti-aliasing: smooths the jagged edges of ships and planets. Each step costs more on the graphics card; some old and mobile chips do not support it.",
+  "uk": "Мультисемплінгове згладжування: прибирає зубчасті краї кораблів і планет. Кожен крок дорожчий для відеокарти; деякі старі та мобільні чипи його не підтримують."
+ },
+ "options.msaa.name": {
+  "en": "MSAA",
+  "uk": "MSAA"
+ },
+ "options.music.about": {
+  "en": "How loud the music plays.",
+  "uk": "Гучність музики."
+ },
+ "options.music.name": {
+  "en": "MUSIC",
+  "uk": "МУЗИКА"
+ },
+ "options.note": {
+  "en": "THE GAME IS PAUSED WHILE THIS IS OPEN. TAP A ROW TO CHANGE IT.",
+  "uk": "ГРА НА ПАУЗІ, ПОКИ ЦЕ ВІКНО ВІДКРИТЕ. ТОРКНІТЬСЯ РЯДКА, ЩОБ ЗМІНИТИ ЙОГО."
+ },
+ "options.particles.about": {
+  "en": "Sparks, dust, smoke and debris. Off spares a slow processor their simulation.",
+  "uk": "Іскри, пил, дим та уламки. Вимкнення звільняє слабкий процесор від їх симуляції."
+ },
+ "options.particles.name": {
+  "en": "PARTICLES",
+  "uk": "ЧАСТИНКИ"
+ },
+ "options.pixel_smoothing.about": {
+  "en": "Below render scale 1.0, smooths the enlarged picture instead of showing crisp square pixels. Costs almost nothing.",
+  "uk": "Коли масштаб рендерингу менший за 1.0, згладжує збільшене зображення замість чітких квадратних пікселів. Майже нічого не коштує."
+ },
+ "options.pixel_smoothing.name": {
+  "en": "PIXEL SMOOTHING",
+  "uk": "ЗГЛАДЖУВАННЯ ПІКСЕЛІВ"
+ },
+ "options.render_scale.about": {
+  "en": "The share of the screen's resolution the 3D view is drawn at; the interface stays sharp. The biggest saving on weak hardware.",
+  "uk": "Частка роздільності екрана, з якою малюється 3D-вид; інтерфейс лишається чітким. Найбільша економія на слабкому залізі."
+ },
+ "options.render_scale.name": {
+  "en": "RENDER SCALE",
+  "uk": "МАСШТАБ РЕНДЕРИНГУ"
+ },
+ "options.show_fps.about": {
+  "en": "Frames a second in the top left corner.",
+  "uk": "Кількість кадрів за секунду у верхньому лівому куті."
+ },
+ "options.show_fps.name": {
+  "en": "SHOW FPS",
+  "uk": "ПОКАЗУВАТИ FPS"
+ },
+ "options.slow_down_on_lag.about": {
+  "en": "When the computer cannot keep up, the game runs slower instead of dropping frames: steadier to fly, but time passes slower.",
+  "uk": "Коли комп'ютер не встигає, гра сповільнюється замість втрати кадрів: керувати стабільніше, але час іде повільніше."
+ },
+ "options.slow_down_on_lag.name": {
+  "en": "SLOW DOWN ON LAG",
+  "uk": "СПОВІЛЬНЮВАТИ ПРИ ЛАГАХ"
+ },
+ "options.smooth_motion.about": {
+  "en": "Draws moving things between the physics steps, so motion is smooth at any frame rate. Off, things move in visible steps; slightly cheaper.",
+  "uk": "Малює рухомі об'єкти між кроками фізики, тож рух плавний за будь-якої частоти кадрів. Вимкнено: рух помітними кроками, трохи дешевше."
+ },
+ "options.smooth_motion.name": {
+  "en": "SMOOTH MOTION",
+  "uk": "ПЛАВНИЙ РУХ"
+ },
+ "options.tab.game": {
+  "en": "GAME",
+  "uk": "ГРА"
+ },
+ "options.tab.game.about": {
+  "en": "How the game plays: saving, the ship's flight aids, the camera.",
+  "uk": "Як іде гра: збереження, допомога в керуванні кораблем, камера."
+ },
+ "options.tab.graphics": {
+  "en": "GRAPHICS",
+  "uk": "ГРАФІКА"
+ },
+ "options.tab.graphics.about": {
+  "en": "The picture and its cost, from the resolution and smoothing down to the effects. On old or weak hardware, lower the render scale first, then switch the effects off one by one.",
+  "uk": "Зображення та його ціна: від роздільності й згладжування до ефектів. На старому чи слабкому залізі спершу зменште масштаб рендерингу, потім вимикайте ефекти по одному."
+ },
+ "options.tab.interface": {
+  "en": "INTERFACE",
+  "uk": "ІНТЕРФЕЙС"
+ },
+ "options.tab.interface.about": {
+  "en": "The language, the size of the interface and how the HUD looks.",
+  "uk": "Мова, розмір інтерфейсу та вигляд HUD."
+ },
+ "options.tab.sound": {
+  "en": "SOUND",
+  "uk": "ЗВУК"
+ },
+ "options.tab.sound.about": {
+  "en": "Music and sound effects, each as loud as you like or off.",
+  "uk": "Музика та звукові ефекти: гучність кожного або вимкнено."
+ },
+ "options.tether_rope.about": {
+  "en": "Complex simulates nearby harpoon cables as hanging ropes; simple draws every cable as a straight line.",
+  "uk": "Складний симулює близькі троси гарпуна як провислі мотузки; простий малює кожен трос прямою лінією."
+ },
+ "options.tether_rope.name": {
+  "en": "TETHER ROPE",
+  "uk": "ТРОС"
+ },
+ "options.title": {
+  "en": "OPTIONS",
+  "uk": "НАЛАШТУВАННЯ"
+ },
+ "options.ui_scale.about": {
+  "en": "The size of the text, buttons and HUD. Above 1.0 for small, dense screens such as phones; below 1.0 for large monitors.",
+  "uk": "Розмір тексту, кнопок і HUD. Більше 1.0 — для малих щільних екранів, як-от телефони; менше 1.0 — для великих моніторів."
+ },
+ "options.ui_scale.name": {
+  "en": "UI SCALE",
+  "uk": "МАСШТАБ ІНТЕРФЕЙСУ"
+ },
+ "options.value.all": {
+  "en": "ALL",
+  "uk": "УСІ"
+ },
+ "options.value.complex": {
+  "en": "COMPLEX",
+  "uk": "СКЛАДНИЙ"
+ },
+ "options.value.few": {
+  "en": "FEW",
+  "uk": "ДЕКІЛЬКА"
+ },
+ "options.value.fps": {
+  "en": "%d FPS",
+  "uk": "%d КАДР/С"
+ },
+ "options.value.no_cap": {
+  "en": "NO CAP",
+  "uk": "БЕЗ ОБМЕЖЕННЯ"
+ },
+ "options.value.off": {
+  "en": "OFF",
+  "uk": "ВИМК"
+ },
+ "options.value.on": {
+  "en": "ON",
+  "uk": "УВІМК"
+ },
+ "options.value.simple": {
+  "en": "SIMPLE",
+  "uk": "ПРОСТИЙ"
+ },
+ "options.values": {
+  "en": "Values: %s",
+  "uk": "Значення: %s"
+ },
+ "options.vsync.about": {
+  "en": "Waits for the screen before showing each frame: no tearing, but the frame rate is held to the screen's.",
+  "uk": "Чекає на екран перед показом кадру: без розривів зображення, але частота кадрів обмежена частотою екрана."
+ },
+ "options.vsync.name": {
+  "en": "VSYNC",
+  "uk": "ВЕРТИКАЛЬНА СИНХРОНІЗАЦІЯ"
+ },
+ "part.module_detail": {
+  "en": "%s, %s, %.1f t",
+  "uk": "%s, %s, %.1f т"
+ },
+ "part.no_use_yet": {
+  "en": "(no use yet)",
+  "uk": "(поки без застосування)"
+ },
+ "part.stat.afterburner_thrust": {
+  "en": "%+d kN thrust lit",
+  "uk": "%+d кН тяги на форсажі"
+ },
+ "part.stat.angular_thrust": {
+  "en": "%+d kNm turn",
+  "uk": "%+d кН·м повороту"
+ },
+ "part.stat.cargo_capacity": {
+  "en": "%+d cargo",
+  "uk": "%+d вантажу"
+ },
+ "part.stat.damper": {
+  "en": "jams %d%% of enemy reach on a reference ship, -%.1f power/s",
+  "uk": "глушить %d%% дальності ворога на еталонному кораблі, -%.1f енергії/с"
+ },
+ "part.stat.decoy_charges": {
+  "en": "%d decoys",
+  "uk": "%d пасток"
+ },
+ "part.stat.hull": {
+  "en": "%+d hull",
+  "uk": "%+d корпусу"
+ },
+ "part.stat.linear_thrust": {
+  "en": "%+d kN thrust",
+  "uk": "%+d кН тяги"
+ },
+ "part.stat.missile_load": {
+  "en": "%d kg more missiles",
+  "uk": "+%d кг ракет"
+ },
+ "part.stat.power_capacity": {
+  "en": "%+d power",
+  "uk": "%+d енергії"
+ },
+ "part.stat.power_regen": {
+  "en": "%+d power/s",
+  "uk": "%+d енергії/с"
+ },
+ "part.stat.sensor_strength": {
+  "en": "%+.1f sensors",
+  "uk": "%+.1f сенсорів"
+ },
+ "part.stat.shell_load": {
+  "en": "%d kg more cannon rounds",
+  "uk": "+%d кг снарядів"
+ },
+ "part.stat.signature": {
+  "en": "%+d m signature",
+  "uk": "%+d м сигнатури"
+ },
+ "part.tool_detail": {
+  "en": "%s, %d m, %.1f t",
+  "uk": "%s, %d м, %.1f т"
+ },
+ "pilot.at_war": {
+  "en": "At war with %s.",
+  "uk": "Воює з: %s."
+ },
+ "pilot.at_war_none": {
+  "en": "At war with no one.",
+  "uk": "Ні з ким не воює."
+ },
+ "pilot.bounties": {
+  "en": "Bounties on you",
+  "uk": "Нагороди за вас"
+ },
+ "pilot.bounties_none": {
+  "en": "None.",
+  "uk": "Немає."
+ },
+ "pilot.bounties_note": {
+  "en": "Hunters claim them by killing you; they lapse when your ship is lost.",
+  "uk": "Мисливці отримують їх, убивши вас; вони згорають, коли ви втрачаєте корабель."
+ },
+ "pilot.escorting": {
+  "en": "Escorting %s",
+  "uk": "Супровід: %s"
+ },
+ "pilot.escorting_note": {
+  "en": "A share of its cargo sales is yours while you keep by it; its faction may pay the time as patrol.",
+  "uk": "Частка його продажів ваша, поки ви поруч; його фракція може оплатити час як патруль."
+ },
+ "pilot.friendly_means": {
+  "en": "Its best prices.",
+  "uk": "Її найкращі ціни."
+ },
+ "pilot.friendly_pays": {
+  "en": "Pays you for time at its pickets.",
+  "uk": "Платить вам за час на її пікетах."
+ },
+ "pilot.hostile_means": {
+  "en": "Its ships attack you on sight; its stations refuse you.",
+  "uk": "Її кораблі атакують вас одразу; її станції вам відмовляють."
+ },
+ "pilot.neutral_means": {
+  "en": "Fair prices; it trades and docks you.",
+  "uk": "Звичайні ціни; торгує з вами й приймає."
+ },
+ "pilot.neutral_pays": {
+  "en": "Friendly, it would pay for patrols.",
+  "uk": "Будучи дружньою, платила б за патрулі."
+ },
+ "pilot.no_standing": {
+  "en": "Keeps no standing: answers what you do there and then.",
+  "uk": "Не веде репутації: відповідає на ваші дії тут і зараз."
+ },
+ "pilot.patrol": {
+  "en": "%s patrol  %s",
+  "uk": "Патруль %s  %s"
+ },
+ "pilot.patrol_note": {
+  "en": "About %d WP, paid when you dock at one of its havens.",
+  "uk": "Близько %d WP, сплачується, коли причалите до одного з її притулків."
+ },
+ "pilot.patrol_note_if_friend": {
+  "en": "About %d WP, paid when you dock at one of its havens, if it still thinks you a friend.",
+  "uk": "Близько %d WP, сплачується, коли причалите до одного з її притулків, якщо вона досі вважає вас другом."
+ },
+ "pilot.standing": {
+  "en": "Standing",
+  "uk": "Репутація"
+ },
+ "pilot.summary": {
+  "en": "HOME %s   FLYING %s   STORAGE %d PARTS   PLAYED %s",
+  "uk": "ДІМ %s   КОРАБЕЛЬ %s   СКЛАД %d ДЕТ.   У ГРІ %s"
+ },
+ "pilot.title": {
+  "en": "PILOT  -  BANK %d WP",
+  "uk": "ПІЛОТ  -  РАХУНОК %d WP"
+ },
+ "pilot.title_plain": {
+  "en": "PILOT",
+  "uk": "ПІЛОТ"
+ },
+ "pilot.work": {
+  "en": "Work",
+  "uk": "Робота"
+ },
+ "pilot.work_none": {
+  "en": "Nothing under way. Armed, friendly factions pay for time at their pickets; INTERACT a worker to escort it.",
+  "uk": "Нічого не триває. Озброєних друзів фракції платять за час на пікетах; ЗВ'ЯЗОК з робітником, щоб супроводжувати його."
+ },
+ "power.afterburner": {
+  "en": "AFTERBURNER -%.1f/s at full thrust",
+  "uk": "ФОРСАЖ -%.1f/с на повній тязі"
+ },
+ "power.damper": {
+  "en": "DAMPER -%.1f/s",
+  "uk": "ГЛУШНИК -%.1f/с"
+ },
+ "power.flow": {
+  "en": "POWER FLOW",
+  "uk": "ЕНЕРГОБАЛАНС"
+ },
+ "power.full_to_empty": {
+  "en": "FULL TO EMPTY %ds",
+  "uk": "ВІД ПОВНОЇ ДО НУЛЯ %d с"
+ },
+ "power.reactor": {
+  "en": "REACTOR +%.1f/s",
+  "uk": "РЕАКТОР +%.1f/с"
+ },
+ "power.tools_on": {
+  "en": "TOOLS ON -%.1f/s  NET %s%.1f/s%s",
+  "uk": "ІНСТРУМЕНТИ -%.1f/с  РАЗОМ %s%.1f/с%s"
+ },
+ "radio.by": {
+  "en": "by %s",
+  "uk": "від %s"
+ },
+ "radio.engaging": {
+  "en": "Engaging %s.",
+  "uk": "Атакую %s."
+ },
+ "radio.heading_in": {
+  "en": "Heading in to %s.",
+  "uk": "Прямую до %s."
+ },
+ "radio.heard": {
+  "en": "Heard %s. Going to see.",
+  "uk": "Чую %s. Лечу глянути."
+ },
+ "radio.hunting": {
+  "en": "Hunting round %s.",
+  "uk": "Полюю біля %s."
+ },
+ "radio.letting_go": {
+  "en": "Letting %s go.",
+  "uk": "Відпускаю %s."
+ },
+ "radio.mayday": {
+  "en": "Mayday, mayday! Under attack%s%s!",
+  "uk": "Мейдей, мейдей! Мене атакують%s%s!"
+ },
+ "radio.near": {
+  "en": "near %s",
+  "uk": "біля %s"
+ },
+ "radio.off_to_mine": {
+  "en": "Off to mine %s.",
+  "uk": "Лечу добувати: %s."
+ },
+ "radio.patrolling": {
+  "en": "Patrolling %s.",
+  "uk": "Патрулюю %s."
+ },
+ "radio.responding": {
+  "en": "Responding to %s.",
+  "uk": "Відповідаю на %s."
+ },
+ "radio.returning_fire": {
+  "en": "Returning fire on %s.",
+  "uk": "Відкриваю вогонь у відповідь по %s."
+ },
+ "radio.running": {
+  "en": "Breaking off, running.",
+  "uk": "Виходжу з бою, тікаю."
+ },
+ "radio.running_for": {
+  "en": "Breaking off, running for %s.",
+  "uk": "Виходжу з бою, тікаю до %s."
+ },
+ "radio.scavenging": {
+  "en": "Looking for pickings at %s.",
+  "uk": "Шукаю здобич біля %s."
+ },
+ "radio.someone": {
+  "en": "someone",
+  "uk": "когось"
+ },
+ "radio.stripping_alloy": {
+  "en": "Stripping derelict alloy.",
+  "uk": "Знімаю сплав з покинутого."
+ },
+ "radio.stripping_ore": {
+  "en": "Stripping ore.",
+  "uk": "Збираю руду."
+ },
+ "radio.stripping_wreck": {
+  "en": "Stripping a wreck.",
+  "uk": "Обдираю уламок."
+ },
+ "radio.taking_hold": {
+  "en": "Taking my hold to %s.",
+  "uk": "Везу трюм до %s."
+ },
+ "radio.working_derelict": {
+  "en": "Working a derelict.",
+  "uk": "Розробляю покинуте."
+ },
+ "radio.working_rock": {
+  "en": "Working a rock.",
+  "uk": "Розробляю скелю."
+ },
+ "radio.you": {
+  "en": "you",
+  "uk": "вас"
+ },
+ "role.drifter": {
+  "en": "drifter",
+  "uk": "бродяга"
+ },
+ "role.fighter": {
+  "en": "fighter",
+  "uk": "винищувач"
+ },
+ "role.prospector": {
+  "en": "prospector",
+  "uk": "старатель"
+ },
+ "role.raider": {
+  "en": "raider",
+  "uk": "рейдер"
+ },
+ "role.scavenger": {
+  "en": "scavenger",
+  "uk": "збирач"
+ },
+ "role.trader": {
+  "en": "trader",
+  "uk": "торговець"
+ },
+ "save.autosave": {
+  "en": "AUTOSAVE",
+  "uk": "АВТОЗБЕРЕЖЕННЯ"
+ },
+ "save.empty": {
+  "en": "%s: EMPTY",
+  "uk": "%s: ПОРОЖНЯ"
+ },
+ "save.repair.cargo": {
+  "en": "%d kinds of cargo no longer traded thrown out of the hold",
+  "uk": "Видів вантажу, яким більше не торгують, викинуто з трюму: %d"
+ },
+ "save.repair.home": {
+  "en": "Your home station (%s) is gone: your home is now %s",
+  "uk": "Вашої рідної станції (%s) більше немає: тепер ваш дім — %s"
+ },
+ "save.repair.parts": {
+  "en": "%d parts no longer made removed (%d fitted, %d stored)",
+  "uk": "Деталей, яких більше не виробляють, прибрано: %d (встановлених %d, на складі %d)"
+ },
+ "save.repair.ship": {
+  "en": "Your ship (%s) is no longer built: you fly the starting ship",
+  "uk": "Ваш корабель (%s) більше не будують: ви летите на стартовому"
+ },
+ "save.slot": {
+  "en": "SLOT %d",
+  "uk": "КОМІРКА %d"
+ },
+ "save.summary": {
+  "en": "%s · %s · %d WP · %s · %d H %02d MIN",
+  "uk": "%s · %s · %d WP · %s · %d ГОД %02d ХВ"
+ },
+ "ship.carried": {
+  "en": "Carried: %s. Home restocks them when you dock.",
+  "uk": "На борту: %s. Дім поповнює їх, коли причалюєте."
+ },
+ "ship.decoys": {
+  "en": "%d / %d decoys",
+  "uk": "%d / %d пасток"
+ },
+ "ship.hold": {
+  "en": "Hold  %d / %d  worth %d WP",
+  "uk": "Трюм  %d / %d  вартість %d WP"
+ },
+ "ship.lances": {
+  "en": "%d / %d lances",
+  "uk": "%d / %d списів"
+ },
+ "ship.modules": {
+  "en": "Modules",
+  "uk": "Модулі"
+ },
+ "ship.no_module_slots": {
+  "en": "No module slots",
+  "uk": "Немає слотів модулів"
+ },
+ "ship.no_tool_slots": {
+  "en": "No tool slots",
+  "uk": "Немає слотів інструментів"
+ },
+ "ship.none": {
+  "en": "NO SHIP",
+  "uk": "НЕМАЄ КОРАБЛЯ"
+ },
+ "ship.refit_note": {
+  "en": "Refit at home: dock at %s.",
+  "uk": "Переспорядження вдома: причальте до %s."
+ },
+ "ship.rounds": {
+  "en": "%d / %d rounds",
+  "uk": "%d / %d снарядів"
+ },
+ "ship.slot": {
+  "en": "%s slot: %s",
+  "uk": "%s слот: %s"
+ },
+ "ship.title": {
+  "en": "SHIP",
+  "uk": "КОРАБЕЛЬ"
+ },
+ "ship.title_worth": {
+  "en": "%s  -  WORTH %d WP",
+  "uk": "%s  -  ВАРТІСТЬ %d WP"
+ },
+ "ship.tools": {
+  "en": "Tools",
+  "uk": "Інструменти"
+ },
+ "size.large": {
+  "en": "large",
+  "uk": "великий"
+ },
+ "size.medium": {
+  "en": "medium",
+  "uk": "середній"
+ },
+ "size.small": {
+  "en": "small",
+  "uk": "малий"
+ },
+ "standing.friendly": {
+  "en": "FRIENDLY",
+  "uk": "ДРУЖНЯ"
+ },
+ "standing.hostile": {
+  "en": "HOSTILE",
+  "uk": "ВОРОЖА"
+ },
+ "standing.neutral": {
+  "en": "NEUTRAL",
+  "uk": "НЕЙТРАЛЬНА"
+ },
+ "stat.afterburner": {
+  "en": "AFTERBURNER",
+  "uk": "ФОРСАЖ"
+ },
+ "stat.cargo": {
+  "en": "CARGO",
+  "uk": "ВАНТАЖ"
+ },
+ "stat.charge": {
+  "en": "CHARGE",
+  "uk": "ЗАРЯД"
+ },
+ "stat.damper": {
+  "en": "DAMPER",
+  "uk": "ГЛУШНИК"
+ },
+ "stat.full_to_empty": {
+  "en": "FULL TO EMPTY",
+  "uk": "ДО НУЛЯ"
+ },
+ "stat.hull": {
+  "en": "HULL",
+  "uk": "КОРПУС"
+ },
+ "stat.hull_now": {
+  "en": "HULL NOW",
+  "uk": "КОРПУС ЗАРАЗ"
+ },
+ "stat.mass": {
+  "en": "MASS",
+  "uk": "МАСА"
+ },
+ "stat.modules": {
+  "en": "MODULES",
+  "uk": "МОДУЛІ"
+ },
+ "stat.net": {
+  "en": "NET",
+  "uk": "РАЗОМ"
+ },
+ "stat.none": {
+  "en": "NONE",
+  "uk": "НЕМАЄ"
+ },
+ "stat.power": {
+  "en": "POWER",
+  "uk": "ЕНЕРГІЯ"
+ },
+ "stat.power_now": {
+  "en": "POWER NOW",
+  "uk": "ЕНЕРГІЯ ЗАРАЗ"
+ },
+ "stat.reactor": {
+  "en": "REACTOR",
+  "uk": "РЕАКТОР"
+ },
+ "stat.sensors": {
+  "en": "SENSORS",
+  "uk": "СЕНСОРИ"
+ },
+ "stat.signature": {
+  "en": "SIGNATURE",
+  "uk": "СИГНАТУРА"
+ },
+ "stat.speed_now": {
+  "en": "SPEED NOW",
+  "uk": "ШВИДКІСТЬ ЗАРАЗ"
+ },
+ "stat.thrust": {
+  "en": "THRUST",
+  "uk": "ТЯГА"
+ },
+ "stat.tools": {
+  "en": "TOOLS",
+  "uk": "ІНСТРУМЕНТИ"
+ },
+ "stat.tools_on": {
+  "en": "TOOLS ON",
+  "uk": "ІНСТРУМЕНТИ"
+ },
+ "stat.top_speed": {
+  "en": "TOP SPEED",
+  "uk": "МАКС. ШВИДКІСТЬ"
+ },
+ "target.asteroid": {
+  "en": "Asteroid",
+  "uk": "Астероїд"
+ },
+ "target.jump_point": {
+  "en": "Jump Point",
+  "uk": "Точка стрибка"
+ },
+ "target.lance": {
+  "en": "Lance",
+  "uk": "Спис"
+ },
+ "target.station": {
+  "en": "Station",
+  "uk": "Станція"
+ },
+ "target.wreck_of": {
+  "en": "Wreck of %s",
+  "uk": "Уламок: %s"
+ },
+ "temper.aggressive": {
+  "en": "aggressive",
+  "uk": "агресивний"
+ },
+ "temper.cautious": {
+  "en": "cautious",
+  "uk": "обережний"
+ },
+ "temper.measured": {
+  "en": "measured",
+  "uk": "виважений"
+ },
+ "time.hours": {
+  "en": "%d h %02d min",
+  "uk": "%d год %02d хв"
+ },
+ "time.minutes": {
+  "en": "%d min",
+  "uk": "%d хв"
+ },
+ "unit.km": {
+  "en": "%.1f km",
+  "uk": "%.1f км"
+ },
+ "unit.km_big": {
+  "en": "%s KM",
+  "uk": "%s КМ"
+ },
+ "unit.kn": {
+  "en": "%d kN",
+  "uk": "%d кН"
+ },
+ "unit.m": {
+  "en": "%d m",
+  "uk": "%d м"
+ },
+ "unit.m_big": {
+  "en": "%d M",
+  "uk": "%d М"
+ },
+ "unit.m_s": {
+  "en": "%d m/s",
+  "uk": "%d м/с"
+ },
+ "unit.per_s": {
+  "en": "%.1f/s",
+  "uk": "%.1f/с"
+ },
+ "unit.per_s_minus": {
+  "en": "-%.1f/s",
+  "uk": "-%.1f/с"
+ },
+ "unit.per_s_plus": {
+  "en": "+%.1f/s",
+  "uk": "+%.1f/с"
+ },
+ "unit.per_s_plus_int": {
+  "en": "+%d/s",
+  "uk": "+%d/с"
+ },
+ "unit.s": {
+  "en": "%d s",
+  "uk": "%d с"
+ },
+ "unit.t": {
+  "en": "%.1f t",
+  "uk": "%.1f т"
+ },
+ "word.ace": {
+  "en": "ace",
+  "uk": "ас"
+ },
+ "word.allied": {
+  "en": "allied",
+  "uk": "союзний"
+ },
+ "word.busy": {
+  "en": "busy",
+  "uk": "людно"
+ },
+ "word.call_sign": {
+  "en": "call sign",
+  "uk": "позивний"
+ },
+ "word.calm": {
+  "en": "calm",
+  "uk": "спокійно"
+ },
+ "word.charging": {
+  "en": "charging",
+  "uk": "таранить"
+ },
+ "word.covering": {
+  "en": "covering",
+  "uk": "прикриває"
+ },
+ "word.crowded": {
+  "en": "crowded",
+  "uk": "тісно"
+ },
+ "word.deadly": {
+  "en": "deadly",
+  "uk": "смертельно"
+ },
+ "word.distress": {
+  "en": "distress",
+  "uk": "лихо"
+ },
+ "word.docked": {
+  "en": "docked",
+  "uk": "причалений"
+ },
+ "word.doing": {
+  "en": "doing",
+  "uk": "зайнятий"
+ },
+ "word.easy": {
+  "en": "easy",
+  "uk": "легко"
+ },
+ "word.entry": {
+  "en": "entry",
+  "uk": "вхід"
+ },
+ "word.escorting": {
+  "en": "escorting",
+  "uk": "супроводжує"
+ },
+ "word.even": {
+  "en": "even",
+  "uk": "нарівні"
+ },
+ "word.field": {
+  "en": "field",
+  "uk": "поле"
+ },
+ "word.fighting": {
+  "en": "fighting",
+  "uk": "б'ється"
+ },
+ "word.firing": {
+  "en": "firing",
+  "uk": "стріляє"
+ },
+ "word.fleeing": {
+  "en": "fleeing",
+  "uk": "тікає"
+ },
+ "word.flies_for": {
+  "en": "flies for",
+  "uk": "літає на"
+ },
+ "word.forming_caravan": {
+  "en": "forming caravan",
+  "uk": "збирає караван"
+ },
+ "word.friendly": {
+  "en": "friendly",
+  "uk": "дружній"
+ },
+ "word.group": {
+  "en": "group",
+  "uk": "група"
+ },
+ "word.guarding": {
+  "en": "guarding",
+  "uk": "охороняє"
+ },
+ "word.hard": {
+  "en": "hard",
+  "uk": "важко"
+ },
+ "word.hauling": {
+  "en": "hauling",
+  "uk": "везе вантаж"
+ },
+ "word.hesitating": {
+  "en": "hesitating",
+  "uk": "вагається"
+ },
+ "word.hostile": {
+  "en": "hostile",
+  "uk": "ворожий"
+ },
+ "word.hot": {
+  "en": "hot",
+  "uk": "гаряче"
+ },
+ "word.in_caravan": {
+  "en": "in caravan",
+  "uk": "у каравані"
+ },
+ "word.in_wing": {
+  "en": "in wing",
+  "uk": "у крилі"
+ },
+ "word.kills_on_record": {
+  "en": "kills on record",
+  "uk": "збито на рахунку"
+ },
+ "word.landmark": {
+  "en": "landmark",
+  "uk": "орієнтир"
+ },
+ "word.leads_it": {
+  "en": "leads it",
+  "uk": "веде її"
+ },
+ "word.level": {
+  "en": "level",
+  "uk": "рівень"
+ },
+ "word.lying_low": {
+  "en": "lying low",
+  "uk": "зачаївся"
+ },
+ "word.mining": {
+  "en": "mining",
+  "uk": "добуває"
+ },
+ "word.neutral": {
+  "en": "neutral",
+  "uk": "нейтральний"
+ },
+ "word.no_one": {
+  "en": "no one",
+  "uk": "ніхто"
+ },
+ "word.nothing": {
+  "en": "nothing",
+  "uk": "нічого"
+ },
+ "word.paid_to_you_for_it": {
+  "en": "paid to you for it",
+  "uk": "вам заплатять"
+ },
+ "word.patrol": {
+  "en": "patrol",
+  "uk": "патруль"
+ },
+ "word.patrolling": {
+  "en": "patrolling",
+  "uk": "патрулює"
+ },
+ "word.quiet": {
+  "en": "quiet",
+  "uk": "тихо"
+ },
+ "word.radiation": {
+  "en": "radiation",
+  "uk": "радіація"
+ },
+ "word.regular": {
+  "en": "regular",
+  "uk": "досвідчений"
+ },
+ "word.rookie": {
+  "en": "rookie",
+  "uk": "новачок"
+ },
+ "word.running_dark": {
+  "en": "running dark",
+  "uk": "летить потай"
+ },
+ "word.salvaging": {
+  "en": "salvaging",
+  "uk": "збирає уламки"
+ },
+ "word.ship": {
+  "en": "ship",
+  "uk": "корабель"
+ },
+ "word.stalking": {
+  "en": "stalking",
+  "uk": "вистежує"
+ },
+ "word.system": {
+  "en": "system",
+  "uk": "система"
+ },
+ "word.tense": {
+  "en": "tense",
+  "uk": "напружено"
+ },
+ "word.to_you": {
+  "en": "to you",
+  "uk": "до вас"
+ },
+ "word.veteran": {
+  "en": "veteran",
+  "uk": "ветеран"
+ },
+ "word.wanted_by": {
+  "en": "wanted by",
+  "uk": "розшукує"
+ }
+}

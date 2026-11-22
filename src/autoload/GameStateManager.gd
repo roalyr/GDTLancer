@@ -142,14 +142,14 @@ func manual_slots() -> Array:
 # A slot as the save and load pickers show it: "SLOT 2 · ELACE · 15230 WP · 2026-11-15 14:02 · 3 H 05 MIN",
 # "AUTOSAVE · ...", or "SLOT 2: EMPTY".
 func slot_label(slot: int) -> String:
-	var name: String = "AUTOSAVE" if slot == AUTOSAVE_SLOT else "SLOT %d" % slot
+	var name: String = Strings.t("save.autosave") if slot == AUTOSAVE_SLOT else Strings.t("save.slot", [slot])
 	var summary: Dictionary = get_save_summary(slot)
 	if summary.empty():
-		return "%s: EMPTY" % name
+		return Strings.t("save.empty", [name])
 	var played: int = int(summary.get("play_time", 0.0))
 	var sector: String = str(summary.get("sector", "")).trim_prefix("sector_").replace("_", " ")
-	return "%s · %s · %d WP · %s · %d H %02d MIN" % [name, sector.to_upper(), int(summary.get("bank", 0)), summary.get("saved_at", "?"),
-		played / 3600, played % 3600 / 60]
+	return Strings.t("save.summary", [name, sector.to_upper(), int(summary.get("bank", 0)), summary.get("saved_at", "?"),
+		played / 3600, played % 3600 / 60])
 
 
 # Whether any slot (the autosave's or the player's) holds a game this mode loads.

@@ -84,7 +84,7 @@ func refresh() -> void:
 	if not is_instance_valid(ship_body) or ship_body.get("fit") == null:
 		close()
 		return
-	_title.text = "DOCKED AT %s  -  BANK %d WP" % [_station_name(GameState.player_docked_at).to_upper(), GameState.player_bank]
+	_title.text = Strings.t("fit.title", [_station_name(GameState.player_docked_at).to_upper(), GameState.player_bank])
 	ShipStats.fill(_stats.get_node("Ship"), ShipStats.entries(ship_body.fit_stats, ship_body.mass, ship_body.get("ship_template")))
 	var flow: Dictionary = power_numbers(ship_body)
 	ShipStats.fill(_stats.get_node("Power"), ShipStats.power_entries(flow.regen, flow.damper, flow.tools_draw, flow.power_max, flow.afterburner))
@@ -92,8 +92,8 @@ func refresh() -> void:
 	var header: Node = $Panel/Overflow/Layout/Header
 	header.get_node("TabFitting").visible = home  # Away from home: the cargo market alone
 	header.get_node("TabMarket").visible = home
-	header.get_node("TabFitting").text = "[FITTING]" if view == FITTING else "FITTING"
-	header.get_node("TabMarket").text = "[MARKET]" if view == MARKET else "MARKET"
+	header.get_node("TabFitting").text = ("[%s]" if view == FITTING else "%s") % Strings.t("fit.tab.fitting")
+	header.get_node("TabMarket").text = ("[%s]" if view == MARKET else "%s") % Strings.t("fit.tab.market")
 	_slots.get_parent().visible = home and view == FITTING
 	_storage.get_parent().get_parent().visible = home
 	_store.get_parent().get_parent().visible = not home or view == MARKET
@@ -119,16 +119,16 @@ func _station_name(location_id: String) -> String:
 # line of the HUD's ship info; the docking view runs them together.
 static func power_flow(ship_body) -> Array:
 	var flow: Dictionary = power_numbers(ship_body)
-	var reactor: String = "REACTOR +%.1f/s" % (flow.regen + flow.damper)
+	var reactor: String = Strings.t("power.reactor", [flow.regen + flow.damper])
 	if flow.damper > 0.0:
-		reactor += "  DAMPER -%.1f/s" % flow.damper
+		reactor += "  " + Strings.t("power.damper", [flow.damper])
 	var lines: Array = [reactor]
 	if flow.tools_draw > 0.0:
 		var net: float = flow.regen - flow.tools_draw
-		lines.append("TOOLS ON -%.1f/s  NET %s%.1f/s%s" % [flow.tools_draw, "+" if net >= 0.0 else "-", abs(net),
-			"" if net >= 0.0 else "  FULL TO EMPTY %ds" % int(flow.power_max / -net)])
+		lines.append(Strings.t("power.tools_on", [flow.tools_draw, "+" if net >= 0.0 else "-", abs(net),
+			"" if net >= 0.0 else "  " + Strings.t("power.full_to_empty", [int(flow.power_max / -net)])]))
 	if flow.afterburner > 0.0:
-		lines.append("AFTERBURNER -%.1f/s at full thrust" % flow.afterburner)
+		lines.append(Strings.t("power.afterburner", [flow.afterburner]))
 	return lines
 
 
@@ -149,22 +149,22 @@ static func power_numbers(ship_body) -> Dictionary:
 
 
 static func describe_stats(ship_body) -> String:
-	return ShipStats.text(ShipStats.entries(ship_body.fit_stats, ship_body.mass)) + "\nPOWER FLOW   " + PoolStringArray(power_flow(ship_body)).join("   ")
+	return ShipStats.text(ShipStats.entries(ship_body.fit_stats, ship_body.mass)) + "\n" + Strings.t("power.flow") + "   " + PoolStringArray(power_flow(ship_body)).join("   ")
 
 
 const STAT_LABELS = {
-	"hull": ["%+d hull", 1.0],
-	"power_capacity": ["%+d power", 1.0],
-	"power_regen": ["%+d power/s", 1.0],
-	"cargo_capacity": ["%+d cargo", 1.0],
-	"linear_thrust": ["%+d kN thrust", 0.001],
-	"angular_thrust": ["%+d kNm turn", 0.001],
-	"signature": ["%+d m signature", 1.0],
-	"sensor_strength": ["%+.1f sensors", 1.0],
-	"decoy_charges": ["%d decoys", 1.0],
-	"afterburner_thrust": ["%+d kN thrust lit", 0.001],
-	"shell_load": ["%d kg more cannon rounds", 1.0],
-	"missile_load": ["%d kg more missiles", 1.0],
+	"hull": ["part.stat.hull", 1.0],  # Strings keys, a number in each
+	"power_capacity": ["part.stat.power_capacity", 1.0],
+	"power_regen": ["part.stat.power_regen", 1.0],
+	"cargo_capacity": ["part.stat.cargo_capacity", 1.0],
+	"linear_thrust": ["part.stat.linear_thrust", 0.001],
+	"angular_thrust": ["part.stat.angular_thrust", 0.001],
+	"signature": ["part.stat.signature", 1.0],
+	"sensor_strength": ["part.stat.sensor_strength", 1.0],
+	"decoy_charges": ["part.stat.decoy_charges", 1.0],
+	"afterburner_thrust": ["part.stat.afterburner_thrust", 0.001],
+	"shell_load": ["part.stat.shell_load", 1.0],
+	"missile_load": ["part.stat.missile_load", 1.0],
 }
 
 
@@ -180,18 +180,18 @@ static func describe_part(part_id: String) -> String:
 static func part_detail(part_id: String) -> String:
 	var part = TemplateDatabase.get_template(part_id)
 	if part is UtilityToolTemplate:
-		var note: String = "" if part.tool_type in ["laser", "harpoon", "missile", "cannon"] else "  (no use yet)"
-		return "%s, %d m, %.1f t%s" % [part.mount_size, part.optimal_range, part.mass / 1000.0, note]
+		var note: String = "" if part.tool_type in ["laser", "harpoon", "missile", "cannon"] else "  " + Strings.t("part.no_use_yet")
+		return Strings.t("part.tool_detail", [Strings.t("size." + str(part.mount_size)), part.optimal_range, part.mass / 1000.0]) + note
 	if part is ModuleTemplate:
 		var effects: Array = []
 		for stat in part.stat_modifiers:
 			if stat == "damper_mass":  # Its share depends on the hull: the reference hull's
-				effects.append("jams %d%% of enemy reach on a reference ship, -%.1f power/s" % [
-					int(round(100.0 * ShipFit.damper_share(part.stat_modifiers[stat], Constants.LAW_SHIP_REF_MASS))), Constants.LAW_DAMPER_POWER_PER_KG * part.stat_modifiers[stat]])
+				effects.append(Strings.t("part.stat.damper", [
+					int(round(100.0 * ShipFit.damper_share(part.stat_modifiers[stat], Constants.LAW_SHIP_REF_MASS))), Constants.LAW_DAMPER_POWER_PER_KG * part.stat_modifiers[stat]]))
 				continue
-			var label: Array = STAT_LABELS.get(stat, ["%+d " + stat, 1.0])
-			effects.append(label[0] % (part.stat_modifiers[stat] * label[1]))
-		return "%s, %s, %.1f t" % [ShipFit.module_mount_size(part), PoolStringArray(effects).join(", "), part.mass / 1000.0]
+			var label: Array = STAT_LABELS.get(stat, ["", 1.0])
+			effects.append(Strings.t(label[0], [part.stat_modifiers[stat] * label[1]]) if label[0] != "" else "%+d %s" % [part.stat_modifiers[stat], stat])
+		return Strings.t("part.module_detail", [Strings.t("size." + str(ShipFit.module_mount_size(part))), PoolStringArray(effects).join(", "), part.mass / 1000.0])
 	return ""
 
 
@@ -200,10 +200,10 @@ func _rebuild_slots(ship_body) -> void:
 	var sizes: Array = ShipFit.tool_slot_sizes(ship_body.ship_template)
 	for i in range(ship_body.fit.tools.size()):
 		var part_id: String = ship_body.fit.tools[i]
-		_add_button(_slots, "%s tool: %s" % [sizes[i].capitalize(), Fitting.part_name(part_id) if part_id != "" else "empty"], part_id == "", "_on_unfit", ["tools", i])
+		_add_button(_slots, Strings.t("fit.slot.tool", [Strings.t("size." + str(sizes[i])), Fitting.part_name(part_id) if part_id != "" else Strings.t("fit.slot.empty")]), part_id == "", "_on_unfit", ["tools", i])
 	for i in range(ship_body.fit.modules.size()):
 		var part_id: String = ship_body.fit.modules[i]
-		_add_button(_slots, "%s module: %s" % [ShipFit.module_slot_size(ship_body.ship_template).capitalize(), Fitting.part_name(part_id) if part_id != "" else "empty"], part_id == "", "_on_unfit", ["modules", i])
+		_add_button(_slots, Strings.t("fit.slot.module", [Strings.t("size." + str(ShipFit.module_slot_size(ship_body.ship_template))), Fitting.part_name(part_id) if part_id != "" else Strings.t("fit.slot.empty")]), part_id == "", "_on_unfit", ["modules", i])
 
 
 func _rebuild_storage(_ship_body) -> void:
@@ -211,17 +211,17 @@ func _rebuild_storage(_ship_body) -> void:
 	var ids: Array = GameState.player_storage.keys()
 	ids.sort()
 	if ids.empty():
-		_add_note(_storage, "Nothing stored")
+		_add_note(_storage, Strings.t("fit.storage.empty"))
 	for i in range(ids.size()):
 		var part_id: String = ids[i]
 		_add_row(_storage, i, "%s  x%d" % [Fitting.part_name(part_id), GameState.player_storage[part_id]], part_detail(part_id),
-			[["FIT", false, "_on_fit", [part_id]], ["SELL %d" % Fitting.sale_price(part_id), false, "_on_sell", [part_id]]], true)
+			[[Strings.t("fit.button.fit"), false, "_on_fit", [part_id]], [Strings.t("fit.button.sell", [Fitting.sale_price(part_id)]), false, "_on_sell", [part_id]]], true)
 
 
 func _rebuild_tabs() -> void:
 	_clear(_tabs)
 	for tab in STORE_TABS if Fitting.is_available() else ["cargo"]:
-		var button: Button = _add_button(_tabs, ("[%s]" if tab == _tab else "%s") % tab, false, "_on_tab", [tab])
+		var button: Button = _add_button(_tabs, ("[%s]" if tab == _tab else "%s") % Strings.t("fit.store." + tab), false, "_on_tab", [tab])
 		button.align = Button.ALIGN_CENTER
 		button.theme_type_variation = "TabButton"
 		button.size_flags_horizontal = SIZE_EXPAND_FILL
@@ -234,7 +234,7 @@ func _rebuild_store(ship_body) -> void:
 	_preview.visible = _tab == "ships"
 	match _tab:
 		"ships":
-			_add_note(_store, "Tap a ship to see its hull above (drag it to turn it). Hulls only: yours is traded in for half, its parts go to storage. Each line says how the hull was fitted when it evolved; PROVEN ones flew 10 lives or more.")
+			_add_note(_store, Strings.t("fit.store.ships.note"))
 			_store_ships()
 			preview_ship(_preview.ship_id if _ship_rows.has(_preview.ship_id) else GameState.player_ship_template_id)
 		"weapons":
@@ -260,14 +260,14 @@ func _store_ships() -> void:
 		if ids.empty():
 			continue
 		ids.sort_custom(self, "_ships_first")
-		if not _add_group_heading("%s HULLS" % weight[0].to_upper(), ids.size()):
+		if not _add_group_heading(Strings.t("fit.hulls." + str(weight[0])), ids.size()):
 			continue
 		for i in range(ids.size()):
 			var ship_id: String = ids[i]
 			var flying: bool = ship_id == GameState.player_ship_template_id
 			var cost: int = Fitting.ship_cost(ship_id)
-			var label: String = "FLYING" if flying else ("BUY %d" % cost if cost >= 0 else "BUY +%d" % -cost)
-			var title: String = Fitting.part_name(ship_id) + ("  PROVEN" if TemplateDatabase.proven_presets.has(ship_id) else "")
+			var label: String = Strings.t("fit.button.flying") if flying else (Strings.t("fit.button.buy", [cost]) if cost >= 0 else Strings.t("fit.button.buy_get", [-cost]))
+			var title: String = Fitting.part_name(ship_id) + ("  " + Strings.t("fit.proven") if TemplateDatabase.proven_presets.has(ship_id) else "")
 			var row: Control = _add_row(_store, i, title, describe_ship(ship_id), [[label, flying or GameState.player_bank < cost, "_on_buy_ship", [ship_id]]])
 			_add_ship_stats(row, ship_id)
 			row.connect("gui_input", self, "_on_ship_row_input", [ship_id])
@@ -300,29 +300,30 @@ func store_groups(weapons: bool, equipment: bool = false) -> Array:
 
 func _store_parts(groups: Array) -> void:
 	if groups.empty():
-		_add_note(_store, "Nothing here")
+		_add_note(_store, Strings.t("fit.store.nothing"))
 	for group in groups:
-		if not _add_group_heading(group[0].replace("_", " ").to_upper(), group[1].size()):
+		var kind_key: String = "kind." + str(group[0])
+		if not _add_group_heading(Strings.t(kind_key) if Strings.has(kind_key) else group[0].replace("_", " ").to_upper(), group[1].size()):
 			continue
 		for i in range(group[1].size()):
 			var part_id: String = group[1][i]
 			var cost: int = Fitting.price(part_id)
-			_add_row(_store, i, Fitting.part_name(part_id), part_detail(part_id), [["BUY %d" % cost, GameState.player_bank < cost, "_on_buy", [part_id]]])
+			_add_row(_store, i, Fitting.part_name(part_id), part_detail(part_id), [[Strings.t("fit.button.buy", [cost]), GameState.player_bank < cost, "_on_buy", [part_id]]])
 
 
 # The hold, sold here a unit or all at once at this station's price (salvage too), and what the
 # station makes, bought at its price (Fitting.cargo_stock): any station, as NPC traders trade.
 func _store_cargo(ship_body) -> void:
-	_add_heading(_store, "CARGO  hold %d / %d" % [ship_body.get_cargo_units(), ship_body.cargo_capacity])
+	_add_heading(_store, Strings.t("fit.cargo.heading", [ship_body.get_cargo_units(), ship_body.cargo_capacity]))
 	var worth: int = Market.hold_value(ship_body, GameState.player_docked_at).units
-	_add_button(_store, "SELL HOLD", worth <= 0, "_on_sell_hold", [])
+	_add_button(_store, Strings.t("fit.button.sell_hold"), worth <= 0, "_on_sell_hold", [])
 	var stock: Array = Fitting.cargo_stock()
 	var ids: Array = stock.duplicate()
 	for commodity_id in ship_body.cargo:
 		if not commodity_id in ids:
 			ids.append(commodity_id)
 	if ids.empty():
-		_add_note(_store, "The hold is empty")
+		_add_note(_store, Strings.t("fit.cargo.empty"))
 	for i in range(ids.size()):
 		var commodity_id: String = ids[i]
 		var held: int = int(ship_body.cargo.get(commodity_id, 0))
@@ -330,13 +331,13 @@ func _store_cargo(ship_body) -> void:
 		var buttons: Array = []
 		if commodity_id in stock:
 			var cost: int = Fitting.cargo_price(commodity_id)
-			buttons.append(["BUY %d" % cost, GameState.player_bank < cost or ship_body.get_free_cargo() <= 0, "_on_buy_cargo", [commodity_id]])
+			buttons.append([Strings.t("fit.button.buy", [cost]), GameState.player_bank < cost or ship_body.get_free_cargo() <= 0, "_on_buy_cargo", [commodity_id]])
 		if sale <= 0:
-			buttons.append(["NOT BOUGHT", true, "_on_sell_cargo", [commodity_id, 1]])
+			buttons.append([Strings.t("fit.button.not_bought"), true, "_on_sell_cargo", [commodity_id, 1]])
 		else:
-			buttons.append(["SELL %d" % sale, held <= 0, "_on_sell_cargo", [commodity_id, 1]])
-			buttons.append(["ALL %d" % (sale * held), held <= 1, "_on_sell_cargo", [commodity_id, -1]])
-		_add_row(_store, i, Fitting.part_name(commodity_id), "%d in the hold" % held, buttons)
+			buttons.append([Strings.t("fit.button.sell", [sale]), held <= 0, "_on_sell_cargo", [commodity_id, 1]])
+			buttons.append([Strings.t("fit.button.sell_all", [sale * held]), held <= 1, "_on_sell_cargo", [commodity_id, -1]])
+		_add_row(_store, i, Fitting.part_name(commodity_id), Strings.t("fit.cargo.held", [held]), buttons)
 
 
 static func part_kind(part) -> String:
@@ -361,9 +362,12 @@ static func describe_ship(ship_id: String) -> String:
 	var agent = TemplateDatabase.preset_agents.get(ship_id)
 	var role: String = agent.role if agent != null and agent.role != "" else PresetClassifier.ship_role(ship, agent.behavior if agent != null else {})
 	if agent != null and agent.temperament != "":
-		role += ", " + agent.temperament  # How its evolved pilot flies it (NPCs; a hint to the player)
-	var fit_note: String = "Evolved with: " if TemplateDatabase.presets.has(ship_id) else "Comes with: "
-	return "%s\n%s" % [role.to_upper(), (fit_note + PoolStringArray(fitted).join(", ")) if not fitted.empty() else "Bare hull"]
+		role = Strings.t("role." + role) if Strings.has("role." + role) else role
+		role += ", " + (Strings.t("temper." + agent.temperament) if Strings.has("temper." + agent.temperament) else agent.temperament)  # How its evolved pilot flies it (NPCs; a hint to the player)
+	elif Strings.has("role." + role):
+		role = Strings.t("role." + role)
+	var fit_note: String = Strings.t("fit.evolved_with") if TemplateDatabase.presets.has(ship_id) else Strings.t("fit.comes_with")
+	return "%s\n%s" % [role.to_upper(), (fit_note + " " + PoolStringArray(fitted).join(", ")) if not fitted.empty() else Strings.t("fit.bare_hull")]
 
 
 # A store hull's numbers as it comes fitted (ShipStats, brief: as the ship flown's header shows
@@ -512,37 +516,37 @@ func _on_tab(tab: String) -> void:
 
 
 func _on_buy(part_id: String) -> void:
-	_report(Fitting.buy(part_id), "Bought %s" % Fitting.part_name(part_id))
+	_report(Fitting.buy(part_id), Strings.t("fit.done.bought", [Fitting.part_name(part_id)]))
 
 
 func _on_buy_ship(ship_id: String) -> void:
-	_report(Fitting.buy_ship(ship_id), "Now flying %s; the old fit is in storage" % Fitting.part_name(ship_id))
+	_report(Fitting.buy_ship(ship_id), Strings.t("fit.done.new_ship", [Fitting.part_name(ship_id)]))
 
 
 func _on_buy_cargo(commodity_id: String) -> void:
-	_report(Fitting.buy_cargo(GlobalRefs.player_agent_body, commodity_id), "Bought 1 %s" % Fitting.part_name(commodity_id))
+	_report(Fitting.buy_cargo(GlobalRefs.player_agent_body, commodity_id), Strings.t("fit.done.bought_one", [Fitting.part_name(commodity_id)]))
 
 
 func _on_sell_cargo(commodity_id: String, units: int) -> void:
 	var body = GlobalRefs.player_agent_body
 	var count: int = int(body.cargo.get(commodity_id, 0)) if units < 0 else units
 	var price: int = Fitting.cargo_sale_price(commodity_id)
-	_report(Fitting.sell_cargo(body, commodity_id, units), "Sold %d %s for %d WP" % [count, Fitting.part_name(commodity_id), count * price])
+	_report(Fitting.sell_cargo(body, commodity_id, units), Strings.t("fit.done.sold_cargo", [count, Fitting.part_name(commodity_id), count * price]))
 
 
 func _on_sell_hold() -> void:
 	var sold: Dictionary = Fitting.sell_hold(GlobalRefs.player_agent_body)
-	_report("" if sold.units > 0 else "Nothing here buys it", "Sold %d units for %d WP" % [sold.units, sold.banked])
+	_report("" if sold.units > 0 else Strings.t("fit.err.nothing_buys"), Strings.t("fit.done.sold_hold", [sold.units, sold.banked]))
 
 
 func _on_sell(part_id: String) -> void:
-	_report(Fitting.sell(part_id), "Sold %s for %d WP" % [Fitting.part_name(part_id), Fitting.sale_price(part_id)])
+	_report(Fitting.sell(part_id), Strings.t("fit.done.sold", [Fitting.part_name(part_id), Fitting.sale_price(part_id)]))
 
 
 func _on_fit(part_id: String) -> void:
-	_report(Fitting.fit_part(GlobalRefs.player_agent_body, part_id), "Fitted %s" % Fitting.part_name(part_id))
+	_report(Fitting.fit_part(GlobalRefs.player_agent_body, part_id), Strings.t("fit.done.fitted", [Fitting.part_name(part_id)]))
 
 
 func _on_unfit(kind: String, slot: int) -> void:
 	var part_id: String = GlobalRefs.player_agent_body.fit[kind][slot]
-	_report(Fitting.unfit(GlobalRefs.player_agent_body, kind, slot), "Unfitted %s" % Fitting.part_name(part_id))
+	_report(Fitting.unfit(GlobalRefs.player_agent_body, kind, slot), Strings.t("fit.done.unfitted", [Fitting.part_name(part_id)]))

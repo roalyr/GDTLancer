@@ -1113,5 +1113,51 @@ class AppTest(unittest.IsolatedAsyncioTestCase):
             self.assertTrue(app.is_running)
 
 
+    async def test_strings_tab_edits_adds_and_deletes_on_a_copy(self):
+        from devtool import strings
+        with tempfile.TemporaryDirectory() as folder:
+            path = os.path.join(folder, "strings.json")
+            strings.save({"a.one": {"en": "One %d", "uk": "Один %d"}, "a.two": {"en": "Two", "uk": ""}}, path)
+            with mock.patch.object(strings, "full_path", return_value=path), mock.patch.object(strings, "used_keys", return_value={}):
+                app = devapp.DevApp(bridge_factory=lambda: FakeBridge())
+                async with app.run_test(size=(160, 50)) as pilot:
+                    await self._started(pilot, app)
+                    await pilot.press("minus")
+                    await pilot.pause()
+                    self.assertEqual(app.query_one("TabbedContent").active, "strings-tab")
+                    table = app.query_one("#strings", DataTable)
+                    self.assertEqual(table.row_count, 2)
+                    self.assertIn("no uk", str(table.get_row_at(1)[-1]), "An empty translation is a problem")
+                    await pilot.press("ctrl+e")
+                    await pilot.pause()
+                    self.assertEqual(table.row_count, 1, "Problems only")
+                    await pilot.press("ctrl+e")
+                    table.move_cursor(row=1)
+                    await pilot.pause()
+                    self.assertEqual(app.string_picked, "a.two")
+                    app.query_one("#string-uk", TextArea).load_text("Два")
+                    app.action_save_string()
+                    await pilot.pause()
+                    self.assertEqual(strings.load(path)["a.two"]["uk"], "Два", "Saved")
+                    app.action_undo_save()
+                    await pilot.pause()
+                    self.assertEqual(strings.load(path)["a.two"]["uk"], "", "and undone")
+                    app.action_new_string()
+                    await pilot.pause()
+                    app.screen.query_one(Input).value = "a.three"
+                    await pilot.press("enter")
+                    await pilot.pause()
+                    self.assertIn("a.three", strings.load(path), "Added, empty")
+                    self.assertEqual(app.string_picked, "a.three")
+                    app.action_delete_string()
+                    await pilot.pause()
+                    await pilot.press("y")
+                    await pilot.pause()
+                    self.assertNotIn("a.three", strings.load(path), "Deleted")
+                    app.query_one("#strings-filter", Input).value = "один"
+                    await pilot.pause()
+                    self.assertEqual(table.row_count, 1, "Found by its Ukrainian text")
+
+
 if __name__ == "__main__":
     unittest.main()

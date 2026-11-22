@@ -454,18 +454,18 @@ func get_ship_cues(target_ref, detailed: bool = true) -> Array:
 		return cues
 	var hostile: bool = target_ref.is_enemy_of(player)
 	if hostile:
-		cues.append("HOSTILE")
+		cues.append(Strings.word("HOSTILE"))
 	elif Standing.label(target_ref.get("faction")) == "FRIENDLY":
-		cues.append("FRIENDLY")
+		cues.append(Strings.word("FRIENDLY"))
 	if detailed:
 		var price: float = Bounty.claimable(player, target_ref)
 		if price >= 1.0:
-			cues.append("BOUNTY %d" % int(round(price)))
+			cues.append(Strings.t("hud.cue.bounty", [int(round(price))]))
 	var ai = target_ref.get_node_or_null(Constants.AI_CONTROLLER_NODE_NAME)
 	if ai == null:
 		ai = target_ref.get_node_or_null(Constants.PLATFORM_CONTROLLER_NODE_NAME)  # A weapon platform
 	if ai != null and ai.has_method("get_activity_label") and ai.get_activity_label() != "":
-		cues.append(ai.get_activity_label())
+		cues.append(Strings.word(ai.get_activity_label()))
 	if detailed and PilotLevel.of(target_ref) >= 0:
 		cues.append(PilotLevel.name_of(PilotLevel.of(target_ref)))
 	var uid = target_ref.get("evo_uid")
@@ -473,12 +473,12 @@ func get_ship_cues(target_ref, detailed: bool = true) -> Array:
 		var rank: int = Evolution.rank_of(str(uid))
 		var record: Dictionary = Evolution.get_record(str(uid))
 		if rank == 1 and Evolution.leader_of(target_ref.faction, str(record.get("zone", ""))) == target_ref:
-			cues.append("LEADER")
+			cues.append(Strings.t("hud.cue.leader"))
 		elif rank > 0:
-			cues.append("RANK %d/%d" % [rank, Evolution.group_of(target_ref.faction, str(record.zone)).size()])
+			cues.append(Strings.t("hud.cue.rank", [rank, Evolution.group_of(target_ref.faction, str(record.zone)).size()]))
 	if detailed or hostile:
 		cues.append(CombatAssessment.difficulty_label(CombatAssessment.team_advantage(player, target_ref)))
-		cues.append("SEES YOU" if target_ref.detects(player) else "UNAWARE")
+		cues.append(Strings.t("hud.cue.sees_you") if target_ref.detects(player) else Strings.t("hud.cue.unaware"))
 	return cues
 
 # The selected bracket labelled with its cues; the one selected before back to a bare mark. Only

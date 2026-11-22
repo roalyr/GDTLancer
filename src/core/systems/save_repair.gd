@@ -25,7 +25,7 @@ static func repair(game_start: Resource) -> Array:
 	var start_ship: String = game_start.player_ship_template if game_start != null else Constants.FALLBACK_SHIP_TEMPLATE_ID
 	var start_home: String = game_start.player_starting_location if game_start != null else ""
 	if not ship_known(GameState.player_ship_template_id):
-		notes.append("Your ship (%s) is no longer built: you fly the starting ship" % GameState.player_ship_template_id)
+		notes.append(Strings.t("save.repair.ship", [GameState.player_ship_template_id]))
 		GameState.player_ship_template_id = start_ship
 		GameState.player_fit = {}  # The hull's default fit
 		GameState.player_hull = -1.0
@@ -33,8 +33,8 @@ static func repair(game_start: Resource) -> Array:
 		GameState.player_lance_nails = -1
 		GameState.player_tool_ammo = []
 	if not haven_known(GameState.home_location_id) and haven_known(start_home):
-		notes.append("Your home station (%s) is gone: your home is now %s" % [
-			GameState.home_location_id if GameState.home_location_id != "" else "none", Havens.spec(start_home).get("name", start_home)])
+		notes.append(Strings.t("save.repair.home", [
+			GameState.home_location_id if GameState.home_location_id != "" else "none", Havens.spec(start_home).get("name", start_home)]))
 		GameState.home_location_id = start_home
 	var fitted: int = 0
 	for kind in ["tools", "modules"]:
@@ -47,10 +47,10 @@ static func repair(game_start: Resource) -> Array:
 				fitted += 1
 	var stored: int = _drop_unknown(GameState.player_storage, "part")
 	if fitted + stored > 0:
-		notes.append("%d part%s no longer made %s removed (%d fitted, %d stored)" % [fitted + stored, "" if fitted + stored == 1 else "s", "was" if fitted + stored == 1 else "were", fitted, stored])
+		notes.append(Strings.t("save.repair.parts", [fitted + stored, fitted, stored]))
 	var cargo: int = _drop_unknown(GameState.player_cargo, "commodity")
 	if cargo > 0:
-		notes.append("%d kind%s of cargo no longer traded %s thrown out of the hold" % [cargo, "" if cargo == 1 else "s", "was" if cargo == 1 else "were"])
+		notes.append(Strings.t("save.repair.cargo", [cargo]))
 	_drop_unknown(GameState.player_standing, "faction")
 	_drop_unknown(GameState.player_bounties, "faction")
 	_drop_unknown(GameState.station_markups, "haven")

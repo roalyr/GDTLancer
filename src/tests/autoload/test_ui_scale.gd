@@ -140,7 +140,7 @@ func test_phones_start_at_a_scale_from_their_screen():
 	assert_eq(UiScale.auto_factor(768.0, 130.6), 1.0, "The 12 inch 1366x768 the UI is drawn for")
 	assert_eq(UiScale.auto_factor(1080.0, 400.0), Constants.UI_SCALE_AUTO_MAX, "A 6 inch 1080p phone: as large as it may start")
 	assert_eq(UiScale.auto_factor(1200.0, 220.0), 1.0, "A 10 inch tablet: about as tall as the laptop")
-	assert_eq(UiScale.auto_factor(1080.0, 250.0), 1.25)
+	assert_eq(UiScale.auto_factor(1080.0, 250.0), 1.3, "to the nearest step")
 
 
 func test_across_only_and_own_factors():

@@ -90,7 +90,7 @@ static func public_record(player, ship) -> Array:
 		rows.append(["TO YOU", TargetKinds.side_of(ship, player).to_upper()])
 	rows.append(["LEVEL", name_of(of(ship))])
 	var template = ship.get("ship_template")
-	rows.append(["SHIP", str(template.ship_model_name).to_upper() if is_instance_valid(template) else ""])
+	rows.append(["SHIP", Strings.name_of(str(template.ship_model_name)).to_upper() if is_instance_valid(template) else ""])
 	var ai = ship.get_node_or_null(Constants.AI_CONTROLLER_NODE_NAME)
 	rows.append(["DOING", ai.get_activity_label() if ai != null and ai.has_method("get_activity_label") else ""])
 	var uid: String = str(ship.get("evo_uid")) if ship.get("evo_uid") != null else ""

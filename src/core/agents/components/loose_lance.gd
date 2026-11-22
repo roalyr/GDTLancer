@@ -77,7 +77,7 @@ func can_be_scooped_by(ship) -> bool:
 
 
 func get_display_name() -> String:
-	return "Lance"
+	return Strings.t("target.lance")
 
 
 func is_player() -> bool:

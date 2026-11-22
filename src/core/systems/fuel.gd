@@ -18,6 +18,6 @@ static func carried(ship) -> int:
 static func burn_for_jump(ship) -> String:
 	var cost: int = jump_cost(ship)
 	if carried(ship) < cost:
-		return "Not enough fuel to jump: %d of %d units" % [carried(ship), cost]
+		return Strings.t("msg.fuel_short", [carried(ship), cost])
 	ship.remove_cargo(Constants.FUEL_COMMODITY, cost)
 	return ""

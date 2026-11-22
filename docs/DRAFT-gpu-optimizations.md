@@ -35,7 +35,7 @@ need the phone and its FPS readout (Settings `show_fps`).
   test file that fails to parse; one "Parse Error" line in the output is expected).
 - **Shaders share blocks** (`// @common dither`, `// @common nlp`) synced by `tools/sync_shader_blocks.py`.
   Edit a block once and run the sync; never hand-edit a copy.
-- **Options stay options.** Existing render options in Settings: `render_scale` (1, 0.5, 0.25),
+- **Options stay options.** Existing render options in Settings: `render_scale` (1, 0.75, 0.5, 0.25),
   `particles`, `hit_effects` (scars, slag, hit surfaces), `engine_exhausts`, `show_fps`,
   `slow_down_on_lag`. A cut that changes the look belongs behind one of these or a new one, default
   as today, the user decides.

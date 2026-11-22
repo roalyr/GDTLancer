@@ -79,7 +79,7 @@ func _request_exit() -> void:
 		get_tree().quit()
 		return
 	_show_menu()
-	var prompt = PromptDialog.ask(self, "Save before exiting?", "UNSAVED PLAY IS LOST ON EXIT.", [["save", "SAVE AND EXIT"], ["exit", "EXIT"], ["cancel", "CANCEL"]])
+	var prompt = PromptDialog.ask(self, Strings.t("menu.exit.title"), Strings.t("menu.exit.text"), [["save", Strings.t("menu.exit.save")], ["exit", Strings.t("menu.exit.exit")], ["cancel", Strings.t("common.cancel")]])
 	prompt.connect("chosen", self, "_on_exit_chosen")
 
 
@@ -95,7 +95,7 @@ func _on_new_game_pressed() -> void:
 	if not _has_active_game_session():
 		_start_new_game()
 		return
-	var prompt = PromptDialog.ask(self, "Start a new game?", "UNSAVED PLAY IS LOST.", [["new", "NEW GAME"], ["cancel", "CANCEL"]])
+	var prompt = PromptDialog.ask(self, Strings.t("menu.new.title"), Strings.t("menu.new.text"), [["new", Strings.t("menu.new.yes")], ["cancel", Strings.t("common.cancel")]])
 	prompt.connect("chosen", self, "_on_new_game_chosen")
 
 
@@ -123,8 +123,8 @@ func _on_load_game_pressed() -> void:
 	var choices: Array = []
 	for slot in [GameStateManager.AUTOSAVE_SLOT] + GameStateManager.manual_slots():
 		choices.append([str(slot), GameStateManager.slot_label(slot), not GameStateManager.has_save_file(slot)])
-	choices.append(["cancel", "CANCEL"])
-	PromptDialog.ask_list(self, "Load game", "PICK A SAVE. PLAY SINCE THE LAST SAVE IS LOST.", choices).connect("chosen", self, "_on_load_slot_chosen")
+	choices.append(["cancel", Strings.t("common.cancel")])
+	PromptDialog.ask_list(self, Strings.t("menu.load.title"), Strings.t("menu.load.text"), choices).connect("chosen", self, "_on_load_slot_chosen")
 
 
 func _on_load_slot_chosen(choice) -> void:
@@ -151,8 +151,8 @@ func _pick_save_slot(then_quit: bool) -> void:
 	var choices: Array = []
 	for slot in GameStateManager.manual_slots():
 		choices.append([str(slot), GameStateManager.slot_label(slot)])
-	choices.append(["cancel", "CANCEL"])
-	PromptDialog.ask_list(self, "Save game", "PICK A SLOT. THE AUTOSAVE HAS ITS OWN.", choices).connect("chosen", self, "_on_save_slot_chosen", [then_quit])
+	choices.append(["cancel", Strings.t("common.cancel")])
+	PromptDialog.ask_list(self, Strings.t("menu.save.title"), Strings.t("menu.save.text"), choices).connect("chosen", self, "_on_save_slot_chosen", [then_quit])
 
 
 func _on_save_slot_chosen(choice, then_quit: bool) -> void:
@@ -160,7 +160,7 @@ func _on_save_slot_chosen(choice, then_quit: bool) -> void:
 		return
 	var slot: int = int(choice)
 	if GameStateManager.has_save_file(slot):
-		var prompt = PromptDialog.ask(self, "Save over slot %d?" % slot, GameStateManager.slot_label(slot), [["save", "SAVE OVER IT"], ["cancel", "CANCEL"]])
+		var prompt = PromptDialog.ask(self, Strings.t("menu.overwrite.title", [slot]), GameStateManager.slot_label(slot), [["save", Strings.t("menu.overwrite.yes")], ["cancel", Strings.t("common.cancel")]])
 		prompt.connect("chosen", self, "_on_overwrite_chosen", [slot, then_quit])
 		return
 	_save_in(slot, then_quit)
@@ -182,9 +182,9 @@ func _save_in(slot: int, then_quit: bool) -> void:
 
 func _show_save_notification(success: bool, slot: int = -1) -> void:
 	if success:
-		PromptDialog.tell(self, "Saved", "THE GAME IS SAVED IN SLOT %d." % slot if slot > 0 else "THE GAME IS SAVED.")
+		PromptDialog.tell(self, Strings.t("menu.saved.title"), Strings.t("menu.saved.slot", [slot]) if slot > 0 else Strings.t("menu.saved.text"))
 	else:
-		PromptDialog.tell(self, "Save failed", "THE GAME COULD NOT BE SAVED. THE CONSOLE SAYS WHY.")
+		PromptDialog.tell(self, Strings.t("menu.save_failed.title"), Strings.t("menu.save_failed.text"))
 
 
 func _on_exit_game_pressed() -> void:
