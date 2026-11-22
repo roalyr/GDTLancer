@@ -41,7 +41,7 @@ feel the controls and never touched the phone.
 ### On the phone
 - **Frame rate in a crowded fight**, with `show_fps` on. Readings are owed for the options as they
   are and for `discard` in the solid shader (`98d3ef5`): see `DRAFT-gpu-optimizations.md`, items 0, 4 and 12.
-- **30 Hz feel**: the rigid camera is the default. The dynamic camera is still labelled UNFINISHED.
+- **30 Hz feel**: the dynamic camera is on by default again, its leash now a spring stepped with the physics and drawn interpolated; does it still jitter at speed?
 - **SLOW DOWN ON LAG**: still waiting for a verdict since 2026-11-10.
 - **Scar cooling**: stepped colour after a long session would mean lowered precision (`DRAFT-merged-scar-mesh.md`).
 - **Touch**: every action from an on-screen control, the store's stacked storage rows, the save picker.

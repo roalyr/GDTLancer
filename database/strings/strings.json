@@ -1583,13 +1583,13 @@
   "en": "BRACKET FADE",
   "uk": "ЗГАСАННЯ РАМОК"
  },
- "options.camera_dynamic.about": {
-  "en": "The camera eases after the ship like on a spring instead of sitting fixed to it. Unfinished: it jitters.",
-  "uk": "Камера пружно рухається за кораблем замість жорсткого кріплення. Недороблена: тремтить."
+ "options.dynamic_camera.about": {
+  "en": "The camera hangs on a springy leash: it falls back as the ship speeds up, swings out in turns and settles at steady speed. Off, it sits fixed to the ship.",
+  "uk": "Камера висить на пружному повідку: відстає, коли корабель розганяється, заноситься на поворотах і заспокоюється на сталій швидкості. Вимкнено — жорстко прикріплена до корабля."
  },
- "options.camera_dynamic.name": {
-  "en": "DYNAMIC CAMERA (UNFINISHED)",
-  "uk": "ДИНАМІЧНА КАМЕРА (НЕДОРОБЛЕНА)"
+ "options.dynamic_camera.name": {
+  "en": "DYNAMIC CAMERA",
+  "uk": "ДИНАМІЧНА КАМЕРА"
  },
  "options.dynamic_lights.about": {
   "en": "How many hits and explosions light up their surroundings at once. Lights are costly on old graphics cards.",

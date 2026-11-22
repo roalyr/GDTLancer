@@ -16,7 +16,7 @@ const OPTIONS = {
 	"ButtonAutosave": ["autosave_on_dock", null],
 	"ButtonAutolevel": ["autolevel", null],
 	"ButtonSlowDown": ["slow_down_on_lag", null],
-	"ButtonDynamicCamera": ["camera_dynamic", null],
+	"ButtonDynamicCamera": ["dynamic_camera", null],
 	"ButtonRenderScale": ["render_scale", "RENDER_SCALE_STEPS"],
 	"ButtonPixelSmoothing": ["pixel_smoothing", null],
 	"ButtonMsaa": ["msaa", "MSAA_LEVELS"],

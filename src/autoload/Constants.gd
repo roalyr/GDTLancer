@@ -174,9 +174,12 @@ const POINTER_DOUBLE_CLICK_MS = 400
 
 # Orbit and smoothing.
 const CAMERA_START_DISTANCE = 55.0  # m
-const CAMERA_POSITION_SMOOTHING = 30.0
-const CAMERA_ROTATION_SMOOTHING = 18.0
-const CAMERA_TARGET_SMOOTHING = 50.0
+# Dynamic camera's leash (CameraPositionController): a damped spring, stepped with the physics, that
+# the ship's acceleration stretches; a steady acceleration a holds it at a / FREQUENCY^2.
+const CAMERA_LEASH_FREQUENCY = 3.0  # rad/s
+const CAMERA_LEASH_DAMPING = 0.7  # 1: no overshoot; less springs past and back
+const CAMERA_LEASH_MAX_SHARE = 0.25  # Of the camera's distance: the longest the leash stretches
+const CAMERA_LEASH_AIM_SHARE = 0.5  # Share of the leash the chase camera's aim follows (the ship drifts in frame by the rest)
 const CAMERA_BOB_FREQUENCY = 0.1  # Hz
 const CAMERA_BOB_AMPLITUDE = 0.2  # m
 

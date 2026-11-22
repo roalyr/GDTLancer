@@ -11,8 +11,8 @@
 #   "effects"      (float) AudioBuses: the Effects bus's loudness (0: no sound effects)
 #   "slow_down_on_lag" (bool) FrameGovernor: the game slows down rather than its frame rate falling
 #   "show_fps"     (bool)  MainHUD: frames a second in the top left corner
-#   "camera_dynamic" (bool) OrbitCamera: eases after the ship (elastic); off, fixed to the ship.
-#                          Unfinished (it jitters): off by default, the Options button says so
+#   "dynamic_camera" (bool) OrbitCamera: a springy leash the ship's acceleration stretches; off,
+#                          fixed to the ship
 #   "autosave_on_dock" (bool) PlayerControllerShip: the game saves each time the player docks
 #   "engine_exhausts" (bool) EngineExhaustSet: ships' plumes and nozzle glow (off: hidden and not
 #                          worked out, nor the agents' per-nozzle thrust); missiles keep theirs
@@ -58,7 +58,7 @@ const DEFAULTS = {
 	"effects": 1.0,
 	"slow_down_on_lag": false,
 	"show_fps": false,
-	"camera_dynamic": false,  # Unfinished: jitters with 30 Hz physics (a new key: a saved "on" is not kept)
+	"dynamic_camera": true,  # Was "camera_dynamic", off while it jittered: its saved "off" is not kept
 	"autosave_on_dock": true,
 	"engine_exhausts": true,
 	"tether_rope": "complex",

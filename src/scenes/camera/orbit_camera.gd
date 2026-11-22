@@ -9,9 +9,6 @@ const WorldRendering = preload("res://src/scenes/game_world/world_rendering.gd")
 
 # --- General ---
 var distance: float = Constants.CAMERA_START_DISTANCE
-var position_smoothing_speed: float = Constants.CAMERA_POSITION_SMOOTHING
-var rotation_smoothing_speed: float = Constants.CAMERA_ROTATION_SMOOTHING
-var target_smoothing_speed: float = Constants.CAMERA_TARGET_SMOOTHING
 var bob_frequency: float = Constants.CAMERA_BOB_FREQUENCY
 var bob_amplitude: float = Constants.CAMERA_BOB_AMPLITUDE
 
@@ -87,9 +84,6 @@ func _ready():
 	# Package all internal vars into a config dictionary to pass to components
 	var config = {
 		"distance": distance,
-		"position_smoothing_speed": position_smoothing_speed,
-		"rotation_smoothing_speed": rotation_smoothing_speed,
-		"target_smoothing_speed": target_smoothing_speed,
 		"bob_frequency": bob_frequency,
 		"bob_amplitude": bob_amplitude,
 		"zoom_speed": zoom_speed,
@@ -149,8 +143,12 @@ func apply_rotation_input(event: InputEventMouseMotion) -> void:
 
 
 # The camera follows in physics steps; with physics interpolation, every drawn frame instead, from
-# its target's drawn transform (Interp), and it is left out of interpolation itself.
+# its target's drawn transform (Interp), and it is left out of interpolation itself. The dynamic
+# camera's leash steps with the physics either way.
 func _physics_process(delta):
+	if is_instance_valid(_position_controller):
+		_position_controller.dynamic = bool(Settings.get_option("dynamic_camera"))
+		_position_controller.physics_step(delta)
 	if not Interp.enabled():
 		_follow(delta)
 
@@ -158,21 +156,19 @@ func _physics_process(delta):
 func _process(delta):
 	if not Interp.enabled():
 		return
-	# Its smoothing and turning were tuned at 1/60 s steps and blow up on long frames (a phone at
-	# 5 FPS, the evolution sim at x8): a long frame is flown in steps of at most CAMERA_STEP.
+	# The rotation's PID was tuned at 1/60 s steps and blows up on long frames (a phone at 5 FPS,
+	# the evolution sim at x8): a long frame is flown in steps of at most CAMERA_STEP.
 	var steps: int = int(clamp(ceil(delta / Constants.CAMERA_STEP), 1, Constants.CAMERA_MAX_STEPS))
 	for i in range(steps):
 		_follow(delta / steps)
 
 
 func _on_settings_changed(key, value) -> void:
-	if key == "camera_dynamic" and is_instance_valid(_position_controller):
+	if key == "dynamic_camera" and is_instance_valid(_position_controller):
 		_position_controller.dynamic = bool(value)
 
 
 func _follow(delta: float) -> void:
-	if is_instance_valid(_position_controller):
-		_position_controller.dynamic = bool(Settings.get_option("camera_dynamic"))
 	_rotation_controller.physics_update(delta)
 	_zoom_controller.physics_update()
 	_position_controller.physics_update(delta)

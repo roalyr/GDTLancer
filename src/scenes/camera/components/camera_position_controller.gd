@@ -1,10 +1,11 @@
-# Manages camera positioning, smoothing, and bobbing effect.
-# Dynamic (Settings "camera_dynamic"): the anchor and the camera ease after the ship (elastic), but in
-# its moving frame: each step they first move on with the ship's velocity, then close the gap by a
-# share 1 - exp(-rate * dt). A ship at steady speed is held exactly, whatever the frame times (an
-# absolute lerp trails it by speed / rate, and by a bit more or less with each frame's length: a
-# jitter that grew with speed once the camera followed every frame); only speeding up, braking and
-# turning stretch the leash. Not dynamic: fixed to the ship's (drawn) origin, no easing, no bob.
+# Manages camera positioning and bobbing.
+# The camera sits on its rig about the ship's drawn origin. Dynamic (Settings "dynamic_camera"): a
+# leash, a damped spring stepped with the physics (physics_step), pulls the rig off the ship against
+# its acceleration (back as it speeds up, ahead as it brakes, out of a turn) and springs it back;
+# frames draw it between its last two steps, as every body is drawn, so it is as smooth as the ship.
+# At steady speed it is slack. (Easing the camera per frame by the ship's velocity times the frame's
+# length jittered: those two never quite agree with the drawn motion, and the error grew with speed.)
+# Not dynamic: fixed to the ship's drawn origin, no leash, no bob.
 
 extends Node
 const Interp = preload("res://src/core/utils/interp.gd")
@@ -18,12 +19,8 @@ var _rotation_controller: CameraRotationController = null
 var _zoom_controller: CameraZoomController = null
 
 # --- From Configuration ---
-var position_smoothing_speed: float = 0
-var rotation_smoothing_speed: float = 0
 var bob_frequency: float = 0
 var bob_amplitude: float = 0
-# NEW: How quickly the camera's anchor point follows the ship. Lower values are smoother.
-var target_smoothing_speed: float = 0
 
 # --- Camera Mode ---
 enum CameraMode { ORBIT, TARGET_TRACKING }
@@ -31,10 +28,12 @@ var _camera_mode: int = CameraMode.ORBIT
 
 # --- State ---
 var _bob_timer: float = 0.0
-# NEW: This will be the point the camera actually tries to follow.
-var _smoothed_target_pos: Vector3 = Vector3.ZERO
-var dynamic: bool = false  # Settings "camera_dynamic" (OrbitCamera sets it)
-var _moved: Vector3 = Vector3.ZERO  # How far the target moved this step (its velocity times the step)
+var _target_pos: Vector3 = Vector3.ZERO  # The target's drawn origin this frame
+var dynamic: bool = false  # Settings "dynamic_camera" (OrbitCamera sets it)
+var _leash: Vector3 = Vector3.ZERO  # The rig's offset from the ship after the last physics step
+var _leash_before: Vector3 = Vector3.ZERO  # ... and after the one before
+var _leash_velocity: Vector3 = Vector3.ZERO
+var _velocity_before = null  # The target's velocity at the last step (null: none yet)
 
 
 # --- Initialization ---
@@ -42,21 +41,16 @@ func initialize(camera_node: Camera, rot_ctrl: Node, zoom_ctrl: Node, config: Di
 	_camera = camera_node
 	_rotation_controller = rot_ctrl
 	_zoom_controller = zoom_ctrl
-
-	# Set configuration from the main camera script
-	position_smoothing_speed = config.get("position_smoothing_speed", position_smoothing_speed)
-	rotation_smoothing_speed = config.get("rotation_smoothing_speed", rotation_smoothing_speed)
 	bob_frequency = config.get("bob_frequency", bob_frequency)
 	bob_amplitude = config.get("bob_amplitude", bob_amplitude)
-	target_smoothing_speed = config.get("target_smoothing_speed", target_smoothing_speed)
 
 
 # --- Public Methods ---
 func set_target(new_target: Spatial):
 	_target = new_target
-	# When the target changes, immediately snap the smoothed position to it.
+	reset_leash()
 	if is_instance_valid(_target):
-		_smoothed_target_pos = Interp.origin(_target)
+		_target_pos = Interp.origin(_target)
 
 
 func set_look_at_target(look_target: Spatial):
@@ -65,6 +59,51 @@ func set_look_at_target(look_target: Spatial):
 
 func set_camera_mode(mode: int):
 	_camera_mode = mode
+
+
+func reset_leash() -> void:
+	_leash = Vector3.ZERO
+	_leash_before = Vector3.ZERO
+	_leash_velocity = Vector3.ZERO
+	_velocity_before = null
+
+
+# Once a physics step (OrbitCamera._physics_process, before the step's own camera follow when
+# interpolation is off): the leash springs by the target's change of velocity since the last step.
+func physics_step(delta: float) -> void:
+	_leash_before = _leash
+	var velocity = _target.get("linear_velocity") if is_instance_valid(_target) else null
+	if not dynamic or not velocity is Vector3 or delta <= 0.0:
+		reset_leash()
+		return
+	if _velocity_before == null:
+		_velocity_before = velocity
+	var acceleration: Vector3 = (velocity - _velocity_before) / delta
+	_velocity_before = velocity
+	var limit: float = Constants.CAMERA_LEASH_MAX_SHARE * float(_zoom_controller.current_distance) if is_instance_valid(_zoom_controller) else INF
+	step_leash(acceleration, delta, limit)
+
+
+# The leash's spring: L'' = -w^2 L - 2 z w L' - a (semi-implicit), held within `limit` m.
+# A steady acceleration a settles it at -a / w^2.
+func step_leash(acceleration: Vector3, delta: float, limit: float) -> void:
+	var w: float = Constants.CAMERA_LEASH_FREQUENCY
+	_leash_velocity += (-w * w * _leash - 2.0 * Constants.CAMERA_LEASH_DAMPING * w * _leash_velocity - acceleration) * delta
+	_leash += _leash_velocity * delta
+	var length: float = _leash.length()
+	if length > limit and length > 0.0:
+		var out: Vector3 = _leash / length
+		_leash = out * limit
+		_leash_velocity -= out * max(out.dot(_leash_velocity), 0.0)
+
+
+# The leash as drawn this frame: between its last two steps, as bodies are.
+func get_drawn_leash() -> Vector3:
+	if not dynamic:
+		return Vector3.ZERO
+	if Interp.enabled():
+		return _leash_before.linear_interpolate(_leash, Engine.get_physics_interpolation_fraction())
+	return _leash
 
 
 func physics_update(delta: float):
@@ -79,30 +118,25 @@ func physics_update(delta: float):
 		return
 
 	# --- Attached Mode ---
-	var actual_target_pos = Interp.origin(_target)
-	var velocity = _target.get("linear_velocity")
-	_moved = velocity * delta if velocity is Vector3 and dynamic else Vector3.ZERO
-	if dynamic:
-		_smoothed_target_pos = (_smoothed_target_pos + _moved).linear_interpolate(actual_target_pos, ease_share(target_smoothing_speed, delta))
-	else:
-		_smoothed_target_pos = actual_target_pos
-
+	_target_pos = Interp.origin(_target)
+	var leash: Vector3 = get_drawn_leash()
 	var bob_offset = Vector3.ZERO
 	if dynamic:
 		bob_offset = _camera.global_transform.basis.y * sin(_bob_timer * bob_frequency * TAU) * bob_amplitude
 
 	# --- Handle Camera Mode ---
 	if _camera_mode == CameraMode.TARGET_TRACKING and is_instance_valid(_look_at_target):
-		_update_target_tracking_mode(delta, bob_offset)
+		_update_target_tracking_mode(leash, bob_offset)
 	else:
-		_update_orbit_mode(delta, bob_offset)
+		_update_orbit_mode(leash, bob_offset)
 
 
 # Orbit (chase) mode: the camera orbits the player. Zoomed in past the default level, it is raised
 # along its own up and looks past the ship, which slides down the frame until its top edge sits
 # below centre as in tracking mode. The distance is the zoom's own (no back-off), so the ship
-# keeps growing as the zoom closes in.
-func _update_orbit_mode(delta: float, bob_offset: Vector3):
+# keeps growing as the zoom closes in. The leash moves the camera, and its aim by a share, so the
+# ship drifts in the frame as it speeds up and turns.
+func _update_orbit_mode(leash: Vector3, bob_offset: Vector3):
 	var desired_basis = Basis().rotated(Vector3.UP, _rotation_controller.yaw).rotated(
 		Basis().rotated(Vector3.UP, _rotation_controller.yaw).x, _rotation_controller.pitch
 	)
@@ -110,27 +144,28 @@ func _update_orbit_mode(delta: float, bob_offset: Vector3):
 	var shift: float = _zoom_controller.get_chase_shift()
 	var camera_distance: float = _zoom_controller.current_distance
 	var lift: Vector3 = desired_basis.y * get_chase_lift(get_hull_corners(_target), desired_basis.y, _zoom_controller.get_target_radius(), camera_distance, deg2rad(_camera.fov) * 0.5) * shift
-	var look_point: Vector3 = _smoothed_target_pos + lift
+	var look_point: Vector3 = _target_pos + lift
 	var position_offset = -desired_basis.z * camera_distance
-	var desired_position = look_point + position_offset + bob_offset
+	var desired_position = look_point + position_offset + bob_offset + leash
 
-	_place(desired_position, look_point, Vector3.UP, ease_share(position_smoothing_speed, delta), ease_share(rotation_smoothing_speed, delta))
+	_place(desired_position, look_point + leash * Constants.CAMERA_LEASH_AIM_SHARE, Vector3.UP)
 
 
 # Target tracking: the camera sits behind the player, raised just enough that the top of the hull's
 # silhouette sits below the line of sight to the target, inside the lower half of the frame. Zooming
 # in brings the camera close behind the ship (distance scales with the ship's apparent radius); the
 # telephoto range then narrows the FoV onto the target while backing off so the ship stays in frame.
+# The leash moves only the camera: the aim stays on the target.
 const TRACKING_SOLVER_STEPS = 14
 
 
-func _update_target_tracking_mode(delta: float, bob_offset: Vector3):
-	var player_pos = _smoothed_target_pos
+func _update_target_tracking_mode(leash: Vector3, bob_offset: Vector3):
+	var player_pos = _target_pos
 	var target_pos = Interp.origin(_look_at_target)
 	var to_target = target_pos - player_pos
 	var distance_to_target = to_target.length()
 	if distance_to_target < 1.0:
-		_update_orbit_mode(delta, bob_offset)
+		_update_orbit_mode(leash, bob_offset)
 		return
 	var dir_to_target = to_target / distance_to_target
 
@@ -147,27 +182,16 @@ func _update_target_tracking_mode(delta: float, bob_offset: Vector3):
 	else:
 		elevation = solve_tracking_elevation(corners, to_target, up, camera_distance, half_fov * Constants.CAMERA_TRACKING_TOP_EDGE_SHARE)
 	var offset_dir = -dir_to_target * cos(elevation) + up * sin(elevation)
-	var desired_position = player_pos + offset_dir * camera_distance + bob_offset
+	var desired_position = player_pos + offset_dir * camera_distance + bob_offset + leash
 
-	_place(desired_position, target_pos, up, ease_share(position_smoothing_speed * 0.5, delta), ease_share(rotation_smoothing_speed * 0.7, delta))  # Slower for tracking mode
+	_place(desired_position, target_pos, up)
 
 
-# The camera to `position`, looking at `look_point`: eased in the target's moving frame (dynamic),
-# or put there.
-func _place(position: Vector3, look_point: Vector3, up: Vector3, move_share: float, turn_share: float) -> void:
-	if not dynamic:
-		_camera.global_transform = Transform(Basis(), position).looking_at(look_point, up)
+# The camera to `position`, looking at `look_point`.
+func _place(position: Vector3, look_point: Vector3, up: Vector3) -> void:
+	if position.is_equal_approx(look_point):
 		return
-	var origin: Vector3 = (_camera.global_transform.origin + _moved).linear_interpolate(position, move_share)
-	var basis: Basis = _camera.global_transform.basis.orthonormalized()
-	var look: Basis = Transform(basis, origin).looking_at(look_point, up).basis.orthonormalized()
-	_camera.global_transform = Transform(basis.slerp(look, turn_share).orthonormalized(), origin)
-
-
-# Share of the gap an easing at `rate` per second closes in `delta`: the same over a second, cut in
-# any steps.
-static func ease_share(rate: float, delta: float) -> float:
-	return 1.0 - exp(-max(rate, 0.0) * max(delta, 0.0))
+	_camera.global_transform = Transform(Basis(), position).looking_at(look_point, up)
 
 
 # Corners of the ship's visual bounds, rotated into world orientation, relative to its origin.
