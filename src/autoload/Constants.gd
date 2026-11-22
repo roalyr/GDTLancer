@@ -182,7 +182,7 @@ const CAMERA_LEASH_MAX_SHARE = 0.4  # Of the camera's distance: the longest the 
 const CAMERA_LEASH_SPEED = 100.0  # m/s: the leash rests at 63% of its longest at this speed, 95% at three times
 const CAMERA_LEASH_AIM_SHARE = 0.3  # Share of the leash the chase camera's aim follows (the ship drifts in frame by the rest)
 const CAMERA_ROTATION_GLIDE_DECAY = 6.0  # 1/s: a drag's turn fades this fast once let go (it turns on by its speed / this)
-const CAMERA_DYNAMIC_PID_KP = 3.0  # Orbit rotation's PID gain with the dynamic camera (CAMERA_PID_*_KP otherwise): turns glide on after a drag
+const CAMERA_DYNAMIC_PID_KP = 6.0  # Orbit rotation's PID gain with the dynamic camera (CAMERA_PID_*_KP otherwise): turns glide on after a drag
 const CAMERA_BOB_FREQUENCY = 0.1  # Hz
 const CAMERA_BOB_AMPLITUDE = 0.2  # m
 
