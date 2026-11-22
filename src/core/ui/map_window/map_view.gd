@@ -17,6 +17,8 @@ const GRID_PX = 120.0  # About this many px between grid lines
 const PICK_PX = 36.0  # A tap picks the nearest item this close (a fingertip)
 const TAP_PX = 12.0  # A press that moves less than this is a tap, not a drag
 const MARK_SCALE = 0.8  # Of the brackets' marks
+const WRECK_SCALE = 1.4  # Wrecks' crosses, of the brackets' marks: thin lines, they want the size
+const ROCK_PX = 4.0  # A rock's dot (radius)
 const MIN_BODY_PX = 5.0  # A planet or star never draws smaller
 const LABEL_OFFSET = Vector2(12, -10)
 const COLOR_GRID = Color(1, 1, 1, 0.06)
@@ -212,7 +214,7 @@ func _draw_item(item: Dictionary) -> void:
 			draw_circle(at, size, Color(color.r, color.g, color.b, 0.25))
 			draw_arc(at, size, 0.0, TAU, SEGMENTS, color, 2.0, true)
 		"rock":
-			draw_circle(at, 1.6, Color(color.r, color.g, color.b, 0.7))
+			draw_circle(at, ROCK_PX, Color(color.r, color.g, color.b, 0.7))
 		"sector":
 			var size: float = 13.0 if item.get("here") else 9.0
 			draw_circle(at, size, Color(color.r, color.g, color.b, 0.3))
@@ -223,7 +225,7 @@ func _draw_item(item: Dictionary) -> void:
 			var points := PoolVector2Array([at + heading * 14.0, at - heading * 9.0 + side * 9.0, at - heading * 4.0, at - heading * 9.0 - side * 9.0])
 			draw_colored_polygon(points, Color(1, 1, 1, 0.9), PoolVector2Array(), null, null, true)
 		_:
-			TargetMarker.paint(self, at, item.kind, item.hostile, item.filled, color, -1, MARK_SCALE)
+			TargetMarker.paint(self, at, item.kind, item.hostile, item.filled, color, -1, WRECK_SCALE if item.kind == "wreck" else MARK_SCALE)
 
 
 func _label(item: Dictionary, taken: Array) -> void:
