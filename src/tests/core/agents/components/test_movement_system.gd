@@ -183,3 +183,28 @@ func test_autolevel_is_a_small_share_of_steering_and_none_nose_up():
 	var nose_up: Basis = Basis(Vector3.RIGHT, PI * 0.5) * Basis(Vector3.BACK, 1.0)
 	assert_eq(Autolevel.torque(nose_up, 4000.0, 5e6), Vector3.ZERO, "No level to roll to")
 	assert_true(Settings.get_option("autolevel"), "On by default")
+
+
+# DEV cheat MAXIMUM SPEED X5: the player's thrust, top speed and acceleration, as every command
+# reads them, are this many times as much; an NPC's are not.
+func test_speed_cheat_raises_the_players_top_speed_only():
+	var script = GDScript.new()
+	script.source_code = "extends RigidBody\nvar player = false\nfunc is_player():\n\treturn player\n"
+	script.reload()
+	var body = RigidBody.new()
+	body.set_script(script)
+	var system = MovementSystem.new()
+	body.add_child(system)
+	add_child_autofree(body)
+	system._ready()
+	system.initialize_movement_params({"mass": 100.0, "linear_thrust": 5000.0, "angular_thrust": 2000.0})
+	var plain: float = system.top_speed()
+	GameState.dev_cheats["speed_x5"] = true
+	assert_almost_eq(system.top_speed(), plain, 0.001, "An NPC: unchanged")
+	body.player = true
+	assert_almost_eq(system.top_speed(), plain * Constants.DEV_SPEED_FACTOR, 0.001, "The player: x5")
+	assert_almost_eq(system.acceleration(), 50.0 * Constants.DEV_SPEED_FACTOR, 0.001)
+	var force: Vector3 = system._velocity_force(Vector3(0, 0, -1e6), 1.0, Vector3.ZERO, 1.0 / 30.0)
+	assert_almost_eq(force.length(), 5000.0 * Constants.DEV_SPEED_FACTOR, 0.01, "Its velocity force reaches the raised thrust")
+	GameState.dev_cheats.erase("speed_x5")
+	assert_almost_eq(system.top_speed(), plain, 0.001, "Off again: plain")

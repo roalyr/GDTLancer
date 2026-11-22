@@ -101,8 +101,15 @@ func physics_update(delta: float):
 
 	var rot_active = _rotation_input_active or _is_externally_rotating
 	if not rot_active:
+		# Let go: the turn glides on, fading by CAMERA_ROTATION_GLIDE_DECAY a second
+		var fade: float = exp(-Constants.CAMERA_ROTATION_GLIDE_DECAY * delta)
+		_current_yaw_speed *= fade
+		_current_pitch_speed *= fade
+		yaw += _current_yaw_speed * delta
+		pitch = clamp(pitch - _current_pitch_speed * delta, pitch_min, pitch_max)
 		_target_yaw_speed = 0.0
 		_target_pitch_speed = 0.0
+		return
 
 	var error_yaw = _target_yaw_speed - _current_yaw_speed
 	var error_pitch = _target_pitch_speed - _current_pitch_speed
@@ -130,17 +137,26 @@ func set_loose(loose: bool) -> void:
 	_pitch_pid.kp = Constants.CAMERA_DYNAMIC_PID_KP if loose else pid_pitch_kp
 
 
+# Pressing or letting go resets the PIDs but keeps the turn's speed: a release glides on
+# (physics_update), a press picks the turn up where it is.
 func set_rotation_input_active(is_active: bool):
 	_rotation_input_active = is_active
 	if is_active:
 		_is_externally_rotating = false
-	reset_pids()
+	_reset_pid_states()
 
 
 func set_is_rotating(rotating: bool):
 	if not _rotation_input_active:
 		_is_externally_rotating = rotating
-	reset_pids()
+	_reset_pid_states()
+
+
+func _reset_pid_states() -> void:
+	if is_instance_valid(_yaw_pid):
+		_yaw_pid.reset()
+	if is_instance_valid(_pitch_pid):
+		_pitch_pid.reset()
 
 
 func set_orbit_forward_direction(direction: Vector3):

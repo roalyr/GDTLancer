@@ -232,6 +232,8 @@ func _reset_camera_input_state() -> void:
 			GlobalRefs.main_camera.set_rotation_input_active(false)
 		if GlobalRefs.main_camera.has_method("set_is_rotating"):
 			GlobalRefs.main_camera.set_is_rotating(false)
+		if GlobalRefs.main_camera.has_method("stop_rotation"):
+			GlobalRefs.main_camera.stop_rotation()
 
 
 # --- Sector Loading ---
@@ -342,6 +344,8 @@ func _set_jump_transition_camera_locked(is_locked: bool) -> void:
 		GlobalRefs.main_camera.set_rotation_input_active(
 			not is_locked and _jump_transition_mouse_mode_before_lock == Input.MOUSE_MODE_CAPTURED
 		)
+	if is_locked and GlobalRefs.main_camera.has_method("stop_rotation"):
+		GlobalRefs.main_camera.stop_rotation()
 
 
 func _set_main_hud_hidden(is_hidden: bool) -> void:

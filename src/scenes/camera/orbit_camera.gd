@@ -194,6 +194,12 @@ func set_rotation_input_active(is_active: bool):
 		_rotation_controller.set_rotation_input_active(is_active)
 
 
+# Stops any turn at once (a zone reset, the jump's lock), where letting go would glide on.
+func stop_rotation() -> void:
+	if is_instance_valid(_rotation_controller):
+		_rotation_controller.reset_pids()
+
+
 func set_is_rotating(rotating: bool):
 	if is_instance_valid(_rotation_controller):
 		_rotation_controller.set_is_rotating(rotating)

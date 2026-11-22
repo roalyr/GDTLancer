@@ -45,9 +45,8 @@ func execute(delta: float):
 		cmd["normal"] = normal
 	var tangent_dir: Vector3 = normal.cross(radial_dir).normalized()
 
-	var mass: float = max(_agent_body.mass, 0.001)
-	var top_speed: float = _movement_system.linear_thrust / (mass * Constants.LINEAR_DRAG)
-	var desired: Vector3 = get_orbit_velocity(radial_dir, tangent_dir, current_radius, radius, top_speed, _movement_system.linear_thrust / mass)
+	var top_speed: float = _movement_system.top_speed()
+	var desired: Vector3 = get_orbit_velocity(radial_dir, tangent_dir, current_radius, radius, top_speed, _movement_system.acceleration())
 	_movement_system.request_rotation_to_pid(desired.normalized(), delta)
 	_movement_system.request_velocity_pid(target_velocity + desired, delta)
 

@@ -117,12 +117,10 @@ func integrate_forces(state: PhysicsDirectBodyState):
 		_wanted_velocity = null
 	# Apply accumulated forces from navigation commands (scaled by throttle)
 	var engines: Vector3 = _accumulated_force * thrust_throttle
-	if not GameState.dev_cheats.empty() and GameState.cheat("speed_x5") and agent_body.has_method("is_player") and agent_body.is_player():
-		engines *= Constants.DEV_SPEED_FACTOR  # Top speed is thrust over drag: this many times as fast, what NPCs read unchanged
 	state.add_central_force(engines + _external_force)
 	state.add_torque(_accumulated_torque + _external_torque + _autolevel_torque())
 	
-	last_thrust_fraction = clamp(_accumulated_force.length() * thrust_throttle / max(linear_thrust, 0.001), 0.0, 1.0)
+	last_thrust_fraction = clamp(_accumulated_force.length() * thrust_throttle / max(thrust(), 0.001), 0.0, 1.0)
 	last_thrust_vector = _accumulated_force.normalized() * last_thrust_fraction if last_thrust_fraction > 0.0 else Vector3.ZERO
 
 	# Clear accumulated forces for next frame
@@ -166,7 +164,7 @@ func request_thrust_direction(direction: Vector3, magnitude_scale: float = 1.0):
 		return
 	if direction.length_squared() < 0.001:
 		return
-	_accumulated_force += direction.normalized() * linear_thrust * clamp(magnitude_scale, 0.0, 1.0)
+	_accumulated_force += direction.normalized() * thrust() * clamp(magnitude_scale, 0.0, 1.0)
 
 
 # Drops the part of the thrust asked for so far this step that points along `direction` (a planet
@@ -183,7 +181,7 @@ func cancel_thrust_toward(direction: Vector3) -> void:
 func request_thrust_forward(magnitude_scale: float = 1.0):
 	if not is_instance_valid(agent_body):
 		return
-	_accumulated_force += _course_forward() * linear_thrust * clamp(magnitude_scale, 0.0, 1.0)
+	_accumulated_force += _course_forward() * thrust() * clamp(magnitude_scale, 0.0, 1.0)
 
 
 # Request thrust along the ship's backward axis (rear thrusters)
@@ -191,7 +189,7 @@ func request_thrust_backward(magnitude_scale: float = 1.0):
 	if not is_instance_valid(agent_body):
 		return
 	var backward = -_course_forward()
-	_accumulated_force += backward * linear_thrust * clamp(magnitude_scale, 0.0, 1.0)
+	_accumulated_force += backward * thrust() * clamp(magnitude_scale, 0.0, 1.0)
 
 
 # --- How a ship is flown ---
@@ -230,14 +228,24 @@ func arrival_speed(distance: float, top_speed: float, acceleration: float, brake
 	return sign(distance) * min(top_speed, min(braking, abs(distance) * ARRIVAL_SETTLE_GAIN))
 
 
+# N the engines give: linear_thrust, times Constants.DEV_SPEED_FACTOR for the player with the DEV
+# cheat MAXIMUM SPEED X5. Every command flies by it (top_speed, acceleration, the velocity force),
+# so the cheat raises the speeds they ask for; scaling the force after them did nothing, as the
+# velocity they hold was still the plain top speed. NPCs read the ship's own (Agent.get_top_speed).
+func thrust() -> float:
+	if not GameState.dev_cheats.empty() and GameState.cheat("speed_x5") and is_instance_valid(agent_body) and agent_body.has_method("is_player") and agent_body.is_player():
+		return linear_thrust * Constants.DEV_SPEED_FACTOR
+	return linear_thrust
+
+
 # m/s the engines hold against the drag: thrust / (mass * LINEAR_DRAG).
 func top_speed() -> float:
-	return linear_thrust / max(agent_body.mass * Constants.LINEAR_DRAG, 0.001) if is_instance_valid(agent_body) else 0.0
+	return thrust() / max(agent_body.mass * Constants.LINEAR_DRAG, 0.001) if is_instance_valid(agent_body) else 0.0
 
 
 # m/s² full thrust gives.
 func acceleration() -> float:
-	return linear_thrust / max(agent_body.mass, 0.001) if is_instance_valid(agent_body) else 0.0
+	return thrust() / max(agent_body.mass, 0.001) if is_instance_valid(agent_body) else 0.0
 
 
 # Brakes: holds still (request_velocity, zero), thrusting straight against the motion.
@@ -270,7 +278,8 @@ func steer_velocity(change: Vector3) -> bool:
 # holds it against the drag; at most linear_thrust.
 func _velocity_force(target: Vector3, response: float, velocity: Vector3, step: float) -> Vector3:
 	var force: Vector3 = agent_body.mass * ((target - velocity) / max(response, step) + target * Constants.LINEAR_DRAG)
-	return force.normalized() * linear_thrust if force.length() > linear_thrust else force
+	var most: float = thrust()
+	return force.normalized() * most if force.length() > most else force
 
 
 # Kept for its callers: request_velocity.

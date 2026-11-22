@@ -236,3 +236,25 @@ func test_leash_steps_with_the_physics_not_the_frames():
 	assert_eq(controller._leash_before, after_one, "Drawn from the step before")
 	controller.dynamic = false
 	assert_eq(controller.get_drawn_leash(), Vector3.ZERO, "Not dynamic: fixed to the ship")
+
+
+# Letting go of a drag: the turn glides on and fades (CAMERA_ROTATION_GLIDE_DECAY); stop_rotation
+# halts it at once.
+func test_a_released_turn_glides_on_and_fades():
+	var camera = OrbitCameraScene.instance()
+	add_child_autofree(camera)
+	var rotation = camera._rotation_controller
+	rotation.set_rotation_input_active(true)
+	rotation._current_yaw_speed = 2.0
+	rotation.set_rotation_input_active(false)
+	assert_eq(rotation._current_yaw_speed, 2.0, "Letting go keeps the turn's speed")
+	var yaw_before: float = rotation.yaw
+	rotation.physics_update(1.0 / 60.0)
+	assert_true(rotation.yaw > yaw_before, "It turns on")
+	assert_true(rotation._current_yaw_speed < 2.0, "... slowing")
+	for _i in range(120):
+		rotation.physics_update(1.0 / 60.0)
+	assert_lt(abs(rotation._current_yaw_speed), 0.01, "Gone within two seconds")
+	rotation._current_yaw_speed = 2.0
+	camera.stop_rotation()
+	assert_eq(rotation._current_yaw_speed, 0.0, "stop_rotation: at once")
