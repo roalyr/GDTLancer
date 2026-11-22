@@ -1,4 +1,4 @@
-# Tests for DebugTools: jump list, places and typed coordinates, and refitting any slot on the spot.
+# Tests for DebugTools: jump list, places and typed coordinates, refitting any slot and swapping the hull on the spot.
 
 extends GutTest
 
@@ -142,3 +142,86 @@ func test_dev_options_change_what_happens_not_what_npcs_read():
 	ship.apply_damage(30.0)
 	assert_eq(ship.hull, 70.0, "Off again: damage as ever")
 	GameState.dev_cheats.clear()
+
+
+# A stand-in for AgentSystem.replace_player: a new body of the hull GameState now names.
+class FakeSpawner:
+	extends Node
+	var calls: int = 0
+	var parent: Node = null
+
+	func replace_player() -> void:
+		calls += 1
+		var old = GlobalRefs.player_agent_body
+		if is_instance_valid(old):
+			old.get_parent().remove_child(old)
+			old.free()
+		var body = load("res://src/core/agents/agent.gd").new()
+		body.agent_type = "player"
+		body.ship_template = TemplateDatabase.get_template(GameState.player_ship_template_id)
+		body.fit = GameState.player_fit.duplicate(true)
+		parent.add_child(body)
+		GlobalRefs.player_agent_body = body
+
+
+func test_refit_has_a_hull_tab_and_an_equipment_tab():
+	tools.open_refit()
+	assert_true(tools._tabs.visible, "REFIT shows its tabs")
+	assert_eq(tools._tabs.get_node("Tab_equipment").text, "[EQUIPMENT]", "Equipment first open: the slots, as before")
+	assert_eq(tools._list.get_child_count(), 2, "A tool slot and a module slot")
+	tools.show_refit_tab("hull")
+	assert_eq(tools._tabs.get_node("Tab_hull").text, "[HULL]")
+	assert_eq(tools._tabs.get_node("Tab_hull").theme_type_variation, "TabButtonOpen")
+	assert_eq(tools._list.get_child_count(), DebugTools.hulls().size(), "A button a hull")
+	tools.open_jump()
+	assert_false(tools._tabs.visible, "Other pages have none")
+
+
+func test_the_hull_list_is_the_store_s_then_the_stock_hulls():
+	var saved_presets: Dictionary = TemplateDatabase.presets
+	var saved_ships: Dictionary = TemplateDatabase.assets_ships
+	TemplateDatabase.presets = {"preset_ship_archetype_trader_light": ShipTemplate.new(), "preset_ship_archetype_fighter_light": ShipTemplate.new(), "preset_laser_light": UtilityToolTemplate.new()}
+	TemplateDatabase.assets_ships = {"ship_default": ShipTemplate.new(), "ship_hostile_default": ShipTemplate.new()}
+	assert_eq(DebugTools.hulls(), ["preset_ship_archetype_fighter_light", "preset_ship_archetype_trader_light", "ship_default", "ship_hostile_default"],
+		"The archetypes as the store sells them, then the stock hulls; no parts")
+	TemplateDatabase.presets = saved_presets
+	TemplateDatabase.assets_ships = saved_ships
+
+
+func test_a_hull_swap_keeps_place_speed_and_the_parts_that_still_fit():
+	var small := ShipTemplate.new()
+	small.template_id = "dev_small"
+	small.ship_model_name = "Dev Small"
+	small.hull_integrity = 50
+	small.mass = 3000.0
+	small.tool_slots_small = 2
+	small.module_slots = 0
+	var saved_ships: Dictionary = TemplateDatabase.assets_ships
+	TemplateDatabase.assets_ships = {"dev_small": small}
+	var spawner := FakeSpawner.new()
+	spawner.parent = self
+	add_child_autofree(spawner)
+	var saved_spawner = GlobalRefs.agent_spawner
+	GlobalRefs.agent_spawner = spawner
+	ship.fit = {"tools": ["preset_laser_light"], "modules": ["preset_plating_light"]}
+	ship.global_transform.origin = Vector3(5000, 0, -2000)
+	ship.linear_velocity = Vector3(0, 0, -80)
+	GameState.player_hull_scars = [Vector3.ONE]
+	tools.swap_hull("dev_small")
+	var flown = GlobalRefs.player_agent_body
+	assert_eq(spawner.calls, 1)
+	assert_eq(GameState.player_ship_template_id, "dev_small")
+	assert_eq(flown.fit.tools, ["preset_laser_light", ""], "The laser kept, the new slot empty")
+	assert_eq(flown.fit.modules, [], "No module bay: the plating goes")
+	assert_eq(flown.global_transform.origin, Vector3(5000, 0, -2000), "Where it was")
+	assert_eq(flown.linear_velocity, Vector3(0, 0, -80), "as fast")
+	assert_eq(GameState.player_hull, -1.0, "repaired")
+	assert_true(GameState.player_hull_scars.empty(), "and unmarked")
+	assert_true(GameState.player_storage.empty(), "Free: storage untouched")
+	tools.swap_hull("dev_small")
+	assert_eq(spawner.calls, 1, "The hull flown already: nothing")
+	TemplateDatabase.assets_ships = saved_ships
+	GlobalRefs.agent_spawner = saved_spawner
+	GlobalRefs.player_agent_body = null
+	if is_instance_valid(flown):
+		flown.queue_free()

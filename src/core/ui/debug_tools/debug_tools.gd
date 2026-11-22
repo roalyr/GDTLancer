@@ -3,8 +3,10 @@
 # - GO TO: the current sector's places (stations, beacons, jump points, bodies, megastructures), or
 #   typed coordinates in km; the ship is put a standoff away, stopped (undocked first if need be).
 # - TO TARGET: straight to the selected target, TARGET_STANDOFF off its edge, at its speed.
-# - REFIT: every tool slot and module slot of the ship; pick one, then any part that fits it (or
-#   none). Free and at once, without docking or storage.
+# - REFIT, two tabs. HULL: every hull the game flies (the archetypes, the stock hulls); pick one to
+#   fly it at once, where the ship is and as fast, its parts kept where they still fit, repaired.
+#   EQUIPMENT: every tool slot and module slot of the ship; pick one, then any part that fits it (or
+#   none). Both free and at once, without docking or storage.
 # - DEV OPTIONS: switches for testing (CHEATS, GameState.dev_cheats): what happens to the player's
 #   ship changes, what NPCs read of it does not (its threat to them stays its own).
 # - EVOLUTION (desktop, from the project: EvolutionRunner): pauses the game and runs evolution mode as
@@ -13,6 +15,7 @@
 
 extends Control
 const Interp = preload("res://src/core/utils/interp.gd")
+const TabLook = preload("res://src/core/ui/helpers/tab_look.gd")
 
 const PartCatalog = preload("res://src/core/systems/part_catalog.gd")
 const ShipFit = preload("res://src/core/systems/ship_fit.gd")
@@ -30,12 +33,15 @@ const CHEATS = [
 	["max_scanner", "MAXIMUM SCANNER STRENGTH"],  # The player detects everything
 	["speed_x5", "MAXIMUM SPEED X5"],  # Constants.DEV_SPEED_FACTOR
 ]
+const REFIT_TABS = [["hull", "HULL"], ["equipment", "EQUIPMENT"]]
 const PLACE_GROUPS = [["dockable_station", "STATION"], ["beacon", "BEACON"], ["jump_point", "JUMP POINT"], ["celestial", "BODY"], ["megastructure", "MEGASTRUCTURE"]]
 
 var _title: Label = null
 var _status: Label = null
 var _list: VBoxContainer = null
 var _coords: HBoxContainer = null
+var _tabs: HBoxContainer = null  # REFIT's tabs (REFIT_TABS), shown on its pages only
+var refit_tab: String = "equipment"
 var _coord_edits: Array = []  # LineEdits: x, y, z in km
 var _target: WeakRef = weakref(null)  # The player's selected target
 var _evolution_pid: int = -1  # The evolution run started here, while it runs
@@ -77,6 +83,15 @@ func _ready() -> void:
 	_title.valign = Label.VALIGN_CENTER
 	header.add_child(_title)
 	header.add_child(_button("CLOSE", self, "close", [], 160))
+	_tabs = HBoxContainer.new()
+	_tabs.add_constant_override("separation", 8)
+	layout.add_child(_tabs)
+	for tab in REFIT_TABS:
+		var button: Button = _button(tab[1], self, "show_refit_tab", [tab[0]])
+		button.name = "Tab_" + tab[0]
+		button.theme_type_variation = "TabButton"
+		button.size_flags_horizontal = SIZE_EXPAND_FILL
+		_tabs.add_child(button)
 	_status = Label.new()
 	_status.autowrap = true
 	layout.add_child(_status)
@@ -128,10 +143,13 @@ func _clear_list() -> void:
 		child.queue_free()
 
 
-func _show(title: String, with_coords: bool) -> void:
+func _show(title: String, with_coords: bool, with_tabs: bool = false) -> void:
 	_title.text = title
 	_status.text = ""
 	_coords.visible = with_coords
+	_tabs.visible = with_tabs
+	for tab in REFIT_TABS:
+		TabLook.show(_tabs.get_node("Tab_" + tab[0]), tab[1], tab[0] == refit_tab)
 	_clear_list()
 	visible = true
 
@@ -300,10 +318,13 @@ static func _size_of(node: Spatial) -> float:
 # --- REFIT ---
 
 func open_refit() -> void:
-	_show("REFIT", false)
+	_show("REFIT", false, true)
 	var ship = GlobalRefs.player_agent_body
 	if not is_instance_valid(ship):
 		_status.text = "No ship"
+		return
+	if refit_tab == "hull":
+		_list_hulls()
 		return
 	var sizes: Array = ShipFit.tool_slot_sizes(ship.ship_template)
 	for index in range(ship.fit.tools.size()):
@@ -312,6 +333,67 @@ func open_refit() -> void:
 	for index in range(ship.fit.modules.size()):
 		_list.add_child(_button("MODULE %d: %s" % [index + 1, _part_label(ship.fit.modules[index])], self, "_pick_part", ["modules", index]))
 
+
+func show_refit_tab(which: String) -> void:
+	refit_tab = which
+	open_refit()
+
+
+# --- REFIT: HULL ---
+
+func _list_hulls() -> void:
+	for ship_id in hulls():
+		var hull = TemplateDatabase.get_template(ship_id)
+		var flying: String = "  (FLYING)" if ship_id == GameState.player_ship_template_id else ""
+		_list.add_child(_button("%s%s" % [_hull_label(hull, ship_id), flying], self, "swap_hull", [ship_id]))
+
+
+# Every hull the game flies: the archetypes (as the store sells them), then the stock hulls.
+static func hulls() -> Array:
+	var ids: Array = Fitting.ship_catalog()
+	var stock: Array = TemplateDatabase.assets_ships.keys()
+	stock.sort()
+	for ship_id in stock:
+		if TemplateDatabase.assets_ships[ship_id] is ShipTemplate and not ship_id in ids:
+			ids.append(ship_id)
+	return ids
+
+
+static func _hull_label(hull, ship_id: String) -> String:
+	var name = hull.get("ship_model_name") if hull != null else null
+	return (str(name) if name != null and str(name) != "" else ship_id).to_upper()
+
+
+# Flies `ship_id` from now on, free: where the ship is, as fast and turned as it is (or docked, as it
+# was), repaired and unmarked, its parts kept in the slots that still take them.
+func swap_hull(ship_id: String) -> void:
+	var ship = GlobalRefs.player_agent_body
+	var spawner = GlobalRefs.agent_spawner
+	var hull = TemplateDatabase.get_template(ship_id)
+	if not is_instance_valid(ship) or not hull is ShipTemplate or not (is_instance_valid(spawner) and spawner.has_method("replace_player")):
+		_status.text = "CANNOT CHANGE THE HULL HERE"
+		return
+	if ship_id == GameState.player_ship_template_id:
+		_status.text = "ALREADY FLYING IT"
+		return
+	var docked: bool = GameState.player_docked_at != ""
+	var at: Transform = ship.global_transform
+	var velocity: Vector3 = ship.linear_velocity
+	GameState.player_ship_template_id = ship_id
+	GameState.player_fit = ShipFit.normalized(hull, ship.fit)
+	GameState.player_hull = -1.0  # Full
+	GameState.player_hull_scars = []
+	spawner.replace_player()  # Frees the old body
+	var new_ship = GlobalRefs.player_agent_body
+	if not docked and is_instance_valid(new_ship):
+		new_ship.global_transform = Transform(at.basis.orthonormalized(), at.origin)
+		Interp.placed(new_ship)
+		new_ship.linear_velocity = velocity
+	open_refit()
+	_status.text = "NOW FLYING %s" % _hull_label(hull, ship_id)
+
+
+# --- REFIT: EQUIPMENT ---
 
 func _pick_part(kind: String, slot: int) -> void:
 	var ship = GlobalRefs.player_agent_body
