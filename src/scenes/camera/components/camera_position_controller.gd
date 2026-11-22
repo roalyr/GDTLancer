@@ -1,10 +1,12 @@
 # Manages camera positioning and bobbing.
 # The camera sits on its rig about the ship's drawn origin. Dynamic (Settings "dynamic_camera"): a
-# leash, a damped spring stepped with the physics (physics_step), pulls the rig off the ship against
-# its acceleration (back as it speeds up, ahead as it brakes, out of a turn) and springs it back;
-# frames draw it between its last two steps, as every body is drawn, so it is as smooth as the ship.
-# At steady speed it is slack. (Easing the camera per frame by the ship's velocity times the frame's
-# length jittered: those two never quite agree with the drawn motion, and the error grew with speed.)
+# leash, a damped spring stepped with the physics (physics_step), trails the rig behind the ship by
+# its speed (longer the faster, up to a share of the camera's distance), so it lags as the ship
+# speeds up, swings ahead as it brakes and out of a turn, and springs back; frames draw it between
+# its last two steps, as every body is drawn, so it is as smooth as the ship. The spring runs in
+# real time (a game sped up or slowed down does not stiffen or loosen it). (Easing the camera per
+# frame by the ship's velocity times the frame's length jittered: those two never quite agree with
+# the drawn motion, and the error grew with speed.)
 # Not dynamic: fixed to the ship's drawn origin, no leash, no bob.
 
 extends Node
@@ -33,7 +35,6 @@ var dynamic: bool = false  # Settings "dynamic_camera" (OrbitCamera sets it)
 var _leash: Vector3 = Vector3.ZERO  # The rig's offset from the ship after the last physics step
 var _leash_before: Vector3 = Vector3.ZERO  # ... and after the one before
 var _leash_velocity: Vector3 = Vector3.ZERO
-var _velocity_before = null  # The target's velocity at the last step (null: none yet)
 
 
 # --- Initialization ---
@@ -65,30 +66,35 @@ func reset_leash() -> void:
 	_leash = Vector3.ZERO
 	_leash_before = Vector3.ZERO
 	_leash_velocity = Vector3.ZERO
-	_velocity_before = null
 
 
 # Once a physics step (OrbitCamera._physics_process, before the step's own camera follow when
-# interpolation is off): the leash springs by the target's change of velocity since the last step.
+# interpolation is off): the leash springs toward its rest for the target's velocity.
 func physics_step(delta: float) -> void:
 	_leash_before = _leash
 	var velocity = _target.get("linear_velocity") if is_instance_valid(_target) else null
 	if not dynamic or not velocity is Vector3 or delta <= 0.0:
 		reset_leash()
 		return
-	if _velocity_before == null:
-		_velocity_before = velocity
-	var acceleration: Vector3 = (velocity - _velocity_before) / delta
-	_velocity_before = velocity
-	var limit: float = Constants.CAMERA_LEASH_MAX_SHARE * float(_zoom_controller.current_distance) if is_instance_valid(_zoom_controller) else INF
-	step_leash(acceleration, delta, limit)
+	var distance: float = float(_zoom_controller.current_distance) if is_instance_valid(_zoom_controller) else Constants.CAMERA_START_DISTANCE
+	step_leash(get_leash_rest(velocity, distance), delta / max(Engine.time_scale, 0.001), distance * Constants.CAMERA_LEASH_MAX_SHARE)
 
 
-# The leash's spring: L'' = -w^2 L - 2 z w L' - a (semi-implicit), held within `limit` m.
-# A steady acceleration a settles it at -a / w^2.
-func step_leash(acceleration: Vector3, delta: float, limit: float) -> void:
+# Where the leash rests at `velocity`: behind it, by CAMERA_LEASH_MAX_SHARE of the camera's
+# `distance` times 1 - exp(-speed / CAMERA_LEASH_SPEED) (a third of it at that speed, near all of it
+# at three times).
+static func get_leash_rest(velocity: Vector3, distance: float) -> Vector3:
+	var speed: float = velocity.length()
+	if speed < 0.001:
+		return Vector3.ZERO
+	return -velocity / speed * distance * Constants.CAMERA_LEASH_MAX_SHARE * (1.0 - exp(-speed / Constants.CAMERA_LEASH_SPEED))
+
+
+# The leash's spring toward `rest`: L'' = w^2 (rest - L) - 2 z w L' (semi-implicit), held within
+# `limit` m.
+func step_leash(rest: Vector3, delta: float, limit: float) -> void:
 	var w: float = Constants.CAMERA_LEASH_FREQUENCY
-	_leash_velocity += (-w * w * _leash - 2.0 * Constants.CAMERA_LEASH_DAMPING * w * _leash_velocity - acceleration) * delta
+	_leash_velocity += (w * w * (rest - _leash) - 2.0 * Constants.CAMERA_LEASH_DAMPING * w * _leash_velocity) * delta
 	_leash += _leash_velocity * delta
 	var length: float = _leash.length()
 	if length > limit and length > 0.0:

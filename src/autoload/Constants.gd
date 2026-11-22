@@ -174,12 +174,14 @@ const POINTER_DOUBLE_CLICK_MS = 400
 
 # Orbit and smoothing.
 const CAMERA_START_DISTANCE = 55.0  # m
-# Dynamic camera's leash (CameraPositionController): a damped spring, stepped with the physics, that
-# the ship's acceleration stretches; a steady acceleration a holds it at a / FREQUENCY^2.
-const CAMERA_LEASH_FREQUENCY = 3.0  # rad/s
-const CAMERA_LEASH_DAMPING = 0.7  # 1: no overshoot; less springs past and back
-const CAMERA_LEASH_MAX_SHARE = 0.25  # Of the camera's distance: the longest the leash stretches
-const CAMERA_LEASH_AIM_SHARE = 0.5  # Share of the leash the chase camera's aim follows (the ship drifts in frame by the rest)
+# Dynamic camera's leash (CameraPositionController): a damped spring, stepped with the physics in real
+# time, that trails the camera behind the ship by its speed.
+const CAMERA_LEASH_FREQUENCY = 1.2  # rad/s: lower is softer, slower to catch up
+const CAMERA_LEASH_DAMPING = 0.55  # 1: no overshoot; less springs past and back
+const CAMERA_LEASH_MAX_SHARE = 0.4  # Of the camera's distance: the longest the leash stretches
+const CAMERA_LEASH_SPEED = 100.0  # m/s: the leash rests at 63% of its longest at this speed, 95% at three times
+const CAMERA_LEASH_AIM_SHARE = 0.3  # Share of the leash the chase camera's aim follows (the ship drifts in frame by the rest)
+const CAMERA_DYNAMIC_PID_KP = 3.0  # Orbit rotation's PID gain with the dynamic camera (CAMERA_PID_*_KP otherwise): turns glide on after a drag
 const CAMERA_BOB_FREQUENCY = 0.1  # Hz
 const CAMERA_BOB_AMPLITUDE = 0.2  # m
 

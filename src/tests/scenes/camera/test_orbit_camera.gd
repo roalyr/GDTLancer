@@ -197,23 +197,22 @@ func test_leaving_target_tracking_resets_the_zoom():
 	assert_almost_eq(camera.get_zoom_level(), 0.9, 0.0001, "Already orbiting: the zoom stays.")
 
 
-# The dynamic camera's leash: slack at steady speed, stretched against a steady acceleration to
-# a / w^2, held within its limit, and drawn between its last two physics steps.
-func test_leash_is_slack_at_steady_speed_and_stretches_against_acceleration():
+# The dynamic camera's leash: trails behind the ship by its speed, longer the faster up to its
+# limit, slack at rest, and drawn between its last two physics steps.
+func test_leash_trails_behind_by_speed():
 	var PositionController = load("res://src/scenes/camera/components/camera_position_controller.gd")
+	var distance := 50.0
+	var longest: float = distance * Constants.CAMERA_LEASH_MAX_SHARE
+	assert_eq(PositionController.get_leash_rest(Vector3.ZERO, distance), Vector3.ZERO, "At rest: slack")
+	var slow: Vector3 = PositionController.get_leash_rest(Vector3(0, 0, -50.0), distance)
+	var fast: Vector3 = PositionController.get_leash_rest(Vector3(0, 0, -500.0), distance)
+	assert_true(slow.z > 0.0, "Behind the ship")
+	assert_true(fast.z > slow.z, "Longer the faster")
+	assert_true(fast.length() <= longest, "Never past its longest")
 	var leash = PositionController.new()
-	var dt := 1.0 / 30.0
-	for _i in range(300):
-		leash.step_leash(Vector3.ZERO, dt, INF)
-	assert_eq(leash._leash, Vector3.ZERO, "Steady speed: no stretch")
-	var a := Vector3(0, 0, -20.0)
-	for _i in range(300):
-		leash.step_leash(a, dt, INF)
-	var w: float = Constants.CAMERA_LEASH_FREQUENCY
-	assert_almost_eq(leash._leash.z, 20.0 / (w * w), 0.01, "Falls back by a / w^2")
-	for _i in range(300):
-		leash.step_leash(a * 100.0, dt, 5.0)
-	assert_almost_eq(leash._leash.length(), 5.0, 0.0001, "Held within its limit")
+	for _i in range(600):
+		leash.step_leash(fast, 1.0 / 30.0, longest)
+	assert_almost_eq(leash._leash.z, fast.z, 0.01, "Settles at its rest for a steady speed")
 	leash.free()
 
 
@@ -229,14 +228,11 @@ func test_leash_steps_with_the_physics_not_the_frames():
 	camera.set_target_node(ship)
 	var controller = camera._position_controller
 	controller.dynamic = true
-	var dt := 1.0 / 30.0
 	ship.linear_velocity = Vector3(0, 0, -300.0)
-	controller.physics_step(dt)
-	for _i in range(60):
-		controller.physics_step(dt)
-	assert_eq(controller._leash, Vector3.ZERO, "A ship cruising at 300 m/s pulls no leash, whatever the frames")
-	ship.linear_velocity = Vector3(0, 0, -301.0)
-	controller.physics_step(dt)
-	assert_true(controller._leash.z > 0.0, "Speeding up forward: the camera falls back")
+	controller.physics_step(1.0 / 30.0)
+	var after_one: Vector3 = controller._leash
+	assert_true(after_one.z > 0.0, "Speeding off: the camera starts to fall back")
+	controller.physics_step(1.0 / 30.0)
+	assert_eq(controller._leash_before, after_one, "Drawn from the step before")
 	controller.dynamic = false
 	assert_eq(controller.get_drawn_leash(), Vector3.ZERO, "Not dynamic: fixed to the ship")

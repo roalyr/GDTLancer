@@ -36,7 +36,7 @@
 #   "jump_animation" (bool) JumpOrchestrator (WorldRendering.jump_transition_enabled): the jump's
 #                          flight through the tunnel; off, a jump is a cut
 #   "bracket_fade" (bool)  MainHUD (WorldRendering.projected_target_center_fade_enabled): brackets
-#                          fade near the screen's centre, off the ship
+#                          fade toward the screen's edges, so the eye stays near its centre
 #   "tether_rope"  (String) Tether: "complex" simulates near cables, "simple" draws a straight line
 #                          (Constants.TETHER_ROPE_STYLES)
 # The file is read only by load_file() (the main scene's start), and written only after it: tests

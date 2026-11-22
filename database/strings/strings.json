@@ -1576,8 +1576,8 @@
   "uk": "АВТОЗБЕРЕЖЕННЯ НА ПРИЧАЛІ"
  },
  "options.bracket_fade.about": {
-  "en": "Target brackets fade as they near the middle of the screen, so they do not cover your ship.",
-  "uk": "Рамки цілей згасають біля центру екрана, щоб не закривати ваш корабель."
+  "en": "Target brackets fade toward the edges of the screen, keeping your eye on what is near its centre.",
+  "uk": "Рамки цілей згасають до країв екрана, щоб погляд тримався того, що ближче до центру."
  },
  "options.bracket_fade.name": {
   "en": "BRACKET FADE",

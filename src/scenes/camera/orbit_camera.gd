@@ -147,7 +147,10 @@ func apply_rotation_input(event: InputEventMouseMotion) -> void:
 # camera's leash steps with the physics either way.
 func _physics_process(delta):
 	if is_instance_valid(_position_controller):
-		_position_controller.dynamic = bool(Settings.get_option("dynamic_camera"))
+		var dynamic: bool = bool(Settings.get_option("dynamic_camera"))
+		if dynamic != _position_controller.dynamic:
+			_rotation_controller.set_loose(dynamic)
+		_position_controller.dynamic = dynamic
 		_position_controller.physics_step(delta)
 	if not Interp.enabled():
 		_follow(delta)
@@ -166,6 +169,7 @@ func _process(delta):
 func _on_settings_changed(key, value) -> void:
 	if key == "dynamic_camera" and is_instance_valid(_position_controller):
 		_position_controller.dynamic = bool(value)
+		_rotation_controller.set_loose(bool(value))
 
 
 func _follow(delta: float) -> void:

@@ -121,6 +121,15 @@ func physics_update(delta: float):
 	_target_pitch_speed = 0.0
 
 
+# Loose (the dynamic camera): the PIDs' gain CAMERA_DYNAMIC_PID_KP, so a turn lags the drag a little
+# and glides on after it; else their configured gains.
+func set_loose(loose: bool) -> void:
+	if not is_instance_valid(_yaw_pid) or not is_instance_valid(_pitch_pid):
+		return
+	_yaw_pid.kp = Constants.CAMERA_DYNAMIC_PID_KP if loose else pid_yaw_kp
+	_pitch_pid.kp = Constants.CAMERA_DYNAMIC_PID_KP if loose else pid_pitch_kp
+
+
 func set_rotation_input_active(is_active: bool):
 	_rotation_input_active = is_active
 	if is_active:
