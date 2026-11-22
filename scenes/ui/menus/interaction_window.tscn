@@ -51,6 +51,7 @@ theme_type_variation = "TitleLabel"
 [node name="ButtonClose" type="Button" parent="Center/Panel/Overflow/Layout/Header"]
 rect_min_size = Vector2( 160, 64 )
 focus_mode = 0
+theme_type_variation = "CloseButton"
 text = "CLOSE"
 __meta__ = {
 "str": "common.close"
@@ -60,7 +61,7 @@ __meta__ = {
 custom_constants/separation = 8
 
 [node name="ButtonAsk" type="Button" parent="Center/Panel/Overflow/Layout/Tabs"]
-theme_type_variation = "TabButton"
+theme_type_variation = "LargeTabButton"
 rect_min_size = Vector2( 0, 64 )
 focus_mode = 0
 size_flags_horizontal = 3
@@ -70,7 +71,7 @@ __meta__ = {
 }
 
 [node name="ButtonPilot" type="Button" parent="Center/Panel/Overflow/Layout/Tabs"]
-theme_type_variation = "TabButton"
+theme_type_variation = "LargeTabButton"
 rect_min_size = Vector2( 0, 64 )
 focus_mode = 0
 size_flags_horizontal = 3
@@ -91,6 +92,7 @@ custom_constants/separation = 8
 visible = false
 rect_min_size = Vector2( 0, 64 )
 focus_mode = 0
+theme_type_variation = "LargeButton"
 text = "OPTION: OFF"
 
 [node name="OptionNote" type="Label" parent="Center/Panel/Overflow/Layout/Options"]
@@ -117,6 +119,6 @@ autowrap = true
 text = "VALUE"
 
 [node name="Note" type="Label" parent="Center/Panel/Overflow/Layout"]
-theme_type_variation = "NoteLabel"
+theme_type_variation = "SmallNoteLabel"
 autowrap = true
 text = "THE GAME IS PAUSED WHILE THIS IS OPEN. TAP AN OPTION TO ASK IT, AGAIN TO END IT."

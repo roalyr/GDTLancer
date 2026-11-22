@@ -192,5 +192,5 @@ Under `~/gdtl-island/`:
 - `project/`: the files;
 - `islands/island<K>/`: each island's save, console log and life log, replaced every segment.
 
-Godot also makes an empty `~/.local/share/godot/app_userdata/GDTLancer-rev/` there. To remove it
-all: `rm -rf ~/gdtl-island ~/.local/share/godot/app_userdata/GDTLancer-rev`.
+Godot also makes an empty `~/.local/share/godot/app_userdata/GDTLancer/` there. To remove it
+all: `rm -rf ~/gdtl-island ~/.local/share/godot/app_userdata/GDTLancer`.

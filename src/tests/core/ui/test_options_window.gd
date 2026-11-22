@@ -119,7 +119,8 @@ func test_the_right_half_tells_of_the_row_tapped():
 	window.step("autolevel")
 	assert_eq(info.get_node("Title").text, "AUTOLEVEL")
 	assert_eq(info.get_node("Text").text, Strings.t("options.autolevel.about"))
-	assert_eq(info.get_node("Value").text, "OFF")
+	assert_null(info.get_node_or_null("Value"), "Its value is on its row only")
+	assert_eq(window.row_text("ButtonAutolevel"), "AUTOLEVEL: OFF")
 
 
 func test_the_language_switches_every_word_at_once():

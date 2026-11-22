@@ -36,7 +36,7 @@ custom_constants/separation = 24
 
 [node name="Title" type="Label" parent="Overflow/Center/Frame/Box"]
 mouse_filter = 2
-theme_type_variation = "TitleLabel"
+theme_type_variation = "HeadingLabel"
 align = 1
 
 [node name="Text" type="Label" parent="Overflow/Center/Frame/Box"]
@@ -53,5 +53,4 @@ alignment = 1
 [node name="Choice" type="Button" parent="Overflow/Center/Frame/Box/Choices"]
 visible = false
 rect_min_size = Vector2( 300, 84 )
-theme_type_variation = "LargeButton"
 focus_mode = 0

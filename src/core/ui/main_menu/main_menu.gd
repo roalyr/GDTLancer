@@ -237,10 +237,10 @@ func _on_ui_scale_changed(_factor: float) -> void:
 	fit_buttons()
 
 
-# Close and Save need a game running.
+# Close and Save need a game running: Close is not shown without one, Save is dimmed.
 func _refresh_close_button_state() -> void:
 	if is_instance_valid(btn_close):
-		btn_close.disabled = not _has_active_game_session()
+		btn_close.visible = _has_active_game_session()
 	if is_instance_valid(btn_save_game):
 		btn_save_game.disabled = not _has_active_game_session()
 

@@ -59,6 +59,7 @@ text = "GLOBAL"
 [node name="ButtonClose" type="Button" parent="Panel/Overflow/Layout/Header"]
 rect_min_size = Vector2( 160, 64 )
 focus_mode = 0
+theme_type_variation = "CloseButton"
 text = "CLOSE"
 __meta__ = {
 "str": "common.close"
@@ -107,6 +108,7 @@ text = "−"
 rect_min_size = Vector2( 0, 56 )
 focus_mode = 0
 size_flags_horizontal = 3
+theme_type_variation = "LightButton"
 text = "FIT"
 __meta__ = {
 "str": "map.button.fit"
@@ -115,6 +117,7 @@ __meta__ = {
 [node name="ButtonCentre" type="Button" parent="Panel/Overflow/Layout/Body/Side"]
 rect_min_size = Vector2( 0, 56 )
 focus_mode = 0
+theme_type_variation = "LightButton"
 text = "CENTRE ON SHIP"
 __meta__ = {
 "str": "map.button.centre"
@@ -123,6 +126,7 @@ __meta__ = {
 [node name="Info" type="Label" parent="Panel/Overflow/Layout/Body/Side"]
 rect_min_size = Vector2( 0, 110 )
 autowrap = true
+theme_type_variation = "NoteLabel"
 text = "TAP A THING TO SEE IT."
 
 [node name="ButtonTarget" type="Button" parent="Panel/Overflow/Layout/Body/Side"]
@@ -135,7 +139,7 @@ __meta__ = {
 }
 
 [node name="Note" type="Label" parent="Panel/Overflow/Layout"]
-theme_type_variation = "NoteLabel"
+theme_type_variation = "SmallNoteLabel"
 autowrap = true
 text = "THE GAME IS PAUSED WHILE THIS IS OPEN. DRAG TO MOVE, WHEEL OR + AND − TO ZOOM, TAP TO PICK."
 __meta__ = {

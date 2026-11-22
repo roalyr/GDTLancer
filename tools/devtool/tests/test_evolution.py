@@ -196,7 +196,7 @@ class NewEraTest(unittest.TestCase):
         self.assertFalse(evolution.status(self.folder)["running"])
 
     def test_user_dir_is_godots(self):
-        self.assertTrue(evolution.user_dir().endswith(os.path.join("godot", "app_userdata", "GDTLancer-rev")))
+        self.assertTrue(evolution.user_dir().endswith(os.path.join("godot", "app_userdata", "GDTLancer")))
 
 
 if __name__ == "__main__":

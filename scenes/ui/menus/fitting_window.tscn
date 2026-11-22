@@ -66,12 +66,12 @@ size_flags_vertical = 5
 text = "HOME STATION"
 valign = 1
 autowrap = true
-theme_type_variation = "TitleLabel"
 
 [node name="ButtonUndock" type="Button" parent="Panel/Overflow/Layout/Header"]
 size_flags_vertical = 4
 rect_min_size = Vector2( 160, 64 )
 focus_mode = 0
+theme_type_variation = "CloseButton"
 text = "UNDOCK"
 __meta__ = {
 "str": "fit.button.undock"

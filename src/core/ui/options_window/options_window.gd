@@ -70,7 +70,7 @@ func _ready() -> void:
 	for category in CATEGORIES:
 		var button := Button.new()
 		button.name = "Tab_" + category[0]
-		button.theme_type_variation = "TabButton"
+		button.theme_type_variation = "LargeTabButton"
 		button.focus_mode = Control.FOCUS_NONE
 		button.rect_min_size = Vector2(0, TAB_HEIGHT)
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -171,7 +171,7 @@ func _add_row(name: String, index: int) -> void:
 	for part in ["Name", "Value"]:
 		var label := Label.new()
 		label.name = part
-		label.theme_type_variation = "LargeLabel" if part == "Name" else "LargeValueLabel"
+		label.theme_type_variation = "" if part == "Name" else "LargeValueLabel"  # Names plain, values large
 		label.valign = Label.VALIGN_CENTER
 		label.size_flags_vertical = Control.SIZE_EXPAND_FILL
 		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -206,22 +206,19 @@ func _refresh() -> void:
 	_show_about()
 
 
-# The right half: the row last tapped (its name, value, what it does and the values it takes), or
-# the tab's own words.
+# The right half: the row last tapped (its name, what it does and the values it takes; its value is
+# on its row), or the tab's own words.
 func _show_about() -> void:
 	var title: Label = _info.get_node("Title")
-	var value: Label = _info.get_node("Value")
 	var text: Label = _info.get_node("Text")
 	var values: Label = _info.get_node("Values")
 	if about == "" or not OPTIONS.has(about):
 		title.text = Strings.t("options.tab." + tab)
-		value.text = ""
 		text.text = Strings.t("options.tab.%s.about" % tab)
 		values.text = Strings.t("options.hint")
 		return
 	var key: String = OPTIONS[about][0]
 	title.text = Strings.t("options.%s.name" % key)
-	value.text = shown_value(key, Settings.get_option(key))
 	text.text = Strings.t("options.%s.about" % key)
 	var shown := []
 	var steps: Array = steps_of(about)

@@ -46,6 +46,7 @@ autowrap = true
 [node name="ButtonClose" type="Button" parent="Panel/Overflow/Layout/Header"]
 rect_min_size = Vector2( 160, 64 )
 focus_mode = 0
+theme_type_variation = "CloseButton"
 text = "CLOSE"
 
 [node name="Tabs" type="HBoxContainer" parent="Panel/Overflow/Layout"]
@@ -74,18 +75,15 @@ custom_constants/separation = 12
 theme_type_variation = "HeadingLabel"
 autowrap = true
 
-[node name="Value" type="Label" parent="Panel/Overflow/Layout/Body/Info"]
-theme_type_variation = "LargeValueLabel"
-autowrap = true
-
 [node name="Text" type="Label" parent="Panel/Overflow/Layout/Body/Info"]
 autowrap = true
+theme_type_variation = "LargeLabel"
 
 [node name="Values" type="Label" parent="Panel/Overflow/Layout/Body/Info"]
 theme_type_variation = "NoteLabel"
 autowrap = true
 
 [node name="Note" type="Label" parent="Panel/Overflow/Layout"]
-theme_type_variation = "NoteLabel"
+theme_type_variation = "SmallNoteLabel"
 autowrap = true
 text = "THE GAME IS PAUSED WHILE THIS IS OPEN. TAP A ROW TO CHANGE IT."

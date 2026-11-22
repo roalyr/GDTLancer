@@ -49,6 +49,7 @@ __meta__ = {
 [node name="ButtonClose" type="Button" parent="Panel/Overflow/Layout/Header"]
 rect_min_size = Vector2( 160, 64 )
 focus_mode = 0
+theme_type_variation = "CloseButton"
 text = "CLOSE"
 __meta__ = {
 "str": "common.close"
@@ -66,7 +67,7 @@ scroll_horizontal_enabled = false
 size_flags_horizontal = 3
 
 [node name="Note" type="Label" parent="Panel/Overflow/Layout"]
-theme_type_variation = "NoteLabel"
+theme_type_variation = "SmallNoteLabel"
 autowrap = true
 text = "THE GAME IS PAUSED WHILE THIS IS OPEN."
 __meta__ = {

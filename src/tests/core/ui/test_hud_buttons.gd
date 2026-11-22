@@ -155,11 +155,13 @@ func test_main_menu_save_needs_a_game() -> void:
 	main_menu._show_menu()
 	var save_button: BaseButton = main_menu.get_node("ScreenControls/MainButtonsHBoxContainer/ButtonSaveGame")
 	assert_true(save_button.disabled, "No game: Save is greyed out")
+	assert_false(main_menu.get_node("ScreenControls/ButtonClose").visible, "and CLOSE is not shown: there is nothing to go back to")
 	main_menu._on_save_game_pressed()
 	assert_eq(_prompts(main_menu), 0, "and offers no slots")
 	GameState.current_sector_id = "sector_elace"
 	main_menu._show_menu()
 	assert_false(save_button.disabled, "A game running: Save is there")
+	assert_true(main_menu.get_node("ScreenControls/ButtonClose").visible, "and so is CLOSE")
 
 
 # New during a game asks first (unsaved play is lost); before one it starts at once.

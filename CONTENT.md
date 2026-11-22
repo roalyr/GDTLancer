@@ -381,18 +381,20 @@ To give a sector its music (a new one or an existing one):
 
   | Text | Look | Font, size |
   |---|---|---|
-  | Window and prompt titles | `TitleLabel` | font_large, 33 |
-  | Section headings (amber) | `HeadingLabel` | font_default, 22 |
+  | Window titles | `TitleLabel` | font_large, 33 |
+  | Section headings, a prompt's title (amber) | `HeadingLabel`, `HeadingButton` | font_large, 33 |
   | Body text, values, buttons | plain `Label` / `Button` | font_default, 22 |
   | Notes, hints, dim keys | `NoteLabel` | font_default, 22, faded |
+  | A window's bottom note ("THE GAME IS PAUSED...") | `SmallNoteLabel` | font_small, 18, faded |
   | Small print: captions, map names, radio | `SmallLabel`, `StatCaption` | font_small, 18 |
   | Ship numbers | `StatHull`, `StatPower`, `StatCargo`, `StatMotion`, `StatSensors`, `StatWarning` | font_medium, 28, coloured |
   | Emphasis: selected target, large buttons | `LargeLabel`, `LargeValueLabel`, `LargeButton` | font_large, 33 |
+  | A window's way out: CLOSE, UNDOCK (amber) | `CloseButton` | font_large, 33 |
   | A setting that is OFF | `LargeOffLabel` (grey; ON values `LargeValueLabel`, yellow) | font_large, 33 |
-  | Symbols (+, -) | `SymbolButton` | font_menu, 50 |
-  | Main menu | `MenuTitleLabel`, `MenuLabel` | font_menu_title 100, font_menu 50 |
+  | Symbols (+, -), lighter fill | `SymbolButton` | font_menu, 50 |
+  | Main menu | `MenuTitleLabel`, `MenuLabel`, `MainMenuButton` | font_menu_title 100, font_menu 50 |
 
-  Backgrounds: every `ScrollContainer` is a shade lighter than its window (the theme's), except a window's whole-body `OverflowScroll`; a window's tab buttons take `TabButton` (lighter still), its other buttons the plain dark `Button`.
+  Backgrounds: every `ScrollContainer` is a shade lighter than its window (the theme's), except a window's whole-body `OverflowScroll`; a window's tab buttons take `TabButton` (lighter still; `LargeTabButton` in font_large, the interaction and options windows'), its tool buttons (the map's FIT, CENTRE ON SHIP) `LightButton` in the same lighter fill, its other buttons the plain dark `Button`.
 
   No `custom_fonts` in scenes and no `add_font_override` in code: switch `theme_type_variation` instead, and code that draws text reads the look's font (`get_font("font", "SmallLabel")`). A size that none of these fits is a new look in the theme, not an override.
 - **UI SCALE** (Options, INTERFACE: x0.5 to x1.5 in steps of 0.1; below 1.0 for large monitors) multiplies every font size above, every button's size, and the HUD as a whole about its screen anchors (`src/autoload/UiScale.gd`). The sizes here are at x1.0, for a 12" 1366x768 screen; a phone's first run picks one from its screen. A scene or code sets sizes at x1.0 too. A HUD element goes under `ScreenControls` and is anchored to the corner or edge it belongs to, so it grows from there. The HUD grows no wider than the screen holds (`HUD_SCALE_WIDTH`; its words still take the full scale), the sliders keep their length above x1.0 (below it they shrink with the rest), and the flight row shrinks to fit between the bottom corner groups. **UI screenshots** shoot the HUD at every scale and print a `UI OVERLAP` line for each clash.

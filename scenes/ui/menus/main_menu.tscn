@@ -318,7 +318,9 @@ margin_bottom = 100.0
 rect_min_size = Vector2( 160, 64 )
 focus_mode = 0
 theme = ExtResource( 2 )
+theme_type_variation = "MainMenuButton"
 text = "CLOSE"
+grow_horizontal = 0
 __meta__ = {
 "str": "common.close",
 "_editor_description_": "Back to the game: where every window has its CLOSE (the window's 20 px margin and 16 px padding)",
