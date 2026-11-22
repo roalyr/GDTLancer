@@ -4,8 +4,8 @@ modifier at --ratio to the previous level, so LOD1 has ratio, LOD2 ratio^2 and s
 original triangles. Object names and hierarchy are kept, so a LOD can stand in for the original
 node by node.
 
-Output: <model folder>/lod/<model>_LOD<n>.glb. Run the Godot editor once afterwards
-(godot --no-window --editor --quit) so the new files get imported.
+Output: <model folder>/lod/<model>_LOD<n>.glb. Import the project afterwards
+(tools/dev.py import) so the new files get imported.
 
 Never for nebulas: their look depends on the exact cloud geometry. Paths under a "nebulas"
 folder are refused.

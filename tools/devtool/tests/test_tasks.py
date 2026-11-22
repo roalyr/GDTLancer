@@ -170,6 +170,23 @@ class TasksTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as root:
             self.assertEqual(import_project.main(root, lambda command, **_: 0, lambda text: None), 1, "Nothing imported: it says so")
 
+    def test_the_import_leaves_project_godot_as_it_was(self):
+        from devtool import import_project
+        with tempfile.TemporaryDirectory() as root:
+            settings = os.path.join(root, "project.godot")
+            with open(settings, "w") as handle:
+                handle.write('enabled=PoolStringArray( "res://addons/gut/plugin.cfg" )\n')
+
+            def fake_godot(command, **_):  # A fresh clone: GUT's plugin fails, Godot switches it off
+                with open(settings, "w") as handle:
+                    handle.write("enabled=PoolStringArray(  )\n")
+                os.makedirs(os.path.join(root, ".import"), exist_ok=True)
+                open(os.path.join(root, ".import", "a.png-1.md5"), "w").close()
+                return 0
+            self.assertEqual(import_project.main(root, fake_godot, lambda text: None), 0)
+            with open(settings) as handle:
+                self.assertIn("gut/plugin.cfg", handle.read())
+
     def test_every_task_describes_itself(self):
         for task in tasks.TASKS:
             text = tasks.describe(task)

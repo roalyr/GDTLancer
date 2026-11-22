@@ -17,3 +17,8 @@ tools/blender
 # Agent playtests (tools/playtest/play.py): log, shots, notes
 .playtest/
 .claude/scheduled_tasks.lock
+
+# Editor backup, autosave and lock files
+*~
+\#*#
+.#*

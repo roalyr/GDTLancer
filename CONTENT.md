@@ -10,7 +10,7 @@ Running evolution, new eras, soak checks and releases are maintainer work: see [
 - [Getting started](#getting-started): what to install, the first run
 - [The development tool](#the-development-tool): its tabs and keys
 - [Common tasks](#common-tasks): step by step
-- Reference: [Factions](#factions), [Sectors](#sectors), [Ships: archetypes](#ships-archetypes), [Parts](#parts), [Commodities, stock hulls, game starts](#commodities-stock-hulls-game-starts), [A sector's economy](#a-sectors-economy), [Models](#models), [Sounds](#sounds)
+- Reference: [Factions](#factions), [Sectors](#sectors), [Ships: archetypes](#ships-archetypes), [Parts](#parts), [Commodities, stock hulls, game starts](#commodities-stock-hulls-game-starts), [A sector's economy](#a-sectors-economy), [Models](#models), [Sounds](#sounds), [The UI's look](#the-uis-look), [Words and languages](#words-and-languages)
 - [Play saves and changed content](#play-saves-and-changed-content), [Checking your work](#checking-your-work)
 - [Where things live](#where-things-live) and a [glossary](#glossary)
 

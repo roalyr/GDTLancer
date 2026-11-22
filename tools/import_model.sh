@@ -5,7 +5,7 @@
 #   1. ships only: its fit to Constants.SHIP_MODEL_LENGTH nose to tail (tools/fit_length.py; the
 #      .glb is rescaled in place, so a ship can be made at any size: its preset sizes it in the
 #      game), then its levels of detail (tools/generate_lods.py): <folder>/lod/<name>_LOD<n>.glb;
-#   2. Godot's import of the new files (the editor, run without a window; materials stay inside
+#   2. Godot's import of the new files (tools/devtool/import_project.py; materials stay inside
 #      the model: project.godot's importer_defaults);
 #   3. its hit surface (tools/bake_hit_shapes.gd, ships only): <folder>/hit/<name>_hit.res;
 #   4. its scene, unless it exists (tools/new_model_scene.gd): scenes/prefabs/ships/<name>.tscn,
@@ -46,9 +46,9 @@ if [ -z "$STATION" ]; then
 	"$BLENDER" -b -P tools/fit_length.py -- --length "$LENGTH" "$MODEL" | grep -E "^FIT" || { echo "Fit failed: $MODEL"; exit 1; }
 	"$BLENDER" -b -P tools/generate_lods.py -- --levels "$LEVELS" --ratio "$RATIO" "$MODEL"
 fi
-for pass in 1 2; do  # The first pass finds the new files, the second imports them
-	"$GODOT" --no-window --editor --quit >/dev/null 2>&1 || true
-done
+# Not `godot --editor --quit`: on a fresh clone the windowless editor was seen to ignore --quit
+# and run on for good. The throwaway export always scans, imports and ends.
+python3 tools/devtool/import_project.py >/dev/null || { echo "Godot's import failed: run tools/dev.py import"; exit 1; }
 if [ -z "$STATION" ]; then
 	"$GODOT" --no-window -s tools/bake_hit_shapes.gd "res://$MODEL"
 fi

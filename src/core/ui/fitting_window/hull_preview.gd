@@ -7,6 +7,8 @@
 
 extends ViewportContainer
 
+const Interp = preload("res://src/core/utils/interp.gd")
+
 const TURN_RATE = 0.35  # rad/s it turns by itself
 const DRAG_RATE = 0.01  # rad per px dragged
 const RESUME_AFTER = 3.0  # s after a drag it turns by itself again
@@ -23,6 +25,7 @@ var _reach: float = 1.0  # The hull's radius (m), as framed
 
 
 func _ready() -> void:
+	Interp.keep_out(_pivot)  # Turned per frame (_process), so drawn as it is: no interpolation warnings
 	connect("gui_input", self, "_on_gui_input")
 	connect("resized", self, "_frame")
 	_update_rendering()

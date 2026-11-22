@@ -138,5 +138,5 @@ Content authors keep **Duel two archetypes** (Archetypes, `d`) and **Sector econ
 
 ## Notes in docs/
 
-- `docs/DRAFT-*.md` are notes on unfinished work written away from Godot. Delete each one once its work is finished.
+- The code was frozen on 2026-11-22. The notes on work left undone then (CPU and GPU optimisation work orders, view-detail and scar-mesh checks in play, the handover playtest) were deleted; they are in git history (last in c03a118).
 - `docs/godot/` holds Godot 3.6 reference pages (the shading language and shader types), for writing shaders offline.

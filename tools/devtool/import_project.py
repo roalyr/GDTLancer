@@ -27,11 +27,26 @@ def command(pack):
     return [GODOT, "--no-window", "--export-pack", PRESET, pack]
 
 
+def _read(path):
+    try:
+        with open(path, "rb") as handle:
+            return handle.read()
+    except OSError:
+        return None
+
+
 def main(root=ROOT, run=subprocess.call, say=print):
+    # On a fresh clone GUT's plugin fails to load before its icons are imported, and Godot then
+    # writes project.godot with the plugin switched off: the file is put back as it was.
+    settings = os.path.join(root, "project.godot")
+    before = _read(settings)
     with tempfile.TemporaryDirectory(prefix="gdtl_import_") as folder:
         say("Importing (Godot scans and converts every asset; GUT's icon errors before that are expected) ...")
         code = run(command(os.path.join(folder, "import.pck")), cwd=root, env=environment(),
                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    if before is not None and _read(settings) != before:
+        with open(settings, "wb") as handle:
+            handle.write(before)
     problem = import_problem(root)
     if code != 0 or problem:
         say("The import did not finish (Godot exit %d). %s" % (code, problem or "Open the project once in the Godot editor instead."))

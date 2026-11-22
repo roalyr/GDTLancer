@@ -402,8 +402,4 @@ if __name__ == "__main__":
         sys.exit("make_placeholder_sounds needs oggenc (vorbis-tools) for the loops and music")
     main()
     if "import" in sys.argv[1:]:
-        print("Importing (godot --no-window --editor --quit)...", flush=True)
-        environment = dict(os.environ)
-        environment.setdefault("DISPLAY", ":0")
-        sys.exit(subprocess.call([os.environ.get("GODOT", "godot"), "--no-window", "--editor", "--quit"], cwd=ROOT, env=environment,
-                                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL))
+        sys.exit(subprocess.call([sys.executable, os.path.join(ROOT, "tools", "devtool", "import_project.py")], cwd=ROOT))

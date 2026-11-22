@@ -8,7 +8,6 @@ must not (ContentValidator's sounds rule). Whether a sound loops is an import se
 
 import os
 import re
-import subprocess
 import sys
 
 if __package__ in (None, ""):  # Run as a file: tools/devtool/sounds.py
@@ -16,7 +15,7 @@ if __package__ in (None, ""):  # Run as a file: tools/devtool/sounds.py
     __package__ = "devtool"
 
 from .bridge import Bridge, file_path  # noqa: E402
-from .tasks import GODOT, ROOT, environment  # noqa: E402
+from . import import_project  # noqa: E402
 
 LOOP_KEYS = {".wav": ("edit/loop_mode", "1", "0"), ".ogg": ("loop", "true", "false"), ".mp3": ("loop", "true", "false")}
 
@@ -48,7 +47,7 @@ def wrong_slots(slots):
     return [slot for slot in slots if slot["path"] and slot["loops"] != (slot["kind"] in LOOPING_KINDS)]
 
 
-def fix(slots, reimport=True, godot=GODOT):
+def fix(slots, reimport=True):
     """Sets the loop setting of every wrong slot's sound; returns the res:// paths changed."""
     changed = []
     for slot in wrong_slots(slots):
@@ -69,8 +68,7 @@ def fix(slots, reimport=True, godot=GODOT):
             if path not in changed:
                 changed.append(path)
     if changed and reimport:
-        subprocess.run([godot, "--no-window", "--editor", "--quit"], cwd=ROOT, env=environment(), stdout=subprocess.DEVNULL,
-                       stderr=subprocess.DEVNULL)
+        import_project.main(say=lambda text: None)  # Not `godot --editor --quit`, which may never end
     return changed
 
 
