@@ -1,5 +1,5 @@
-# AwarenessZone (scenes/ui/hud/awareness_zone.tscn): the strip along the top of the HUD with what a
-# pilot glances at, read as colours and lengths more than words:
+# AwarenessZone (scenes/ui/hud/awareness_zone.tscn): the strip along the top of the HUD, between
+# the top corner buttons, with what a pilot glances at, read as colours and lengths more than words:
 # - the target (large), its name kept up to date (a rock chunk bared becomes an ore chunk), or a
 #   jump route's destination ("JUMP TO VIDR"): a ship's faction tag before its name ("[VERDANT] ..."), distance, how a
 #   fight with it would go (EASY .. DEADLY) with its pilot's level (ROOKIE .. ACE, PilotLevel) and
@@ -40,6 +40,7 @@ onready var _cargo: Control = $Layout/Bars/Cargo
 onready var _radio: Label = $Layout/Radio
 
 var _left: float = 0.0
+var _name_full: String = ""  # The target's name as it would read whole (_fit_target_name may cut it)
 
 
 func _ready() -> void:
@@ -48,6 +49,8 @@ func _ready() -> void:
 	for child in _all_children(self):
 		if child is Control:
 			child.mouse_filter = MOUSE_FILTER_IGNORE
+	_target_name.set_meta(UiScale.SKIP, true)  # Its width is _fit_target_name's, at the scale in place
+	connect("resized", self, "_fit_target_name")
 	refresh()
 
 
@@ -90,7 +93,7 @@ func refresh() -> void:
 func _refresh_target(player) -> void:
 	if is_route(target):  # A jump route: where it goes, and the fuel the jump burns of what is held
 		_target_row.modulate.a = 1.0
-		_set_text(_target_name, route_text(target))
+		_name_full = route_text(target)
 		_set_text(_target_distance, fuel_text(player))
 		_set_text(_target_threat, "")
 		for label in [_target_name, _target_distance, _target_threat]:
@@ -98,6 +101,7 @@ func _refresh_target(player) -> void:
 		if is_instance_valid(player) and Fuel.carried(player) < Fuel.jump_cost(player):
 			_target_distance.add_color_override("font_color", TargetKinds.graded(Constants.COLOR_UI_TARGET_HOSTILE))  # Short of it
 		_target_hull.visible = false
+		_fit_target_name()
 		return
 	var has_target: bool = is_instance_valid(target) and target is Spatial and target.is_inside_tree()
 	_target_row.modulate.a = 1.0 if has_target else 0.0
@@ -108,7 +112,7 @@ func _refresh_target(player) -> void:
 		color = TargetKinds.graded(Constants.COLOR_UI_TARGET_SELECTED)
 	if name_source != null and name_source.is_valid():
 		target_name = str(name_source.call_func(target))
-	_set_text(_target_name, name_text(target, target_name))
+	_name_full = name_text(target, target_name)
 	_set_text(_target_distance, distance_text(player.global_transform.origin.distance_to(target.global_transform.origin)))
 	_set_text(_target_threat, threat_text(player, target))
 	for label in [_target_name, _target_distance, _target_threat]:
@@ -118,6 +122,30 @@ func _refresh_target(player) -> void:
 	if has_hull:
 		_target_hull.color = color
 		_target_hull.set_value(target.get_hull_fraction())
+	_fit_target_name()
+
+
+# The target's name as wide as it reads, but no wider than the middle leaves beside the rest of
+# its row in the strip: a long name is cut short with "...", and the row stays centred between the
+# corner buttons.
+func _fit_target_name() -> void:
+	if not is_instance_valid(_target_name):
+		return
+	var others: float = 0.0
+	for node in _target_row.get_children():
+		if node != _target_name and node.visible:
+			others += node.get_combined_minimum_size().x + _target_row.get_constant("separation")
+	var room: float = max(0.0, rect_size.x - others)
+	var font: Font = _target_name.get_font("font")
+	var text: String = _name_full
+	var cut: int = text.length()
+	while cut > 0 and font.get_string_size(text).x > room:
+		cut -= 1
+		text = _name_full.left(cut).strip_edges() + "..."
+	_set_text(_target_name, text)
+	var width: float = ceil(min(font.get_string_size(text).x, room))
+	if not is_equal_approx(_target_name.rect_min_size.x, width):
+		_target_name.rect_min_size.x = width
 
 
 func add_radio_line(line: String) -> void:

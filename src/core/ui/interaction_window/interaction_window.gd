@@ -4,7 +4,8 @@
 # button is) or to end it (OFF); a line under each says what it means. A ship offering nothing says
 # why. A second tab, PILOT, lists what is public of the ship's pilot (PilotLevel.public_record: call
 # sign, side, level, ship, bounties...). It opens on ASK, or on PILOT when there is nothing to ask.
-# Open, it pauses the game, as the options window does; closing puts the pause back as it was.
+# Open, it pauses the game, as the options window does; closing puts the pause back as it was. As
+# every window that pauses the game, it fills the screen.
 
 extends Control
 
@@ -19,22 +20,22 @@ var target = null  # The ship asked
 var _was_paused: bool = false
 var tab: String = "ask"  # "ask" or "pilot"
 
-onready var _title: Label = $Center/Panel/Layout/Header/Title
-onready var _side: Label = $Center/Panel/Layout/Side
-onready var _options: VBoxContainer = $Center/Panel/Layout/Options
-onready var _option_pattern: Button = $Center/Panel/Layout/Options/Option
-onready var _note_pattern: Label = $Center/Panel/Layout/Options/OptionNote
-onready var _ask_button: Button = $Center/Panel/Layout/Tabs/ButtonAsk
-onready var _pilot_button: Button = $Center/Panel/Layout/Tabs/ButtonPilot
-onready var _pilot: GridContainer = $Center/Panel/Layout/Pilot
-onready var _key_pattern: Label = $Center/Panel/Layout/Pilot/Key
-onready var _value_pattern: Label = $Center/Panel/Layout/Pilot/Value
-onready var _note: Label = $Center/Panel/Layout/Note
+onready var _title: Label = $Center/Panel/Overflow/Layout/Header/Title
+onready var _side: Label = $Center/Panel/Overflow/Layout/Side
+onready var _options: VBoxContainer = $Center/Panel/Overflow/Layout/Options
+onready var _option_pattern: Button = $Center/Panel/Overflow/Layout/Options/Option
+onready var _note_pattern: Label = $Center/Panel/Overflow/Layout/Options/OptionNote
+onready var _ask_button: Button = $Center/Panel/Overflow/Layout/Tabs/ButtonAsk
+onready var _pilot_button: Button = $Center/Panel/Overflow/Layout/Tabs/ButtonPilot
+onready var _pilot: GridContainer = $Center/Panel/Overflow/Layout/Pilot
+onready var _key_pattern: Label = $Center/Panel/Overflow/Layout/Pilot/Key
+onready var _value_pattern: Label = $Center/Panel/Overflow/Layout/Pilot/Value
+onready var _note: Label = $Center/Panel/Overflow/Layout/Note
 
 
 func _ready() -> void:
 	pause_mode = PAUSE_MODE_PROCESS
-	$Center/Panel/Layout/Header/ButtonClose.connect("pressed", self, "close")
+	$Center/Panel/Overflow/Layout/Header/ButtonClose.connect("pressed", self, "close")
 	_ask_button.connect("pressed", self, "show_tab", ["ask"])
 	_pilot_button.connect("pressed", self, "show_tab", ["pilot"])
 

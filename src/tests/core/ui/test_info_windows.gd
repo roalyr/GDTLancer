@@ -59,14 +59,14 @@ func _player_ship() -> RigidBody:
 
 
 func _texts(window) -> String:
-	var lines: Array = [window.get_node("Panel/Layout/Header/Title").text, window.get_node("Panel/Layout/Summary").text]
-	var stats: Node = window.get_node_or_null("Panel/Layout/Stats")
+	var lines: Array = [window.get_node("Panel/Overflow/Layout/Header/Title").text, window.get_node("Panel/Overflow/Layout/Summary").text]
+	var stats: Node = window.get_node_or_null("Panel/Overflow/Layout/Stats")
 	if stats != null and stats.visible:
 		for grid in stats.get_children():
 			for cell in grid.get_children():
 				if not cell.is_queued_for_deletion():
 					lines.append("%s %s" % [cell.get_node("Caption").text, cell.get_node("Value").text])
-	for child in window.get_node("Panel/Layout/Scroll/List").get_children():
+	for child in window.get_node("Panel/Overflow/Layout/Scroll/List").get_children():
 		if child is Label:
 			lines.append(child.text)
 		elif child.has_node("Row/Text/Name"):
@@ -81,7 +81,7 @@ func test_the_hud_buttons_open_and_close_the_windows():
 	hud.get_node("ScreenControls/CenterRightZone/ButtonShip").emit_signal("pressed")
 	assert_true(hud.ship_window.visible, "SHIP opens the ship window")
 	assert_true(get_tree().paused, "and pauses the game")
-	hud.ship_window.get_node("Panel/Layout/Header/ButtonClose").emit_signal("pressed")
+	hud.ship_window.get_node("Panel/Overflow/Layout/Header/ButtonClose").emit_signal("pressed")
 	assert_false(hud.ship_window.visible, "CLOSE shuts it")
 	assert_false(get_tree().paused, "and the game goes on.")
 	hud.get_node("ScreenControls/CenterRightZone/ButtonCharacter").emit_signal("pressed")

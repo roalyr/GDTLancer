@@ -240,7 +240,6 @@ func _ready():
 	button_safety.connect("pressed", self, "_on_safety_button_pressed")
 	button_hud_look.connect("pressed", self, "_on_ButtonHudLook_pressed")
 	Settings.connect("changed", self, "_on_settings_changed")
-	apply_hud_preset()
 	fitting_window = FittingWindowScene.instance()
 	add_child(fitting_window)
 	interaction_window = InteractionWindowScene.instance()
@@ -260,6 +259,10 @@ func _ready():
 	awareness_zone = AwarenessZoneScene.instance()
 	awareness_zone.name_source = funcref(self, "_resolve_target_display_name")
 	$ScreenControls.add_child(awareness_zone)
+	UiScale.connect("changed", self, "_on_ui_scale_changed")
+	$ScreenControls.connect("resized", self, "fit_flight_row")
+	call_deferred("fit_flight_row")  # After UiScale scaled the HUD as it came in
+	call_deferred("_scale_slider_icons")
 	var threat_watch = ThreatWatch.new()
 	threat_watch.name = "ThreatWatch"
 	add_child(threat_watch)
@@ -267,6 +270,7 @@ func _ready():
 	threat_ring.name = "ThreatRing"
 	add_child(threat_ring)
 	move_child(threat_ring, $ScreenControls.get_index() + 1)  # Over the HUD buttons (it takes no input), under the windows
+	apply_hud_preset()  # Once the threat ring is in: the look tints it with the rest of the HUD
 	debug_tools = DebugTools.new()
 	debug_tools.name = "DebugTools"
 	add_child(debug_tools)
@@ -512,6 +516,30 @@ func _unhandled_input(event: InputEvent) -> void:
 		if EventBus:
 			EventBus.emit_signal("main_menu_requested")
 			get_tree().set_input_as_handled()
+		return
+	if get_tree().paused or not event is InputEventKey or event.is_echo():
+		return
+	var button: BaseButton = key_button(event)
+	if button != null:
+		if not button.disabled:
+			button.emit_signal("pressed")
+		get_tree().set_input_as_handled()
+
+
+# The button a key presses, as a tap would (the keys drawn on the buttons): D docks, I interacts
+# (APPROACH, FLEE, ORBIT, MANUAL and STOP are the PlayerController's, the same commands), and 1 to 9
+# then 0 the tool rows' buttons in their numbered order (tools, LANCE, AFTERBURN, SAFETY: whichever
+# are shown, as many as there are). Null when the key is none of these.
+func key_button(event: InputEvent) -> BaseButton:
+	if event.is_action_pressed("command_dock"):
+		return button_dock
+	if event.is_action_pressed("command_interact"):
+		return button_interact
+	var numbered: Array = _numbered_tool_items()
+	for index in range(min(numbered.size(), TOOL_KEYS)):
+		if event.is_action_pressed("tool_%d" % (index + 1)):
+			return numbered[index]
+	return null
 
 
 func _on_ButtonMenu_pressed() -> void:
@@ -634,7 +662,10 @@ func _on_ButtonInteract_pressed():
 # Buttons past the fitted tools are hidden. The buttons (tools, then LANCE and AFTERBURNER) sit in
 # centred rows of at most TOOL_ROW_MAX, the last row lowest; the rows above are made as needed.
 const TOOL_ROW_MAX = 8
-const TOOL_ROW_STEP = 120.0  # px between rows: a button and the gap
+const TOOL_ROW_STEP = 120.0  # px at UI scale 1.0 between rows: a button and the gap
+const TOOL_ROW_HEIGHT = 100.0  # px at UI scale 1.0
+var _flight_row_width: float = 0.0  # BottomCenterZone's width at UI scale 1.0, as in the scene
+var _flight_row_fit: float = 1.0  # Its scale (fit_flight_row)
 const TOOL_ACTIONS = {"laser": ["FIRE", "CEASE"], "missile": ["LAUNCH", "HOLD"], "cannon": ["FIRE", "CEASE"], "harpoon": ["LAUNCH", "RELEASE"]}
 
 
@@ -705,12 +736,50 @@ func _tool_bar(button: Control) -> Control:
 		bar.anchor_top = 1.0
 		bar.anchor_bottom = 1.0
 		bar.margin_left = 10.0
-		bar.margin_right = -10.0
+		bar.margin_right = -34.0  # Clear of the key's number in the corner
 		bar.margin_top = -16.0
 		bar.margin_bottom = -8.0
 		bar.low_share = 0.25
 		button.add_child(bar)
 	return bar
+
+
+# The tool rows' shown buttons in order, each with its key's number in the corner where the flight
+# buttons have their letters (1 to 9, then 0; none past TOOL_KEYS).
+const TOOL_KEYS = 10
+
+
+func _numbered_tool_items() -> Array:
+	var shown: Array = []
+	for item in tool_buttons + [button_lance, button_afterburner, button_safety]:
+		if item.visible:
+			shown.append(item)
+	return shown
+
+
+func _number_tool_items() -> void:
+	var number := 0
+	for item in tool_buttons + [button_lance, button_afterburner, button_safety]:
+		var label: Label = item.get_node_or_null("Key")
+		if label == null:
+			label = Label.new()
+			label.name = "Key"
+			label.theme = MainTheme  # The HUD has none: the plain Label, as large as the drawn letters
+			label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			label.align = Label.ALIGN_RIGHT
+			label.valign = Label.VALIGN_BOTTOM
+			label.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+			label.grow_vertical = Control.GROW_DIRECTION_BEGIN
+			for anchor in ["anchor_left", "anchor_top", "anchor_right", "anchor_bottom"]:
+				label.set(anchor, 1.0)
+			label.margin_left = -40.0  # At UI scale 1.0: UiScale scales it as it enters
+			label.margin_top = -36.0
+			label.margin_right = -9.0
+			label.margin_bottom = -4.0
+			item.add_child(label)
+		if item.visible:
+			number += 1
+		label.text = str(number % 10) if item.visible and number <= TOOL_KEYS else ""
 
 
 # Spreads the shown buttons over rows of at most TOOL_ROW_MAX, the first ones highest; only when
@@ -727,18 +796,21 @@ func _layout_tool_rows() -> void:
 	if key == _tool_rows_key:
 		return
 	_tool_rows_key = key
+	_number_tool_items()
 	var rows: int = int(max(1, ceil(float(shown.size()) / TOOL_ROW_MAX)))
 	var zone: Control = $ScreenControls/TemporaryToolZone
 	while _tool_rows.size() < rows - 1:  # Rows above the zone, the nearest first
 		var row := HBoxContainer.new()
 		row.name = "TemporaryToolRow%d" % (_tool_rows.size() + 2)
-		for property in ["anchor_left", "anchor_top", "anchor_right", "anchor_bottom", "margin_left", "margin_right", "mouse_filter", "alignment"]:
+		for property in ["anchor_left", "anchor_top", "anchor_right", "anchor_bottom", "grow_horizontal", "mouse_filter", "alignment"]:
 			row.set(property, zone.get(property))
-		row.add_constant_override("separation", zone.get_constant("separation"))
-		row.margin_top = zone.margin_top - TOOL_ROW_STEP * (_tool_rows.size() + 1)
-		row.margin_bottom = zone.margin_bottom - TOOL_ROW_STEP * (_tool_rows.size() + 1)
+		# Sizes at UI scale 1.0, as the zone's in the scene: UiScale scales the row as it enters
+		for property in ["margin_left", "margin_right", "margin_top", "margin_bottom"]:
+			row.set(property, UiScale.base_of(zone, property))
+		row.add_constant_override("separation", UiScale.base_of(zone, "separation"))
 		zone.get_parent().add_child(row)
 		_tool_rows.append(row)
+		call_deferred("_place_tool_rows")  # Once UiScale took it in
 	var last_row_size: int = shown.size() - (rows - 1) * TOOL_ROW_MAX
 	var position := 0
 	for item in items:  # Hidden ones go with the next shown one, keeping the order
@@ -753,6 +825,80 @@ func _layout_tool_rows() -> void:
 			parent.move_child(item, parent.get_child_count() - 1)
 		if item.visible:
 			position += 1
+
+
+# The flight row (BottomCenterZone) at the HUD's scale while it fits between the bottom corner
+# groups (the menu and debug buttons, the HUD look, camera and eye); past that as large as the gap
+# between them holds, and moved into the middle of that gap. Its words keep the UI scale. The tool
+# rows sit on it. On every change of the UI scale or of the screen.
+func fit_flight_row() -> void:
+	var controls: Control = $ScreenControls
+	var zone: Control = $ScreenControls/BottomCenterZone
+	if not zone.has_meta(UiScale.BASE):
+		return  # Not yet scaled: UiScale's "changed" comes after
+	if _flight_row_width <= 0.0:
+		_flight_row_width = UiScale.base_of(zone, "margin_right") - UiScale.base_of(zone, "margin_left")
+	var scale: float = UiScale.layout_factor
+	var width: float = controls.rect_size.x
+	var left: float = UiScale.base_of(button_debug, "margin_right") * scale  # The left group's right edge
+	var right: float = -UiScale.base_of(button_hud_look, "margin_left") * scale  # The right group's width
+	var gap: float = Constants.HUD_CORNER_GAP * scale
+	var fit: float = scale
+	var shift: float = 0.0
+	if _flight_row_width * scale > width - 2.0 * max(left, right) - 2.0 * gap:  # Centred, it would reach a group
+		fit = clamp((width - left - right - 2.0 * gap) / _flight_row_width, 0.5, scale)
+		shift = (left - right) * 0.5
+	_flight_row_fit = fit
+	UiScale.set_subtree_factor(zone, fit)
+	UiScale.set_base(zone, {"margin_left": -_flight_row_width * 0.5 + shift / fit, "margin_right": _flight_row_width * 0.5 + shift / fit})
+	_place_tool_rows()
+
+
+# The tool rows stacked on the flight row, whatever its scale (sizes at UI scale 1.0: UiScale takes
+# them to the HUD's).
+func _place_tool_rows() -> void:
+	var zone: Control = $ScreenControls/TemporaryToolZone
+	var bottom: float = UiScale.base_of($ScreenControls/BottomCenterZone, "margin_top") * _flight_row_fit / UiScale.layout_factor
+	var rows: Array = [zone] + _tool_rows
+	for index in range(rows.size()):
+		var row_bottom: float = bottom - TOOL_ROW_STEP * index
+		UiScale.set_base(rows[index], {"margin_top": row_bottom - TOOL_ROW_HEIGHT, "margin_bottom": row_bottom})
+
+
+func _on_ui_scale_changed(_factor: float) -> void:
+	fit_flight_row()
+	_scale_slider_icons()
+
+
+# The sliders' grabber and ticks, theme pictures of a fixed size, drawn at the HUD's scale on these
+# two sliders (their own copies, resized; the theme's stay as they are).
+const SLIDER_ICONS = ["grabber", "grabber_highlight", "grabber_disabled", "tick"]
+var _slider_icon_scale: float = 1.0
+
+
+func _scale_slider_icons() -> void:
+	var scale: float = UiScale.layout_factor
+	if is_equal_approx(scale, _slider_icon_scale):
+		return
+	_slider_icon_scale = scale
+	var sliders: Array = [$ScreenControls/CenterLeftZone/SliderControlLeft, $ScreenControls/CenterRightZone/SliderControlRight]
+	for name in SLIDER_ICONS:
+		var icon: Texture = MainTheme.get_icon(name, "VSlider")
+		if icon != null and not is_equal_approx(scale, 1.0):
+			var image: Image = icon.get_data()
+			if image != null:
+				if image.is_compressed():
+					image.decompress()
+				image.resize(int(max(1, round(image.get_width() * scale))), int(max(1, round(image.get_height() * scale))), Image.INTERPOLATE_BILINEAR)
+				var resized := ImageTexture.new()
+				resized.create_from_image(image, Texture.FLAG_FILTER)
+				icon = resized
+		for slider in sliders:
+			if is_equal_approx(scale, 1.0):
+				if slider.has_icon_override(name):
+					slider.add_icon_override(name, null)  # Back to the theme's
+			else:
+				slider.add_icon_override(name, icon)
 
 
 func _on_tool_button_pressed(index: int) -> void:
@@ -1256,12 +1402,15 @@ func _on_settings_changed(key: String, _value) -> void:
 		apply_hud_preset()
 
 
-# Tints the HUD by its preset (with the opacity button's share) and re-colours the marks, whose
-# colours the preset grades (TargetKinds.graded).
+# Tints the HUD's own parts (_hud_parts: its controls, brackets, threat ring, announcements; not the
+# windows and prompts over it) by its preset (with the opacity button's share) and re-colours the
+# marks, whose colours the preset grades (TargetKinds.graded).
 func apply_hud_preset() -> void:
 	var preset: Dictionary = Constants.hud_preset(Settings.get_option("hud_preset"))
 	var tint: Color = preset.tint
-	set_modulate(Color(tint.r, tint.g, tint.b, float(preset.get("alpha", 1.0))))
+	var look := Color(tint.r, tint.g, tint.b, float(preset.get("alpha", 1.0)))
+	for node in _hud_parts() + ([_hud_dot] if is_instance_valid(_hud_dot) else []):
+		node.modulate = look  # The HUD's own parts only: windows and prompts keep their looks
 	if is_instance_valid(label_hud_look):
 		label_hud_look.text = "HUD\n%s" % Constants.hud_preset_label(Settings.get_option("hud_preset"))
 	for button in _world_target_buttons.values():
@@ -1286,8 +1435,10 @@ func set_hud_hidden(hidden: bool) -> void:
 		if not is_instance_valid(_hud_dot):
 			_hud_dot = HudDot.new()
 			_hud_dot.name = "HudDot"
+			_hud_dot.set_meta(UiScale.SKIP, true)  # Sized as the eye, already scaled
 			_hud_dot.connect("pressed", self, "toggle_hud")
 			add_child(_hud_dot)
+			_hud_dot.modulate = $ScreenControls.modulate  # The HUD look's tint
 		_hud_dot.rect_global_position = eye.rect_global_position
 		_hud_dot.rect_size = eye.rect_size
 		_hud_dot.visible = true

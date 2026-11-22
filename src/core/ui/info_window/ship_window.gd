@@ -17,11 +17,11 @@ func fill() -> void:
 		_title.text = "SHIP"
 		_summary.text = "NO SHIP"
 		_summary.visible = true
-		$Panel/Layout/Stats.visible = false
+		$Panel/Overflow/Layout/Stats.visible = false
 		return
 	_summary.visible = false
 	_title.text = "%s  -  WORTH %d WP" % [Fitting.part_name(GameState.player_ship_template_id).to_upper(), int(ship.get_value())]
-	var stats: Node = $Panel/Layout/Stats
+	var stats: Node = $Panel/Overflow/Layout/Stats
 	stats.visible = true
 	ShipStats.fill(stats.get_node("Now"), ShipStats.now_entries(ship.hull, ship.hull_max, ship.power, ship.power_max,
 		ship.linear_velocity.length(), ship.get_top_speed()))

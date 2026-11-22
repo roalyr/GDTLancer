@@ -15,6 +15,7 @@ const OPTIONS = {
 	"ButtonRenderScale": ["render_scale", "RENDER_SCALE_STEPS", "RENDER SCALE"],
 	"ButtonHitEffects": ["hit_effects", null, "HIT EFFECTS"],
 	"ButtonHudLook": ["hud_preset", "HUD_PRESET_ORDER", "HUD LOOK"],
+	"ButtonUiScale": ["ui_scale", "UI_SCALE_STEPS", "UI SCALE"],
 	"ButtonMusic": ["music", "VOLUME_STEPS", "MUSIC"],
 	"ButtonEffects": ["effects", "VOLUME_STEPS", "SOUND EFFECTS"],
 	"ButtonSlowDown": ["slow_down_on_lag", null, "SLOW DOWN ON LAG"],
@@ -33,7 +34,7 @@ const CATEGORIES = [
 	["display", "DISPLAY", ["ButtonParticles", "ButtonHitEffects", "ButtonExhausts", "ButtonTetherRope", "ButtonDynamicLights"]],
 	["performance", "PERFORMANCE", ["ButtonRenderScale", "ButtonSlowDown", "ButtonShowFps"]],
 	["sound", "SOUND", ["ButtonMusic", "ButtonEffects"]],
-	["interface", "INTERFACE", ["ButtonHudLook"]],
+	["interface", "INTERFACE", ["ButtonUiScale", "ButtonHudLook"]],
 ]
 const TAB_HEIGHT = 64.0
 const ROW_HEIGHT = 80.0
@@ -46,15 +47,16 @@ var _was_paused: bool = false
 
 func _ready() -> void:
 	pause_mode = PAUSE_MODE_PROCESS
-	$Panel/Layout/Header/ButtonClose.connect("pressed", self, "close")
+	$Panel/Overflow/Layout/Header/ButtonClose.connect("pressed", self, "close")
 	for category in CATEGORIES:
 		var button := Button.new()
 		button.name = "Tab_" + category[0]
+		button.theme_type_variation = "TabButton"
 		button.focus_mode = Control.FOCUS_NONE
 		button.rect_min_size = Vector2(0, TAB_HEIGHT)
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		button.connect("pressed", self, "show_tab", [category[0]])
-		$Panel/Layout/Tabs.add_child(button)
+		$Panel/Overflow/Layout/Tabs.add_child(button)
 		for index in range(category[2].size()):
 			_add_row(category[2][index], index)
 	show_tab(tab)
@@ -100,10 +102,10 @@ func show_tab(which: String) -> void:
 	tab = which
 	for category in CATEGORIES:
 		var here: bool = category[0] == tab
-		$Panel/Layout/Tabs.get_node("Tab_" + category[0]).text = ("[%s]" if here else "%s") % category[1]
+		$Panel/Overflow/Layout/Tabs.get_node("Tab_" + category[0]).text = ("[%s]" if here else "%s") % category[1]
 		for name in category[2]:
-			$Panel/Layout/Scroll/List.get_node(name).visible = here
-	$Panel/Layout/Scroll.scroll_vertical = 0
+			$Panel/Overflow/Layout/Scroll/List.get_node(name).visible = here
+	$Panel/Overflow/Layout/Scroll.scroll_vertical = 0
 
 
 # The category an option's row is in ("" for none).
@@ -145,12 +147,12 @@ func _add_row(name: String, index: int) -> void:
 			label.align = Label.ALIGN_RIGHT
 		row.add_child(label)
 	button.add_child(row)
-	$Panel/Layout/Scroll/List.add_child(button)
+	$Panel/Overflow/Layout/Scroll/List.add_child(button)
 
 
 func _refresh() -> void:
 	for name in OPTIONS:
-		var label: Label = get_node_or_null("Panel/Layout/Scroll/List/%s/Row/Value" % name)
+		var label: Label = get_node_or_null("Panel/Overflow/Layout/Scroll/List/%s/Row/Value" % name)
 		if label != null:
 			var key: String = OPTIONS[name][0]
 			if key == "hud_preset":
@@ -162,7 +164,7 @@ func _refresh() -> void:
 
 # "NAME: VALUE" of a row, as shown.
 func row_text(name: String) -> String:
-	var row: Node = get_node("Panel/Layout/Scroll/List/%s/Row" % name)
+	var row: Node = get_node("Panel/Overflow/Layout/Scroll/List/%s/Row" % name)
 	return "%s: %s" % [row.get_node("Name").text, row.get_node("Value").text]
 
 

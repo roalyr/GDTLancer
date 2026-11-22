@@ -18,6 +18,7 @@ script = ExtResource( 1 )
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_top = 12.0
+grow_horizontal = 2
 mouse_filter = 2
 custom_constants/separation = 6
 
@@ -33,6 +34,7 @@ margin_right = 200.0
 margin_bottom = 40.0
 theme_type_variation = "LargeLabel"
 text = "TARGET"
+clip_text = true
 
 [node name="Distance" type="Label" parent="Layout/TargetRow"]
 margin_right = 80.0

@@ -151,7 +151,7 @@ func test_the_window_has_a_pilot_tab_of_public_facts():
 	add_child_autofree(window)
 	window.open(raider)
 	assert_eq(window.tab, "pilot", "Nothing to ask of a hostile: opens on its pilot")
-	var pilot = window.get_node("Center/Panel/Layout/Pilot")
+	var pilot = window.get_node("Center/Panel/Overflow/Layout/Pilot")
 	assert_true(pilot.visible)
 	assert_eq(pilot.get_node("Value_LEVEL").text, "REGULAR")
 	assert_string_contains(pilot.get_node("Value_WANTED_BY").text, "120 WP")
@@ -160,7 +160,7 @@ func test_the_window_has_a_pilot_tab_of_public_facts():
 		assert_false(str(row[0]) in ["WALLET", "SKILL", "JUDGEMENT"], "Nothing private")
 	window.show_tab("ask")
 	assert_false(pilot.visible)
-	assert_true(window.get_node("Center/Panel/Layout/Options").visible)
+	assert_true(window.get_node("Center/Panel/Overflow/Layout/Options").visible)
 	window.close()
 
 

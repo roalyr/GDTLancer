@@ -25,95 +25,104 @@ margin_top = 20.0
 margin_right = -20.0
 margin_bottom = -20.0
 
-[node name="Layout" type="VBoxContainer" parent="Panel"]
+[node name="Overflow" type="ScrollContainer" parent="Panel"]
+theme_type_variation = "OverflowScroll"
+scroll_horizontal_enabled = false
+
+[node name="Layout" type="VBoxContainer" parent="Panel/Overflow"]
+size_flags_horizontal = 3
+size_flags_vertical = 3
 custom_constants/separation = 16
 
-[node name="Header" type="HBoxContainer" parent="Panel/Layout"]
+[node name="Header" type="HBoxContainer" parent="Panel/Overflow/Layout"]
 custom_constants/separation = 16
 
-[node name="Title" type="Label" parent="Panel/Layout/Header"]
+[node name="Title" type="Label" parent="Panel/Overflow/Layout/Header"]
 size_flags_horizontal = 3
 size_flags_vertical = 4
 text = "MAP"
-clip_text = true
+autowrap = true
 theme_type_variation = "TitleLabel"
 
-[node name="TabSector" type="Button" parent="Panel/Layout/Header"]
+[node name="TabSector" type="Button" parent="Panel/Overflow/Layout/Header"]
+theme_type_variation = "TabButton"
 rect_min_size = Vector2( 200, 64 )
 focus_mode = 0
 text = "[SECTOR]"
 
-[node name="TabGlobal" type="Button" parent="Panel/Layout/Header"]
+[node name="TabGlobal" type="Button" parent="Panel/Overflow/Layout/Header"]
+theme_type_variation = "TabButton"
 rect_min_size = Vector2( 200, 64 )
 focus_mode = 0
 text = "GLOBAL"
 
-[node name="ButtonClose" type="Button" parent="Panel/Layout/Header"]
+[node name="ButtonClose" type="Button" parent="Panel/Overflow/Layout/Header"]
 rect_min_size = Vector2( 160, 64 )
 focus_mode = 0
 text = "CLOSE"
 
-[node name="Body" type="HBoxContainer" parent="Panel/Layout"]
+[node name="Body" type="HBoxContainer" parent="Panel/Overflow/Layout"]
 size_flags_vertical = 3
 custom_constants/separation = 16
 
-[node name="View" type="Control" parent="Panel/Layout/Body"]
+[node name="View" type="Control" parent="Panel/Overflow/Layout/Body"]
+rect_min_size = Vector2( 0, 320 )
 size_flags_horizontal = 3
 size_flags_vertical = 3
 script = ExtResource( 3 )
 
-[node name="Side" type="VBoxContainer" parent="Panel/Layout/Body"]
+[node name="Side" type="VBoxContainer" parent="Panel/Overflow/Layout/Body"]
 rect_min_size = Vector2( 340, 0 )
 custom_constants/separation = 8
 
-[node name="Filters" type="ScrollContainer" parent="Panel/Layout/Body/Side"]
+[node name="Filters" type="ScrollContainer" parent="Panel/Overflow/Layout/Body/Side"]
 size_flags_vertical = 3
 scroll_horizontal_enabled = false
 
-[node name="List" type="VBoxContainer" parent="Panel/Layout/Body/Side/Filters"]
+[node name="List" type="VBoxContainer" parent="Panel/Overflow/Layout/Body/Side/Filters"]
 size_flags_horizontal = 3
 custom_constants/separation = 4
 
-[node name="Zoom" type="HBoxContainer" parent="Panel/Layout/Body/Side"]
+[node name="Zoom" type="HBoxContainer" parent="Panel/Overflow/Layout/Body/Side"]
 custom_constants/separation = 8
 
-[node name="ButtonZoomIn" type="Button" parent="Panel/Layout/Body/Side/Zoom"]
+[node name="ButtonZoomIn" type="Button" parent="Panel/Overflow/Layout/Body/Side/Zoom"]
 theme_type_variation = "SymbolButton"
 rect_min_size = Vector2( 0, 56 )
 focus_mode = 0
 size_flags_horizontal = 3
 text = "+"
 
-[node name="ButtonZoomOut" type="Button" parent="Panel/Layout/Body/Side/Zoom"]
+[node name="ButtonZoomOut" type="Button" parent="Panel/Overflow/Layout/Body/Side/Zoom"]
 theme_type_variation = "SymbolButton"
 rect_min_size = Vector2( 0, 56 )
 focus_mode = 0
 size_flags_horizontal = 3
 text = "−"
 
-[node name="ButtonFit" type="Button" parent="Panel/Layout/Body/Side/Zoom"]
+[node name="ButtonFit" type="Button" parent="Panel/Overflow/Layout/Body/Side/Zoom"]
 rect_min_size = Vector2( 0, 56 )
 focus_mode = 0
 size_flags_horizontal = 3
 text = "FIT"
 
-[node name="ButtonCentre" type="Button" parent="Panel/Layout/Body/Side"]
+[node name="ButtonCentre" type="Button" parent="Panel/Overflow/Layout/Body/Side"]
 rect_min_size = Vector2( 0, 56 )
 focus_mode = 0
 text = "CENTRE ON SHIP"
 
-[node name="Info" type="Label" parent="Panel/Layout/Body/Side"]
+[node name="Info" type="Label" parent="Panel/Overflow/Layout/Body/Side"]
 rect_min_size = Vector2( 0, 110 )
 autowrap = true
 text = "TAP A THING TO SEE IT."
 
-[node name="ButtonTarget" type="Button" parent="Panel/Layout/Body/Side"]
+[node name="ButtonTarget" type="Button" parent="Panel/Overflow/Layout/Body/Side"]
 visible = false
 rect_min_size = Vector2( 0, 56 )
 focus_mode = 0
 text = "TARGET"
 
-[node name="Note" type="Label" parent="Panel/Layout"]
+[node name="Note" type="Label" parent="Panel/Overflow/Layout"]
 theme_type_variation = "NoteLabel"
 autowrap = true
 text = "THE GAME IS PAUSED WHILE THIS IS OPEN. DRAG TO MOVE, WHEEL OR + AND − TO ZOOM, TAP TO PICK."

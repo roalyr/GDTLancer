@@ -329,7 +329,7 @@ func test_station_window_menu_button_opens_the_main_menu():
 	var window = load("res://scenes/ui/menus/fitting_window.tscn").instance()
 	add_child_autofree(window)
 	watch_signals(EventBus)
-	window.get_node("Panel/Layout/Header/ButtonMenu").emit_signal("pressed")
+	window.get_node("Panel/Overflow/Layout/Header/ButtonMenu").emit_signal("pressed")
 	assert_signal_emitted(EventBus, "main_menu_requested")
 
 
@@ -340,7 +340,7 @@ func test_station_window_is_shown_while_docked_at_home():
 	EventBus.emit_signal("player_docked", "home")
 	yield(get_tree(), "idle_frame")
 	assert_true(window.visible, "Docking at home shows the station window")
-	assert_string_starts_with(window.get_node("Panel/Layout/Header/Title").text, "DOCKED AT", "and says where the ship is docked.")
+	assert_string_starts_with(window.get_node("Panel/Overflow/Layout/Header/Title").text, "DOCKED AT", "and says where the ship is docked.")
 	EventBus.emit_signal("player_undocked")
 	GameState.player_docked_at = ""
 	assert_false(window.visible, "Undocking hides it.")
@@ -357,7 +357,7 @@ func test_station_window_is_shown_while_docked_at_home():
 	assert_true(window.visible, "Other stations open it too, to sell the hold,")
 	assert_eq(window._tab, "cargo", "on the cargo tab only")
 	assert_false(window._slots.get_parent().visible, "with no refitting,")
-	assert_false(window.get_node("Panel/Layout/Header/TabFitting").visible, "and no views to pick.")
+	assert_false(window.get_node("Panel/Overflow/Layout/Header/TabFitting").visible, "and no views to pick.")
 	GlobalRefs.player_agent_body = null
 
 
@@ -376,12 +376,12 @@ func test_the_station_window_has_a_fitting_and_a_market_view():
 	assert_false(store_column.visible, "and no store")
 	assert_gt(window._stats.get_node("Ship").get_child_count(), 0, "The ship's numbers")
 	assert_eq(window._ship_preview.ship_id, GameState.player_ship_template_id, "and its hull, turning")
-	window.get_node("Panel/Layout/Header/TabMarket").emit_signal("pressed")
+	window.get_node("Panel/Overflow/Layout/Header/TabMarket").emit_signal("pressed")
 	assert_eq(window.view, window.MARKET)
 	assert_true(storage_column.visible and store_column.visible, "MARKET: storage beside the store")
 	assert_false(ship_column.visible, "and no ship column")
-	assert_eq(window.get_node("Panel/Layout/Header/TabMarket").text, "[MARKET]")
-	window.get_node("Panel/Layout/Header/TabFitting").emit_signal("pressed")
+	assert_eq(window.get_node("Panel/Overflow/Layout/Header/TabMarket").text, "[MARKET]")
+	window.get_node("Panel/Overflow/Layout/Header/TabFitting").emit_signal("pressed")
 	assert_true(ship_column.visible, "and back")
 	GameState.player_docked_at = ""
 	GlobalRefs.player_agent_body = null
@@ -449,7 +449,7 @@ func test_the_home_port_sells_its_goods_and_fuel_not_ore():
 func test_the_hull_preview_renders_only_while_seen():
 	var window = load("res://scenes/ui/menus/fitting_window.tscn").instance()
 	add_child_autofree(window)
-	var preview = window.get_node("Panel/Layout/Body/Content/Columns/Store/HullPreview")
+	var preview = window.get_node("Panel/Overflow/Layout/Body/Content/Columns/Store/HullPreview")
 	var viewport: Viewport = preview.get_node("Viewport")
 	assert_false(window.visible)
 	assert_eq(viewport.render_target_update_mode, Viewport.UPDATE_DISABLED, "Window closed: not rendered")

@@ -1,4 +1,4 @@
-[gd_resource type="Theme" load_steps=22 format=2]
+[gd_resource type="Theme" load_steps=24 format=2]
 
 [ext_resource path="res://assets/art/ui/controls/slider_vert.png" type="Texture" id=1]
 [ext_resource path="res://assets/art/ui/controls/slider_tick.png" type="Texture" id=2]
@@ -21,6 +21,8 @@
 [ext_resource path="res://assets/themes/style_menu_background.tres" type="StyleBox" id=19]
 [ext_resource path="res://assets/themes/font_medium.tres" type="DynamicFont" id=20]
 [ext_resource path="res://assets/themes/font_large.tres" type="DynamicFont" id=21]
+[ext_resource path="res://assets/themes/style_scroll_area.tres" type="StyleBox" id=22]
+[ext_resource path="res://assets/themes/style_tab_button.tres" type="StyleBox" id=23]
 
 [resource]
 default_font = ExtResource( 3 )
@@ -46,6 +48,7 @@ Label/fonts/font = ExtResource( 3 )
 Panel/styles/panel = ExtResource( 15 )
 PanelContainer/styles/panel = ExtResource( 15 )
 RichTextLabel/fonts/normal_font = ExtResource( 3 )
+ScrollContainer/styles/bg = ExtResource( 22 )
 TabContainer/fonts/font = ExtResource( 3 )
 VScrollBar/styles/grabber = ExtResource( 10 )
 VScrollBar/styles/grabber_highlight = ExtResource( 11 )
@@ -118,3 +121,11 @@ SymbolButton/base_type = "Button"
 SymbolButton/fonts/font = ExtResource( 6 )
 TitleLabel/base_type = "Label"
 TitleLabel/fonts/font = ExtResource( 21 )
+OverflowScroll/base_type = "ScrollContainer"
+OverflowScroll/styles/bg = ExtResource( 9 )
+TabButton/base_type = "Button"
+TabButton/styles/disabled = ExtResource( 23 )
+TabButton/styles/focus = ExtResource( 9 )
+TabButton/styles/hover = ExtResource( 23 )
+TabButton/styles/normal = ExtResource( 23 )
+TabButton/styles/pressed = ExtResource( 23 )

@@ -1,7 +1,8 @@
 # InfoWindow: a read-only window over the HUD (ShipWindow, PilotWindow): a title, CLOSE, a summary
 # line and a scrolled list built of the fitting window's pieces (scenes/ui/menus/fitting/: heading,
 # row, note). Open, it pauses the game, as the options and interaction windows do; closing puts the
-# pause back as it was. A window fills the list in fill(); open() and refresh() rebuild it.
+# pause back as it was; like every window that pauses the game, it fills the screen. A window fills
+# the list in fill(); open() and refresh() rebuild it.
 
 extends Control
 
@@ -11,14 +12,14 @@ const NoteScene = preload("res://scenes/ui/menus/fitting/fitting_note.tscn")
 
 var _was_paused: bool = false
 
-onready var _title: Label = $Panel/Layout/Header/Title
-onready var _summary: Label = $Panel/Layout/Summary
-onready var _list: VBoxContainer = $Panel/Layout/Scroll/List
+onready var _title: Label = $Panel/Overflow/Layout/Header/Title
+onready var _summary: Label = $Panel/Overflow/Layout/Summary
+onready var _list: VBoxContainer = $Panel/Overflow/Layout/Scroll/List
 
 
 func _ready() -> void:
 	pause_mode = PAUSE_MODE_PROCESS
-	$Panel/Layout/Header/ButtonClose.connect("pressed", self, "close")
+	$Panel/Overflow/Layout/Header/ButtonClose.connect("pressed", self, "close")
 	EventBus.connect("player_docked", self, "_on_player_docked")
 
 
@@ -28,7 +29,7 @@ func open() -> void:
 		get_tree().paused = true
 		visible = true
 	refresh()
-	$Panel/Layout/Scroll.scroll_vertical = 0
+	$Panel/Overflow/Layout/Scroll.scroll_vertical = 0
 
 
 func close() -> void:

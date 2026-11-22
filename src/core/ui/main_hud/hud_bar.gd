@@ -3,7 +3,8 @@
 # `low_color`. With `flash_on_drop`, a fall turns the fill `flash_color` at once, cooling back to its
 # own colour over HUD_BAR_FLASH_TIME s (the player's hull: the moment of a hit). `lead` 0..1, if
 # set, is a first part in `lead_color` and `value` fills on after it (the cargo bar: fuel, then the
-# rest of the hold, then the empty space). Drawn, no textures; it takes no input.
+# rest of the hold, then the empty space). Drawn, no textures; it takes no input. Its sizes
+# (bar_height, caption_width) are at UI scale 1.0 (UiScale).
 
 tool
 extends Control
@@ -73,19 +74,22 @@ func _set_color(new_color: Color) -> void:
 
 
 func _draw() -> void:
+	var scale: float = 1.0 if Engine.editor_hint else UiScale.layout_factor  # Sizes are at UI scale 1.0: the HUD's
+	var lettering: float = 1.0 if Engine.editor_hint else UiScale.factor  # The caption's room goes with its letters
+	var height: float = bar_height * scale
 	var font: Font = get_font("font", "Label")
 	var x: float = 0.0
 	if caption != "" and caption_width > 0.0:
 		var baseline: float = (rect_size.y + font.get_ascent() - font.get_descent()) * 0.5
 		draw_string(font, Vector2(0, baseline), caption, Color(1, 1, 1, color.a))
-		x = caption_width
+		x = caption_width * lettering
 	var width: float = max(0.0, rect_size.x - x)
-	var top: float = (rect_size.y - bar_height) * 0.5
+	var top: float = (rect_size.y - height) * 0.5
 	var lead_width: float = width * lead
-	var gap: float = LEAD_GAP if lead_width > 0.0 else 0.0  # Clear between the lead and the rest
+	var gap: float = LEAD_GAP * scale if lead_width > 0.0 else 0.0  # Clear between the lead and the rest
 	var rest: float = max(0.0, width - lead_width - gap)
-	draw_rect(Rect2(x, top, lead_width, bar_height), Color(1, 1, 1, 0.15))
-	draw_rect(Rect2(x + lead_width + gap, top, rest, bar_height), Color(1, 1, 1, 0.15))
+	draw_rect(Rect2(x, top, lead_width, height), Color(1, 1, 1, 0.15))
+	draw_rect(Rect2(x + lead_width + gap, top, rest, height), Color(1, 1, 1, 0.15))
 	if lead_width > 0.0:
-		draw_rect(Rect2(x, top, lead_width, bar_height), lead_color)
-	draw_rect(Rect2(x + lead_width + gap, top, min(width * value, rest), bar_height), fill_color())
+		draw_rect(Rect2(x, top, lead_width, height), lead_color)
+	draw_rect(Rect2(x + lead_width + gap, top, min(width * value, rest), height), fill_color())

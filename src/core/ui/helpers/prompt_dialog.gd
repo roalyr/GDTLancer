@@ -37,17 +37,17 @@ static func tell(parent: Node, title: String, text: String) -> Control:
 
 
 func build(title: String, text: String, choices: Array, vertical: bool = false) -> void:
-	$Center/Frame/Box/Title.text = title.to_upper()
-	$Center/Frame/Box/Text.text = text
-	$Center/Frame/Box/Text.visible = text != ""
-	var pattern: Button = $Center/Frame/Box/Choices/Choice
+	$Overflow/Center/Frame/Box/Title.text = title.to_upper()
+	$Overflow/Center/Frame/Box/Text.text = text
+	$Overflow/Center/Frame/Box/Text.visible = text != ""
+	var pattern: Button = $Overflow/Center/Frame/Box/Choices/Choice
 	var list: VBoxContainer = null
 	if vertical:
 		list = VBoxContainer.new()
 		list.name = "List"
 		list.mouse_filter = MOUSE_FILTER_IGNORE
 		list.add_constant_override("separation", 8)
-		$Center/Frame/Box.add_child_below_node($Center/Frame/Box/Text, list)
+		$Overflow/Center/Frame/Box.add_child_below_node($Overflow/Center/Frame/Box/Text, list)
 	for index in range(choices.size()):
 		var choice: Array = choices[index]
 		var button: Button = pattern.duplicate()
@@ -57,7 +57,7 @@ func build(title: String, text: String, choices: Array, vertical: bool = false) 
 		button.disabled = choice.size() > 2 and bool(choice[2])
 		button.connect("pressed", self, "_on_choice", [choice[0]])
 		if list != null and index < choices.size() - 1:
-			button.rect_min_size = Vector2(LIST_WIDTH, pattern.rect_min_size.y)
+			button.rect_min_size = Vector2(LIST_WIDTH, UiScale.base_of(pattern, "rect_min_size").y)  # At UI scale 1.0: UiScale scales it
 			button.clip_text = true
 			list.add_child(button)
 		else:

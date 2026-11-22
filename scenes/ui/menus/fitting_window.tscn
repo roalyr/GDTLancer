@@ -19,123 +19,136 @@ margin_top = 20.0
 margin_right = -20.0
 margin_bottom = -20.0
 
-[node name="Layout" type="VBoxContainer" parent="Panel"]
+[node name="Overflow" type="ScrollContainer" parent="Panel"]
+theme_type_variation = "OverflowScroll"
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 16.0
 margin_top = 16.0
 margin_right = -16.0
 margin_bottom = -16.0
+scroll_horizontal_enabled = false
+
+[node name="Layout" type="VBoxContainer" parent="Panel/Overflow"]
+size_flags_horizontal = 3
+size_flags_vertical = 3
 custom_constants/separation = 12
 
-[node name="Header" type="HBoxContainer" parent="Panel/Layout"]
+[node name="Header" type="HBoxContainer" parent="Panel/Overflow/Layout"]
 custom_constants/separation = 8
 
-[node name="ButtonMenu" type="Button" parent="Panel/Layout/Header"]
+[node name="ButtonMenu" type="Button" parent="Panel/Overflow/Layout/Header"]
+size_flags_vertical = 4
 rect_min_size = Vector2( 160, 64 )
 focus_mode = 0
 text = "MENU"
 
-[node name="TabFitting" type="Button" parent="Panel/Layout/Header"]
+[node name="TabFitting" type="Button" parent="Panel/Overflow/Layout/Header"]
+theme_type_variation = "TabButton"
+size_flags_vertical = 4
 rect_min_size = Vector2( 200, 64 )
 focus_mode = 0
 text = "[FITTING]"
 
-[node name="TabMarket" type="Button" parent="Panel/Layout/Header"]
+[node name="TabMarket" type="Button" parent="Panel/Overflow/Layout/Header"]
+theme_type_variation = "TabButton"
+size_flags_vertical = 4
 rect_min_size = Vector2( 200, 64 )
 focus_mode = 0
 text = "MARKET"
 
-[node name="Title" type="Label" parent="Panel/Layout/Header"]
+[node name="Title" type="Label" parent="Panel/Overflow/Layout/Header"]
 size_flags_horizontal = 3
 size_flags_vertical = 5
 text = "HOME STATION"
 valign = 1
+autowrap = true
 theme_type_variation = "TitleLabel"
 
-[node name="ButtonUndock" type="Button" parent="Panel/Layout/Header"]
+[node name="ButtonUndock" type="Button" parent="Panel/Overflow/Layout/Header"]
+size_flags_vertical = 4
 rect_min_size = Vector2( 160, 64 )
 focus_mode = 0
 text = "UNDOCK"
 
-[node name="Body" type="Control" parent="Panel/Layout"]
+[node name="Body" type="MarginContainer" parent="Panel/Overflow/Layout"]
 size_flags_vertical = 3
+custom_constants/margin_right = 16
+custom_constants/margin_top = 16
+custom_constants/margin_left = 16
+custom_constants/margin_bottom = 16
 
-[node name="Content" type="VBoxContainer" parent="Panel/Layout/Body"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = 16.0
-margin_top = 16.0
-margin_right = -16.0
-margin_bottom = -16.0
+[node name="Content" type="VBoxContainer" parent="Panel/Overflow/Layout/Body"]
 custom_constants/separation = 14
 
-[node name="Columns" type="HBoxContainer" parent="Panel/Layout/Body/Content"]
+[node name="Columns" type="HBoxContainer" parent="Panel/Overflow/Layout/Body/Content"]
 size_flags_vertical = 3
 custom_constants/separation = 24
 
-[node name="Ship" type="VBoxContainer" parent="Panel/Layout/Body/Content/Columns"]
+[node name="Ship" type="VBoxContainer" parent="Panel/Overflow/Layout/Body/Content/Columns"]
 size_flags_horizontal = 3
 custom_constants/separation = 8
 
-[node name="Title" type="Label" parent="Panel/Layout/Body/Content/Columns/Ship"]
+[node name="Title" type="Label" parent="Panel/Overflow/Layout/Body/Content/Columns/Ship"]
 theme_type_variation = "HeadingLabel"
 text = "SHIP - tap a slot to unfit"
 
-[node name="Stats" type="VBoxContainer" parent="Panel/Layout/Body/Content/Columns/Ship"]
+[node name="Stats" type="VBoxContainer" parent="Panel/Overflow/Layout/Body/Content/Columns/Ship"]
 custom_constants/separation = 4
 
-[node name="Ship" type="GridContainer" parent="Panel/Layout/Body/Content/Columns/Ship/Stats"]
+[node name="Ship" type="GridContainer" parent="Panel/Overflow/Layout/Body/Content/Columns/Ship/Stats"]
 mouse_filter = 2
 custom_constants/vseparation = 6
 custom_constants/hseparation = 30
 columns = 6
 
-[node name="Power" type="GridContainer" parent="Panel/Layout/Body/Content/Columns/Ship/Stats"]
+[node name="Power" type="GridContainer" parent="Panel/Overflow/Layout/Body/Content/Columns/Ship/Stats"]
 mouse_filter = 2
 custom_constants/vseparation = 6
 custom_constants/hseparation = 30
 columns = 6
 
-[node name="ShipPreview" parent="Panel/Layout/Body/Content/Columns/Ship" instance=ExtResource( 3 )]
+[node name="ShipPreview" parent="Panel/Overflow/Layout/Body/Content/Columns/Ship" instance=ExtResource( 3 )]
 size_flags_vertical = 3
 
-[node name="List" type="VBoxContainer" parent="Panel/Layout/Body/Content/Columns/Ship"]
+[node name="List" type="VBoxContainer" parent="Panel/Overflow/Layout/Body/Content/Columns/Ship"]
 
-[node name="Storage" type="VBoxContainer" parent="Panel/Layout/Body/Content/Columns"]
+[node name="Storage" type="VBoxContainer" parent="Panel/Overflow/Layout/Body/Content/Columns"]
 size_flags_horizontal = 3
 
-[node name="Title" type="Label" parent="Panel/Layout/Body/Content/Columns/Storage"]
+[node name="Title" type="Label" parent="Panel/Overflow/Layout/Body/Content/Columns/Storage"]
 theme_type_variation = "HeadingLabel"
 text = "STORAGE - fit or sell"
 
-[node name="Scroll" type="ScrollContainer" parent="Panel/Layout/Body/Content/Columns/Storage"]
+[node name="Scroll" type="ScrollContainer" parent="Panel/Overflow/Layout/Body/Content/Columns/Storage"]
+rect_min_size = Vector2( 0, 240 )
 size_flags_vertical = 3
 scroll_horizontal_enabled = false
 
-[node name="List" type="VBoxContainer" parent="Panel/Layout/Body/Content/Columns/Storage/Scroll"]
+[node name="List" type="VBoxContainer" parent="Panel/Overflow/Layout/Body/Content/Columns/Storage/Scroll"]
 size_flags_horizontal = 3
 
-[node name="Store" type="VBoxContainer" parent="Panel/Layout/Body/Content/Columns"]
+[node name="Store" type="VBoxContainer" parent="Panel/Overflow/Layout/Body/Content/Columns"]
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 2.0
 
-[node name="Title" type="Label" parent="Panel/Layout/Body/Content/Columns/Store"]
+[node name="Title" type="Label" parent="Panel/Overflow/Layout/Body/Content/Columns/Store"]
 theme_type_variation = "HeadingLabel"
 text = "STORE"
 
-[node name="Tabs" type="HBoxContainer" parent="Panel/Layout/Body/Content/Columns/Store"]
+[node name="Tabs" type="HBoxContainer" parent="Panel/Overflow/Layout/Body/Content/Columns/Store"]
 custom_constants/separation = 4
 
-[node name="HullPreview" parent="Panel/Layout/Body/Content/Columns/Store" instance=ExtResource( 3 )]
+[node name="HullPreview" parent="Panel/Overflow/Layout/Body/Content/Columns/Store" instance=ExtResource( 3 )]
 visible = false
 
-[node name="Scroll" type="ScrollContainer" parent="Panel/Layout/Body/Content/Columns/Store"]
+[node name="Scroll" type="ScrollContainer" parent="Panel/Overflow/Layout/Body/Content/Columns/Store"]
+rect_min_size = Vector2( 0, 240 )
 size_flags_vertical = 3
 scroll_horizontal_enabled = false
 
-[node name="List" type="VBoxContainer" parent="Panel/Layout/Body/Content/Columns/Store/Scroll"]
+[node name="List" type="VBoxContainer" parent="Panel/Overflow/Layout/Body/Content/Columns/Store/Scroll"]
 size_flags_horizontal = 3
 
-[node name="Status" type="Label" parent="Panel/Layout/Body/Content"]
+[node name="Status" type="Label" parent="Panel/Overflow/Layout/Body/Content"]
 autowrap = true

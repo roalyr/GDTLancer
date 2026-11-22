@@ -20,6 +20,9 @@
 #                          light their surroundings at once (Constants.DYNAMIC_LIGHTS_LEVELS, _CAPS)
 #   "autolevel"    (bool)  MovementSystem: the player's ship slowly rolls about its nose until its up is
 #                          as near the world's up as the heading allows
+#   "ui_scale"     (float) UiScale: lettering, buttons and the HUD this many times their size
+#                          (Constants.UI_SCALE_STEPS, x0.5-x1.5; 1.0 for a 12" 1366x768, more for
+#                          denser screens, less for large monitors)
 #   "tether_rope"  (String) Tether: "complex" simulates near cables, "simple" draws a straight line
 #                          (Constants.TETHER_ROPE_STYLES)
 # The file is read only by load_file() (the main scene's start), and written only after it: tests
@@ -28,6 +31,7 @@
 extends Node
 
 signal changed(key, value)
+signal loaded  # load_file() read the player's options (UiScale takes its factor from them)
 
 const PATH = "user://settings.cfg"
 const SECTION = "options"
@@ -46,6 +50,7 @@ const DEFAULTS = {
 	"tether_rope": "complex",
 	"dynamic_lights": "all",
 	"autolevel": true,
+	"ui_scale": 1.0,
 }
 
 
@@ -55,6 +60,7 @@ func light_caps() -> Array:
 
 var _values: Dictionary = DEFAULTS.duplicate()
 var _persist: bool = false  # Set by load_file()
+var _saved: Dictionary = {}  # Keys the file had when load_file() read it
 var use_file: bool = true  # False (the tests): load_file() reads and keeps nothing
 
 
@@ -78,12 +84,18 @@ func load_file() -> void:
 		return
 	_persist = true
 	var config := ConfigFile.new()
-	if config.load(PATH) != OK:
-		return
-	for key in DEFAULTS:
-		var value = config.get_value(SECTION, key, DEFAULTS[key])
-		if typeof(value) == typeof(DEFAULTS[key]) or (typeof(DEFAULTS[key]) == TYPE_REAL and typeof(value) == TYPE_INT):
-			_values[key] = value
+	if config.load(PATH) == OK:
+		for key in DEFAULTS:
+			var value = config.get_value(SECTION, key, DEFAULTS[key])
+			if typeof(value) == typeof(DEFAULTS[key]) or (typeof(DEFAULTS[key]) == TYPE_REAL and typeof(value) == TYPE_INT):
+				_values[key] = value
+				_saved[key] = true
+	emit_signal("loaded")
+
+
+# Whether the player's file had this option (else it is at its default, never chosen).
+func is_saved(key: String) -> bool:
+	return _saved.has(key)
 
 
 func save_file() -> void:

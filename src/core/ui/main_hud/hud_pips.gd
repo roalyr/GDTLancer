@@ -26,14 +26,17 @@ func set_counts(seen: int, hostile: int, new_hostile_color: Color) -> void:
 
 
 func _draw() -> void:
+	var scale: float = UiScale.layout_factor  # Sizes are at UI scale 1.0: the HUD's
+	var size: float = size_px * scale
+	var step: float = (size_px + gap) * scale
 	var shown: int = int(min(counts[0], most))
-	var top: float = (rect_size.y - size_px) * 0.5
+	var top: float = (rect_size.y - size) * 0.5
 	for index in range(shown):
-		var box := Rect2(index * (size_px + gap), top, size_px, size_px)
+		var box := Rect2(index * step, top, size, size)
 		if index < counts[1]:
 			draw_rect(box, hostile_color)
 		else:
-			draw_rect(box, color, false, 1.5)
+			draw_rect(box, color, false, 1.5 * scale)
 	if counts[0] > most:
 		var font: Font = get_font("font", "Label")
-		draw_string(font, Vector2(shown * (size_px + gap), (rect_size.y + font.get_ascent() - font.get_descent()) * 0.5), "+", color)
+		draw_string(font, Vector2(shown * step, (rect_size.y + font.get_ascent() - font.get_descent()) * 0.5), "+", color)

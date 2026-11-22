@@ -16,35 +16,41 @@ anchor_bottom = 1.0
 mouse_filter = 2
 theme_type_variation = "Shade"
 
-[node name="Center" type="CenterContainer" parent="."]
+[node name="Overflow" type="ScrollContainer" parent="."]
+theme_type_variation = "OverflowScroll"
 anchor_right = 1.0
 anchor_bottom = 1.0
+scroll_horizontal_enabled = false
+
+[node name="Center" type="CenterContainer" parent="Overflow"]
+size_flags_horizontal = 3
+size_flags_vertical = 3
 mouse_filter = 2
 
-[node name="Frame" type="PanelContainer" parent="Center"]
+[node name="Frame" type="PanelContainer" parent="Overflow/Center"]
 mouse_filter = 2
 
-[node name="Box" type="VBoxContainer" parent="Center/Frame"]
+[node name="Box" type="VBoxContainer" parent="Overflow/Center/Frame"]
 mouse_filter = 2
 custom_constants/separation = 24
 
-[node name="Title" type="Label" parent="Center/Frame/Box"]
+[node name="Title" type="Label" parent="Overflow/Center/Frame/Box"]
 mouse_filter = 2
 theme_type_variation = "TitleLabel"
 align = 1
 
-[node name="Text" type="Label" parent="Center/Frame/Box"]
+[node name="Text" type="Label" parent="Overflow/Center/Frame/Box"]
 rect_min_size = Vector2( 640, 0 )
 mouse_filter = 2
 align = 1
 autowrap = true
 
-[node name="Choices" type="HBoxContainer" parent="Center/Frame/Box"]
+[node name="Choices" type="HBoxContainer" parent="Overflow/Center/Frame/Box"]
 mouse_filter = 2
 custom_constants/separation = 16
 alignment = 1
 
-[node name="Choice" type="Button" parent="Center/Frame/Box/Choices"]
+[node name="Choice" type="Button" parent="Overflow/Center/Frame/Box/Choices"]
 visible = false
 rect_min_size = Vector2( 300, 84 )
 theme_type_variation = "LargeButton"

@@ -7,7 +7,7 @@ const PromptDialog = preload("res://src/core/ui/helpers/prompt_dialog.gd")
 
 func _choices(prompt: Node) -> Array:
 	var found: Array = []
-	for button in prompt.get_node("Center/Frame/Box/Choices").get_children():
+	for button in prompt.get_node("Overflow/Center/Frame/Box/Choices").get_children():
 		if button.visible:
 			found.append(button)
 	return found
@@ -16,8 +16,8 @@ func _choices(prompt: Node) -> Array:
 func test_a_prompt_shows_its_text_and_answers_and_says_which_was_chosen():
 	var holder = add_child_autofree(Control.new())
 	var prompt = PromptDialog.ask(holder, "Save before exiting?", "UNSAVED PLAY IS LOST.", [["save", "Save and exit"], ["exit", "Exit"], ["cancel", "Cancel"]])
-	assert_eq(prompt.get_node("Center/Frame/Box/Title").text, "SAVE BEFORE EXITING?")
-	assert_eq(prompt.get_node("Center/Frame/Box/Text").text, "UNSAVED PLAY IS LOST.")
+	assert_eq(prompt.get_node("Overflow/Center/Frame/Box/Title").text, "SAVE BEFORE EXITING?")
+	assert_eq(prompt.get_node("Overflow/Center/Frame/Box/Text").text, "UNSAVED PLAY IS LOST.")
 	var buttons: Array = _choices(prompt)
 	assert_eq(buttons.size(), 3)
 	assert_eq(buttons[0].text, "SAVE AND EXIT", "In the HUD's capitals")

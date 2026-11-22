@@ -32,7 +32,7 @@ func test_buttons_step_their_options():
 	window.step("particles")
 	assert_false(Settings.get_option("particles"))
 	assert_eq(window.row_text("ButtonParticles"), "PARTICLES: OFF")
-	var value: Label = window.get_node("Panel/Layout/Scroll/List/ButtonParticles/Row/Value")
+	var value: Label = window.get_node("Panel/Overflow/Layout/Scroll/List/ButtonParticles/Row/Value")
 	assert_eq(value.theme_type_variation, "LargeOffLabel", "OFF reads grey")
 	window.step("particles")
 	assert_eq(value.theme_type_variation, "LargeValueLabel", "and ON yellow")
@@ -57,9 +57,9 @@ func test_every_option_is_in_one_tab_and_tabs_show_their_own():
 	for name in window.OPTIONS:
 		assert_true(seen.has(name), name + " has a tab")
 	window.show_tab("sound")
-	assert_true(window.get_node("Panel/Layout/Scroll/List/ButtonMusic").visible, "SOUND shows the music")
-	assert_false(window.get_node("Panel/Layout/Scroll/List/ButtonParticles").visible, "and not the particles")
-	assert_eq(window.get_node("Panel/Layout/Tabs/Tab_sound").text, "[SOUND]")
+	assert_true(window.get_node("Panel/Overflow/Layout/Scroll/List/ButtonMusic").visible, "SOUND shows the music")
+	assert_false(window.get_node("Panel/Overflow/Layout/Scroll/List/ButtonParticles").visible, "and not the particles")
+	assert_eq(window.get_node("Panel/Overflow/Layout/Tabs/Tab_sound").text, "[SOUND]")
 	assert_eq(window.row_text("ButtonHudLook"), "HUD LOOK: NORMAL", "The standard look reads NORMAL")
 
 

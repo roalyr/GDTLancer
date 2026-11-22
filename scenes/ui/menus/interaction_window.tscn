@@ -16,83 +16,96 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 theme_type_variation = "Shade"
 
-[node name="Center" type="CenterContainer" parent="."]
+[node name="Center" type="Control" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
 
 [node name="Panel" type="PanelContainer" parent="Center"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 20.0
+margin_top = 20.0
+margin_right = -20.0
+margin_bottom = -20.0
 
-[node name="Layout" type="VBoxContainer" parent="Center/Panel"]
-rect_min_size = Vector2( 640, 0 )
+[node name="Overflow" type="ScrollContainer" parent="Center/Panel"]
+theme_type_variation = "OverflowScroll"
+scroll_horizontal_enabled = false
+
+[node name="Layout" type="VBoxContainer" parent="Center/Panel/Overflow"]
+size_flags_horizontal = 3
+size_flags_vertical = 3
 custom_constants/separation = 16
 
-[node name="Header" type="HBoxContainer" parent="Center/Panel/Layout"]
+[node name="Header" type="HBoxContainer" parent="Center/Panel/Overflow/Layout"]
 custom_constants/separation = 16
 
-[node name="Title" type="Label" parent="Center/Panel/Layout/Header"]
+[node name="Title" type="Label" parent="Center/Panel/Overflow/Layout/Header"]
 size_flags_horizontal = 3
 size_flags_vertical = 4
 text = "INTERACT"
 autowrap = true
 theme_type_variation = "TitleLabel"
 
-[node name="ButtonClose" type="Button" parent="Center/Panel/Layout/Header"]
+[node name="ButtonClose" type="Button" parent="Center/Panel/Overflow/Layout/Header"]
 rect_min_size = Vector2( 160, 64 )
 focus_mode = 0
 text = "CLOSE"
 
-[node name="Tabs" type="HBoxContainer" parent="Center/Panel/Layout"]
+[node name="Tabs" type="HBoxContainer" parent="Center/Panel/Overflow/Layout"]
 custom_constants/separation = 8
 
-[node name="ButtonAsk" type="Button" parent="Center/Panel/Layout/Tabs"]
+[node name="ButtonAsk" type="Button" parent="Center/Panel/Overflow/Layout/Tabs"]
 rect_min_size = Vector2( 0, 64 )
 focus_mode = 0
 size_flags_horizontal = 3
 text = "ASK"
 
-[node name="ButtonPilot" type="Button" parent="Center/Panel/Layout/Tabs"]
+[node name="ButtonPilot" type="Button" parent="Center/Panel/Overflow/Layout/Tabs"]
 rect_min_size = Vector2( 0, 64 )
 focus_mode = 0
 size_flags_horizontal = 3
 text = "PILOT"
 
-[node name="Side" type="Label" parent="Center/Panel/Layout"]
+[node name="Side" type="Label" parent="Center/Panel/Overflow/Layout"]
 theme_type_variation = "NoteLabel"
 text = "ALLIED"
 
-[node name="Options" type="VBoxContainer" parent="Center/Panel/Layout"]
+[node name="Options" type="VBoxContainer" parent="Center/Panel/Overflow/Layout"]
+size_flags_vertical = 3
 custom_constants/separation = 8
 
-[node name="Option" type="Button" parent="Center/Panel/Layout/Options"]
+[node name="Option" type="Button" parent="Center/Panel/Overflow/Layout/Options"]
 visible = false
 rect_min_size = Vector2( 0, 64 )
 focus_mode = 0
 text = "OPTION: OFF"
 
-[node name="OptionNote" type="Label" parent="Center/Panel/Layout/Options"]
+[node name="OptionNote" type="Label" parent="Center/Panel/Overflow/Layout/Options"]
 visible = false
 theme_type_variation = "NoteLabel"
 autowrap = true
 
-[node name="Pilot" type="GridContainer" parent="Center/Panel/Layout"]
+[node name="Pilot" type="GridContainer" parent="Center/Panel/Overflow/Layout"]
 visible = false
+size_flags_vertical = 3
 custom_constants/vseparation = 8
 custom_constants/hseparation = 24
 columns = 2
 
-[node name="Key" type="Label" parent="Center/Panel/Layout/Pilot"]
+[node name="Key" type="Label" parent="Center/Panel/Overflow/Layout/Pilot"]
 visible = false
 theme_type_variation = "NoteLabel"
 text = "KEY"
 
-[node name="Value" type="Label" parent="Center/Panel/Layout/Pilot"]
+[node name="Value" type="Label" parent="Center/Panel/Overflow/Layout/Pilot"]
 visible = false
 size_flags_horizontal = 3
 autowrap = true
 text = "VALUE"
 
-[node name="Note" type="Label" parent="Center/Panel/Layout"]
+[node name="Note" type="Label" parent="Center/Panel/Overflow/Layout"]
 theme_type_variation = "NoteLabel"
 autowrap = true
 text = "THE GAME IS PAUSED WHILE THIS IS OPEN. TAP AN OPTION TO ASK IT, AGAIN TO END IT."

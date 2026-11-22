@@ -131,11 +131,11 @@ func test_the_one_save_from_before_the_slots_is_kept_in_slot_1():
 func test_a_list_prompt_greys_out_what_cannot_be_picked():
 	var PromptDialog = load("res://src/core/ui/helpers/prompt_dialog.gd")
 	var prompt = PromptDialog.ask_list(self, "Load game", "", [["0", "AUTOSAVE: EMPTY", true], ["1", "SLOT 1 · COB"], ["cancel", "CANCEL"]])
-	var list: Node = prompt.get_node("Center/Frame/Box/List")
+	var list: Node = prompt.get_node("Overflow/Center/Frame/Box/List")
 	assert_eq(list.get_child_count(), 2, "The slots one under another")
 	assert_true(list.get_node("Choice_0").disabled, "An empty slot: shown, not pickable")
 	assert_false(list.get_node("Choice_1").disabled)
-	assert_not_null(prompt.get_node("Center/Frame/Box/Choices/Choice_cancel"), "Cancel in the row below")
+	assert_not_null(prompt.get_node("Overflow/Center/Frame/Box/Choices/Choice_cancel"), "Cancel in the row below")
 	prompt.free()
 
 

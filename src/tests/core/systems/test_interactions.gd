@@ -177,7 +177,7 @@ func test_the_window_lists_the_options_as_toggles():
 	add_child_autofree(window)
 	window.open(fighter)
 	assert_true(get_tree().paused, "Paused while open, as the options window")
-	var options = window.get_node("Center/Panel/Layout/Options")
+	var options = window.get_node("Center/Panel/Overflow/Layout/Options")
 	var hire: Button = options.get_node("Option_hire")
 	assert_eq(hire.text, "HIRE AS ESCORT: OFF")
 	hire.emit_signal("pressed")

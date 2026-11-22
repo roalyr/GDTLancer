@@ -17,68 +17,71 @@ anchor_bottom = 1.0
 theme_type_variation = "Shade"
 
 [node name="Panel" type="PanelContainer" parent="."]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -600.0
-margin_top = -480.0
-margin_right = 600.0
-margin_bottom = 480.0
-grow_horizontal = 2
-grow_vertical = 2
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 20.0
+margin_top = 20.0
+margin_right = -20.0
+margin_bottom = -20.0
 
-[node name="Layout" type="VBoxContainer" parent="Panel"]
+[node name="Overflow" type="ScrollContainer" parent="Panel"]
+theme_type_variation = "OverflowScroll"
+scroll_horizontal_enabled = false
+
+[node name="Layout" type="VBoxContainer" parent="Panel/Overflow"]
+size_flags_horizontal = 3
+size_flags_vertical = 3
 custom_constants/separation = 16
 
-[node name="Header" type="HBoxContainer" parent="Panel/Layout"]
+[node name="Header" type="HBoxContainer" parent="Panel/Overflow/Layout"]
 custom_constants/separation = 16
 
-[node name="Title" type="Label" parent="Panel/Layout/Header"]
+[node name="Title" type="Label" parent="Panel/Overflow/Layout/Header"]
 size_flags_horizontal = 3
 size_flags_vertical = 4
 text = "SHIP"
 autowrap = true
 theme_type_variation = "TitleLabel"
 
-[node name="ButtonClose" type="Button" parent="Panel/Layout/Header"]
+[node name="ButtonClose" type="Button" parent="Panel/Overflow/Layout/Header"]
 rect_min_size = Vector2( 160, 64 )
 focus_mode = 0
 text = "CLOSE"
 
-[node name="Summary" type="Label" parent="Panel/Layout"]
+[node name="Summary" type="Label" parent="Panel/Overflow/Layout"]
 visible = false
 autowrap = true
 
-[node name="Stats" type="VBoxContainer" parent="Panel/Layout"]
+[node name="Stats" type="VBoxContainer" parent="Panel/Overflow/Layout"]
 custom_constants/separation = 10
 
-[node name="Now" type="GridContainer" parent="Panel/Layout/Stats"]
+[node name="Now" type="GridContainer" parent="Panel/Overflow/Layout/Stats"]
 mouse_filter = 2
 custom_constants/vseparation = 6
 custom_constants/hseparation = 36
 columns = 6
 
-[node name="Ship" type="GridContainer" parent="Panel/Layout/Stats"]
+[node name="Ship" type="GridContainer" parent="Panel/Overflow/Layout/Stats"]
 mouse_filter = 2
 custom_constants/vseparation = 6
 custom_constants/hseparation = 36
 columns = 6
 
-[node name="Power" type="GridContainer" parent="Panel/Layout/Stats"]
+[node name="Power" type="GridContainer" parent="Panel/Overflow/Layout/Stats"]
 mouse_filter = 2
 custom_constants/vseparation = 6
 custom_constants/hseparation = 36
 columns = 6
 
-[node name="Scroll" type="ScrollContainer" parent="Panel/Layout"]
+[node name="Scroll" type="ScrollContainer" parent="Panel/Overflow/Layout"]
+rect_min_size = Vector2( 0, 240 )
 size_flags_vertical = 3
 scroll_horizontal_enabled = false
 
-[node name="List" type="VBoxContainer" parent="Panel/Layout/Scroll"]
+[node name="List" type="VBoxContainer" parent="Panel/Overflow/Layout/Scroll"]
 size_flags_horizontal = 3
 
-[node name="Note" type="Label" parent="Panel/Layout"]
+[node name="Note" type="Label" parent="Panel/Overflow/Layout"]
 theme_type_variation = "NoteLabel"
 autowrap = true
 text = "THE GAME IS PAUSED WHILE THIS IS OPEN."

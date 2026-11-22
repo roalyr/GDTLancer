@@ -35,6 +35,9 @@ func _ready() -> void:
 		btn_exit_game.connect("pressed", self, "_on_exit_game_pressed")
 	if is_instance_valid(btn_close) and not btn_close.is_connected("pressed", self, "_on_close_pressed"):
 		btn_close.connect("pressed", self, "_on_close_pressed")
+	UiScale.connect("changed", self, "_on_ui_scale_changed")
+	$ScreenControls.connect("resized", self, "fit_buttons")
+	call_deferred("fit_buttons")  # After UiScale scaled the menu as it came in
 	options_window = OptionsWindowScene.instance()
 	add_child(options_window)
 	if is_instance_valid(btn_settings):
@@ -202,6 +205,36 @@ func _update_load_button_state() -> void:
 		btn_load_game.disabled = not GameStateManager.has_any_save()
 	else:
 		btn_load_game.disabled = true
+
+
+# The row of big buttons at the menu's scale (its ScreenControls is a UiScale layout) while it fits
+# across the screen and between the title and the version and time lines; past that as large as
+# fits. Their words keep the UI scale.
+func fit_buttons() -> void:
+	var row: Control = $ScreenControls/MainButtonsHBoxContainer
+	if not row.has_meta(UiScale.BASE):
+		return  # Not yet scaled: UiScale's "changed" comes after
+	var scale: float = UiScale.layout_factor
+	var area: Vector2 = $ScreenControls.rect_size
+	var width: float = 0.0
+	var height: float = 0.0
+	for button in row.get_children():
+		var size: Vector2 = UiScale.base_of(button, "rect_min_size")
+		width += size.x
+		height = max(height, size.y)
+	width += UiScale.base_of(row, "separation") * max(0, row.get_child_count() - 1)
+	var side: float = UiScale.base_of($ScreenControls/VersionLabel, "margin_left") * scale  # The version line's margin
+	var top: float = UiScale.base_of($ScreenControls/TitleLabel, "margin_bottom") * scale + side  # Clear of the title
+	var fit: float = scale
+	if width > 0.0:
+		fit = min(fit, (area.x - 2.0 * side) / width)
+	if height > 0.0:
+		fit = min(fit, (area.y - 2.0 * top) / height)
+	UiScale.set_subtree_factor(row, max(fit, 0.25))
+
+
+func _on_ui_scale_changed(_factor: float) -> void:
+	fit_buttons()
 
 
 # Close and Save need a game running.

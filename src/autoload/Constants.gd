@@ -41,6 +41,8 @@ const HUD_BAR_FLASH_TIME = 0.8  # s the own hull bar takes to cool from red back
 const THREAT_REFRESH_INTERVAL = 0.27  # The threat ring's recheck of who is hostile (its marks move every frame). Max ~0.5
 const THREAT_WATCH_INTERVAL = 0.5  # ThreatWatch's looks (danger announcements). Max ~1
 const HUD_FPS_OFFSET = Vector2(8, 112)  # px from ScreenControls' top left (inside its screen margin) to the FPS readout: under the top left buttons (y 0-100), clear of them
+const HUD_SCALE_WIDTH = 1310.0  # px at UI scale 1.0 the HUD needs across: the two 375 px corner zones, the screen margins and the top strip's least width between them. UiScale holds the HUD's scale to what the screen's width fits of it (the lettering keeps the full UI scale)
+const HUD_CORNER_GAP = 20.0  # px at UI scale 1.0 between buttons of a corner group, and between the flight row and the corner groups when it is fitted between them
 const HUD_FPS_INTERVAL = 0.47  # The FPS readout (Settings show_fps). Max ~1
 const HUD_DEBUG_INTERVAL = 0.5  # The debug readout's text (its frame figures are per-second averages). Max ~1
 const VIEW_CHECK_INTERVAL = 0.29  # View band (detail level) checks per host (and at once when the field of view changes). Max ~0.5
@@ -1474,6 +1476,11 @@ const VOLUME_STEPS = [1.0, 0.75, 0.5, 0.25, 0.0]  # The music and effects volume
 # UI COLOURS
 # ==================================================================================================
 
+const UI_SCALE_STEPS = [1.0, 1.25, 1.5, 0.5, 0.6, 0.7, 0.8, 0.9]  # The UI SCALE option (UiScale) cycles through these: 1.0 for a 12" 1366x768, more for denser screens (phones), less for large desktop monitors
+const UI_SCALE_MIN = 0.5  # UiScale holds the factor between these
+const UI_SCALE_MAX = 1.5
+const UI_SCALE_BASE_HEIGHT_IN = 5.88  # Inches tall the 12" 1366x768 screen the UI is drawn for is (UiScale.auto_factor)
+const UI_SCALE_AUTO_MAX = 1.5  # The most a phone's first UI scale is (UiScale.auto_factor): a full match (about 2.2 on a 6" phone) crowds the HUD
 const RENDER_SCALE_STEPS = [1.0, 0.5, 0.25]  # Render resolution shares the HUD's render scale button cycles through
 
 # HUD announcements (Announcements): fading labels stacked up from ANNOUNCE_ANCHOR (share of the
@@ -1510,8 +1517,8 @@ const UI_UNAWARE_DIM = 0.55  # A live ship that has not detected the player show
 const UI_UNAWARE_ALPHA = 0.85  # and this opaque (its mark only: labels stay readable)
 const UI_CELESTIAL_ALPHA = 0.45  # Marks on rocks, planets and the like are this faint
 const UI_WORKED_OUT_ALPHA = 0.35  # A worked-out rock's mark, fainter still (times UI_CELESTIAL_ALPHA): no ore to lance
-# The HUD's looks (the HUD LOOK button, Settings "hud_preset"): `tint` multiplies the whole HUD
-# (grey: less contrast against space), `saturation` grades the marks' colours (1 as they are, 0 grey).
+# The HUD's looks (the HUD LOOK button, Settings "hud_preset"): `tint` multiplies the HUD's own
+# parts, not its windows nor prompts (grey: less contrast against space), `saturation` grades the marks' colours (1 as they are, 0 grey).
 const HUD_PRESETS = {
 	"standard": {"tint": Color(1, 1, 1), "saturation": 1.0, "alpha": 1.0, "label": "normal"},
 	"soft": {"tint": Color(0.62, 0.62, 0.64), "saturation": 0.45, "alpha": 1.0},

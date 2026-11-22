@@ -388,7 +388,10 @@ To give a sector its music (a new one or an existing one):
   | Symbols (+, -) | `SymbolButton` | font_menu, 50 |
   | Main menu | `MenuTitleLabel`, `MenuLabel` | font_menu_title 100, font_menu 50 |
 
+  Backgrounds: every `ScrollContainer` is a shade lighter than its window (the theme's), except a window's whole-body `OverflowScroll`; a window's tab buttons take `TabButton` (lighter still), its other buttons the plain dark `Button`.
+
   No `custom_fonts` in scenes and no `add_font_override` in code: switch `theme_type_variation` instead, and code that draws text reads the look's font (`get_font("font", "SmallLabel")`). A size that none of these fits is a new look in the theme, not an override.
+- **UI SCALE** (Options, INTERFACE: x0.5 to x1.5; below 1.0 for large monitors) multiplies every font size above, every button's size, and the HUD as a whole about its screen anchors (`src/autoload/UiScale.gd`). The sizes here are at x1.0, for a 12" 1366x768 screen; a phone's first run picks one from its screen. A scene or code sets sizes at x1.0 too. A HUD element goes under `ScreenControls` and is anchored to the corner or edge it belongs to, so it grows from there. The HUD grows no wider than the screen holds (`HUD_SCALE_WIDTH`; its words still take the full scale), the sliders keep their length above x1.0 (below it they shrink with the rest), and the flight row shrinks to fit between the bottom corner groups. **UI screenshots** shoot the HUD at every scale and print a `UI OVERLAP` line for each clash.
 
 To see a change: Tools, `m`, **UI screenshots** (every store tab, a prompt, the windows), or play.
 

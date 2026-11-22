@@ -63,6 +63,51 @@ func test_the_eye_button_hides_the_whole_hud_and_the_dot_brings_it_back() -> voi
 	GameState.player_docked_at = ""
 
 
+func _key(action: String) -> InputEventAction:
+	var event := InputEventAction.new()
+	event.action = action
+	event.pressed = true
+	return event
+
+
+func test_keys_press_their_buttons_and_tools_are_numbered() -> void:
+	var hud = MainHUDScene.instance()
+	add_child_autofree(hud)
+	yield(get_tree(), "idle_frame")
+	assert_eq(hud.key_button(_key("command_dock")), hud.button_dock, "D docks")
+	assert_eq(hud.key_button(_key("command_interact")), hud.button_interact, "I interacts")
+	for button in hud.tool_buttons:
+		button.visible = false
+	hud.button_lance.visible = true
+	hud.button_safety.visible = true
+	hud._layout_tool_rows()
+	assert_eq(hud.key_button(_key("tool_1")), hud.button_lance, "1: the first shown, whatever it is")
+	assert_eq(hud.key_button(_key("tool_2")), hud.button_safety, "2: the next shown")
+	assert_null(hud.key_button(_key("tool_3")), "None past the shown ones")
+	assert_eq([hud.button_lance.get_node("Key").text, hud.button_safety.get_node("Key").text], ["1", "2"])
+	assert_eq(hud.button_afterburner.get_node("Key").text, "", "A hidden one has no number")
+	assert_eq(hud.button_lance.get_node("Key").get_font("font"), hud.button_lance.get_node("Label").get_font("font"), "In the buttons' lettering")
+	for action in ["command_approach", "command_flee", "command_orbit", "toggle_free_flight", "command_stop", "command_dock", "command_interact"]:
+		assert_true(InputMap.has_action(action), "The key on each flight button is bound: " + action)
+	for n in range(1, 11):
+		assert_true(InputMap.has_action("tool_%d" % n))
+
+
+func test_the_hud_look_tints_the_hud_not_its_windows() -> void:
+	var hud = MainHUDScene.instance()
+	add_child_autofree(hud)
+	yield(get_tree(), "idle_frame")
+	Settings.set_option("hud_preset", "dim")
+	var dim: Dictionary = Constants.hud_preset("dim")
+	var look := Color(dim.tint.r, dim.tint.g, dim.tint.b, dim.alpha)
+	for part in [hud.get_node("ScreenControls"), hud.get_node("ProjectedTargetOverlay"), hud.threat_ring]:
+		assert_eq(part.modulate, look, "Dim: " + part.name)
+	assert_eq(hud.modulate, Color(1, 1, 1, 1), "The HUD's root, over its windows, untinted")
+	for window in [hud.fitting_window, hud.ship_window, hud.pilot_window, hud.interaction_window, hud.map_window]:
+		assert_eq(window.modulate, Color(1, 1, 1, 1), "and the windows: " + window.name)
+	Settings.reset_to_defaults()
+
+
 func test_debug_overlay_opens_the_debug_map() -> void:
 	var hud = MainHUDScene.instance()
 	add_child_autofree(hud)

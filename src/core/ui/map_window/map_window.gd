@@ -29,21 +29,21 @@ var _was_paused: bool = false
 var _shown: Dictionary = {SECTOR: {}, GLOBAL: {}}  # Filter key -> on, per tab
 var _fit_pending: bool = false  # Fit the view once it has its size (laid out)
 
-onready var _view: Control = $Panel/Layout/Body/View
-onready var _title: Label = $Panel/Layout/Header/Title
-onready var _filters: VBoxContainer = $Panel/Layout/Body/Side/Filters/List
-onready var _info: Label = $Panel/Layout/Body/Side/Info
-onready var _target: Button = $Panel/Layout/Body/Side/ButtonTarget
-onready var _centre: Button = $Panel/Layout/Body/Side/ButtonCentre
+onready var _view: Control = $Panel/Overflow/Layout/Body/View
+onready var _title: Label = $Panel/Overflow/Layout/Header/Title
+onready var _filters: VBoxContainer = $Panel/Overflow/Layout/Body/Side/Filters/List
+onready var _info: Label = $Panel/Overflow/Layout/Body/Side/Info
+onready var _target: Button = $Panel/Overflow/Layout/Body/Side/ButtonTarget
+onready var _centre: Button = $Panel/Overflow/Layout/Body/Side/ButtonCentre
 
 
 func _ready() -> void:
 	pause_mode = PAUSE_MODE_PROCESS
-	var header = $Panel/Layout/Header
+	var header = $Panel/Overflow/Layout/Header
 	header.get_node("ButtonClose").connect("pressed", self, "close")
 	header.get_node("TabSector").connect("pressed", self, "show_tab", [SECTOR])
 	header.get_node("TabGlobal").connect("pressed", self, "show_tab", [GLOBAL])
-	var side = $Panel/Layout/Body/Side
+	var side = $Panel/Overflow/Layout/Body/Side
 	side.get_node("Zoom/ButtonZoomIn").connect("pressed", _view, "zoom", [MapView.ZOOM_STEP])
 	side.get_node("Zoom/ButtonZoomOut").connect("pressed", _view, "zoom", [1.0 / MapView.ZOOM_STEP])
 	side.get_node("Zoom/ButtonFit").connect("pressed", _view, "fit")
@@ -84,7 +84,7 @@ func _on_player_docked(_location_id) -> void:
 # map: centred on the ship).
 func show_tab(which: String) -> void:
 	tab = which
-	var header = $Panel/Layout/Header
+	var header = $Panel/Overflow/Layout/Header
 	header.get_node("TabSector").text = "[SECTOR]" if tab == SECTOR else "SECTOR"
 	header.get_node("TabGlobal").text = "[GLOBAL]" if tab == GLOBAL else "GLOBAL"
 	_view.selected = {}

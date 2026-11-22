@@ -17,16 +17,16 @@ const PresetClassifier = preload("res://src/core/evolution/preset_classifier.gd"
 const Market = preload("res://src/core/systems/market.gd")
 const ShipStats = preload("res://src/core/ui/helpers/ship_stats.gd")
 
-onready var _title: Label = $Panel/Layout/Header/Title
-onready var _stats: VBoxContainer = $Panel/Layout/Body/Content/Columns/Ship/Stats  # The ship flown: its numbers (Ship), where the power goes (Power)
-onready var _ship_preview: Control = $Panel/Layout/Body/Content/Columns/Ship/ShipPreview  # The ship flown, turning
-onready var _slots: VBoxContainer = $Panel/Layout/Body/Content/Columns/Ship/List
-onready var _storage: VBoxContainer = $Panel/Layout/Body/Content/Columns/Storage/Scroll/List
-onready var _store: VBoxContainer = $Panel/Layout/Body/Content/Columns/Store/Scroll/List
-onready var _store_scroll: ScrollContainer = $Panel/Layout/Body/Content/Columns/Store/Scroll
-onready var _tabs: HBoxContainer = $Panel/Layout/Body/Content/Columns/Store/Tabs
-onready var _status: Label = $Panel/Layout/Body/Content/Status
-onready var _preview: Control = $Panel/Layout/Body/Content/Columns/Store/HullPreview
+onready var _title: Label = $Panel/Overflow/Layout/Header/Title
+onready var _stats: VBoxContainer = $Panel/Overflow/Layout/Body/Content/Columns/Ship/Stats  # The ship flown: its numbers (Ship), where the power goes (Power)
+onready var _ship_preview: Control = $Panel/Overflow/Layout/Body/Content/Columns/Ship/ShipPreview  # The ship flown, turning
+onready var _slots: VBoxContainer = $Panel/Overflow/Layout/Body/Content/Columns/Ship/List
+onready var _storage: VBoxContainer = $Panel/Overflow/Layout/Body/Content/Columns/Storage/Scroll/List
+onready var _store: VBoxContainer = $Panel/Overflow/Layout/Body/Content/Columns/Store/Scroll/List
+onready var _store_scroll: ScrollContainer = $Panel/Overflow/Layout/Body/Content/Columns/Store/Scroll
+onready var _tabs: HBoxContainer = $Panel/Overflow/Layout/Body/Content/Columns/Store/Tabs
+onready var _status: Label = $Panel/Overflow/Layout/Body/Content/Status
+onready var _preview: Control = $Panel/Overflow/Layout/Body/Content/Columns/Store/HullPreview
 
 const STORE_TABS = ["ships", "weapons", "equipment", "modules", "cargo"]
 const WEAPON_TYPES = ["laser", "missile", "cannon"]
@@ -50,10 +50,10 @@ const SELECTED_SHADE = Color(1, 1, 1, 0.16)  # The previewed ship's row
 
 
 func _ready() -> void:
-	$Panel/Layout/Header/ButtonUndock.connect("pressed", EventBus, "emit_signal", ["player_undocked"])
-	$Panel/Layout/Header/ButtonMenu.connect("pressed", EventBus, "emit_signal", ["main_menu_requested"])  # The HUD's menu button is under the store
-	$Panel/Layout/Header/TabFitting.connect("pressed", self, "show_view", [FITTING])
-	$Panel/Layout/Header/TabMarket.connect("pressed", self, "show_view", [MARKET])
+	$Panel/Overflow/Layout/Header/ButtonUndock.connect("pressed", EventBus, "emit_signal", ["player_undocked"])
+	$Panel/Overflow/Layout/Header/ButtonMenu.connect("pressed", EventBus, "emit_signal", ["main_menu_requested"])  # The HUD's menu button is under the store
+	$Panel/Overflow/Layout/Header/TabFitting.connect("pressed", self, "show_view", [FITTING])
+	$Panel/Overflow/Layout/Header/TabMarket.connect("pressed", self, "show_view", [MARKET])
 	EventBus.connect("player_docked", self, "_on_player_docked")
 	EventBus.connect("player_undocked", self, "_on_player_undocked")
 
@@ -89,7 +89,7 @@ func refresh() -> void:
 	var flow: Dictionary = power_numbers(ship_body)
 	ShipStats.fill(_stats.get_node("Power"), ShipStats.power_entries(flow.regen, flow.damper, flow.tools_draw, flow.power_max, flow.afterburner))
 	var home: bool = Fitting.is_available()
-	var header: Node = $Panel/Layout/Header
+	var header: Node = $Panel/Overflow/Layout/Header
 	header.get_node("TabFitting").visible = home  # Away from home: the cargo market alone
 	header.get_node("TabMarket").visible = home
 	header.get_node("TabFitting").text = "[FITTING]" if view == FITTING else "FITTING"
@@ -223,6 +223,7 @@ func _rebuild_tabs() -> void:
 	for tab in STORE_TABS if Fitting.is_available() else ["cargo"]:
 		var button: Button = _add_button(_tabs, ("[%s]" if tab == _tab else "%s") % tab, false, "_on_tab", [tab])
 		button.align = Button.ALIGN_CENTER
+		button.theme_type_variation = "TabButton"
 		button.size_flags_horizontal = SIZE_EXPAND_FILL
 
 

@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=2]
+[gd_scene load_steps=21 format=2]
 
 [ext_resource path="res://src/core/ui/main_hud/main_hud.gd" type="Script" id=1]
 [ext_resource path="res://assets/art/ui/controls/button_approach.png" type="Texture" id=2]
@@ -13,7 +13,6 @@
 [ext_resource path="res://assets/art/ui/controls/button_camera.png" type="Texture" id=11]
 [ext_resource path="res://assets/art/ui/controls/button_ui_opacity.png" type="Texture" id=12]
 [ext_resource path="res://assets/art/ui/controls/button_interaction.png" type="Texture" id=13]
-[ext_resource path="res://src/core/ui/helpers/centered_growing_label.gd" type="Script" id=14]
 [ext_resource path="res://assets/art/ui/controls/button_dock.png" type="Texture" id=15]
 [ext_resource path="res://assets/art/ui/controls/button_planet.png" type="Texture" id=16]
 [ext_resource path="res://assets/art/ui/controls/button_system.png" type="Texture" id=17]
@@ -34,7 +33,8 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
 __meta__ = {
-"_edit_lock_": true
+"_edit_lock_": true,
+"ui_scale_skip": true
 }
 
 [node name="ScreenControls" type="Control" parent="."]
@@ -46,7 +46,8 @@ margin_right = -20.0
 margin_bottom = -20.0
 mouse_filter = 2
 __meta__ = {
-"_edit_lock_": true
+"_edit_lock_": true,
+"ui_scale_layout": true
 }
 
 [node name="_ScreenUIArea" type="ColorRect" parent="ScreenControls"]
@@ -100,9 +101,7 @@ __meta__ = {
 }
 
 [node name="CenterLeftZone" type="Control" parent="ScreenControls"]
-anchor_top = 1.0
 anchor_bottom = 1.0
-margin_top = -1040.0
 margin_right = 375.0
 mouse_filter = 2
 __meta__ = {
@@ -180,12 +179,9 @@ __meta__ = {
 }
 
 [node name="ButtonOverlayStructures" type="TextureButton" parent="ScreenControls/CenterLeftZone"]
-anchor_top = 1.0
-anchor_bottom = 1.0
 margin_left = 240.0
-margin_top = -1040.0
 margin_right = 340.0
-margin_bottom = -940.0
+margin_bottom = 100.0
 texture_normal = ExtResource( 20 )
 expand = true
 __meta__ = {
@@ -193,12 +189,9 @@ __meta__ = {
 }
 
 [node name="ButtonOverlayStellar" type="TextureButton" parent="ScreenControls/CenterLeftZone"]
-anchor_top = 1.0
-anchor_bottom = 1.0
 margin_left = 120.0
-margin_top = -1040.0
 margin_right = 220.0
-margin_bottom = -940.0
+margin_bottom = 100.0
 texture_normal = ExtResource( 16 )
 expand = true
 __meta__ = {
@@ -206,11 +199,8 @@ __meta__ = {
 }
 
 [node name="ButtonOverlayJump" type="TextureButton" parent="ScreenControls/CenterLeftZone"]
-anchor_top = 1.0
-anchor_bottom = 1.0
-margin_top = -1040.0
 margin_right = 100.0
-margin_bottom = -940.0
+margin_bottom = 100.0
 texture_normal = ExtResource( 17 )
 expand = true
 __meta__ = {
@@ -228,6 +218,7 @@ theme = ExtResource( 9 )
 tick_count = 10
 ticks_on_borders = true
 __meta__ = {
+"ui_scale_axes": "x",
 "_edit_lock_": true,
 "_editor_description_": "Zoom"
 }
@@ -235,30 +226,26 @@ __meta__ = {
 [node name="LabelContainer" type="Control" parent="ScreenControls/CenterLeftZone"]
 anchor_top = 0.5
 anchor_bottom = 0.5
-margin_left = 30.0
 margin_top = 250.0
 margin_right = 100.0
 margin_bottom = 290.0
 mouse_filter = 2
 __meta__ = {
+"ui_scale_axes": "x",
 "_edit_group_": true,
 "_edit_lock_": true
 }
 
 [node name="LabelZoomSlider" type="Label" parent="ScreenControls/CenterLeftZone/LabelContainer"]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -32.5
-margin_top = -13.5
-margin_right = 32.5
-margin_bottom = 13.5
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
 theme = ExtResource( 9 )
 text = "ZOOM"
 align = 1
-script = ExtResource( 14 )
+valign = 0
 __meta__ = {
+"_editor_description_": "As wide as its slider, under it: the same way from its screen edge as the other",
 "_edit_lock_": true
 }
 
@@ -322,18 +309,12 @@ __meta__ = {
 }
 
 [node name="LabelButtonOrbit" type="Label" parent="ScreenControls/BottomCenterZone/ButtonOrbit"]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -35.0
-margin_top = -13.5
-margin_right = 35.0
-margin_bottom = 13.5
+anchor_right = 1.0
+anchor_bottom = 1.0
 theme = ExtResource( 9 )
 text = "ORBIT"
 align = 1
-script = ExtResource( 14 )
+valign = 1
 __meta__ = {
 "_edit_lock_": true
 }
@@ -351,18 +332,12 @@ __meta__ = {
 }
 
 [node name="LabelButtonStop" type="Label" parent="ScreenControls/BottomCenterZone/ButtonStop"]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -35.0
-margin_top = -13.5
-margin_right = 35.0
-margin_bottom = 13.5
+anchor_right = 1.0
+anchor_bottom = 1.0
 theme = ExtResource( 9 )
 text = "STOP"
 align = 1
-script = ExtResource( 14 )
+valign = 1
 __meta__ = {
 "_edit_lock_": true
 }
@@ -380,18 +355,12 @@ __meta__ = {
 }
 
 [node name="LabelButtonManualFlight" type="Label" parent="ScreenControls/BottomCenterZone/ButtonManualFlight"]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -39.5
-margin_top = -13.5
-margin_right = 39.5
-margin_bottom = 13.5
+anchor_right = 1.0
+anchor_bottom = 1.0
 theme = ExtResource( 9 )
 text = "MANUAL"
 align = 1
-script = ExtResource( 14 )
+valign = 1
 __meta__ = {
 "_edit_lock_": true
 }
@@ -409,19 +378,12 @@ __meta__ = {
 }
 
 [node name="LabelButtonApproach" type="Label" parent="ScreenControls/BottomCenterZone/ButtonApproach"]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -50.5
-margin_top = -13.5
-margin_right = 50.5
-margin_bottom = 13.5
-grow_horizontal = 2
+anchor_right = 1.0
+anchor_bottom = 1.0
 theme = ExtResource( 9 )
 text = "APPROACH"
 align = 1
-script = ExtResource( 14 )
+valign = 1
 __meta__ = {
 "_edit_lock_": true
 }
@@ -439,18 +401,12 @@ __meta__ = {
 }
 
 [node name="LabelButtonFlee" type="Label" parent="ScreenControls/BottomCenterZone/ButtonFlee"]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -35.0
-margin_top = -13.5
-margin_right = 35.0
-margin_bottom = 13.5
+anchor_right = 1.0
+anchor_bottom = 1.0
 theme = ExtResource( 9 )
 text = "FLEE"
 align = 1
-script = ExtResource( 14 )
+valign = 1
 __meta__ = {
 "_edit_lock_": true
 }
@@ -468,19 +424,12 @@ __meta__ = {
 }
 
 [node name="LabelButtonDock" type="Label" parent="ScreenControls/BottomCenterZone/ButtonDock"]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -35.0
-margin_top = -13.5
-margin_right = 35.0
-margin_bottom = 13.5
-grow_horizontal = 2
+anchor_right = 1.0
+anchor_bottom = 1.0
 theme = ExtResource( 9 )
 text = "DOCK"
 align = 1
-script = ExtResource( 14 )
+valign = 1
 __meta__ = {
 "_edit_lock_": true
 }
@@ -498,19 +447,12 @@ __meta__ = {
 }
 
 [node name="LabelButtonInteract" type="Label" parent="ScreenControls/BottomCenterZone/ButtonInteract"]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -35.0
-margin_top = -13.5
-margin_right = 35.0
-margin_bottom = 13.5
-grow_horizontal = 2
+anchor_right = 1.0
+anchor_bottom = 1.0
 theme = ExtResource( 9 )
 text = "INTERACT"
 align = 1
-script = ExtResource( 14 )
+valign = 1
 __meta__ = {
 "_edit_lock_": true
 }
@@ -520,10 +462,11 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-margin_left = -400.0
+margin_left = -640.0
 margin_top = -270.0
-margin_right = 400.0
+margin_right = 640.0
 margin_bottom = -170.0
+grow_horizontal = 2
 mouse_filter = 2
 custom_constants/separation = 20
 alignment = 1
@@ -532,7 +475,7 @@ alignment = 1
 margin_left = 170.0
 margin_right = 270.0
 margin_bottom = 100.0
-rect_min_size = Vector2( 100, 100 )
+rect_min_size = Vector2( 140, 100 )
 texture_normal = ExtResource( 4 )
 expand = true
 
@@ -549,7 +492,7 @@ autowrap = true
 margin_left = 290.0
 margin_right = 390.0
 margin_bottom = 100.0
-rect_min_size = Vector2( 100, 100 )
+rect_min_size = Vector2( 140, 100 )
 texture_normal = ExtResource( 4 )
 expand = true
 
@@ -566,7 +509,7 @@ autowrap = true
 margin_left = 410.0
 margin_right = 510.0
 margin_bottom = 100.0
-rect_min_size = Vector2( 100, 100 )
+rect_min_size = Vector2( 140, 100 )
 texture_normal = ExtResource( 4 )
 expand = true
 
@@ -583,7 +526,7 @@ autowrap = true
 margin_left = 530.0
 margin_right = 630.0
 margin_bottom = 100.0
-rect_min_size = Vector2( 100, 100 )
+rect_min_size = Vector2( 140, 100 )
 texture_normal = ExtResource( 4 )
 expand = true
 
@@ -601,7 +544,7 @@ visible = false
 margin_left = 650.0
 margin_right = 750.0
 margin_bottom = 100.0
-rect_min_size = Vector2( 100, 100 )
+rect_min_size = Vector2( 140, 100 )
 texture_normal = ExtResource( 4 )
 expand = true
 
@@ -619,7 +562,7 @@ visible = false
 margin_left = 770.0
 margin_right = 870.0
 margin_bottom = 100.0
-rect_min_size = Vector2( 100, 100 )
+rect_min_size = Vector2( 140, 100 )
 texture_normal = ExtResource( 4 )
 expand = true
 
@@ -637,7 +580,7 @@ visible = false
 margin_left = 880.0
 margin_right = 980.0
 margin_bottom = 100.0
-rect_min_size = Vector2( 100, 100 )
+rect_min_size = Vector2( 140, 100 )
 texture_normal = ExtResource( 4 )
 expand = true
 
@@ -652,11 +595,9 @@ autowrap = true
 
 [node name="CenterRightZone" type="Control" parent="ScreenControls"]
 anchor_left = 1.0
-anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = -375.0
-margin_top = -1040.0
 mouse_filter = 2
 __meta__ = {
 "_edit_lock_": true
@@ -738,33 +679,23 @@ __meta__ = {
 }
 
 [node name="LabelButtonHudLook" type="Label" parent="ScreenControls/CenterRightZone/ButtonHudLook"]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -35.0
-margin_top = -13.5
-margin_right = 35.0
-margin_bottom = 13.5
-grow_horizontal = 2
+anchor_right = 1.0
+anchor_bottom = 1.0
 theme = ExtResource( 9 )
 text = "HUD
 STANDARD"
 align = 1
-script = ExtResource( 14 )
+valign = 1
 __meta__ = {
 "_edit_lock_": true
 }
 
 [node name="ButtonCharacter" type="TextureButton" parent="ScreenControls/CenterRightZone"]
 anchor_left = 1.0
-anchor_top = 1.0
 anchor_right = 1.0
-anchor_bottom = 1.0
 margin_left = -340.0
-margin_top = -1040.0
 margin_right = -240.0
-margin_bottom = -940.0
+margin_bottom = 100.0
 texture_normal = ExtResource( 18 )
 expand = true
 __meta__ = {
@@ -773,13 +704,10 @@ __meta__ = {
 
 [node name="ButtonShip" type="TextureButton" parent="ScreenControls/CenterRightZone"]
 anchor_left = 1.0
-anchor_top = 1.0
 anchor_right = 1.0
-anchor_bottom = 1.0
 margin_left = -220.0
-margin_top = -1040.0
 margin_right = -120.0
-margin_bottom = -940.0
+margin_bottom = 100.0
 texture_normal = ExtResource( 19 )
 expand = true
 __meta__ = {
@@ -788,12 +716,9 @@ __meta__ = {
 
 [node name="ButtonMap" type="TextureButton" parent="ScreenControls/CenterRightZone"]
 anchor_left = 1.0
-anchor_top = 1.0
 anchor_right = 1.0
-anchor_bottom = 1.0
 margin_left = -100.0
-margin_top = -1040.0
-margin_bottom = -940.0
+margin_bottom = 100.0
 texture_normal = ExtResource( 21 )
 expand = true
 __meta__ = {
@@ -814,6 +739,7 @@ theme = ExtResource( 9 )
 tick_count = 10
 ticks_on_borders = true
 __meta__ = {
+"ui_scale_axes": "x",
 "_edit_lock_": true,
 "_editor_description_": "Speed"
 }
@@ -856,28 +782,24 @@ anchor_right = 1.0
 anchor_bottom = 0.5
 margin_left = -100.0
 margin_top = 250.0
-margin_right = -30.0
 margin_bottom = 290.0
 mouse_filter = 2
 __meta__ = {
+"ui_scale_axes": "x",
 "_edit_group_": true,
 "_edit_lock_": true
 }
 
 [node name="LabelThrustSlider" type="Label" parent="ScreenControls/CenterRightZone/LabelContainer"]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -32.5
-margin_top = -13.5
-margin_right = 32.5
-margin_bottom = 13.5
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
 theme = ExtResource( 9 )
 text = "THRUST"
 align = 1
-script = ExtResource( 14 )
+valign = 0
 __meta__ = {
+"_editor_description_": "As wide as its slider, under it: the same way from its screen edge as the other",
 "_edit_lock_": true
 }
 
