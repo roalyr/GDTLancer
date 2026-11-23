@@ -31,8 +31,8 @@ weight_class = "superheavy"
 archetype = "prospector superheavy"
 temperament = "cautious"
 traits = [ "quick to fight", "stubborn", "standoff", "skittish", "wary", "loud" ]
-lives = 12
-fitness = 0.104184
+lives = 13
+fitness = 0.0568901
 origin = "prospector_superheavy_23441i1 (era 68)"
 genome = {
 "behavior": {

@@ -31,8 +31,8 @@ weight_class = "medium"
 archetype = "trader medium"
 temperament = "cautious"
 traits = [ "picks its fights", "lets runners go", "shoots back", "loud" ]
-lives = 21
-fitness = 0.278765
+lives = 25
+fitness = 0.14636
 origin = ""
 genome = {
 "behavior": {
