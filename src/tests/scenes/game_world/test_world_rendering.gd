@@ -55,3 +55,27 @@ func test_screen_points_map_through_the_reduced_viewport_and_back():
 	var direction: Vector3 = ScreenSpace.ray_normal(camera, screen)
 	var along: float = (point - origin).dot(direction)
 	assert_almost_eq((origin + direction * along).distance_to(point), 0.0, 0.05, "A click there points back at the same spot.")
+
+
+# The tests run as a tool (godot -s gut_cmdln.gd): the player's vsync and frame cap stay off, as
+# evolution's islands need them (a hidden window's vsync held them to a quarter of their pace).
+func test_a_tool_run_keeps_vsync_off_and_frames_uncapped():
+	assert_true(WorldRenderingScript.tool_run(get_tree()), "GUT's main loop is a script")
+	var vsync_before: bool = OS.vsync_enabled
+	var cap_before: int = Engine.target_fps
+	OS.vsync_enabled = false
+	Engine.target_fps = 0
+	world_rendering._apply_option("vsync", true)
+	world_rendering._apply_option("frame_cap", 30)
+	assert_false(OS.vsync_enabled)
+	assert_eq(Engine.target_fps, 0)
+	world_rendering._apply_option("fxaa", true)
+	assert_true(world_rendering.viewport_fxaa, "Other picture options still apply")
+	OS.vsync_enabled = vsync_before
+	Engine.target_fps = cap_before
+
+
+func test_the_game_is_no_tool_run():
+	var tree := SceneTree.new()
+	assert_false(WorldRenderingScript.tool_run(tree), "A plain SceneTree, as the game's")
+	tree.free()

@@ -65,6 +65,8 @@ const PICTURE_OPTIONS = ["pixel_smoothing", "msaa", "fxaa", "vsync", "frame_cap"
 
 
 func _apply_option(key: String, value) -> void:
+	if key in WINDOW_OPTIONS and tool_run(get_tree()):
+		return
 	match key:
 		"pixel_smoothing":
 			viewport_filter_upscaled = bool(value)
@@ -91,6 +93,19 @@ func _apply_option(key: String, value) -> void:
 			jump_transition_enabled = bool(value)
 		"bracket_fade":
 			projected_target_center_fade_enabled = bool(value)
+
+
+# Options a tool run leaves alone (tool_run): it switches vsync off itself, since a hidden window's
+# vsync holds it to about a frame a second, and runs uncapped in no window. Applying the player's
+# vsync and frame cap when the world loaded held evolution's islands to a quarter of their pace
+# overnight (2026-11-22 to 11-23, screens asleep).
+const WINDOW_OPTIONS = ["vsync", "frame_cap", "fullscreen"]
+
+
+# True in a tool run (godot -s tools/<tool>.gd: evolution, islands, soak, the balance runs, the
+# tests): its main loop is the tool's script. The game's is a plain SceneTree.
+static func tool_run(tree: SceneTree) -> bool:
+	return tree != null and tree.get_script() != null
 
 
 # Options (Settings) as they change: particles, render scale, hit effects and the picture's.
