@@ -4,14 +4,14 @@
 
 [resource]
 script = ExtResource( 1 )
-template_id = "agent_preset_trader_heavy_22438i2"
+template_id = "agent_preset_trader_superheavy_22659i3"
 agent_type = "npc"
-ship_template_id = "preset_ship_trader_heavy_22438i2"
+ship_template_id = "preset_ship_trader_superheavy_22659i3"
 faction = ""
 skill = 0.5
 behavior = {
 "burn": 0.332444,
-"caution": 0.401272,
+"caution": 0.51815,
 "disengage": 0.856492,
 "engage": 3.48662,
 "haul": 0.264444,
@@ -19,25 +19,25 @@ behavior = {
 "prospect": 0.18283,
 "pursuit": 1.09928,
 "quiet": 0.301338,
-"range": 1.32774,
+"range": 1.5,
 "retreat_hull": 0.511325,
 "return_fire": 0.389865,
-"teamwork": 0.867338,
+"teamwork": 0.776065,
 "trade": 0.903022
 }
 role = "trader"
 family = "trader"
-weight_class = "heavy"
-archetype = "trader heavy"
+weight_class = "superheavy"
+archetype = "trader superheavy"
 temperament = "cautious"
 traits = [ "picks its fights", "standoff", "skittish" ]
-lives = 8
-fitness = -0.188837
+lives = 7
+fitness = -0.0143819
 origin = ""
 genome = {
 "behavior": {
 "burn": 0.332444,
-"caution": 0.401272,
+"caution": 0.51815,
 "disengage": 0.856492,
 "engage": 3.48662,
 "haul": 0.264444,
@@ -45,10 +45,10 @@ genome = {
 "prospect": 0.18283,
 "pursuit": 1.09928,
 "quiet": 0.301338,
-"range": 1.32774,
+"range": 1.5,
 "retreat_hull": 0.511325,
 "return_fire": 0.389865,
-"teamwork": 0.867338,
+"teamwork": 0.776065,
 "trade": 0.903022
 },
 "modules": [ {
@@ -60,10 +60,10 @@ genome = {
 }, {
 }, {
 "genes": {
-"mass": 147.716
+"mass": 300.0
 },
 "kind": "damper",
-"type": 1
+"type": 2
 }, {
 "genes": {
 "mass": 300.0
@@ -74,17 +74,23 @@ genome = {
 } ],
 "ship": {
 "shares": {
-"capacitor": 0.0540981,
-"engine": 0.196029,
-"hold": 0.402714,
-"reactor": 0.0536274,
-"structure": 0.293532
+"capacitor": 0.0521237,
+"engine": 0.195417,
+"hold": 0.401456,
+"reactor": 0.0583885,
+"structure": 0.292615
 },
-"size": 3.23274,
-"tool_share": 0.364567,
+"size": 3.74643,
+"tool_share": 0.441964,
 "type": 3
 },
 "tools": [ {
+"genes": {
+"count": 3.0,
+"round_mass": 260.0
+},
+"kind": "missile",
+"type": 3
 }, {
 }, {
 "genes": {
@@ -94,5 +100,6 @@ genome = {
 },
 "kind": "cannon",
 "type": 2
+}, {
 } ]
 }

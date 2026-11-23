@@ -1,0 +1,87 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_raider_medium_22643i2"
+agent_type = "npc"
+ship_template_id = "preset_ship_raider_medium_22643i2"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.133857,
+"caution": 0.744636,
+"disengage": 0.904444,
+"engage": 2.81328,
+"haul": 0.54116,
+"mercy": 0.833268,
+"prospect": 0.138185,
+"pursuit": 1.33236,
+"quiet": 0.0811499,
+"range": 0.934558,
+"retreat_hull": 0.8,
+"return_fire": 0.665591,
+"teamwork": 1.18738,
+"trade": 0.964912
+}
+role = "raider"
+family = "raider"
+weight_class = "medium"
+archetype = "raider medium"
+temperament = "cautious"
+traits = [ "picks its fights", "skittish", "merciful", "loud" ]
+lives = 5
+fitness = -0.265125
+origin = ""
+genome = {
+"behavior": {
+"burn": 0.133857,
+"caution": 0.744636,
+"disengage": 0.904444,
+"engage": 2.81328,
+"haul": 0.54116,
+"mercy": 0.833268,
+"prospect": 0.138185,
+"pursuit": 1.33236,
+"quiet": 0.0811499,
+"range": 0.934558,
+"retreat_hull": 0.8,
+"return_fire": 0.665591,
+"teamwork": 1.18738,
+"trade": 0.964912
+},
+"modules": [ {
+"genes": {
+"mass": 300.0
+},
+"kind": "damper",
+"type": 2
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.0526729,
+"engine": 0.173442,
+"hold": 0.490141,
+"reactor": 0.0459151,
+"structure": 0.237829
+},
+"size": 0.970664,
+"tool_share": 0.633734,
+"type": 2
+},
+"tools": [ {
+}, {
+"genes": {
+},
+"kind": "harpoon",
+"type": 0
+}, {
+"genes": {
+"count": 3.5,
+"round_mass": 39.03
+},
+"kind": "missile",
+"type": 1
+} ]
+}

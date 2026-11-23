@@ -1,0 +1,75 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_trader_light_22658i4"
+agent_type = "npc"
+ship_template_id = "preset_ship_trader_light_22658i4"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.727176,
+"caution": 0.878882,
+"disengage": 2.94337,
+"engage": 3.7677,
+"haul": 0.232286,
+"mercy": 0.0696167,
+"prospect": 0.0,
+"pursuit": 1.52819,
+"quiet": 0.330541,
+"range": 1.21391,
+"retreat_hull": 0.417565,
+"return_fire": 0.746089,
+"teamwork": 1.47921,
+"trade": 0.942049
+}
+role = "trader"
+family = "trader"
+weight_class = "light"
+archetype = "trader light"
+temperament = "cautious"
+traits = [ "picks its fights", "quick to break off", "ruthless", "wary" ]
+lives = 8
+fitness = 0.538097
+origin = ""
+genome = {
+"behavior": {
+"burn": 0.727176,
+"caution": 0.878882,
+"disengage": 2.94337,
+"engage": 3.7677,
+"haul": 0.232286,
+"mercy": 0.0696167,
+"prospect": 0.0,
+"pursuit": 1.52819,
+"quiet": 0.330541,
+"range": 1.21391,
+"retreat_hull": 0.417565,
+"return_fire": 0.746089,
+"teamwork": 1.47921,
+"trade": 0.942049
+},
+"modules": [ {
+"genes": {
+"mass": 150.0
+},
+"kind": "rack",
+"type": 1
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.0571454,
+"engine": 0.128561,
+"hold": 0.460146,
+"reactor": 0.023626,
+"structure": 0.330522
+},
+"size": 0.432724,
+"tool_share": 0.602973,
+"type": 1
+},
+"tools": [ {
+} ]
+}

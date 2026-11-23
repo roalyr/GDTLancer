@@ -1,0 +1,78 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_trader_medium_21988i2"
+agent_type = "npc"
+ship_template_id = "preset_ship_trader_medium_21988i2"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.429605,
+"caution": 0.207416,
+"disengage": 1.906,
+"engage": 4.0,
+"haul": 0.299041,
+"mercy": 0.248051,
+"prospect": 0.21097,
+"pursuit": 0.210028,
+"quiet": 0.0,
+"range": 1.26153,
+"retreat_hull": 0.429895,
+"return_fire": 0.874982,
+"teamwork": 0.603157,
+"trade": 1.0
+}
+role = "trader"
+family = "trader"
+weight_class = "medium"
+archetype = "trader medium"
+temperament = "cautious"
+traits = [ "picks its fights", "lets runners go", "shoots back", "loud" ]
+lives = 8
+fitness = 0.168775
+origin = ""
+genome = {
+"behavior": {
+"burn": 0.429605,
+"caution": 0.207416,
+"disengage": 1.906,
+"engage": 4.0,
+"haul": 0.299041,
+"mercy": 0.248051,
+"prospect": 0.21097,
+"pursuit": 0.210028,
+"quiet": 0.0,
+"range": 1.26153,
+"retreat_hull": 0.429895,
+"return_fire": 0.874982,
+"teamwork": 0.603157,
+"trade": 1.0
+},
+"modules": [ {
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.0399477,
+"engine": 0.182148,
+"hold": 0.547551,
+"reactor": 0.0339093,
+"structure": 0.196444
+},
+"size": 1.18125,
+"tool_share": 0.997926,
+"type": 3
+},
+"tools": [ {
+"genes": {
+"energy": 6.5,
+"mass": 450.0
+},
+"kind": "laser",
+"type": 2
+}, {
+}, {
+} ]
+}

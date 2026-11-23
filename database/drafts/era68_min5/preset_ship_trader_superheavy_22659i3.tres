@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_trader_superheavy_22659i3"
+ship_model_name = "Trader Superheavy 22659 I 3 Mk I"
+base_value = 29971
+ship_scene = ExtResource( 2 )
+hull_integrity = 208
+cargo_capacity = 301
+interaction_radius = 23.2969
+apparent_radius = 18.6375
+signature = 2329.69
+sensor_strength = 1.0
+tool_slots_small = 0
+tool_slots_medium = 0
+tool_slots_large = 4
+module_slots = 5
+module_slot_size = "large"
+equipped_tools = [ "preset_missile_heavy", "preset_cannon_medium" ]
+equipped_modules = [ "preset_magazine_heavy", "preset_damper_medium", "preset_damper_medium" ]
+salvage_yield = {
+"commodity_scrap": 75,
+"commodity_tech": 29
+}
+power_capacity = 390.556
+power_regen = 20.2279
+mass = 22478.6
+linear_thrust = 1.4468e+06
+angular_thrust = 2.49423e+06
+alignment_threshold_angle_deg = 45.0
+model_scale = 1.55312
+variant_type = 3
+law_genes = {
+"shares": {
+"capacitor": 0.0521237,
+"engine": 0.195417,
+"hold": 0.401456,
+"reactor": 0.0583885,
+"structure": 0.292615
+},
+"size": 3.74643,
+"tool_share": 0.441964,
+"type": 3
+}

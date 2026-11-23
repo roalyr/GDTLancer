@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_trader_medium_21988i2"
+ship_model_name = "Trader Medium 21988 I 2 Mk I"
+base_value = 9450
+ship_scene = ExtResource( 2 )
+hull_integrity = 61
+cargo_capacity = 129
+interaction_radius = 15.8564
+apparent_radius = 12.6851
+signature = 1585.64
+sensor_strength = 1.0
+tool_slots_small = 0
+tool_slots_medium = 3
+tool_slots_large = 0
+module_slots = 1
+module_slot_size = "medium"
+equipped_tools = [ "preset_laser_medium" ]
+equipped_modules = [  ]
+salvage_yield = {
+"commodity_scrap": 24,
+"commodity_tech": 8
+}
+power_capacity = 94.0419
+power_regen = 4.3753
+mass = 7087.5
+linear_thrust = 479056.0
+angular_thrust = 562113.0
+alignment_threshold_angle_deg = 45.0
+model_scale = 1.05709
+variant_type = 3
+law_genes = {
+"shares": {
+"capacitor": 0.0399477,
+"engine": 0.182148,
+"hold": 0.547551,
+"reactor": 0.0339093,
+"structure": 0.196444
+},
+"size": 1.18125,
+"tool_share": 0.997926,
+"type": 3
+}

@@ -4,26 +4,26 @@
 
 [resource]
 script = ExtResource( 1 )
-template_id = "agent_preset_prospector_medium_21946i1"
+template_id = "agent_preset_prospector_medium_22662i2"
 agent_type = "npc"
-ship_template_id = "preset_ship_prospector_medium_21946i1"
+ship_template_id = "preset_ship_prospector_medium_22662i2"
 faction = ""
 skill = 0.5
 behavior = {
-"burn": 0.0835426,
-"caution": 0.892877,
+"burn": 0.128203,
+"caution": 0.978813,
 "disengage": 0.497988,
-"engage": 1.85248,
+"engage": 2.03403,
 "haul": 0.236056,
-"mercy": 0.535403,
-"prospect": 0.68404,
-"pursuit": 1.58154,
-"quiet": 0.465066,
-"range": 1.2308,
-"retreat_hull": 0.202512,
-"return_fire": 0.265305,
-"teamwork": 1.26659,
-"trade": 0.233482
+"mercy": 0.440993,
+"prospect": 0.684068,
+"pursuit": 1.54999,
+"quiet": 0.345723,
+"range": 1.05294,
+"retreat_hull": 0.167425,
+"return_fire": 0.338541,
+"teamwork": 0.973577,
+"trade": 0.224763
 }
 role = "prospector"
 family = "prospector"
@@ -31,25 +31,25 @@ weight_class = "medium"
 archetype = "prospector medium"
 temperament = "cautious"
 traits = [ "wary" ]
-lives = 8
-fitness = 0.0221915
+lives = 6
+fitness = 0.277459
 origin = ""
 genome = {
 "behavior": {
-"burn": 0.0835426,
-"caution": 0.892877,
+"burn": 0.128203,
+"caution": 0.978813,
 "disengage": 0.497988,
-"engage": 1.85248,
+"engage": 2.03403,
 "haul": 0.236056,
-"mercy": 0.535403,
-"prospect": 0.68404,
-"pursuit": 1.58154,
-"quiet": 0.465066,
-"range": 1.2308,
-"retreat_hull": 0.202512,
-"return_fire": 0.265305,
-"teamwork": 1.26659,
-"trade": 0.233482
+"mercy": 0.440993,
+"prospect": 0.684068,
+"pursuit": 1.54999,
+"quiet": 0.345723,
+"range": 1.05294,
+"retreat_hull": 0.167425,
+"return_fire": 0.338541,
+"teamwork": 0.973577,
+"trade": 0.224763
 },
 "modules": [ {
 "genes": {
@@ -67,23 +67,23 @@ genome = {
 } ],
 "ship": {
 "shares": {
-"capacitor": 0.0562836,
-"engine": 0.458326,
-"hold": 0.0612913,
-"reactor": 0.0566009,
-"structure": 0.367498
+"capacitor": 0.059892,
+"engine": 0.455767,
+"hold": 0.0581041,
+"reactor": 0.0505686,
+"structure": 0.375669
 },
-"size": 1.275,
+"size": 1.25416,
 "tool_share": 0.520502,
 "type": 2
 },
 "tools": [ {
 "genes": {
-"energy": 2.511,
-"mass": 150.0
+"energy": 6.5,
+"mass": 450.0
 },
 "kind": "laser",
-"type": 1
+"type": 2
 }, {
 "genes": {
 },

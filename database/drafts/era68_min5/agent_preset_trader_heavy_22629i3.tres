@@ -4,22 +4,22 @@
 
 [resource]
 script = ExtResource( 1 )
-template_id = "agent_preset_trader_superheavy_22162i2"
+template_id = "agent_preset_trader_heavy_22629i3"
 agent_type = "npc"
-ship_template_id = "preset_ship_trader_superheavy_22162i2"
+ship_template_id = "preset_ship_trader_heavy_22629i3"
 faction = ""
 skill = 0.5
 behavior = {
 "burn": 0.115492,
-"caution": 0.839802,
+"caution": 0.746342,
 "disengage": 1.45332,
-"engage": 4.0,
+"engage": 3.88276,
 "haul": 0.180753,
-"mercy": 0.36468,
+"mercy": 0.521614,
 "prospect": 0.0471437,
-"pursuit": 1.21148,
-"quiet": 0.0223156,
-"range": 1.09526,
+"pursuit": 0.863887,
+"quiet": 0.017228,
+"range": 1.03643,
 "retreat_hull": 0.485647,
 "return_fire": 0.0,
 "teamwork": 1.64486,
@@ -27,25 +27,25 @@ behavior = {
 }
 role = "trader"
 family = "trader"
-weight_class = "superheavy"
-archetype = "trader superheavy"
+weight_class = "heavy"
+archetype = "trader heavy"
 temperament = "cautious"
-traits = [ "picks its fights", "skittish", "runs silent", "team player", "wary", "loud" ]
-lives = 9
-fitness = -0.436881
+traits = [ "picks its fights", "skittish", "runs silent", "team player", "loud" ]
+lives = 5
+fitness = -0.178401
 origin = ""
 genome = {
 "behavior": {
 "burn": 0.115492,
-"caution": 0.839802,
+"caution": 0.746342,
 "disengage": 1.45332,
-"engage": 4.0,
+"engage": 3.88276,
 "haul": 0.180753,
-"mercy": 0.36468,
+"mercy": 0.521614,
 "prospect": 0.0471437,
-"pursuit": 1.21148,
-"quiet": 0.0223156,
-"range": 1.09526,
+"pursuit": 0.863887,
+"quiet": 0.017228,
+"range": 1.03643,
 "retreat_hull": 0.485647,
 "return_fire": 0.0,
 "teamwork": 1.64486,
@@ -53,24 +53,30 @@ genome = {
 },
 "modules": [ {
 "genes": {
-"mass": 200.0
+"mass": 400.0
 },
 "kind": "magazine",
-"type": 2
+"type": 3
 } ],
 "ship": {
 "shares": {
-"capacitor": 0.0782327,
-"engine": 0.139202,
-"hold": 0.391064,
-"reactor": 0.0301313,
-"structure": 0.36137
+"capacitor": 0.0739444,
+"engine": 0.131572,
+"hold": 0.441216,
+"reactor": 0.03087,
+"structure": 0.322398
 },
-"size": 3.58238,
-"tool_share": 0.995375,
+"size": 3.27998,
+"tool_share": 0.996939,
 "type": 4
 },
 "tools": [ {
+"genes": {
+"count": 3.5,
+"round_mass": 39.03
+},
+"kind": "missile",
+"type": 1
 }, {
 "genes": {
 "energy": 6.5,
@@ -86,20 +92,13 @@ genome = {
 "kind": "missile",
 "type": 1
 }, {
-"genes": {
-"energy": 2.511,
-"mass": 150.0
-},
-"kind": "laser",
-"type": 1
 }, {
 "genes": {
-"energy": 16.0,
-"mass": 1100.0
+"energy": 6.5,
+"mass": 450.0
 },
 "kind": "laser",
-"type": 3
-}, {
+"type": 2
 }, {
 }, {
 } ]

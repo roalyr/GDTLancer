@@ -1,0 +1,121 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_fighter_superheavy_22650i2"
+agent_type = "npc"
+ship_template_id = "preset_ship_fighter_superheavy_22650i2"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.0210631,
+"caution": 1.0,
+"disengage": 0.1,
+"engage": 0.536517,
+"haul": 0.53268,
+"mercy": 0.339546,
+"prospect": 0.801572,
+"pursuit": 1.66383,
+"quiet": 0.132245,
+"range": 1.5,
+"retreat_hull": 0.528421,
+"return_fire": 0.755906,
+"teamwork": 1.14878,
+"trade": 0.67688
+}
+role = "fighter"
+family = "fighter"
+weight_class = "superheavy"
+archetype = "fighter superheavy"
+temperament = "measured"
+traits = [ "quick to fight", "stubborn", "standoff", "skittish", "wary" ]
+lives = 16
+fitness = 0.230593
+origin = ""
+genome = {
+"behavior": {
+"burn": 0.0210631,
+"caution": 1.0,
+"disengage": 0.1,
+"engage": 0.536517,
+"haul": 0.53268,
+"mercy": 0.339546,
+"prospect": 0.801572,
+"pursuit": 1.66383,
+"quiet": 0.132245,
+"range": 1.5,
+"retreat_hull": 0.528421,
+"return_fire": 0.755906,
+"teamwork": 1.14878,
+"trade": 0.67688
+},
+"modules": [ {
+"genes": {
+"count": 3.092,
+"nail_mass": 109.356
+},
+"kind": "lance",
+"type": 1
+}, {
+"genes": {
+"mass": 400.0
+},
+"kind": "thruster",
+"type": 2
+}, {
+"genes": {
+"mass": 2000.0
+},
+"kind": "plating",
+"type": 3
+}, {
+"genes": {
+"count": 4.0,
+"nail_mass": 350.0
+},
+"kind": "lance",
+"type": 3
+}, {
+"genes": {
+"mass": 800.0
+},
+"kind": "afterburner",
+"type": 3
+}, {
+"genes": {
+"mass": 200.0
+},
+"kind": "decoy",
+"type": 2
+}, {
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.0461278,
+"engine": 0.300123,
+"hold": 0.129758,
+"reactor": 0.12274,
+"structure": 0.401251
+},
+"size": 3.53487,
+"tool_share": 0.247554,
+"type": 4
+},
+"tools": [ {
+"genes": {
+"energy": 16.0,
+"mass": 1100.0
+},
+"kind": "laser",
+"type": 3
+}, {
+"genes": {
+"count": 3.0,
+"round_mass": 260.0
+},
+"kind": "missile",
+"type": 3
+} ]
+}

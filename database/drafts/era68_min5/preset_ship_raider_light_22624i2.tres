@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_raider_light_22624i2"
+ship_model_name = "Raider Light 22624 I 2 Mk I"
+base_value = 6691
+ship_scene = ExtResource( 2 )
+hull_integrity = 65
+cargo_capacity = 33
+interaction_radius = 14.1327
+apparent_radius = 11.3061
+signature = 1413.27
+sensor_strength = 1.0
+tool_slots_small = 3
+tool_slots_medium = 0
+tool_slots_large = 0
+module_slots = 1
+module_slot_size = "small"
+equipped_tools = [ "preset_harpoon", "preset_cannon_light", "preset_cannon_light" ]
+equipped_modules = [ "preset_power_cell_light" ]
+salvage_yield = {
+"commodity_scrap": 17,
+"commodity_tech": 11
+}
+power_capacity = 113.836
+power_regen = 7.01824
+mass = 5018.22
+linear_thrust = 625383.0
+angular_thrust = 654036.0
+alignment_threshold_angle_deg = 45.0
+model_scale = 0.942178
+variant_type = 1
+law_genes = {
+"shares": {
+"capacitor": 0.0680534,
+"engine": 0.344704,
+"hold": 0.199596,
+"reactor": 0.080676,
+"structure": 0.30697
+},
+"size": 0.83637,
+"tool_share": 0.95321,
+"type": 1
+}

@@ -31,8 +31,8 @@ weight_class = "superheavy"
 archetype = "raider superheavy"
 temperament = "measured"
 traits = [ "quick to fight", "stubborn", "lets runners go", "merciful", "team player", "hoards", "sneaky" ]
-lives = 8
-fitness = 0.288456
+lives = 13
+fitness = 0.560375
 origin = ""
 genome = {
 "behavior": {

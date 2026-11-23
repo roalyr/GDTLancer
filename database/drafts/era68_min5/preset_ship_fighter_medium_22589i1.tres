@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_fighter_medium_22589i1"
+ship_model_name = "Fighter Medium 22589 I 1 Mk I"
+base_value = 12114
+ship_scene = ExtResource( 2 )
+hull_integrity = 118
+cargo_capacity = 50
+interaction_radius = 17.2247
+apparent_radius = 13.7798
+signature = 1722.47
+sensor_strength = 1.0
+tool_slots_small = 0
+tool_slots_medium = 4
+tool_slots_large = 0
+module_slots = 1
+module_slot_size = "medium"
+equipped_tools = [ "preset_laser_medium", "preset_laser_medium", "preset_missile_medium" ]
+equipped_modules = [ "preset_afterburner_light" ]
+salvage_yield = {
+"commodity_scrap": 30,
+"commodity_tech": 16
+}
+power_capacity = 382.774
+power_regen = 14.8439
+mass = 9085.16
+linear_thrust = 800651.0
+angular_thrust = 1.02053e+06
+alignment_threshold_angle_deg = 45.0
+model_scale = 1.14831
+variant_type = 2
+law_genes = {
+"shares": {
+"capacitor": 0.126395,
+"engine": 0.250543,
+"hold": 0.166459,
+"reactor": 0.10243,
+"structure": 0.354173
+},
+"size": 1.51419,
+"tool_share": 0.735963,
+"type": 2
+}

@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_raider_medium_22643i2"
+ship_model_name = "Raider Medium 22643 I 2 Mk I"
+base_value = 7765
+ship_scene = ExtResource( 2 )
+hull_integrity = 60
+cargo_capacity = 95
+interaction_radius = 14.8519
+apparent_radius = 11.8815
+signature = 1485.19
+sensor_strength = 1.0
+tool_slots_small = 0
+tool_slots_medium = 3
+tool_slots_large = 0
+module_slots = 1
+module_slot_size = "medium"
+equipped_tools = [ "preset_harpoon", "preset_missile_light" ]
+equipped_modules = [ "preset_damper_medium" ]
+salvage_yield = {
+"commodity_scrap": 19,
+"commodity_tech": 6
+}
+power_capacity = 102.255
+power_regen = 4.83194
+mass = 5823.98
+linear_thrust = 385377.0
+angular_thrust = 423544.0
+alignment_threshold_angle_deg = 45.0
+model_scale = 0.990124
+variant_type = 2
+law_genes = {
+"shares": {
+"capacitor": 0.0526729,
+"engine": 0.173442,
+"hold": 0.490141,
+"reactor": 0.0459151,
+"structure": 0.237829
+},
+"size": 0.970664,
+"tool_share": 0.633734,
+"type": 2
+}
