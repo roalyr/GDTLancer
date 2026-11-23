@@ -357,15 +357,30 @@ func test_the_archetypes_view_has_every_design_with_its_numbers():
 		assert_gt(design.mass, 0.0, design.name)
 	assert_eq(names, BridgeCommands.Validator.archetype_names())
 	assert_true(view.ranges.has("engage"))
+	# Each design's numbers against its own files: the archetypes are picked again from evolution's
+	# drafts (MAINTAINING.md), so no design's parts or size are pinned here.
+	for design in view.archetypes:
+		var ship = load(design.ship)
+		assert_almost_eq(design.length, float(ship.model_scale) * Constants.SHIP_MODEL_LENGTH, 0.001, design.name)
+		var ids: Array = Array(ship.equipped_tools) + Array(ship.equipped_modules)
+		assert_eq(design.parts.size(), ids.size(), design.name)
+		var afterburner := false
+		for part in design.parts:
+			assert_ne(part.name, "", design.name)
+			afterburner = afterburner or "afterburner" in part.id
+		if afterburner:
+			assert_gt(design.burst_speed, design.top_speed, design.name + ": its afterburner")
+		else:
+			assert_almost_eq(design.burst_speed, design.top_speed, 0.001, design.name + ": no afterburner")
 	var light: Dictionary = {}
 	for design in view.archetypes:
 		if design.name == "fighter_light":
 			light = design
 	assert_has(light.flown_by, "verdant", "Verdant flies it")
-	assert_almost_eq(light.length, 0.868992 * Constants.SHIP_MODEL_LENGTH, 0.001)
-	assert_eq(light.parts[0].name, "Missile Rack Mk I-light")
-	assert_gt(light.gun_dps, 0.0)
-	assert_gt(light.burst_speed, light.top_speed, "Its afterburner")
+	var gun_dps := 0.0
+	for design in view.archetypes:
+		gun_dps = max(gun_dps, design.gun_dps)
+	assert_gt(gun_dps, 0.0, "Guns' damage per second is counted")
 
 
 func test_the_factions_view_has_wars_both_ways_and_havens():
