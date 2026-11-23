@@ -21,7 +21,7 @@ tool_slots_large = 1
 module_slots = 8
 module_slot_size = "large"
 equipped_tools = [ "preset_harpoon" ]
-equipped_modules = [ "preset_afterburner_medium", "preset_plating_medium", "preset_plating_heavy", "preset_magazine_heavy", "preset_decoy_medium", "preset_decoy_medium" ]
+equipped_modules = [ "preset_afterburner_medium", "preset_plating_medium", "preset_plating_heavy", "preset_decoy_medium", "preset_decoy_medium" ]
 salvage_yield = {
 "commodity_scrap": 68,
 "commodity_tech": 21

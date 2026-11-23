@@ -9,6 +9,7 @@ extends SceneTree
 var Genome = null  # Loaded once the autoloads are in (the laws read Constants)
 var ShipLaws = null
 var Validator = null
+var PresetExporter = null
 
 
 func _initialize():
@@ -19,6 +20,7 @@ func _run() -> void:
 	Genome = load("res://src/core/evolution/genome.gd")
 	ShipLaws = load("res://src/core/systems/ship_laws.gd")
 	Validator = load("res://src/core/validation/content_validator.gd")
+	PresetExporter = load("res://src/core/evolution/preset_exporter.gd")
 	for name in Validator.archetype_names():
 		var agent_path: String = Validator._archetype_agent_path(name)
 		var agent = ResourceLoader.load(agent_path, "", true)
@@ -43,7 +45,7 @@ func _run() -> void:
 				tools.append(template_id)
 		var modules: Array = []
 		for part in genome.modules:
-			if not part.empty():
+			if not part.empty() and not PresetExporter.is_junk(part, genome):  # A bay without its weapon is left off, as export does
 				modules.append(Genome.part_template_id(part))
 		ship.equipped_tools = tools
 		ship.equipped_modules = modules

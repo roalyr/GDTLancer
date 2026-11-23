@@ -29,11 +29,11 @@ The picked designs, one per family and weight class (`archetypes/`: ship `preset
 | scavenger_light | scavenger | cautious | Harpoon Mk I | Thruster Mk I-light | 30 | +0.06 | 3023 | scavenger_light_22635i3 (era 68) |
 | scavenger_medium | scavenger | cautious | Harpoon Mk I | Lance Mk I-medium, Afterburner Mk I-light | 17 | +0.05 | 10200 | scavenger_medium_23965i2 (era 68) |
 | scavenger_heavy | scavenger | measured | Harpoon Mk I | Power Cell Mk I-light, Plating Mk I-heavy, Thruster Mk I-light, Power Cell Mk I-medium, Decoy Launcher Mk I-medium | 27 | +0.06 | 26855 | scavenger_heavy_17072i6 (era 68) |
-| scavenger_superheavy | scavenger | measured | Harpoon Mk I | Afterburner Mk I-medium, Plating Mk I-medium, Plating Mk I-heavy, Shell Bay Mk I-heavy, Decoy Launcher Mk I-medium x2 | 28 | +0.06 | 27078 | scavenger_superheavy_19851i1 (era 68) |
-| trader_light | trader | cautious |  | Missile Bay Mk I-light | 21 | +0.27 | 3462 | trader_light_22658i4 (era 68) |
+| scavenger_superheavy | scavenger | measured | Harpoon Mk I | Afterburner Mk I-medium, Plating Mk I-medium, Plating Mk I-heavy, Decoy Launcher Mk I-medium x2 | 28 | +0.06 | 27078 | scavenger_superheavy_19851i1 (era 68) |
+| trader_light | trader | cautious |  |  | 21 | +0.27 | 3462 | trader_light_22658i4 (era 68) |
 | trader_medium | trader | cautious | Laser Mk I-medium |  | 29 | +0.17 | 9450 | trader_medium_21988i2 (era 68) |
-| trader_heavy | trader | cautious | Missile Rack Mk I-light x2, Laser Mk I-medium x2 | Shell Bay Mk I-heavy | 17 | +0.08 | 26240 | trader_heavy_22629i3 (era 68) |
-| trader_superheavy | trader | cautious | Missile Rack Mk I-light x2, Missile Rack Mk I-medium x2, Laser Mk I-light | Shell Bay Mk I-heavy | 26 | -0.07 | 30409 | trader_superheavy_23861i2 (era 68) |
+| trader_heavy | trader | cautious | Missile Rack Mk I-light x2, Laser Mk I-medium x2 |  | 17 | +0.08 | 26240 | trader_heavy_22629i3 (era 68) |
+| trader_superheavy | trader | cautious | Missile Rack Mk I-light x2, Missile Rack Mk I-medium x2, Laser Mk I-light |  | 26 | -0.07 | 30409 | trader_superheavy_23861i2 (era 68) |
 
 ## Fighter
 

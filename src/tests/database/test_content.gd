@@ -29,6 +29,20 @@ func test_archetypes_are_complete():
 	assert_eq(_texts(Validator.archetypes()), [])
 
 
+# A shell bay feeds cannons and a missile bay missile racks: an archetype carries neither without its
+# weapon (dead weight; export and refit_archetypes leave such a bay off).
+func test_no_archetype_carries_a_bay_without_its_weapon():
+	for name in Validator.archetype_names():
+		var agent = load(Validator._archetype_agent_path(name))
+		var ship = load(Constants.ARCHETYPES_DIR.plus_file(agent.ship_template_id + ".tres"))
+		var kinds := {}
+		for part_id in ship.equipped_tools + ship.equipped_modules:
+			var part = load(Constants.PARTS_DIR.plus_file(str(part_id) + ".tres"))
+			kinds[str(part.get("tool_type") if "tool_type" in part else part.module_kind)] = true
+		assert_false(kinds.has("magazine") and not kinds.has("cannon"), "%s: a shell bay without a cannon" % name)
+		assert_false(kinds.has("rack") and not kinds.has("missile"), "%s: a missile bay without a missile rack" % name)
+
+
 # Stats come from genes (apply_laws, refit_archetypes): a stat edited by hand, or genes edited without
 # the tool that applies them, is caught and the problem names the tool.
 func test_stats_off_their_genes_are_caught():

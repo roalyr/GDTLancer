@@ -21,7 +21,7 @@ tool_slots_large = 8
 module_slots = 1
 module_slot_size = "large"
 equipped_tools = [ "preset_missile_light", "preset_missile_medium", "preset_missile_light", "preset_laser_light", "preset_missile_medium" ]
-equipped_modules = [ "preset_magazine_heavy" ]
+equipped_modules = [  ]
 salvage_yield = {
 "commodity_scrap": 76,
 "commodity_tech": 19

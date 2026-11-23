@@ -21,7 +21,7 @@ tool_slots_large = 0
 module_slots = 1
 module_slot_size = "small"
 equipped_tools = [  ]
-equipped_modules = [ "preset_rack_light" ]
+equipped_modules = [  ]
 salvage_yield = {
 "commodity_scrap": 9,
 "commodity_tech": 2
