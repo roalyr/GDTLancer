@@ -31,8 +31,8 @@ weight_class = "medium"
 archetype = "prospector medium"
 temperament = "cautious"
 traits = [ "wary" ]
-lives = 9
-fitness = 0.35972
+lives = 16
+fitness = 0.249961
 origin = "prospector_medium_22698i2 (era 68)"
 genome = {
 "behavior": {

@@ -31,8 +31,8 @@ weight_class = "medium"
 archetype = "scavenger medium"
 temperament = "cautious"
 traits = [ "lets runners go" ]
-lives = 19
-fitness = -0.0732075
+lives = 20
+fitness = -0.0613178
 origin = ""
 genome = {
 "behavior": {

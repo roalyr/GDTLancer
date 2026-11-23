@@ -32,7 +32,7 @@ archetype = "raider heavy"
 temperament = "cautious"
 traits = [ "stubborn", "lets runners go", "wary" ]
 lives = 8
-fitness = 0.0177553
+fitness = -0.0505304
 origin = "raider_heavy_22657i4 (era 68)"
 genome = {
 "behavior": {
