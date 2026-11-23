@@ -31,8 +31,8 @@ weight_class = "light"
 archetype = "fighter light"
 temperament = "cautious"
 traits = [ "picks its fights", "stubborn", "skittish", "loud" ]
-lives = 25
-fitness = 0.96105
+lives = 29
+fitness = 0.750394
 origin = ""
 genome = {
 "behavior": {

@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_prospector_medium_22643i3"
+ship_model_name = "Prospector Medium 22643 I 3 Mk I"
+base_value = 7134
+ship_scene = ExtResource( 2 )
+hull_integrity = 111
+cargo_capacity = 16
+interaction_radius = 14.4379
+apparent_radius = 11.5503
+signature = 1443.79
+sensor_strength = 1.0
+tool_slots_small = 0
+tool_slots_medium = 2
+tool_slots_large = 0
+module_slots = 2
+module_slot_size = "medium"
+equipped_tools = [ "preset_laser_medium", "preset_harpoon" ]
+equipped_modules = [ "preset_lance_light" ]
+salvage_yield = {
+"commodity_scrap": 18,
+"commodity_tech": 8
+}
+power_capacity = 89.2719
+power_regen = 6.15463
+mass = 5350.44
+linear_thrust = 476495.0
+angular_thrust = 509089.0
+alignment_threshold_angle_deg = 45.0
+model_scale = 0.962526
+variant_type = 1
+law_genes = {
+"shares": {
+"capacitor": 0.050055,
+"engine": 0.239,
+"hold": 0.0881988,
+"reactor": 0.0653946,
+"structure": 0.557352
+},
+"size": 0.891739,
+"tool_share": 0.590348,
+"type": 1
+}

@@ -32,7 +32,7 @@ archetype = "scavenger heavy"
 temperament = "measured"
 traits = [  ]
 lives = 23
-fitness = 0.0415342
+fitness = 0.0234183
 origin = "scavenger_heavy_17072i6 (era 68)"
 genome = {
 "behavior": {
