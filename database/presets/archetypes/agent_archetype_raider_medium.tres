@@ -32,7 +32,7 @@ archetype = "raider medium"
 temperament = "cautious"
 traits = [ "picks its fights", "stubborn", "skittish" ]
 lives = 29
-fitness = 0.202029
+fitness = 0.199979
 origin = "raider_medium_22862i1 (era 68)"
 genome = {
 "behavior": {

@@ -32,7 +32,7 @@ archetype = "raider heavy"
 temperament = "cautious"
 traits = [ "quick to fight", "standoff", "skittish", "relentless", "merciful", "shoots back", "hoards" ]
 lives = 6
-fitness = 0.202686
+fitness = 0.149222
 origin = "raider_heavy_22708i1 (era 68)"
 genome = {
 "behavior": {

@@ -7,42 +7,42 @@
 script = ExtResource( 1 )
 template_id = "preset_ship_archetype_prospector_medium"
 ship_model_name = "Prospector Mk I-medium"
-base_value = 7134
+base_value = 13036
 ship_scene = ExtResource( 2 )
-hull_integrity = 111
-cargo_capacity = 16
-interaction_radius = 14.4379
-apparent_radius = 11.5503
-signature = 1443.79
+hull_integrity = 152
+cargo_capacity = 19
+interaction_radius = 17.6513
+apparent_radius = 14.121
+signature = 1765.13
 sensor_strength = 1.0
 tool_slots_small = 0
-tool_slots_medium = 2
+tool_slots_medium = 3
 tool_slots_large = 0
-module_slots = 2
+module_slots = 3
 module_slot_size = "medium"
 equipped_tools = [ "preset_laser_medium", "preset_harpoon" ]
-equipped_modules = [ "preset_lance_light" ]
+equipped_modules = [ "preset_lance_medium", "preset_afterburner_medium" ]
 salvage_yield = {
-"commodity_scrap": 18,
-"commodity_tech": 8
+"commodity_scrap": 33,
+"commodity_tech": 21
 }
-power_capacity = 89.272
-power_regen = 6.15462
-mass = 5350.43
-linear_thrust = 476494.0
-angular_thrust = 509088.0
+power_capacity = 171.03
+power_regen = 8.84895
+mass = 9777.06
+linear_thrust = 1.24704e+06
+angular_thrust = 1.62888e+06
 alignment_threshold_angle_deg = 45.0
-model_scale = 0.962526
-variant_type = 1
+model_scale = 1.17675
+variant_type = 2
 law_genes = {
 "shares": {
-"capacitor": 0.050055,
-"engine": 0.239,
-"hold": 0.0881988,
-"reactor": 0.0653946,
-"structure": 0.557352
+"capacitor": 0.052479,
+"engine": 0.380913,
+"hold": 0.0595576,
+"reactor": 0.0535715,
+"structure": 0.453479
 },
-"size": 0.891739,
-"tool_share": 0.590348,
-"type": 1
+"size": 1.62951,
+"tool_share": 0.517324,
+"type": 2
 }

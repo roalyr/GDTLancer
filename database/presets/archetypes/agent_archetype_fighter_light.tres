@@ -31,8 +31,8 @@ weight_class = "light"
 archetype = "fighter light"
 temperament = "cautious"
 traits = [ "picks its fights", "stubborn", "skittish", "loud" ]
-lives = 29
-fitness = 0.750394
+lives = 31
+fitness = 0.679068
 origin = "fighter_light_22672i1 (era 68)"
 genome = {
 "behavior": {

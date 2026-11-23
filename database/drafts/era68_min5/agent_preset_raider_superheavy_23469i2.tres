@@ -1,0 +1,124 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_raider_superheavy_23469i2"
+agent_type = "npc"
+ship_template_id = "preset_ship_raider_superheavy_23469i2"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.8,
+"caution": 0.125334,
+"disengage": 0.1,
+"engage": 0.3,
+"haul": 0.05,
+"mercy": 0.832776,
+"prospect": 0.164746,
+"pursuit": 2.37461,
+"quiet": 0.187639,
+"range": 0.857074,
+"retreat_hull": 0.433831,
+"return_fire": 0.647453,
+"teamwork": 1.01945,
+"trade": 0.0
+}
+role = "raider"
+family = "raider"
+weight_class = "superheavy"
+archetype = "raider superheavy"
+temperament = "measured"
+traits = [ "quick to fight", "stubborn", "relentless", "merciful", "bold", "sells often" ]
+lives = 9
+fitness = 0.633434
+origin = ""
+genome = {
+"behavior": {
+"burn": 0.8,
+"caution": 0.125334,
+"disengage": 0.1,
+"engage": 0.3,
+"haul": 0.05,
+"mercy": 0.832776,
+"prospect": 0.164746,
+"pursuit": 2.37461,
+"quiet": 0.187639,
+"range": 0.857074,
+"retreat_hull": 0.433831,
+"return_fire": 0.647453,
+"teamwork": 1.01945,
+"trade": 0.0
+},
+"modules": [ {
+"genes": {
+"mass": 250.0
+},
+"kind": "sensor",
+"type": 2
+}, {
+}, {
+"genes": {
+"mass": 500.0
+},
+"kind": "sensor",
+"type": 3
+}, {
+"genes": {
+"mass": 600.0
+},
+"kind": "power_cell",
+"type": 3
+}, {
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.0231782,
+"engine": 0.366939,
+"hold": 0.0627494,
+"reactor": 0.091597,
+"structure": 0.455536
+},
+"size": 5.20058,
+"tool_share": 0.565913,
+"type": 3
+},
+"tools": [ {
+"genes": {
+"count": 3.0,
+"round_mass": 260.0
+},
+"kind": "missile",
+"type": 3
+}, {
+"genes": {
+"count": 38.5,
+"mass": 701.101,
+"round_mass": 16.606
+},
+"kind": "cannon",
+"type": 3
+}, {
+"genes": {
+"count": 60.0,
+"mass": 310.645,
+"round_mass": 5.172
+},
+"kind": "cannon",
+"type": 2
+}, {
+}, {
+"genes": {
+},
+"kind": "harpoon",
+"type": 0
+}, {
+"genes": {
+"energy": 16.0,
+"mass": 1100.0
+},
+"kind": "laser",
+"type": 3
+} ]
+}

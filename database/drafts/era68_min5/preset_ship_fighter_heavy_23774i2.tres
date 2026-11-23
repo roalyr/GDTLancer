@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_fighter_heavy_23774i2"
+ship_model_name = "Fighter Heavy 23774 I 2 Mk I"
+base_value = 15499
+ship_scene = ExtResource( 2 )
+hull_integrity = 214
+cargo_capacity = 20
+interaction_radius = 18.6994
+apparent_radius = 14.9595
+signature = 1869.94
+sensor_strength = 1.0
+tool_slots_small = 0
+tool_slots_medium = 0
+tool_slots_large = 5
+module_slots = 1
+module_slot_size = "large"
+equipped_tools = [ "preset_cannon_medium", "preset_missile_light", "preset_missile_light", "preset_missile_heavy" ]
+equipped_modules = [ "preset_power_cell_light" ]
+salvage_yield = {
+"commodity_scrap": 39,
+"commodity_tech": 19
+}
+power_capacity = 105.396
+power_regen = 14.9961
+mass = 11624.1
+linear_thrust = 1.00971e+06
+angular_thrust = 1.39719e+06
+alignment_threshold_angle_deg = 45.0
+model_scale = 1.24663
+variant_type = 3
+law_genes = {
+"shares": {
+"capacitor": 0.0272009,
+"engine": 0.253398,
+"hold": 0.0521435,
+"reactor": 0.0809697,
+"structure": 0.586288
+},
+"size": 1.93735,
+"tool_share": 0.959848,
+"type": 3
+}
