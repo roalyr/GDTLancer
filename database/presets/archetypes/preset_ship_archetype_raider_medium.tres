@@ -7,42 +7,42 @@
 script = ExtResource( 1 )
 template_id = "preset_ship_archetype_raider_medium"
 ship_model_name = "Raider Mk I-medium"
-base_value = 7855
+base_value = 10200
 ship_scene = ExtResource( 2 )
-hull_integrity = 67
-cargo_capacity = 40
-interaction_radius = 14.9088
-apparent_radius = 11.9271
-signature = 1490.88
+hull_integrity = 107
+cargo_capacity = 13
+interaction_radius = 16.2653
+apparent_radius = 13.0122
+signature = 1626.53
 sensor_strength = 1.0
 tool_slots_small = 0
-tool_slots_medium = 3
+tool_slots_medium = 2
 tool_slots_large = 0
-module_slots = 1
+module_slots = 2
 module_slot_size = "medium"
-equipped_tools = [ "preset_harpoon", "preset_cannon_medium", "preset_cannon_medium" ]
-equipped_modules = [ "preset_power_cell_light" ]
+equipped_tools = [ "preset_cannon_light", "preset_harpoon" ]
+equipped_modules = [ "preset_lance_medium", "preset_afterburner_medium" ]
 salvage_yield = {
-"commodity_scrap": 20,
-"commodity_tech": 14
+"commodity_scrap": 26,
+"commodity_tech": 20
 }
-power_capacity = 121.898
-power_regen = 8.54516
-mass = 5891.26
-linear_thrust = 777863.0
-angular_thrust = 858180.0
+power_capacity = 115.675
+power_regen = 7.13491
+mass = 7650.0
+linear_thrust = 1.21858e+06
+angular_thrust = 1.46672e+06
 alignment_threshold_angle_deg = 45.0
-model_scale = 0.993922
-variant_type = 1
+model_scale = 1.08435
+variant_type = 2
 law_genes = {
 "shares": {
-"capacitor": 0.062074,
-"engine": 0.374174,
-"hold": 0.205702,
-"reactor": 0.0855217,
-"structure": 0.272528
+"capacitor": 0.0453626,
+"engine": 0.474497,
+"hold": 0.0505344,
+"reactor": 0.0538999,
+"structure": 0.375706
 },
-"size": 0.981877,
-"tool_share": 1.0,
-"type": 1
+"size": 1.275,
+"tool_share": 0.551742,
+"type": 2
 }
