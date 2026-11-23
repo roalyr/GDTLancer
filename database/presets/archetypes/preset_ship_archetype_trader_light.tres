@@ -7,42 +7,42 @@
 script = ExtResource( 1 )
 template_id = "preset_ship_archetype_trader_light"
 ship_model_name = "Trader Mk I-light"
-base_value = 1600
+base_value = 3462
 ship_scene = ExtResource( 2 )
-hull_integrity = 40
-cargo_capacity = 3
-interaction_radius = 8.77205
-apparent_radius = 7.01764
-signature = 877.205
+hull_integrity = 41
+cargo_capacity = 40
+interaction_radius = 11.3456
+apparent_radius = 9.0765
+signature = 1134.56
 sensor_strength = 1.0
 tool_slots_small = 1
 tool_slots_medium = 0
 tool_slots_large = 0
 module_slots = 1
 module_slot_size = "small"
-equipped_tools = [ "preset_laser_light" ]
-equipped_modules = [ "preset_plating_light" ]
+equipped_tools = [  ]
+equipped_modules = [ "preset_rack_light" ]
 salvage_yield = {
-"commodity_scrap": 4,
-"commodity_tech": 1
+"commodity_scrap": 9,
+"commodity_tech": 2
 }
-power_capacity = 25.5336
-power_regen = 1.90038
-mass = 1200.0
-linear_thrust = 47110.2
-angular_thrust = 30580.7
+power_capacity = 49.4564
+power_regen = 1.28422
+mass = 2596.34
+linear_thrust = 142257.0
+angular_thrust = 119436.0
 alignment_threshold_angle_deg = 45.0
-model_scale = 0.584804
+model_scale = 0.756375
 variant_type = 1
 law_genes = {
 "shares": {
-"capacitor": 0.063834,
-"engine": 0.0814709,
-"hold": 0.0736101,
-"reactor": 0.0790099,
-"structure": 0.702075
+"capacitor": 0.0571454,
+"engine": 0.128561,
+"hold": 0.460146,
+"reactor": 0.023626,
+"structure": 0.330522
 },
-"size": 0.2,
-"tool_share": 0.376977,
+"size": 0.432724,
+"tool_share": 0.602973,
 "type": 1
 }

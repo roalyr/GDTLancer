@@ -7,42 +7,42 @@
 script = ExtResource( 1 )
 template_id = "preset_ship_archetype_trader_superheavy"
 ship_model_name = "Trader Mk I-superheavy"
-base_value = 28659
+base_value = 29971
 ship_scene = ExtResource( 2 )
-hull_integrity = 238
-cargo_capacity = 280
-interaction_radius = 22.9517
-apparent_radius = 18.3614
-signature = 2295.17
+hull_integrity = 208
+cargo_capacity = 301
+interaction_radius = 23.2968
+apparent_radius = 18.6375
+signature = 2329.68
 sensor_strength = 1.0
 tool_slots_small = 0
 tool_slots_medium = 0
-tool_slots_large = 8
-module_slots = 1
+tool_slots_large = 4
+module_slots = 5
 module_slot_size = "large"
-equipped_tools = [ "preset_laser_medium", "preset_missile_light", "preset_laser_light", "preset_laser_heavy" ]
-equipped_modules = [ "preset_magazine_medium" ]
+equipped_tools = [ "preset_missile_heavy", "preset_cannon_medium" ]
+equipped_modules = [ "preset_magazine_heavy", "preset_damper_medium", "preset_damper_medium" ]
 salvage_yield = {
-"commodity_scrap": 72,
-"commodity_tech": 18
+"commodity_scrap": 75,
+"commodity_tech": 29
 }
-power_capacity = 560.518
-power_regen = 10.712
-mass = 21494.3
-linear_thrust = 1.02405e+06
-angular_thrust = 1.73927e+06
+power_capacity = 390.556
+power_regen = 20.2279
+mass = 22478.6
+linear_thrust = 1.4468e+06
+angular_thrust = 2.49423e+06
 alignment_threshold_angle_deg = 45.0
-model_scale = 1.53011
-variant_type = 4
+model_scale = 1.55312
+variant_type = 3
 law_genes = {
 "shares": {
-"capacitor": 0.0782327,
-"engine": 0.139202,
-"hold": 0.391064,
-"reactor": 0.0301313,
-"structure": 0.36137
+"capacitor": 0.0521237,
+"engine": 0.195417,
+"hold": 0.401456,
+"reactor": 0.0583885,
+"structure": 0.292615
 },
-"size": 3.58238,
-"tool_share": 0.995375,
-"type": 4
+"size": 3.74643,
+"tool_share": 0.441964,
+"type": 3
 }

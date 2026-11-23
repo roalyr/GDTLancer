@@ -1,0 +1,97 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_fighter_light_22672i1"
+agent_type = "npc"
+ship_template_id = "preset_ship_fighter_light_22672i1"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.603535,
+"caution": 0.527037,
+"disengage": 0.1,
+"engage": 3.94288,
+"haul": 0.145953,
+"mercy": 0.354472,
+"prospect": 0.0541479,
+"pursuit": 0.501835,
+"quiet": 0.0475389,
+"range": 1.12022,
+"retreat_hull": 0.69746,
+"return_fire": 0.30372,
+"teamwork": 0.723458,
+"trade": 0.0
+}
+role = "fighter"
+family = "fighter"
+weight_class = "light"
+archetype = "fighter light"
+temperament = "cautious"
+traits = [ "picks its fights", "stubborn", "skittish", "loud" ]
+lives = 13
+fitness = 0.855626
+origin = ""
+genome = {
+"behavior": {
+"burn": 0.603535,
+"caution": 0.527037,
+"disengage": 0.1,
+"engage": 3.94288,
+"haul": 0.145953,
+"mercy": 0.354472,
+"prospect": 0.0541479,
+"pursuit": 0.501835,
+"quiet": 0.0475389,
+"range": 1.12022,
+"retreat_hull": 0.69746,
+"return_fire": 0.30372,
+"teamwork": 0.723458,
+"trade": 0.0
+},
+"modules": [ {
+"genes": {
+"mass": 124.313
+},
+"kind": "power_cell",
+"type": 1
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.0682493,
+"engine": 0.351302,
+"hold": 0.191662,
+"reactor": 0.0809082,
+"structure": 0.307879
+},
+"size": 0.70869,
+"tool_share": 0.95321,
+"type": 1
+},
+"tools": [ {
+"genes": {
+"energy": 2.511,
+"mass": 150.0
+},
+"kind": "laser",
+"type": 1
+}, {
+"genes": {
+"count": 80.0,
+"mass": 150.0,
+"round_mass": 2.0
+},
+"kind": "cannon",
+"type": 1
+}, {
+"genes": {
+"count": 80.0,
+"mass": 150.0,
+"round_mass": 2.0
+},
+"kind": "cannon",
+"type": 1
+} ]
+}

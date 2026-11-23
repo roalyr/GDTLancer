@@ -10,19 +10,19 @@ ship_template_id = "preset_ship_archetype_scavenger_medium"
 faction = ""
 skill = 0.5
 behavior = {
-"burn": 0.109507,
-"caution": 0.476433,
-"disengage": 1.21171,
-"engage": 2.40972,
-"haul": 0.130449,
-"mercy": 0.610471,
-"prospect": 0.109814,
-"pursuit": 0.00375043,
-"quiet": 0.101816,
-"range": 1.30755,
-"retreat_hull": 0.591567,
-"return_fire": 0.232071,
-"teamwork": 0.437072,
+"burn": 0.302337,
+"caution": 0.492513,
+"disengage": 0.654272,
+"engage": 1.19111,
+"haul": 0.309084,
+"mercy": 0.689986,
+"prospect": 0.0463492,
+"pursuit": 0.0475077,
+"quiet": 0.305368,
+"range": 1.13742,
+"retreat_hull": 0.244892,
+"return_fire": 0.712441,
+"teamwork": 1.26862,
 "trade": 0.0
 }
 role = "scavenger"
@@ -30,44 +30,58 @@ family = "scavenger"
 weight_class = "medium"
 archetype = "scavenger medium"
 temperament = "cautious"
-traits = [ "standoff", "skittish", "lets runners go", "loud" ]
-lives = 10
-fitness = -0.120482
-origin = "scavenger_medium_22009i2 (era 68)"
+traits = [ "lets runners go" ]
+lives = 19
+fitness = -0.0732075
+origin = "scavenger_medium_19839i1 (era 68)"
 genome = {
 "behavior": {
-"burn": 0.109507,
-"caution": 0.476433,
-"disengage": 1.21171,
-"engage": 2.40972,
-"haul": 0.130449,
-"mercy": 0.610471,
-"prospect": 0.109814,
-"pursuit": 0.00375043,
-"quiet": 0.101816,
-"range": 1.30755,
-"retreat_hull": 0.591567,
-"return_fire": 0.232071,
-"teamwork": 0.437072,
+"burn": 0.302337,
+"caution": 0.492513,
+"disengage": 0.654272,
+"engage": 1.19111,
+"haul": 0.309084,
+"mercy": 0.689986,
+"prospect": 0.0463492,
+"pursuit": 0.0475077,
+"quiet": 0.305368,
+"range": 1.13742,
+"retreat_hull": 0.244892,
+"return_fire": 0.712441,
+"teamwork": 1.26862,
 "trade": 0.0
 },
 "modules": [ {
+"genes": {
+"mass": 124.313
+},
+"kind": "power_cell",
+"type": 1
 }, {
-}, {
+"genes": {
+"mass": 400.0
+},
+"kind": "thruster",
+"type": 2
 } ],
 "ship": {
 "shares": {
-"capacitor": 0.0544393,
-"engine": 0.416416,
-"hold": 0.138096,
-"reactor": 0.0737782,
-"structure": 0.31727
+"capacitor": 0.0347771,
+"engine": 0.082639,
+"hold": 0.0649403,
+"reactor": 0.0311211,
+"structure": 0.786523
 },
-"size": 0.956966,
-"tool_share": 0.182975,
-"type": 1
+"size": 1.23836,
+"tool_share": 0.539887,
+"type": 2
 },
 "tools": [ {
+"genes": {
+},
+"kind": "harpoon",
+"type": 0
+}, {
 "genes": {
 },
 "kind": "harpoon",

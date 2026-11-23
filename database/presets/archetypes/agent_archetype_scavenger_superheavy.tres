@@ -10,19 +10,19 @@ ship_template_id = "preset_ship_archetype_scavenger_superheavy"
 faction = ""
 skill = 0.5
 behavior = {
-"burn": 0.428885,
-"caution": 0.222464,
-"disengage": 0.511755,
-"engage": 0.53869,
-"haul": 0.326874,
-"mercy": 0.609431,
-"prospect": 0.0587023,
-"pursuit": 1.17684,
-"quiet": 0.186066,
-"range": 0.914959,
-"retreat_hull": 0.0805857,
-"return_fire": 0.491501,
-"teamwork": 0.851005,
+"burn": 0.358822,
+"caution": 0.434162,
+"disengage": 0.671153,
+"engage": 0.960091,
+"haul": 0.172783,
+"mercy": 0.80588,
+"prospect": 0.0,
+"pursuit": 1.46529,
+"quiet": 0.375438,
+"range": 0.953951,
+"retreat_hull": 0.0,
+"return_fire": 0.70961,
+"teamwork": 1.15958,
 "trade": 0.0
 }
 role = "scavenger"
@@ -30,74 +30,79 @@ family = "scavenger"
 weight_class = "superheavy"
 archetype = "scavenger superheavy"
 temperament = "measured"
-traits = [ "quick to fight" ]
-lives = 8
-fitness = 0.00510187
-origin = "scavenger_superheavy_20784i2 (era 68)"
+traits = [ "merciful" ]
+lives = 18
+fitness = 0.053206
+origin = "scavenger_superheavy_19851i1 (era 68)"
 genome = {
 "behavior": {
-"burn": 0.428885,
-"caution": 0.222464,
-"disengage": 0.511755,
-"engage": 0.53869,
-"haul": 0.326874,
-"mercy": 0.609431,
-"prospect": 0.0587023,
-"pursuit": 1.17684,
-"quiet": 0.186066,
-"range": 0.914959,
-"retreat_hull": 0.0805857,
-"return_fire": 0.491501,
-"teamwork": 0.851005,
+"burn": 0.358822,
+"caution": 0.434162,
+"disengage": 0.671153,
+"engage": 0.960091,
+"haul": 0.172783,
+"mercy": 0.80588,
+"prospect": 0.0,
+"pursuit": 1.46529,
+"quiet": 0.375438,
+"range": 0.953951,
+"retreat_hull": 0.0,
+"return_fire": 0.70961,
+"teamwork": 1.15958,
 "trade": 0.0
 },
 "modules": [ {
 "genes": {
-"mass": 200.0
+"mass": 345.283
 },
-"kind": "thruster",
-"type": 1
-}, {
-}, {
-"genes": {
-"mass": 100.0
-},
-"kind": "decoy",
-"type": 1
-}, {
-"genes": {
-"mass": 300.0
-},
-"kind": "rack",
+"kind": "afterburner",
 "type": 2
 }, {
+"genes": {
+"mass": 981.078
+},
+"kind": "plating",
+"type": 2
 }, {
+"genes": {
+"mass": 2000.0
+},
+"kind": "plating",
+"type": 3
+}, {
+"genes": {
+"mass": 400.0
+},
+"kind": "magazine",
+"type": 3
+}, {
+}, {
+"genes": {
+"mass": 200.0
+},
+"kind": "decoy",
+"type": 2
+}, {
+"genes": {
+"mass": 200.0
+},
+"kind": "decoy",
+"type": 2
 }, {
 } ],
 "ship": {
 "shares": {
-"capacitor": 0.104038,
-"engine": 0.116902,
-"hold": 0.0400537,
-"reactor": 0.0810086,
-"structure": 0.657998
+"capacitor": 0.0432841,
+"engine": 0.103296,
+"hold": 0.0480182,
+"reactor": 0.101974,
+"structure": 0.703427
 },
-"size": 5.64999,
-"tool_share": 0.3856,
+"size": 3.38474,
+"tool_share": 0.0202751,
 "type": 3
 },
 "tools": [ {
-"genes": {
-},
-"kind": "harpoon",
-"type": 0
-}, {
-"genes": {
-},
-"kind": "harpoon",
-"type": 0
-}, {
-}, {
 "genes": {
 },
 "kind": "harpoon",

@@ -7,42 +7,42 @@
 script = ExtResource( 1 )
 template_id = "preset_ship_archetype_scavenger_superheavy"
 ship_model_name = "Scavenger Mk I-superheavy"
-base_value = 45200
+base_value = 27078
 ship_scene = ExtResource( 2 )
-hull_integrity = 553
-cargo_capacity = 45
-interaction_radius = 26.7161
-apparent_radius = 21.3729
-signature = 2671.61
+hull_integrity = 388
+cargo_capacity = 33
+interaction_radius = 22.5216
+apparent_radius = 18.0173
+signature = 2252.16
 sensor_strength = 1.0
 tool_slots_small = 0
 tool_slots_medium = 0
-tool_slots_large = 4
-module_slots = 7
+tool_slots_large = 1
+module_slots = 8
 module_slot_size = "large"
 equipped_tools = [ "preset_harpoon" ]
-equipped_modules = [ "preset_thruster_light", "preset_decoy_light", "preset_rack_medium" ]
+equipped_modules = [ "preset_afterburner_medium", "preset_plating_medium", "preset_plating_heavy", "preset_magazine_heavy", "preset_decoy_medium", "preset_decoy_medium" ]
 salvage_yield = {
-"commodity_scrap": 113,
-"commodity_tech": 34
+"commodity_scrap": 68,
+"commodity_tech": 21
 }
-power_capacity = 1175.63
-power_regen = 39.3116
-mass = 33899.9
-linear_thrust = 1.31877e+06
-angular_thrust = 2.6072e+06
+power_capacity = 293.011
+power_regen = 30.4939
+mass = 20308.4
+linear_thrust = 743933.0
+angular_thrust = 1.23984e+06
 alignment_threshold_angle_deg = 45.0
-model_scale = 1.78108
+model_scale = 1.50144
 variant_type = 3
 law_genes = {
 "shares": {
-"capacitor": 0.104038,
-"engine": 0.116902,
-"hold": 0.0400537,
-"reactor": 0.0810086,
-"structure": 0.657998
+"capacitor": 0.0432841,
+"engine": 0.103296,
+"hold": 0.0480182,
+"reactor": 0.101974,
+"structure": 0.703427
 },
-"size": 5.64999,
-"tool_share": 0.3856,
+"size": 3.38474,
+"tool_share": 0.0202751,
 "type": 3
 }

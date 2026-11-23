@@ -9,8 +9,8 @@ template_id = "preset_ship_archetype_raider_medium"
 ship_model_name = "Raider Mk I-medium"
 base_value = 7855
 ship_scene = ExtResource( 2 )
-hull_integrity = 71
-cargo_capacity = 42
+hull_integrity = 67
+cargo_capacity = 40
 interaction_radius = 14.9088
 apparent_radius = 11.9271
 signature = 1490.88
@@ -24,23 +24,23 @@ equipped_tools = [ "preset_harpoon", "preset_cannon_medium", "preset_cannon_medi
 equipped_modules = [ "preset_power_cell_light" ]
 salvage_yield = {
 "commodity_scrap": 20,
-"commodity_tech": 13
+"commodity_tech": 14
 }
-power_capacity = 112.372
-power_regen = 8.56984
+power_capacity = 121.898
+power_regen = 8.54516
 mass = 5891.26
-linear_thrust = 740755.0
-angular_thrust = 817240.0
+linear_thrust = 777863.0
+angular_thrust = 858180.0
 alignment_threshold_angle_deg = 45.0
 model_scale = 0.993922
 variant_type = 1
 law_genes = {
 "shares": {
-"capacitor": 0.057223,
-"engine": 0.354394,
-"hold": 0.211584,
-"reactor": 0.0857962,
-"structure": 0.291003
+"capacitor": 0.062074,
+"engine": 0.374174,
+"hold": 0.205702,
+"reactor": 0.0855217,
+"structure": 0.272528
 },
 "size": 0.981877,
 "tool_share": 1.0,

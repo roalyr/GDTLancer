@@ -31,8 +31,8 @@ weight_class = "heavy"
 archetype = "scavenger heavy"
 temperament = "measured"
 traits = [  ]
-lives = 10
-fitness = -0.0595521
+lives = 12
+fitness = 0.019381
 origin = ""
 genome = {
 "behavior": {

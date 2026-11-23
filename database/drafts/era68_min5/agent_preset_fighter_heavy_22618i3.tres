@@ -31,8 +31,8 @@ weight_class = "heavy"
 archetype = "fighter heavy"
 temperament = "measured"
 traits = [ "stubborn", "lets runners go" ]
-lives = 10
-fitness = -0.0506098
+lives = 14
+fitness = 0.0230181
 origin = ""
 genome = {
 "behavior": {

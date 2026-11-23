@@ -10,72 +10,66 @@ ship_template_id = "preset_ship_archetype_trader_light"
 faction = ""
 skill = 0.5
 behavior = {
-"burn": 0.109267,
-"caution": 0.341396,
-"disengage": 2.55618,
-"engage": 4.0,
-"haul": 0.733029,
-"mercy": 0.00637004,
-"prospect": 1.0,
-"pursuit": 0.0,
-"quiet": 0.239247,
-"range": 1.00037,
-"retreat_hull": 0.162472,
-"return_fire": 0.507125,
-"teamwork": 0.441047,
-"trade": 0.962307
+"burn": 0.727176,
+"caution": 0.878882,
+"disengage": 2.94337,
+"engage": 3.7677,
+"haul": 0.232286,
+"mercy": 0.0696167,
+"prospect": 0.0,
+"pursuit": 1.52819,
+"quiet": 0.330541,
+"range": 1.21391,
+"retreat_hull": 0.417565,
+"return_fire": 0.746089,
+"teamwork": 1.47921,
+"trade": 0.942049
 }
 role = "trader"
 family = "trader"
 weight_class = "light"
 archetype = "trader light"
 temperament = "cautious"
-traits = [ "picks its fights", "quick to break off", "lets runners go", "ruthless", "hoards" ]
-lives = 6
-fitness = 0.02997
-origin = "trader_light_21716i3 (era 68)"
+traits = [ "picks its fights", "quick to break off", "ruthless", "wary" ]
+lives = 13
+fitness = 0.417085
+origin = "trader_light_22658i4 (era 68)"
 genome = {
 "behavior": {
-"burn": 0.109267,
-"caution": 0.341396,
-"disengage": 2.55618,
-"engage": 4.0,
-"haul": 0.733029,
-"mercy": 0.00637004,
-"prospect": 1.0,
-"pursuit": 0.0,
-"quiet": 0.239247,
-"range": 1.00037,
-"retreat_hull": 0.162472,
-"return_fire": 0.507125,
-"teamwork": 0.441047,
-"trade": 0.962307
+"burn": 0.727176,
+"caution": 0.878882,
+"disengage": 2.94337,
+"engage": 3.7677,
+"haul": 0.232286,
+"mercy": 0.0696167,
+"prospect": 0.0,
+"pursuit": 1.52819,
+"quiet": 0.330541,
+"range": 1.21391,
+"retreat_hull": 0.417565,
+"return_fire": 0.746089,
+"teamwork": 1.47921,
+"trade": 0.942049
 },
 "modules": [ {
 "genes": {
-"mass": 512.044
+"mass": 150.0
 },
-"kind": "plating",
+"kind": "rack",
 "type": 1
 } ],
 "ship": {
 "shares": {
-"capacitor": 0.063834,
-"engine": 0.0814709,
-"hold": 0.0736101,
-"reactor": 0.0790099,
-"structure": 0.702075
+"capacitor": 0.0571454,
+"engine": 0.128561,
+"hold": 0.460146,
+"reactor": 0.023626,
+"structure": 0.330522
 },
-"size": 0.2,
-"tool_share": 0.376977,
+"size": 0.432724,
+"tool_share": 0.602973,
 "type": 1
 },
 "tools": [ {
-"genes": {
-"energy": 2.511,
-"mass": 150.0
-},
-"kind": "laser",
-"type": 1
 } ]
 }

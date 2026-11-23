@@ -10,85 +10,90 @@ ship_template_id = "preset_ship_archetype_prospector_superheavy"
 faction = ""
 skill = 0.5
 behavior = {
-"burn": 0.258584,
-"caution": 0.575016,
-"disengage": 1.31831,
-"engage": 1.60213,
-"haul": 0.221208,
-"mercy": 0.267494,
-"prospect": 0.979448,
-"pursuit": 1.01651,
-"quiet": 0.327426,
-"range": 1.43295,
-"retreat_hull": 0.632118,
-"return_fire": 0.640636,
-"teamwork": 1.44401,
-"trade": 0.0
+"burn": 0.0,
+"caution": 1.0,
+"disengage": 0.1,
+"engage": 0.536517,
+"haul": 0.533256,
+"mercy": 0.45861,
+"prospect": 0.879591,
+"pursuit": 1.66383,
+"quiet": 0.180838,
+"range": 1.37075,
+"retreat_hull": 0.722526,
+"return_fire": 0.758954,
+"teamwork": 1.14878,
+"trade": 0.664387
 }
 role = "prospector"
 family = "prospector"
 weight_class = "superheavy"
 archetype = "prospector superheavy"
 temperament = "cautious"
-traits = [ "standoff", "skittish" ]
-lives = 6
-fitness = -0.0761225
-origin = "prospector_superheavy_22593i4 (era 68)"
+traits = [ "quick to fight", "stubborn", "standoff", "skittish", "wary" ]
+lives = 13
+fitness = 0.0277128
+origin = "prospector_superheavy_21739i3 (era 68)"
 genome = {
 "behavior": {
-"burn": 0.258584,
-"caution": 0.575016,
-"disengage": 1.31831,
-"engage": 1.60213,
-"haul": 0.221208,
-"mercy": 0.267494,
-"prospect": 0.979448,
-"pursuit": 1.01651,
-"quiet": 0.327426,
-"range": 1.43295,
-"retreat_hull": 0.632118,
-"return_fire": 0.640636,
-"teamwork": 1.44401,
-"trade": 0.0
+"burn": 0.0,
+"caution": 1.0,
+"disengage": 0.1,
+"engage": 0.536517,
+"haul": 0.533256,
+"mercy": 0.45861,
+"prospect": 0.879591,
+"pursuit": 1.66383,
+"quiet": 0.180838,
+"range": 1.37075,
+"retreat_hull": 0.722526,
+"return_fire": 0.758954,
+"teamwork": 1.14878,
+"trade": 0.664387
 },
 "modules": [ {
 "genes": {
-"count": 4.0,
-"nail_mass": 350.0
+"count": 2.781,
+"nail_mass": 300.238
 },
 "kind": "lance",
-"type": 3
+"type": 2
 }, {
 "genes": {
-"mass": 800.0
+"mass": 400.0
 },
-"kind": "afterburner",
+"kind": "thruster",
+"type": 2
+}, {
+"genes": {
+"mass": 2000.0
+},
+"kind": "plating",
 "type": 3
 }, {
 "genes": {
-"mass": 120.0
+"mass": 250.0
 },
 "kind": "sensor",
-"type": 1
+"type": 2
+}, {
 }, {
 "genes": {
-"mass": 600.0
+"mass": 400.0
 },
-"kind": "rack",
+"kind": "decoy",
 "type": 3
-}, {
-}, {
 } ],
 "ship": {
 "shares": {
-"capacitor": 0.056607,
-"engine": 0.189595,
-"hold": 0.0659005,
-"reactor": 0.127965,
-"structure": 0.559933
+"capacitor": 0.0498132,
+"engine": 0.26972,
+"hold": 0.152509,
+"reactor": 0.123883,
+"structure": 0.404075
 },
-"size": 3.59274,
-"tool_share": 0.323758,
+"size": 3.89623,
+"tool_share": 0.313125,
 "type": 4
 },
 "tools": [ {

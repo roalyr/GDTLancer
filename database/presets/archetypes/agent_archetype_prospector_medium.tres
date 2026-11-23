@@ -13,17 +13,17 @@ behavior = {
 "burn": 0.0835426,
 "caution": 0.892877,
 "disengage": 0.497988,
-"engage": 1.85248,
-"haul": 0.236056,
+"engage": 2.33314,
+"haul": 0.199327,
 "mercy": 0.535403,
 "prospect": 0.68404,
 "pursuit": 1.58154,
-"quiet": 0.465066,
-"range": 1.2308,
-"retreat_hull": 0.202512,
-"return_fire": 0.265305,
-"teamwork": 1.26659,
-"trade": 0.233482
+"quiet": 0.511798,
+"range": 1.25656,
+"retreat_hull": 0.22514,
+"return_fire": 0.296437,
+"teamwork": 1.15601,
+"trade": 0.174745
 }
 role = "prospector"
 family = "prospector"
@@ -31,25 +31,25 @@ weight_class = "medium"
 archetype = "prospector medium"
 temperament = "cautious"
 traits = [ "wary" ]
-lives = 8
-fitness = 0.0221915
-origin = "prospector_medium_21946i1 (era 68)"
+lives = 9
+fitness = 0.35972
+origin = "prospector_medium_22698i2 (era 68)"
 genome = {
 "behavior": {
 "burn": 0.0835426,
 "caution": 0.892877,
 "disengage": 0.497988,
-"engage": 1.85248,
-"haul": 0.236056,
+"engage": 2.33314,
+"haul": 0.199327,
 "mercy": 0.535403,
 "prospect": 0.68404,
 "pursuit": 1.58154,
-"quiet": 0.465066,
-"range": 1.2308,
-"retreat_hull": 0.202512,
-"return_fire": 0.265305,
-"teamwork": 1.26659,
-"trade": 0.233482
+"quiet": 0.511798,
+"range": 1.25656,
+"retreat_hull": 0.22514,
+"return_fire": 0.296437,
+"teamwork": 1.15601,
+"trade": 0.174745
 },
 "modules": [ {
 "genes": {
@@ -67,11 +67,11 @@ genome = {
 } ],
 "ship": {
 "shares": {
-"capacitor": 0.0562836,
-"engine": 0.458326,
-"hold": 0.0612913,
-"reactor": 0.0566009,
-"structure": 0.367498
+"capacitor": 0.0553803,
+"engine": 0.450971,
+"hold": 0.0603076,
+"reactor": 0.053439,
+"structure": 0.379902
 },
 "size": 1.275,
 "tool_share": 0.520502,

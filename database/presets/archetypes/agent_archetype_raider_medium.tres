@@ -11,15 +11,15 @@ faction = ""
 skill = 0.5
 behavior = {
 "burn": 0.46051,
-"caution": 0.52573,
-"disengage": 0.117125,
-"engage": 3.90041,
-"haul": 0.116105,
-"mercy": 0.235614,
-"prospect": 0.0541479,
-"pursuit": 0.721153,
-"quiet": 0.164735,
-"range": 1.03597,
+"caution": 0.618488,
+"disengage": 0.1,
+"engage": 3.73872,
+"haul": 0.265506,
+"mercy": 0.277346,
+"prospect": 0.134692,
+"pursuit": 1.06301,
+"quiet": 0.193855,
+"range": 1.08148,
 "retreat_hull": 0.653016,
 "return_fire": 0.283063,
 "teamwork": 0.903659,
@@ -30,22 +30,22 @@ family = "raider"
 weight_class = "medium"
 archetype = "raider medium"
 temperament = "cautious"
-traits = [ "picks its fights", "stubborn", "skittish", "sells often" ]
-lives = 19
-fitness = 0.856587
-origin = "raider_medium_22341i1 (era 67)"
+traits = [ "picks its fights", "stubborn", "skittish" ]
+lives = 21
+fitness = 0.256858
+origin = "raider_medium_22730i4 (era 68)"
 genome = {
 "behavior": {
 "burn": 0.46051,
-"caution": 0.52573,
-"disengage": 0.117125,
-"engage": 3.90041,
-"haul": 0.116105,
-"mercy": 0.235614,
-"prospect": 0.0541479,
-"pursuit": 0.721153,
-"quiet": 0.164735,
-"range": 1.03597,
+"caution": 0.618488,
+"disengage": 0.1,
+"engage": 3.73872,
+"haul": 0.265506,
+"mercy": 0.277346,
+"prospect": 0.134692,
+"pursuit": 1.06301,
+"quiet": 0.193855,
+"range": 1.08148,
 "retreat_hull": 0.653016,
 "return_fire": 0.283063,
 "teamwork": 0.903659,
@@ -60,11 +60,11 @@ genome = {
 } ],
 "ship": {
 "shares": {
-"capacitor": 0.057223,
-"engine": 0.354394,
-"hold": 0.211584,
-"reactor": 0.0857962,
-"structure": 0.291003
+"capacitor": 0.062074,
+"engine": 0.374174,
+"hold": 0.205702,
+"reactor": 0.0855217,
+"structure": 0.272528
 },
 "size": 0.981877,
 "tool_share": 1.0,
