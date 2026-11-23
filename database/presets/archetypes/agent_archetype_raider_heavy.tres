@@ -10,19 +10,19 @@ ship_template_id = "preset_ship_archetype_raider_heavy"
 faction = ""
 skill = 0.5
 behavior = {
-"burn": 0.302355,
-"caution": 0.983796,
-"disengage": 0.229746,
-"engage": 1.09755,
-"haul": 0.282453,
-"mercy": 0.532664,
+"burn": 0.355883,
+"caution": 0.816267,
+"disengage": 0.1,
+"engage": 1.36137,
+"haul": 0.133768,
+"mercy": 0.283795,
 "prospect": 0.549877,
-"pursuit": 0.0,
-"quiet": 0.247895,
-"range": 0.626131,
-"retreat_hull": 0.218115,
-"return_fire": 0.231223,
-"teamwork": 1.20024,
+"pursuit": 0.0234778,
+"quiet": 0.264967,
+"range": 0.578863,
+"retreat_hull": 0.294997,
+"return_fire": 0.246214,
+"teamwork": 1.36738,
 "trade": 0.0
 }
 role = "raider"
@@ -30,46 +30,44 @@ family = "raider"
 weight_class = "heavy"
 archetype = "raider heavy"
 temperament = "cautious"
-traits = [ "stubborn", "lets runners go", "wary" ]
-lives = 8
-fitness = -0.0505304
-origin = "raider_heavy_22657i4 (era 68)"
+traits = [ "stubborn", "close-in", "lets runners go", "wary" ]
+lives = 25
+fitness = 0.177485
+origin = "raider_heavy_22826i3 (era 68)"
 genome = {
 "behavior": {
-"burn": 0.302355,
-"caution": 0.983796,
-"disengage": 0.229746,
-"engage": 1.09755,
-"haul": 0.282453,
-"mercy": 0.532664,
+"burn": 0.355883,
+"caution": 0.816267,
+"disengage": 0.1,
+"engage": 1.36137,
+"haul": 0.133768,
+"mercy": 0.283795,
 "prospect": 0.549877,
-"pursuit": 0.0,
-"quiet": 0.247895,
-"range": 0.626131,
-"retreat_hull": 0.218115,
-"return_fire": 0.231223,
-"teamwork": 1.20024,
+"pursuit": 0.0234778,
+"quiet": 0.264967,
+"range": 0.578863,
+"retreat_hull": 0.294997,
+"return_fire": 0.246214,
+"teamwork": 1.36738,
 "trade": 0.0
 },
 "modules": [ {
 "genes": {
-"count": 2.781,
-"nail_mass": 300.238
+"mass": 124.313
 },
-"kind": "lance",
-"type": 2
-}, {
+"kind": "power_cell",
+"type": 1
 } ],
 "ship": {
 "shares": {
-"capacitor": 0.144062,
-"engine": 0.200742,
-"hold": 0.184636,
-"reactor": 0.146168,
-"structure": 0.324391
+"capacitor": 0.116202,
+"engine": 0.173419,
+"hold": 0.199474,
+"reactor": 0.150691,
+"structure": 0.360214
 },
-"size": 1.6939,
-"tool_share": 0.685345,
+"size": 1.81456,
+"tool_share": 0.998478,
 "type": 2
 },
 "tools": [ {
@@ -82,15 +80,22 @@ genome = {
 }, {
 }, {
 "genes": {
-"count": 3.5,
-"round_mass": 39.03
+"count": 4.0,
+"round_mass": 100.034
 },
 "kind": "missile",
-"type": 1
+"type": 2
 }, {
 "genes": {
 },
 "kind": "harpoon",
 "type": 0
+}, {
+"genes": {
+"energy": 16.0,
+"mass": 1100.0
+},
+"kind": "laser",
+"type": 3
 } ]
 }

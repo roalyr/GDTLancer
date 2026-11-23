@@ -32,7 +32,7 @@ archetype = "trader heavy"
 temperament = "cautious"
 traits = [ "picks its fights", "skittish", "runs silent", "team player", "loud" ]
 lives = 13
-fitness = 0.0817543
+fitness = 0.000809081
 origin = "trader_heavy_22629i3 (era 68)"
 genome = {
 "behavior": {

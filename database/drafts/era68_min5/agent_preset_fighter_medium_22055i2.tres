@@ -32,7 +32,7 @@ archetype = "fighter medium"
 temperament = "cautious"
 traits = [ "picks its fights", "quick to break off", "standoff", "skittish", "ruthless", "shoots back", "team player", "bold", "hoards" ]
 lives = 16
-fitness = -0.182011
+fitness = -0.15116
 origin = ""
 genome = {
 "behavior": {

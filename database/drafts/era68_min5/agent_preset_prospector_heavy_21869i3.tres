@@ -31,8 +31,8 @@ weight_class = "heavy"
 archetype = "prospector heavy"
 temperament = "cautious"
 traits = [ "skittish" ]
-lives = 14
-fitness = 0.127322
+lives = 15
+fitness = 0.158521
 origin = ""
 genome = {
 "behavior": {

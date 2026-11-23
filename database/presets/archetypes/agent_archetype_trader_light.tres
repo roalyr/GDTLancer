@@ -31,8 +31,8 @@ weight_class = "light"
 archetype = "trader light"
 temperament = "cautious"
 traits = [ "picks its fights", "quick to break off", "ruthless", "wary" ]
-lives = 14
-fitness = 0.405187
+lives = 16
+fitness = 0.347306
 origin = "trader_light_22658i4 (era 68)"
 genome = {
 "behavior": {
