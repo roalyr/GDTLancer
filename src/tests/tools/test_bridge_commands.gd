@@ -408,7 +408,13 @@ func test_the_parts_view_has_every_part_and_who_uses_it():
 			by_id[item.id] = item
 	assert_gt(by_id.preset_laser_medium.dps, 0.0)
 	assert_has(by_id.preset_laser_medium.used_by, "start start_default")
-	assert_has(by_id.preset_cannon_light.used_by, "fighter_superheavy", "Fitted to an archetype")
+	# Every part an archetype carries names it (checked against the archetypes' own files, since
+	# they are picked again from evolution's drafts).
+	for name in BridgeCommands.Validator.archetype_names():
+		var ship = load(Constants.ARCHETYPES_DIR.plus_file("preset_ship_archetype_%s.tres" % name))
+		for part_id in Array(ship.equipped_tools) + Array(ship.equipped_modules):
+			if part_id != "" and by_id.has(part_id):
+				assert_has(by_id[part_id].used_by, name, "%s fitted to %s" % [part_id, name])
 	assert_eq(by_id.preset_cannon_medium.origin, "catalogue")
 	assert_eq(view.weapons.size() + view.modules.size(), BridgeCommands.PartCatalog.ids().size(), "The catalogue, nothing else")
 	assert_eq(view.starts[0].id, "start_default")
