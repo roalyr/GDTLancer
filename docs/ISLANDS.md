@@ -27,6 +27,12 @@ Commands, from the project root on the master:
 | `python3 tools/devtool/islands.py run 6` | Six segments, one after another |
 | `python3 tools/devtool/islands.py stop` | Every island saves and ends; the run stops after the merge |
 
+The same actions are in the development tool: Tools (`0`), `m`, **Evolution islands**. There a
+segment or a run starts detached, its output in `user://evolution/logs/islands_<date>.log`, and the
+Tools tab shows it. Running islands day to day (segments, picking archetypes, new eras, what to do
+when a machine drops) is in [MAINTAINING.md](MAINTAINING.md#islands-evolution-on-several-machines);
+this page is the one-time setup.
+
 The settings live in `.dev/islands.json` on the master (see step 4).
 
 ---
@@ -183,7 +189,11 @@ included. Watch the master's terminal. It reports each island when it is done, t
   again: the islands start over from that save.
 - **You want to stop.** Run `islands.py stop`, or press STOP on the debug overlay. Every island saves
   and ends, the merge still runs, then the run stops.
-- **The new-era flow** waits while islands run: evolution's `status.json` says "running".
+- **The new-era flow** waits while islands run: evolution's `status.json` says "running". Stop the
+  islands, wait for "done", then run it with `start` set to `islands`: islands never start an era
+  themselves, so the flow starts it on the save with a run of a minute, then starts the islands.
+- **A worker's address changed** (`check`: "No route to host"): on the worker, `ip -4 addr`; put the
+  new address in `.dev/islands.json`. The next segment uses it.
 
 ## What the workers keep
 
