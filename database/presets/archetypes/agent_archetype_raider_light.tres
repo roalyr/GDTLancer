@@ -10,18 +10,18 @@ ship_template_id = "preset_ship_archetype_raider_light"
 faction = ""
 skill = 0.5
 behavior = {
-"burn": 0.255369,
+"burn": 0.284978,
 "caution": 0.803194,
-"disengage": 0.468512,
-"engage": 0.761491,
-"haul": 0.720193,
-"mercy": 0.472214,
-"prospect": 0.943794,
-"pursuit": 0.638084,
-"quiet": 0.649761,
-"range": 1.29479,
-"retreat_hull": 0.266382,
-"return_fire": 0.364793,
+"disengage": 0.570082,
+"engage": 0.714424,
+"haul": 0.641717,
+"mercy": 0.619043,
+"prospect": 0.89268,
+"pursuit": 0.565869,
+"quiet": 0.586929,
+"range": 1.37144,
+"retreat_hull": 0.246334,
+"return_fire": 0.403199,
 "teamwork": 1.34894,
 "trade": 0.169077
 }
@@ -29,25 +29,25 @@ role = "raider"
 family = "raider"
 weight_class = "light"
 archetype = "raider light"
-temperament = "measured"
-traits = [ "wary", "hoards" ]
-lives = 22
-fitness = 0.0473441
-origin = "raider_light_22535i1 (era 68)"
+temperament = "cautious"
+traits = [ "standoff", "wary" ]
+lives = 28
+fitness = 0.0746641
+origin = "raider_light_21081i1 (era 68)"
 genome = {
 "behavior": {
-"burn": 0.255369,
+"burn": 0.284978,
 "caution": 0.803194,
-"disengage": 0.468512,
-"engage": 0.761491,
-"haul": 0.720193,
-"mercy": 0.472214,
-"prospect": 0.943794,
-"pursuit": 0.638084,
-"quiet": 0.649761,
-"range": 1.29479,
-"retreat_hull": 0.266382,
-"return_fire": 0.364793,
+"disengage": 0.570082,
+"engage": 0.714424,
+"haul": 0.641717,
+"mercy": 0.619043,
+"prospect": 0.89268,
+"pursuit": 0.565869,
+"quiet": 0.586929,
+"range": 1.37144,
+"retreat_hull": 0.246334,
+"return_fire": 0.403199,
 "teamwork": 1.34894,
 "trade": 0.169077
 },
@@ -57,18 +57,17 @@ genome = {
 },
 "kind": "sensor",
 "type": 1
-}, {
 } ],
 "ship": {
 "shares": {
-"capacitor": 0.0966742,
-"engine": 0.29141,
-"hold": 0.111963,
-"reactor": 0.0525783,
-"structure": 0.447375
+"capacitor": 0.0822548,
+"engine": 0.28731,
+"hold": 0.119947,
+"reactor": 0.0501636,
+"structure": 0.460326
 },
-"size": 0.828233,
-"tool_share": 0.577991,
+"size": 0.839533,
+"tool_share": 0.736296,
 "type": 2
 },
 "tools": [ {
@@ -83,5 +82,12 @@ genome = {
 },
 "kind": "harpoon",
 "type": 0
+}, {
+"genes": {
+"energy": 2.511,
+"mass": 150.0
+},
+"kind": "laser",
+"type": 1
 } ]
 }
