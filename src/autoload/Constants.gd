@@ -1544,11 +1544,6 @@ static func hud_preset(name: String) -> Dictionary:
 	return HUD_PRESETS.get(name, HUD_PRESETS.standard)
 
 
-# A look's name on the HUD LOOK button and in the options: "standard" reads NORMAL (it fits the button).
-static func hud_preset_label(name: String) -> String:
-	return Strings.t("hud.look." + name)  # Strings: hud.look.standard ...
-
-
 # Unselected marks fade with distance from the player, never out of sight.
 const HUD_MARK_FADE_NEAR = 3000.0  # m: full strength within
 const HUD_MARK_FADE_FAR = 40000.0  # m: HUD_MARK_FADE_MIN beyond

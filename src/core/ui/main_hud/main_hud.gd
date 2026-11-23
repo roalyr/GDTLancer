@@ -1413,7 +1413,7 @@ func apply_hud_preset() -> void:
 	for node in _hud_parts() + ([_hud_dot] if is_instance_valid(_hud_dot) else []):
 		node.modulate = look  # The HUD's own parts only: windows and prompts keep their looks
 	if is_instance_valid(label_hud_look):
-		label_hud_look.text = Strings.t("hud.button.hud_look", [Constants.hud_preset_label(Settings.get_option("hud_preset"))])
+		label_hud_look.text = Strings.t("hud.button.hud_look", [Strings.t("hud.look." + str(Settings.get_option("hud_preset")))])  # hud.look.standard reads NORMAL (it fits the button)
 	for button in _world_target_buttons.values():
 		if is_instance_valid(button) and button.has_method("refresh_style"):
 			button.refresh_style()
