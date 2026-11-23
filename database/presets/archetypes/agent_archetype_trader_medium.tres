@@ -32,7 +32,7 @@ archetype = "trader medium"
 temperament = "cautious"
 traits = [ "picks its fights", "lets runners go", "shoots back", "loud" ]
 lives = 17
-fitness = 0.261321
+fitness = 0.297905
 origin = "trader_medium_21988i2 (era 68)"
 genome = {
 "behavior": {

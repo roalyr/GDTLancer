@@ -1,0 +1,114 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_fighter_superheavy_21875i4"
+agent_type = "npc"
+ship_template_id = "preset_ship_fighter_superheavy_21875i4"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.268928,
+"caution": 0.177008,
+"disengage": 0.1,
+"engage": 0.453179,
+"haul": 0.934152,
+"mercy": 0.805718,
+"prospect": 1.0,
+"pursuit": 0.678515,
+"quiet": 0.755451,
+"range": 0.932467,
+"retreat_hull": 0.0,
+"return_fire": 0.53249,
+"teamwork": 1.69031,
+"trade": 0.00942174
+}
+role = "fighter"
+family = "fighter"
+weight_class = "superheavy"
+archetype = "fighter superheavy"
+temperament = "measured"
+traits = [ "quick to fight", "stubborn", "merciful", "team player", "bold", "hoards", "sneaky" ]
+lives = 20
+fitness = 0.212613
+origin = ""
+genome = {
+"behavior": {
+"burn": 0.268928,
+"caution": 0.177008,
+"disengage": 0.1,
+"engage": 0.453179,
+"haul": 0.934152,
+"mercy": 0.805718,
+"prospect": 1.0,
+"pursuit": 0.678515,
+"quiet": 0.755451,
+"range": 0.932467,
+"retreat_hull": 0.0,
+"return_fire": 0.53249,
+"teamwork": 1.69031,
+"trade": 0.00942174
+},
+"modules": [ {
+"genes": {
+"mass": 200.0
+},
+"kind": "decoy",
+"type": 2
+}, {
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.0594261,
+"engine": 0.357578,
+"hold": 0.0979244,
+"reactor": 0.109905,
+"structure": 0.375167
+},
+"size": 4.80199,
+"tool_share": 0.829042,
+"type": 4
+},
+"tools": [ {
+"genes": {
+"count": 3.0,
+"round_mass": 260.0
+},
+"kind": "missile",
+"type": 3
+}, {
+"genes": {
+"count": 3.5,
+"round_mass": 39.03
+},
+"kind": "missile",
+"type": 1
+}, {
+"genes": {
+"count": 38.5,
+"mass": 701.101,
+"round_mass": 16.606
+},
+"kind": "cannon",
+"type": 3
+}, {
+"genes": {
+"energy": 16.0,
+"mass": 1100.0
+},
+"kind": "laser",
+"type": 3
+}, {
+"genes": {
+"energy": 16.0,
+"mass": 1100.0
+},
+"kind": "laser",
+"type": 3
+}, {
+}, {
+}, {
+} ]
+}

@@ -31,8 +31,8 @@ weight_class = "medium"
 archetype = "raider medium"
 temperament = "cautious"
 traits = [ "picks its fights", "stubborn", "skittish" ]
-lives = 25
-fitness = 0.379108
+lives = 26
+fitness = 0.337072
 origin = "raider_medium_22730i4 (era 68)"
 genome = {
 "behavior": {

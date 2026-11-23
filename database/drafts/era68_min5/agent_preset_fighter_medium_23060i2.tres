@@ -31,8 +31,8 @@ weight_class = "medium"
 archetype = "fighter medium"
 temperament = "cautious"
 traits = [ "picks its fights", "stubborn", "skittish", "runs silent" ]
-lives = 8
-fitness = 0.55513
+lives = 14
+fitness = 0.537739
 origin = ""
 genome = {
 "behavior": {
