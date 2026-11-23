@@ -31,8 +31,8 @@ weight_class = "superheavy"
 archetype = "fighter superheavy"
 temperament = "cautious"
 traits = [ "picks its fights", "standoff", "runs silent", "loner", "wary" ]
-lives = 8
-fitness = 1.25808
+lives = 12
+fitness = 0.986036
 origin = "fighter_superheavy_23262i2 (era 68)"
 genome = {
 "behavior": {
