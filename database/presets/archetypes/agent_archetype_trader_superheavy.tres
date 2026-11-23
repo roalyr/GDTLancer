@@ -31,9 +31,9 @@ weight_class = "superheavy"
 archetype = "trader superheavy"
 temperament = "cautious"
 traits = [ "picks its fights", "skittish", "runs silent", "team player", "wary", "loud" ]
-lives = 15
-fitness = 0.0471547
-origin = "trader_superheavy_22162i2 (era 67)"
+lives = 9
+fitness = -0.436881
+origin = "trader_superheavy_22162i2 (era 68)"
 genome = {
 "behavior": {
 "burn": 0.115492,

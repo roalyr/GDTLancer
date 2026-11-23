@@ -10,20 +10,20 @@ ship_template_id = "preset_ship_archetype_prospector_medium"
 faction = ""
 skill = 0.5
 behavior = {
-"burn": 0.128203,
-"caution": 0.978813,
+"burn": 0.0835426,
+"caution": 0.892877,
 "disengage": 0.497988,
-"engage": 2.03403,
+"engage": 1.85248,
 "haul": 0.236056,
-"mercy": 0.440993,
+"mercy": 0.535403,
 "prospect": 0.68404,
-"pursuit": 1.54999,
-"quiet": 0.464031,
-"range": 1.05294,
-"retreat_hull": 0.205994,
-"return_fire": 0.261066,
-"teamwork": 0.905764,
-"trade": 0.224763
+"pursuit": 1.58154,
+"quiet": 0.465066,
+"range": 1.2308,
+"retreat_hull": 0.202512,
+"return_fire": 0.265305,
+"teamwork": 1.26659,
+"trade": 0.233482
 }
 role = "prospector"
 family = "prospector"
@@ -31,25 +31,25 @@ weight_class = "medium"
 archetype = "prospector medium"
 temperament = "cautious"
 traits = [ "wary" ]
-lives = 16
-fitness = 0.25729
-origin = "prospector_medium_22001i1 (era 67)"
+lives = 8
+fitness = 0.0221915
+origin = "prospector_medium_21946i1 (era 68)"
 genome = {
 "behavior": {
-"burn": 0.128203,
-"caution": 0.978813,
+"burn": 0.0835426,
+"caution": 0.892877,
 "disengage": 0.497988,
-"engage": 2.03403,
+"engage": 1.85248,
 "haul": 0.236056,
-"mercy": 0.440993,
+"mercy": 0.535403,
 "prospect": 0.68404,
-"pursuit": 1.54999,
-"quiet": 0.464031,
-"range": 1.05294,
-"retreat_hull": 0.205994,
-"return_fire": 0.261066,
-"teamwork": 0.905764,
-"trade": 0.224763
+"pursuit": 1.58154,
+"quiet": 0.465066,
+"range": 1.2308,
+"retreat_hull": 0.202512,
+"return_fire": 0.265305,
+"teamwork": 1.26659,
+"trade": 0.233482
 },
 "modules": [ {
 "genes": {
@@ -67,11 +67,11 @@ genome = {
 } ],
 "ship": {
 "shares": {
-"capacitor": 0.0601846,
-"engine": 0.439273,
-"hold": 0.0602166,
-"reactor": 0.054248,
-"structure": 0.386078
+"capacitor": 0.0562836,
+"engine": 0.458326,
+"hold": 0.0612913,
+"reactor": 0.0566009,
+"structure": 0.367498
 },
 "size": 1.275,
 "tool_share": 0.520502,
@@ -79,11 +79,11 @@ genome = {
 },
 "tools": [ {
 "genes": {
-"energy": 6.5,
-"mass": 450.0
+"energy": 2.511,
+"mass": 150.0
 },
 "kind": "laser",
-"type": 2
+"type": 1
 }, {
 "genes": {
 },

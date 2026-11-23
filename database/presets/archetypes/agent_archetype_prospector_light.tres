@@ -10,46 +10,46 @@ ship_template_id = "preset_ship_archetype_prospector_light"
 faction = ""
 skill = 0.5
 behavior = {
-"burn": 0.496512,
-"caution": 1.0,
-"disengage": 0.586659,
-"engage": 3.84861,
-"haul": 0.694719,
-"mercy": 0.48329,
+"burn": 0.0377824,
+"caution": 0.975728,
+"disengage": 1.96368,
+"engage": 3.72191,
+"haul": 0.505529,
+"mercy": 0.0,
 "prospect": 1.0,
-"pursuit": 1.72321,
-"quiet": 0.297544,
-"range": 0.7695,
-"retreat_hull": 0.545108,
-"return_fire": 0.953048,
-"teamwork": 0.455515,
-"trade": 0.187356
+"pursuit": 0.366067,
+"quiet": 0.373031,
+"range": 1.37856,
+"retreat_hull": 0.8,
+"return_fire": 0.357051,
+"teamwork": 1.74391,
+"trade": 0.253729
 }
 role = "prospector"
 family = "prospector"
 weight_class = "light"
 archetype = "prospector light"
 temperament = "cautious"
-traits = [ "picks its fights", "skittish", "shoots back", "wary" ]
-lives = 15
-fitness = 0.365014
-origin = "prospector_light_21230i1 (era 65)"
+traits = [ "picks its fights", "standoff", "skittish", "lets runners go", "ruthless", "team player", "wary" ]
+lives = 5
+fitness = 0.117404
+origin = "prospector_light_22597i4 (era 68)"
 genome = {
 "behavior": {
-"burn": 0.496512,
-"caution": 1.0,
-"disengage": 0.586659,
-"engage": 3.84861,
-"haul": 0.694719,
-"mercy": 0.48329,
+"burn": 0.0377824,
+"caution": 0.975728,
+"disengage": 1.96368,
+"engage": 3.72191,
+"haul": 0.505529,
+"mercy": 0.0,
 "prospect": 1.0,
-"pursuit": 1.72321,
-"quiet": 0.297544,
-"range": 0.7695,
-"retreat_hull": 0.545108,
-"return_fire": 0.953048,
-"teamwork": 0.455515,
-"trade": 0.187356
+"pursuit": 0.366067,
+"quiet": 0.373031,
+"range": 1.37856,
+"retreat_hull": 0.8,
+"return_fire": 0.357051,
+"teamwork": 1.74391,
+"trade": 0.253729
 },
 "modules": [ {
 "genes": {
@@ -61,14 +61,14 @@ genome = {
 } ],
 "ship": {
 "shares": {
-"capacitor": 0.0829826,
-"engine": 0.305097,
-"hold": 0.220706,
-"reactor": 0.0821381,
-"structure": 0.309076
+"capacitor": 0.0471515,
+"engine": 0.241372,
+"hold": 0.0640087,
+"reactor": 0.0819219,
+"structure": 0.565546
 },
-"size": 0.705821,
-"tool_share": 0.89195,
+"size": 0.754852,
+"tool_share": 0.904125,
 "type": 1
 },
 "tools": [ {

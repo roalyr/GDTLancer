@@ -7,42 +7,42 @@
 script = ExtResource( 1 )
 template_id = "preset_ship_archetype_scavenger_light"
 ship_model_name = "Scavenger Mk I-light"
-base_value = 3023
+base_value = 5126
 ship_scene = ExtResource( 2 )
-hull_integrity = 35
-cargo_capacity = 36
-interaction_radius = 10.844
-apparent_radius = 8.67517
-signature = 1084.4
+hull_integrity = 87
+cargo_capacity = 8
+interaction_radius = 12.9318
+apparent_radius = 10.3454
+signature = 1293.18
 sensor_strength = 1.0
 tool_slots_small = 1
 tool_slots_medium = 0
 tool_slots_large = 0
-module_slots = 1
+module_slots = 2
 module_slot_size = "small"
 equipped_tools = [ "preset_harpoon" ]
-equipped_modules = [ "preset_thruster_light" ]
+equipped_modules = [ "preset_plating_light" ]
 salvage_yield = {
-"commodity_scrap": 8,
-"commodity_tech": 2
+"commodity_scrap": 13,
+"commodity_tech": 7
 }
-power_capacity = 44.5351
-power_regen = 1.17583
-mass = 2266.94
-linear_thrust = 119665.0
-angular_thrust = 96025.7
+power_capacity = 18.4678
+power_regen = 4.32249
+mass = 3844.6
+linear_thrust = 416192.0
+angular_thrust = 398275.0
 alignment_threshold_angle_deg = 45.0
-model_scale = 0.72293
+model_scale = 0.862118
 variant_type = 1
 law_genes = {
 "shares": {
-"capacitor": 0.0589363,
-"engine": 0.121501,
-"hold": 0.479283,
-"reactor": 0.0245336,
-"structure": 0.315746
+"capacitor": 0.0144107,
+"engine": 0.286182,
+"hold": 0.0652094,
+"reactor": 0.0614555,
+"structure": 0.572742
 },
-"size": 0.377824,
-"tool_share": 0.49108,
+"size": 0.640766,
+"tool_share": 0.105157,
 "type": 1
 }

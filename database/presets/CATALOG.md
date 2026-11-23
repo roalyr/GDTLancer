@@ -14,26 +14,26 @@ The picked designs, one per family and weight class (`archetypes/`: ship `preset
 
 | Archetype | Role | Temperament | Equipment | Modules | Lives | Fitness | Hull WP | Origin |
 |---|---|---|---|---|---|---|---|---|
-| fighter_light | fighter | cautious | Missile Rack Mk I-light x2 | Sensor Mk I-light, Afterburner Mk I-light | 16 | +0.12 | 5250 | fighter_light_20785i2 (era 65) |
+| fighter_light | fighter | cautious | Missile Rack Mk I-light x2, Cannon Mk I-light | Sensor Mk I-light | 7 | -0.09 | 5912 | fighter_light_22505i4 (era 68) |
 | fighter_medium | fighter | cautious | Laser Mk I-medium, Missile Rack Mk I-medium |  | 13 | +0.70 | 7990 | fighter_medium_21180i1 (era 65) |
-| fighter_heavy | fighter | measured | Cannon Mk I-heavy, Laser Mk I-light x2, Missile Rack Mk I-heavy x2, Laser Mk I-medium | Thruster Mk I-heavy | 17 | +0.37 | 26335 | fighter_heavy_18229i1 (era 65) |
+| fighter_heavy | fighter | cautious | Laser Mk I-light | Plating Mk I-medium, Thruster Mk I-medium, Sensor Mk I-light, Shell Bay Mk I-medium | 5 | -0.92 | 22955 | fighter_heavy_22632i4 (era 68) |
 | fighter_superheavy | fighter | measured | Cannon Mk I-medium, Cannon Mk I-heavy, Laser Mk I-heavy x2, Laser Mk I-light, Cannon Mk I-light | Thruster Mk I-light | 11 | +0.69 | 27015 | fighter_superheavy_22035i4 (era 67) |
-| prospector_light | prospector | cautious | Laser Mk I-light, Harpoon Mk I | Lance Mk I-light | 15 | +0.37 | 5647 | prospector_light_21230i1 (era 65) |
-| prospector_medium | prospector | cautious | Laser Mk I-medium, Harpoon Mk I | Lance Mk I-medium, Afterburner Mk I-medium | 16 | +0.26 | 10200 | prospector_medium_22001i1 (era 67) |
-| prospector_heavy | prospector | cautious | Laser Mk I-light, Harpoon Mk I, Missile Rack Mk I-heavy | Lance Mk I-heavy, Afterburner Mk I-medium, Decoy Launcher Mk I-medium | 20 | +0.10 | 22945 | prospector_heavy_20750i2 (era 65) |
-| prospector_superheavy | prospector | cautious | Laser Mk I-light, Harpoon Mk I, Missile Rack Mk I-heavy, Cannon Mk I-light | Lance Mk I-heavy, Afterburner Mk I-light, Decoy Launcher Mk I-light | 16 | +0.05 | 32510 | prospector_superheavy_20846i2 (era 65) |
-| raider_light | raider | cautious | Laser Mk I-light x2, Harpoon Mk I |  | 14 | +0.11 | 6554 | raider_light_19869i2 (era 65) |
+| prospector_light | prospector | cautious | Laser Mk I-light, Harpoon Mk I | Lance Mk I-light | 5 | +0.12 | 6039 | prospector_light_22597i4 (era 68) |
+| prospector_medium | prospector | cautious | Laser Mk I-light, Harpoon Mk I | Lance Mk I-medium, Afterburner Mk I-medium | 8 | +0.02 | 10200 | prospector_medium_21946i1 (era 68) |
+| prospector_heavy | prospector | cautious | Missile Rack Mk I-heavy, Missile Rack Mk I-light, Harpoon Mk I, Laser Mk I-heavy | Lance Mk I-light | 5 | +0.11 | 14516 | prospector_heavy_22326i3 (era 68) |
+| prospector_superheavy | prospector | cautious | Laser Mk I-heavy, Harpoon Mk I | Lance Mk I-heavy, Afterburner Mk I-heavy, Sensor Mk I-light, Missile Bay Mk I-heavy | 6 | -0.08 | 28742 | prospector_superheavy_22593i4 (era 68) |
+| raider_light | raider | measured | Missile Rack Mk I-light, Harpoon Mk I | Sensor Mk I-light | 13 | +0.11 | 6626 | raider_light_22535i1 (era 68) |
 | raider_medium | raider | cautious | Harpoon Mk I, Cannon Mk I-medium x2 | Power Cell Mk I-light | 19 | +0.86 | 7855 | raider_medium_22341i1 (era 67) |
-| raider_heavy | raider | measured | Missile Rack Mk I-light, Laser Mk I-medium, Laser Mk I-heavy, Harpoon Mk I | Sensor Mk I-heavy, Damper Mk I-heavy | 17 | +0.51 | 15769 | raider_heavy_20626i1 (era 65) |
-| raider_superheavy | raider | cautious | Laser Mk I-heavy, Harpoon Mk I | Damper Mk I-medium x2, Thruster Mk I-heavy, Sensor Mk I-heavy | 20 | +0.27 | 31297 | raider_superheavy_22118i3 (era 67) |
-| scavenger_light | scavenger | cautious | Harpoon Mk I | Thruster Mk I-light | 23 | +0.51 | 3023 | scavenger_light_22395i1 (era 67) |
-| scavenger_medium | scavenger | cautious | Harpoon Mk I | Decoy Launcher Mk I-medium | 16 | +0.07 | 6819 | scavenger_medium_21243i2 (era 65) |
-| scavenger_heavy | scavenger | measured | Harpoon Mk I | Power Cell Mk I-light, Plating Mk I-heavy, Thruster Mk I-light, Power Cell Mk I-medium, Decoy Launcher Mk I-medium | 24 | +0.05 | 26855 | scavenger_heavy_17072i6 (era 67) |
-| scavenger_superheavy | scavenger | measured | Harpoon Mk I | Power Cell Mk I-medium x2, Plating Mk I-heavy, Thruster Mk I-medium, Damper Mk I-light, Decoy Launcher Mk I-light | 15 | -0.01 | 29994 | scavenger_superheavy_20505i2 (era 65) |
-| trader_light | trader | cautious | Laser Mk I-light | Plating Mk I-light | 22 | +0.22 | 1600 | trader_light_21716i3 (era 67) |
+| raider_heavy | raider | measured | Laser Mk I-heavy, Harpoon Mk I, Missile Rack Mk I-medium | Thruster Mk I-light, Afterburner Mk I-light, Plating Mk I-heavy, Lance Mk I-heavy | 5 | -0.06 | 20865 | raider_heavy_21839i1 (era 68) |
+| raider_superheavy | raider | measured | Missile Rack Mk I-heavy, Missile Rack Mk I-light, Cannon Mk I-heavy, Laser Mk I-heavy, Laser Mk I-medium x2, Harpoon Mk I | Decoy Launcher Mk I-heavy | 8 | +0.29 | 38416 | raider_superheavy_21811i3 (era 68) |
+| scavenger_light | scavenger | cautious | Harpoon Mk I | Plating Mk I-light | 6 | +0.05 | 5126 | scavenger_light_19078i2 (era 68) |
+| scavenger_medium | scavenger | cautious | Harpoon Mk I |  | 10 | -0.12 | 7656 | scavenger_medium_22009i2 (era 68) |
+| scavenger_heavy | scavenger | measured | Harpoon Mk I | Thruster Mk I-heavy, Plating Mk I-medium, Plating Mk I-light, Power Cell Mk I-medium, Decoy Launcher Mk I-heavy, Decoy Launcher Mk I-light | 7 | -0.17 | 25202 | scavenger_heavy_18812i6 (era 68) |
+| scavenger_superheavy | scavenger | measured | Harpoon Mk I | Thruster Mk I-light, Decoy Launcher Mk I-light, Missile Bay Mk I-medium | 8 | +0.01 | 45200 | scavenger_superheavy_20784i2 (era 68) |
+| trader_light | trader | cautious | Laser Mk I-light | Plating Mk I-light | 6 | +0.03 | 1600 | trader_light_21716i3 (era 68) |
 | trader_medium | trader | cautious |  | Damper Mk I-medium | 21 | +0.15 | 7832 | trader_medium_21949i2 (era 67) |
-| trader_heavy | trader | cautious | Laser Mk I-medium, Cannon Mk I-heavy | Plating Mk I-heavy, Damper Mk I-medium x2 | 14 | +0.36 | 26864 | trader_heavy_20721i2 (era 65) |
-| trader_superheavy | trader | cautious | Laser Mk I-medium, Missile Rack Mk I-light, Laser Mk I-light, Laser Mk I-heavy | Shell Bay Mk I-medium | 15 | +0.05 | 28659 | trader_superheavy_22162i2 (era 67) |
+| trader_heavy | trader | cautious | Cannon Mk I-medium | Shell Bay Mk I-heavy, Damper Mk I-light, Damper Mk I-medium | 8 | -0.19 | 25862 | trader_heavy_22438i2 (era 68) |
+| trader_superheavy | trader | cautious | Laser Mk I-medium, Missile Rack Mk I-light, Laser Mk I-light, Laser Mk I-heavy | Shell Bay Mk I-medium | 9 | -0.44 | 28659 | trader_superheavy_22162i2 (era 68) |
 
 ## Fighter
 

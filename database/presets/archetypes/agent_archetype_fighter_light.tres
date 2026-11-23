@@ -12,17 +12,17 @@ skill = 0.5
 behavior = {
 "burn": 0.0,
 "caution": 0.576482,
-"disengage": 1.34314,
-"engage": 1.65595,
-"haul": 0.696153,
-"mercy": 0.621594,
-"prospect": 0.986909,
-"pursuit": 0.796029,
+"disengage": 1.15247,
+"engage": 2.29089,
+"haul": 0.895928,
+"mercy": 0.509456,
+"prospect": 0.905788,
+"pursuit": 0.872941,
 "quiet": 0.417621,
-"range": 1.06967,
-"retreat_hull": 0.286677,
-"return_fire": 0.290173,
-"teamwork": 1.20814,
+"range": 1.05232,
+"retreat_hull": 0.140338,
+"return_fire": 0.236553,
+"teamwork": 1.0433,
 "trade": 0.0240031
 }
 role = "fighter"
@@ -30,25 +30,25 @@ family = "fighter"
 weight_class = "light"
 archetype = "fighter light"
 temperament = "cautious"
-traits = [  ]
-lives = 16
-fitness = 0.12453
-origin = "fighter_light_20785i2 (era 65)"
+traits = [ "hoards" ]
+lives = 7
+fitness = -0.0939946
+origin = "fighter_light_22505i4 (era 68)"
 genome = {
 "behavior": {
 "burn": 0.0,
 "caution": 0.576482,
-"disengage": 1.34314,
-"engage": 1.65595,
-"haul": 0.696153,
-"mercy": 0.621594,
-"prospect": 0.986909,
-"pursuit": 0.796029,
+"disengage": 1.15247,
+"engage": 2.29089,
+"haul": 0.895928,
+"mercy": 0.509456,
+"prospect": 0.905788,
+"pursuit": 0.872941,
 "quiet": 0.417621,
-"range": 1.06967,
-"retreat_hull": 0.286677,
-"return_fire": 0.290173,
-"teamwork": 1.20814,
+"range": 1.05232,
+"retreat_hull": 0.140338,
+"return_fire": 0.236553,
+"teamwork": 1.0433,
 "trade": 0.0240031
 },
 "modules": [ {
@@ -57,23 +57,17 @@ genome = {
 },
 "kind": "sensor",
 "type": 1
-}, {
-"genes": {
-"mass": 167.938
-},
-"kind": "afterburner",
-"type": 1
 } ],
 "ship": {
 "shares": {
-"capacitor": 0.0900913,
-"engine": 0.251875,
-"hold": 0.106209,
-"reactor": 0.0652328,
-"structure": 0.486591
+"capacitor": 0.0902961,
+"engine": 0.25112,
+"hold": 0.100389,
+"reactor": 0.0624996,
+"structure": 0.495696
 },
-"size": 0.656216,
-"tool_share": 0.470474,
+"size": 0.738992,
+"tool_share": 0.728835,
 "type": 2
 },
 "tools": [ {
@@ -89,6 +83,14 @@ genome = {
 "round_mass": 39.03
 },
 "kind": "missile",
+"type": 1
+}, {
+"genes": {
+"count": 80.0,
+"mass": 150.0,
+"round_mass": 2.0
+},
+"kind": "cannon",
 "type": 1
 } ]
 }

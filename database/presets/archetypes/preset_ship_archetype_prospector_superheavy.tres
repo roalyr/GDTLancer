@@ -7,42 +7,42 @@
 script = ExtResource( 1 )
 template_id = "preset_ship_archetype_prospector_superheavy"
 ship_model_name = "Prospector Mk I-superheavy"
-base_value = 32510
+base_value = 28742
 ship_scene = ExtResource( 2 )
-hull_integrity = 404
-cargo_capacity = 55
-interaction_radius = 23.9368
-apparent_radius = 19.1494
-signature = 2393.68
+hull_integrity = 339
+cargo_capacity = 47
+interaction_radius = 22.9738
+apparent_radius = 18.3791
+signature = 2297.38
 sensor_strength = 1.0
 tool_slots_small = 0
 tool_slots_medium = 0
-tool_slots_large = 5
-module_slots = 4
+tool_slots_large = 3
+module_slots = 6
 module_slot_size = "large"
-equipped_tools = [ "preset_laser_light", "preset_harpoon", "preset_missile_heavy", "preset_cannon_light" ]
-equipped_modules = [ "preset_lance_heavy", "preset_afterburner_light", "preset_decoy_light" ]
+equipped_tools = [ "preset_laser_heavy", "preset_harpoon" ]
+equipped_modules = [ "preset_lance_heavy", "preset_afterburner_heavy", "preset_sensor_light", "preset_rack_heavy" ]
 salvage_yield = {
-"commodity_scrap": 81,
-"commodity_tech": 33
+"commodity_scrap": 72,
+"commodity_tech": 34
 }
-power_capacity = 378.548
-power_regen = 34.9092
-mass = 24382.3
-linear_thrust = 1.37613e+06
-angular_thrust = 2.43756e+06
+power_capacity = 406.748
+power_regen = 39.4698
+mass = 21556.4
+linear_thrust = 1.35585e+06
+angular_thrust = 2.30504e+06
 alignment_threshold_angle_deg = 45.0
-model_scale = 1.59579
+model_scale = 1.53159
 variant_type = 4
 law_genes = {
 "shares": {
-"capacitor": 0.0465765,
-"engine": 0.170408,
-"hold": 0.0674606,
-"reactor": 0.0987058,
-"structure": 0.616849
+"capacitor": 0.056607,
+"engine": 0.189595,
+"hold": 0.0659005,
+"reactor": 0.127965,
+"structure": 0.559933
 },
-"size": 4.06372,
-"tool_share": 0.566289,
+"size": 3.59274,
+"tool_share": 0.323758,
 "type": 4
 }

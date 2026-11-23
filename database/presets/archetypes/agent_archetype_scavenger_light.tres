@@ -10,64 +10,65 @@ ship_template_id = "preset_ship_archetype_scavenger_light"
 faction = ""
 skill = 0.5
 behavior = {
-"burn": 0.619948,
-"caution": 0.881453,
-"disengage": 2.37914,
-"engage": 3.53516,
-"haul": 0.05,
-"mercy": 0.0718245,
-"prospect": 0.0,
-"pursuit": 1.76621,
-"quiet": 0.26153,
-"range": 1.26475,
-"retreat_hull": 0.485799,
-"return_fire": 0.359517,
-"teamwork": 1.46928,
-"trade": 1.0
+"burn": 0.68124,
+"caution": 0.0,
+"disengage": 1.19699,
+"engage": 4.0,
+"haul": 0.123555,
+"mercy": 0.192556,
+"prospect": 0.637405,
+"pursuit": 0.0386844,
+"quiet": 0.534938,
+"range": 0.472294,
+"retreat_hull": 0.153194,
+"return_fire": 0.0,
+"teamwork": 1.08148,
+"trade": 0.0
 }
 role = "scavenger"
 family = "scavenger"
 weight_class = "light"
 archetype = "scavenger light"
 temperament = "cautious"
-traits = [ "picks its fights", "quick to break off", "skittish", "ruthless", "wary", "sells often" ]
-lives = 23
-fitness = 0.511382
-origin = "scavenger_light_22395i1 (era 67)"
+traits = [ "picks its fights", "close-in", "lets runners go", "ruthless", "runs silent", "bold", "sells often" ]
+lives = 6
+fitness = 0.0544293
+origin = "scavenger_light_19078i2 (era 68)"
 genome = {
 "behavior": {
-"burn": 0.619948,
-"caution": 0.881453,
-"disengage": 2.37914,
-"engage": 3.53516,
-"haul": 0.05,
-"mercy": 0.0718245,
-"prospect": 0.0,
-"pursuit": 1.76621,
-"quiet": 0.26153,
-"range": 1.26475,
-"retreat_hull": 0.485799,
-"return_fire": 0.359517,
-"teamwork": 1.46928,
-"trade": 1.0
+"burn": 0.68124,
+"caution": 0.0,
+"disengage": 1.19699,
+"engage": 4.0,
+"haul": 0.123555,
+"mercy": 0.192556,
+"prospect": 0.637405,
+"pursuit": 0.0386844,
+"quiet": 0.534938,
+"range": 0.472294,
+"retreat_hull": 0.153194,
+"return_fire": 0.0,
+"teamwork": 1.08148,
+"trade": 0.0
 },
 "modules": [ {
 "genes": {
-"mass": 200.0
+"mass": 512.044
 },
-"kind": "thruster",
+"kind": "plating",
 "type": 1
+}, {
 } ],
 "ship": {
 "shares": {
-"capacitor": 0.0589363,
-"engine": 0.121501,
-"hold": 0.479283,
-"reactor": 0.0245336,
-"structure": 0.315746
+"capacitor": 0.0144107,
+"engine": 0.286182,
+"hold": 0.0652094,
+"reactor": 0.0614555,
+"structure": 0.572742
 },
-"size": 0.377824,
-"tool_share": 0.49108,
+"size": 0.640766,
+"tool_share": 0.105157,
 "type": 1
 },
 "tools": [ {

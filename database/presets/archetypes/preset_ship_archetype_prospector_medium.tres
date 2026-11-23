@@ -9,8 +9,8 @@ template_id = "preset_ship_archetype_prospector_medium"
 ship_model_name = "Prospector Mk I-medium"
 base_value = 10200
 ship_scene = ExtResource( 2 )
-hull_integrity = 110
-cargo_capacity = 15
+hull_integrity = 106
+cargo_capacity = 16
 interaction_radius = 16.2653
 apparent_radius = 13.0122
 signature = 1626.53
@@ -20,27 +20,27 @@ tool_slots_medium = 2
 tool_slots_large = 0
 module_slots = 2
 module_slot_size = "medium"
-equipped_tools = [ "preset_laser_medium", "preset_harpoon" ]
+equipped_tools = [ "preset_laser_light", "preset_harpoon" ]
 equipped_modules = [ "preset_lance_medium", "preset_afterburner_medium" ]
 salvage_yield = {
 "commodity_scrap": 26,
-"commodity_tech": 19
+"commodity_tech": 20
 }
-power_capacity = 153.471
-power_regen = 7.17636
+power_capacity = 143.523
+power_regen = 7.4559
 mass = 7650.0
-linear_thrust = 1.13686e+06
-angular_thrust = 1.36835e+06
+linear_thrust = 1.18114e+06
+angular_thrust = 1.42166e+06
 alignment_threshold_angle_deg = 45.0
 model_scale = 1.08435
 variant_type = 2
 law_genes = {
 "shares": {
-"capacitor": 0.0601846,
-"engine": 0.439273,
-"hold": 0.0602166,
-"reactor": 0.054248,
-"structure": 0.386078
+"capacitor": 0.0562836,
+"engine": 0.458326,
+"hold": 0.0612913,
+"reactor": 0.0566009,
+"structure": 0.367498
 },
 "size": 1.275,
 "tool_share": 0.520502,
