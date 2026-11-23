@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_scavenger_superheavy_20784i2"
+ship_model_name = "Scavenger Superheavy 20784 I 2 Mk I"
+base_value = 45200
+ship_scene = ExtResource( 2 )
+hull_integrity = 553
+cargo_capacity = 45
+interaction_radius = 26.7162
+apparent_radius = 21.3729
+signature = 2671.62
+sensor_strength = 1.0
+tool_slots_small = 0
+tool_slots_medium = 0
+tool_slots_large = 4
+module_slots = 7
+module_slot_size = "large"
+equipped_tools = [ "preset_harpoon" ]
+equipped_modules = [ "preset_thruster_light", "preset_decoy_light" ]
+salvage_yield = {
+"commodity_scrap": 113,
+"commodity_tech": 34
+}
+power_capacity = 1175.62
+power_regen = 39.3116
+mass = 33900.0
+linear_thrust = 1.31877e+06
+angular_thrust = 2.6072e+06
+alignment_threshold_angle_deg = 45.0
+model_scale = 1.78108
+variant_type = 3
+law_genes = {
+"shares": {
+"capacitor": 0.104038,
+"engine": 0.116902,
+"hold": 0.0400537,
+"reactor": 0.0810086,
+"structure": 0.657998
+},
+"size": 5.64999,
+"tool_share": 0.3856,
+"type": 3
+}

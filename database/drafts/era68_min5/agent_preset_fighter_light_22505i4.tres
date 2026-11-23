@@ -1,0 +1,96 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_fighter_light_22505i4"
+agent_type = "npc"
+ship_template_id = "preset_ship_fighter_light_22505i4"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.0,
+"caution": 0.576482,
+"disengage": 1.15247,
+"engage": 2.29089,
+"haul": 0.895928,
+"mercy": 0.509456,
+"prospect": 0.905788,
+"pursuit": 0.872941,
+"quiet": 0.417621,
+"range": 1.05232,
+"retreat_hull": 0.140338,
+"return_fire": 0.236553,
+"teamwork": 1.0433,
+"trade": 0.0240031
+}
+role = "fighter"
+family = "fighter"
+weight_class = "light"
+archetype = "fighter light"
+temperament = "cautious"
+traits = [ "hoards" ]
+lives = 7
+fitness = -0.0939946
+origin = ""
+genome = {
+"behavior": {
+"burn": 0.0,
+"caution": 0.576482,
+"disengage": 1.15247,
+"engage": 2.29089,
+"haul": 0.895928,
+"mercy": 0.509456,
+"prospect": 0.905788,
+"pursuit": 0.872941,
+"quiet": 0.417621,
+"range": 1.05232,
+"retreat_hull": 0.140338,
+"return_fire": 0.236553,
+"teamwork": 1.0433,
+"trade": 0.0240031
+},
+"modules": [ {
+"genes": {
+"mass": 120.0
+},
+"kind": "sensor",
+"type": 1
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.0902961,
+"engine": 0.25112,
+"hold": 0.100389,
+"reactor": 0.0624996,
+"structure": 0.495696
+},
+"size": 0.738992,
+"tool_share": 0.728835,
+"type": 2
+},
+"tools": [ {
+"genes": {
+"count": 3.5,
+"round_mass": 39.03
+},
+"kind": "missile",
+"type": 1
+}, {
+"genes": {
+"count": 3.5,
+"round_mass": 39.03
+},
+"kind": "missile",
+"type": 1
+}, {
+"genes": {
+"count": 80.0,
+"mass": 150.0,
+"round_mass": 2.0
+},
+"kind": "cannon",
+"type": 1
+} ]
+}

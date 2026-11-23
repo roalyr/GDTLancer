@@ -1,0 +1,48 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://database/definitions/asset_ship_template.gd" type="Script" id=1]
+[ext_resource path="res://scenes/prefabs/ships/placeholders/fighter_medium.tscn" type="PackedScene" id=2]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "preset_ship_scavenger_light_19078i2"
+ship_model_name = "Scavenger Light 19078 I 2 Mk I"
+base_value = 5126
+ship_scene = ExtResource( 2 )
+hull_integrity = 87
+cargo_capacity = 8
+interaction_radius = 12.9318
+apparent_radius = 10.3454
+signature = 1293.18
+sensor_strength = 1.0
+tool_slots_small = 1
+tool_slots_medium = 0
+tool_slots_large = 0
+module_slots = 2
+module_slot_size = "small"
+equipped_tools = [ "preset_harpoon" ]
+equipped_modules = [ "preset_plating_light" ]
+salvage_yield = {
+"commodity_scrap": 13,
+"commodity_tech": 7
+}
+power_capacity = 18.4677
+power_regen = 4.32249
+mass = 3844.59
+linear_thrust = 416191.0
+angular_thrust = 398274.0
+alignment_threshold_angle_deg = 45.0
+model_scale = 0.862117
+variant_type = 1
+law_genes = {
+"shares": {
+"capacitor": 0.0144107,
+"engine": 0.286182,
+"hold": 0.0652094,
+"reactor": 0.0614555,
+"structure": 0.572742
+},
+"size": 0.640766,
+"tool_share": 0.105157,
+"type": 1
+}
