@@ -31,8 +31,8 @@ weight_class = "light"
 archetype = "raider light"
 temperament = "measured"
 traits = [ "wary", "hoards" ]
-lives = 18
-fitness = 0.0869608
+lives = 19
+fitness = 0.0930334
 origin = "raider_light_22535i1 (era 68)"
 genome = {
 "behavior": {

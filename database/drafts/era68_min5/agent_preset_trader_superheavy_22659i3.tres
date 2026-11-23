@@ -31,8 +31,8 @@ weight_class = "superheavy"
 archetype = "trader superheavy"
 temperament = "cautious"
 traits = [ "picks its fights", "standoff", "skittish" ]
-lives = 26
-fitness = -0.151651
+lives = 27
+fitness = -0.143406
 origin = ""
 genome = {
 "behavior": {

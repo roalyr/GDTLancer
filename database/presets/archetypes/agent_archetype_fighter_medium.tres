@@ -10,19 +10,19 @@ ship_template_id = "preset_ship_archetype_fighter_medium"
 faction = ""
 skill = 0.5
 behavior = {
-"burn": 0.493337,
-"caution": 0.0373458,
-"disengage": 2.29533,
-"engage": 3.55398,
-"haul": 0.763335,
-"mercy": 0.0883349,
-"prospect": 1.0,
-"pursuit": 0.624657,
-"quiet": 0.44904,
-"range": 1.5,
-"retreat_hull": 0.6949,
-"return_fire": 0.956894,
-"teamwork": 1.61299,
+"burn": 0.46051,
+"caution": 0.618488,
+"disengage": 0.1,
+"engage": 3.60555,
+"haul": 0.265506,
+"mercy": 0.277346,
+"prospect": 0.153176,
+"pursuit": 1.06301,
+"quiet": 0.368411,
+"range": 1.08148,
+"retreat_hull": 0.653016,
+"return_fire": 0.195125,
+"teamwork": 1.05401,
 "trade": 0.0
 }
 role = "fighter"
@@ -30,63 +30,47 @@ family = "fighter"
 weight_class = "medium"
 archetype = "fighter medium"
 temperament = "cautious"
-traits = [ "picks its fights", "quick to break off", "standoff", "skittish", "ruthless", "shoots back", "team player", "bold", "hoards" ]
-lives = 16
-fitness = -0.15116
-origin = "fighter_medium_22055i2 (era 68)"
+traits = [ "picks its fights", "stubborn", "skittish", "runs silent" ]
+lives = 8
+fitness = 0.55513
+origin = "fighter_medium_23060i2 (era 68)"
 genome = {
 "behavior": {
-"burn": 0.493337,
-"caution": 0.0373458,
-"disengage": 2.29533,
-"engage": 3.55398,
-"haul": 0.763335,
-"mercy": 0.0883349,
-"prospect": 1.0,
-"pursuit": 0.624657,
-"quiet": 0.44904,
-"range": 1.5,
-"retreat_hull": 0.6949,
-"return_fire": 0.956894,
-"teamwork": 1.61299,
+"burn": 0.46051,
+"caution": 0.618488,
+"disengage": 0.1,
+"engage": 3.60555,
+"haul": 0.265506,
+"mercy": 0.277346,
+"prospect": 0.153176,
+"pursuit": 1.06301,
+"quiet": 0.368411,
+"range": 1.08148,
+"retreat_hull": 0.653016,
+"return_fire": 0.195125,
+"teamwork": 1.05401,
 "trade": 0.0
 },
 "modules": [ {
 "genes": {
-"mass": 200.0
+"mass": 124.313
 },
-"kind": "thruster",
+"kind": "power_cell",
 "type": 1
 } ],
 "ship": {
 "shares": {
-"capacitor": 0.0564945,
-"engine": 0.308398,
-"hold": 0.0875436,
-"reactor": 0.0962775,
-"structure": 0.451286
+"capacitor": 0.0623084,
+"engine": 0.375587,
+"hold": 0.206479,
+"reactor": 0.0820687,
+"structure": 0.273557
 },
-"size": 1.42909,
-"tool_share": 0.951778,
+"size": 0.981877,
+"tool_share": 1.0,
 "type": 1
 },
 "tools": [ {
-"genes": {
-"count": 60.0,
-"mass": 310.645,
-"round_mass": 5.172
-},
-"kind": "cannon",
-"type": 2
-}, {
-"genes": {
-"count": 60.0,
-"mass": 310.645,
-"round_mass": 5.172
-},
-"kind": "cannon",
-"type": 2
-}, {
 "genes": {
 "count": 4.0,
 "round_mass": 100.034
@@ -95,10 +79,19 @@ genome = {
 "type": 2
 }, {
 "genes": {
-"count": 3.5,
-"round_mass": 39.03
+"count": 80.0,
+"mass": 150.0,
+"round_mass": 2.0
 },
-"kind": "missile",
+"kind": "cannon",
 "type": 1
+}, {
+"genes": {
+"count": 60.0,
+"mass": 310.645,
+"round_mass": 5.172
+},
+"kind": "cannon",
+"type": 2
 } ]
 }
