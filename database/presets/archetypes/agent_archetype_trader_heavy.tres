@@ -31,8 +31,8 @@ weight_class = "heavy"
 archetype = "trader heavy"
 temperament = "cautious"
 traits = [ "picks its fights", "skittish", "runs silent", "team player", "loud" ]
-lives = 13
-fitness = 0.0345081
+lives = 15
+fitness = 0.109828
 origin = "trader_heavy_22629i3 (era 68)"
 genome = {
 "behavior": {

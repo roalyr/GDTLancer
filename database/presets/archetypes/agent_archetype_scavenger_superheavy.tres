@@ -31,8 +31,8 @@ weight_class = "superheavy"
 archetype = "scavenger superheavy"
 temperament = "measured"
 traits = [ "merciful" ]
-lives = 23
-fitness = 0.0623261
+lives = 24
+fitness = 0.0680346
 origin = "scavenger_superheavy_19851i1 (era 68)"
 genome = {
 "behavior": {

@@ -32,7 +32,7 @@ archetype = "trader light"
 temperament = "cautious"
 traits = [ "picks its fights", "quick to break off", "ruthless", "wary" ]
 lives = 17
-fitness = 0.395399
+fitness = 0.419308
 origin = "trader_light_22658i4 (era 68)"
 genome = {
 "behavior": {

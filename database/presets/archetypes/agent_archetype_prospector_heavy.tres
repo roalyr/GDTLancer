@@ -32,7 +32,7 @@ archetype = "prospector heavy"
 temperament = "cautious"
 traits = [ "stubborn", "lets runners go", "runs silent", "wary" ]
 lives = 12
-fitness = 0.235932
+fitness = 0.227064
 origin = "prospector_heavy_22868i1 (era 68)"
 genome = {
 "behavior": {

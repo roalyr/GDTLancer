@@ -29,8 +29,8 @@ weight_class = "heavy"
 archetype = "raider heavy"
 temperament = "measured"
 traits = [  ]
-lives = 12
-fitness = -0.0547749
+lives = 13
+fitness = -0.0625235
 origin = "raider_heavy_21899i2 (era 68)"
 genome = {
 "behavior": {

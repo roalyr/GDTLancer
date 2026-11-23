@@ -32,7 +32,7 @@ archetype = "fighter light"
 temperament = "cautious"
 traits = [ "picks its fights", "stubborn", "skittish", "loud" ]
 lives = 20
-fitness = 1.32965
+fitness = 1.30469
 origin = "fighter_light_22672i1 (era 68)"
 genome = {
 "behavior": {

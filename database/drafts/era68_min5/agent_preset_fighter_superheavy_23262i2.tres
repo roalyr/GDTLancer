@@ -1,0 +1,127 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_preset_fighter_superheavy_23262i2"
+agent_type = "npc"
+ship_template_id = "preset_ship_fighter_superheavy_23262i2"
+faction = ""
+skill = 0.5
+behavior = {
+"burn": 0.00856244,
+"caution": 0.869514,
+"disengage": 1.73484,
+"engage": 2.91242,
+"haul": 0.155414,
+"mercy": 0.540812,
+"prospect": 0.0,
+"pursuit": 0.770058,
+"quiet": 0.313993,
+"range": 1.39901,
+"retreat_hull": 0.17916,
+"return_fire": 0.0569452,
+"teamwork": 0.0808923,
+"trade": 0.0
+}
+role = "fighter"
+family = "fighter"
+weight_class = "superheavy"
+archetype = "fighter superheavy"
+temperament = "cautious"
+traits = [ "picks its fights", "standoff", "runs silent", "loner", "wary" ]
+lives = 8
+fitness = 1.25808
+origin = ""
+genome = {
+"behavior": {
+"burn": 0.00856244,
+"caution": 0.869514,
+"disengage": 1.73484,
+"engage": 2.91242,
+"haul": 0.155414,
+"mercy": 0.540812,
+"prospect": 0.0,
+"pursuit": 0.770058,
+"quiet": 0.313993,
+"range": 1.39901,
+"retreat_hull": 0.17916,
+"return_fire": 0.0569452,
+"teamwork": 0.0808923,
+"trade": 0.0
+},
+"modules": [ {
+"genes": {
+"mass": 120.0
+},
+"kind": "sensor",
+"type": 1
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.0257131,
+"engine": 0.109297,
+"hold": 0.103199,
+"reactor": 0.122938,
+"structure": 0.638853
+},
+"size": 3.54364,
+"tool_share": 0.938086,
+"type": 3
+},
+"tools": [ {
+"genes": {
+"count": 3.0,
+"round_mass": 260.0
+},
+"kind": "missile",
+"type": 3
+}, {
+"genes": {
+"count": 38.5,
+"mass": 701.101,
+"round_mass": 16.606
+},
+"kind": "cannon",
+"type": 3
+}, {
+"genes": {
+"count": 4.0,
+"round_mass": 100.034
+},
+"kind": "missile",
+"type": 2
+}, {
+"genes": {
+"energy": 16.0,
+"mass": 1100.0
+},
+"kind": "laser",
+"type": 3
+}, {
+"genes": {
+"energy": 6.5,
+"mass": 450.0
+},
+"kind": "laser",
+"type": 2
+}, {
+"genes": {
+"count": 38.5,
+"mass": 701.101,
+"round_mass": 16.606
+},
+"kind": "cannon",
+"type": 3
+}, {
+"genes": {
+"count": 38.5,
+"mass": 701.101,
+"round_mass": 16.606
+},
+"kind": "cannon",
+"type": 3
+}, {
+} ]
+}

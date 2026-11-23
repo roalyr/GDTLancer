@@ -31,8 +31,8 @@ weight_class = "light"
 archetype = "scavenger light"
 temperament = "cautious"
 traits = [ "picks its fights", "quick to break off", "skittish", "ruthless", "wary", "sells often" ]
-lives = 22
-fitness = 0.0512168
+lives = 25
+fitness = 0.0767297
 origin = "scavenger_light_22635i3 (era 68)"
 genome = {
 "behavior": {
