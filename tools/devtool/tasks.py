@@ -415,7 +415,7 @@ def _era_default(part):
 
 def _new_era(v):
     return ["python3", "tools/devtool/evolution.py"] + ["%s=%s" % (key, v[key]) for key in
-                                                       ("era", "label", "next", "kind", "hours", "speed", "min_lives", "redo_drafts", "commit", "start")]
+                                                       ("era", "label", "next", "kind", "hours", "speed", "min_lives", "redo_drafts", "commit", "start", "segments")]
 
 
 def _lance_duel(v):
@@ -595,7 +595,9 @@ TASKS = [
                     Ask("min_lives", "Drafts for these minimum lives", default="10,5"),
                     Ask("redo_drafts", "Export again over this era's drafts if they exist (they may be edited)", "flag", "no", fresh=True),
                     Ask("commit", "Commit the drafts and catalog", "flag", "yes"),
-                    Ask("start", "Start the next era now", "flag", "yes")]),
+                    Ask("start", "Start the next era now: yes (one process, Simulated hours), islands (on .dev/islands.json's machines), no",
+                        "choice", "yes", ["yes", "islands", "no"]),
+                    Ask("segments", "Segments (start=islands; each is islands.json's hours)", "int", default="6")]),
     Task("islands", "Maintainer", "Evolution islands", "Evolution on several processes and machines (docs/ISLANDS.md; .dev/islands.json):"
          " check the hosts, push the project to them, run segments (detached: the Tools tab shows them) or stop after the segment running.",
          _islands, [Ask("action", "Action", "choice", "check", ["check", "push", "segment", "run", "stop"]),

@@ -15,6 +15,8 @@ before the rules change under evolution, in order, each step checked before the 
 6. era.json records the new era (number, label, when it started, at what simulated time).
 7. Evolution starts the new era (--new-era: genomes stay, their records start over; or --new: from
    scratch), detached, its console going to era<N+1>_<label>.log. The Tools tab shows it running.
+   start=islands instead: a run of a minute (--hours=0.01) starts the era on the save the same way,
+   then islands.py runs `segments` segments from it, detached (docs/ISLANDS.md); start=no stops at 6.
 
 Going on with the saved evolution (the evolution task, go_on):
 
@@ -162,13 +164,16 @@ class NewEra:
     log)` starts the sim detached and returns its pid (both stand-ins in the tests)."""
 
     def __init__(self, folder, label, next_label, hours="20", speed="8", min_lives=MIN_LIVES, fresh=False,
-                 commit=True, start=True, number=None, redo_drafts=False, run=None, start_process=None, drafts_dir=DRAFTS_DIR, say=print):
+                 commit=True, start=True, number=None, redo_drafts=False, run=None, start_process=None, drafts_dir=DRAFTS_DIR, say=print,
+                 segments="6", run_logged=None):
         self.folder, self.label, self.next_label = folder, label, next_label
         self.hours, self.speed, self.min_lives, self.fresh = str(hours), str(speed), list(min_lives), fresh
         self.commit, self.start, self.number, self.drafts_dir = commit, start, number, drafts_dir
         self.redo_drafts = redo_drafts
         self.run = run or (lambda command: subprocess.call(command, cwd=ROOT, env=environment()))
         self.start_process = start_process or start_detached
+        self.segments = str(segments)  # start="islands": how many segments
+        self.run_logged = run_logged or ((lambda command, log: self.run(command)) if run else call_logged)
         self.say = say
         self.done = []
 
@@ -266,11 +271,28 @@ class NewEra:
             return 0
         self.step("7. Start era %d" % new_number)
         log = free_path(os.path.join(self.folder, "era%d_%s.log" % (new_number, self.next_label)))
+        if self.start == "islands":
+            # The islands never start an era themselves: a minute's run here does (records start over), then they go on from its save.
+            self.say("   starting the era on the save (about a minute; its console: %s)" % os.path.basename(log))
+            command = godot_script("tools/evolution_sim.gd", "--", "--hours=0.01", "--speed=" + self.speed, "--new" if self.fresh else "--new-era")
+            if self.run_logged(command, log) != 0:
+                raise Step("the run that starts the era failed: see %s" % os.path.basename(log))
+            self.finish("era %d started on the save" % new_number)
+            if islands_detached("run", self.segments, self.folder, start_process=self.start_process, say=self.say) != 0:
+                raise Step("the islands did not start: Tools, m, Evolution islands, run")
+            self.finish("islands running, %s segments (Tools: x or islands stop ends them after a segment)" % self.segments)
+            return 0
         command = godot_script("tools/evolution_sim.gd", "--", "--hours=" + self.hours, "--speed=" + self.speed,
                                "--new" if self.fresh else "--new-era")
         pid = self.start_process(command, log)
         self.finish("running, pid %d; its console: %s (the Tools tab shows it; x stops it)" % (pid, os.path.basename(log)))
         return 0
+
+
+def call_logged(command, log):
+    """Runs `command` to its end, its output appended to `log`; returns its exit code."""
+    with open(log, "a") as handle:
+        return subprocess.call(command, cwd=ROOT, env=environment(), stdout=handle, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL)
 
 
 def start_detached(command, log):
@@ -326,8 +348,8 @@ def main(argv):
     yes = lambda key, default: str(values.get(key, default)).lower() in ("yes", "y", "true", "1")
     flow = NewEra(evolution_dir(), values.get("label", ""), values.get("next", ""), values.get("hours", "20"), values.get("speed", "8"),
                   [int(n) for n in values.get("min_lives", "10,5").split(",") if n.strip()], fresh=values.get("kind") == "fresh",
-                  commit=yes("commit", "yes"), start=yes("start", "yes"), number=values.get("era") or None,
-                  redo_drafts=yes("redo_drafts", "no"))
+                  commit=yes("commit", "yes"), number=values.get("era") or None, redo_drafts=yes("redo_drafts", "no"),
+                  start="islands" if values.get("start") == "islands" else yes("start", "yes"), segments=values.get("segments", "6"))
     return flow.go()
 
 

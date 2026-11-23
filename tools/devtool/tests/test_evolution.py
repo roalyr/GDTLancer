@@ -140,6 +140,23 @@ class NewEraTest(unittest.TestCase):
         self.assertIn("--new", runs.started[0][0])
         self.assertNotIn("--new-era", runs.started[0][0])
 
+    def test_an_islands_start_starts_the_era_here_then_the_islands(self):
+        runs = Runs(self.presets)
+        self.assertEqual(self.flow(runs, start="islands", segments="19").go(), 0)
+        starter = [command for command in runs.commands if "tools/evolution_sim.gd" in command]
+        self.assertEqual(len(starter), 1, "One short run starts the era (records start over) before the islands")
+        self.assertIn("--new-era", starter[0])
+        self.assertIn("--hours=0.01", starter[0])
+        command, log = runs.started[0]
+        self.assertEqual(command, ["python3", "tools/devtool/islands.py", "run", "19"])
+        self.assertTrue(os.path.basename(log).startswith("islands_"))
+
+    def test_a_failed_start_run_starts_no_islands(self):
+        runs = Runs(self.presets, fail="evolution_sim.gd")
+        self.assertEqual(self.flow(runs, start="islands").go(), 1)
+        self.assertEqual(runs.started, [])
+        self.assertEqual(json.load(open(os.path.join(self.folder, "era.json")))["era"], 52, "The era is recorded; only its start failed")
+
     def test_bad_names_are_refused_first(self):
         runs = Runs(self.presets)
         self.assertEqual(self.flow(runs, next_label="Fuel Era").go(), 1)
