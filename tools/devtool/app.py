@@ -46,7 +46,7 @@ from textual.widgets import (Button, DataTable, Footer, Header, Input, Label, Se
 
 from rich.markup import escape
 
-from . import changes, constants, data, economy, evolution, models, strings, tasks, worldmap
+from . import changes, constants, data, economy, evolution, models, presets, strings, tasks, worldmap
 from .bridge import Bridge, BridgeError, file_path
 
 RESOURCE_FILES = {  # Resource type -> the files a field of it can point at
@@ -144,8 +144,10 @@ def shares_line(pairs, what, empty):
     return "Of its %s: %s." % (what, ", ".join("%s %d%%" % (key, round(100.0 * v / total)) for key, v in pairs.items() if v > 0))
 
 
-def roster_text(faction):
-    """A faction's pilots, ship families and the mix of archetypes they make (the bridge's `mix`)."""
+def roster_text(faction, characters=None):
+    """A faction's pilots, ship families and the mix of archetypes they make (the bridge's `mix`),
+    each with its character's name (presets.characters)."""
+    characters = characters or {}
     lines = []
     pilots = faction.get("pilot_shares") or {}
     lines.append("Pilots: " + (shares_line(pilots, "pilots", "").replace("Of its pilots: ", "") if pilots
@@ -158,7 +160,7 @@ def roster_text(faction):
         lines.append("")
         lines.append("[b]The mix[/b] (share of its spawns):")
         for name in sorted(mix, key=archetype_order):
-            lines.append("  %-24s %5.1f%%  %s" % (name, 100.0 * mix[name], "#" * int(round(mix[name] * 40))))
+            lines.append("  %-24s %-16s %5.1f%%  %s" % (name, characters.get(name, ("",))[0], 100.0 * mix[name], "#" * int(round(mix[name] * 40))))
     return "\n".join(lines)
 
 
@@ -1315,7 +1317,7 @@ class ArchetypesPane(Vertical):
 
     def compose(self) -> ComposeResult:
         table = DataTable(id="archetypes", cursor_type="row", zebra_stripes=True)
-        table.add_columns("Archetype", "Role", "Temper", "Len m", "Mass t", "Hull", "Speed", "Acc", "DPS",
+        table.add_columns("Archetype", "Character", "Role", "Temper", "Len m", "Mass t", "Hull", "Speed", "Acc", "DPS",
                           "Cargo", "Slots", "WP", "Lives", "Fit", "Flown by")
         yield table
         yield Static("[dim]Speed m/s (with afterburner) · Acc m/s² · DPS: guns, as the AI rates a fight · Slots: small/medium/large"
@@ -1635,6 +1637,7 @@ class DevApp(App):
         self.editor_starter = self._start_editor  # Starts the Godot editor detached (tests record instead)
         self.undo_stack = []  # Saves, newest last: ([(path, its text before that save)], what to reload after its undo)
         self.archetype_view = {"ranges": {}, "archetypes": []}
+        self.characters = {}  # Archetype -> (name, one-liner), docs/PRESETS.md (presets.characters)
         self.duel_first = None  # The archetype d picked first (Archetypes tab)
         self.faction_view = {"factions": [], "archetypes": []}
         self.faction_picked = None
@@ -2244,6 +2247,7 @@ class DevApp(App):
 
     def _show_views(self, archetypes, factions):
         archetypes["archetypes"].sort(key=lambda design: archetype_order(design["name"]))
+        self.characters = presets.characters()  # docs/PRESETS.md, read again with each refresh
         self.archetype_view, self.faction_view = archetypes, factions
         self._show_archetypes()
         self._show_factions()
@@ -2254,11 +2258,11 @@ class DevApp(App):
         table.clear()
         for design in self.archetype_view["archetypes"]:
             if "error" in design:
-                table.add_row(design["name"], "[red]%s[/red]" % design["error"], *[""] * 13, key=design["name"])
+                table.add_row(design["name"], "", "[red]%s[/red]" % design["error"], *[""] * 13, key=design["name"])
                 continue
             slots = design["slots"]
             table.add_row(
-                design["name"], design["role"], design["temperament"], "%.1f" % design["length"], "%.1f" % (design["mass"] / 1000.0),
+                design["name"], self.characters.get(design["name"], ("",))[0], design["role"], design["temperament"], "%.1f" % design["length"], "%.1f" % (design["mass"] / 1000.0),
                 "%d" % design["hull"],
                 "%d" % design["top_speed"] + (" (%d)" % design["burst_speed"] if design["burst_speed"] > design["top_speed"] + 0.5 else ""),
                 "%.0f" % design["accel"], "%.1f" % design["gun_dps"], "%d" % design["cargo"],
@@ -2283,6 +2287,9 @@ class DevApp(App):
         lines = ["[b]%s[/b]  %s, %s%s  ·  skill %.2f  ·  %s" % (
             design["name"], design["role"], design["temperament"], (" (" + ", ".join(design["traits"]) + ")") if design["traits"] else "",
             design["skill"], design["scene"].replace("res://", ""))]
+        if design["name"] in self.characters:
+            name, line = self.characters[design["name"]]
+            lines.append("Character: [b]%s[/b]%s [dim](docs/PRESETS.md; Tasks: preset_sheets)[/dim]" % (escape(name), (": " + escape(line)) if line else ""))
         lines.append("Fit: " + ", ".join("%s [dim]%s[/dim]" % (part["name"], part["kind"]) for part in design["parts"]) if design["parts"] else "Fit: none")
         lines.append("Power %.0f, regen %.1f/s · signature %.0f m" % (design["power"], design["regen"], design["signature"]))
         lines.append("[dim]Genes (bar: evolution's range; | its starting value):[/dim]")
@@ -2369,7 +2376,7 @@ class DevApp(App):
         self.query_one("#roster", Static).update("")
         if faction is None:
             return
-        self.query_one("#roster", Static).update(roster_text(faction))
+        self.query_one("#roster", Static).update(roster_text(faction, self.characters))
         for index, haven in enumerate(faction["havens"]):
             ships = ", ".join("%s %s" % (n, kind) for kind, n in haven["ships"].items()) if isinstance(haven["ships"], dict) else ""
             havens.add_row(haven["sector"], haven["id"], haven["name"], ships, key=str(index))

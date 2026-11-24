@@ -430,8 +430,15 @@ def _lance_duel(v):
 
 
 def _duel(v):
-    return godot_script("tools/lance_duel.gd", "--", "--duels=" + v["duels"], "--speed=" + v["speed"],
-                        "--archetypes=%s,%s" % (v["a"], v["b"]))
+    command = godot_script("tools/lance_duel.gd", "--", "--duels=" + v["duels"], "--speed=" + v["speed"],
+                           "--archetypes=%s,%s" % (v["a"], v["b"]))
+    return command + (["--free"] if yes(v.get("free", "no")) else [])
+
+
+def _preset_sheets(v):
+    if v["action"] == "build":
+        return ["python3", "tools/devtool/presets.py", "build"]
+    return ["python3", "tools/devtool/presets.py", "price", "write=" + v["write"], "refit=" + v["refit"]]
 
 
 def _export_presets(v):
@@ -522,10 +529,18 @@ TASKS = [
     Task("classify_presets", "Content", "Classify presets + CATALOG.md", "Labels the archetypes and drafts and rewrites database/presets/CATALOG.md (after a draft export or a classifier change; the Overview says when).",
          lambda v: godot_script("tools/classify_presets.gd", *(["--", "--check"] if yes(v.get("check", "no")) else [])),
          [Ask("check", "Only say what is out of date (writes nothing)", "flag", "no", fresh=True)]),
+    Task("preset_sheets", "Content", "Archetypes from character sheets",
+         "docs/PRESETS.md: each archetype's character sheet (an evolved base design and hand tweaks). price: what the tweaks"
+         " cost in fitness, from trait models fitted to the era's lives (needs numpy); build: the archetypes from the sheets,"
+         " then refit_archetypes and classify_presets. Edit the sheets in a text editor.",
+         _preset_sheets, [Ask("action", "price (what the tweaks cost) or build (the archetypes from the sheets)", "choice", "price", ["price", "build"]),
+                          Ask("write", "price: write the prices on the sheets' Price lines", "flag", "yes"),
+                          Ask("refit", "price: fit the trait models again (else kept until the life log grows)", "flag", "no", fresh=True)]),
     # Balance
     Task("duel", "Balance", "Duel two archetypes", "Two archetypes as the game flies them, one on one: wins, time, hull left, rounds.",
          _duel, [Ask("a", "First (Verdant)", "choice", "fighter_light", archetypes), Ask("b", "Second (Violet)", "choice", "raider_light", archetypes),
-                 Ask("duels", "Duels", "int", default="6"), Ask("speed", "Speed", "float", default="6")]),
+                 Ask("duels", "Duels", "int", default="6"), Ask("speed", "Speed", "float", default="6"),
+                 Ask("free", "Free: set the first on the second once, then both fly by their genes (how each spends its time)", "flag", "no")]),
     Task("economy", "Balance", "Sector economy", "A sector's market, trade routes timed for a ship (WP an hour), every hull's trading,"
          " problems (stock that pays nowhere, buy-and-sell-back loops) and what 0.x has yet to estimate. Also World: Economy.",
          lambda v: ["python3", "tools/devtool/economy.py", "sector=" + v["sector"], "ship=" + v["ship"]],

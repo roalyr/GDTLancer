@@ -183,7 +183,7 @@ Content authors keep **Duel two archetypes** (Archetypes, `d`) and **Sector econ
   - `tasks.py`: every task, and the Godot and Blender checks;
   - `app.py`: the menu (the only part that needs Textual);
   - `bridge.py`, `bridge.gd` and `bridge_commands.gd`: Godot reading and writing files for the tool;
-  - `data.py` (data kinds, references), `models.py`, `constants.py` (Constants.gd by section), `worldmap.py` (World's map), `economy.py`;
+  - `data.py` (data kinds, references), `models.py`, `constants.py` (Constants.gd by section), `worldmap.py` (World's map), `economy.py`, `presets.py` (character sheets: price and build);
   - `changes.py` (the review screen's git), `evolution.py` (status, new eras, detached runs), `islands.py`, `release.py`, `soak.py`, `sounds.py`, `test_run.py` (parse check, then GUT);
   - Godot scripts the flows run: `validate.gd`, `sector_maker.gd`, `tscn_text.gd`;
   - `tests/`: the self-test (`tools/dev.py selftest`).

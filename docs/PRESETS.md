@@ -27,7 +27,12 @@ How to edit a sheet:
   | burn | 0–0.8 | power kept back from the afterburner for weapons |
   | haul | 0.05–1 | how full it gets before going home to sell |
 
-- **Price** is the era 68 model's estimate of what the tweaks cost or gain in fitness. Fitness is return on cost, less 1 for a lost ship, and one life's luck swings it by 0.4–1.4. The estimate is filled in by the pricing script, so don't edit it. For fighters, raiders and scavengers the model explains about a fifth of fitness. For prospectors and traders it explains almost nothing: their design hardly changes fitness, so they're free to design.
+- **Running it:** the dev tool's **Archetypes from character sheets** task (Tasks, Content), or `python3 tools/devtool/presets.py price|build`:
+  - `price` fills the Price lines;
+  - `build` remakes the archetypes from the sheets (a sheet that changes nothing leaves its files alone), then refits and classifies them;
+  - the base is the genome's last life in evolution's newest life log;
+  - test the characters with the **Duel two archetypes** task, with Free set to yes.
+- **Price** is the era model's estimate of what the tweaks cost or gain in fitness. Fitness is return on cost, less 1 for a lost ship, and one life's luck swings it by 0.4–1.4. The estimate is filled in by the pricing script, so don't edit it. For fighters, raiders and scavengers the model explains about a fifth of fitness. For prospectors and traders it explains almost nothing: their design hardly changes fitness, so they're free to design.
 - For fighters and raiders, being picky (high engage) and holding on once in a fight (low disengage) pay best. So making a combat pilot eager, or quick to give up, has a real price.
 
 ## Fighters: faction warships

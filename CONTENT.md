@@ -241,6 +241,8 @@ That makes twenty. A faction flies a design when its `family_shares` name the fa
 - The hull's stats come from the genome's hull genes. Change the genome, not the stats, and then press `f` on the Overview (refit_archetypes).
 - The home station's store sells all twenty hulls, with the part catalogue.
 
+**Characters:** each archetype has a character sheet in [docs/PRESETS.md](docs/PRESETS.md): its name, what it is like, an evolved base design and hand tweaks to its genes, shares or parts. To change an archetype, edit its sheet, then run the **Archetypes from character sheets** task (Tasks, Content). Use `price` to see what the tweaks cost in fitness, and `build` to remake the archetypes from the sheets. The Archetypes tab and each faction's mix show the characters' names.
+
 `database/presets/CATALOG.md` describes every design: the archetypes first, then every evolved draft they could be replaced by. Archetypes are picked from evolution's drafts (`database/drafts/`): see [docs/MAINTAINING.md](docs/MAINTAINING.md).
 
 ## Parts
