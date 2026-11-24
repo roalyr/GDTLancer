@@ -12,6 +12,7 @@ tool_type = "cannon"
 mount_size = "small"
 base_value = 480
 mass = 310.0
+internal = false
 damage = 5.13233
 optimal_range = 1756.11
 falloff = 878.055

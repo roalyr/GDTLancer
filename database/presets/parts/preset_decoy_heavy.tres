@@ -9,6 +9,7 @@ module_name = "Decoy Launcher Mk I-heavy"
 description = "400 kg."
 base_value = 800
 mass = 400.0
+internal = false
 stat_modifiers = {
 "decoy_charges": 8
 }

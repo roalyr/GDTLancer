@@ -9,6 +9,7 @@ module_name = "Sensor Mk I-medium"
 description = "250 kg."
 base_value = 500
 mass = 250.0
+internal = false
 stat_modifiers = {
 "sensor_strength": 0.5
 }

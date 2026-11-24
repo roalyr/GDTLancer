@@ -12,6 +12,7 @@ tool_type = "laser"
 mount_size = "medium"
 base_value = 1136
 mass = 450.0
+internal = false
 damage = 7.40126
 optimal_range = 1222.31
 falloff = 305.579

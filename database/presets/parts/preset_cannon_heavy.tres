@@ -12,6 +12,7 @@ tool_type = "cannon"
 mount_size = "large"
 base_value = 2175
 mass = 1348.73
+internal = false
 damage = 35.8662
 optimal_range = 1826.46
 falloff = 913.232

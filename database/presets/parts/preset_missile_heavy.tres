@@ -12,6 +12,7 @@ tool_type = "missile"
 mount_size = "large"
 base_value = 2080
 mass = 1040.0
+internal = false
 damage = 118.153
 optimal_range = 3520.85
 falloff = 0.0
