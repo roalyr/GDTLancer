@@ -18,7 +18,7 @@
 # (or .glb). Start a model from assets/models/starters/.
 set -e
 cd "$(dirname "$0")/.."
-GODOT="${GODOT:-godot}"  # Godot 3.6 and Blender 3.6 (docs/CONTENT.md, Getting started)
+GODOT="${GODOT:-godot}"  # Godot 3.6 and Blender 3.6 (docs/GETTING_STARTED.md)
 if [ -z "$BLENDER" ]; then
 	if [ -e tools/blender ]; then BLENDER=tools/blender; else BLENDER=blender; fi
 fi

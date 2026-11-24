@@ -2,7 +2,7 @@
 
 This page is for maintainers who run agent playtests or extend them.
 
-One of the guides the [README](../README.md#documentation) lists; it goes with [MAINTAINING.md](MAINTAINING.md#agent-playtests).
+One of the guides the [README](../README.md#documentation) lists, for when you need it; it goes with [MAINTAINING.md](MAINTAINING.md#agent-playtests).
 
 **Contents**
 - [What they are](#what-they-are)

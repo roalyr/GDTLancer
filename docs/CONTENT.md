@@ -1,108 +1,35 @@
 # Content guide
 
 This guide is for content authors: the people who make models, sectors, factions, parts, trade and sounds.
-It says how to set up, how to work through the development tool, and where each kind of content lives.
+It gives the big picture, step-by-step tasks, and a reference for each kind of content.
 None of it needs code.
 
-The first of the guides the [README](../README.md#documentation) lists. Next: [MAINTAINING.md](MAINTAINING.md), for maintainers (evolution, new eras, checks, releases).
+The second of the guides the [README](../README.md#documentation) lists. Read [GETTING_STARTED.md](GETTING_STARTED.md) first: it sets you up and walks you through two changes. Running evolution, checks and releases is maintainer work: [MAINTAINING.md](MAINTAINING.md).
+
+**How to read it:** the first section is the big picture, and the step-by-step tasks come next. The reference sections after them are for looking up one kind of content when you need it; you don't need to read them in order.
 
 **Contents**
-- [Getting started](#getting-started): what to install, the first run
-- [The development tool](#the-development-tool): its tabs and keys
+- [How the content fits together](#how-the-content-fits-together): the big picture, first
 - [Common tasks](#common-tasks): step by step
-- Reference: [Factions](#factions), [Sectors](#sectors), [Ships: archetypes](#ships-archetypes), [Parts](#parts), [Commodities, stock hulls, game starts](#commodities-stock-hulls-game-starts), [A sector's economy](#a-sectors-economy), [Models](#models), [Sounds](#sounds), [The UI's look](#the-uis-look), [Words and languages](#words-and-languages)
-- [Play saves and changed content](#play-saves-and-changed-content), [Checking your work](#checking-your-work)
+- Reference, by kind: [Factions](#factions), [Sectors](#sectors), [Ships: archetypes](#ships-archetypes), [Parts](#parts), [Commodities, stock hulls, game starts](#commodities-stock-hulls-game-starts), [A sector's economy](#a-sectors-economy), [Models](#models), [Sounds](#sounds), [The UI's look](#the-uis-look), [Words and languages](#words-and-languages)
+- Reference, the workflow: [Play saves and changed content](#play-saves-and-changed-content), [Checking your work](#checking-your-work), [The development tool's tabs](#the-development-tools-tabs)
 - [Where things live](#where-things-live) and a [glossary](#glossary)
 
-## Getting started
+## How the content fits together
 
-**You need:**
-- **Linux.** The tools are only made and tested there.
-- **Godot 3.6** (3.6.2 is the tested version), the standard Linux x11 build. Godot 4 cannot open the project, and the server or headless build crashes on its scenes.
-- **Python 3.9 or newer**, with `venv` and `pip` (on Debian and Ubuntu: the `python3-venv` package).
-- **git.**
-- **Blender 3.6 LTS**, only for making models.
+The game is made of a few kinds of content, each in files of its own, that name one another:
+- **Sectors** are the places the game plays: Elace (home), Cob, Lywin and Vidr. Each is a scene of stars, planets and rock belts, with a **layout** on top: its stations (**havens**), beacons and hazards.
+- **Factions** own the havens. Each says who it is at war with, and what its havens fly.
+- **Archetypes** are the ship designs the game flies: one for each family (fighter, prospector, raider, scavenger, trader) and weight class (light to superheavy). Each is fitted from the **part catalogue**.
+- **Commodities** are the cargo. Each haven buys and sells some of it, which makes a sector's economy.
+- **Models, sounds, the UI's look and the words** dress all of it.
 
-**Tell the tools where the programs are,** if they are not on your PATH as `godot` and `blender`:
-- `GODOT=/path/to/godot`: the Godot 3.6 binary.
-- `BLENDER=/path/to/blender`: Blender 3.6. A link at `tools/blender` also works (git ignores it).
-- `GDTLANCER_APK=/path/to/file.apk`: where the debug APK goes (only if you build for Android).
+Three things hold for all of it:
+1. **You edit through the tool.** It writes the files exactly as the Godot editor would, and checks each save at once.
+2. **Some data is derived.** Stats are made from genes, and archetypes from their characters. Edit the source, never what is made from it. The Overview says when derived data is out of date, and gives the key that brings it up to date (`a`, `f`, `c`).
+3. **One set of rules checks everything**, in the tool and in the tests ([Checking your work](#checking-your-work)).
 
-Set them in your shell profile (for example `export GODOT=~/apps/godot-3.6.2/godot` in `~/.profile`).
-
-**First run:**
-1. Clone the repository.
-2. Run `tools/dev.py`. The first run installs its one package (Textual) into `.dev/venv`, which only this tool uses (`tools/devtool/setup.sh` does that step on its own: to set up ahead, or `--fresh` to repair the venv), and imports the project (Godot converts the art and models into `.import/`, which git does not keep; under a minute). Opening the project once in the Godot editor does the same import.
-3. The **Overview** tab checks everything. If Godot or Blender is missing or is the wrong version, or the project was never imported, a red **Setup** line says what to do.
-4. Play the game from the Tools tab (`0`, then **Play**), or with `godot` in the project folder.
-
-## The development tool
-
-`tools/dev.py` opens the menu. `?` shows the keys. These keys work the same on every tab:
-- `1` to `9`, `0` and `-` switch tabs. Tab and shift+Tab move between boxes.
-- Enter opens or runs what is picked.
-- `ctrl+s` saves and `ctrl+u` undoes the last save (press it again to undo the one before).
-- `ctrl+n` makes something new (a file, a marker, a model). `ctrl+r` reads the files again.
-- `q` quits.
-
-Plain letters are each tab's own actions, and the footer lists them.
-
-**The tabs, in key order:**
-1. **Overview:** every content rule, checked at once, and what changed since the last commit.
-   - Enter opens a problem's file where it is edited.
-   - It also says when something derived from other data is out of date, with a key to fix it:
-     - `a` part stats (apply_laws);
-     - `f` the archetypes, built from their characters (refit_archetypes);
-     - `c` `CATALOG.md` (classify_presets);
-     - `l` sound loops.
-   - It also lists models changed in Blender since their import, and starter `.blend` files that need rebuilding.
-2. **Models:** every ship, station and rock model, with its files, who uses it and its check.
-   - `i` imports, `o` opens it in Blender and `s` makes a review sheet.
-   - `ctrl+n` starts a new model from a starter.
-   - `c` sets a placeholder's shape, and `f` puts a rock in the asteroid fields or takes it out.
-3. **Archetypes:** the twenty ship designs side by side as the game flies them, each with its character (what it is like, its tweaks and their price).
-   - `e` opens a design's character in Data, `h` its ship (to set its model), and `s` makes a review sheet.
-   - `p` prices the characters' tweaks.
-   - Press `d` on one design, then `d` on another, and they duel.
-4. **Factions:** wars, pilots and archetypes (and the mix of designs they make), traffic and havens.
-   - Pick a cell and press `w` to make war or peace.
-   - `e` opens the faction in Data, where its `pilot_shares` and `archetype_shares` are edited row by row.
-   - Enter on a haven opens it in World, and `e` opens the faction in Data.
-5. **World:** each sector's scene (stars, planets, moons, belts) and its layout (havens, beacons, hazards), on a map.
-   - `ctrl+n` places something, `ctrl+d` copies it and `delete` removes it.
-   - `e` opens the picked body's scene (or the layout, for a marker) in the Godot editor; on Models, `e` opens the model's scene.
-   - The **New sector** and **Copy sector** buttons make sectors.
-   - **Economy** shows the open sector's market.
-6. **Parts:** weapons (`w`), modules (`m`), commodities (`c`) and starting kits (`k`), each with who uses it.
-   - `p` plays a starting kit.
-   - `t` lists the trade routes, and `e` shows the picked route's sector economy.
-7. **Look:** shaders, faction paints, paint patterns and music.
-   - `y` syncs the shaders' shared blocks.
-   - `g` remakes the pattern library and `v` opens its sheet.
-8. **Data:** every data file by kind, in a form built from its script.
-   - Each field shows its note.
-   - `delete` removes a file only if nothing else names it.
-9. **Constants:** every value in `src/autoload/Constants.gd`, with its notes.
-   - `ctrl+g` groups them by kind and `ctrl+f` finds one.
-   - Godot checks that the script still parses before saving.
-0. **Tools:** every other tool. Enter asks its questions, then runs it.
-   - `g` reviews everything changed since the last commit and commits it with your message. Every file is ticked; `space` leaves one out, and **Put back this file** returns it to how the last commit had it (a new file is removed). A file outside the usual folders is marked `!`. Nothing is pushed.
-   - `o` opens the newest output (sheets, screenshots go to `.dev/out/`).
-   - `m` shows the maintainer tasks.
-
-**`-` Strings:** every word the player reads, a key per row with its English and Ukrainian (`database/strings/strings.json`).
-   - Type in the box to find a key or a word in any language; pick a key and edit its texts on the right, then `ctrl+s`.
-   - `ctrl+n` adds a key (`section.what`), `ctrl+d` deletes one, `ctrl+e` shows only the keys with problems: a language left empty, placeholders (`%d`, `%s`) that differ between languages, a key the code asks for that the file lacks.
-
-**Saving.** Godot writes every file, so the tool saves exactly what the Godot editor would.
-Each save is checked against the content rules at once:
-- green: every rule holds;
-- red: the problem is listed. The file is still saved; `ctrl+u` puts it back.
-
-**What a form shows.** A form shows only the fields that apply. A patrol beacon has an owner, a field has rocks, a laser has no magazine. Each script lists these rules in its `SHOWN_WHEN`.
-A field marked in orange, "Not in the game yet", is kept and saved, but nothing in play reads it.
-
-**From a terminal:** `tools/dev.py list` shows every task, and `tools/dev.py <task> key=value` runs one without the menu.
+Where each kind lives: [Where things live](#where-things-live). Words you don't know: the [glossary](#glossary).
 
 ## Common tasks
 
@@ -154,11 +81,7 @@ A field marked in orange, "Not in the game yet", is kept and saved, but nothing 
 - whether it calls for help (`distress`), hires escorts (`escorts`) and pays patrol wages (`patrol_wages`);
 - whether its havens welcome other factions as a neutral one does (`open_havens`, as the Free Port does). An open faction's own ships may also dock at any haven not at war with it;
 - its paints (`hull_material`, `station_material`);
-- what its havens fly, as two tables of shares (any numbers; each is read as a share of its total):
-  - `pilot_shares`: pilot levels, `rookie`, `regular`, `veteran`, `ace`. Empty means the default shares. A level caps the hull: a rookie flies light hulls, a regular up to medium, a veteran up to heavy, an ace anything. A pilot flies the heaviest it may 70% of the time, a lighter one otherwise;
-  - `archetype_shares`: archetypes, such as `trader_medium`. An archetype that isn't listed, or has a share of 0, is never flown. Empty means its havens fly nothing.
-
-  Each spawn rolls a pilot, then one of the listed archetypes that its level may fly, mostly of its own class. If none fits, the pilot is raised to fly the lightest listed one. A haven's `prefer_role` narrows the roll to one family. The Factions tab shows each archetype's listed share next to the share of spawns that comes out. A level also sets how quickly the pilot decides and how often it misjudges a fight; the player sees it on the HUD;
+- what its havens fly: `pilot_shares` (how many rookies, regulars, veterans and aces) and `archetype_shares` (which designs, and how often). See [Who flies what](#who-flies-what), below;
 - its **traffic**: how many of its ships of each family (`""` means any) travel the sectors apart from its havens' ships. A family it lists no archetype of flies any of its designs.
 
 **Special factions:**
@@ -166,6 +89,14 @@ A field marked in orange, "Not in the game yet", is kept and saved, but nothing 
 - **Aliens** set `no_standing` (they keep to themselves the same way), `territory` and `salvage_as`. They may fly a hull of their own (`ship_scene`) instead of their archetypes' hulls.
 
 Making peace on the Factions tab takes each side out of the other's `enemies`.
+
+### Who flies what
+
+Both tables are shares: any numbers, each read as a share of its total.
+- `pilot_shares`: pilot levels, `rookie`, `regular`, `veteran`, `ace`. Empty means the default shares. A level caps the hull: a rookie flies light hulls, a regular up to medium, a veteran up to heavy, an ace anything. A pilot flies the heaviest it may 70% of the time, a lighter one otherwise;
+- `archetype_shares`: archetypes, such as `trader_medium`. An archetype that isn't listed, or has a share of 0, is never flown. Empty means its havens fly nothing.
+
+Each spawn rolls a pilot, then one of the listed archetypes that its level may fly, mostly of its own class. If none fits, the pilot is raised to fly the lightest listed one. A haven's `prefer_role` narrows the roll to one family. The Factions tab shows each archetype's listed share next to the share of spawns that comes out. A level also sets how quickly the pilot decides and how often it misjudges a fight; the player sees it on the HUD.
 
 ## Sectors
 
@@ -234,17 +165,20 @@ Routes go round planets and moons by themselves.
 
 That makes twenty. A faction flies a design when its `archetype_shares` list it and its `pilot_shares` have pilots of a level that flies that weight.
 
-**Each archetype is made from its character.** You edit the character; the archetype's files are built from it.
-- **Character:** `database/characters/character_<name>.tres`, a `CharacterSheet`. It holds:
-  - who it is: `display_name` ("Smuggler"), `summary`, `strengths`, `weakness`, `quirk` and `looks`. The name is also its hull's in the game (the store, the HUD), so it needs a `name.` string in both languages (Strings tab: "Smuggler" is `name.smuggler`);
-  - its base: an evolved genome (`base_genome`), with where it came from, its lives and fitness. `pick_archetypes` sets these from evolution's drafts and leaves the rest of the character alone;
-  - its tweaks, each over the base: `genes` (pilot genes, below), `shares` (hull shares, `structure` `engine` `reactor` `capacitor` `hold`, taken relative to their sum), and `add_parts` and `remove_parts` (catalogue part ids, such as `preset_damper_medium`).
-- **Built files:** in `database/presets/archetypes/`. `preset_ship_archetype_<name>.tres` is the hull, its stats, its fit and its model (`ship_scene`, the only field to set there). `agent_archetype_<name>.tres` is the pilot, with the genome the game flies.
+**Each archetype is made from its character:** a file that says who the design is (a name, what it is like) and how it is built (an evolved design, with tweaks by hand). You edit the character; the archetype's own files are built from it.
 
 **Change an archetype:**
 1. Archetypes tab (`3`): `e` opens its character in Data. Edit it and save.
 2. Overview: `f` builds the archetypes again (refit_archetypes), then `c` rewrites `CATALOG.md`.
 3. Archetypes tab: `p` prices the tweaks (what they cost in fitness, death and earnings, from the last evolution era's lives), and `d` on two designs makes them duel. Set the duel's Free option to see how a character behaves when it isn't forced to fight.
+
+### In depth: characters and pilot genes
+
+- **Character:** `database/characters/character_<name>.tres`, a `CharacterSheet`. It holds:
+  - who it is: `display_name` ("Smuggler"), `summary`, `strengths`, `weakness`, `quirk` and `looks`. The name is also its hull's in the game (the store, the HUD), so it needs a `name.` string in both languages (Strings tab: "Smuggler" is `name.smuggler`);
+  - its base: an evolved genome (`base_genome`), with where it came from, its lives and fitness. `pick_archetypes` sets these from evolution's drafts and leaves the rest of the character alone;
+  - its tweaks, each over the base: `genes` (pilot genes, below), `shares` (hull shares, `structure` `engine` `reactor` `capacitor` `hold`, taken relative to their sum), and `add_parts` and `remove_parts` (catalogue part ids, such as `preset_damper_medium`).
+- **Built files:** in `database/presets/archetypes/`. `preset_ship_archetype_<name>.tres` is the hull, its stats, its fit and its model (`ship_scene`, the only field to set there). `agent_archetype_<name>.tres` is the pilot, with the genome the game flies.
 
 **Pilot genes** (ranges in `Constants.EVO_BEHAVIOR_RANGES`):
 
@@ -463,6 +397,74 @@ They check every faction, sector layout, haven, game start, archetype and part, 
 
 Tools, validate lists every problem from a terminal. Tools, check_model checks one model.
 
+## The development tool's tabs
+
+Every tab and key, for looking up ([GETTING_STARTED.md](GETTING_STARTED.md#finding-your-way-round-the-tool) has the short tour). `tools/dev.py` opens the menu. `?` shows the keys. These keys work the same on every tab:
+- `1` to `9`, `0` and `-` switch tabs. Tab and shift+Tab move between boxes.
+- Enter opens or runs what is picked.
+- `ctrl+s` saves and `ctrl+u` undoes the last save (press it again to undo the one before).
+- `ctrl+n` makes something new (a file, a marker, a model). `ctrl+r` reads the files again.
+- `q` quits.
+
+Plain letters are each tab's own actions, and the footer lists them.
+
+**The tabs, in key order:**
+1. **Overview:** every content rule, checked at once, and what changed since the last commit.
+   - Enter opens a problem's file where it is edited.
+   - It also says when something derived from other data is out of date, with a key to fix it:
+     - `a` part stats (apply_laws);
+     - `f` the archetypes, built from their characters (refit_archetypes);
+     - `c` `CATALOG.md` (classify_presets);
+     - `l` sound loops.
+   - It also lists models changed in Blender since their import, and starter `.blend` files that need rebuilding.
+2. **Models:** every ship, station and rock model, with its files, who uses it and its check.
+   - `i` imports, `o` opens it in Blender and `s` makes a review sheet.
+   - `ctrl+n` starts a new model from a starter.
+   - `c` sets a placeholder's shape, and `f` puts a rock in the asteroid fields or takes it out.
+3. **Archetypes:** the twenty ship designs side by side as the game flies them, each with its character (what it is like, its tweaks and their price).
+   - `e` opens a design's character in Data, `h` its ship (to set its model), and `s` makes a review sheet.
+   - `p` prices the characters' tweaks.
+   - Press `d` on one design, then `d` on another, and they duel.
+4. **Factions:** wars, pilots and archetypes (and the mix of designs they make), traffic and havens.
+   - Pick a cell and press `w` to make war or peace.
+   - `e` opens the faction in Data, where its `pilot_shares` and `archetype_shares` are edited row by row.
+   - Enter on a haven opens it in World, and `e` opens the faction in Data.
+5. **World:** each sector's scene (stars, planets, moons, belts) and its layout (havens, beacons, hazards), on a map.
+   - `ctrl+n` places something, `ctrl+d` copies it and `delete` removes it.
+   - `e` opens the picked body's scene (or the layout, for a marker) in the Godot editor; on Models, `e` opens the model's scene.
+   - The **New sector** and **Copy sector** buttons make sectors.
+   - **Economy** shows the open sector's market.
+6. **Parts:** weapons (`w`), modules (`m`), commodities (`c`) and starting kits (`k`), each with who uses it.
+   - `p` plays a starting kit.
+   - `t` lists the trade routes, and `e` shows the picked route's sector economy.
+7. **Look:** shaders, faction paints, paint patterns and music.
+   - `y` syncs the shaders' shared blocks.
+   - `g` remakes the pattern library and `v` opens its sheet.
+8. **Data:** every data file by kind, in a form built from its script.
+   - Each field shows its note.
+   - `delete` removes a file only if nothing else names it.
+9. **Constants:** every value in `src/autoload/Constants.gd`, with its notes.
+   - `ctrl+g` groups them by kind and `ctrl+f` finds one.
+   - Godot checks that the script still parses before saving.
+0. **Tools:** every other tool. Enter asks its questions, then runs it.
+   - `g` reviews everything changed since the last commit and commits it with your message. Every file is ticked; `space` leaves one out, and **Put back this file** returns it to how the last commit had it (a new file is removed). A file outside the usual folders is marked `!`. Nothing is pushed.
+   - `o` opens the newest output (sheets, screenshots go to `.dev/out/`).
+   - `m` shows the maintainer tasks.
+
+**`-` Strings:** every word the player reads, a key per row with its English and Ukrainian (`database/strings/strings.json`).
+   - Type in the box to find a key or a word in any language; pick a key and edit its texts on the right, then `ctrl+s`.
+   - `ctrl+n` adds a key (`section.what`), `ctrl+d` deletes one, `ctrl+e` shows only the keys with problems: a language left empty, placeholders (`%d`, `%s`) that differ between languages, a key the code asks for that the file lacks.
+
+**Saving.** Godot writes every file, so the tool saves exactly what the Godot editor would.
+Each save is checked against the content rules at once:
+- green: every rule holds;
+- red: the problem is listed. The file is still saved; `ctrl+u` puts it back.
+
+**What a form shows.** A form shows only the fields that apply. A patrol beacon has an owner, a field has rocks, a laser has no magazine. Each script lists these rules in its `SHOWN_WHEN`.
+A field marked in orange, "Not in the game yet", is kept and saved, but nothing in play reads it.
+
+**From a terminal:** `tools/dev.py list` shows every task, and `tools/dev.py <task> key=value` runs one without the menu.
+
 ## Where things live
 
 | Folder | What is there |
@@ -483,7 +485,7 @@ Tools, validate lists every problem from a terminal. Tools, check_model checks o
 | `assets/themes/` | the UI theme, its fonts and styles |
 | `src/` | the game's code; `src/autoload/Constants.gd` holds the tuning values |
 | `tools/` | the development tool (`tools/dev.py`, `tools/devtool/`) and the scripts it runs |
-| `docs/` | the guides (this one, [MAINTAINING.md](MAINTAINING.md), [ISLANDS.md](ISLANDS.md), [PLAYTESTS.md](PLAYTESTS.md)), [UI_LABELS.md](UI_LABELS.md) and Godot 3.6 shader reference pages. The [README](../README.md#documentation) lists them all |
+| `docs/` | the guides ([GETTING_STARTED.md](GETTING_STARTED.md), this one, [MAINTAINING.md](MAINTAINING.md), [ISLANDS.md](ISLANDS.md), [PLAYTESTS.md](PLAYTESTS.md)), [UI_LABELS.md](UI_LABELS.md) and Godot 3.6 shader reference pages. The [README](../README.md#documentation) lists them all |
 
 ## Glossary
 

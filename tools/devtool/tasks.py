@@ -17,7 +17,7 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 DEV_DIR = os.path.join(ROOT, ".dev")
 OUT_DIR = os.path.join(DEV_DIR, "out")
 LAST_FILE = os.path.join(DEV_DIR, "last.json")
-# The programs the tools run (docs/CONTENT.md, Getting started): Linux, Godot 3.6 (the x11 build: the
+# The programs the tools run (docs/GETTING_STARTED.md): Linux, Godot 3.6 (the x11 build: the
 # server build crashes on scenes) and, for models, Blender 3.6. Set GODOT and BLENDER to their paths
 # when they are not on PATH; a link tools/blender (not committed) also does for Blender.
 GODOT = os.environ.get("GODOT", "godot")

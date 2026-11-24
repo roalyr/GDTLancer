@@ -1,6 +1,6 @@
 # UI labels and their looks
 
-Reference for anyone changing how the UI's text is sized: every piece of text in the game UI and the named look (`theme_type_variation`) that sizes it. One of the documents the [README](../README.md#documentation) lists.
+Reference for anyone changing how the UI's text is sized: every piece of text in the game UI and the named look (`theme_type_variation`) that sizes it. One of the reference pages the [README](../README.md#documentation) lists.
 
 - **Sizes** are at UI SCALE x1.0. The looks themselves are listed in [CONTENT.md](CONTENT.md#the-uis-look) ("Labels use the shared sizes").
 - **To change one,** pick another look for the node in the Godot editor (Inspector, Theme, Type Variation), or change the look itself in the theme. **Change to** is left for notes.

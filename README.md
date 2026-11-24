@@ -28,16 +28,19 @@ You fly the ship, not the guns: distance and relative velocity decide a fight, a
 
 ## Documentation
 
-This README is the way in: it lists every document, and each guide is in `docs/`. For developers (Linux, Godot 3.6), in reading order:
+This README is the way in: it lists every document, and each guide is in `docs/`. For developers (Linux, Godot 3.6: see the [requirements](docs/GETTING_STARTED.md#requirements)), in reading order. Each one starts simple and leaves the details for later sections:
 
-| Document | For | What it covers |
-|---|---|---|
-| [CONTENT.md](docs/CONTENT.md) | content authors (start here) | Setup, the development tool (`tools/dev.py`), and each kind of content: factions, sectors, ships, parts, models, sounds, the UI, words |
-| [MAINTAINING.md](docs/MAINTAINING.md) | maintainers | Evolution, drafts and archetypes, checks, playtests, releases, the development tool's own code |
-| [ISLANDS.md](docs/ISLANDS.md) | maintainers | Setting up laptops to run evolution together (once per laptop) |
-| [PLAYTESTS.md](docs/PLAYTESTS.md) | maintainers | AI agents playing the game through its interface |
+| # | Guide | For | What it covers |
+|---|---|---|---|
+| 1 | [GETTING_STARTED.md](docs/GETTING_STARTED.md) | everyone new (start here) | Installing, the first run, and two small changes with a guide at each step (about half an hour) |
+| 2 | [CONTENT.md](docs/CONTENT.md) | content authors | How the content fits together, step-by-step tasks, then a reference for each kind: factions, sectors, ships, parts, models, sounds, the UI, words |
+| 3 | [MAINTAINING.md](docs/MAINTAINING.md) | maintainers | Checks and releases first, then evolution (the balance tool), then the development tool's own code |
 
-Reference, looked up rather than read:
+When you need them:
+- [ISLANDS.md](docs/ISLANDS.md): setting up laptops to run evolution together (maintainers, once per laptop).
+- [PLAYTESTS.md](docs/PLAYTESTS.md): AI agents playing the game through its interface (maintainers).
+
+Reference, to look things up rather than read through:
 - [UI_LABELS.md](docs/UI_LABELS.md): every text in the UI and the look that sizes it.
 - [CATALOG.md](database/presets/CATALOG.md): every ship design, the archetypes and evolution's drafts (generated).
 - [docs/godot/](docs/godot/): Godot 3.6's shading language and shader pages, for writing shaders offline.

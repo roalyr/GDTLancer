@@ -3,7 +3,7 @@
 This page is for maintainers who run evolution on several laptops: the one-time setup of each one.
 Running islands day to day is in [MAINTAINING.md](MAINTAINING.md#islands-evolution-on-several-machines).
 
-One of the guides the [README](../README.md#documentation) lists; it goes with [MAINTAINING.md](MAINTAINING.md).
+One of the guides the [README](../README.md#documentation) lists, for when you need it; it goes with [MAINTAINING.md](MAINTAINING.md).
 
 **Contents**
 - [How islands work](#how-islands-work)

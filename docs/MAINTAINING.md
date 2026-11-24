@@ -1,29 +1,76 @@
 # Maintaining
 
 This guide is for whoever runs evolution, releases versions and looks after the development tool.
-Content authors need only [CONTENT.md](CONTENT.md), which also covers setup.
+Content authors need only [GETTING_STARTED.md](GETTING_STARTED.md) (which also sets you up) and [CONTENT.md](CONTENT.md).
 
-The second of the guides the [README](../README.md#documentation) lists. Two pages go with it: [ISLANDS.md](ISLANDS.md) (setting up laptops for islands, once) and [PLAYTESTS.md](PLAYTESTS.md) (agent playtests).
+The third of the guides the [README](../README.md#documentation) lists, after [GETTING_STARTED.md](GETTING_STARTED.md) and [CONTENT.md](CONTENT.md). Two pages go with it: [ISLANDS.md](ISLANDS.md) (setting up laptops for islands, once) and [PLAYTESTS.md](PLAYTESTS.md) (agent playtests).
 
-The development tool's Tools tab (`0`) hides these tasks until you press `m`. `m` also shows evolution's status and its keys: `x` stops it, `n` starts a new era. From a terminal, `tools/dev.py list` shows them as the Maintainer group.
+**How to read it:** the sections go from everyday to rare. Checks and releases come first, then the optional probes and playtests. Evolution comes after them: a long-running balance tool, needed only after a rule change ([When to run evolution](#when-to-run-evolution)); read its sections in order the first time. The development tool's own code comes last.
+
+**Where the tasks are:** the Tools tab (`0`) hides them until you press `m`, which also shows evolution's status and its keys (`x` stops it, `n` starts a new era). From a terminal, `tools/dev.py list` shows them as the Maintainer group.
 
 **Contents**
-- [Play and evolution](#play-and-evolution)
-- [When to run evolution](#when-to-run-evolution)
-- [Running evolution](#running-evolution)
-- [Islands: evolution on several machines](#islands-evolution-on-several-machines)
-- [Watching a run](#watching-a-run)
-- [Drafts, archetypes and the catalog](#drafts-archetypes-and-the-catalog) (and [updating the game's ships](#updating-the-games-ships-from-a-running-era))
-- [A new era](#a-new-era)
-- [When something goes wrong](#when-something-goes-wrong)
 - [Checks: tests, selftest, soak](#checks-tests-selftest-soak)
-- [Agent playtests](#agent-playtests)
-- [Probes, screenshots and balance runs](#probes-screenshots-and-balance-runs)
 - [Releasing](#releasing)
+- [Probes, screenshots and balance runs](#probes-screenshots-and-balance-runs)
+- [Agent playtests](#agent-playtests)
+- [Evolution](#evolution):
+  - [Play and evolution](#play-and-evolution)
+  - [When to run evolution](#when-to-run-evolution)
+  - [Running evolution](#running-evolution)
+  - [Islands: evolution on several machines](#islands-evolution-on-several-machines)
+  - [Watching a run](#watching-a-run)
+  - [Drafts, archetypes and the catalog](#drafts-archetypes-and-the-catalog) (and [updating the game's ships](#updating-the-games-ships-from-a-running-era))
+  - [A new era](#a-new-era)
+  - [When something goes wrong](#when-something-goes-wrong)
 - [The development tool itself](#the-development-tool-itself)
 - [History](#history)
 
-## Play and evolution
+## Checks: tests, selftest, soak
+
+- **Run the tests** (Tools): every GUT test, the content rules and models included. From a terminal: `godot --no-window -s addons/gut/gut_cmdln.gd -gexit` (`-gselect=<file>` for one test file).
+  - A test file that fails to parse hangs the runner (GUT 7.4.3). The task (and the release) compile every test script first (`tools/devtool/test_run.py`) and name any that does not parse, with its line and error, before GUT starts; GUT itself is stopped after 45 minutes. Run GUT by hand only on files that parse.
+  - One "Parse Error" in the output is expected: a test feeds a broken script to the script check on purpose.
+- **Test the development tool** (Maintainer): the tool's own Python tests. A "Missing: Scene" line in the output is expected.
+- **Soak the game** (Maintainer) leaves the real game running for a few minutes: a new game in Elace, docked at home, at normal speed. It fails on:
+  - script or engine errors;
+  - orphaned nodes or memory still growing after the first two minutes;
+  - wrecks or loose lances past their caps;
+  - bookkeeping (sound, threat notices, travellers, markups) that keeps growing.
+
+  It prints the frame rates and the deaths, but does not judge them. It needs a display: it sets `DISPLAY=:0` itself and turns vsync off, since a hidden window's vsync holds the game to one frame a second.
+
+## Releasing
+
+**Release a version** (Maintainer) needs everything committed. It then:
+1. runs the tests and a 3-minute soak (`soak=0` skips the soak);
+2. sets the Android build's version in `export_presets.cfg` (the version name, and the version code one up);
+3. exports `GDTLancer-<version>.apk` beside the usual APK;
+4. commits that and tags it `v<version>`.
+
+It pushes nothing: push the commit and the tag once the build plays well.
+
+**Export the debug APK** (Tools, Game) builds the debug APK to `$GDTLANCER_APK`. It needs Godot's Android export templates and SDK set up in the editor. Never rename the presets in `export_presets.cfg`.
+
+## Probes, screenshots and balance runs
+
+All are in the Maintainer group, and write to `.dev/out/` where they write files:
+- **UI screenshots** and **Flight screenshots**: every store tab and prompt, and the HUD in flight.
+- **Sound probe** and **Harpoon probe**: print what plays, or the tether, each second.
+- **Battle balance sim**, **Lance duels** and **Performance ablation**: headless battles and frame times with one system switched off.
+- **Evolution report**: the newest life log in words.
+
+Content authors keep **Duel two archetypes** (Archetypes, `d`) and **Sector economy**.
+
+## Agent playtests
+
+AI agents (Claude Code's `playtester`, `.claude/agents/playtester.md`) play the real game through its buttons and report bugs and confusing spots, on this machine and on the islands' hosts, one slot each. `tools/playtest/play.py` is what they drive; `tools/playtest/play.py slots` lists the slots, `push` updates the hosts. See [PLAYTESTS.md](PLAYTESTS.md): the parts, running them, checking their findings (they often take a design choice for a bug) and extending them.
+
+## Evolution
+
+Evolution breeds ship designs under the game's rules, and the best become the archetypes the game flies. It runs for hours, apart from play. These sections go from what it is, through running and watching it, to bringing its designs into the game and starting a new era.
+
+### Play and evolution
 
 The game and evolution are two separate modes, and neither ever reads the other's data:
 - **Play** flies the presets only: the archetypes and the part catalogue in `database/presets/`. Its saves are in `user://savegames/`.
@@ -31,7 +78,7 @@ The game and evolution are two separate modes, and neither ever reads the other'
 
 New designs reach the game only by being exported as drafts and picked as archetypes (see below).
 
-## When to run evolution
+### When to run evolution
 
 Evolution is how the archetypes get balanced: it breeds designs (hull, parts and behaviour) under the game's rules, and the best of them are picked as the archetypes the game flies. It is worth running:
 - **after a rule change** that changes how ships fight, fly, earn or die (a law, a part, the flight model, an NPC tactic): start a new era (below), so fitness earned under the old rules stops counting;
@@ -41,7 +88,7 @@ It is not worth running for changes that do not reach a fight or a trade: models
 
 **How long it takes.** At speed 8, one process simulates about 2 to 4 hours per real hour (its pace, in the Tools tab). With 4 islands (2 on this laptop, 2 on another), one 1.2-hour segment takes about an hour of real time, and some 350 lives end in it. A new era's designs need a few hours before most niches have a design with 5 lives (`min5` drafts), and about a day for 10 (`min10`).
 
-## Running evolution
+### Running evolution
 
 Everything here is in the Tools tab (`0`) after `m`. The tab then shows evolution's status: running or done, its era, its pace, its save, newest backup and newest log. `x` stops a run, `n` starts a new era.
 
@@ -56,7 +103,7 @@ Everything here is in the Tools tab (`0`) after `m`. The tab then shows evolutio
 
 **A run apart:** **Run evolution (headless)** with a `save_dir` of its own (for example `user://smoke/`) keeps its save, logs and status there, apart from the era. Use it to try something without touching the era's records.
 
-## Islands: evolution on several machines
+### Islands: evolution on several machines
 
 One Godot process runs evolution on one CPU core. **Evolution islands** runs several side by side, on this machine and on other laptops in the local network over SSH, and merges them after each segment. Setting up a laptop as a worker (once) is in [ISLANDS.md](ISLANDS.md).
 
@@ -73,7 +120,7 @@ All from Tools, `m`, **Evolution islands**:
 - `UNREACHABLE (... Permission denied ...)`: this laptop's key is not on it (ISLANDS.md, step 3).
 - `no desktop on :0`: nobody is logged in to its desktop, and Godot needs one. Log in (a live USB session does by itself).
 
-## Watching a run
+### Watching a run
 
 - **The Tools tab** (`0`, `m`): running or done, the simulated time, the pace, and for islands which island a segment waits for and whether a stop was asked.
 - **Evolution report** (Maintainer): the newest life log in words: each faction's niches, its best designs with their fitness, lives, kills, deaths and earnings, and which parts and roles are flown.
@@ -84,7 +131,7 @@ All from Tools, `m`, **Evolution islands**:
   - `era.json`: the era's number and name; `status.json`: what the Tools tab shows.
 - **Backups**, in `user://evolution/backups/`: `era<N>_<name>_t<hours>h_<date>.sav` (each era's end, kept for good), `islands_t<hours>h.sav` (after each islands segment, the newest three) and `auto_t<hours>h.sav` (every 2 simulated hours of a single process, the newest three).
 
-## Drafts, archetypes and the catalog
+### Drafts, archetypes and the catalog
 
 - **Drafts** are evolution's best designs, exported as preset files to `database/drafts/era<N>_min<k>/`: era `N`, designs whose genome flew at least `k` lives. They are committed, but the game never reads them.
   - The new-era flow exports them (below).
@@ -99,7 +146,7 @@ After changing a law or the part catalogue:
 
 The content rules flag both when they are needed.
 
-### Updating the game's ships from a running era
+#### Updating the game's ships from a running era
 
 Do this as often as you like while an era runs (every hour or few), or once at its end. Era `N` is the one in the Tools tab.
 1. Tools, `m`, **Export presets from evolution**: `Minimum lives` 5 (or 10: fewer designs, on firmer evidence), `Empty ... first` yes, `To this folder` `res://database/drafts/era<N>_min5/`. It says "no niche's best has 5 lives yet" when it is too early: try again later.
@@ -114,7 +161,7 @@ Early in an era the picks change a lot from one export to the next, since each r
 
 At the era's end, run the new-era flow with `redo_drafts` yes, so its final drafts replace the ones exported during the era.
 
-## A new era
+### A new era
 
 A new era starts when the rules change, so fitness earned under the old ones no longer counts. It always goes through the tool: Tools, `m`, then `n` (or `tools/dev.py new_era label=<this era> next=<next era>`). Names are lower case letters, digits and `_` (`no_lance_family`, `one_model_flight`). With evolution stopped, the flow:
 1. copies the save to `backups/era<N>_<name>_t<hours>h_<date>.sav` and checks the copy byte for byte. A backup is never overwritten;
@@ -133,53 +180,13 @@ If a step fails, the flow stops there and lists what is already done. Run it aga
 
 The era number comes from `era.json`. If that is missing, the flow guesses from the backups' and drafts' names and asks you to confirm.
 
-## When something goes wrong
+### When something goes wrong
 
 - **A blackout or a crash.** Saves are written whole, then swapped in, the old one kept as `save_0.sav.bak`; loading falls back to it. Start again as before: **Evolution islands** `run` (the next segment starts from the last merged save; the segment that was running is lost), or **Run evolution (headless)**. Not a new era: the era goes on.
 - **The save will not load.** With evolution stopped, copy the newest backup from `user://evolution/backups/` over `user://evolution/save_0.sav` in a file manager, then start again.
 - **The Tools tab says running, but nothing is.** A run that was killed leaves `status.json` saying running; the tab checks its process and shows it stopped. If a new era still refuses, look for a stray `godot` process (`ps aux | grep godot`) and end it.
 - **Evolution quits at once.** Read its console log (above): a script error there names the file and line. Run the tests; they catch most of them.
 - **A worker took the wrong files.** `push` sends what is on this laptop, committed or not: commit or put back half-done edits before a run.
-
-## Checks: tests, selftest, soak
-
-- **Run the tests** (Tools): every GUT test, the content rules and models included. From a terminal: `godot --no-window -s addons/gut/gut_cmdln.gd -gexit` (`-gselect=<file>` for one test file).
-  - A test file that fails to parse hangs the runner (GUT 7.4.3). The task (and the release) compile every test script first (`tools/devtool/test_run.py`) and name any that does not parse, with its line and error, before GUT starts; GUT itself is stopped after 45 minutes. Run GUT by hand only on files that parse.
-  - One "Parse Error" in the output is expected: a test feeds a broken script to the script check on purpose.
-- **Test the development tool** (Maintainer): the tool's own Python tests. A "Missing: Scene" line in the output is expected.
-- **Soak the game** (Maintainer) leaves the real game running for a few minutes: a new game in Elace, docked at home, at normal speed. It fails on:
-  - script or engine errors;
-  - orphaned nodes or memory still growing after the first two minutes;
-  - wrecks or loose lances past their caps;
-  - bookkeeping (sound, threat notices, travellers, markups) that keeps growing.
-
-  It prints the frame rates and the deaths, but does not judge them. It needs a display: it sets `DISPLAY=:0` itself and turns vsync off, since a hidden window's vsync holds the game to one frame a second.
-
-## Agent playtests
-
-AI agents (Claude Code's `playtester`, `.claude/agents/playtester.md`) play the real game through its buttons and report bugs and confusing spots, on this machine and on the islands' hosts, one slot each. `tools/playtest/play.py` is what they drive; `tools/playtest/play.py slots` lists the slots, `push` updates the hosts. See [PLAYTESTS.md](PLAYTESTS.md): the parts, running them, checking their findings (they often take a design choice for a bug) and extending them.
-
-## Probes, screenshots and balance runs
-
-All are in the Maintainer group, and write to `.dev/out/` where they write files:
-- **UI screenshots** and **Flight screenshots**: every store tab and prompt, and the HUD in flight.
-- **Sound probe** and **Harpoon probe**: print what plays, or the tether, each second.
-- **Battle balance sim**, **Lance duels** and **Performance ablation**: headless battles and frame times with one system switched off.
-- **Evolution report**: the newest life log in words.
-
-Content authors keep **Duel two archetypes** (Archetypes, `d`) and **Sector economy**.
-
-## Releasing
-
-**Release a version** (Maintainer) needs everything committed. It then:
-1. runs the tests and a 3-minute soak (`soak=0` skips the soak);
-2. sets the Android build's version in `export_presets.cfg` (the version name, and the version code one up);
-3. exports `GDTLancer-<version>.apk` beside the usual APK;
-4. commits that and tags it `v<version>`.
-
-It pushes nothing: push the commit and the tag once the build plays well.
-
-**Export the debug APK** (Tools, Game) builds the debug APK to `$GDTLANCER_APK`. It needs Godot's Android export templates and SDK set up in the editor. Never rename the presets in `export_presets.cfg`.
 
 ## The development tool itself
 
