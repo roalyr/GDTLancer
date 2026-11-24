@@ -1,5 +1,19 @@
 # Agent playtests: the game played through its interface
 
+This page is for maintainers who run agent playtests or extend them.
+
+One of the guides the [README](../README.md#documentation) lists; it goes with [MAINTAINING.md](MAINTAINING.md#agent-playtests).
+
+**Contents**
+- [What they are](#what-they-are)
+- [The parts](#the-parts): the server and the client
+- [Slots and machines](#slots-and-machines)
+- [Running playtests with Claude Code](#running-playtests-with-claude-code): the agent, a scenario, what a run costs
+- [Checking findings](#checking-findings)
+- [Extending it](#extending-it), [Limits](#limits)
+
+## What they are
+
 Cheap AI agents play the real game the way a player does, by clicking its buttons, and report what
 is broken, inconsistent or confusing. They find the bugs that only a playtest finds: script errors
 that only happen in play, numbers the HUD shows that disagree with the game's, buttons that do

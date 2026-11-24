@@ -1,5 +1,21 @@
 # Evolution islands: more cores, more laptops
 
+This page is for maintainers who run evolution on several laptops: the one-time setup of each one.
+Running islands day to day is in [MAINTAINING.md](MAINTAINING.md#islands-evolution-on-several-machines).
+
+One of the guides the [README](../README.md#documentation) lists; it goes with [MAINTAINING.md](MAINTAINING.md).
+
+**Contents**
+- [How islands work](#how-islands-work)
+- [1. On the master (this laptop)](#1-on-the-master-this-laptop)
+- [2a. Quick way: MX Linux live USB sessions](#2a-quick-way-mx-linux-live-usb-sessions), or [2. On each worker laptop](#2-on-each-worker-laptop-once-at-the-laptop)
+- [3. Give the master the key to each worker](#3-give-the-master-the-key-to-each-worker-at-the-master)
+- [4. Tell the master about the workers](#4-tell-the-master-about-the-workers)
+- [5. First run](#5-first-run)
+- [What happens when something goes wrong](#what-happens-when-something-goes-wrong), [What the workers keep](#what-the-workers-keep)
+
+## How islands work
+
 One Godot process runs the whole simulation on one CPU core. Islands are several evolution runs side
 by side, on this laptop and on others in the local network. Each segment works like this:
 1. Every island flies the same save for the same simulated hours, each with its own random seed.
@@ -30,8 +46,7 @@ Commands, from the project root on the master:
 The same actions are in the development tool: Tools (`0`), `m`, **Evolution islands**. There a
 segment or a run starts detached, its output in `user://evolution/logs/islands_<date>.log`, and the
 Tools tab shows it. Running islands day to day (segments, picking archetypes, new eras, what to do
-when a machine drops) is in [MAINTAINING.md](MAINTAINING.md#islands-evolution-on-several-machines);
-this page is the one-time setup.
+when a machine drops) is in MAINTAINING.md.
 
 The settings live in `.dev/islands.json` on the master (see step 4).
 

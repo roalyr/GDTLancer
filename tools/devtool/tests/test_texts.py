@@ -1,4 +1,4 @@
-"""Words that drift: the number of designs the tool's texts and CONTENT.md name must be the number
+"""Words that drift: the number of designs the tool's texts and docs/CONTENT.md name must be the number
 of archetypes there are."""
 
 import glob
@@ -19,7 +19,7 @@ class TextsTest(unittest.TestCase):
         count = len(glob.glob(os.path.join(tasks.ROOT, data.ARCHETYPES, "preset_ship_archetype_*.tres")))
         self.assertGreater(count, 0)
         texts = {"data.KINDS": " ".join(kind.about for kind in data.KINDS)}
-        for name in ("CONTENT.md", "tools/devtool/app.py"):
+        for name in ("docs/CONTENT.md", "tools/devtool/app.py"):
             with open(os.path.join(tasks.ROOT, name)) as handle:
                 texts[name] = handle.read()
         for name, text in texts.items():

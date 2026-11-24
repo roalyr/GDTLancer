@@ -1,7 +1,9 @@
 # Maintaining
 
 This guide is for whoever runs evolution, releases versions and looks after the development tool.
-Content authors need only [CONTENT.md](../CONTENT.md), which also covers setup.
+Content authors need only [CONTENT.md](CONTENT.md), which also covers setup.
+
+The second of the guides the [README](../README.md#documentation) lists. Two pages go with it: [ISLANDS.md](ISLANDS.md) (setting up laptops for islands, once) and [PLAYTESTS.md](PLAYTESTS.md) (agent playtests).
 
 The development tool's Tools tab (`0`) hides these tasks until you press `m`. `m` also shows evolution's status and its keys: `x` stops it, `n` starts a new era. From a terminal, `tools/dev.py list` shows them as the Maintainer group.
 
@@ -9,16 +11,17 @@ The development tool's Tools tab (`0`) hides these tasks until you press `m`. `m
 - [Play and evolution](#play-and-evolution)
 - [When to run evolution](#when-to-run-evolution)
 - [Running evolution](#running-evolution)
+- [Islands: evolution on several machines](#islands-evolution-on-several-machines)
 - [Watching a run](#watching-a-run)
 - [Drafts, archetypes and the catalog](#drafts-archetypes-and-the-catalog) (and [updating the game's ships](#updating-the-games-ships-from-a-running-era))
 - [A new era](#a-new-era)
-- [Islands: evolution on several machines](#islands-evolution-on-several-machines)
 - [When something goes wrong](#when-something-goes-wrong)
 - [Checks: tests, selftest, soak](#checks-tests-selftest-soak)
-- [Releasing](#releasing)
+- [Agent playtests](#agent-playtests)
 - [Probes, screenshots and balance runs](#probes-screenshots-and-balance-runs)
+- [Releasing](#releasing)
 - [The development tool itself](#the-development-tool-itself)
-- [Notes in docs/](#notes-in-docs)
+- [History](#history)
 
 ## Play and evolution
 
@@ -52,6 +55,23 @@ Everything here is in the Tools tab (`0`) after `m`. The tab then shows evolutio
 **Code changes reach a run** only when it starts: islands send the project to every machine before each segment, so they pick up a change at the next one; a single process needs stopping and starting again.
 
 **A run apart:** **Run evolution (headless)** with a `save_dir` of its own (for example `user://smoke/`) keeps its save, logs and status there, apart from the era. Use it to try something without touching the era's records.
+
+## Islands: evolution on several machines
+
+One Godot process runs evolution on one CPU core. **Evolution islands** runs several side by side, on this machine and on other laptops in the local network over SSH, and merges them after each segment. Setting up a laptop as a worker (once) is in [ISLANDS.md](ISLANDS.md).
+
+All from Tools, `m`, **Evolution islands**:
+- `check`: every machine in `.dev/islands.json`, reachable or not, its cores, whether it has Godot and a display. Run it first.
+- `push`: sends Godot and the project to every machine. `push: <machine> up to date` means it is done. Each segment pushes again by itself.
+- `segment`: one segment, then the merge. `run` with `Segments (run)`: that many, one after another. Both start detached: the menu comes back, their output goes to `user://evolution/logs/islands_<date>.log`, and the Tools tab shows them.
+- `stop`: every island saves and ends; the run stops after the merge.
+
+**Which machines, how many islands and how long a segment is** live in `.dev/islands.json`. It is a text file of this machine's own, not committed; edit it in any text editor (format in [ISLANDS.md](ISLANDS.md#4-tell-the-master-about-the-workers)). It is read again before every segment, so a change takes effect at the next one. Usual values: `"local": 2` (islands on this laptop; 0 to spare it), 2 islands per 2-core laptop, `"hours": 1.2` (about an hour), `"speed": 8`.
+
+**A machine that does not answer** is left out of the segment; the others go on. `check` says why:
+- `UNREACHABLE (... No route to host)` or a timeout: the laptop is off, asleep, off the network, or has a new address. Wake it; on it, `ip -4 addr` shows its address; put that in `.dev/islands.json`. A fixed address in the router (a DHCP reservation) stops it changing.
+- `UNREACHABLE (... Permission denied ...)`: this laptop's key is not on it (ISLANDS.md, step 3).
+- `no desktop on :0`: nobody is logged in to its desktop, and Godot needs one. Log in (a live USB session does by itself).
 
 ## Watching a run
 
@@ -113,23 +133,6 @@ If a step fails, the flow stops there and lists what is already done. Run it aga
 
 The era number comes from `era.json`. If that is missing, the flow guesses from the backups' and drafts' names and asks you to confirm.
 
-## Islands: evolution on several machines
-
-One Godot process runs evolution on one CPU core. **Evolution islands** runs several side by side, on this machine and on other laptops in the local network over SSH, and merges them after each segment. Setting up a laptop as a worker (once) is in [ISLANDS.md](ISLANDS.md).
-
-All from Tools, `m`, **Evolution islands**:
-- `check`: every machine in `.dev/islands.json`, reachable or not, its cores, whether it has Godot and a display. Run it first.
-- `push`: sends Godot and the project to every machine. `push: <machine> up to date` means it is done. Each segment pushes again by itself.
-- `segment`: one segment, then the merge. `run` with `Segments (run)`: that many, one after another. Both start detached: the menu comes back, their output goes to `user://evolution/logs/islands_<date>.log`, and the Tools tab shows them.
-- `stop`: every island saves and ends; the run stops after the merge.
-
-**Which machines, how many islands and how long a segment is** live in `.dev/islands.json`. It is a text file of this machine's own, not committed; edit it in any text editor (format in [ISLANDS.md](ISLANDS.md#4-tell-the-master-about-the-workers)). It is read again before every segment, so a change takes effect at the next one. Usual values: `"local": 2` (islands on this laptop; 0 to spare it), 2 islands per 2-core laptop, `"hours": 1.2` (about an hour), `"speed": 8`.
-
-**A machine that does not answer** is left out of the segment; the others go on. `check` says why:
-- `UNREACHABLE (... No route to host)` or a timeout: the laptop is off, asleep, off the network, or has a new address. Wake it; on it, `ip -4 addr` shows its address; put that in `.dev/islands.json`. A fixed address in the router (a DHCP reservation) stops it changing.
-- `UNREACHABLE (... Permission denied ...)`: this laptop's key is not on it (ISLANDS.md, step 3).
-- `no desktop on :0`: nobody is logged in to its desktop, and Godot needs one. Log in (a live USB session does by itself).
-
 ## When something goes wrong
 
 - **A blackout or a crash.** Saves are written whole, then swapped in, the old one kept as `save_0.sav.bak`; loading falls back to it. Start again as before: **Evolution islands** `run` (the next segment starts from the last merged save; the segment that was running is lost), or **Run evolution (headless)**. Not a new era: the era goes on.
@@ -137,10 +140,6 @@ All from Tools, `m`, **Evolution islands**:
 - **The Tools tab says running, but nothing is.** A run that was killed leaves `status.json` saying running; the tab checks its process and shows it stopped. If a new era still refuses, look for a stray `godot` process (`ps aux | grep godot`) and end it.
 - **Evolution quits at once.** Read its console log (above): a script error there names the file and line. Run the tests; they catch most of them.
 - **A worker took the wrong files.** `push` sends what is on this laptop, committed or not: commit or put back half-done edits before a run.
-
-## Agent playtests
-
-AI agents (Claude Code's `playtester`, `.claude/agents/playtester.md`) play the real game through its buttons and report bugs and confusing spots, on this machine and on the islands' hosts, one slot each. `tools/playtest/play.py` is what they drive; `tools/playtest/play.py slots` lists the slots, `push` updates the hosts. See [PLAYTESTS.md](PLAYTESTS.md): the parts, running them, checking their findings (they often take a design choice for a bug) and extending them.
 
 ## Checks: tests, selftest, soak
 
@@ -156,6 +155,20 @@ AI agents (Claude Code's `playtester`, `.claude/agents/playtester.md`) play the 
 
   It prints the frame rates and the deaths, but does not judge them. It needs a display: it sets `DISPLAY=:0` itself and turns vsync off, since a hidden window's vsync holds the game to one frame a second.
 
+## Agent playtests
+
+AI agents (Claude Code's `playtester`, `.claude/agents/playtester.md`) play the real game through its buttons and report bugs and confusing spots, on this machine and on the islands' hosts, one slot each. `tools/playtest/play.py` is what they drive; `tools/playtest/play.py slots` lists the slots, `push` updates the hosts. See [PLAYTESTS.md](PLAYTESTS.md): the parts, running them, checking their findings (they often take a design choice for a bug) and extending them.
+
+## Probes, screenshots and balance runs
+
+All are in the Maintainer group, and write to `.dev/out/` where they write files:
+- **UI screenshots** and **Flight screenshots**: every store tab and prompt, and the HUD in flight.
+- **Sound probe** and **Harpoon probe**: print what plays, or the tether, each second.
+- **Battle balance sim**, **Lance duels** and **Performance ablation**: headless battles and frame times with one system switched off.
+- **Evolution report**: the newest life log in words.
+
+Content authors keep **Duel two archetypes** (Archetypes, `d`) and **Sector economy**.
+
 ## Releasing
 
 **Release a version** (Maintainer) needs everything committed. It then:
@@ -167,16 +180,6 @@ AI agents (Claude Code's `playtester`, `.claude/agents/playtester.md`) play the 
 It pushes nothing: push the commit and the tag once the build plays well.
 
 **Export the debug APK** (Tools, Game) builds the debug APK to `$GDTLANCER_APK`. It needs Godot's Android export templates and SDK set up in the editor. Never rename the presets in `export_presets.cfg`.
-
-## Probes, screenshots and balance runs
-
-All are in the Maintainer group, and write to `.dev/out/` where they write files:
-- **UI screenshots** and **Flight screenshots**: every store tab and prompt, and the HUD in flight.
-- **Sound probe** and **Harpoon probe**: print what plays, or the tether, each second.
-- **Battle balance sim**, **Lance duels** and **Performance ablation**: headless battles and frame times with one system switched off.
-- **Evolution report**: the newest life log in words.
-
-Content authors keep **Duel two archetypes** (Archetypes, `d`) and **Sector economy**.
 
 ## The development tool itself
 
@@ -207,7 +210,7 @@ Content authors keep **Duel two archetypes** (Archetypes, `d`) and **Sector econ
   - the material library against the starter `.blend` files;
   - sound loops against their slots.
 
-## Notes in docs/
+## History
 
 - The code was frozen on 2026-11-22. The notes on work left undone then (CPU and GPU optimisation work orders, view-detail and scar-mesh checks in play, the handover playtest) were deleted; they are in git history (last in c03a118).
-- `docs/godot/` holds Godot 3.6 reference pages (the shading language and shader types), for writing shaders offline.
+- The archetypes' character sheets were `docs/PRESETS.md` until 2026-11-24; they are data now, `database/characters/` (eff1f0f).

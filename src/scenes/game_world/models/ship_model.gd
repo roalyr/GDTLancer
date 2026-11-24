@@ -1,5 +1,5 @@
 # ShipModel: the root of a ship's model scene (an archetype's or hull's `ship_scene`). What the game
-# needs from a ship model (CONTENT.md, "Models"):
+# needs from a ship model (docs/CONTENT.md, "Models"):
 # - Size: Constants.SHIP_MODEL_LENGTH (17 m) nose to tail at scale 1 (tools/import_model.sh fits a
 #   model made at any size to it), nose to -Z, top to +Y. The ship's model_scale (its preset's)
 #   stretches it to the ship's size.

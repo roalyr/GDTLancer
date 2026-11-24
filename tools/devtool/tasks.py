@@ -17,7 +17,7 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 DEV_DIR = os.path.join(ROOT, ".dev")
 OUT_DIR = os.path.join(DEV_DIR, "out")
 LAST_FILE = os.path.join(DEV_DIR, "last.json")
-# The programs the tools run (CONTENT.md, Getting started): Linux, Godot 3.6 (the x11 build: the
+# The programs the tools run (docs/CONTENT.md, Getting started): Linux, Godot 3.6 (the x11 build: the
 # server build crashes on scenes) and, for models, Blender 3.6. Set GODOT and BLENDER to their paths
 # when they are not on PATH; a link tools/blender (not committed) also does for Blender.
 GODOT = os.environ.get("GODOT", "godot")
@@ -483,7 +483,7 @@ TASKS = [
     Task("validate", "Checks", "Check the content rules", "Every content rule (ContentValidator) at once, problems listed.",
          lambda v: godot_script("tools/devtool/validate.gd", *(["--", v["section"]] if v.get("section", "all") != "all" else [])),
          [Ask("section", "Sections", "choice", "all", lambda: ["all"] + validate_sections())]),
-    Task("check_model", "Checks", "Check a model scene", "A ship or station scene against the model rules (CONTENT.md, Models).",
+    Task("check_model", "Checks", "Check a model scene", "A ship or station scene against the model rules (docs/CONTENT.md, Models).",
          _check_model, [Ask("scene", "Scene", "file", globs=MODEL_SCENES)]),
     Task("fix_loops", "Checks", "Fix sound loops", "Sets each sound's import loop setting to what its sound bank slot asks, and imports it again.",
          lambda v: ["python3", "tools/devtool/sounds.py"]),

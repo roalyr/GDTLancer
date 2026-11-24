@@ -1,4 +1,4 @@
-# SectorNames: how a sector's folder, files and nodes are named (CONTENT.md, Sectors). One set of
+# SectorNames: how a sector's folder, files and nodes are named (docs/CONTENT.md, Sectors). One set of
 # rules: ContentValidator checks every sector against them, and the development tool names what it
 # makes by them (tools/devtool/bridge_commands.gd), so what the tool makes always keeps them.
 #   scenes/levels/sectors/<sector id>/            sector_<word>, the location's template_id

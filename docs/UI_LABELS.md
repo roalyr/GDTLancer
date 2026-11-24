@@ -1,6 +1,14 @@
 # UI labels and their looks
 
-Every piece of text in the game UI and the named look (theme_type_variation) that sizes it; sizes are at UI SCALE x1.0. To change one, pick another look for the node in the Godot editor (Inspector, Theme, Type Variation) or change the look itself in the theme (CONTENT.md, "The UI's look"); **Change to** is left for notes. The 2026-11-22 requests are applied; row 87 (the options' Info/Value) was removed. The words themselves are in database/strings/strings.json (CONTENT.md, "Words and languages"); "Shows" is the English. The looks are listed in CONTENT.md ("Labels use the shared sizes"). Generated 2026-11-22; debug-only text is at the end. Every tab, while open, reads in brackets in its look's amber open twin (`TabButtonOpen`, `LargeTabButtonOpen`).
+Reference for anyone changing how the UI's text is sized: every piece of text in the game UI and the named look (`theme_type_variation`) that sizes it. One of the documents the [README](../README.md#documentation) lists.
+
+- **Sizes** are at UI SCALE x1.0. The looks themselves are listed in [CONTENT.md](CONTENT.md#the-uis-look) ("Labels use the shared sizes").
+- **To change one,** pick another look for the node in the Godot editor (Inspector, Theme, Type Variation), or change the look itself in the theme. **Change to** is left for notes.
+- **The words** are in `database/strings/strings.json` ([CONTENT.md](CONTENT.md#words-and-languages), "Words and languages"); **Shows** is the English.
+- **Tabs:** every tab, while open, reads in brackets in its look's amber open twin (`TabButtonOpen`, `LargeTabButtonOpen`).
+- Generated 2026-11-22; the 2026-11-22 requests are applied, and row 87 (the options' Info/Value) was removed. Debug-only text is at the end.
+
+**Contents:** [HUD: top strip](#hud-top-strip), [buttons and sliders](#hud-buttons-and-sliders), [target brackets](#hud-target-brackets), [announcements](#hud-announcements) · [Main menu](#main-menu) · [Docked window](#docked-window) ([rows, headings, notes](#docked-window-rows-headings-notes-made-per-item)) · [Interaction window](#interaction-window) · [Map window](#map-window) · [Options window](#options-window) · [Pilot window](#pilot-window) · [Ship window](#ship-window) · [Prompts](#prompts-yesno-questions) · [Debug only](#debug-only-overlay-debug-map)
 
 ## HUD: top strip
 

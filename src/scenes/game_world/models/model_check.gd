@@ -1,4 +1,4 @@
-# ModelCheck: what is wrong with a ship or station model scene, by the rules in CONTENT.md
+# ModelCheck: what is wrong with a ship or station model scene, by the rules in docs/CONTENT.md
 # ("Models"). The content test runs it on every scene the game flies or places;
 # tools/check_model.gd (and tools/import_model.sh) on one. Each check returns a list of problems,
 # empty when the scene is fine.

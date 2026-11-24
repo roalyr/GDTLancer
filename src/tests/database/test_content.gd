@@ -1,4 +1,4 @@
-# Content checks (CONTENT.md): every faction, sector layout, haven, archetype, model in use and the
+# Content checks (docs/CONTENT.md): every faction, sector layout, haven, archetype, model in use and the
 # sound bank keep the rules in ContentValidator, so a content edit that breaks one fails here rather
 # than in play. The development tool (tools/dev.py) checks saves with the same rules.
 

@@ -4,7 +4,7 @@ This guide is for content authors: the people who make models, sectors, factions
 It says how to set up, how to work through the development tool, and where each kind of content lives.
 None of it needs code.
 
-Running evolution, new eras, soak checks and releases are maintainer work: see [docs/MAINTAINING.md](docs/MAINTAINING.md).
+The first of the guides the [README](../README.md#documentation) lists. Next: [MAINTAINING.md](MAINTAINING.md), for maintainers (evolution, new eras, checks, releases).
 
 **Contents**
 - [Getting started](#getting-started): what to install, the first run
@@ -270,7 +270,7 @@ What the era 68 lives say: fighters and raiders do best picky (high `engage`) an
 - An archetype's files must be what its character makes, with the laws' stats. The Overview says when they are not, and `f` builds them.
 - The home station's store sells all twenty hulls, with the part catalogue.
 
-`database/presets/CATALOG.md` describes every design: the archetypes first, then every evolved draft whose genome could become a character's base. Bases are picked from evolution's drafts (`database/drafts/`): see [docs/MAINTAINING.md](docs/MAINTAINING.md).
+`database/presets/CATALOG.md` describes every design: the archetypes first, then every evolved draft whose genome could become a character's base. Bases are picked from evolution's drafts (`database/drafts/`): see [MAINTAINING.md](MAINTAINING.md).
 
 ## Parts
 
@@ -483,7 +483,7 @@ Tools, validate lists every problem from a terminal. Tools, check_model checks o
 | `assets/themes/` | the UI theme, its fonts and styles |
 | `src/` | the game's code; `src/autoload/Constants.gd` holds the tuning values |
 | `tools/` | the development tool (`tools/dev.py`, `tools/devtool/`) and the scripts it runs |
-| `docs/` | maintainer notes ([MAINTAINING.md](docs/MAINTAINING.md)) and Godot 3.6 shader reference pages |
+| `docs/` | the guides (this one, [MAINTAINING.md](MAINTAINING.md), [ISLANDS.md](ISLANDS.md), [PLAYTESTS.md](PLAYTESTS.md)), [UI_LABELS.md](UI_LABELS.md) and Godot 3.6 shader reference pages. The [README](../README.md#documentation) lists them all |
 
 ## Glossary
 
@@ -505,4 +505,4 @@ Tools, validate lists every problem from a terminal. Tools, check_model checks o
 - **Roster / traffic:** the archetypes a faction's havens fly, and the ships it sends travelling.
 - **WP:** the currency.
 - **Standing:** how a faction regards the player (from -1 to 1). It changes prices and who attacks.
-- **Era:** a stretch of evolution under one set of rules (maintainers: see [docs/MAINTAINING.md](docs/MAINTAINING.md)).
+- **Era:** a stretch of evolution under one set of rules (maintainers: see [MAINTAINING.md](MAINTAINING.md)).

@@ -1759,7 +1759,7 @@ class DevApp(App):
         except (BridgeError, OSError) as error:
             problem = tasks.godot_problem() or tasks.display_problem()
             self.call_from_thread(self._set_summary, "[red]Godot did not start.[/red] %s" % escape(problem or str(error))
-                                  + "\n(CONTENT.md, Getting started; then restart the tool)")
+                                  + "\n(docs/CONTENT.md, Getting started; then restart the tool)")
             self.call_from_thread(self._godot_status, "Godot did not start")
             return
         self.call_from_thread(self._godot_status, "Godot %s" % version)

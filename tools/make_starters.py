@@ -1,5 +1,5 @@
 """
-Writes the starter .blend files a modeller begins from (CONTENT.md, "Models"):
+Writes the starter .blend files a modeller begins from (docs/CONTENT.md, "Models"):
     assets/models/starters/ship_starter.blend
     assets/models/starters/station_starter.blend
 
@@ -33,7 +33,7 @@ PAINT_PREVIEW = (0.55, 0.58, 0.62, 1.0)
 
 README = """GDTLancer model starter
 =======================
-Full rules: CONTENT.md, "Models". In short:
+Full rules: docs/CONTENT.md, "Models". In short:
 
 - Ships: any size, nose toward +Y, top toward +Z. The import scales a ship to 17 m nose to tail
   (the Guides box) and the game sizes it from its preset; only the proportions count.

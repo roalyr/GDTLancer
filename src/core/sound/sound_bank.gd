@@ -1,4 +1,4 @@
-# SoundBank: the game's sound effects, one slot per event (CONTENT.md, "Sounds"). The game's bank is
+# SoundBank: the game's sound effects, one slot per event (docs/CONTENT.md, "Sounds"). The game's bank is
 # database/sounds/sound_bank.tres; SoundEffects (in the main scene) plays it. A slot left empty
 # is silent, so slots can be filled one at a time.
 # Slot kinds (SLOTS):

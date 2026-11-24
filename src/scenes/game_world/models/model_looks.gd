@@ -1,5 +1,5 @@
 # ModelLooks: gives a model's surfaces the game's materials by the names they had in Blender, so a
-# model needs no material work in Godot (CONTENT.md, "Models"). A surface's material name (the
+# model needs no material work in Godot (docs/CONTENT.md, "Models"). A surface's material name (the
 # imported material's name; Blender's ".001" suffixes, case and spaces aside) picks:
 #   "paint"   the owner's paint (FactionTemplate.hull_material for ships, station_material for
 #             stations), given at spawn;

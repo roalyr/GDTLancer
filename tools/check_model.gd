@@ -1,5 +1,5 @@
 # Check model: lists what is wrong with a ship or station model scene (ModelCheck; the rules are in
-# CONTENT.md, "Models"). Exits 1 if anything is.
+# docs/CONTENT.md, "Models"). Exits 1 if anything is.
 #     godot --no-window -s tools/check_model.gd -- res://scenes/prefabs/ships/<name>.tscn [--station]
 extends SceneTree
 

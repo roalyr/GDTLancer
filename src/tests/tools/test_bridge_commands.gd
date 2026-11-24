@@ -358,7 +358,7 @@ func test_the_archetypes_view_has_every_design_with_its_numbers():
 	assert_eq(names, BridgeCommands.Validator.archetype_names())
 	assert_true(view.ranges.has("engage"))
 	# Each design's numbers against its own files: the archetypes are picked again from evolution's
-	# drafts (MAINTAINING.md), so no design's parts or size are pinned here.
+	# drafts (docs/MAINTAINING.md), so no design's parts or size are pinned here.
 	for design in view.archetypes:
 		var ship = load(design.ship)
 		assert_almost_eq(design.length, float(ship.model_scale) * Constants.SHIP_MODEL_LENGTH, 0.001, design.name)

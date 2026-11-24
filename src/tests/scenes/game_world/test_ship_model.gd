@@ -1,5 +1,5 @@
 # Tests for the model contract (ShipModel, StationModel, ModelLooks, ModelCheck) on a model made in
-# Blender the way CONTENT.md says (src/tests/fixtures/models/test_hull: nose to +Y in Blender,
+# Blender the way docs/CONTENT.md says (src/tests/fixtures/models/test_hull: nose to +Y in Blender,
 # materials "Paint", "Hull Dark Metal" and "Glow", two empties named Engine; the scene adds a nozzle
 # facing each other way and hardpoints as Position3Ds, named as Blender's empties come in).
 

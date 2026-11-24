@@ -11,7 +11,7 @@ from .tasks import ROOT
 
 # Where content and code live: a change elsewhere (a screenshot dropped in the project, a scratch
 # folder) is marked on the review screen, so it is not committed by accident.
-USUAL_PLACES = ("database/", "assets/", "scenes/", "src/", "docs/", "tools/", "addons/", "CONTENT.md", "README.md",
+USUAL_PLACES = ("database/", "assets/", "scenes/", "src/", "docs/", "tools/", "addons/", "README.md",
                 "project.godot", "export_presets.cfg", "default_env.tres", ".gitignore")
 
 

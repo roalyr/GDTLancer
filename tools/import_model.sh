@@ -1,5 +1,5 @@
 #!/bin/sh
-# Imports a model from Blender into the game in one go (CONTENT.md, "Models"):
+# Imports a model from Blender into the game in one go (docs/CONTENT.md, "Models"):
 #   0. given a .blend, its export to a .glb beside it as it renders (tools/export_blend.py:
 #      modifiers applied, "Guides" and unrendered objects left out);
 #   1. ships only: its fit to Constants.SHIP_MODEL_LENGTH nose to tail (tools/fit_length.py; the
@@ -18,7 +18,7 @@
 # (or .glb). Start a model from assets/models/starters/.
 set -e
 cd "$(dirname "$0")/.."
-GODOT="${GODOT:-godot}"  # Godot 3.6 and Blender 3.6 (CONTENT.md, Getting started)
+GODOT="${GODOT:-godot}"  # Godot 3.6 and Blender 3.6 (docs/CONTENT.md, Getting started)
 if [ -z "$BLENDER" ]; then
 	if [ -e tools/blender ]; then BLENDER=tools/blender; else BLENDER=blender; fi
 fi

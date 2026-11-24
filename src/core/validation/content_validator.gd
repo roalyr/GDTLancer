@@ -1,4 +1,4 @@
-# ContentValidator: the rules every content file keeps (CONTENT.md), as lists of problems, each
+# ContentValidator: the rules every content file keeps (docs/CONTENT.md), as lists of problems, each
 # {"file": res:// path, "problem": text}. One set of rules for both checkers: the content tests
 # (src/tests/database/test_content.gd) want every list empty, and the development tool
 # (tools/dev.py) checks each file it saves and shows the lists. A new rule goes here, nowhere else.

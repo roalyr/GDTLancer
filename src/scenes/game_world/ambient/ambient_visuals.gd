@@ -3,7 +3,7 @@
 # never a target, never in the way. As each piece enters, its collision layers and masks are
 # cleared and it leaves the groups the game finds things by (AMBIENT_STRIPPED_GROUPS: targets,
 # obstacles, celestials, rocks), and it casts no shadow. Put it next to SceneAssets in the sector
-# scene; CONTENT.md, "Sectors".
+# scene; docs/CONTENT.md, "Sectors".
 
 extends Spatial
 
