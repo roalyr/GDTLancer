@@ -21,10 +21,10 @@ hull_material = "res://assets/art/materials_generic/mat_hull_faction_freeport.tr
 station_material = "res://assets/art/materials_generic/mat_hull_faction_freeport.tres"
 ship_scene = ""
 pilot_shares = {
-"rookie": 0.5,
+"rookie": 0.45,
 "regular": 0.4,
 "veteran": 0.1,
-"ace": 0.0
+"ace": 0.05
 }
 archetype_shares = {
 "fighter_light": 0.3,
