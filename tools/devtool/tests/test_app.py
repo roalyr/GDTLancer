@@ -113,11 +113,11 @@ class FakeBridge:
         if command == "factions":
             return {"archetypes": ["fighter_light", "fighter_heavy", "raider_light"], "factions": [
                 {"id": "blue", "path": "res://database/factions/verdant.tres", "display_name": "Blue", "enemies": ["red"], "at_war": ["red"],
-                 "pilot_shares": {"rookie": 0.5, "ace": 0.5}, "family_shares": {"fighter": 1.0},
+                 "pilot_shares": {"rookie": 0.5, "ace": 0.5}, "archetype_shares": {"fighter_light": 1.0, "fighter_heavy": 1.0},
                  "mix": {"fighter_light": 0.6, "fighter_heavy": 0.4}, "havens": [{"sector": "sector_elace", "layout": LAYOUT, "node": "Havens/Port", "id": "port",
                                                           "name": "Port", "ships": {"blue": 4}}]},
-                {"id": "green", "path": "res://database/factions/xenohive.tres", "display_name": "Green", "enemies": [], "at_war": [], "pilot_shares": {}, "family_shares": {}, "mix": {}, "havens": []},
-                {"id": "red", "path": "res://database/factions/violet.tres", "display_name": "Red", "enemies": ["blue"], "at_war": ["blue"], "pilot_shares": {}, "family_shares": {}, "mix": {}, "havens": []}]}
+                {"id": "green", "path": "res://database/factions/xenohive.tres", "display_name": "Green", "enemies": [], "at_war": [], "pilot_shares": {}, "archetype_shares": {}, "mix": {}, "havens": []},
+                {"id": "red", "path": "res://database/factions/violet.tres", "display_name": "Red", "enemies": ["blue"], "at_war": ["blue"], "pilot_shares": {}, "archetype_shares": {}, "mix": {}, "havens": []}]}
         if command == "user_dir":
             return {"path": self.user_dir}
         if command == "parts":
@@ -820,7 +820,7 @@ class AppTest(unittest.IsolatedAsyncioTestCase):
             app._pick_faction("blue")
             shown = str(app.query_one("#roster").render())
             self.assertIn("rookie 50%", shown, "Its pilots")
-            self.assertIn("fighter 100%", shown, "its families")
+            self.assertIn("50.0% ->  40.0%", shown, "its archetypes: listed share and what comes out")
             self.assertIn("fighter_heavy", shown, "and the mix they make")
             self.assertIn("60.0%", shown)
             app._pick_faction("green")

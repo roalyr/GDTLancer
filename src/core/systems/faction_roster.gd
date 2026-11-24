@@ -1,12 +1,14 @@
 # FactionRoster: what a faction's havens fly in play, from two tables on its FactionTemplate:
 # - pilot_shares: pilot level ("rookie", "regular", "veteran", "ace") -> share; empty means
 #   Constants PILOT_LEVEL_SHARES;
-# - family_shares: ship family ("fighter", "trader"...) -> share; empty means it flies nothing.
-# A spawn rolls its pilot first, then its family (a haven's prefer_role takes the family's place
-# prefer_share of the time), then its hull's weight by the pilot (pick_weight: mostly the heaviest
-# the level may fly, PILOT_OWN_CLASS_SHARE of the time, otherwise a lighter one), and flies that
-# family's archetype of that weight (archetype_for: the next lighter one if there is none, then the
-# next heavier, the pilot raised to fly it). mix() is the share of each archetype that comes out.
+# - archetype_shares: archetype ("trader_medium") -> share; empty means it flies nothing.
+# A spawn rolls its pilot first, then one of the faction's archetypes its level may fly: each by its
+# share times weight_odds (mostly the heaviest class the level may fly, PILOT_OWN_CLASS_SHARE of the
+# time, otherwise a lighter one). A haven's prefer_role narrows the roll to that family prefer_share
+# of the time (to all its archetypes alike if the faction lists none). If none of them fits the level,
+# the lightest heavier ones do, the pilot raised to fly them. mix() is the share of each archetype
+# that comes out. An archetype's share is its family's old share for the same mix as when factions
+# listed families (each family's weights came out of weight_odds alone).
 # Uses Constants only (no other autoload): the dev tool's bridge and the content rules read it too.
 
 extends Reference
@@ -26,13 +28,13 @@ static func pilot_shares(spec: Dictionary) -> Array:
 	return out
 
 
-# Family -> share, those above 0 only.
-static func family_shares(spec: Dictionary) -> Dictionary:
+# Archetype -> share, those above 0 whose archetype exists.
+static func archetype_shares(spec: Dictionary) -> Dictionary:
 	var out := {}
-	var given: Dictionary = spec.get("family_shares", {})
-	for family in given:
-		if float(given[family]) > 0.0:
-			out[str(family)] = float(given[family])
+	var given: Dictionary = spec.get("archetype_shares", {})
+	for name in given:
+		if float(given[name]) > 0.0 and archetype_exists(str(name)):
+			out[str(name)] = float(given[name])
 	return out
 
 
@@ -40,19 +42,20 @@ static func archetype_exists(name: String) -> bool:
 	return ResourceLoader.exists(Constants.ARCHETYPES_DIR.plus_file("agent_archetype_%s.tres" % name))
 
 
-# The archetype of `family` nearest `weight` (an index in PRESET_WEIGHT_CLASSES): that one, the next
-# lighter, ..., then the next heavier; "" if the family has none.
-static func archetype_for(family: String, weight: int) -> String:
-	var order: Array = []
-	for index in range(weight, -1, -1):
-		order.append(index)
-	for index in range(weight + 1, Constants.PRESET_WEIGHT_CLASSES.size()):
-		order.append(index)
-	for index in order:
-		var name: String = "%s_%s" % [family, Constants.PRESET_WEIGHT_CLASSES[index][0]]
+# An archetype's family and weight class: "trader_medium" -> ["trader", "medium"].
+static func split(name: String) -> Array:
+	var parts: PoolStringArray = name.rsplit("_", true, 1)
+	return [parts[0], parts[1] if parts.size() > 1 else ""]
+
+
+# The archetypes of `family` that exist, light to superheavy.
+static func family_archetypes(family: String) -> Array:
+	var out: Array = []
+	for weight in Constants.PRESET_WEIGHT_CLASSES:
+		var name: String = "%s_%s" % [family, weight[0]]
 		if archetype_exists(name):
-			return name
-	return ""
+			out.append(name)
+	return out
 
 
 # Weight index -> chance, for a pilot of `level`: its own class PILOT_OWN_CLASS_SHARE of the time,
@@ -95,20 +98,53 @@ static func _pick_key(table: Dictionary) -> String:
 	return str(keys[_pick_index(odds)]) if not keys.empty() else ""
 
 
+# Archetype -> chance for a pilot of `level`, from `shares` (archetype -> share): each it may fly by
+# its share times weight_odds; if it may fly none, the lightest heavier ones by their shares.
+static func odds_for(shares: Dictionary, level: int) -> Dictionary:
+	var odds: Array = weight_odds(level)
+	var out := {}
+	var least: int = Constants.PRESET_WEIGHT_CLASSES.size()
+	for name in shares:
+		var weight: int = weight_index(split(name)[1])
+		if weight < odds.size() and float(odds[weight]) > 0.0:
+			out[name] = float(shares[name]) * float(odds[weight])
+		elif weight > level:
+			least = int(min(least, weight))
+	if out.empty():
+		for name in shares:
+			if weight_index(split(name)[1]) == least:
+				out[name] = float(shares[name])
+	return out
+
+
+# The shares a spawn rolls from: the faction's, or its archetypes of `family` only (all that family's
+# alike if it lists none of them).
+static func _narrowed(shares: Dictionary, family: String) -> Dictionary:
+	if family == "":
+		return shares
+	var out := {}
+	for name in shares:
+		if split(name)[0] == family:
+			out[name] = shares[name]
+	if out.empty():
+		for name in family_archetypes(family):
+			out[name] = 1.0
+	return out
+
+
 # One spawn: {"name": archetype, "level": pilot level}, or {} if the faction flies nothing.
-# `prefer_role`: a family taken instead of rolling one, prefer_share of the time (if it flies it).
+# `prefer_role`: a family the roll is narrowed to, prefer_share of the time (if it has archetypes).
 static func pick(spec: Dictionary, prefer_role: String = "", prefer_share: float = 0.0) -> Dictionary:
-	var families: Dictionary = family_shares(spec)
-	if families.empty():
+	var shares: Dictionary = archetype_shares(spec)
+	if shares.empty():
 		return {}
 	var level: int = _pick_index(pilot_shares(spec))
-	var family: String = _pick_key(families)
-	if prefer_role != "" and randf() < prefer_share and archetype_for(prefer_role, 0) != "":
-		family = prefer_role
-	var name: String = archetype_for(family, _pick_index(weight_odds(level)))
+	if prefer_role != "" and randf() < prefer_share and not family_archetypes(prefer_role).empty():
+		shares = _narrowed(shares, prefer_role)
+	var name: String = _pick_key(odds_for(shares, level))
 	if name == "":
 		return {}
-	return {"name": name, "level": int(max(level, weight_index(name.rsplit("_", true, 1)[-1])))}
+	return {"name": name, "level": int(max(level, weight_index(split(name)[1])))}
 
 
 # A weight class's index in PRESET_WEIGHT_CLASSES (0 if unknown): the least pilot level flying it.
@@ -123,26 +159,22 @@ static func weight_index(weight_class: String) -> int:
 # summing to 1; {} if it flies nothing.
 static func mix(spec: Dictionary) -> Dictionary:
 	var out := {}
-	var families: Dictionary = family_shares(spec)
+	var shares: Dictionary = archetype_shares(spec)
 	var levels: Array = pilot_shares(spec)
-	var family_total := 0.0
 	var level_total := 0.0
-	for family in families:
-		family_total += families[family]
 	for share in levels:
 		level_total += share
-	if family_total <= 0.0 or level_total <= 0.0:
+	if shares.empty() or level_total <= 0.0:
 		return out
-	for family in families:
-		for level in range(levels.size()):
-			var odds: Array = weight_odds(level)
-			for weight in range(odds.size()):
-				var share: float = families[family] / family_total * levels[level] / level_total * float(odds[weight])
-				if share <= 0.0:
-					continue
-				var name: String = archetype_for(family, weight)
-				if name != "":
-					out[name] = float(out.get(name, 0.0)) + share
+	for level in range(levels.size()):
+		if levels[level] <= 0.0:
+			continue
+		var odds: Dictionary = odds_for(shares, level)
+		var total := 0.0
+		for name in odds:
+			total += odds[name]
+		for name in odds:
+			out[name] = float(out.get(name, 0.0)) + levels[level] / level_total * odds[name] / total
 	return out
 
 

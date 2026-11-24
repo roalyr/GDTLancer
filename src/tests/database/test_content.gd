@@ -126,14 +126,14 @@ func test_a_broken_faction_is_caught():
 	var faction = load(Constants.FACTIONS_DIR.plus_file("verdant.tres")).duplicate()
 	faction.display_name = ""
 	faction.enemies = ["nobody"]
-	faction.family_shares = {"no_such_family": 1.0}
+	faction.archetype_shares = {"no_such_archetype": 1.0}
 	faction.pilot_shares = {"cadet": 1.0}
 	assert_eq(ResourceSaver.save(dir_path.plus_file("broken.tres"), faction), OK)
 	var texts: Array = _texts(Validator.factions(dir_path))
 	var path: String = dir_path.plus_file("broken.tres")
 	assert_has(texts, path + ": No name")
 	assert_has(texts, path + ": Enemy 'nobody' is not a faction")
-	assert_has(texts, path + ": Ship family 'no_such_family' has no archetype")
+	assert_has(texts, path + ": Archetype 'no_such_archetype' does not exist")
 	assert_has(texts, path + ": Pilot level 'cadet' is not one of rookie, regular, veteran, ace")
 	Directory.new().remove(path)
 	Directory.new().remove(dir_path)

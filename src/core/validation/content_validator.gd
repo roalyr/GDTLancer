@@ -140,16 +140,19 @@ static func factions(dir_path: String = Constants.FACTIONS_DIR) -> Array:
 				out.append(_problem(path, "Pilot level '%s': a share below 0" % level))
 		if not faction.pilot_shares.empty() and _sum(faction.pilot_shares) <= 0.0:
 			out.append(_problem(path, "Pilot shares add up to 0: no pilots"))
-		for family in faction.family_shares:
-			if FactionRoster.archetype_for(str(family), 0) == "":
-				out.append(_problem(path, "Ship family '%s' has no archetype" % family))
-			elif float(faction.family_shares[family]) < 0.0:
-				out.append(_problem(path, "Ship family '%s': a share below 0" % family))
+		var families := {}  # The families it flies an archetype of
+		for name in faction.archetype_shares:
+			if not FactionRoster.archetype_exists(str(name)):
+				out.append(_problem(path, "Archetype '%s' does not exist" % name))
+			elif float(faction.archetype_shares[name]) < 0.0:
+				out.append(_problem(path, "Archetype '%s': a share below 0" % name))
+			elif float(faction.archetype_shares[name]) > 0.0:
+				families[FactionRoster.split(str(name))[0]] = true
 		for family in faction.traffic:
 			if int(faction.traffic[family]) < 0:
 				out.append(_problem(path, "Traffic '%s': a count below 0" % family))
-			elif family != "" and float(faction.family_shares.get(family, 0.0)) <= 0.0:
-				out.append(_problem(path, "Traffic family '%s' is not among its ship families (its travellers would fly any)" % family))
+			elif family != "" and not families.has(family):
+				out.append(_problem(path, "Traffic family '%s': it flies none of its archetypes (its travellers would fly any)" % family))
 	return out
 
 
@@ -276,7 +279,7 @@ static func sectors() -> Array:
 				if not factions.has(faction):
 					out.append(_problem(path, "Haven '%s': ships' faction '%s' is not a faction" % [haven.id, faction]))
 				elif FactionRoster.mix(factions[faction]).empty():
-					out.append(_problem(path, "Haven '%s': %s flies no ships (no ship families)" % [haven.id, faction]))
+					out.append(_problem(path, "Haven '%s': %s flies no ships (no archetypes)" % [haven.id, faction]))
 			var commodities: Array = commodity_ids()
 			var buys: Dictionary = haven.get("services", {}).get("buys", {})
 			for commodity in buys:

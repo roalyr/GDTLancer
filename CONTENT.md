@@ -63,9 +63,9 @@ Plain letters are each tab's own actions, and the footer lists them.
 3. **Archetypes:** the twenty ship designs side by side as the game flies them.
    - `p` and `h` open a design's pilot or ship in Data, and `s` makes a review sheet.
    - Press `d` on one design, then `d` on another, and they duel.
-4. **Factions:** wars, pilots and ship families (and the mix of designs they make), traffic and havens.
+4. **Factions:** wars, pilots and archetypes (and the mix of designs they make), traffic and havens.
    - Pick a cell and press `w` to make war or peace.
-   - `e` opens the faction in Data, where its `pilot_shares` and `family_shares` are edited row by row.
+   - `e` opens the faction in Data, where its `pilot_shares` and `archetype_shares` are edited row by row.
    - Enter on a haven opens it in World, and `e` opens the faction in Data.
 5. **World:** each sector's scene (stars, planets, moons, belts) and its layout (havens, beacons, hazards), on a map.
    - `ctrl+n` places something, `ctrl+d` copies it and `delete` removes it.
@@ -113,7 +113,7 @@ A field marked in orange, "Not in the game yet", is kept and saved, but nothing 
 
 **Add a faction**
 1. Data (`8`), Factions, `ctrl+n`. Set its `display_name`, `color` and paints.
-2. Factions tab (`4`): set its wars; `e`, then set its `pilot_shares` and `family_shares`.
+2. Factions tab (`4`): set its wars; `e`, then set its `pilot_shares` and `archetype_shares`.
 3. World (`5`): give it havens (see the next task).
 
 **Add a station to a sector**
@@ -155,9 +155,10 @@ A field marked in orange, "Not in the game yet", is kept and saved, but nothing 
 - its paints (`hull_material`, `station_material`);
 - what its havens fly, as two tables of shares (any numbers; each is read as a share of its total):
   - `pilot_shares`: pilot levels, `rookie`, `regular`, `veteran`, `ace`. Empty means the default shares. A level caps the hull: a rookie flies light hulls, a regular up to medium, a veteran up to heavy, an ace anything. A pilot flies the heaviest it may 70% of the time, a lighter one otherwise;
-  - `family_shares`: ship families, `fighter`, `prospector`, `raider`, `scavenger`, `trader`. Empty means its havens fly nothing.
-  Each spawn rolls a pilot, then a family, then flies that family's design of the weight the pilot picked. The Factions tab shows the mix of designs that comes out. A level also sets how quickly the pilot decides and how often it misjudges a fight; the player sees it on the HUD;
-- its **traffic**: how many of its ships of each family (`""` means any) travel the sectors apart from its havens' ships. A family not among its `family_shares` flies any of its designs.
+  - `archetype_shares`: archetypes, such as `trader_medium`. An archetype that isn't listed, or has a share of 0, is never flown. Empty means its havens fly nothing.
+
+  Each spawn rolls a pilot, then one of the listed archetypes that its level may fly, mostly of its own class. If none fits, the pilot is raised to fly the lightest listed one. A haven's `prefer_role` narrows the roll to one family. The Factions tab shows each archetype's listed share next to the share of spawns that comes out. A level also sets how quickly the pilot decides and how often it misjudges a fight; the player sees it on the HUD;
+- its **traffic**: how many of its ships of each family (`""` means any) travel the sectors apart from its havens' ships. A family it lists no archetype of flies any of its designs.
 
 **Special factions:**
 - **Pirates** set `outlaw`. They dock only at their own havens, nobody else docks at theirs, and their armed ships hunt instead of patrolling.
@@ -230,7 +231,7 @@ Routes go round planets and moons by themselves.
 - families: fighter, prospector, raider, scavenger, trader. A lance is a part any ship may fit, not a family;
 - weight classes: light, medium, heavy, superheavy.
 
-That makes twenty. A faction flies a design when its `family_shares` name the family and its `pilot_shares` have pilots of a level that flies that weight.
+That makes twenty. A faction flies a design when its `archetype_shares` list it and its `pilot_shares` have pilots of a level that flies that weight.
 
 **Each design is a pair of files:**
 - `preset_ship_archetype_<name>.tres`: the hull, its stats, its fit and its model (`ship_scene`).

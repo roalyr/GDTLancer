@@ -703,8 +703,8 @@ func _preferred_role(faction: String, zone_id: String) -> String:
 	return ""
 
 
-# A frozen world's spawn (FactionRoster.pick): a pilot by the faction's pilot_shares, a family by
-# its family_shares (a zone's preferred role as often as it asks), and the hull its level flies.
+# A frozen world's spawn (FactionRoster.pick): a pilot by the faction's pilot_shares, then one of the
+# archetypes of its archetype_shares that level flies (a zone's preferred role as often as it asks).
 # {"genome_id", "how", "level"}; {} if the faction flies nothing.
 func _pick_archetype(faction: String, zone_id: String) -> Dictionary:
 	var haven: Dictionary = Havens.spec(zone_id)

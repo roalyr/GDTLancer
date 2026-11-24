@@ -7,7 +7,7 @@ The development tool's menu (Textual): the project's content and its checks in o
     Models     every ship and station model: its files, who uses it, its check; import, open, review
     Archetypes the twenty designs side by side as the game flies them (fitted mass, speed, guns),
                their pilots' genes against evolution's ranges, and who flies each
-    Factions   who is at war with whom (toggled in a matrix), each faction's pilots, ship families (the mix they fly) and havens
+    Factions   who is at war with whom (toggled in a matrix), each faction's pilots, archetypes (the mix they fly) and havens
     Parts      weapons, modules, commodities and the starting kit side by side, with who uses each
     Look       shaders (shared blocks in date, who uses each), faction paints, paint patterns, music
     Data       every data file by kind (the material library too), edited in a form made from its
@@ -145,22 +145,24 @@ def shares_line(pairs, what, empty):
 
 
 def roster_text(faction, characters=None):
-    """A faction's pilots, ship families and the mix of archetypes they make (the bridge's `mix`),
-    each with its character's name (presets.characters)."""
+    """A faction's pilots, and its archetypes: each one's listed share and the share of its spawns
+    that comes out (the bridge's `mix`: pilot levels cap the hull), with its character's name."""
     characters = characters or {}
     lines = []
     pilots = faction.get("pilot_shares") or {}
     lines.append("Pilots: " + (shares_line(pilots, "pilots", "").replace("Of its pilots: ", "") if pilots
                                else "[dim]the default shares[/dim]"))
-    families = faction.get("family_shares") or {}
-    lines.append("Families: " + (shares_line(families, "ships", "").replace("Of its ships: ", "") if families
-                                 else "[red]none: its havens fly nothing[/red]"))
+    listed = {name: share for name, share in (faction.get("archetype_shares") or {}).items() if share > 0}
     mix = faction.get("mix") or {}
-    if mix:
-        lines.append("")
-        lines.append("[b]The mix[/b] (share of its spawns):")
-        for name in sorted(mix, key=archetype_order):
-            lines.append("  %-24s %-16s %5.1f%%  %s" % (name, characters.get(name, ("",))[0], 100.0 * mix[name], "#" * int(round(mix[name] * 40))))
+    if not listed:
+        lines.append("Archetypes: [red]none: its havens fly nothing[/red]")
+        return "\n".join(lines)
+    total = sum(listed.values())
+    lines.append("")
+    lines.append("[b]Its archetypes[/b] (listed share -> share of its spawns):")
+    for name in sorted(set(listed) | set(mix), key=archetype_order):
+        lines.append("  %-24s %-16s %5.1f%% -> %5.1f%%  %s" % (name, characters.get(name, ("",))[0], 100.0 * listed.get(name, 0.0) / total,
+                                                             100.0 * mix.get(name, 0.0), "#" * int(round(mix.get(name, 0.0) * 40))))
     return "\n".join(lines)
 
 
@@ -1205,7 +1207,7 @@ HELP = """\
                 a placeholder's shape (c), a rock in the asteroid fields or out (f), its scene in Godot (e)
   3 Archetypes  the twenty designs as the game flies them; pilot genes against evolution's ranges;
                 d on one, then d on another: they duel
-  4 Factions    wars (pick a cell, w), pilots and families (e: edit in Data), traffic, havens (enter: World)
+  4 Factions    wars (pick a cell, w), pilots and archetypes (e: edit in Data), traffic, havens (enter: World)
   5 World       a sector: its scene's bodies and belts, its layout's markers, on a map (top or side,
                 e opens the picked body's scene, or the layout, in the Godot editor;
                 filters); New sector and Copy sector buttons; new and copied sectors and bodies are
@@ -2524,12 +2526,14 @@ class DevApp(App):
             families = sorted({archetype.rsplit("_", 1)[0] for archetype in self.faction_view.get("archetypes", [])})
             return {"traffic": Special(pairs=[(family, family) for family in families], integer=True, default=1,
                                        any_key=("", "any family"),
-                                       total=lambda pairs: "%d travellers; a family missing from its ship families flies any." % sum(pairs.values())),
+                                       total=lambda pairs: "%d travellers; a family it flies no archetype of flies any." % sum(pairs.values())),
                     "pilot_shares": Special(pairs=[(level.lower(), "%s (hulls up to %s)" % (level, WEIGHTS[min(i, len(WEIGHTS) - 1)]))
                                                    for i, level in enumerate(PILOT_LEVELS)], default=0.25,
                                             total=lambda pairs: shares_line(pairs, "pilots", "Empty: the default shares (Constants PILOT_LEVEL_SHARES).")),
-                    "family_shares": Special(pairs=[(family, family) for family in families], default=0.25,
-                                             total=lambda pairs: shares_line(pairs, "ships", "Empty: its havens fly nothing."))}
+                    "archetype_shares": Special(pairs=[(name, "%s (%s)" % (name, self.characters[name][0]) if name in self.characters else name)
+                                                       for name in sorted(self.faction_view.get("archetypes", []), key=archetype_order)],
+                                                default=0.25, total=lambda pairs: shares_line(pairs, "ships", "Empty: its havens fly nothing.")
+                                                + " A pilot flies only those its level allows (rookies light hulls).")}
         if name == "beacon_marker.gd":
             return {"owner_faction": Special(choices=[("", "(none)")] + factions)}
         return {}

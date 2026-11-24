@@ -476,7 +476,7 @@ func cmd_archetypes(_args: Dictionary):
 
 
 # Every faction with what the generic form cannot show: {"factions": [{id, path, name, color,
-# enemies, at_war (either side's list), pilot_shares, family_shares, mix (archetype -> share of its
+# enemies, at_war (either side's list), pilot_shares, archetype_shares, mix (archetype -> share of its
 # spawns: FactionRoster), flags..., paint (albedo of its hull material),
 # havens: [{sector, layout, node, id, name, ships}]}], "archetypes": [names]}.
 func cmd_factions(_args: Dictionary):

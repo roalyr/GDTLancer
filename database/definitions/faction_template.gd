@@ -1,5 +1,5 @@
 # FactionTemplate: one faction (database/factions/<id>.tres): who it is at war with, how it treats
-# the player, what it pays for, how its ships and stations look, and what its havens fly (pilots and families: FactionRoster). Read as a
+# the player, what it pays for, how its ships and stations look, and what its havens fly (pilots and archetypes: FactionRoster). Read as a
 # Dictionary by its id (TemplateDatabase.factions; to_spec gives the keys).
 # "player" is the player's faction (no file); NPCs treat the player by standing (Standing: the
 # faction's starting_standing, 0 if none) or a grudge (the player shot them).
@@ -29,7 +29,7 @@ export(String, FILE, "*.tres") var station_material: String = ""  # Paint on its
 export(String, FILE, "*.tscn") var ship_scene: String = ""  # A hull of its own its ships fly instead of their archetype's (aliens); "" none
 export var traffic: Dictionary = {}  # Family ("" any) -> how many of its ships travel the sectors and work Elace's hotspot (Traffic)
 export var pilot_shares: Dictionary = {}  # What its havens fly (FactionRoster): pilot level ("rookie", "regular", "veteran", "ace") -> share; empty: Constants PILOT_LEVEL_SHARES
-export var family_shares: Dictionary = {}  # and ship family ("fighter", "trader"...) -> share; the pilot's level then picks the hull's weight. Empty: flies nothing
+export var archetype_shares: Dictionary = {}  # and archetype ("trader_medium"...) -> share, among those the pilot's level may fly. Empty: flies nothing
 
 
 # The faction as the code reads it (TemplateDatabase.factions): "territory" and "salvage_as" only
@@ -39,7 +39,7 @@ func to_spec() -> Dictionary:
 		"name": display_name, "color": color, "enemies": enemies.duplicate(), "standing": starting_standing,
 		"no_standing": no_standing, "outlaw": outlaw, "distress": distress, "silent": silent, "escorts": escorts,
 		"patrol_wages": patrol_wages, "open_havens": open_havens, "hull_material": hull_material,
-		"station_material": station_material, "ship_scene": ship_scene, "pilot_shares": pilot_shares.duplicate(), "family_shares": family_shares.duplicate(), "traffic": traffic.duplicate(),
+		"station_material": station_material, "ship_scene": ship_scene, "pilot_shares": pilot_shares.duplicate(), "archetype_shares": archetype_shares.duplicate(), "traffic": traffic.duplicate(),
 	}
 	if territory > 0.0:
 		spec["territory"] = territory

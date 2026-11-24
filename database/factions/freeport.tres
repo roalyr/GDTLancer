@@ -26,8 +26,17 @@ pilot_shares = {
 "veteran": 0.1,
 "ace": 0.0
 }
-family_shares = {
-"trader": 0.4,
-"prospector": 0.3,
-"fighter": 0.3
+archetype_shares = {
+"fighter_light": 0.3,
+"fighter_medium": 0.3,
+"fighter_heavy": 0.3,
+"fighter_superheavy": 0.3,
+"prospector_light": 0.3,
+"prospector_medium": 0.3,
+"prospector_heavy": 0.3,
+"prospector_superheavy": 0.3,
+"trader_light": 0.4,
+"trader_medium": 0.4,
+"trader_heavy": 0.4,
+"trader_superheavy": 0.4
 }

@@ -165,7 +165,7 @@ func test_the_window_has_a_pilot_tab_of_public_facts():
 
 
 func test_pilots_come_first_and_their_level_picks_the_hull():
-	var spec := {"pilot_shares": {"rookie": 1.0}, "family_shares": {"fighter": 1.0}}
+	var spec := {"pilot_shares": {"rookie": 1.0}, "archetype_shares": {"fighter_light": 1.0, "fighter_medium": 1.0, "fighter_heavy": 1.0, "fighter_superheavy": 1.0}}
 	for _i in range(20):
 		var picked: Dictionary = FactionRoster.pick(spec)
 		assert_eq(picked.name, "fighter_light", "A rookie flies light")
@@ -177,11 +177,15 @@ func test_pilots_come_first_and_their_level_picks_the_hull():
 		assert_eq(picked.level, 3, "An ace stays an ace")
 		heavy += int(picked.name == "fighter_superheavy")
 	assert_true(heavy > 100 and heavy < 180, "Mostly its own class (%d of 200)" % heavy)
-	assert_eq_deep(FactionRoster.pick({"pilot_shares": {"ace": 1.0}, "family_shares": {}}), {})
+	assert_eq_deep(FactionRoster.pick({"pilot_shares": {"ace": 1.0}, "archetype_shares": {}}), {})
 
 
 func test_the_mix_follows_the_shares():
-	var mix: Dictionary = FactionRoster.mix({"pilot_shares": {"rookie": 1.0, "regular": 1.0}, "family_shares": {"fighter": 3.0, "trader": 1.0}})
+	var shares := {}
+	for weight in ["light", "medium", "heavy", "superheavy"]:
+		shares["fighter_" + weight] = 3.0
+		shares["trader_" + weight] = 1.0
+	var mix: Dictionary = FactionRoster.mix({"pilot_shares": {"rookie": 1.0, "regular": 1.0}, "archetype_shares": shares})
 	var total := 0.0
 	for name in mix:
 		total += mix[name]
@@ -189,11 +193,46 @@ func test_the_mix_follows_the_shares():
 	assert_almost_eq(mix.fighter_light, 0.75 * (0.5 + 0.5 * (1.0 - Constants.PILOT_OWN_CLASS_SHARE)), 1e-4)
 	assert_almost_eq(mix.fighter_medium, 0.75 * 0.5 * Constants.PILOT_OWN_CLASS_SHARE, 1e-4)
 	assert_false(mix.has("fighter_heavy"), "No veterans: no heavies")
-	assert_true(FactionRoster.flies({"family_shares": {"trader": 1.0}}, "trader_superheavy"), "Default pilot shares include aces")
+	assert_true(FactionRoster.flies({"archetype_shares": {"trader_superheavy": 1.0}}, "trader_superheavy"), "Default pilot shares include aces")
 	for faction in TemplateDatabase.factions:
 		assert_false(FactionRoster.mix(TemplateDatabase.factions[faction]).empty(), "%s flies something" % faction)
 
 
-func test_a_family_without_a_class_flies_the_nearest():
-	assert_eq(FactionRoster.archetype_for("fighter", 2), "fighter_heavy")
-	assert_eq(FactionRoster.archetype_for("no_such", 2), "")
+func test_archetypes_are_picked_one_by_one():
+	var spec := {"pilot_shares": {"ace": 1.0}, "archetype_shares": {"fighter_light": 1.0, "fighter_superheavy": 0.0, "trader_medium": 3.0}}
+	var mix: Dictionary = FactionRoster.mix(spec)
+	assert_false(mix.has("fighter_superheavy"), "A share of 0: never flown")
+	assert_false(mix.has("fighter_medium"), "Not listed: never flown")
+	assert_almost_eq(mix.trader_medium, 0.75, 1e-4, "By share where the level's odds are alike (both lighter than an ace's own class)")
+	for _i in range(20):
+		assert_true(FactionRoster.pick(spec).name in ["fighter_light", "trader_medium"])
+
+
+func test_a_pilot_too_green_for_every_archetype_is_raised_to_the_lightest():
+	var spec := {"pilot_shares": {"rookie": 1.0}, "archetype_shares": {"raider_heavy": 1.0, "raider_superheavy": 1.0}}
+	for _i in range(20):
+		var picked: Dictionary = FactionRoster.pick(spec)
+		assert_eq(picked.name, "raider_heavy", "The lightest it lists")
+		assert_eq(picked.level, 2, "Its pilot raised to fly it")
+
+
+func test_a_preferred_family_narrows_the_roll():
+	var spec := {"pilot_shares": {"rookie": 1.0}, "archetype_shares": {"fighter_light": 1.0, "trader_light": 1.0}}
+	for _i in range(20):
+		assert_eq(FactionRoster.pick(spec, "trader", 1.0).name, "trader_light")
+		assert_eq(FactionRoster.pick(spec, "prospector", 1.0).name, "prospector_light", "A family it lists none of: all that family's alike")
+
+
+func test_family_shares_spread_alike_over_weights_give_the_old_mix():
+	var shares := {}
+	for weight in ["light", "medium", "heavy", "superheavy"]:
+		shares["fighter_" + weight] = 0.35
+		shares["trader_" + weight] = 0.15
+	var levels: Array = FactionRoster.pilot_shares({})
+	var mix: Dictionary = FactionRoster.mix({"archetype_shares": shares})
+	for family in [["fighter", 0.7], ["trader", 0.3]]:
+		for weight in range(4):
+			var expected := 0.0
+			for level in range(levels.size()):
+				expected += family[1] * levels[level] * float(FactionRoster.weight_odds(level)[weight])
+			assert_almost_eq(float(mix.get("%s_%s" % [family[0], Constants.PRESET_WEIGHT_CLASSES[weight][0]], 0.0)), expected, 1e-4)
