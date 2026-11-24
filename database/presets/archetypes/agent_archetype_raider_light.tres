@@ -14,14 +14,14 @@ behavior = {
 "caution": 0.475466,
 "disengage": 0.1,
 "engage": 3.90041,
-"haul": 0.0826046,
-"mercy": 0.41305,
+"haul": 0.092445,
+"mercy": 0.85,
 "prospect": 0.104852,
 "pursuit": 0.721153,
 "quiet": 0.0,
-"range": 1.01777,
+"range": 1.18785,
 "retreat_hull": 0.653016,
-"return_fire": 0.348293,
+"return_fire": 0.1,
 "teamwork": 0.618102,
 "trade": 0.0
 }
@@ -30,24 +30,24 @@ family = "raider"
 weight_class = "light"
 archetype = "raider light"
 temperament = "cautious"
-traits = [ "picks its fights", "stubborn", "skittish", "sells often", "loud" ]
-lives = 21
-fitness = 0.183094
-origin = "raider_light_23040i1 (era 68)"
+traits = [ "picks its fights", "stubborn", "skittish", "merciful", "runs silent", "sells often", "loud" ]
+lives = 15
+fitness = 0.25566
+origin = "raider_light_22624i2 (era 68), tuned by hand (docs/PRESETS.md)"
 genome = {
 "behavior": {
 "burn": 0.488071,
 "caution": 0.475466,
 "disengage": 0.1,
 "engage": 3.90041,
-"haul": 0.0826046,
-"mercy": 0.41305,
+"haul": 0.092445,
+"mercy": 0.85,
 "prospect": 0.104852,
 "pursuit": 0.721153,
 "quiet": 0.0,
-"range": 1.01777,
+"range": 1.18785,
 "retreat_hull": 0.653016,
-"return_fire": 0.348293,
+"return_fire": 0.1,
 "teamwork": 0.618102,
 "trade": 0.0
 },
@@ -60,11 +60,11 @@ genome = {
 } ],
 "ship": {
 "shares": {
-"capacitor": 0.065891,
-"engine": 0.343669,
-"hold": 0.193254,
-"reactor": 0.0781125,
-"structure": 0.319073
+"capacitor": 0.068053,
+"engine": 0.344704,
+"hold": 0.199596,
+"reactor": 0.080676,
+"structure": 0.30697
 },
 "size": 0.83637,
 "tool_share": 0.95321,

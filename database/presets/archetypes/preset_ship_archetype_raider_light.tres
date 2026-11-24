@@ -9,8 +9,8 @@ template_id = "preset_ship_archetype_raider_light"
 ship_model_name = "Raider Mk I-light"
 base_value = 6691
 ship_scene = ExtResource( 2 )
-hull_integrity = 67
-cargo_capacity = 32
+hull_integrity = 65
+cargo_capacity = 33
 interaction_radius = 14.1327
 apparent_radius = 11.3061
 signature = 1413.27
@@ -26,21 +26,21 @@ salvage_yield = {
 "commodity_scrap": 17,
 "commodity_tech": 11
 }
-power_capacity = 110.219
-power_regen = 6.81722
+power_capacity = 113.835
+power_regen = 7.01825
 mass = 5018.22
-linear_thrust = 623693.0
-angular_thrust = 652269.0
+linear_thrust = 625383.0
+angular_thrust = 654036.0
 alignment_threshold_angle_deg = 45.0
 model_scale = 0.942178
 variant_type = 1
 law_genes = {
 "shares": {
-"capacitor": 0.065891,
-"engine": 0.343669,
-"hold": 0.193254,
-"reactor": 0.0781125,
-"structure": 0.319073
+"capacitor": 0.068053,
+"engine": 0.344704,
+"hold": 0.199596,
+"reactor": 0.080676,
+"structure": 0.30697
 },
 "size": 0.83637,
 "tool_share": 0.95321,

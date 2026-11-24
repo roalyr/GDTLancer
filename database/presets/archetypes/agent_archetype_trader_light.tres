@@ -15,7 +15,7 @@ behavior = {
 "disengage": 2.94337,
 "engage": 3.7677,
 "haul": 0.232286,
-"mercy": 0.0696167,
+"mercy": 0.069617,
 "prospect": 0.0,
 "pursuit": 1.52819,
 "quiet": 0.330541,
@@ -32,8 +32,8 @@ archetype = "trader light"
 temperament = "cautious"
 traits = [ "picks its fights", "quick to break off", "ruthless", "wary" ]
 lives = 21
-fitness = 0.270314
-origin = "trader_light_22658i4 (era 68)"
+fitness = 0.34295
+origin = "trader_light_22658i4 (era 68), tuned by hand (docs/PRESETS.md)"
 genome = {
 "behavior": {
 "burn": 0.727176,
@@ -41,7 +41,7 @@ genome = {
 "disengage": 2.94337,
 "engage": 3.7677,
 "haul": 0.232286,
-"mercy": 0.0696167,
+"mercy": 0.069617,
 "prospect": 0.0,
 "pursuit": 1.52819,
 "quiet": 0.330541,
@@ -60,9 +60,9 @@ genome = {
 } ],
 "ship": {
 "shares": {
-"capacitor": 0.0571454,
-"engine": 0.128561,
-"hold": 0.460146,
+"capacitor": 0.057145,
+"engine": 0.32,
+"hold": 0.27,
 "reactor": 0.023626,
 "structure": 0.330522
 },

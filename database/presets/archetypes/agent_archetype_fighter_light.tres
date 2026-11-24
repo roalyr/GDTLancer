@@ -15,12 +15,12 @@ behavior = {
 "disengage": 0.1,
 "engage": 3.94288,
 "haul": 0.145953,
-"mercy": 0.354472,
-"prospect": 0.0541479,
-"pursuit": 0.501835,
-"quiet": 0.0475389,
+"mercy": 0.05,
+"prospect": 0.054148,
+"pursuit": 1.8,
+"quiet": 0.047539,
 "range": 1.12022,
-"retreat_hull": 0.69746,
+"retreat_hull": 0.4,
 "return_fire": 0.30372,
 "teamwork": 0.723458,
 "trade": 0.0
@@ -29,11 +29,11 @@ role = "fighter"
 family = "fighter"
 weight_class = "light"
 archetype = "fighter light"
-temperament = "cautious"
-traits = [ "picks its fights", "stubborn", "skittish", "loud" ]
+temperament = "measured"
+traits = [ "picks its fights", "stubborn", "ruthless", "loud" ]
 lives = 31
-fitness = 0.679068
-origin = "fighter_light_22672i1 (era 68)"
+fitness = 0.728379
+origin = "fighter_light_22672i1 (era 68), tuned by hand (docs/PRESETS.md)"
 genome = {
 "behavior": {
 "burn": 0.603535,
@@ -41,12 +41,12 @@ genome = {
 "disengage": 0.1,
 "engage": 3.94288,
 "haul": 0.145953,
-"mercy": 0.354472,
-"prospect": 0.0541479,
-"pursuit": 0.501835,
-"quiet": 0.0475389,
+"mercy": 0.05,
+"prospect": 0.054148,
+"pursuit": 1.8,
+"quiet": 0.047539,
 "range": 1.12022,
-"retreat_hull": 0.69746,
+"retreat_hull": 0.4,
 "return_fire": 0.30372,
 "teamwork": 0.723458,
 "trade": 0.0
@@ -60,10 +60,10 @@ genome = {
 } ],
 "ship": {
 "shares": {
-"capacitor": 0.0682493,
+"capacitor": 0.068249,
 "engine": 0.351302,
 "hold": 0.191662,
-"reactor": 0.0809082,
+"reactor": 0.080908,
 "structure": 0.307879
 },
 "size": 0.70869,

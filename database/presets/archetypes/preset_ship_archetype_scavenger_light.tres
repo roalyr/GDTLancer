@@ -26,20 +26,20 @@ salvage_yield = {
 "commodity_scrap": 8,
 "commodity_tech": 1
 }
-power_capacity = 45.3724
+power_capacity = 45.3721
 power_regen = 1.19753
 mass = 2266.94
-linear_thrust = 101504.0
-angular_thrust = 81452.5
+linear_thrust = 101505.0
+angular_thrust = 81452.6
 alignment_threshold_angle_deg = 45.0
 model_scale = 0.72293
 variant_type = 1
 law_genes = {
 "shares": {
-"capacitor": 0.0600444,
+"capacitor": 0.060044,
 "engine": 0.101194,
 "hold": 0.492278,
-"reactor": 0.0250371,
+"reactor": 0.025037,
 "structure": 0.321447
 },
 "size": 0.377824,

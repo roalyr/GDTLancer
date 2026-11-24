@@ -13,42 +13,42 @@ behavior = {
 "burn": 0.46051,
 "caution": 0.618488,
 "disengage": 0.1,
-"engage": 3.55188,
+"engage": 3.73872,
 "haul": 0.265506,
-"mercy": 0.430291,
-"prospect": 0.166919,
-"pursuit": 1.06301,
+"mercy": 0.0,
+"prospect": 0.134692,
+"pursuit": 2.6,
 "quiet": 0.193855,
 "range": 1.08148,
-"retreat_hull": 0.643614,
-"return_fire": 0.400162,
-"teamwork": 0.911675,
+"retreat_hull": 0.4,
+"return_fire": 0.283063,
+"teamwork": 0.903659,
 "trade": 0.0
 }
 role = "raider"
 family = "raider"
 weight_class = "medium"
 archetype = "raider medium"
-temperament = "cautious"
-traits = [ "picks its fights", "stubborn", "skittish" ]
-lives = 29
-fitness = 0.199979
-origin = "raider_medium_22862i1 (era 68)"
+temperament = "measured"
+traits = [ "picks its fights", "stubborn", "relentless", "ruthless" ]
+lives = 27
+fitness = 0.525747
+origin = "raider_medium_22730i4 (era 68), tuned by hand (docs/PRESETS.md)"
 genome = {
 "behavior": {
 "burn": 0.46051,
 "caution": 0.618488,
 "disengage": 0.1,
-"engage": 3.55188,
+"engage": 3.73872,
 "haul": 0.265506,
-"mercy": 0.430291,
-"prospect": 0.166919,
-"pursuit": 1.06301,
+"mercy": 0.0,
+"prospect": 0.134692,
+"pursuit": 2.6,
 "quiet": 0.193855,
 "range": 1.08148,
-"retreat_hull": 0.643614,
-"return_fire": 0.400162,
-"teamwork": 0.911675,
+"retreat_hull": 0.4,
+"return_fire": 0.283063,
+"teamwork": 0.903659,
 "trade": 0.0
 },
 "modules": [ {
@@ -60,14 +60,14 @@ genome = {
 } ],
 "ship": {
 "shares": {
-"capacitor": 0.0597032,
-"engine": 0.359883,
-"hold": 0.197846,
-"reactor": 0.0822553,
-"structure": 0.300313
+"capacitor": 0.062074,
+"engine": 0.374174,
+"hold": 0.205702,
+"reactor": 0.085522,
+"structure": 0.272528
 },
-"size": 1.12584,
-"tool_share": 0.97782,
+"size": 0.981877,
+"tool_share": 1.0,
 "type": 1
 },
 "tools": [ {
@@ -77,10 +77,11 @@ genome = {
 "type": 0
 }, {
 "genes": {
-"energy": 6.5,
-"mass": 450.0
+"count": 60.0,
+"mass": 310.645,
+"round_mass": 5.172
 },
-"kind": "laser",
+"kind": "cannon",
 "type": 2
 }, {
 "genes": {

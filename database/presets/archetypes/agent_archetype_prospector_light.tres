@@ -10,19 +10,19 @@ ship_template_id = "preset_ship_archetype_prospector_light"
 faction = ""
 skill = 0.5
 behavior = {
-"burn": 0.665084,
-"caution": 0.904113,
-"disengage": 1.07749,
-"engage": 3.87763,
-"haul": 0.560678,
+"burn": 0.594353,
+"caution": 1.0,
+"disengage": 0.868282,
+"engage": 3.89529,
+"haul": 0.617111,
 "mercy": 0.394461,
-"prospect": 0.60032,
-"pursuit": 1.96439,
-"quiet": 0.245977,
-"range": 0.77416,
-"retreat_hull": 0.716672,
-"return_fire": 1.0,
-"teamwork": 0.296182,
+"prospect": 0.621394,
+"pursuit": 2.14786,
+"quiet": 0.7,
+"range": 0.735533,
+"retreat_hull": 0.740398,
+"return_fire": 0.3,
+"teamwork": 0.383934,
 "trade": 0.252883
 }
 role = "prospector"
@@ -30,25 +30,25 @@ family = "prospector"
 weight_class = "light"
 archetype = "prospector light"
 temperament = "cautious"
-traits = [ "picks its fights", "skittish", "shoots back", "loner", "wary" ]
-lives = 37
-fitness = 0.0924727
-origin = "prospector_light_22993i2 (era 68)"
+traits = [ "picks its fights", "skittish", "loner", "wary", "sneaky" ]
+lives = 15
+fitness = 0.0904551
+origin = "prospector_light_22788i4 (era 68), tuned by hand (docs/PRESETS.md)"
 genome = {
 "behavior": {
-"burn": 0.665084,
-"caution": 0.904113,
-"disengage": 1.07749,
-"engage": 3.87763,
-"haul": 0.560678,
+"burn": 0.594353,
+"caution": 1.0,
+"disengage": 0.868282,
+"engage": 3.89529,
+"haul": 0.617111,
 "mercy": 0.394461,
-"prospect": 0.60032,
-"pursuit": 1.96439,
-"quiet": 0.245977,
-"range": 0.77416,
-"retreat_hull": 0.716672,
-"return_fire": 1.0,
-"teamwork": 0.296182,
+"prospect": 0.621394,
+"pursuit": 2.14786,
+"quiet": 0.7,
+"range": 0.735533,
+"retreat_hull": 0.740398,
+"return_fire": 0.3,
+"teamwork": 0.383934,
 "trade": 0.252883
 },
 "modules": [ {
@@ -61,11 +61,11 @@ genome = {
 } ],
 "ship": {
 "shares": {
-"capacitor": 0.0921904,
-"engine": 0.282705,
-"hold": 0.258653,
-"reactor": 0.0624157,
-"structure": 0.304036
+"capacitor": 0.090186,
+"engine": 0.249092,
+"hold": 0.286608,
+"reactor": 0.072082,
+"structure": 0.302033
 },
 "size": 0.683961,
 "tool_share": 0.888127,

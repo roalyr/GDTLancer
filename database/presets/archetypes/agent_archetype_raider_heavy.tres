@@ -13,7 +13,7 @@ behavior = {
 "burn": 0.665931,
 "caution": 0.640152,
 "disengage": 0.543744,
-"engage": 0.572362,
+"engage": 1.5,
 "haul": 0.709119,
 "mercy": 0.950292,
 "prospect": 0.429164,
@@ -30,16 +30,16 @@ family = "raider"
 weight_class = "heavy"
 archetype = "raider heavy"
 temperament = "cautious"
-traits = [ "quick to fight", "standoff", "skittish", "relentless", "merciful", "shoots back", "hoards" ]
+traits = [ "standoff", "skittish", "relentless", "merciful", "shoots back", "hoards" ]
 lives = 6
-fitness = 0.149222
-origin = "raider_heavy_22708i1 (era 68)"
+fitness = 0.225252
+origin = "raider_heavy_22708i1 (era 68), tuned by hand (docs/PRESETS.md)"
 genome = {
 "behavior": {
 "burn": 0.665931,
 "caution": 0.640152,
 "disengage": 0.543744,
-"engage": 0.572362,
+"engage": 1.5,
 "haul": 0.709119,
 "mercy": 0.950292,
 "prospect": 0.429164,
@@ -64,7 +64,7 @@ genome = {
 } ],
 "ship": {
 "shares": {
-"capacitor": 0.0256471,
+"capacitor": 0.025647,
 "engine": 0.208563,
 "hold": 0.321733,
 "reactor": 0.125629,

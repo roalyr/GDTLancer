@@ -10,7 +10,7 @@ ship_template_id = "preset_ship_archetype_prospector_superheavy"
 faction = ""
 skill = 0.5
 behavior = {
-"burn": 0.0780046,
+"burn": 0.078005,
 "caution": 0.942462,
 "disengage": 0.1,
 "engage": 0.536517,
@@ -18,11 +18,11 @@ behavior = {
 "mercy": 0.464855,
 "prospect": 0.832149,
 "pursuit": 1.39962,
-"quiet": 0.115825,
+"quiet": 0.128696,
 "range": 1.37075,
-"retreat_hull": 0.784519,
+"retreat_hull": 0.77914,
 "return_fire": 0.612422,
-"teamwork": 1.14878,
+"teamwork": 1.8,
 "trade": 0.827191
 }
 role = "prospector"
@@ -30,13 +30,13 @@ family = "prospector"
 weight_class = "superheavy"
 archetype = "prospector superheavy"
 temperament = "cautious"
-traits = [ "quick to fight", "stubborn", "standoff", "skittish", "wary", "loud" ]
-lives = 14
-fitness = 0.0138067
-origin = "prospector_superheavy_23441i1 (era 68)"
+traits = [ "quick to fight", "stubborn", "standoff", "skittish", "team player", "wary" ]
+lives = 10
+fitness = -0.000252772
+origin = "prospector_superheavy_23356i1 (era 68), tuned by hand (docs/PRESETS.md)"
 genome = {
 "behavior": {
-"burn": 0.0780046,
+"burn": 0.078005,
 "caution": 0.942462,
 "disengage": 0.1,
 "engage": 0.536517,
@@ -44,11 +44,11 @@ genome = {
 "mercy": 0.464855,
 "prospect": 0.832149,
 "pursuit": 1.39962,
-"quiet": 0.115825,
+"quiet": 0.128696,
 "range": 1.37075,
-"retreat_hull": 0.784519,
+"retreat_hull": 0.77914,
 "return_fire": 0.612422,
-"teamwork": 1.14878,
+"teamwork": 1.8,
 "trade": 0.827191
 },
 "modules": [ {
@@ -66,10 +66,10 @@ genome = {
 "type": 2
 }, {
 "genes": {
-"mass": 981.078
+"mass": 2000.0
 },
 "kind": "plating",
-"type": 2
+"type": 3
 }, {
 "genes": {
 "mass": 500.0
@@ -86,23 +86,23 @@ genome = {
 } ],
 "ship": {
 "shares": {
-"capacitor": 0.0496419,
-"engine": 0.268792,
-"hold": 0.138415,
-"reactor": 0.117952,
-"structure": 0.425199
+"capacitor": 0.050501,
+"engine": 0.18,
+"hold": 0.14081,
+"reactor": 0.125593,
+"structure": 0.5
 },
-"size": 3.99926,
-"tool_share": 0.307478,
+"size": 3.63946,
+"tool_share": 0.351123,
 "type": 4
 },
 "tools": [ {
 "genes": {
-"energy": 2.511,
-"mass": 150.0
+"energy": 6.5,
+"mass": 450.0
 },
 "kind": "laser",
-"type": 1
+"type": 2
 }, {
 "genes": {
 },

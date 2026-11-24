@@ -10,96 +10,101 @@ ship_template_id = "preset_ship_archetype_scavenger_superheavy"
 faction = ""
 skill = 0.5
 behavior = {
-"burn": 0.358822,
-"caution": 0.434162,
-"disengage": 0.671153,
-"engage": 0.960091,
-"haul": 0.172783,
-"mercy": 0.80588,
-"prospect": 0.0,
-"pursuit": 1.46529,
-"quiet": 0.375438,
-"range": 0.953951,
-"retreat_hull": 0.0,
-"return_fire": 0.70961,
-"teamwork": 1.15958,
-"trade": 0.0
+"burn": 0.441705,
+"caution": 0.9,
+"disengage": 0.358489,
+"engage": 0.377357,
+"haul": 0.541173,
+"mercy": 0.348098,
+"prospect": 0.178426,
+"pursuit": 0.669269,
+"quiet": 0.85,
+"range": 1.06449,
+"retreat_hull": 0.032554,
+"return_fire": 0.77854,
+"teamwork": 1.21324,
+"trade": 0.061104
 }
 role = "scavenger"
 family = "scavenger"
 weight_class = "superheavy"
 archetype = "scavenger superheavy"
 temperament = "measured"
-traits = [ "merciful" ]
-lives = 28
-fitness = 0.0643366
-origin = "scavenger_superheavy_19851i1 (era 68)"
+traits = [ "quick to fight", "stubborn", "wary", "sneaky" ]
+lives = 39
+fitness = -0.115922
+origin = "scavenger_superheavy_22596i1 (era 68), tuned by hand (docs/PRESETS.md)"
 genome = {
 "behavior": {
-"burn": 0.358822,
-"caution": 0.434162,
-"disengage": 0.671153,
-"engage": 0.960091,
-"haul": 0.172783,
-"mercy": 0.80588,
-"prospect": 0.0,
-"pursuit": 1.46529,
-"quiet": 0.375438,
-"range": 0.953951,
-"retreat_hull": 0.0,
-"return_fire": 0.70961,
-"teamwork": 1.15958,
-"trade": 0.0
+"burn": 0.441705,
+"caution": 0.9,
+"disengage": 0.358489,
+"engage": 0.377357,
+"haul": 0.541173,
+"mercy": 0.348098,
+"prospect": 0.178426,
+"pursuit": 0.669269,
+"quiet": 0.85,
+"range": 1.06449,
+"retreat_hull": 0.032554,
+"return_fire": 0.77854,
+"teamwork": 1.21324,
+"trade": 0.061104
 },
 "modules": [ {
 "genes": {
-"mass": 345.283
+"mass": 300.0
 },
-"kind": "afterburner",
+"kind": "damper",
 "type": 2
-}, {
-"genes": {
-"mass": 981.078
-},
-"kind": "plating",
-"type": 2
-}, {
-"genes": {
-"mass": 2000.0
-},
-"kind": "plating",
-"type": 3
 }, {
 "genes": {
 "mass": 400.0
 },
-"kind": "magazine",
+"kind": "decoy",
 "type": 3
 }, {
+"genes": {
+"mass": 800.0
+},
+"kind": "thruster",
+"type": 3
+}, {
+"genes": {
+"mass": 124.313
+},
+"kind": "power_cell",
+"type": 1
+}, {
+"genes": {
+"mass": 147.716
+},
+"kind": "damper",
+"type": 1
+}, {
+"genes": {
+"mass": 100.0
+},
+"kind": "decoy",
+"type": 1
+}, {
 }, {
 "genes": {
 "mass": 200.0
 },
 "kind": "decoy",
 "type": 2
-}, {
-"genes": {
-"mass": 200.0
-},
-"kind": "decoy",
-"type": 2
-}, {
 } ],
 "ship": {
 "shares": {
-"capacitor": 0.0432841,
-"engine": 0.103296,
-"hold": 0.0480182,
-"reactor": 0.101974,
-"structure": 0.703427
+"capacitor": 0.037023,
+"engine": 0.211506,
+"hold": 0.112359,
+"reactor": 0.121086,
+"structure": 0.518027
 },
-"size": 3.38474,
-"tool_share": 0.0202751,
+"size": 3.7492,
+"tool_share": 0.021698,
 "type": 3
 },
 "tools": [ {

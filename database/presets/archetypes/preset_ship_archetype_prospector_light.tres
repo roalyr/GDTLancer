@@ -10,7 +10,7 @@ ship_model_name = "Prospector Mk I-light"
 base_value = 5472
 ship_scene = ExtResource( 2 )
 hull_integrity = 55
-cargo_capacity = 35
+cargo_capacity = 39
 interaction_radius = 13.2161
 apparent_radius = 10.5728
 signature = 1321.61
@@ -26,21 +26,21 @@ salvage_yield = {
 "commodity_scrap": 14,
 "commodity_tech": 7
 }
-power_capacity = 126.109
-power_regen = 4.64828
+power_capacity = 123.367
+power_regen = 5.29142
 mass = 4103.77
-linear_thrust = 436530.0
-angular_thrust = 426921.0
+linear_thrust = 389527.0
+angular_thrust = 380952.0
 alignment_threshold_angle_deg = 45.0
 model_scale = 0.88107
 variant_type = 1
 law_genes = {
 "shares": {
-"capacitor": 0.0921904,
-"engine": 0.282705,
-"hold": 0.258653,
-"reactor": 0.0624157,
-"structure": 0.304036
+"capacitor": 0.090186,
+"engine": 0.249092,
+"hold": 0.286608,
+"reactor": 0.072082,
+"structure": 0.302033
 },
 "size": 0.683961,
 "tool_share": 0.888127,

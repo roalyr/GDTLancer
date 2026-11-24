@@ -11,45 +11,45 @@ faction = ""
 skill = 0.5
 behavior = {
 "burn": 0.0,
-"caution": 0.457477,
+"caution": 0.8,
 "disengage": 0.1,
-"engage": 0.733659,
+"engage": 2.0,
 "haul": 0.266828,
 "mercy": 0.43847,
 "prospect": 0.0,
 "pursuit": 1.76301,
-"quiet": 0.573136,
-"range": 1.09818,
-"retreat_hull": 0.00287223,
+"quiet": 0.85,
+"range": 1.5,
+"retreat_hull": 0.002872,
 "return_fire": 0.518008,
 "teamwork": 0.866994,
-"trade": 0.0617592
+"trade": 0.061759
 }
 role = "fighter"
 family = "fighter"
 weight_class = "heavy"
 archetype = "fighter heavy"
-temperament = "aggressive"
-traits = [ "stubborn" ]
+temperament = "measured"
+traits = [ "stubborn", "standoff", "wary", "sneaky" ]
 lives = 8
-fitness = 0.443117
-origin = "fighter_heavy_23774i2 (era 68)"
+fitness = 0.438803
+origin = "fighter_heavy_23774i2 (era 68), tuned by hand (docs/PRESETS.md)"
 genome = {
 "behavior": {
 "burn": 0.0,
-"caution": 0.457477,
+"caution": 0.8,
 "disengage": 0.1,
-"engage": 0.733659,
+"engage": 2.0,
 "haul": 0.266828,
 "mercy": 0.43847,
 "prospect": 0.0,
 "pursuit": 1.76301,
-"quiet": 0.573136,
-"range": 1.09818,
-"retreat_hull": 0.00287223,
+"quiet": 0.85,
+"range": 1.5,
+"retreat_hull": 0.002872,
 "return_fire": 0.518008,
 "teamwork": 0.866994,
-"trade": 0.0617592
+"trade": 0.061759
 },
 "modules": [ {
 "genes": {
@@ -60,13 +60,13 @@ genome = {
 } ],
 "ship": {
 "shares": {
-"capacitor": 0.0272009,
+"capacitor": 0.027201,
 "engine": 0.253398,
-"hold": 0.0521435,
-"reactor": 0.0809697,
+"hold": 0.052143,
+"reactor": 0.08097,
 "structure": 0.586288
 },
-"size": 1.93735,
+"size": 1.93736,
 "tool_share": 0.959848,
 "type": 3
 },

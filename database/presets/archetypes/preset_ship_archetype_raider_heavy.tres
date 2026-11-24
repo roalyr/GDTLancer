@@ -36,7 +36,7 @@ model_scale = 1.49656
 variant_type = 4
 law_genes = {
 "shares": {
-"capacitor": 0.0256471,
+"capacitor": 0.025647,
 "engine": 0.208563,
 "hold": 0.321733,
 "reactor": 0.125629,

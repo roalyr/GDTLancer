@@ -4,7 +4,10 @@
 # ship's state every second (distance, speed, activity, lance, run-up).
 #     godot --no-window -s tools/lance_duel.gd -- --duels=8 --speed=6 [--weapons: missile and cannon designs]
 #         [--match=lancer,laser: that one match only]
-#         [--archetypes=fighter_light,raider_light: two archetypes as the game flies them]
+#         [--archetypes=fighter_light,raider_light: two archetypes as the game flies them; several
+#          matches split by ";": --archetypes="raider_light,trader_light;raider_medium,trader_medium"]
+#         [--free: the first ship is set on the second once and then both pilots do as their genes say:
+#          no fight is forced again; prints how each spent its time (activity labels) and how duels ended]
 # Designs (Genome genomes, see DESIGNS): "lancer" (small and fast: lance and harpoon), "lance_laser"
 # (reference ship sized, engine-heavy: lance and a laser), "laser" (the reference ship, two lasers),
 # "laser_heavy" (a big slow three-laser ship), "hauler" (an unarmed reference ship), "lancer_fast"
@@ -38,12 +41,15 @@ const DESIGNS = {
 const MATCHES_WEAPONS = [["missileer", "laser"], ["gunner", "laser"], ["missileer", "gunner"], ["gunner", "lancer_fast"], ["missileer", "lancer_fast"], ["missileer", "laser_heavy"]]
 const MATCHES = [["lancer", "hauler"], ["lancer", "laser"], ["lancer_fast", "laser"], ["lancer_fast", "laser_heavy"], ["lance_laser", "laser"], ["lance_laser", "laser_heavy"]]
 const DUEL_TIME = 180.0  # s of game time before a duel is called a draw
+const FREE_APART = 8000.0  # --free: m apart that ends a duel as parted (one got away)
+const FREE_CALM = 15.0  # --free: s with neither fighting nor fleeing that ends a duel as let go
 const ARENA_OFFSET = Vector3(0, 15000, 0)  # From the home station : well above the sector's plane
 
 var duels := 6
 var matches: Array = MATCHES
 var speed := 6.0
 var archetypes := false  # --archetypes=: the match is two archetypes, not DESIGNS
+var free := false  # --free: no fight forced after the first attack
 var rate := 0  # --rate=: physics steps per game second (0: the project's, Interp.physics_rate())
 var _shown: Dictionary = {}
 
@@ -57,8 +63,12 @@ func _initialize():
 		elif arg.begins_with("--match="):
 			matches = [arg.split("=")[1].split(",")]
 		elif arg.begins_with("--archetypes="):
-			matches = [arg.split("=")[1].split(",")]
+			matches = []
+			for pairing in arg.split("=")[1].split(";"):
+				matches.append(pairing.split(","))
 			archetypes = true
+		elif arg == "--free":
+			free = true
 		elif arg.begins_with("--rate="):
 			rate = int(arg.split("=")[1])
 		elif arg.begins_with("--speed="):
@@ -89,9 +99,11 @@ func _run():
 	var genome_script = load("res://src/core/evolution/genome.gd")
 	var built := {}
 	if archetypes:
-		for index in range(2):
-			var name: String = matches[0][index]
-			var faction: String = ["verdant", "violet"][index]
+		for index in range(matches.size() * 2):
+			var name: String = matches[index / 2][index % 2]
+			var faction: String = ["verdant", "violet"][index % 2]
+			if built.has(name):
+				continue
 			var pilot = load(Constants_path("ARCHETYPES_DIR").plus_file("agent_archetype_%s.tres" % name))
 			var preset: Dictionary = genome_script.preset_build(name, faction)
 			if pilot == null or preset.empty():
@@ -107,7 +119,7 @@ func _run():
 	var centre: Vector3 = refs.player_agent_body.global_transform.origin + ARENA_OFFSET
 	for pairing in matches:
 		print("DESIGNS %s vs %s" % [pairing[0], pairing[1]])
-		var tally := {"wins": {}, "draws": 0, "times": [], "strikes": 0, "glances": 0, "damage": 0.0, "speeds": [], "rounds": {}, "hull_left": [[], []]}
+		var tally := {"wins": {}, "draws": 0, "ends": {}, "labels": [{}, {}], "times": [], "strikes": 0, "glances": 0, "damage": 0.0, "speeds": [], "rounds": {}, "hull_left": [[], []]}
 		for i in range(duels):
 			var result = yield(_duel(built[pairing[0]], built[pairing[1]], centre), "completed")
 			if result.winner == "":
@@ -116,6 +128,10 @@ func _run():
 				var side: String = pairing[0] if result.winner == "a" else pairing[1]
 				tally.wins[side + (" (a)" if result.winner == "a" else " (b)")] = int(tally.wins.get(side + (" (a)" if result.winner == "a" else " (b)"), 0)) + 1
 				tally.times.append(result.time)
+			_count(tally.ends, result.end)
+			for index in range(2):
+				for label in result.labels[index]:
+					tally.labels[index][label] = int(tally.labels[index].get(label, 0)) + int(result.labels[index][label])
 			tally.hull_left[0].append(result.hull_left[0])
 			tally.hull_left[1].append(result.hull_left[1])
 			tally.strikes += result.strikes
@@ -126,6 +142,10 @@ func _run():
 				tally.rounds[key] = int(tally.rounds.get(key, 0)) + int(result.rounds[key])
 		print("DUEL %s vs %s: wins %s, draws %d, mean time %.0fs, hull left %.0f%% vs %.0f%%, lance strikes %d (%.0f damage), glances %d, closing speeds at contact %s, rounds %s" % [
 			pairing[0], pairing[1], tally.wins, tally.draws, _mean(tally.times), 100.0 * _mean(tally.hull_left[0]), 100.0 * _mean(tally.hull_left[1]), tally.strikes, tally.damage, tally.glances, _summary(tally.speeds), tally.rounds])
+		if free:
+			print("FREE %s vs %s: ends %s" % [pairing[0], pairing[1], tally.ends])
+			for index in range(2):
+				print("  %s spent its time: %s" % [pairing[index], _shares(tally.labels[index])])
 	quit()
 
 
@@ -151,20 +171,21 @@ func _duel(a_build: Dictionary, b_build: Dictionary, centre: Vector3):
 		_shown[a_build.ship_template_id + b_build.ship_template_id] = true
 		for body in [a, b]:
 			print("  %s: top speed %.0f m/s, hull %.0f, %.0f kg" % [body.ship_template.template_id, body.get_top_speed(), body.hull_max, body.mass])
-	var result := {"winner": "", "time": 0.0, "strikes": 0, "glances": 0, "damage": 0.0, "speeds": [], "rounds": {}, "hull_left": [0.0, 0.0]}
+	var result := {"end": "timeout", "labels": [{}, {}], "winner": "", "time": 0.0, "strikes": 0, "glances": 0, "damage": 0.0, "speeds": [], "rounds": {}, "hull_left": [0.0, 0.0]}
 	for pair in [[a, b], [b, a]]:
 		var lance = pair[0].get_lance()
 		if lance != null:
 			lance.connect("struck", self, "_on_struck", [result, pair[0]])
 			lance.connect("glanced", self, "_on_glanced", [result, pair[0]])
 		var ai = pair[0].get_node_or_null("AIController")
-		if ai != null:
-			ai._start_combat(pair[1], true)
+		if ai != null and not (free and pair[0] == b):
+			ai._start_combat(pair[1], true)  # --free: the first ship only; the other answers as its genes say
 		var tools = pair[0].get_node_or_null("ToolController")
 		if tools != null:
 			tools.connect("projectile_fired", self, "_on_fired", [result])
 			tools.connect("missile_intercepted", self, "_on_intercepted", [result])
 	var t := 0.0
+	var calm := 0.0
 	while t < DUEL_TIME:
 		yield(_wait(1.0), "completed")
 		t += 1.0
@@ -172,8 +193,24 @@ func _duel(a_build: Dictionary, b_build: Dictionary, centre: Vector3):
 		var b_out: bool = not is_instance_valid(b) or b.is_wreck
 		if a_out or b_out:
 			result.winner = "" if a_out and b_out else ("b" if a_out else "a")
+			result.end = "both lost" if a_out and b_out else ("b won" if a_out else "a won")
 			result.time = t
 			break
+		if free:
+			var busy := false
+			for index in range(2):
+				var ai = [a, b][index].get_node_or_null("AIController")
+				var label: String = ai.get_activity_label() if ai != null else ""
+				_count(result.labels[index], label)
+				busy = busy or (ai != null and ai.get_state() in [2, 3])  # COMBAT, FLEE
+			calm = 0.0 if busy else calm + 1.0
+			if a.global_transform.origin.distance_to(b.global_transform.origin) > FREE_APART:
+				result.end = "parted"
+				break
+			if calm >= FREE_CALM:
+				result.end = "let go"
+				break
+			continue
 		if OS.get_environment("DUEL_TRACE") != "":
 			var lance = a.get_lance()
 			var nav = a.navigation_system._current_command
@@ -257,6 +294,21 @@ static func _mean(values: Array) -> float:
 	for value in values:
 		total += value
 	return total / max(1, values.size())
+
+
+# Each label's share of the counted seconds, most first ("FIGHTING 61%, FLEEING 30%, ...").
+static func _shares(counts: Dictionary) -> String:
+	var total := 0
+	var rows: Array = []
+	for label in counts:
+		total += int(counts[label])
+		rows.append([int(counts[label]), label])
+	rows.sort()
+	rows.invert()
+	var parts: PoolStringArray = []
+	for row in rows:
+		parts.append("%s %.0f%%" % [row[1] if row[1] != "" else "-", 100.0 * row[0] / max(1, total)])
+	return parts.join(", ")
 
 
 static func _summary(values: Array) -> String:

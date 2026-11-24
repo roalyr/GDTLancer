@@ -13,7 +13,7 @@ behavior = {
 "burn": 0.8,
 "caution": 0.125334,
 "disengage": 0.1,
-"engage": 0.3,
+"engage": 1.2,
 "haul": 0.05,
 "mercy": 0.832776,
 "prospect": 0.164746,
@@ -22,7 +22,7 @@ behavior = {
 "range": 0.857074,
 "retreat_hull": 0.433831,
 "return_fire": 0.647453,
-"teamwork": 1.01945,
+"teamwork": 1.8,
 "trade": 0.0
 }
 role = "raider"
@@ -30,16 +30,16 @@ family = "raider"
 weight_class = "superheavy"
 archetype = "raider superheavy"
 temperament = "measured"
-traits = [ "quick to fight", "stubborn", "relentless", "merciful", "bold", "sells often" ]
+traits = [ "stubborn", "relentless", "merciful", "team player", "bold", "sells often" ]
 lives = 9
-fitness = 0.633434
-origin = "raider_superheavy_23469i2 (era 68)"
+fitness = 0.709464
+origin = "raider_superheavy_23469i2 (era 68), tuned by hand (docs/PRESETS.md)"
 genome = {
 "behavior": {
 "burn": 0.8,
 "caution": 0.125334,
 "disengage": 0.1,
-"engage": 0.3,
+"engage": 1.2,
 "haul": 0.05,
 "mercy": 0.832776,
 "prospect": 0.164746,
@@ -48,7 +48,7 @@ genome = {
 "range": 0.857074,
 "retreat_hull": 0.433831,
 "return_fire": 0.647453,
-"teamwork": 1.01945,
+"teamwork": 1.8,
 "trade": 0.0
 },
 "modules": [ {
@@ -74,9 +74,9 @@ genome = {
 } ],
 "ship": {
 "shares": {
-"capacitor": 0.0231782,
+"capacitor": 0.023178,
 "engine": 0.366939,
-"hold": 0.0627494,
+"hold": 0.062749,
 "reactor": 0.091597,
 "structure": 0.455536
 },

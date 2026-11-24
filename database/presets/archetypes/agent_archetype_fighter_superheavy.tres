@@ -10,9 +10,9 @@ ship_template_id = "preset_ship_archetype_fighter_superheavy"
 faction = ""
 skill = 0.5
 behavior = {
-"burn": 0.00856244,
+"burn": 0.008562,
 "caution": 0.869514,
-"disengage": 1.73484,
+"disengage": 0.6,
 "engage": 2.91242,
 "haul": 0.155414,
 "mercy": 0.540812,
@@ -20,9 +20,9 @@ behavior = {
 "pursuit": 0.770058,
 "quiet": 0.313993,
 "range": 1.39901,
-"retreat_hull": 0.17916,
-"return_fire": 0.0569452,
-"teamwork": 0.0808923,
+"retreat_hull": 0.0,
+"return_fire": 0.056945,
+"teamwork": 1.2,
 "trade": 0.0
 }
 role = "fighter"
@@ -30,15 +30,15 @@ family = "fighter"
 weight_class = "superheavy"
 archetype = "fighter superheavy"
 temperament = "cautious"
-traits = [ "picks its fights", "standoff", "runs silent", "loner", "wary" ]
+traits = [ "picks its fights", "standoff", "runs silent", "wary" ]
 lives = 18
-fitness = 0.720671
-origin = "fighter_superheavy_23262i2 (era 68)"
+fitness = 0.742084
+origin = "fighter_superheavy_23262i2 (era 68), tuned by hand (docs/PRESETS.md)"
 genome = {
 "behavior": {
-"burn": 0.00856244,
+"burn": 0.008562,
 "caution": 0.869514,
-"disengage": 1.73484,
+"disengage": 0.6,
 "engage": 2.91242,
 "haul": 0.155414,
 "mercy": 0.540812,
@@ -46,9 +46,9 @@ genome = {
 "pursuit": 0.770058,
 "quiet": 0.313993,
 "range": 1.39901,
-"retreat_hull": 0.17916,
-"return_fire": 0.0569452,
-"teamwork": 0.0808923,
+"retreat_hull": 0.0,
+"return_fire": 0.056945,
+"teamwork": 1.2,
 "trade": 0.0
 },
 "modules": [ {
@@ -60,7 +60,7 @@ genome = {
 } ],
 "ship": {
 "shares": {
-"capacitor": 0.0257131,
+"capacitor": 0.025713,
 "engine": 0.109297,
 "hold": 0.103199,
 "reactor": 0.122938,

@@ -15,9 +15,9 @@ behavior = {
 "disengage": 1.08432,
 "engage": 1.95229,
 "haul": 0.23157,
-"mercy": 0.535403,
+"mercy": 0.1,
 "prospect": 0.653589,
-"pursuit": 1.64571,
+"pursuit": 2.4,
 "quiet": 0.442716,
 "range": 0.938884,
 "retreat_hull": 0.237644,
@@ -29,11 +29,11 @@ role = "scavenger"
 family = "scavenger"
 weight_class = "medium"
 archetype = "scavenger medium"
-temperament = "cautious"
-traits = [ "wary" ]
+temperament = "measured"
+traits = [ "relentless", "ruthless", "wary" ]
 lives = 17
-fitness = 0.0476202
-origin = "scavenger_medium_23965i2 (era 68)"
+fitness = 0.0680917
+origin = "scavenger_medium_23965i2 (era 68), tuned by hand (docs/PRESETS.md)"
 genome = {
 "behavior": {
 "burn": 0.060233,
@@ -41,9 +41,9 @@ genome = {
 "disengage": 1.08432,
 "engage": 1.95229,
 "haul": 0.23157,
-"mercy": 0.535403,
+"mercy": 0.1,
 "prospect": 0.653589,
-"pursuit": 1.64571,
+"pursuit": 2.4,
 "quiet": 0.442716,
 "range": 0.938884,
 "retreat_hull": 0.237644,
@@ -67,10 +67,10 @@ genome = {
 } ],
 "ship": {
 "shares": {
-"capacitor": 0.0447261,
+"capacitor": 0.044726,
 "engine": 0.496023,
-"hold": 0.0548291,
-"reactor": 0.0558212,
+"hold": 0.054829,
+"reactor": 0.055821,
 "structure": 0.348601
 },
 "size": 1.275,

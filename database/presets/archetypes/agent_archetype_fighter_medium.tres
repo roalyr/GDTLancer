@@ -15,14 +15,14 @@ behavior = {
 "disengage": 0.1,
 "engage": 3.60555,
 "haul": 0.265506,
-"mercy": 0.277346,
+"mercy": 0.6,
 "prospect": 0.153176,
-"pursuit": 1.06301,
+"pursuit": 0.5,
 "quiet": 0.368411,
 "range": 1.08148,
 "retreat_hull": 0.653016,
 "return_fire": 0.195125,
-"teamwork": 1.05401,
+"teamwork": 1.8,
 "trade": 0.0
 }
 role = "fighter"
@@ -30,10 +30,10 @@ family = "fighter"
 weight_class = "medium"
 archetype = "fighter medium"
 temperament = "cautious"
-traits = [ "picks its fights", "stubborn", "skittish", "runs silent" ]
+traits = [ "picks its fights", "stubborn", "skittish", "runs silent", "team player" ]
 lives = 25
-fitness = 0.485813
-origin = "fighter_medium_23060i2 (era 68)"
+fitness = 0.535124
+origin = "fighter_medium_23060i2 (era 68), tuned by hand (docs/PRESETS.md)"
 genome = {
 "behavior": {
 "burn": 0.46051,
@@ -41,14 +41,14 @@ genome = {
 "disengage": 0.1,
 "engage": 3.60555,
 "haul": 0.265506,
-"mercy": 0.277346,
+"mercy": 0.6,
 "prospect": 0.153176,
-"pursuit": 1.06301,
+"pursuit": 0.5,
 "quiet": 0.368411,
 "range": 1.08148,
 "retreat_hull": 0.653016,
 "return_fire": 0.195125,
-"teamwork": 1.05401,
+"teamwork": 1.8,
 "trade": 0.0
 },
 "modules": [ {
@@ -60,10 +60,10 @@ genome = {
 } ],
 "ship": {
 "shares": {
-"capacitor": 0.0623084,
+"capacitor": 0.062308,
 "engine": 0.375587,
 "hold": 0.206479,
-"reactor": 0.0820687,
+"reactor": 0.082069,
 "structure": 0.273557
 },
 "size": 0.981877,
