@@ -236,7 +236,7 @@ That makes twenty. A faction flies a design when its `archetype_shares` list it 
 
 **Each archetype is made from its character.** You edit the character; the archetype's files are built from it.
 - **Character:** `database/characters/character_<name>.tres`, a `CharacterSheet`. It holds:
-  - who it is: `display_name` ("Smuggler"), `summary`, `strengths`, `weakness`, `quirk` and `looks`;
+  - who it is: `display_name` ("Smuggler"), `summary`, `strengths`, `weakness`, `quirk` and `looks`. The name is also its hull's in the game (the store, the HUD), so it needs a `name.` string in both languages (Strings tab: "Smuggler" is `name.smuggler`);
   - its base: an evolved genome (`base_genome`), with where it came from, its lives and fitness. `pick_archetypes` sets these from evolution's drafts and leaves the rest of the character alone;
   - its tweaks, each over the base: `genes` (pilot genes, below), `shares` (hull shares, `structure` `engine` `reactor` `capacitor` `hold`, taken relative to their sum), and `add_parts` and `remove_parts` (catalogue part ids, such as `preset_damper_medium`).
 - **Built files:** in `database/presets/archetypes/`. `preset_ship_archetype_<name>.tres` is the hull, its stats, its fit and its model (`ship_scene`, the only field to set there). `agent_archetype_<name>.tres` is the pilot, with the genome the game flies.

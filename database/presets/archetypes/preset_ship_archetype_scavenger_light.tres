@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource( 1 )
 template_id = "preset_ship_archetype_scavenger_light"
-ship_model_name = "Scavenger Mk I-light"
+ship_model_name = "Picker"
 base_value = 3023
 ship_scene = ExtResource( 2 )
 hull_integrity = 36

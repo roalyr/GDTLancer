@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource( 1 )
 template_id = "preset_ship_archetype_fighter_light"
-ship_model_name = "Fighter Mk I-light"
+ship_model_name = "Skirmisher"
 base_value = 5670
 ship_scene = ExtResource( 2 )
 hull_integrity = 57

@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource( 1 )
 template_id = "preset_ship_archetype_prospector_light"
-ship_model_name = "Prospector Mk I-light"
+ship_model_name = "Rock-hopper"
 base_value = 5472
 ship_scene = ExtResource( 2 )
 hull_integrity = 55

@@ -1259,9 +1259,25 @@
   "en": "Afterburner Mk I-medium",
   "uk": "Форсаж Мк I-середній"
  },
+ "name.armed_merchant": {
+  "en": "Armed merchant",
+  "uk": "Озброєний купець"
+ },
+ "name.armed_miner": {
+  "en": "Armed miner",
+  "uk": "Озброєний шахтар"
+ },
  "name.biotech": {
   "en": "Biotech",
   "uk": "Біотех"
+ },
+ "name.bruiser": {
+  "en": "Bruiser",
+  "uk": "Громило"
+ },
+ "name.bulk_hauler": {
+  "en": "Bulk hauler",
+  "uk": "Вантажовоз"
  },
  "name.cannon_i_h": {
   "en": "CANNON I-H",
@@ -1287,6 +1303,18 @@
   "en": "Cannon Mk I-medium",
   "uk": "Гармата Мк I-середній"
  },
+ "name.core_miner": {
+  "en": "Core miner",
+  "uk": "Глибинний шахтар"
+ },
+ "name.corsair": {
+  "en": "Corsair",
+  "uk": "Корсар"
+ },
+ "name.courier": {
+  "en": "Courier",
+  "uk": "Кур'єр"
+ },
  "name.damper_mk_i_heavy": {
   "en": "Damper Mk I-heavy",
   "uk": "Глушник Мк I-важкий"
@@ -1311,21 +1339,17 @@
   "en": "Decoy Launcher Mk I-medium",
   "uk": "Пускова пасток Мк I-середній"
  },
- "name.fighter_mk_i_heavy": {
-  "en": "Fighter Mk I-heavy",
-  "uk": "Винищувач Мк I-важкий"
+ "name.escort": {
+  "en": "Escort",
+  "uk": "Супровідник"
  },
- "name.fighter_mk_i_light": {
-  "en": "Fighter Mk I-light",
-  "uk": "Винищувач Мк I-легкий"
+ "name.ghost_barge": {
+  "en": "Ghost barge",
+  "uk": "Баржа-привид"
  },
- "name.fighter_mk_i_medium": {
-  "en": "Fighter Mk I-medium",
-  "uk": "Винищувач Мк I-середній"
- },
- "name.fighter_mk_i_superheavy": {
-  "en": "Fighter Mk I-superheavy",
-  "uk": "Винищувач Мк I-надважкий"
+ "name.gunship": {
+  "en": "Gunship",
+  "uk": "Канонерка"
  },
  "name.harpoon": {
   "en": "HARPOON",
@@ -1375,6 +1399,10 @@
   "en": "Laser Mk I-medium",
   "uk": "Лазер Мк I-середній"
  },
+ "name.mining_barge": {
+  "en": "Mining barge",
+  "uk": "Гірнича баржа"
+ },
  "name.missile_bay_mk_i_heavy": {
   "en": "Missile Bay Mk I-heavy",
   "uk": "Ракетний відсік Мк I-важкий"
@@ -1386,6 +1414,10 @@
  "name.missile_bay_mk_i_medium": {
   "en": "Missile Bay Mk I-medium",
   "uk": "Ракетний відсік Мк I-середній"
+ },
+ "name.missile_boat": {
+  "en": "Missile boat",
+  "uk": "Ракетний катер"
  },
  "name.missile_rack_i_h": {
   "en": "MISSILE RACK I-H",
@@ -1415,6 +1447,14 @@
   "en": "Ore",
   "uk": "Руда"
  },
+ "name.picker": {
+  "en": "Picker",
+  "uk": "Збирач"
+ },
+ "name.pirate_flagship": {
+  "en": "Pirate flagship",
+  "uk": "Піратський флагман"
+ },
  "name.plating_mk_i_heavy": {
   "en": "Plating Mk I-heavy",
   "uk": "Броня Мк I-важкий"
@@ -1439,57 +1479,17 @@
   "en": "Power Cell Mk I-medium",
   "uk": "Енергоелемент Мк I-середній"
  },
- "name.prospector_mk_i_heavy": {
-  "en": "Prospector Mk I-heavy",
-  "uk": "Старатель Мк I-важкий"
- },
- "name.prospector_mk_i_light": {
-  "en": "Prospector Mk I-light",
-  "uk": "Старатель Мк I-легкий"
- },
- "name.prospector_mk_i_medium": {
-  "en": "Prospector Mk I-medium",
-  "uk": "Старатель Мк I-середній"
- },
- "name.prospector_mk_i_superheavy": {
-  "en": "Prospector Mk I-superheavy",
-  "uk": "Старатель Мк I-надважкий"
- },
- "name.raider_mk_i_heavy": {
-  "en": "Raider Mk I-heavy",
-  "uk": "Рейдер Мк I-важкий"
- },
- "name.raider_mk_i_light": {
-  "en": "Raider Mk I-light",
-  "uk": "Рейдер Мк I-легкий"
- },
- "name.raider_mk_i_medium": {
-  "en": "Raider Mk I-medium",
-  "uk": "Рейдер Мк I-середній"
- },
- "name.raider_mk_i_superheavy": {
-  "en": "Raider Mk I-superheavy",
-  "uk": "Рейдер Мк I-надважкий"
- },
  "name.relic": {
   "en": "Relic",
   "uk": "Реліквія"
  },
- "name.scavenger_mk_i_heavy": {
-  "en": "Scavenger Mk I-heavy",
-  "uk": "Збирач Мк I-важкий"
+ "name.rock_hopper": {
+  "en": "Rock-hopper",
+  "uk": "Скелестриб"
  },
- "name.scavenger_mk_i_light": {
-  "en": "Scavenger Mk I-light",
-  "uk": "Збирач Мк I-легкий"
- },
- "name.scavenger_mk_i_medium": {
-  "en": "Scavenger Mk I-medium",
-  "uk": "Збирач Мк I-середній"
- },
- "name.scavenger_mk_i_superheavy": {
-  "en": "Scavenger Mk I-superheavy",
-  "uk": "Збирач Мк I-надважкий"
+ "name.salvage_tug": {
+  "en": "Salvage tug",
+  "uk": "Рятувальний буксир"
  },
  "name.scrap_metal": {
   "en": "Scrap Metal",
@@ -1519,6 +1519,14 @@
   "en": "Shell Bay Mk I-medium",
   "uk": "Снарядний відсік Мк I-середній"
  },
+ "name.skirmisher": {
+  "en": "Skirmisher",
+  "uk": "Застрільник"
+ },
+ "name.smuggler": {
+  "en": "Smuggler",
+  "uk": "Контрабандист"
+ },
  "name.starship_fuel": {
   "en": "Starship Fuel",
   "uk": "Зорельотне пальне"
@@ -1530,6 +1538,10 @@
  "name.tech_components": {
   "en": "Tech Components",
   "uk": "Техкомпоненти"
+ },
+ "name.thief": {
+  "en": "Thief",
+  "uk": "Злодій"
  },
  "name.thruster_mk_i_heavy": {
   "en": "Thruster Mk I-heavy",
@@ -1543,21 +1555,9 @@
   "en": "Thruster Mk I-medium",
   "uk": "Двигун Мк I-середній"
  },
- "name.trader_mk_i_heavy": {
-  "en": "Trader Mk I-heavy",
-  "uk": "Торговець Мк I-важкий"
- },
- "name.trader_mk_i_light": {
-  "en": "Trader Mk I-light",
-  "uk": "Торговець Мк I-легкий"
- },
- "name.trader_mk_i_medium": {
-  "en": "Trader Mk I-medium",
-  "uk": "Торговець Мк I-середній"
- },
- "name.trader_mk_i_superheavy": {
-  "en": "Trader Mk I-superheavy",
-  "uk": "Торговець Мк I-надважкий"
+ "name.vulture": {
+  "en": "Vulture",
+  "uk": "Стерв'ятник"
  },
  "options.autolevel.about": {
   "en": "Slowly rolls your ship about its nose until its top points as near the sector's up as the heading allows, so the view stays level.",

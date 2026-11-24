@@ -1,7 +1,7 @@
 # Builds the archetypes (database/presets/archetypes/) from their characters (database/characters/,
 # CharacterSheet): each pilot's genome is its character's base with its tweaks, every part the
 # catalogue's (CharacterSheet.built_genome), and its ship the stats, slot sizes and fit that follow
-# (a bay without its weapon left off, as export does). Its origin, lives and fitness are the base's.
+# (a bay without its weapon left off, as export does), named as its character. Its origin, lives and fitness are the base's.
 # An archetype without a character keeps its own genome (the content rules flag it). Run after editing
 # a character, or after a law or catalogue change (the Overview says when, f), then classify_presets:
 #     godot --no-window -s tools/refit_archetypes.gd
@@ -60,6 +60,7 @@ func _run() -> void:
 		for part in genome.modules:
 			if not part.empty() and not PresetExporter.is_junk(part, genome):  # A bay without its weapon is left off, as export does
 				modules.append(Genome.part_template_id(part))
+		ship.ship_model_name = Validator.archetype_ship_name(name)  # Its character's name, in the store and on the HUD
 		ship.equipped_tools = tools
 		ship.equipped_modules = modules
 		ResourceSaver.save(agent_path, agent)

@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource( 1 )
 template_id = "preset_ship_archetype_scavenger_superheavy"
-ship_model_name = "Scavenger Mk I-superheavy"
+ship_model_name = "Ghost barge"
 base_value = 29994
 ship_scene = ExtResource( 2 )
 hull_integrity = 329

@@ -378,9 +378,11 @@ static func archetypes() -> Array:
 				if not PartCatalog.has(part):
 					out.append(_problem(ship_path, "Part '%s' is not the catalogue's (%s)" % [part, Constants.PARTS_DIR]))
 			out += archetype_stale(ship, agent, ship_path)
-			var words: Array = archetype.split("_")
-			if words.size() == 2 and ship.ship_model_name != PartCatalog.hull_name(words[0], words[1]):
-				out.append(_problem(ship_path, "Its name is '%s', not '%s'" % [ship.ship_model_name, PartCatalog.hull_name(words[0], words[1])]))
+			var ship_name: String = archetype_ship_name(archetype)
+			if ship.ship_model_name != ship_name:
+				out.append(_problem(ship_path, "Its name is '%s', not its character's '%s': run refit_archetypes (Overview f)" % [ship.ship_model_name, ship_name]))
+			elif not Strings.has(Strings.name_key(ship_name)):
+				out.append(_problem(ship_path, "Its name '%s' has no string %s (Strings tab): the players' other language has no name for it" % [ship_name, Strings.name_key(ship_name)]))
 		for group in ["tools", "modules"]:
 			for part in agent.genome.get(group, []):
 				if part.empty() or part.kind == "harpoon":
@@ -390,6 +392,18 @@ static func archetypes() -> Array:
 		if not _exists(Constants.PLACEHOLDER_HULLS_DIR.plus_file(archetype + ".tscn")):
 			out.append(_problem(path, "No placeholder hull %s" % Constants.PLACEHOLDER_HULLS_DIR.plus_file(archetype + ".tscn")))
 	return out
+
+
+# The name an archetype's hull goes by in the game: its character's (display_name), or while it has none
+# its family, mark and weight ("Trader Mk I-medium"). refit_archetypes writes it.
+static func archetype_ship_name(archetype: String) -> String:
+	var path: String = character_path(archetype)
+	if _exists(path):
+		var sheet = _fresh(path)
+		if sheet.display_name != "":
+			return sheet.display_name
+	var words: Array = archetype.split("_")
+	return PartCatalog.hull_name(words[0], words[1]) if words.size() == 2 else archetype
 
 
 # An archetype's ship against its pilot's genome, as refit_archetypes writes it: the hull genes are
