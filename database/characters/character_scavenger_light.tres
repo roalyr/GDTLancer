@@ -1,0 +1,66 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/character_sheet.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "character_scavenger_light"
+display_name = "Picker"
+summary = "A tiny, sneaky picker that creeps in for scraps and flees at first sight."
+strengths = "cheap, sneaky"
+weakness = "fragile"
+quirk = "quiet, quick to flee"
+looks = "a harpoon and a light thruster"
+genes = {
+"quiet": 0.8
+}
+shares = {
+}
+add_parts = [  ]
+remove_parts = [  ]
+base_genome = {
+"behavior": {
+"burn": 0.529358,
+"caution": 0.823296,
+"disengage": 2.33475,
+"engage": 3.53516,
+"haul": 0.05,
+"mercy": 0.179273,
+"prospect": 0.0,
+"pursuit": 1.76621,
+"quiet": 0.26153,
+"range": 1.26475,
+"retreat_hull": 0.539523,
+"return_fire": 0.26131,
+"teamwork": 1.46928,
+"trade": 1.0
+},
+"modules": [ {
+"genes": {
+"mass": 200.0
+},
+"kind": "thruster",
+"type": 1
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.060044,
+"engine": 0.101194,
+"hold": 0.492278,
+"reactor": 0.025037,
+"structure": 0.321447
+},
+"size": 0.377824,
+"tool_share": 0.491734,
+"type": 1
+},
+"tools": [ {
+"genes": {
+},
+"kind": "harpoon",
+"type": 0
+} ]
+}
+base_origin = "scavenger_light_22635i3 (era 68)"
+base_lives = 30
+base_fitness = 0.0783805

@@ -33,7 +33,7 @@ temperament = "measured"
 traits = [ "picks its fights", "stubborn", "ruthless", "loud" ]
 lives = 31
 fitness = 0.728379
-origin = "fighter_light_22672i1 (era 68), tuned by hand (docs/PRESETS.md)"
+origin = "fighter_light_22672i1 (era 68), tuned by hand"
 genome = {
 "behavior": {
 "burn": 0.603535,

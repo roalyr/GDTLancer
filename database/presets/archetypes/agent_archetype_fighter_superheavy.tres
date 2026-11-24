@@ -33,7 +33,7 @@ temperament = "cautious"
 traits = [ "picks its fights", "standoff", "runs silent", "wary" ]
 lives = 18
 fitness = 0.742084
-origin = "fighter_superheavy_23262i2 (era 68), tuned by hand (docs/PRESETS.md)"
+origin = "fighter_superheavy_23262i2 (era 68), tuned by hand"
 genome = {
 "behavior": {
 "burn": 0.008562,

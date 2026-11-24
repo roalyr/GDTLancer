@@ -52,7 +52,7 @@ Plain letters are each tab's own actions, and the footer lists them.
    - Enter opens a problem's file where it is edited.
    - It also says when something derived from other data is out of date, with a key to fix it:
      - `a` part stats (apply_laws);
-     - `f` the archetypes (refit_archetypes);
+     - `f` the archetypes, built from their characters (refit_archetypes);
      - `c` `CATALOG.md` (classify_presets);
      - `l` sound loops.
    - It also lists models changed in Blender since their import, and starter `.blend` files that need rebuilding.
@@ -60,8 +60,9 @@ Plain letters are each tab's own actions, and the footer lists them.
    - `i` imports, `o` opens it in Blender and `s` makes a review sheet.
    - `ctrl+n` starts a new model from a starter.
    - `c` sets a placeholder's shape, and `f` puts a rock in the asteroid fields or takes it out.
-3. **Archetypes:** the twenty ship designs side by side as the game flies them.
-   - `p` and `h` open a design's pilot or ship in Data, and `s` makes a review sheet.
+3. **Archetypes:** the twenty ship designs side by side as the game flies them, each with its character (what it is like, its tweaks and their price).
+   - `e` opens a design's character in Data, `h` its ship (to set its model), and `s` makes a review sheet.
+   - `p` prices the characters' tweaks.
    - Press `d` on one design, then `d` on another, and they duel.
 4. **Factions:** wars, pilots and archetypes (and the mix of designs they make), traffic and havens.
    - Pick a cell and press `w` to make war or peace.
@@ -233,18 +234,43 @@ Routes go round planets and moons by themselves.
 
 That makes twenty. A faction flies a design when its `archetype_shares` list it and its `pilot_shares` have pilots of a level that flies that weight.
 
-**Each design is a pair of files:**
-- `preset_ship_archetype_<name>.tres`: the hull, its stats, its fit and its model (`ship_scene`).
-- `agent_archetype_<name>.tres`: the pilot. It holds the behaviour and the exact `genome` the game flies.
+**Each archetype is made from its character.** You edit the character; the archetype's files are built from it.
+- **Character:** `database/characters/character_<name>.tres`, a `CharacterSheet`. It holds:
+  - who it is: `display_name` ("Smuggler"), `summary`, `strengths`, `weakness`, `quirk` and `looks`;
+  - its base: an evolved genome (`base_genome`), with where it came from, its lives and fitness. `pick_archetypes` sets these from evolution's drafts and leaves the rest of the character alone;
+  - its tweaks, each over the base: `genes` (pilot genes, below), `shares` (hull shares, `structure` `engine` `reactor` `capacitor` `hold`, taken relative to their sum), and `add_parts` and `remove_parts` (catalogue part ids, such as `preset_damper_medium`).
+- **Built files:** in `database/presets/archetypes/`. `preset_ship_archetype_<name>.tres` is the hull, its stats, its fit and its model (`ship_scene`, the only field to set there). `agent_archetype_<name>.tres` is the pilot, with the genome the game flies.
+
+**Change an archetype:**
+1. Archetypes tab (`3`): `e` opens its character in Data. Edit it and save.
+2. Overview: `f` builds the archetypes again (refit_archetypes), then `c` rewrites `CATALOG.md`.
+3. Archetypes tab: `p` prices the tweaks (what they cost in fitness, death and earnings, from the last evolution era's lives), and `d` on two designs makes them duel. Set the duel's Free option to see how a character behaves when it isn't forced to fight.
+
+**Pilot genes** (ranges in `Constants.EVO_BEHAVIOR_RANGES`):
+
+| Gene | Range | What it does |
+|---|---|---|
+| engage | 0.3–4 | the desire it needs before it **starts** a fight: high is picky, low is eager |
+| disengage | 0.1–3 | below this desire it breaks off: high gives up early |
+| retreat_hull | 0–0.8 | hull share at which it runs home whatever the odds (0: never) |
+| pursuit | 0–3 | how far it chases a runner |
+| mercy | 0–1 | chance it lets a runner go that isn't shooting back |
+| return_fire | 0–1 | chance it shoots back while running |
+| teamwork | 0–2 | helps friends and follows leaders; armed ships at 0.8 or more escort traders; traders wait longer for a caravan |
+| caution | 0–1 | keeps clear of enemies it hasn't been seen by |
+| quiet | 0–0.9 | thrust it cuts while sneaking (a lower signature) |
+| range | 0.3–1.5 | orbit distance as a share of its laser's reach |
+| burn | 0–0.8 | power kept back from the afterburner for weapons |
+| haul | 0.05–1 | how full it gets before going home to sell |
+
+What the era 68 lives say: fighters and raiders do best picky (high `engage`) and holding on once in a fight (low `disengage`), so an eager or quick-to-quit combat pilot has a price. Speed costs scavengers lives. A prospector's or trader's design hardly changes its fitness, so those are free to give character.
 
 **Rules:**
 - A hull's weight class sets the size of all its hardpoints and module bays: small on a light hull, medium on a medium one, large on heavy and superheavy hulls. A part fits a slot of its own size or larger.
-- The hull's stats come from the genome's hull genes. Change the genome, not the stats, and then press `f` on the Overview (refit_archetypes).
+- An archetype's files must be what its character makes, with the laws' stats. The Overview says when they are not, and `f` builds them.
 - The home station's store sells all twenty hulls, with the part catalogue.
 
-**Characters:** each archetype has a character sheet in [docs/PRESETS.md](docs/PRESETS.md): its name, what it is like, an evolved base design and hand tweaks to its genes, shares or parts. To change an archetype, edit its sheet, then run the **Archetypes from character sheets** task (Tasks, Content). Use `price` to see what the tweaks cost in fitness, and `build` to remake the archetypes from the sheets. The Archetypes tab and each faction's mix show the characters' names.
-
-`database/presets/CATALOG.md` describes every design: the archetypes first, then every evolved draft they could be replaced by. Archetypes are picked from evolution's drafts (`database/drafts/`): see [docs/MAINTAINING.md](docs/MAINTAINING.md).
+`database/presets/CATALOG.md` describes every design: the archetypes first, then every evolved draft whose genome could become a character's base. Bases are picked from evolution's drafts (`database/drafts/`): see [docs/MAINTAINING.md](docs/MAINTAINING.md).
 
 ## Parts
 
@@ -442,7 +468,8 @@ Tools, validate lists every problem from a terminal. Tools, check_model checks o
 | Folder | What is there |
 |---|---|
 | `database/factions/` | factions |
-| `database/presets/archetypes/` | the twenty ship designs the game flies |
+| `database/characters/` | each archetype's character: what its files are built from |
+| `database/presets/archetypes/` | the twenty ship designs the game flies (built from their characters) |
 | `database/presets/parts/` | the part catalogue |
 | `database/presets/CATALOG.md` | every design, described (written by classify_presets) |
 | `database/drafts/` | evolution's exported designs, one folder per era. The game never reads them; archetypes are picked from them |
@@ -468,8 +495,9 @@ Tools, validate lists every problem from a terminal. Tools, check_model checks o
 - **Beacon:** a point on a sector's map: a patrol point, a rock field, a landmark or the entry.
 - **Family / weight class:** what a ship does (fighter, prospector, raider, scavenger, trader) and how big it is (light to superheavy).
 - **Archetype:** one of the twenty ship designs the game flies, one per family and weight class.
+- **Character:** who an archetype is (a name, what it is like) and how it is made: an evolved base genome with hand tweaks.
 - **Preset:** a design saved as files (ship and pilot). The archetypes and the part catalogue are presets.
-- **Draft:** a design evolution exported, kept in `database/drafts/` to pick archetypes from. It is never flown or sold.
+- **Draft:** a design evolution exported, kept in `database/drafts/` to pick characters' bases from. It is never flown or sold.
 - **Stock hull:** a hand-made hull in `database/registry/assets/ships/`.
 - **Agent / pilot:** the settings of who flies a ship. An archetype's pilot holds its behaviour genes and **genome**.
 - **Genome:** the genes a design is made from: hull genes, parts and behaviour.

@@ -1,0 +1,82 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/character_sheet.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "character_prospector_light"
+display_name = "Rock-hopper"
+summary = "A cheap little miner that slips away from anything armed."
+strengths = "cheap, careful"
+weakness = "two light lasers are all it has"
+quirk = "sneaks; runs rather than shoots back"
+looks = "two light lasers, a light lance, a harpoon"
+genes = {
+"quiet": 0.7,
+"return_fire": 0.3
+}
+shares = {
+}
+add_parts = [  ]
+remove_parts = [  ]
+base_genome = {
+"behavior": {
+"burn": 0.594353,
+"caution": 1.0,
+"disengage": 0.868282,
+"engage": 3.89529,
+"haul": 0.617111,
+"mercy": 0.394461,
+"prospect": 0.621394,
+"pursuit": 2.14786,
+"quiet": 0.245977,
+"range": 0.735533,
+"retreat_hull": 0.740398,
+"return_fire": 1.0,
+"teamwork": 0.383934,
+"trade": 0.252883
+},
+"modules": [ {
+"genes": {
+"count": 3.092,
+"nail_mass": 109.356
+},
+"kind": "lance",
+"type": 1
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.090186,
+"engine": 0.249092,
+"hold": 0.286608,
+"reactor": 0.072082,
+"structure": 0.302033
+},
+"size": 0.683961,
+"tool_share": 0.888127,
+"type": 1
+},
+"tools": [ {
+"genes": {
+"energy": 2.511,
+"mass": 150.0
+},
+"kind": "laser",
+"type": 1
+}, {
+"genes": {
+},
+"kind": "harpoon",
+"type": 0
+}, {
+"genes": {
+"energy": 2.511,
+"mass": 150.0
+},
+"kind": "laser",
+"type": 1
+} ]
+}
+base_origin = "prospector_light_22788i4 (era 68)"
+base_lives = 15
+base_fitness = 0.0904551

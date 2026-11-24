@@ -1,0 +1,89 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/character_sheet.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "character_prospector_medium"
+display_name = "Armed miner"
+summary = "Mines with missiles at hand to keep pirates honest, and shoots back while it runs."
+strengths = "tough, reach"
+weakness = "slow"
+quirk = "shoots back, sticks with friends"
+looks = "light and medium missile racks, a light laser, a medium lance, a harpoon"
+genes = {
+"return_fire": 0.9
+}
+shares = {
+}
+add_parts = [  ]
+remove_parts = [  ]
+base_genome = {
+"behavior": {
+"burn": 0.283229,
+"caution": 0.983796,
+"disengage": 0.1,
+"engage": 1.58253,
+"haul": 0.186358,
+"mercy": 0.455189,
+"prospect": 0.534799,
+"pursuit": 0.0,
+"quiet": 0.324387,
+"range": 0.811416,
+"retreat_hull": 0.220037,
+"return_fire": 0.251677,
+"teamwork": 1.46035,
+"trade": 0.0
+},
+"modules": [ {
+"genes": {
+"count": 2.781,
+"nail_mass": 300.238
+},
+"kind": "lance",
+"type": 2
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.131436,
+"engine": 0.212732,
+"hold": 0.189994,
+"reactor": 0.143288,
+"structure": 0.32255
+},
+"size": 1.66321,
+"tool_share": 0.88828,
+"type": 2
+},
+"tools": [ {
+"genes": {
+"count": 4.0,
+"round_mass": 100.034
+},
+"kind": "missile",
+"type": 2
+}, {
+}, {
+"genes": {
+"count": 3.5,
+"round_mass": 39.03
+},
+"kind": "missile",
+"type": 1
+}, {
+"genes": {
+},
+"kind": "harpoon",
+"type": 0
+}, {
+"genes": {
+"energy": 2.511,
+"mass": 150.0
+},
+"kind": "laser",
+"type": 1
+} ]
+}
+base_origin = "prospector_medium_22598i1 (era 68)"
+base_lives = 17
+base_fitness = 0.0620918

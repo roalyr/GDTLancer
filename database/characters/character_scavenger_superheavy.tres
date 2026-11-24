@@ -1,0 +1,104 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/character_sheet.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "character_scavenger_superheavy"
+display_name = "Ghost barge"
+summary = "Jams sensors with dampers, scatters decoys, and slips in quietly."
+strengths = "hard to lock, decoys"
+weakness = "no armour to speak of"
+quirk = "sneaks"
+looks = "two dampers, three decoy launchers, a heavy thruster, a harpoon"
+genes = {
+"caution": 0.9,
+"quiet": 0.85
+}
+shares = {
+}
+add_parts = [  ]
+remove_parts = [  ]
+base_genome = {
+"behavior": {
+"burn": 0.441705,
+"caution": 0.561302,
+"disengage": 0.358489,
+"engage": 0.377357,
+"haul": 0.541173,
+"mercy": 0.348098,
+"prospect": 0.178426,
+"pursuit": 0.669269,
+"quiet": 0.24652,
+"range": 1.06449,
+"retreat_hull": 0.032554,
+"return_fire": 0.77854,
+"teamwork": 1.21324,
+"trade": 0.061104
+},
+"modules": [ {
+"genes": {
+"mass": 300.0
+},
+"kind": "damper",
+"type": 2
+}, {
+"genes": {
+"mass": 400.0
+},
+"kind": "decoy",
+"type": 3
+}, {
+"genes": {
+"mass": 800.0
+},
+"kind": "thruster",
+"type": 3
+}, {
+"genes": {
+"mass": 124.313
+},
+"kind": "power_cell",
+"type": 1
+}, {
+"genes": {
+"mass": 147.716
+},
+"kind": "damper",
+"type": 1
+}, {
+"genes": {
+"mass": 100.0
+},
+"kind": "decoy",
+"type": 1
+}, {
+}, {
+"genes": {
+"mass": 200.0
+},
+"kind": "decoy",
+"type": 2
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.037023,
+"engine": 0.211506,
+"hold": 0.112359,
+"reactor": 0.121086,
+"structure": 0.518027
+},
+"size": 3.7492,
+"tool_share": 0.021698,
+"type": 3
+},
+"tools": [ {
+"genes": {
+},
+"kind": "harpoon",
+"type": 0
+} ]
+}
+base_origin = "scavenger_superheavy_22596i1 (era 68)"
+base_lives = 39
+base_fitness = -0.115922

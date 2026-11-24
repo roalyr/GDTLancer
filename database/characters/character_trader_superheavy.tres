@@ -1,0 +1,100 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/character_sheet.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "character_trader_superheavy"
+display_name = "Bulk hauler"
+summary = "The biggest hold of all, bristling with missiles but fragile; it waits for escorts."
+strengths = "biggest hold, missiles"
+weakness = "fragile, slow"
+quirk = "waits longest for a caravan"
+looks = "four missile racks (light x2, medium x2) and a light laser"
+genes = {
+"return_fire": 0.6,
+"teamwork": 2.0
+}
+shares = {
+}
+add_parts = [  ]
+remove_parts = [  ]
+base_genome = {
+"behavior": {
+"burn": 0.115492,
+"caution": 0.765222,
+"disengage": 1.45332,
+"engage": 3.73416,
+"haul": 0.180753,
+"mercy": 0.660149,
+"prospect": 0.049844,
+"pursuit": 0.572641,
+"quiet": 0.10064,
+"range": 0.991874,
+"retreat_hull": 0.547139,
+"return_fire": 0.0,
+"teamwork": 1.64486,
+"trade": 0.994714
+},
+"modules": [ {
+"genes": {
+"mass": 400.0
+},
+"kind": "magazine",
+"type": 3
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.071666,
+"engine": 0.136047,
+"hold": 0.465318,
+"reactor": 0.028572,
+"structure": 0.298397
+},
+"size": 3.80109,
+"tool_share": 0.996939,
+"type": 4
+},
+"tools": [ {
+"genes": {
+"count": 3.5,
+"round_mass": 39.03
+},
+"kind": "missile",
+"type": 1
+}, {
+"genes": {
+"count": 4.0,
+"round_mass": 100.034
+},
+"kind": "missile",
+"type": 2
+}, {
+"genes": {
+"count": 3.5,
+"round_mass": 39.03
+},
+"kind": "missile",
+"type": 1
+}, {
+}, {
+"genes": {
+"energy": 2.511,
+"mass": 150.0
+},
+"kind": "laser",
+"type": 1
+}, {
+}, {
+"genes": {
+"count": 4.0,
+"round_mass": 100.034
+},
+"kind": "missile",
+"type": 2
+}, {
+} ]
+}
+base_origin = "trader_superheavy_23861i2 (era 68)"
+base_lives = 26
+base_fitness = 0.00345201

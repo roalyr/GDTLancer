@@ -1,19 +1,16 @@
 """
-The archetypes' character sheets (docs/PRESETS.md): each sheet names an evolved design (Base, a
-genome id from evolution's life log) and hand tweaks (pilot genes, hull shares, parts). This prices
-the tweaks with trait models fitted to the era's lives, and builds the archetypes from the sheets.
+What each archetype's character costs: its hand tweaks (database/characters/, CharacterSheet: genes,
+hull shares, parts over an evolved base genome) priced by trait models fitted to the era's lives.
 
-    python3 tools/devtool/presets.py price [write=yes] [refit=yes]   what each sheet's tweaks cost
-    python3 tools/devtool/presets.py build                           the archetypes from the sheets
+    python3 tools/devtool/characters.py price [refit=yes]
 
-price: the era's lives (era.json's era, from its start time in the newest life log) give, for each
-ship family, a ridge model of fitness, death and earnings on the traits a player feels (speed,
-toughness, firepower, reach, cargo...) and the pilot genes, with a bootstrap by design for its
-intervals and a held-out R2 for how much it explains. The models are kept in .dev/out/ until the log
-grows (refit=yes fits them again). write=yes puts the prices on the sheets' Price lines.
-build: each sheet's base genome (its last life in the log) with its tweaks, through
-tools/build_presets.gd (a sheet whose result is the archetype as it is stays untouched), then
-refit_archetypes and classify_presets. Needs numpy (price only) and Godot.
+The era's lives (era.json's era, from its start time in the newest life log) give, for each ship
+family, a ridge model of fitness, death and earnings on the traits a player feels (speed, toughness,
+firepower, reach, cargo...) and the pilot genes, with a bootstrap by design for its intervals and a
+held-out R2 for how much it explains. The models are kept in .dev/out/ until the log grows (refit=yes
+fits them again). Each character is read through Godot (the bridge); its tweaks are priced against its
+base's last life in the log, and how its base ranks against the archetype's other designs. The prices
+go to .dev/out/character_prices.json, which the Archetypes tab shows. Needs numpy.
 """
 
 import ast
@@ -24,21 +21,19 @@ import json
 import math
 import os
 import re
-import subprocess
 import sys
 
-if __package__ in (None, ""):  # Run as a file: tools/devtool/presets.py
+if __package__ in (None, ""):  # Run as a file: tools/devtool/characters.py
     sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     __package__ = "devtool"
 
 from . import constants  # noqa: E402
-from .tasks import ROOT, environment, godot_script, out_file, user_dir  # noqa: E402
+from .tasks import ROOT, out_file, user_dir  # noqa: E402
 
-DOC = os.path.join(ROOT, "docs", "PRESETS.md")
 PARTS_DIR = os.path.join(ROOT, "database", "presets", "parts")
 ARCHETYPES_DIR = os.path.join(ROOT, "database", "presets", "archetypes")
-SHEETS_JSON = "preset_sheets.json"  # In .dev/out/: what build hands tools/build_presets.gd
-EFFECTS_JSON = "preset_effects.json"  # In .dev/out/: the fitted models, with the log they came from
+EFFECTS_JSON = "character_models.json"  # In .dev/out/: the fitted models, with the log they came from
+PRICES_JSON = "character_prices.json"  # In .dev/out/: archetype -> its price line (the Archetypes tab)
 FAMILIES = ["fighter", "raider", "prospector", "scavenger", "trader"]
 TYPES = {1: "light", 2: "medium", 3: "heavy"}
 TYPE_OF = {name: number for number, name in TYPES.items()}
@@ -355,74 +350,63 @@ def standings(lives):
     return out, by_arch
 
 
-# --- Sheets ---
+# --- Characters ---
 
-def parse(text):
-    """The sheets: [{"arch", "name", "line" (its italic one-liner), "base", "tweaks"}] in the doc's order."""
-    sheets = []
-    for block in re.split(r"^### ", text, flags=re.M)[1:]:
-        head = block.splitlines()[0]
-        arch, _, name = head.partition(" · ")
-        base = re.search(r"\*\*Base:\*\* `(\w+)`", block)
-        line = re.search(r"^\*([^*].*)\*$", block, flags=re.M)
-        tweaks = re.search(r"\*\*Tweaks:\*\*(.*)", block)
-        sheets.append({"arch": arch.strip(), "name": name.strip(), "line": line.group(1).strip() if line else "",
-                       "base": base.group(1) if base else None,
-                       "tweaks": re.findall(r"`([^`]+)`", tweaks.group(1)) if tweaks else []})
-    return sheets
+def part_of(template_id):
+    """CharacterSheet.part_of: a catalogue id as a genome part ({} if it is none)."""
+    if template_id == "preset_harpoon":
+        return {"kind": "harpoon", "type": 0, "genes": {}}
+    m = re.match(r"^preset_(\w+)_(light|medium|heavy)$", template_id)
+    return {"kind": m.group(1), "type": TYPE_OF[m.group(2)], "genes": {}} if m else {}
 
 
-def characters(path=DOC):
-    """Archetype -> (its sheet's name, its one-liner): ("Smuggler", "A medium trader that..."); {} without the doc."""
-    try:
-        return {s["arch"]: (s["name"], s["line"]) for s in parse(read(path)) if s["name"]}
-    except OSError:
-        return {}
+def genome_of(sheet):
+    """CharacterSheet.genome: the base genome with the sheet's genes, shares and parts."""
+    g = copy.deepcopy(sheet.get("base_genome") or {})
+    if not g:
+        return g
+    g.setdefault("behavior", {}).update({k: float(v) for k, v in (sheet.get("genes") or {}).items()})
+    g["ship"].setdefault("shares", {}).update({k: float(v) for k, v in (sheet.get("shares") or {}).items()})
+    for template_id in sheet.get("remove_parts") or []:
+        for group in ("tools", "modules"):
+            index = next((i for i, p in enumerate(g.get(group, [])) if p and part_id(p) == template_id), None)
+            if index is not None:
+                g[group][index] = {}
+                break
+    for template_id in sheet.get("add_parts") or []:
+        part = part_of(template_id)
+        if part:
+            g.setdefault("tools" if part["kind"] in TOOL_KINDS else "modules", []).append(part)
+    return g
 
 
-def apply(genome, tweaks, ranges=None):
-    """The genome with the tweaks, and what is wrong with them: `gene: from -> to`,
-    `share.<name>: from -> to`, `+<kind>_<weight>` / `-<kind>_<weight>` (`+harpoon`). A tweak already
-    applied (the value is its `to`) is no problem: a built archetype's genome takes its sheet again."""
-    g = copy.deepcopy(genome)
-    problems = []
-    for item in tweaks:
-        m = re.match(r"^(share\.)?(\w+): *([-\d.]+) *-> *([-\d.]+)$", item)
-        if m:
-            is_share, name, old, new = m.group(1), m.group(2), float(m.group(3)), float(m.group(4))
-            where = g["ship"].setdefault("shares", {}) if is_share else g.setdefault("behavior", {})
-            have = float(where.get(name, 0.0))
-            if abs(have - old) > 0.011 and abs(have - new) > 0.011:
-                problems.append("%s is %.2f, not %.2f" % (name, have, old))
-            if not is_share and ranges and name in ranges and not ranges[name][0] <= new <= ranges[name][1]:
-                problems.append("%s %.2f is outside %s..%s" % (name, new, ranges[name][0], ranges[name][1]))
-            where[name] = new
-            continue
-        m = re.match(r"^([+-])(\w+)_(light|medium|heavy)$", item) or re.match(r"^([+-])(harpoon)()$", item)
-        if m:
-            sign, kind, weight = m.groups()
-            part = {"kind": kind, "type": TYPE_OF.get(weight, 0), "genes": {}}
-            group = "tools" if kind in TOOL_KINDS else "modules"
-            if sign == "+":
-                g[group].append(part)
-            else:
-                for i, p in enumerate(g[group]):
-                    if p and p["kind"] == kind and int(p.get("type", 0)) == part["type"]:
-                        g[group][i] = {}
-                        break
-                else:
-                    problems.append("no %s to remove" % item[1:])
-            continue
-        problems.append("can't read `%s`" % item)
-    if "ship" in g:
-        total = sum(float(v) for v in g["ship"].get("shares", {}).values())
-        if g["ship"].get("shares") and abs(total - 1.0) > 0.005:
-            problems.append("hull shares add up to %.3f, not 1" % total)
-    return g, problems
+def tweaked(sheet):
+    return any(sheet.get(key) for key in ("genes", "shares", "add_parts", "remove_parts"))
+
+
+def archetype_names():
+    return sorted(os.path.basename(p)[len("agent_archetype_"):-len(".tres")]
+                  for p in glob.glob(os.path.join(ARCHETYPES_DIR, "agent_archetype_*.tres")))
+
+
+def read_sheets(bridge):
+    """Archetype -> its character's values (the bridge's read), for those that have one."""
+    out = {}
+    for name in archetype_names():
+        path = "res://database/characters/character_%s.tres" % name
+        if os.path.exists(os.path.join(ROOT, path[len("res://"):])):
+            out[name] = bridge.call("read", path=path)["values"]
+    return out
+
+
+def design_number(origin):
+    """The genome number in a base_origin ("trader_medium_21949i2 (era 68)" -> "21949i2"), "" if none."""
+    m = re.search(r"_(\d+i\d+)\b", origin or "")
+    return m.group(1) if m else ""
 
 
 class Era:
-    """The era's lives, the catalogue and the game's laws: what pricing and building read."""
+    """The era's lives, the catalogue and the game's laws."""
 
     def __init__(self, folder=None, say=print):
         self.consts = game_constants()
@@ -432,50 +416,57 @@ class Era:
         if not self.log:
             raise SystemExit("No evolution life log in %s" % (folder or os.path.join(user_dir(), "evolution", "logs")))
         self.lives, self.genomes = read_lives(self.log, self.since, self.consts, self.parts)
-        self.ranges = {k: tuple(v[:2]) for k, v in self.consts["EVO_BEHAVIOR_RANGES"].items()}
         say("Era %d: %d lives since t=%.0f s (%s)" % (self.number, len(self.lives), self.since, os.path.basename(self.log)))
 
-    def base(self, genome_id):
-        return self.genomes.get(genome_id)
+    def last_life(self, number):
+        """The last life in the log of the genome whose id ends with `number` (any faction's prefix)."""
+        if not number:
+            return None
+        found = [d for gid, d in self.genomes.items() if gid.endswith(number)]
+        return max(found, key=lambda d: d.get("t", 0.0)) if found else None
 
 
-def price(sheet, era, models, spreads, standing, by_arch):
-    """A sheet's line for its Price field, and its problems."""
-    d = era.base(sheet["base"]) if sheet["base"] else None
-    if d is None:
-        return "", ["base %s is not in the log" % sheet["base"]]
-    genome, problems = apply(d["genome"], sheet["tweaks"], era.ranges)
-    new = dict(d)
-    new["genome"] = genome
-    new["s"] = stats(genome, era.consts, era.parts)
-    new["cost"] = d["cost"] - part_value(d["genome"], era.parts) + part_value(genome, era.parts)
-    old = dict(d)
-    old["s"] = stats(d["genome"], era.consts, era.parts)
-    fam, w = family_of(d["niche"]), weight_of(d["niche"], [(x[0], x[1]) for x in era.consts["PRESET_WEIGHT_CLASSES"]])
-    if fam not in models:
-        return "no model for %ss (too few lives)" % fam, problems
-    out = {}
-    for outcome in OUTCOMES:
-        total = var = 0.0
-        for n, (b, lo, hi) in models[fam][outcome]["effects"].items():
-            s = spreads.get(fam, {}).get(w, {}).get(n, 0.0)
-            if s < 1e-9:
-                continue
-            dz = (TRAITS[n](new) - TRAITS[n](old)) / s
-            total += b * dz
-            var += ((hi - lo) / 2 / 1.645 * dz) ** 2
-        out[outcome] = (total, math.sqrt(var))
-    f, fs = out["fitness"]
-    if models[fam]["fitness"]["r2"] < 0.05:
-        text = "tweaks: no reliable effect (design hardly moves this role's fitness)"
-    elif abs(f) < 0.02 and fs < 0.03:
-        text = "tweaks: about free"
+def price(arch, sheet, era, models, spreads, standing, by_arch):
+    """A character's price line: what its tweaks do to fitness, death and earnings, where its base
+    stands against the archetype's other designs, and what the tweaks do to speed, hull and hold."""
+    if not tweaked(sheet):
+        text = "no tweaks"
     else:
-        text = "tweaks %+.2f fitness (±%.2f), death chance %+.0f pts, earnings %+.2f of cost" % (
-            f, 1.645 * fs, 100 * out["dies"][0], out["net"][0])
-    if sheet["base"] in standing:
-        mean, se, n = standing[sheet["base"]]
-        rivals = [standing[g] for g in by_arch.get(sheet["arch"], []) if g in standing]
+        text = ""
+    d = era.last_life(design_number(sheet.get("base_origin")))
+    if d is None:
+        return (text + "; " if text else "") + "its base (%s) flew no lives in this log" % sheet.get("base_origin")
+    base = sheet.get("base_genome") or d["genome"]
+    old = dict(d, genome=base, s=stats(base, era.consts, era.parts))
+    old["cost"] = d["cost"] - part_value(d["genome"], era.parts) + part_value(base, era.parts)
+    genome = genome_of(sheet)
+    new = dict(old, genome=genome, s=stats(genome, era.consts, era.parts))
+    new["cost"] = old["cost"] - part_value(base, era.parts) + part_value(genome, era.parts)
+    fam, w = arch.rsplit("_", 1)
+    if text == "":
+        if fam not in models:
+            text = "no model for %ss (too few lives)" % fam
+        elif models[fam]["fitness"]["r2"] < 0.05:
+            text = "tweaks: no reliable effect (design hardly moves this role's fitness)"
+        else:
+            out = {}
+            for outcome in OUTCOMES:
+                total = var = 0.0
+                for n, (b, lo, hi) in models[fam][outcome]["effects"].items():
+                    s = spreads.get(fam, {}).get(w, {}).get(n, 0.0)
+                    if s < 1e-9:
+                        continue
+                    dz = (TRAITS[n](new) - TRAITS[n](old)) / s
+                    total += b * dz
+                    var += ((hi - lo) / 2 / 1.645 * dz) ** 2
+                out[outcome] = (total, math.sqrt(var))
+            f, fs = out["fitness"]
+            text = "tweaks: about free" if abs(f) < 0.02 and fs < 0.03 else \
+                "tweaks %+.2f fitness (±%.2f), death chance %+.0f pts, earnings %+.2f of cost" % (f, 1.645 * fs, 100 * out["dies"][0], out["net"][0])
+    gid = d["genome_id"]
+    if gid in standing:
+        mean, se, n = standing[gid]
+        rivals = [standing[g] for g in by_arch.get(arch, []) if g in standing]
         best = max(rivals, key=lambda r: r[0] - r[1]) if rivals else (mean, se, n)
         gap = mean - best[0]
         text += "; base ties with its archetype's best" if abs(gap) <= math.sqrt(se ** 2 + best[1] ** 2) else \
@@ -486,93 +477,52 @@ def price(sheet, era, models, spreads, standing, by_arch):
         a, b = old["s"][key], new["s"][key]
         if abs(b - a) > 0.01 * max(a, 1e-6):
             changes.append("%s %+.0f%%" % (label, 100.0 * (b / max(a, 1e-9) - 1)))
-    if changes:
-        text += "; " + ", ".join(changes)
-    return text, problems
+    return text + ("; " + ", ".join(changes) if changes else "")
 
 
-def write_prices(text, prices):
-    """The doc with each sheet's Price line set (prices: archetype -> line)."""
-    blocks = re.split(r"(^### .*$)", text, flags=re.M)
-    for i in range(1, len(blocks), 2):
-        arch = blocks[i][4:].split(" · ")[0].strip()
-        if arch in prices:
-            blocks[i + 1] = re.sub(r"^- \*\*Price:\*\*.*$", lambda _m: "- **Price:** " + prices[arch], blocks[i + 1], count=1, flags=re.M)
-    return "".join(blocks)
-
-
-def archetype_names():
-    return sorted(os.path.basename(p)[len("agent_archetype_"):-len(".tres")]
-                  for p in glob.glob(os.path.join(ARCHETYPES_DIR, "agent_archetype_*.tres")))
+def prices():
+    """Archetype -> its last price line ({} before the first pricing)."""
+    try:
+        return json.loads(read(out_file(PRICES_JSON))).get("prices", {})
+    except (OSError, ValueError):
+        return {}
 
 
 # --- Actions ---
 
-def run_price(write=False, refit=False, say=print):
+def run_price(refit=False, say=print, bridge_factory=None):
     era = Era(say=say)
     models, spreads = models_for(era.log, era.since, era.lives, era.weights, refit, say)
     for fam in FAMILIES:
         if fam in models:
             say("  %-10s explains %3.0f%% of fitness" % (fam, 100 * max(models[fam]["fitness"]["r2"], 0.0)))
     standing, by_arch = standings(era.lives)
-    text = read(DOC)
-    prices, bad = {}, 0
-    for sheet in parse(text):
-        line, problems = price(sheet, era, models, spreads, standing, by_arch)
-        if problems:
-            bad += 1
-            line += " (check: %s)" % "; ".join(problems)
-        prices[sheet["arch"]] = line
-        say("%-22s %-16s %s" % (sheet["arch"], sheet["name"], line))
-    if write:
-        with open(DOC, "w") as handle:
-            handle.write(write_prices(text, prices))
-        say("Prices written to %s" % os.path.relpath(DOC, ROOT))
-    return 1 if bad else 0
-
-
-def run_build(say=print, run=subprocess.call):
-    era = Era(say=say)
-    known = set(archetype_names())
-    standing, _ = standings(era.lives)
-    sheets, bad = {}, 0
-    for sheet in parse(read(DOC)):
-        d = era.base(sheet["base"]) if sheet["base"] else None
-        problems = [] if sheet["arch"] in known else ["no archetype %s" % sheet["arch"]]
-        if d is None:
-            problems.append("base %s is not in the log" % sheet["base"])
+    if bridge_factory is None:
+        from .bridge import Bridge
+        bridge_factory = Bridge
+    bridge = bridge_factory()
+    try:
+        sheets = read_sheets(bridge)
+    finally:
+        bridge.close()
+    lines = {}
+    for arch in archetype_names():
+        if arch not in sheets:
+            lines[arch] = "no character"
         else:
-            genome, more = apply(d["genome"], sheet["tweaks"], era.ranges)
-            problems += more
-        if problems:
-            say("%-22s left as it is: %s" % (sheet["arch"], "; ".join(problems)))
-            bad += 1
-            continue
-        mean, se, n = standing.get(sheet["base"], (float(d.get("fitness", 0.0)), 0.0, 1))
-        sheets[sheet["arch"]] = {"genome_id": sheet["base"], "genome": genome, "lives": n, "fitness": mean - se, "era": era.number,
-                                 "name": sheet["name"]}
-    path = out_file(SHEETS_JSON)
-    with open(path, "w") as handle:
-        json.dump(sheets, handle, indent=1)
-    env = environment()
-    for script, args in (("tools/build_presets.gd", ["--", "--json=" + path]), ("tools/refit_archetypes.gd", []),
-                         ("tools/classify_presets.gd", [])):
-        say("Running %s..." % script)
-        code = run(godot_script(script, *args), cwd=ROOT, env=env)
-        if code != 0:
-            say("%s failed (exit %d); the steps after it did not run" % (script, code))
-            return code
-    return 1 if bad else 0
+            lines[arch] = price(arch, sheets[arch], era, models, spreads, standing, by_arch)
+        say("%-22s %-16s %s" % (arch, (sheets.get(arch) or {}).get("display_name", ""), lines[arch]))
+    with open(out_file(PRICES_JSON), "w") as handle:
+        json.dump({"era": era.number, "log": os.path.basename(era.log), "prices": lines}, handle, indent=1)
+    say("Kept in %s (the Archetypes tab shows them)" % os.path.relpath(out_file(PRICES_JSON), ROOT))
+    return 0
 
 
 def main(argv):
     action = argv[0] if argv else ""
     options = dict(arg.split("=", 1) for arg in argv[1:] if "=" in arg)
-    yes = lambda key: str(options.get(key, "no")).lower() in ("yes", "y", "true", "1")
     if action == "price":
-        return run_price(write=yes("write"), refit=yes("refit"))
-    if action == "build":
-        return run_build()
+        return run_price(refit=str(options.get("refit", "no")).lower() in ("yes", "y", "true", "1"))
     print(__doc__)
     return 2
 

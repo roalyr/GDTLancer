@@ -1,0 +1,116 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/character_sheet.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "character_fighter_superheavy"
+display_name = "Gunship"
+summary = "A slow fortress firing every kind of weapon at once; others rally to it."
+strengths = "firepower, toughness"
+weakness = "slowest of all"
+quirk = "stands its ground, leads a group"
+looks = "three heavy cannons, two lasers, two missile racks"
+genes = {
+"disengage": 0.6,
+"retreat_hull": 0.0,
+"teamwork": 1.2
+}
+shares = {
+}
+add_parts = [  ]
+remove_parts = [  ]
+base_genome = {
+"behavior": {
+"burn": 0.008562,
+"caution": 0.869514,
+"disengage": 1.73484,
+"engage": 2.91242,
+"haul": 0.155414,
+"mercy": 0.540812,
+"prospect": 0.0,
+"pursuit": 0.770058,
+"quiet": 0.313993,
+"range": 1.39901,
+"retreat_hull": 0.17916,
+"return_fire": 0.056945,
+"teamwork": 0.080892,
+"trade": 0.0
+},
+"modules": [ {
+"genes": {
+"mass": 120.0
+},
+"kind": "sensor",
+"type": 1
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.025713,
+"engine": 0.109297,
+"hold": 0.103199,
+"reactor": 0.122938,
+"structure": 0.638853
+},
+"size": 3.54364,
+"tool_share": 0.938086,
+"type": 3
+},
+"tools": [ {
+"genes": {
+"count": 3.0,
+"round_mass": 260.0
+},
+"kind": "missile",
+"type": 3
+}, {
+"genes": {
+"count": 38.5,
+"mass": 701.101,
+"round_mass": 16.606
+},
+"kind": "cannon",
+"type": 3
+}, {
+"genes": {
+"count": 4.0,
+"round_mass": 100.034
+},
+"kind": "missile",
+"type": 2
+}, {
+"genes": {
+"energy": 16.0,
+"mass": 1100.0
+},
+"kind": "laser",
+"type": 3
+}, {
+"genes": {
+"energy": 6.5,
+"mass": 450.0
+},
+"kind": "laser",
+"type": 2
+}, {
+"genes": {
+"count": 38.5,
+"mass": 701.101,
+"round_mass": 16.606
+},
+"kind": "cannon",
+"type": 3
+}, {
+"genes": {
+"count": 38.5,
+"mass": 701.101,
+"round_mass": 16.606
+},
+"kind": "cannon",
+"type": 3
+}, {
+} ]
+}
+base_origin = "fighter_superheavy_23262i2 (era 68)"
+base_lives = 18
+base_fitness = 0.742084

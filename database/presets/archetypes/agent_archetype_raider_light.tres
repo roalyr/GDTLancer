@@ -33,7 +33,7 @@ temperament = "cautious"
 traits = [ "picks its fights", "stubborn", "skittish", "merciful", "runs silent", "sells often", "loud" ]
 lives = 15
 fitness = 0.25566
-origin = "raider_light_22624i2 (era 68), tuned by hand (docs/PRESETS.md)"
+origin = "raider_light_22624i2 (era 68), tuned by hand"
 genome = {
 "behavior": {
 "burn": 0.488071,

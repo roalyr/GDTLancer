@@ -1,0 +1,86 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/character_sheet.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "character_fighter_light"
+display_name = "Skirmisher"
+summary = "A fast, fragile fighter: it picks its fight, then chases it down and shows no mercy."
+strengths = "fastest of the lights, hits hard"
+weakness = "fragile"
+quirk = "chases runners, never spares"
+looks = "two light cannons and a light laser (tracers and a beam)"
+genes = {
+"mercy": 0.05,
+"pursuit": 1.8,
+"retreat_hull": 0.4
+}
+shares = {
+}
+add_parts = [  ]
+remove_parts = [  ]
+base_genome = {
+"behavior": {
+"burn": 0.603535,
+"caution": 0.527037,
+"disengage": 0.1,
+"engage": 3.94288,
+"haul": 0.145953,
+"mercy": 0.354472,
+"prospect": 0.054148,
+"pursuit": 0.501835,
+"quiet": 0.047539,
+"range": 1.12022,
+"retreat_hull": 0.69746,
+"return_fire": 0.30372,
+"teamwork": 0.723458,
+"trade": 0.0
+},
+"modules": [ {
+"genes": {
+"mass": 124.313
+},
+"kind": "power_cell",
+"type": 1
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.068249,
+"engine": 0.351302,
+"hold": 0.191662,
+"reactor": 0.080908,
+"structure": 0.307879
+},
+"size": 0.70869,
+"tool_share": 0.95321,
+"type": 1
+},
+"tools": [ {
+"genes": {
+"energy": 2.511,
+"mass": 150.0
+},
+"kind": "laser",
+"type": 1
+}, {
+"genes": {
+"count": 80.0,
+"mass": 150.0,
+"round_mass": 2.0
+},
+"kind": "cannon",
+"type": 1
+}, {
+"genes": {
+"count": 80.0,
+"mass": 150.0,
+"round_mass": 2.0
+},
+"kind": "cannon",
+"type": 1
+} ]
+}
+base_origin = "fighter_light_22672i1 (era 68)"
+base_lives = 31
+base_fitness = 0.728379

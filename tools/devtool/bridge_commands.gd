@@ -420,7 +420,9 @@ func cmd_sector_map(args: Dictionary):
 # pilot, ship (paths), role, temperament, traits, lives, fitness, skill, behavior, scene, length (m),
 # value, hull, cargo, slots, mass (fitted, kg), top_speed, burst_speed (afterburner), accel (m/s2),
 # power, regen, signature, gun_dps (weapons as an observer counts them; ToolController), parts:
-# [{id, name, kind}], flown_by: [faction ids]}]}.
+# [{id, name, kind}], flown_by: [faction ids], character: {path, name, summary, strengths, weakness,
+# quirk, looks, genes, shares, add_parts, remove_parts, base_genes (the base's value of each tweaked
+# gene), base_shares (likewise), base_origin} or {} without one (CharacterSheet)}]}.
 func cmd_archetypes(_args: Dictionary):
 	var rosters := {}  # Archetype -> factions whose havens fly it (FactionRoster)
 	for faction_path in Validator.faction_files().values():
@@ -470,7 +472,7 @@ func cmd_archetypes(_args: Dictionary):
 			"mass": stats.mass, "top_speed": stats.linear_thrust / drag,
 			"burst_speed": (stats.linear_thrust + stats.afterburner_thrust) / drag, "accel": stats.linear_thrust / max(stats.mass, 0.001),
 			"power": stats.power_capacity, "regen": stats.power_regen, "signature": stats.signature,
-			"gun_dps": gun_dps, "parts": parts, "flown_by": rosters.get(name, []),
+			"gun_dps": gun_dps, "parts": parts, "flown_by": rosters.get(name, []), "character": _character(name),
 		})
 	return {"ranges": Constants.EVO_BEHAVIOR_RANGES, "archetypes": out}
 
@@ -1365,3 +1367,20 @@ static func _class_of(target: Object) -> String:
 	regex.compile("(?m)^class_name\\s+(\\w+)")
 	var found: RegExMatch = regex.search(script.source_code)
 	return found.get_string(1) if found != null else script.resource_path.get_file().get_basename()
+
+
+# An archetype's character as the Archetypes tab shows it (cmd_archetypes); {} if it has none.
+func _character(archetype: String) -> Dictionary:
+	var path: String = Validator.character_path(archetype)
+	var sheet = _fresh(path) if ResourceLoader.exists(path) else null
+	if sheet == null:
+		return {}
+	var base_genes := {}
+	for gene in sheet.genes:
+		base_genes[gene] = sheet.base_genome.get("behavior", {}).get(gene)
+	var base_shares := {}
+	for share in sheet.shares:
+		base_shares[share] = sheet.base_genome.get("ship", {}).get("shares", {}).get(share)
+	return {"path": path, "name": sheet.display_name, "summary": sheet.summary, "strengths": sheet.strengths, "weakness": sheet.weakness,
+		"quirk": sheet.quirk, "looks": sheet.looks, "genes": sheet.genes, "shares": sheet.shares, "add_parts": Array(sheet.add_parts),
+		"remove_parts": Array(sheet.remove_parts), "base_genes": base_genes, "base_shares": base_shares, "base_origin": sheet.base_origin}

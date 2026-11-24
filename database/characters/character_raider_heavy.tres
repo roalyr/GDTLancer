@@ -1,0 +1,91 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/character_sheet.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "character_raider_heavy"
+display_name = "Corsair"
+summary = "Long laser beams and a heavy lance; it chases far, spares those who yield, and has a big hold for loot."
+strengths = "reach, big hold"
+weakness = "weak guns for its size"
+quirk = "relentless but merciful"
+looks = "three lasers (heavy, medium x2), a heavy lance, a harpoon"
+genes = {
+"engage": 1.5
+}
+shares = {
+}
+add_parts = [  ]
+remove_parts = [  ]
+base_genome = {
+"behavior": {
+"burn": 0.665931,
+"caution": 0.640152,
+"disengage": 0.543744,
+"engage": 0.572362,
+"haul": 0.709119,
+"mercy": 0.950292,
+"prospect": 0.429164,
+"pursuit": 2.92185,
+"quiet": 0.124703,
+"range": 1.5,
+"retreat_hull": 0.686066,
+"return_fire": 0.832421,
+"teamwork": 0.949715,
+"trade": 0.0
+},
+"modules": [ {
+"genes": {
+"count": 4.0,
+"nail_mass": 350.0
+},
+"kind": "lance",
+"type": 3
+}, {
+}, {
+}, {
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.025647,
+"engine": 0.208563,
+"hold": 0.321733,
+"reactor": 0.125629,
+"structure": 0.318428
+},
+"size": 3.35181,
+"tool_share": 0.546091,
+"type": 4
+},
+"tools": [ {
+"genes": {
+"energy": 6.5,
+"mass": 450.0
+},
+"kind": "laser",
+"type": 2
+}, {
+"genes": {
+},
+"kind": "harpoon",
+"type": 0
+}, {
+"genes": {
+"energy": 16.0,
+"mass": 1100.0
+},
+"kind": "laser",
+"type": 3
+}, {
+"genes": {
+"energy": 6.5,
+"mass": 450.0
+},
+"kind": "laser",
+"type": 2
+} ]
+}
+base_origin = "raider_heavy_22708i1 (era 68)"
+base_lives = 6
+base_fitness = 0.225252

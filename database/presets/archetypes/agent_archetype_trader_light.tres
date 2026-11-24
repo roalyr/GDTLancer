@@ -33,7 +33,7 @@ temperament = "cautious"
 traits = [ "picks its fights", "quick to break off", "ruthless", "wary" ]
 lives = 21
 fitness = 0.34295
-origin = "trader_light_22658i4 (era 68), tuned by hand (docs/PRESETS.md)"
+origin = "trader_light_22658i4 (era 68), tuned by hand"
 genome = {
 "behavior": {
 "burn": 0.727176,

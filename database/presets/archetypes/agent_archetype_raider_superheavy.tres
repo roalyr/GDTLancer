@@ -33,7 +33,7 @@ temperament = "measured"
 traits = [ "stubborn", "relentless", "merciful", "team player", "bold", "sells often" ]
 lives = 9
 fitness = 0.709464
-origin = "raider_superheavy_23469i2 (era 68), tuned by hand (docs/PRESETS.md)"
+origin = "raider_superheavy_23469i2 (era 68), tuned by hand"
 genome = {
 "behavior": {
 "burn": 0.8,

@@ -1,0 +1,83 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/character_sheet.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "character_raider_light"
+display_name = "Thief"
+summary = "A fast thief: it harpoons cargo and runs, and lets its victims go."
+strengths = "fast, cheap"
+weakness = "fragile, runs early"
+quirk = "merciful; it doesn't shoot back while running"
+looks = "two light cannons and a harpoon"
+genes = {
+"mercy": 0.85,
+"return_fire": 0.1
+}
+shares = {
+}
+add_parts = [  ]
+remove_parts = [  ]
+base_genome = {
+"behavior": {
+"burn": 0.488071,
+"caution": 0.475466,
+"disengage": 0.1,
+"engage": 3.90041,
+"haul": 0.092445,
+"mercy": 0.323311,
+"prospect": 0.104852,
+"pursuit": 0.721153,
+"quiet": 0.0,
+"range": 1.18785,
+"retreat_hull": 0.653016,
+"return_fire": 0.348293,
+"teamwork": 0.618102,
+"trade": 0.0
+},
+"modules": [ {
+"genes": {
+"mass": 124.313
+},
+"kind": "power_cell",
+"type": 1
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.068053,
+"engine": 0.344704,
+"hold": 0.199596,
+"reactor": 0.080676,
+"structure": 0.30697
+},
+"size": 0.83637,
+"tool_share": 0.95321,
+"type": 1
+},
+"tools": [ {
+"genes": {
+},
+"kind": "harpoon",
+"type": 0
+}, {
+"genes": {
+"count": 80.0,
+"mass": 150.0,
+"round_mass": 2.0
+},
+"kind": "cannon",
+"type": 1
+}, {
+"genes": {
+"count": 80.0,
+"mass": 150.0,
+"round_mass": 2.0
+},
+"kind": "cannon",
+"type": 1
+} ]
+}
+base_origin = "raider_light_22624i2 (era 68)"
+base_lives = 15
+base_fitness = 0.25566

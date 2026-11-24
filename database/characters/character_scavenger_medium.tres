@@ -1,0 +1,75 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/character_sheet.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "character_scavenger_medium"
+display_name = "Vulture"
+summary = "The fastest hull of its weight: it circles fights, burns in, finishes cripples with its lance and harpoons the wreck."
+strengths = "fastest medium, a lance"
+weakness = "tiny hold"
+quirk = "stalks fights, no mercy"
+looks = "a medium lance, a light afterburner, a harpoon"
+genes = {
+"mercy": 0.1,
+"pursuit": 2.4
+}
+shares = {
+}
+add_parts = [  ]
+remove_parts = [  ]
+base_genome = {
+"behavior": {
+"burn": 0.060233,
+"caution": 0.831489,
+"disengage": 1.08432,
+"engage": 1.95229,
+"haul": 0.23157,
+"mercy": 0.535403,
+"prospect": 0.653589,
+"pursuit": 1.64571,
+"quiet": 0.442716,
+"range": 0.938884,
+"retreat_hull": 0.237644,
+"return_fire": 0.348179,
+"teamwork": 0.787712,
+"trade": 0.184267
+},
+"modules": [ {
+"genes": {
+"count": 2.781,
+"nail_mass": 300.238
+},
+"kind": "lance",
+"type": 2
+}, {
+"genes": {
+"mass": 167.938
+},
+"kind": "afterburner",
+"type": 1
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.044726,
+"engine": 0.496023,
+"hold": 0.054829,
+"reactor": 0.055821,
+"structure": 0.348601
+},
+"size": 1.275,
+"tool_share": 0.384951,
+"type": 2
+},
+"tools": [ {
+}, {
+"genes": {
+},
+"kind": "harpoon",
+"type": 0
+} ]
+}
+base_origin = "scavenger_medium_23965i2 (era 68)"
+base_lives = 17
+base_fitness = 0.0680917

@@ -1,0 +1,112 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/character_sheet.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "character_raider_superheavy"
+display_name = "Pirate flagship"
+summary = "Fast for its size, carries every weapon, and pirate packs follow it."
+strengths = "speed for its size, reach"
+weakness = "costly"
+quirk = "leads packs, spares those who yield"
+looks = "heavy and medium cannons, a heavy laser, a heavy missile rack, a harpoon"
+genes = {
+"engage": 1.2,
+"teamwork": 1.8
+}
+shares = {
+}
+add_parts = [  ]
+remove_parts = [  ]
+base_genome = {
+"behavior": {
+"burn": 0.8,
+"caution": 0.125334,
+"disengage": 0.1,
+"engage": 0.3,
+"haul": 0.05,
+"mercy": 0.832776,
+"prospect": 0.164746,
+"pursuit": 2.37461,
+"quiet": 0.187639,
+"range": 0.857074,
+"retreat_hull": 0.433831,
+"return_fire": 0.647453,
+"teamwork": 1.01945,
+"trade": 0.0
+},
+"modules": [ {
+"genes": {
+"mass": 250.0
+},
+"kind": "sensor",
+"type": 2
+}, {
+}, {
+"genes": {
+"mass": 500.0
+},
+"kind": "sensor",
+"type": 3
+}, {
+"genes": {
+"mass": 600.0
+},
+"kind": "power_cell",
+"type": 3
+}, {
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.023178,
+"engine": 0.366939,
+"hold": 0.062749,
+"reactor": 0.091597,
+"structure": 0.455536
+},
+"size": 5.20058,
+"tool_share": 0.565913,
+"type": 3
+},
+"tools": [ {
+"genes": {
+"count": 3.0,
+"round_mass": 260.0
+},
+"kind": "missile",
+"type": 3
+}, {
+"genes": {
+"count": 38.5,
+"mass": 701.101,
+"round_mass": 16.606
+},
+"kind": "cannon",
+"type": 3
+}, {
+"genes": {
+"count": 60.0,
+"mass": 310.645,
+"round_mass": 5.172
+},
+"kind": "cannon",
+"type": 2
+}, {
+}, {
+"genes": {
+},
+"kind": "harpoon",
+"type": 0
+}, {
+"genes": {
+"energy": 16.0,
+"mass": 1100.0
+},
+"kind": "laser",
+"type": 3
+} ]
+}
+base_origin = "raider_superheavy_23469i2 (era 68)"
+base_lives = 9
+base_fitness = 0.709464

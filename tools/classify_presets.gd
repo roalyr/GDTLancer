@@ -106,15 +106,18 @@ func _write_catalog(designs: Dictionary, archetypes: Array) -> void:
 		"",
 		"## Archetypes",
 		"",
-		"The picked designs, one per family and weight class (`archetypes/`: ship `preset_ship_archetype_<name>.tres`, pilot `agent_archetype_<name>.tres`). Factions are built from these; **Origin** is the evolved design each was picked from.",
+		"The designs the game flies, one per family and weight class (`archetypes/`: ship `preset_ship_archetype_<name>.tres`, pilot `agent_archetype_<name>.tres`), each built from its **Character** (`database/characters/character_<name>.tres`): an evolved design, its **Origin**, with hand tweaks.",
 		"",
-		"| Archetype | Role | Temperament | Equipment | Modules | Lives | Fitness | Hull WP | Origin |",
-		"|---|---|---|---|---|---|---|---|---|",
+		"| Archetype | Character | Role | Temperament | Equipment | Modules | Lives | Fitness | Hull WP | Origin |",
+		"|---|---|---|---|---|---|---|---|---|---|",
 	]
 	archetypes.sort_custom(self, "_family_then_weight")
 	for design in archetypes:
 		var agent = design.agent
-		lines.append("| %s | %s | %s | %s | %s | %d | %+.2f | %d | %s |" % [agent.template_id.replace("agent_archetype_", ""), agent.role, agent.temperament,
+		var name: String = agent.template_id.replace("agent_archetype_", "")
+		var sheet_path: String = Consts.CHARACTERS_DIR.plus_file("character_%s.tres" % name)
+		var character: String = ResourceLoader.load(sheet_path, "", true).display_name if ResourceLoader.exists(sheet_path) else ""
+		lines.append("| %s | %s | %s | %s | %s | %s | %d | %+.2f | %d | %s |" % [name, character, agent.role, agent.temperament,
 			_parts(design.ship.equipped_tools), _parts(design.ship.equipped_modules), agent.lives, agent.fitness, design.ship.base_value, agent.origin])
 	lines.append("")
 	var families: Array = by_family.keys()

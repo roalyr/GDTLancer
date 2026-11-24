@@ -5,8 +5,8 @@ The development tool's menu (Textual): the project's content and its checks in o
                loops, derived data out of date (part stats, archetypes, CATALOG.md: a, f, c fix
                them), missing programs (Godot, Blender), data changed in git
     Models     every ship and station model: its files, who uses it, its check; import, open, review
-    Archetypes the twenty designs side by side as the game flies them (fitted mass, speed, guns),
-               their pilots' genes against evolution's ranges, and who flies each
+    Archetypes the twenty designs side by side as the game flies them (fitted mass, speed, guns), each
+               with its character (what it is like, its tweaks and their price), its genes, and who flies each
     Factions   who is at war with whom (toggled in a matrix), each faction's pilots, archetypes (the mix they fly) and havens
     Parts      weapons, modules, commodities and the starting kit side by side, with who uses each
     Look       shaders (shared blocks in date, who uses each), faction paints, paint patterns, music
@@ -46,7 +46,7 @@ from textual.widgets import (Button, DataTable, Footer, Header, Input, Label, Se
 
 from rich.markup import escape
 
-from . import changes, constants, data, economy, evolution, models, presets, strings, tasks, worldmap
+from . import changes, characters, constants, data, economy, evolution, models, strings, tasks, worldmap
 from .bridge import Bridge, BridgeError, file_path
 
 RESOURCE_FILES = {  # Resource type -> the files a field of it can point at
@@ -164,6 +164,28 @@ def roster_text(faction, characters=None):
         lines.append("  %-24s %-16s %5.1f%% -> %5.1f%%  %s" % (name, characters.get(name, ("",))[0], 100.0 * listed.get(name, 0.0) / total,
                                                              100.0 * mix.get(name, 0.0), "#" * int(round(mix.get(name, 0.0) * 40))))
     return "\n".join(lines)
+
+
+def character_lines(character, price=None):
+    """An archetype's character for the Archetypes tab: name and summary, strengths, weakness and
+    quirk, looks, its tweaks (the base's value -> its own) and their price (characters.py)."""
+    if not character:
+        return ["[yellow]No character[/yellow] (database/characters/): pick_archetypes makes one."]
+    lines = ["Character: [b]%s[/b]%s" % (escape(character.get("name") or "(unnamed)"),
+                                        (": " + escape(character["summary"])) if character.get("summary") else "")]
+    words = ["%s %s" % (label, escape(character[key])) for key, label in (("strengths", "Strengths:"), ("weakness", "Weakness:"),
+                                                                         ("quirk", "Quirk:"), ("looks", "Looks:")) if character.get(key)]
+    if words:
+        lines.append("  " + " · ".join(words))
+    tweaks = []
+    for key, base_key, prefix in (("genes", "base_genes", ""), ("shares", "base_shares", "share ")):
+        for name in sorted(character.get(key) or {}):
+            base = (character.get(base_key) or {}).get(name)
+            tweaks.append("%s%s %s -> %.2f" % (prefix, name, "%.2f" % base if isinstance(base, (int, float)) else "?", character[key][name]))
+    tweaks += ["+" + part for part in character.get("add_parts") or []] + ["-" + part for part in character.get("remove_parts") or []]
+    lines.append("  Tweaks: %s  [dim](base: %s)[/dim]" % (", ".join(tweaks) if tweaks else "none", escape(character.get("base_origin") or "?")))
+    lines.append("  Price: %s" % (escape(price) if price else "[dim]not priced yet (p)[/dim]"))
+    return lines
 
 
 def gene_bar(value, low, high, default):
@@ -1205,8 +1227,8 @@ HELP = """\
   1 Overview    every content rule, checked; enter opens a problem's file; a, f, c fix derived data
   2 Models      every ship, station and rock model: import (i), open in Blender (o), review sheet (s),
                 a placeholder's shape (c), a rock in the asteroid fields or out (f), its scene in Godot (e)
-  3 Archetypes  the twenty designs as the game flies them; pilot genes against evolution's ranges;
-                d on one, then d on another: they duel
+  3 Archetypes  the twenty designs as the game flies them, each with its character: e edits it, p prices
+                the characters' tweaks; d on one, then d on another: they duel
   4 Factions    wars (pick a cell, w), pilots and archetypes (e: edit in Data), traffic, havens (enter: World)
   5 World       a sector: its scene's bodies and belts, its layout's markers, on a map (top or side,
                 e opens the picked body's scene, or the layout, in the Godot editor;
@@ -1307,8 +1329,9 @@ class DataPane(Horizontal):
 
 class ArchetypesPane(Vertical):
     BINDINGS = [
-        Binding("s", "app.archetype('sheet')", "Review sheet"), Binding("p", "app.archetype('pilot')", "Pilot in Data"),
-        Binding("h", "app.archetype('ship')", "Ship in Data"), Binding("d", "app.archetype('duel')", "Duel"),
+        Binding("e", "app.archetype('character')", "Character in Data"), Binding("h", "app.archetype('ship')", "Model in Data"),
+        Binding("p", "app.archetype('price')", "Price the characters"), Binding("d", "app.archetype('duel')", "Duel"),
+        Binding("s", "app.archetype('sheet')", "Review sheet"),
         Binding("ctrl+r", "app.refresh_views", "Refresh"),
     ]
     DEFAULT_CSS = """
@@ -1639,7 +1662,7 @@ class DevApp(App):
         self.editor_starter = self._start_editor  # Starts the Godot editor detached (tests record instead)
         self.undo_stack = []  # Saves, newest last: ([(path, its text before that save)], what to reload after its undo)
         self.archetype_view = {"ranges": {}, "archetypes": []}
-        self.characters = {}  # Archetype -> (name, one-liner), docs/PRESETS.md (presets.characters)
+        self.characters = {}  # Archetype -> (name, summary), its character's (the bridge's archetypes)
         self.duel_first = None  # The archetype d picked first (Archetypes tab)
         self.faction_view = {"factions": [], "archetypes": []}
         self.faction_picked = None
@@ -2249,7 +2272,8 @@ class DevApp(App):
 
     def _show_views(self, archetypes, factions):
         archetypes["archetypes"].sort(key=lambda design: archetype_order(design["name"]))
-        self.characters = presets.characters()  # docs/PRESETS.md, read again with each refresh
+        self.characters = {d["name"]: (d["character"].get("name", ""), d["character"].get("summary", ""))
+                           for d in archetypes["archetypes"] if d.get("character")}
         self.archetype_view, self.faction_view = archetypes, factions
         self._show_archetypes()
         self._show_factions()
@@ -2289,9 +2313,7 @@ class DevApp(App):
         lines = ["[b]%s[/b]  %s, %s%s  ·  skill %.2f  ·  %s" % (
             design["name"], design["role"], design["temperament"], (" (" + ", ".join(design["traits"]) + ")") if design["traits"] else "",
             design["skill"], design["scene"].replace("res://", ""))]
-        if design["name"] in self.characters:
-            name, line = self.characters[design["name"]]
-            lines.append("Character: [b]%s[/b]%s [dim](docs/PRESETS.md; Tasks: preset_sheets)[/dim]" % (escape(name), (": " + escape(line)) if line else ""))
+        lines += character_lines(design.get("character") or {}, characters.prices().get(design["name"]))
         lines.append("Fit: " + ", ".join("%s [dim]%s[/dim]" % (part["name"], part["kind"]) for part in design["parts"]) if design["parts"] else "Fit: none")
         lines.append("Power %.0f, regen %.1f/s · signature %.0f m" % (design["power"], design["regen"], design["signature"]))
         lines.append("[dim]Genes (bar: evolution's range; | its starting value):[/dim]")
@@ -2323,8 +2345,15 @@ class DevApp(App):
                 task = tasks.TASKS_BY_KEY["duel"]
                 values = dict(task.defaults(tasks.load_last()), a=first, b=design["name"])
                 self.run_task(task, values)
+        elif what == "price":
+            self.run_task(tasks.TASKS_BY_KEY["price_characters"], tasks.TASKS_BY_KEY["price_characters"].defaults(tasks.load_last()))
+        elif what == "character":
+            if not design.get("character"):
+                self.notify("%s has no character (database/characters/): pick_archetypes makes one" % design["name"], severity="warning")
+                return
+            self.open_in_data(design["character"]["path"])
         else:
-            self.open_in_data(design["pilot" if what == "pilot" else "ship"])
+            self.open_in_data(design["ship"])
 
     def open_in_data(self, path):
         self.query_one(TabbedContent).active = "data"
@@ -2534,6 +2563,13 @@ class DevApp(App):
                                                        for name in sorted(self.faction_view.get("archetypes", []), key=archetype_order)],
                                                 default=0.25, total=lambda pairs: shares_line(pairs, "ships", "Empty: its havens fly nothing.")
                                                 + " A pilot flies only those its level allows (rookies light hulls).")}
+        if name == "character_sheet.gd":
+            ranges = self.archetype_view.get("ranges", {})
+            return {"genes": Special(pairs=[(gene, gene) for gene in sorted(ranges)], default=0.5,
+                                     about=lambda key, value: "%s .. %s" % tuple(ranges[key][:2]) if key in ranges else "",
+                                     total=lambda pairs: "Each instead of its base's value (the Archetypes tab shows both)."),
+                    "shares": Special(pairs=[(share, share) for share in ("structure", "engine", "reactor", "capacitor", "hold")], default=0.2,
+                                      total=lambda pairs: "Each instead of its base's; relative: the laws take each against their sum.")}
         if name == "beacon_marker.gd":
             return {"owner_faction": Special(choices=[("", "(none)")] + factions)}
         return {}

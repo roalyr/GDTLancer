@@ -1,0 +1,96 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/character_sheet.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "character_prospector_heavy"
+display_name = "Core miner"
+summary = "A deep-core miner with two lances and a heavy sensor that finds rock first."
+strengths = "two lances, sees far"
+weakness = "avoids fights"
+quirk = "won't chase anyone"
+looks = "heavy and light lances, heavy and medium lasers, a heavy sensor, a harpoon"
+genes = {
+"engage": 2.5,
+"pursuit": 0.3
+}
+shares = {
+}
+add_parts = [  ]
+remove_parts = [  ]
+base_genome = {
+"behavior": {
+"burn": 0.093339,
+"caution": 0.939733,
+"disengage": 0.397026,
+"engage": 0.556251,
+"haul": 0.266801,
+"mercy": 0.42903,
+"prospect": 0.745027,
+"pursuit": 1.78287,
+"quiet": 0.312371,
+"range": 1.47907,
+"retreat_hull": 0.640098,
+"return_fire": 0.940917,
+"teamwork": 1.37003,
+"trade": 0.582229
+},
+"modules": [ {
+"genes": {
+"count": 3.092,
+"nail_mass": 109.356
+},
+"kind": "lance",
+"type": 1
+}, {
+"genes": {
+"mass": 500.0
+},
+"kind": "sensor",
+"type": 3
+}, {
+"genes": {
+"count": 4.0,
+"nail_mass": 350.0
+},
+"kind": "lance",
+"type": 3
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.059333,
+"engine": 0.240729,
+"hold": 0.171766,
+"reactor": 0.116777,
+"structure": 0.411395
+},
+"size": 2.81644,
+"tool_share": 0.510925,
+"type": 4
+},
+"tools": [ {
+"genes": {
+"energy": 6.5,
+"mass": 450.0
+},
+"kind": "laser",
+"type": 2
+}, {
+"genes": {
+},
+"kind": "harpoon",
+"type": 0
+}, {
+}, {
+"genes": {
+"energy": 16.0,
+"mass": 1100.0
+},
+"kind": "laser",
+"type": 3
+} ]
+}
+base_origin = "prospector_heavy_21947i2 (era 68)"
+base_lives = 26
+base_fitness = 0.10201

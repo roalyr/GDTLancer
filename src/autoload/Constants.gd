@@ -1081,9 +1081,10 @@ const HULL_FORMS = {
 	]},
 }
 # A frozen world (Evolution.frozen, the game; the arena sim evolves): each faction's havens fly the
-# archetypes its pilots and families pick (FactionRoster).
+# archetypes its pilots and archetype shares pick (FactionRoster).
 const EVO_WORLD_FROZEN = true
 const ARCHETYPES_DIR = "res://database/presets/archetypes/"
+const CHARACTERS_DIR = "res://database/characters/"  # Each archetype's CharacterSheet: what its files are built from (refit_archetypes); the game does not read them
 # Placeholder stations (PlaceholderStation, scenes/prefabs/station/placeholders/<form>.tscn: a
 # HavenMarker's `model`), PrimitiveForms like the hulls: a haven a hub in a ring,
 # a post a rock with silos, a refinery a spine of tanks and stacks, a den a spiked rock.

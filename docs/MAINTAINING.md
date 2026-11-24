@@ -69,12 +69,13 @@ Everything here is in the Tools tab (`0`) after `m`. The tab then shows evolutio
 - **Drafts** are evolution's best designs, exported as preset files to `database/drafts/era<N>_min<k>/`: era `N`, designs whose genome flew at least `k` lives. They are committed, but the game never reads them.
   - The new-era flow exports them (below).
   - **Export presets from evolution** exports them while an era runs. Its `clean` option empties the folder first (only a folder inside `database/drafts/`).
-- **Archetypes** (`database/presets/archetypes/`) are what the game flies. **Pick archetypes from drafts** replaces each archetype with the drafts folder's design of the same family and weight class; archetypes the folder has nothing for stay as they are. Its `add` option also makes the archetypes that are missing.
+- **Characters** (`database/characters/`) are what each archetype is made from: an evolved base genome and hand tweaks, with a name and words (CONTENT.md, Ships: archetypes). **Pick archetypes from drafts** gives each character the drafts folder's design of the same family and weight class as its new base, and keeps its name, words and tweaks; characters the folder has nothing for stay as they are. Its `add` option also makes the archetypes that are missing (with an unnamed character).
+- **Archetypes** (`database/presets/archetypes/`) are what the game flies, built from their characters by **Build the archetypes** (refit_archetypes, Overview `f`).
 - **The catalog** (`database/presets/CATALOG.md`) lists the archetypes and every draft, by family and weight class. **Classify presets + CATALOG.md** labels them and rewrites it. Rerun it, and commit `CATALOG.md`, with every draft export. The Overview says when it is out of date (`c` fixes it).
 
 After changing a law or the part catalogue:
 1. **Apply the ship laws** (Overview `a`) rebuilds the catalogue's and stock hulls' stats from their genes.
-2. **Refit the archetypes** (Overview `f`) gives the archetypes the catalogue's parts and the laws' stats.
+2. **Build the archetypes** (Overview `f`) builds them from their characters again, with the catalogue's parts and the laws' stats.
 
 The content rules flag both when they are needed.
 
@@ -83,10 +84,10 @@ The content rules flag both when they are needed.
 Do this as often as you like while an era runs (every hour or few), or once at its end. Era `N` is the one in the Tools tab.
 1. Tools, `m`, **Export presets from evolution**: `Minimum lives` 5 (or 10: fewer designs, on firmer evidence), `Empty ... first` yes, `To this folder` `res://database/drafts/era<N>_min5/`. It says "no niche's best has 5 lives yet" when it is too early: try again later.
 2. **Pick archetypes from drafts**, folder `era<N>_min5`.
-3. Overview (`1`): press `f` if it says the archetypes are out of date, and `c` for `CATALOG.md`. Every rule must be green.
+3. Overview (`1`): press `f` (the archetypes from their characters' new bases), then `c` for `CATALOG.md`. Every rule must be green.
 4. Tools, **Run the tests**. They must all pass.
-5. Look at what changed: the Archetypes tab (`3`) side by side, `d` on two designs to make them duel, and play the game a little.
-6. Commit: Tools, `g`. To keep the old archetypes instead, **Put back this file** on the files under `database/presets/` (or untick them), and commit only the drafts and the catalog.
+5. Look at what changed: the Archetypes tab (`3`) side by side, `p` to price the characters again (a new base can make a tweak cost more), `d` on two designs to make them duel, and play the game a little.
+6. Commit: Tools, `g`. To keep the old archetypes instead, **Put back this file** on the files under `database/characters/` and `database/presets/` (or untick them), and commit only the drafts and the catalog.
 7. **Export the debug APK** to try it on a phone.
 
 Early in an era the picks change a lot from one export to the next, since each rests on few lives. When the same designs keep winning, the era has done its work.
@@ -183,7 +184,7 @@ Content authors keep **Duel two archetypes** (Archetypes, `d`) and **Sector econ
   - `tasks.py`: every task, and the Godot and Blender checks;
   - `app.py`: the menu (the only part that needs Textual);
   - `bridge.py`, `bridge.gd` and `bridge_commands.gd`: Godot reading and writing files for the tool;
-  - `data.py` (data kinds, references), `models.py`, `constants.py` (Constants.gd by section), `worldmap.py` (World's map), `economy.py`, `presets.py` (character sheets: price and build);
+  - `data.py` (data kinds, references), `models.py`, `constants.py` (Constants.gd by section), `worldmap.py` (World's map), `economy.py`, `characters.py` (prices the characters' tweaks);
   - `changes.py` (the review screen's git), `evolution.py` (status, new eras, detached runs), `islands.py`, `release.py`, `soak.py`, `sounds.py`, `test_run.py` (parse check, then GUT);
   - Godot scripts the flows run: `validate.gd`, `sector_maker.gd`, `tscn_text.gd`;
   - `tests/`: the self-test (`tools/dev.py selftest`).

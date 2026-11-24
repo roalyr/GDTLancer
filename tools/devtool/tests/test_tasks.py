@@ -227,7 +227,8 @@ class DataKindsTest(unittest.TestCase):
         parts = set(data.KINDS_BY_KEY["parts"].files())
         self.assertEqual(len(parts), 40, "Three of every kind, and the harpoon")
         self.assertFalse(parts & set(data.KINDS_BY_KEY["archetype_ships"].files()))
-        self.assertFalse(parts & set(data.KINDS_BY_KEY["archetype_pilots"].files()))
+        self.assertFalse(parts & set(data.KINDS_BY_KEY["characters"].files()))
+        self.assertEqual(len(data.KINDS_BY_KEY["characters"].files()), 20, "A character for every archetype")
 
 
     def test_the_ui_theme_kind_lists_the_theme_its_fonts_and_styles(self):

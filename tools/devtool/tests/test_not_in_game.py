@@ -1,7 +1,7 @@
 """Every editable field the game never reads carries a "not in the game yet" notice (data.NOT_IN_GAME),
 and none the game reads does. A field counts as read when game code (src/, not its tests) names it
 outside its own export line: another script, or its own file's to_spec(). A SHOWN_WHEN rule (which
-fields the dev tool shows) is no read."""
+fields the dev tool shows) is no read. Scripts only the tools read (data.TOOLS_ONLY) are left out."""
 
 import glob
 import os
@@ -30,6 +30,8 @@ def unread_fields():
     out = set()
     for pattern in TEMPLATE_SCRIPTS:
         for script in glob.glob(os.path.join(ROOT, pattern)):
+            if os.path.basename(script) in data.TOOLS_ONLY:
+                continue  # Read by the tools, never meant for the game
             own = sources.get(script) or SHOWN_WHEN.sub("", open(script).read())
             for name in EXPORT.findall(own):
                 word = re.compile(r"\b%s\b" % re.escape(name))

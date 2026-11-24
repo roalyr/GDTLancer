@@ -48,11 +48,12 @@ class Kind:
 ARCHETYPES = "database/presets/archetypes/"
 KINDS = [
     Kind("factions", "Factions", "database/factions/*.tres", DEFINITIONS + "faction_template.gd",
-         "Who flies where, their paints, enemies, pilots and ship families."),
+         "Who flies where, their paints, enemies, pilots and archetypes."),
+    Kind("characters", "Characters", "database/characters/character_*.tres", None,
+         "Each archetype's character: its name and words, and how it is made: an evolved base genome (pick_archetypes sets it)"
+         " with hand tweaks to pilot genes, hull shares and parts. Then build the archetypes (Overview f)."),
     Kind("archetype_ships", "Archetype ships", ARCHETYPES + "preset_ship_archetype_*.tres", None,
-         "The twenty designs' hulls and fits (frozen: the presets were evolved on them)."),
-    Kind("archetype_pilots", "Archetype pilots", ARCHETYPES + "agent_archetype_*.tres", None,
-         "The twenty designs' behaviour and genome (frozen)."),
+         "The twenty designs' hulls, built from their characters (refit_archetypes): set only the model (ship_scene) here."),
     Kind("parts", "Parts", "database/presets/parts/*.tres", None,
          "The part catalogue: three of every kind (light, medium, heavy) and the harpoon; the only parts there are."
          " Tune a part's law genes, then tools/dev.py apply_laws."),
@@ -94,6 +95,8 @@ NOT_IN_GAME = {
     ("location_template.gd", "danger_level"): "Sector danger levels are not in the game yet.",
 }
 NOT_IN_GAME_TITLE = "Not in the game yet"
+# Scripts whose data only the tools read, by design (no "not in the game yet" notices): script -> who reads it.
+TOOLS_ONLY = {"character_sheet.gd": "tools/refit_archetypes.gd builds the archetypes from it; the game flies those"}
 
 
 def not_in_game(script, field):

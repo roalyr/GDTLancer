@@ -76,7 +76,7 @@ static func section_for(path: String) -> String:
 		return "sectors"
 	if path.begins_with(Constants.PARTS_DIR):
 		return "parts"
-	if path.begins_with(Constants.ARCHETYPES_DIR):
+	if path.begins_with(Constants.ARCHETYPES_DIR) or path.begins_with(Constants.CHARACTERS_DIR):
 		return "archetypes"
 	if path == SOUND_BANK_PATH:
 		return "sounds"
@@ -353,12 +353,17 @@ static func parts(dir_path: String = Constants.PARTS_DIR) -> Array:
 
 
 static func archetypes() -> Array:
-	var out: Array = []
+	var out: Array = characters()
 	for archetype in archetype_names():
 		var path: String = _archetype_agent_path(archetype)
 		var agent = _fresh(path)
 		if agent.genome.empty():
 			out.append(_problem(path, "No genome"))
+		var character_path: String = character_path(archetype)
+		if not _exists(character_path):
+			out.append(_problem(path, "No character (%s): what the archetype is built from" % character_path))
+		elif not ShipLaws.same_value(agent.genome, _fresh(character_path).built_genome()):
+			out.append(_problem(path, "Its genome is not its character's (the base with its tweaks): run refit_archetypes (Overview f)"))
 		var ship_path: String = Constants.ARCHETYPES_DIR.plus_file(agent.ship_template_id + ".tres")
 		if not _exists(ship_path):
 			out.append(_problem(path, "Its ship %s does not exist" % ship_path))
@@ -777,6 +782,50 @@ static func _fresh(path: String) -> Resource:
 
 static func _archetype_agent_path(name: String) -> String:
 	return Constants.ARCHETYPES_DIR.plus_file("agent_archetype_%s.tres" % name)
+
+
+static func character_path(archetype: String) -> String:
+	return Constants.CHARACTERS_DIR.plus_file("character_%s.tres" % archetype)
+
+
+# The characters (CharacterSheet): one per archetype, named, with a base genome, and tweaks the
+# genome can take (genes in range, hull shares the laws know, catalogue parts, removed ones there).
+static func characters(dir_path: String = Constants.CHARACTERS_DIR) -> Array:
+	var out: Array = []
+	var archetypes: Array = archetype_names()
+	for path in _files_in(dir_path, ".tres"):
+		var sheet = _fresh(path)
+		if not sheet is CharacterSheet:
+			out.append(_problem(path, "Not a CharacterSheet"))
+			continue
+		if path.get_file() != sheet.template_id + ".tres" or not sheet.template_id.begins_with("character_"):
+			out.append(_problem(path, "Its template_id must be its file name, character_<archetype>"))
+		elif dir_path == Constants.CHARACTERS_DIR and not sheet.archetype() in archetypes:
+			out.append(_problem(path, "No archetype %s" % sheet.archetype()))
+		if sheet.display_name == "":
+			out.append(_problem(path, "No name"))
+		if sheet.base_genome.empty() or not sheet.base_genome.has("ship"):
+			out.append(_problem(path, "No base genome: pick_archetypes sets it from evolution's drafts"))
+		for gene in sheet.genes:
+			var range_of = Constants.EVO_BEHAVIOR_RANGES.get(gene)
+			if range_of == null:
+				out.append(_problem(path, "Gene '%s' is not a pilot gene (%s)" % [gene, PoolStringArray(Constants.EVO_BEHAVIOR_RANGES.keys()).join(", ")]))
+			elif not typeof(sheet.genes[gene]) in [TYPE_INT, TYPE_REAL] or float(sheet.genes[gene]) < range_of[0] or float(sheet.genes[gene]) > range_of[1]:
+				out.append(_problem(path, "Gene '%s': %s is outside %s..%s" % [gene, sheet.genes[gene], range_of[0], range_of[1]]))
+		for share in sheet.shares:
+			if not Constants.LAW_SHIP_SHARES.has(share):
+				out.append(_problem(path, "Share '%s' is not a hull share (%s)" % [share, PoolStringArray(Constants.LAW_SHIP_SHARES.keys()).join(", ")]))
+			elif not typeof(sheet.shares[share]) in [TYPE_INT, TYPE_REAL] or float(sheet.shares[share]) < Constants.LAW_SHIP_SHARE_MIN[share]:
+				out.append(_problem(path, "Share '%s': below its least, %s" % [share, Constants.LAW_SHIP_SHARE_MIN[share]]))
+		for template_id in sheet.add_parts:
+			if not PartCatalog.has(str(template_id)):
+				out.append(_problem(path, "add_parts: '%s' is not a catalogue part" % template_id))
+		for template_id in sheet.remove_parts:
+			if not PartCatalog.has(str(template_id)):
+				out.append(_problem(path, "remove_parts: '%s' is not a catalogue part" % template_id))
+			elif not sheet.base_has(str(template_id)):
+				out.append(_problem(path, "remove_parts: its base has no %s" % template_id))
+	return out
 
 
 static func _use(table: Dictionary, path: String, user: String) -> void:

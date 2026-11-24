@@ -1,0 +1,92 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/character_sheet.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "character_trader_heavy"
+display_name = "Armed merchant"
+summary = "Two lasers and two missile racks, and it shoots back; it travels in caravans."
+strengths = "armed, big hold"
+weakness = "slow"
+quirk = "returns fire while running"
+looks = "two medium lasers, two light missile racks"
+genes = {
+"return_fire": 0.9
+}
+shares = {
+}
+add_parts = [  ]
+remove_parts = [  ]
+base_genome = {
+"behavior": {
+"burn": 0.115492,
+"caution": 0.746342,
+"disengage": 1.45332,
+"engage": 3.88276,
+"haul": 0.180753,
+"mercy": 0.521615,
+"prospect": 0.047144,
+"pursuit": 0.863887,
+"quiet": 0.017228,
+"range": 1.03643,
+"retreat_hull": 0.485647,
+"return_fire": 0.0,
+"teamwork": 1.64486,
+"trade": 1.0
+},
+"modules": [ {
+"genes": {
+"mass": 400.0
+},
+"kind": "magazine",
+"type": 3
+} ],
+"ship": {
+"shares": {
+"capacitor": 0.073944,
+"engine": 0.131572,
+"hold": 0.441216,
+"reactor": 0.03087,
+"structure": 0.322398
+},
+"size": 3.27998,
+"tool_share": 0.996939,
+"type": 4
+},
+"tools": [ {
+"genes": {
+"count": 3.5,
+"round_mass": 39.03
+},
+"kind": "missile",
+"type": 1
+}, {
+"genes": {
+"energy": 6.5,
+"mass": 450.0
+},
+"kind": "laser",
+"type": 2
+}, {
+"genes": {
+"count": 3.5,
+"round_mass": 39.03
+},
+"kind": "missile",
+"type": 1
+}, {
+}, {
+"genes": {
+"energy": 6.5,
+"mass": 450.0
+},
+"kind": "laser",
+"type": 2
+}, {
+}, {
+} ]
+}
+base_origin = "trader_heavy_22629i3 (era 68)"
+base_lives = 17
+base_fitness = 0.155667

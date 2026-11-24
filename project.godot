@@ -44,6 +44,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://src/core/ui/helpers/centered_growing_label.gd"
 }, {
+"base": "Template",
+"class": "CharacterSheet",
+"language": "GDScript",
+"path": "res://database/definitions/character_sheet.gd"
+}, {
 "base": "AssetTemplate",
 "class": "CommodityTemplate",
 "language": "GDScript",
@@ -112,6 +117,7 @@ _global_script_class_icons={
 "CameraRotationController": "",
 "CameraZoomController": "",
 "CenteredGrowingLabel": "res://assets/art/ui/class_labels/class_centered_growing_label.svg",
+"CharacterSheet": "",
 "CommodityTemplate": "",
 "FactionTemplate": "",
 "GameStartTemplate": "",

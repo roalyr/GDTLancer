@@ -1,9 +1,9 @@
-# Picks archetypes from a drafts folder: each archetype (database/presets/archetypes/, one per family
-# and weight class) that the folder has a design for is replaced by it: the pilot as
-# agent_archetype_<family>_<weight>, the ship as preset_ship_archetype_<family>_<weight> on its
-# family's placeholder hull (Genome.placeholder_model), named "<Family> Mk I-<weight>", its origin the
-# design it came from. Archetypes the folder has nothing for stay; no new ones are made (--add makes
-# them too: a superheavy, a trader). Then run tools/classify_presets.gd for the catalog.
+# Picks archetypes from a drafts folder: each archetype (one per family and weight class) that the
+# folder has a design for takes it as its character's base (database/characters/character_<archetype>.tres:
+# base_genome, base_origin, lives and fitness); the character's name, words and tweaks stay. Archetypes
+# the folder has nothing for stay; no new ones are made (--add makes them too: their character, unnamed,
+# and their files, on their family's placeholder hull, named "<Family> Mk I-<weight>"). Then run
+# refit_archetypes (the archetypes from their characters) and classify_presets (the Overview: f, c).
 #     godot --no-window -s tools/pick_archetypes.gd -- --from=res://database/drafts/era67_min10/ --era=67
 extends SceneTree
 
@@ -41,20 +41,31 @@ func _run() -> void:
 			var agent = ResourceLoader.load(from_dir.plus_file(name), "", true)
 			var archetype: String = "%s_%s" % [agent.family, agent.weight_class]
 			if archetype in existing or add:
-				var ship = ResourceLoader.load(from_dir.plus_file(agent.ship_template_id + ".tres"), "", true)
 				var design: String = str(agent.template_id).trim_prefix("agent_preset_")
-				var ship_id: String = "preset_ship_archetype_" + archetype
-				ship.template_id = ship_id
-				ship.ship_model_name = "%s Mk I-%s" % [str(agent.family).capitalize(), agent.weight_class]
-				ship.ship_scene = load("res://scenes/prefabs/ships/placeholders/%s.tscn" % Genome.placeholder_model(agent.family, agent.weight_class))
-				agent.template_id = "agent_archetype_" + archetype
-				agent.ship_template_id = ship_id
-				agent.faction = ""
-				agent.origin = "%s (era %s)" % [design, era] if era != "" else design
-				ResourceSaver.save(archetypes_dir.plus_file(ship_id + ".tres"), ship)
-				ResourceSaver.save(archetypes_dir.plus_file(agent.template_id + ".tres"), agent)
-				print("ARCHETYPES %s <- %s (%d lives, %+.2f)" % [archetype, design, agent.lives, agent.fitness])
+				var sheet_path: String = Validator.character_path(archetype)
+				var sheet = ResourceLoader.load(sheet_path, "", true) if ResourceLoader.exists(sheet_path) else CharacterSheet.new()
+				sheet.template_id = "character_" + archetype
+				sheet.base_genome = agent.genome.duplicate(true)
+				sheet.base_origin = "%s (era %s)" % [design, era] if era != "" else design
+				sheet.base_lives = agent.lives
+				sheet.base_fitness = agent.fitness
+				Directory.new().make_dir_recursive(sheet_path.get_base_dir())
+				ResourceSaver.save(sheet_path, sheet)
+				if not archetype in existing:  # New: its files, which refit_archetypes then builds from the character
+					var ship = ResourceLoader.load(from_dir.plus_file(agent.ship_template_id + ".tres"), "", true)
+					var ship_id: String = "preset_ship_archetype_" + archetype
+					ship.template_id = ship_id
+					ship.ship_model_name = "%s Mk I-%s" % [str(agent.family).capitalize(), agent.weight_class]
+					ship.ship_scene = load("res://scenes/prefabs/ships/placeholders/%s.tscn" % Genome.placeholder_model(agent.family, agent.weight_class))
+					agent.template_id = "agent_archetype_" + archetype
+					agent.ship_template_id = ship_id
+					agent.faction = ""
+					agent.origin = sheet.base_origin
+					ResourceSaver.save(archetypes_dir.plus_file(ship_id + ".tres"), ship)
+					ResourceSaver.save(archetypes_dir.plus_file(agent.template_id + ".tres"), agent)
+				print("ARCHETYPES %s <- %s (%d lives, %+.2f)%s" % [archetype, design, agent.lives, agent.fitness,
+					", keeping its tweaks" if sheet.tweaked() else ""])
 				picked += 1
 		name = dir.get_next()
-	print("ARCHETYPES %d picked from %s" % [picked, from_dir])
+	print("ARCHETYPES %d picked from %s: now refit_archetypes, then classify_presets" % [picked, from_dir])
 	quit(0)
